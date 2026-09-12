@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/privileged-event-v1.schema.json",
+  "title": "Disk Steward privileged metadata event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "event_id", "stream_id", "sequence", "observed_at", "operation", "path", "destination_path", "process", "file_identity", "size", "scope", "delivery", "attribution", "privacy"],
+  "properties": {
+    "schema": {"const": "privileged-event-v1"},
+    "event_id": {"type": "string", "minLength": 1},
+    "stream_id": {"type": "string", "minLength": 1},
+    "sequence": {"type": "integer", "minimum": 1},
+    "observed_at": {"type": "string", "minLength": 20},
+    "operation": {"type": "string", "enum": ["create", "rename", "write-close", "write-summary"]},
+    "path": {"type": "string", "minLength": 1},
+    "destination_path": {"type": ["string", "null"]},
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pid", "start_time", "executable_path", "signing_id", "team_id", "parent_pid", "parent_start_time"],
+      "properties": {
+        "pid": {"type": "integer", "minimum": 1},
+        "start_time": {"type": "string", "minLength": 20},
+        "executable_path": {"type": ["string", "null"]},
+        "signing_id": {"type": ["string", "null"]},
+        "team_id": {"type": ["string", "null"]},
+        "parent_pid": {"type": ["integer", "null"], "minimum": 1},
+        "parent_start_time": {"type": ["string", "null"]}
+      }
+    },
+    "file_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["volume_id", "file_id", "generation"],
+      "properties": {
+        "volume_id": {"type": "string", "minLength": 1},
+        "file_id": {"type": "integer", "minimum": 1},
+        "generation": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["logical_before", "logical_after", "logical_delta", "allocated_before", "allocated_after", "allocated_delta", "measurement", "complete"],
+      "properties": {
+        "logical_before": {"type": ["integer", "null"], "minimum": 0},
+        "logical_after": {"type": ["integer", "null"], "minimum": 0},
+        "logical_delta": {"type": "integer"},
+        "allocated_before": {"type": ["integer", "null"], "minimum": 0},
+        "allocated_after": {"type": ["integer", "null"], "minimum": 0},
+        "allocated_delta": {"type": "integer"},
+        "measurement": {"type": "string", "enum": ["pre-post-stat", "close-stat", "unknown"]},
+        "complete": {"type": "boolean"}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["watched_root", "included", "exclusion_reason"],
+      "properties": {
+        "watched_root": {"type": "string", "minLength": 1},
+        "included": {"const": true},
+        "exclusion_reason": {"type": "null"}
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coalesced_count", "gap_before", "deadline_met"],
+      "properties": {
+        "coalesced_count": {"type": "integer", "minimum": 1},
+        "gap_before": {"type": "boolean"},
+        "deadline_met": {"type": "boolean"}
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["confidence", "method", "limitations"],
+      "properties": {
+        "confidence": {"type": "string", "enum": ["exact", "inferred", "unknown"]},
+        "method": {"type": "string", "enum": ["endpoint-security-file-process", "endpoint-security-incomplete", "fallback"]},
+        "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contains_file_contents", "contains_environment", "contains_arguments"],
+      "properties": {
+        "contains_file_contents": {"const": false},
+        "contains_environment": {"const": false},
+        "contains_arguments": {"const": false}
+      }
+    }
+  }
+}

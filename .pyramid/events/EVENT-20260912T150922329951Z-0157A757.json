@@ -1,0 +1,453 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T150922329951Z-0157A757",
+  "at": "2026-09-12T15:09:22.329774Z",
+  "graph_version": 45,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "TASK-212",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:08:45.889547Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-212",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+        "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+        "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+        "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+        "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardApp",
+          "result": "passed; 13 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 47 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed; accessory app launched with status item, distinct click routes, required menu labels, and live snapshot"
+        },
+        {
+          "command": "DISK_STEWARD_GATE_EVIDENCE=... swift test --filter SnapshotIncrementTests.testLiveSnapshotRendersAndDeterministicExportIsInspectable",
+          "result": "passed; updated compact status board rendered and visually inspected"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-212-01",
+          "result": "passed",
+          "reference": "Persisted settings expose launch-at-login, normalized watched and excluded roots, bounded retention, capacity and growth thresholds, sample interval, pause, and expiring investigation state. The concrete SMAppService adapter is isolated behind a tested backend contract. The lifecycle combines scheduled whole-volume/metadata samples with debounced FSEvents hints, records snapshots and detailed deltas in SQLite, forwards event gaps into explanation confidence, throttles retention work to six-hour intervals, and retains bounded status history. Injected failure then success reproducibly produces accessible Degraded then Recovered states. Notifications fire only on threshold crossings. The existing popover now presents state, detail, growth, pause/resume, capacity, and export; the settings menu opens the complete control surface. Visual evidence: /Users/merdankiji/Documents/Codex/2026-09-12/as-x20/work/pyramid-disk-steward/TASK-212-ui-smoke/rendered-status-board.png"
+        }
+      ],
+      "discovered_risks": [
+        "SMAppService.mainApp registration requires a properly bundled application; unit tests verify adapter semantics while signed-bundle behavior remains a packaging observation for the increment gate.",
+        "User notification authorization is requested only when a threshold crossing first needs delivery, and denial does not interrupt evidence collection.",
+        "A targeted FSEvents failure leaves scheduled whole-volume and configured-root sampling active and surfaces an explicit degraded state.",
+        "Settings changes restart the targeted stream; the sampling interval itself takes full effect on the next loop iteration."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:09:22.329605Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-212",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+        "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+        "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+        "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+        "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardApp",
+          "result": "passed; 13 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 47 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed; accessory app launched with status item, distinct click routes, required menu labels, and live snapshot"
+        },
+        {
+          "command": "DISK_STEWARD_GATE_EVIDENCE=... swift test --filter SnapshotIncrementTests.testLiveSnapshotRendersAndDeterministicExportIsInspectable",
+          "result": "passed; updated compact status board rendered and visually inspected"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-212-01",
+          "result": "passed",
+          "reference": "Persisted settings expose launch-at-login, normalized watched and excluded roots, bounded retention, capacity and growth thresholds, sample interval, pause, and expiring investigation state. The concrete SMAppService adapter is isolated behind a tested backend contract. The lifecycle combines scheduled whole-volume/metadata samples with debounced FSEvents hints, records snapshots and detailed deltas in SQLite, forwards event gaps into explanation confidence, throttles retention work to six-hour intervals, and retains bounded status history. Injected failure then success reproducibly produces accessible Degraded then Recovered states. Notifications fire only on threshold crossings. The existing popover now presents state, detail, growth, pause/resume, capacity, and export; the settings menu opens the complete control surface. Visual evidence: /Users/merdankiji/Documents/Codex/2026-09-12/as-x20/work/pyramid-disk-steward/TASK-212-ui-smoke/rendered-status-board.png"
+        }
+      ],
+      "discovered_risks": [
+        "SMAppService.mainApp registration requires a properly bundled application; unit tests verify adapter semantics while signed-bundle behavior remains a packaging observation for the increment gate.",
+        "User notification authorization is requested only when a threshold crossing first needs delivery, and denial does not interrupt evidence collection.",
+        "A targeted FSEvents failure leaves scheduled whole-volume and configured-root sampling active and surfaces an explicit degraded state.",
+        "Settings changes restart the targeted stream; the sampling interval itself takes full effect on the next loop iteration."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-212",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-212-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All changed app and test files are within revision 6's exact TASK-212 write scope; Pyramid update reported no scope drift."
+          ]
+        },
+        {
+          "id": "CHECK-212-SETTINGS",
+          "result": "passed",
+          "evidence": [
+            "Versioned Codable settings round-trip launch, roots, exclusions, retention, thresholds, sample interval, pause, and investigation controls. Values and paths normalize into contract bounds, and the resulting retention policy validates."
+          ]
+        },
+        {
+          "id": "CHECK-212-LAUNCH",
+          "result": "passed",
+          "evidence": [
+            "LaunchAtLoginController adapts SMAppService.mainApp through a test seam. Register, unregister, and failure/status reconciliation tests pass; signed app-bundle observation is correctly deferred to the increment gate."
+          ]
+        },
+        {
+          "id": "CHECK-212-PERSISTENCE",
+          "result": "passed",
+          "evidence": [
+            "PersistentMonitoringProbe samples whole-volume and watched-root metadata, stores snapshots and inferred events in the WAL store, verifies database integrity, forwards event gaps to explanations, and applies retention no more than once per six hours."
+          ]
+        },
+        {
+          "id": "CHECK-212-HYBRID",
+          "result": "passed",
+          "evidence": [
+            "MonitoringLifecycleController combines the scheduled loop with debounced targeted FSEvents hints, restarts its stream on root/exclusion/investigation changes, and preserves scheduled sampling with a degraded explanation if FSEvents cannot start."
+          ]
+        },
+        {
+          "id": "CHECK-212-STATES",
+          "result": "passed",
+          "evidence": [
+            "A scripted sampling failure followed by success deterministically produces Degraded then Recovered states; both accessible summaries name the failure or recovery. Pause/resume updates persisted state and bounded history keeps at most 20 transitions."
+          ]
+        },
+        {
+          "id": "CHECK-212-NOTIFICATIONS",
+          "result": "passed",
+          "evidence": [
+            "Capacity and growth notifications are distinct and confidence-aware; crossing-state tests prove unchanged above-threshold samples stay silent and a later re-crossing notifies again. Authorization denial cannot interrupt monitoring."
+          ]
+        },
+        {
+          "id": "CHECK-212-UI",
+          "result": "passed",
+          "evidence": [
+            "The real popover presents monitoring state/detail, growth, pause/resume, volume capacity, and export. Settings exposes lifecycle, roots, exclusions, thresholds, retention, and investigation. The updated 330-pixel board rendered without clipping and was visually inspected at TASK-212-ui-smoke/rendered-status-board.png."
+          ]
+        },
+        {
+          "id": "CHECK-212-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Focused app suite passed 13 tests, full suite passed 47 tests, swift build passed, UI smoke launch returned the expected accessory/menu/snapshot report, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-212"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-212",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-212-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All changed app and test files are within revision 6's exact TASK-212 write scope; Pyramid update reported no scope drift."
+          ]
+        },
+        {
+          "id": "CHECK-212-SETTINGS",
+          "result": "passed",
+          "evidence": [
+            "Versioned Codable settings round-trip launch, roots, exclusions, retention, thresholds, sample interval, pause, and investigation controls. Values and paths normalize into contract bounds, and the resulting retention policy validates."
+          ]
+        },
+        {
+          "id": "CHECK-212-LAUNCH",
+          "result": "passed",
+          "evidence": [
+            "LaunchAtLoginController adapts SMAppService.mainApp through a test seam. Register, unregister, and failure/status reconciliation tests pass; signed app-bundle observation is correctly deferred to the increment gate."
+          ]
+        },
+        {
+          "id": "CHECK-212-PERSISTENCE",
+          "result": "passed",
+          "evidence": [
+            "PersistentMonitoringProbe samples whole-volume and watched-root metadata, stores snapshots and inferred events in the WAL store, verifies database integrity, forwards event gaps to explanations, and applies retention no more than once per six hours."
+          ]
+        },
+        {
+          "id": "CHECK-212-HYBRID",
+          "result": "passed",
+          "evidence": [
+            "MonitoringLifecycleController combines the scheduled loop with debounced targeted FSEvents hints, restarts its stream on root/exclusion/investigation changes, and preserves scheduled sampling with a degraded explanation if FSEvents cannot start."
+          ]
+        },
+        {
+          "id": "CHECK-212-STATES",
+          "result": "passed",
+          "evidence": [
+            "A scripted sampling failure followed by success deterministically produces Degraded then Recovered states; both accessible summaries name the failure or recovery. Pause/resume updates persisted state and bounded history keeps at most 20 transitions."
+          ]
+        },
+        {
+          "id": "CHECK-212-NOTIFICATIONS",
+          "result": "passed",
+          "evidence": [
+            "Capacity and growth notifications are distinct and confidence-aware; crossing-state tests prove unchanged above-threshold samples stay silent and a later re-crossing notifies again. Authorization denial cannot interrupt monitoring."
+          ]
+        },
+        {
+          "id": "CHECK-212-UI",
+          "result": "passed",
+          "evidence": [
+            "The real popover presents monitoring state/detail, growth, pause/resume, volume capacity, and export. Settings exposes lifecycle, roots, exclusions, thresholds, retention, and investigation. The updated 330-pixel board rendered without clipping and was visually inspected at TASK-212-ui-smoke/rendered-status-board.png."
+          ]
+        },
+        {
+          "id": "CHECK-212-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Focused app suite passed 13 tests, full suite passed 47 tests, swift build passed, UI smoke launch returned the expected accessory/menu/snapshot report, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-212"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 6,
+  "context_id": "CTX-0AE4D5E92B70739E74C193C9BA470BCC",
+  "previous_event_id": "EVENT-20260912T150845889892Z-B9538A28",
+  "previous_event_sha256": "a5bef9def429d41a1e5f2846a51a3d9863c17f9f2c37d47e8c34ae8b3e098245"
+}

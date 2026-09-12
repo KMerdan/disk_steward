@@ -1,0 +1,169 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T162005175248Z-F8DF9FC5",
+  "at": "2026-09-12T16:20:05.175072Z",
+  "graph_version": 68,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "GATE-390",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T18:14:14.332851Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:14:14.332986Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:20:05.174902Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+        "docs/tasks/evidence/GATE-390/report.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/report.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter AgentQueryableEvidenceIncrement",
+          "result": "passed; 1 independent end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 83 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "rg destructive-surface inspection",
+          "result": "only non-destructive warning text matched in connector/integration surfaces"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "passed",
+          "reference": "The independent test starts the real app-owned backend and private socket, registers a session, writes retained evidence, drives the built MCP executable through discovery, explain-growth, task-impact, export, cleanup-candidate, and rejected destructive calls, compares app/MCP export detail, checks exact forbidden keys and response bounds, repeats human snapshot/export and click/menu contracts, then stops the app service and verifies an actionable app_unavailable result. Isolated client tests and all inherited scenarios pass in the same 83-test build."
+        }
+      ],
+      "discovered_risks": [
+        "Timestamp ordering at session-registration boundaries must remain explicit; events preceding registration correctly stay unknown.",
+        "Endpoint Security exact provenance is intentionally outside this increment, so workspace-only task impact remains inferred.",
+        "Current stdio request handling is sequential; cancellation checks bound connector IPC, but a later notification cannot preempt an already-blocked request in the same line-oriented process."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+        "docs/tasks/evidence/GATE-390/report.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/report.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter AgentQueryableEvidenceIncrement",
+          "result": "passed; 1 independent end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 83 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "rg destructive-surface inspection",
+          "result": "only non-destructive warning text matched in connector/integration surfaces"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "passed",
+          "reference": "The independent test starts the real app-owned backend and private socket, registers a session, writes retained evidence, drives the built MCP executable through discovery, explain-growth, task-impact, export, cleanup-candidate, and rejected destructive calls, compares app/MCP export detail, checks exact forbidden keys and response bounds, repeats human snapshot/export and click/menu contracts, then stops the app service and verifies an actionable app_unavailable result. Isolated client tests and all inherited scenarios pass in the same 83-test build."
+        }
+      ],
+      "discovered_risks": [
+        "Timestamp ordering at session-registration boundaries must remain explicit; events preceding registration correctly stay unknown.",
+        "Endpoint Security exact provenance is intentionally outside this increment, so workspace-only task impact remains inferred.",
+        "Current stdio request handling is sequential; cancellation checks bound connector IPC, but a later notification cannot preempt an already-blocked request in the same line-oriented process."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-9940B20CE43138167E8431DA9B25C39E",
+  "previous_event_id": "EVENT-20260912T161414333182Z-B6C16344",
+  "previous_event_sha256": "4fdc66232a1de120f89ad2d881bf340565e86220e2d7bd71167b3a4ce6bdf772"
+}

@@ -1,0 +1,267 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T141617865403Z-3B38F95E",
+  "at": "2026-09-12T14:16:17.865228Z",
+  "graph_version": 21,
+  "actor": "codex-auditor",
+  "type": "audit.fail",
+  "node": "TASK-111",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:13:56.827244Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-111",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+        "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+        "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+        "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Snapshot",
+          "result": "passed; 6 tests, 0 failures, including live current-data-volume capture and export"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed; 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 14 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-111-01",
+          "result": "passed",
+          "reference": "Native URL volume resource keys produced nonnegative total, used, and available capacity for deterministic fixtures and the live current data volume. The exporter wrote storage-snapshot.json and codex-brief.md, with every payload byte count and SHA-256 digest recorded in a schema-shaped manifest. Tests assert the privacy flags are false and no environment payload exists."
+        }
+      ],
+      "discovered_risks": [
+        "Whole-volume collection intentionally omits inaccessible or non-local volumes and records metadata failures as limitations; detailed directory consumption remains outside this first-slice task.",
+        "The current manifest records full mount paths. Later privacy settings must support basename or hashed detail before exporting detailed file evidence.",
+        "Product version is an explicit 0.1.0 default until packaging supplies a release version."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "needs-rework",
+    "verification": "failed",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Audit failed; repair, approved expansion, or replan is required.",
+    "updated_at": "2026-09-12T14:16:17.865200Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-111",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+        "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+        "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+        "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Snapshot",
+          "result": "passed; 6 tests, 0 failures, including live current-data-volume capture and export"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed; 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 14 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-111-01",
+          "result": "passed",
+          "reference": "Native URL volume resource keys produced nonnegative total, used, and available capacity for deterministic fixtures and the live current data volume. The exporter wrote storage-snapshot.json and codex-brief.md, with every payload byte count and SHA-256 digest recorded in a schema-shaped manifest. Tests assert the privacy flags are false and no environment payload exists."
+        }
+      ],
+      "discovered_risks": [
+        "Whole-volume collection intentionally omits inaccessible or non-local volumes and records metadata failures as limitations; detailed directory consumption remains outside this first-slice task.",
+        "The current manifest records full mount paths. Later privacy settings must support basename or hashed detail before exporting detailed file evidence.",
+        "Product version is an explicit 0.1.0 default until packaging supplies a release version."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-111",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-111-REPORT-COMPLETE",
+          "result": "failed",
+          "evidence": [
+            "The implementation report was recorded before Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift was added, so changed_files does not completely describe the audited source state."
+          ]
+        },
+        {
+          "id": "CHECK-111-TESTS",
+          "result": "passed",
+          "evidence": [
+            "The strengthened swift test --filter Snapshot and full swift test suites pass, but the complete evidence must be resubmitted through the task lifecycle."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-111"
+      ],
+      "recommended_action": "repair"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-111",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-111-REPORT-COMPLETE",
+          "result": "failed",
+          "evidence": [
+            "The implementation report was recorded before Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift was added, so changed_files does not completely describe the audited source state."
+          ]
+        },
+        {
+          "id": "CHECK-111-TESTS",
+          "result": "passed",
+          "evidence": [
+            "The strengthened swift test --filter Snapshot and full swift test suites pass, but the complete evidence must be resubmitted through the task lifecycle."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-111"
+      ],
+      "recommended_action": "repair"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 5,
+  "context_id": "CTX-7C844C35517A426AA767175B8EF942BC",
+  "previous_event_id": "EVENT-20260912T141356827552Z-03B7A6C2",
+  "previous_event_sha256": "8ce5b5788470840c882af974391e8770b7da136fdd016812daf62678dec99596"
+}

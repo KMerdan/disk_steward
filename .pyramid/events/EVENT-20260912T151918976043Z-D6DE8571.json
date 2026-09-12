@@ -1,0 +1,345 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T151918976043Z-D6DE8571",
+  "at": "2026-09-12T15:19:18.975860Z",
+  "graph_version": 48,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "TASK-213",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:18:42.739957Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-213",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "Fixtures/Exports/golden-codex-brief.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Exports/golden-codex-brief.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceBundle",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 53 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "sed -n '1,220p' Fixtures/Exports/golden-codex-brief.md",
+          "result": "passed human inspection; concise range, counts, categories, largest events, limitations, and inspection instructions are readable and accurate"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-213-01",
+          "result": "passed",
+          "reference": "The async exporter first uses EvidenceStore's serialized SQLite backup, then queries only the requested timestamp range from that immutable view. Raw detail is ordered and capped at 100,000 records with explicit truncation; retained hourly and daily rows remain exportable after raw records expire, with boundary overlap disclosed. The deterministic golden bundle contains codex-brief.md, summary.json, rollups.json, zlib-compressed JSON Lines, snapshots.json, integrity.json, and a schema-valid export-manifest-v1. Every payload's byte count and SHA-256 hash is independently verified. Each event validates against evidence-event-v1 and carries confidence, method, null unobserved actor/session fields, and limitations. Concurrent insertion plus export produces matching summary/detail counts. Secret-like path fragments are redacted and hashed-path mode is opaque; privacy flags hard-disable file contents and environment capture."
+        }
+      ],
+      "discovered_risks": [
+        "Hourly and daily rollup tables do not retain consumer category, so category breakdowns cover raw detail while rollup totals remain path/operation structured evidence.",
+        "Rollup buckets may overlap an exact requested-range boundary; the bundle states this limitation instead of implying per-event precision.",
+        "Zlib was chosen for deterministic in-process compression; consumers must decompress events.jsonl.zlib before reading JSON Lines.",
+        "The integrity manifest hashes every evidence payload, while manifest.json carries the integrity file's hash and is not self-hashed."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:19:18.975682Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-213",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "Fixtures/Exports/golden-codex-brief.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Exports/golden-codex-brief.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceBundle",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 53 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "sed -n '1,220p' Fixtures/Exports/golden-codex-brief.md",
+          "result": "passed human inspection; concise range, counts, categories, largest events, limitations, and inspection instructions are readable and accurate"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-213-01",
+          "result": "passed",
+          "reference": "The async exporter first uses EvidenceStore's serialized SQLite backup, then queries only the requested timestamp range from that immutable view. Raw detail is ordered and capped at 100,000 records with explicit truncation; retained hourly and daily rows remain exportable after raw records expire, with boundary overlap disclosed. The deterministic golden bundle contains codex-brief.md, summary.json, rollups.json, zlib-compressed JSON Lines, snapshots.json, integrity.json, and a schema-valid export-manifest-v1. Every payload's byte count and SHA-256 hash is independently verified. Each event validates against evidence-event-v1 and carries confidence, method, null unobserved actor/session fields, and limitations. Concurrent insertion plus export produces matching summary/detail counts. Secret-like path fragments are redacted and hashed-path mode is opaque; privacy flags hard-disable file contents and environment capture."
+        }
+      ],
+      "discovered_risks": [
+        "Hourly and daily rollup tables do not retain consumer category, so category breakdowns cover raw detail while rollup totals remain path/operation structured evidence.",
+        "Rollup buckets may overlap an exact requested-range boundary; the bundle states this limitation instead of implying per-event precision.",
+        "Zlib was chosen for deterministic in-process compression; consumers must decompress events.jsonl.zlib before reading JSON Lines.",
+        "The integrity manifest hashes every evidence payload, while manifest.json carries the integrity file's hash and is not self-hashed."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-213",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-213-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All exporter, codec, test, and golden-fixture changes are within TASK-213's declared EvidenceBundle and Fixtures/Exports scopes; Pyramid reported no drift."
+          ]
+        },
+        {
+          "id": "CHECK-213-CONSISTENCY",
+          "result": "passed",
+          "evidence": [
+            "Export awaits EvidenceStore's actor-serialized SQLite backup before querying. Concurrent inserts can land before or after that point, while the extracted summary count always equals the decompressed event count from one immutable view."
+          ]
+        },
+        {
+          "id": "CHECK-213-BOUNDING",
+          "result": "passed",
+          "evidence": [
+            "Queries bind from/through timestamps and order deterministically. Raw detail is clamped to 1...100,000 rows and emits an explicit truncation limitation. Rollups include only overlapping requested buckets and disclose their bucket-boundary precision."
+          ]
+        },
+        {
+          "id": "CHECK-213-COMPLETENESS",
+          "result": "passed",
+          "evidence": [
+            "The bundle contains a Codex brief, structured summary, retained hourly/daily rollups, zlib JSON Lines event detail, snapshots, integrity document, and export-manifest-v1. A retention fixture proves hourly evidence remains exportable after raw rows expire."
+          ]
+        },
+        {
+          "id": "CHECK-213-SCHEMAS",
+          "result": "passed",
+          "evidence": [
+            "Golden manifest validates against export-manifest-v1 and each decompressed event validates against evidence-event-v1, including explicit JSON nulls for unobserved actor/session/size-before fields, confidence, method, and limitations."
+          ]
+        },
+        {
+          "id": "CHECK-213-INTEGRITY",
+          "result": "passed",
+          "evidence": [
+            "Every payload's recorded byte length and SHA-256 digest is recomputed in tests. integrity.json covers the five evidence payloads, and manifest.json records the integrity document's own hash."
+          ]
+        },
+        {
+          "id": "CHECK-213-PRIVACY",
+          "result": "passed",
+          "evidence": [
+            "The exporter reads only typed SQLite metadata and stored capacity snapshots. Secret-like path tokens are redacted before serialization, basename and SHA-256 path shaping are supported, and manifest privacy constants prohibit file contents and environment capture."
+          ]
+        },
+        {
+          "id": "CHECK-213-HUMAN",
+          "result": "passed",
+          "evidence": [
+            "The golden Codex brief was inspected and accurately states the requested range, retained evidence counts, category deltas, largest events, confidence/method, limitations, and machine-readable inspection path."
+          ]
+        },
+        {
+          "id": "CHECK-213-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Focused bundle suite passed 6 tests, full suite passed 53 tests, swift build passed, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-213"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-213",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-213-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All exporter, codec, test, and golden-fixture changes are within TASK-213's declared EvidenceBundle and Fixtures/Exports scopes; Pyramid reported no drift."
+          ]
+        },
+        {
+          "id": "CHECK-213-CONSISTENCY",
+          "result": "passed",
+          "evidence": [
+            "Export awaits EvidenceStore's actor-serialized SQLite backup before querying. Concurrent inserts can land before or after that point, while the extracted summary count always equals the decompressed event count from one immutable view."
+          ]
+        },
+        {
+          "id": "CHECK-213-BOUNDING",
+          "result": "passed",
+          "evidence": [
+            "Queries bind from/through timestamps and order deterministically. Raw detail is clamped to 1...100,000 rows and emits an explicit truncation limitation. Rollups include only overlapping requested buckets and disclose their bucket-boundary precision."
+          ]
+        },
+        {
+          "id": "CHECK-213-COMPLETENESS",
+          "result": "passed",
+          "evidence": [
+            "The bundle contains a Codex brief, structured summary, retained hourly/daily rollups, zlib JSON Lines event detail, snapshots, integrity document, and export-manifest-v1. A retention fixture proves hourly evidence remains exportable after raw rows expire."
+          ]
+        },
+        {
+          "id": "CHECK-213-SCHEMAS",
+          "result": "passed",
+          "evidence": [
+            "Golden manifest validates against export-manifest-v1 and each decompressed event validates against evidence-event-v1, including explicit JSON nulls for unobserved actor/session/size-before fields, confidence, method, and limitations."
+          ]
+        },
+        {
+          "id": "CHECK-213-INTEGRITY",
+          "result": "passed",
+          "evidence": [
+            "Every payload's recorded byte length and SHA-256 digest is recomputed in tests. integrity.json covers the five evidence payloads, and manifest.json records the integrity document's own hash."
+          ]
+        },
+        {
+          "id": "CHECK-213-PRIVACY",
+          "result": "passed",
+          "evidence": [
+            "The exporter reads only typed SQLite metadata and stored capacity snapshots. Secret-like path tokens are redacted before serialization, basename and SHA-256 path shaping are supported, and manifest privacy constants prohibit file contents and environment capture."
+          ]
+        },
+        {
+          "id": "CHECK-213-HUMAN",
+          "result": "passed",
+          "evidence": [
+            "The golden Codex brief was inspected and accurately states the requested range, retained evidence counts, category deltas, largest events, confidence/method, limitations, and machine-readable inspection path."
+          ]
+        },
+        {
+          "id": "CHECK-213-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Focused bundle suite passed 6 tests, full suite passed 53 tests, swift build passed, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-213"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 6,
+  "context_id": "CTX-E934C5C4F10D753509839C084EC4648A",
+  "previous_event_id": "EVENT-20260912T151842740301Z-162A7C1B",
+  "previous_event_sha256": "fcd026a7f6f7fee0197957d801f031101efe50f48bf8ba9818f1629fd7f4ef6f"
+}

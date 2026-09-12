@@ -1,0 +1,317 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T140230288281Z-3AEDA90D",
+  "at": "2026-09-12T14:02:30.288107Z",
+  "graph_version": 16,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "CONTRACT-101",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T15:56:51.762862Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T13:56:51.763028Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:02:30.287932Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-101",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "docs/architecture/evidence-contract.md",
+        "Schemas/evidence-event-v1.schema.json",
+        "Schemas/storage-snapshot-v1.schema.json",
+        "Schemas/retention-policy-v1.schema.json",
+        "Schemas/privacy-policy-v1.schema.json",
+        "Schemas/export-manifest-v1.schema.json",
+        "Schemas/service-status-v1.schema.json",
+        "Fixtures/Contracts/valid-evidence-event.json",
+        "Fixtures/Contracts/invalid-evidence-missing-confidence.json",
+        "Fixtures/Contracts/invalid-evidence-with-content.json",
+        "Fixtures/Contracts/valid-retention-policy.json",
+        "Fixtures/Contracts/invalid-retention-unbounded.json",
+        "Fixtures/Contracts/valid-export-manifest.json",
+        "Fixtures/Contracts/invalid-export-manifest.json",
+        "Tests/ContractTests/JSONSchemaContractValidator.swift",
+        "Tests/ContractTests/ContractTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/architecture/evidence-contract.md",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/evidence-event-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/storage-snapshot-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/retention-policy-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/privacy-policy-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/export-manifest-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/service-status-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/valid-evidence-event.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-evidence-missing-confidence.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-evidence-with-content.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/valid-retention-policy.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-retention-unbounded.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/valid-export-manifest.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-export-manifest.json",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/JSONSchemaContractValidator.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/ContractTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter ContractTests",
+          "result": "passed: 7 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 8 tests, 0 failures"
+        },
+        {
+          "command": "jq empty Schemas/*.json",
+          "result": "passed for all 6 schema files using explicit file arguments"
+        },
+        {
+          "command": "jq empty Fixtures/Contracts/*.json",
+          "result": "passed for all 7 fixture files using explicit file arguments"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-102-01",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-contract.md defines ownership, monitoring scope, confidence/method, size semantics, privacy, retention, export integrity, statuses, errors, and versioning; six closed schemas plus seven positive/negative fixtures are exercised by seven passing ContractTests."
+        }
+      ],
+      "discovered_risks": [
+        "The local Swift test validator intentionally implements only the JSON Schema keywords used by the version-1 contracts; adding new schema keywords requires extending the validator or adopting a maintained validator dependency.",
+        "Python jsonschema is not installed in the repository environment, so it was not counted as passing evidence; jq syntax validation and executable Swift contract tests are the recorded checks."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-101",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "docs/architecture/evidence-contract.md",
+        "Schemas/evidence-event-v1.schema.json",
+        "Schemas/storage-snapshot-v1.schema.json",
+        "Schemas/retention-policy-v1.schema.json",
+        "Schemas/privacy-policy-v1.schema.json",
+        "Schemas/export-manifest-v1.schema.json",
+        "Schemas/service-status-v1.schema.json",
+        "Fixtures/Contracts/valid-evidence-event.json",
+        "Fixtures/Contracts/invalid-evidence-missing-confidence.json",
+        "Fixtures/Contracts/invalid-evidence-with-content.json",
+        "Fixtures/Contracts/valid-retention-policy.json",
+        "Fixtures/Contracts/invalid-retention-unbounded.json",
+        "Fixtures/Contracts/valid-export-manifest.json",
+        "Fixtures/Contracts/invalid-export-manifest.json",
+        "Tests/ContractTests/JSONSchemaContractValidator.swift",
+        "Tests/ContractTests/ContractTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/architecture/evidence-contract.md",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/evidence-event-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/storage-snapshot-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/retention-policy-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/privacy-policy-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/export-manifest-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/service-status-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/valid-evidence-event.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-evidence-missing-confidence.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-evidence-with-content.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/valid-retention-policy.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-retention-unbounded.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/valid-export-manifest.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/invalid-export-manifest.json",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/JSONSchemaContractValidator.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/ContractTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter ContractTests",
+          "result": "passed: 7 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 8 tests, 0 failures"
+        },
+        {
+          "command": "jq empty Schemas/*.json",
+          "result": "passed for all 6 schema files using explicit file arguments"
+        },
+        {
+          "command": "jq empty Fixtures/Contracts/*.json",
+          "result": "passed for all 7 fixture files using explicit file arguments"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-102-01",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-contract.md defines ownership, monitoring scope, confidence/method, size semantics, privacy, retention, export integrity, statuses, errors, and versioning; six closed schemas plus seven positive/negative fixtures are exercised by seven passing ContractTests."
+        }
+      ],
+      "discovered_risks": [
+        "The local Swift test validator intentionally implements only the JSON Schema keywords used by the version-1 contracts; adding new schema keywords requires extending the validator or adopting a maintained validator dependency.",
+        "Python jsonschema is not installed in the repository environment, so it was not counted as passing evidence; jq syntax validation and executable Swift contract tests are the recorded checks."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 4,
+  "context_id": "CTX-71C1CF4684A5EDDFBC08EDAAFFB91B81",
+  "previous_event_id": "EVENT-20260912T135651763228Z-AD614F5D",
+  "previous_event_sha256": "fb3aec0bb15d4f28a806d504bc9596354b5ece6968d355ad1588928e0ec5bcb9"
+}

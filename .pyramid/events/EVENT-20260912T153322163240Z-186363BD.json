@@ -1,0 +1,429 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T153322163240Z-186363BD",
+  "at": "2026-09-12T15:33:22.163063Z",
+  "graph_version": 55,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "CONTRACT-301",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:32:29.991490Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-301",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/Session/session-registration-v1.schema.json",
+        "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+        "Fixtures/Session/valid-active-session.json",
+        "Fixtures/Session/valid-ended-session.json",
+        "Fixtures/Session/invalid-spoofed-session.json",
+        "Fixtures/MCP/readonly-inventory.json",
+        "Fixtures/MCP/initialize-request.json",
+        "Fixtures/MCP/initialize-response.json",
+        "Fixtures/MCP/tool-call-app-unavailable.json",
+        "Fixtures/MCP/protocol-error-malformed-input.json",
+        "Fixtures/MCP/sanitized-growth-response.json",
+        "Fixtures/MCP/codex-stdio.toml.txt",
+        "Fixtures/MCP/claude-stdio.json",
+        "Tests/ContractTests/MCP/MCPContractTests.swift",
+        "docs/architecture/mcp.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Schemas/Session/session-registration-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Session/valid-active-session.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Session/valid-ended-session.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Session/invalid-spoofed-session.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/readonly-inventory.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/initialize-request.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/initialize-response.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/tool-call-app-unavailable.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/protocol-error-malformed-input.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/sanitized-growth-response.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/codex-stdio.toml.txt",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/claude-stdio.json",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/MCP/MCPContractTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/mcp.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter MCPContract",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 60 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "official client documentation review",
+          "result": "passed; OpenAI Codex local stdio/config.toml and Anthropic Claude Code local stdio/.mcp.json boundaries checked 2026-09-13"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-301-01",
+          "result": "passed",
+          "reference": "Closed, versioned schemas and fixtures define active/ended session lifecycle, PID plus start-time ancestry, Unix-domain socket authentication with mode 0600 and peer UID verification, a maximum tool-linked registration confidence, protocol initialization/errors, actionable app-unavailable execution errors, privacy sanitization, bounded queries, Codex and Claude stdio configuration, and exactly seven read-only non-destructive tools. Tests reject spoofed authentication and exact self-attribution and confirm every tool is closed, bounded, local, idempotent, and destructiveHint false."
+        }
+      ],
+      "discovered_risks": [
+        "MCP tool annotations are advisory client metadata, so server implementation must independently enforce the same read-only routing and closed inputs.",
+        "Codex and Claude configuration formats can evolve; packaged fragments require compatibility tests and explicit install-time diagnostics.",
+        "Session registration alone can establish only tool-linked confidence; exact writer attribution remains dependent on the optional privileged observer."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:33:22.162876Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-301",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/Session/session-registration-v1.schema.json",
+        "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+        "Fixtures/Session/valid-active-session.json",
+        "Fixtures/Session/valid-ended-session.json",
+        "Fixtures/Session/invalid-spoofed-session.json",
+        "Fixtures/MCP/readonly-inventory.json",
+        "Fixtures/MCP/initialize-request.json",
+        "Fixtures/MCP/initialize-response.json",
+        "Fixtures/MCP/tool-call-app-unavailable.json",
+        "Fixtures/MCP/protocol-error-malformed-input.json",
+        "Fixtures/MCP/sanitized-growth-response.json",
+        "Fixtures/MCP/codex-stdio.toml.txt",
+        "Fixtures/MCP/claude-stdio.json",
+        "Tests/ContractTests/MCP/MCPContractTests.swift",
+        "docs/architecture/mcp.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Schemas/Session/session-registration-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Session/valid-active-session.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Session/valid-ended-session.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Session/invalid-spoofed-session.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/readonly-inventory.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/initialize-request.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/initialize-response.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/tool-call-app-unavailable.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/protocol-error-malformed-input.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/sanitized-growth-response.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/codex-stdio.toml.txt",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/MCP/claude-stdio.json",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/MCP/MCPContractTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/mcp.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter MCPContract",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 60 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "official client documentation review",
+          "result": "passed; OpenAI Codex local stdio/config.toml and Anthropic Claude Code local stdio/.mcp.json boundaries checked 2026-09-13"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-301-01",
+          "result": "passed",
+          "reference": "Closed, versioned schemas and fixtures define active/ended session lifecycle, PID plus start-time ancestry, Unix-domain socket authentication with mode 0600 and peer UID verification, a maximum tool-linked registration confidence, protocol initialization/errors, actionable app-unavailable execution errors, privacy sanitization, bounded queries, Codex and Claude stdio configuration, and exactly seven read-only non-destructive tools. Tests reject spoofed authentication and exact self-attribution and confirm every tool is closed, bounded, local, idempotent, and destructiveHint false."
+        }
+      ],
+      "discovered_risks": [
+        "MCP tool annotations are advisory client metadata, so server implementation must independently enforce the same read-only routing and closed inputs.",
+        "Codex and Claude configuration formats can evolve; packaged fragments require compatibility tests and explicit install-time diagnostics.",
+        "Session registration alone can establish only tool-linked confidence; exact writer attribution remains dependent on the optional privileged observer."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-301",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-301-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All schemas, fixtures, tests, and architecture documentation are inside CONTRACT-301's exact allowed write scope; Pyramid submission reported no scope drift."
+          ]
+        },
+        {
+          "id": "CHECK-301-SESSION",
+          "result": "passed",
+          "evidence": [
+            "Versioned active and ended fixtures bind session identity to PID plus process start time, bounded ancestry, expiry, workspace scope, and local peer authentication. The invalid fixture rejects weak socket permissions, failed peer UID verification, persisted secrets, malformed challenges, and exact self-attribution."
+          ]
+        },
+        {
+          "id": "CHECK-301-READONLY",
+          "result": "passed",
+          "evidence": [
+            "Exactly seven approved tools are present. Every tool has a closed input object and readOnlyHint true, destructiveHint false, idempotentHint true, openWorldHint false. There is no destination argument or delete, move, stop, settings, or monitoring mutation tool."
+          ]
+        },
+        {
+          "id": "CHECK-301-BOUNDS",
+          "result": "passed",
+          "evidence": [
+            "Contract-wide output ceilings are 10,000 items and 4 MiB, while per-tool item, time, path, and age inputs have stricter limits. Oversize behavior is specified as an actionable execution error requiring query narrowing."
+          ]
+        },
+        {
+          "id": "CHECK-301-PRIVACY",
+          "result": "passed",
+          "evidence": [
+            "The response policy hard-disables file contents and environment capture. The sanitized response contains basename-only path data, confidence, method, truncation, and limitations and contains no home path, token argument, content, or environment material."
+          ]
+        },
+        {
+          "id": "CHECK-301-PROTOCOL",
+          "result": "passed",
+          "evidence": [
+            "Fixtures cover initialize negotiation, stable tools/resources, protocol error -32602, and app_unavailable as isError tool output with retryability, limitations, and recovery guidance. Structured results retain a compatibility text block."
+          ]
+        },
+        {
+          "id": "CHECK-301-CLIENTS",
+          "result": "passed",
+          "evidence": [
+            "Codex config.toml and Claude stdio JSON fixtures use the same credential-free bundled executable. The architecture boundary matches official Codex and Claude local MCP documentation reviewed on 2026-09-13."
+          ]
+        },
+        {
+          "id": "CHECK-301-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Focused MCP contract suite passed 6 tests, the full suite passed 60 tests, swift build passed, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-301"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-301",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-301-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All schemas, fixtures, tests, and architecture documentation are inside CONTRACT-301's exact allowed write scope; Pyramid submission reported no scope drift."
+          ]
+        },
+        {
+          "id": "CHECK-301-SESSION",
+          "result": "passed",
+          "evidence": [
+            "Versioned active and ended fixtures bind session identity to PID plus process start time, bounded ancestry, expiry, workspace scope, and local peer authentication. The invalid fixture rejects weak socket permissions, failed peer UID verification, persisted secrets, malformed challenges, and exact self-attribution."
+          ]
+        },
+        {
+          "id": "CHECK-301-READONLY",
+          "result": "passed",
+          "evidence": [
+            "Exactly seven approved tools are present. Every tool has a closed input object and readOnlyHint true, destructiveHint false, idempotentHint true, openWorldHint false. There is no destination argument or delete, move, stop, settings, or monitoring mutation tool."
+          ]
+        },
+        {
+          "id": "CHECK-301-BOUNDS",
+          "result": "passed",
+          "evidence": [
+            "Contract-wide output ceilings are 10,000 items and 4 MiB, while per-tool item, time, path, and age inputs have stricter limits. Oversize behavior is specified as an actionable execution error requiring query narrowing."
+          ]
+        },
+        {
+          "id": "CHECK-301-PRIVACY",
+          "result": "passed",
+          "evidence": [
+            "The response policy hard-disables file contents and environment capture. The sanitized response contains basename-only path data, confidence, method, truncation, and limitations and contains no home path, token argument, content, or environment material."
+          ]
+        },
+        {
+          "id": "CHECK-301-PROTOCOL",
+          "result": "passed",
+          "evidence": [
+            "Fixtures cover initialize negotiation, stable tools/resources, protocol error -32602, and app_unavailable as isError tool output with retryability, limitations, and recovery guidance. Structured results retain a compatibility text block."
+          ]
+        },
+        {
+          "id": "CHECK-301-CLIENTS",
+          "result": "passed",
+          "evidence": [
+            "Codex config.toml and Claude stdio JSON fixtures use the same credential-free bundled executable. The architecture boundary matches official Codex and Claude local MCP documentation reviewed on 2026-09-13."
+          ]
+        },
+        {
+          "id": "CHECK-301-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Focused MCP contract suite passed 6 tests, the full suite passed 60 tests, swift build passed, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-301"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 6,
+  "context_id": "CTX-16290391D61F63F77A2BAEF1BBA37B17",
+  "previous_event_id": "EVENT-20260912T153229991815Z-FD7AA7D9",
+  "previous_event_sha256": "5ce73d6b5ec277462cefad8e1be10fd3e93c843b6553c76c09912761c75d0fd6"
+}

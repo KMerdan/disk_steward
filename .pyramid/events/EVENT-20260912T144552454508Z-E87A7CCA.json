@@ -1,0 +1,235 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T144552454508Z-E87A7CCA",
+  "at": "2026-09-12T14:45:52.454333Z",
+  "graph_version": 37,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "RESEARCH-401",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:45:40.770325Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-401",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/architecture/endpoint-security.md",
+        "docs/tasks/evidence/RESEARCH-401/local-observations.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "docs/architecture/endpoint-security.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RESEARCH-401/local-observations.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "official Apple documentation review",
+          "result": "confirmed entitlement, Full Disk Access, activation/signing/location/user-approval constraints and filesystem NOTIFY event capability"
+        },
+        {
+          "command": "security find-identity -v -p codesigning",
+          "result": "0 valid identities found"
+        },
+        {
+          "command": "systemextensionsctl list",
+          "result": "OSSystemExtensionErrorDomain error 1; state recorded as unobserved, not empty"
+        },
+        {
+          "command": "macOS 26.2 SDK inspection",
+          "result": "EndpointSecurity header and link interfaces present"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-401-01",
+          "result": "passed",
+          "reference": "The decision record separately labels observed SDK capability, locally testable synthetic behavior, untestable signed activation, external entitlement and TCC dependencies, release blockers, and a non-privileged fallback contract; it makes no approval claim."
+        }
+      ],
+      "discovered_risks": [
+        "No valid signing identity or entitlement grant is available on this host.",
+        "Installed system-extension state could not be observed in the current environment.",
+        "Exact provenance must remain optional and unavailable across gaps or fallback-only observations."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:45:52.454151Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-401",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/architecture/endpoint-security.md",
+        "docs/tasks/evidence/RESEARCH-401/local-observations.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "docs/architecture/endpoint-security.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RESEARCH-401/local-observations.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "official Apple documentation review",
+          "result": "confirmed entitlement, Full Disk Access, activation/signing/location/user-approval constraints and filesystem NOTIFY event capability"
+        },
+        {
+          "command": "security find-identity -v -p codesigning",
+          "result": "0 valid identities found"
+        },
+        {
+          "command": "systemextensionsctl list",
+          "result": "OSSystemExtensionErrorDomain error 1; state recorded as unobserved, not empty"
+        },
+        {
+          "command": "macOS 26.2 SDK inspection",
+          "result": "EndpointSecurity header and link interfaces present"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-401-01",
+          "result": "passed",
+          "reference": "The decision record separately labels observed SDK capability, locally testable synthetic behavior, untestable signed activation, external entitlement and TCC dependencies, release blockers, and a non-privileged fallback contract; it makes no approval claim."
+        }
+      ],
+      "discovered_risks": [
+        "No valid signing identity or entitlement grant is available on this host.",
+        "Installed system-extension state could not be observed in the current environment.",
+        "Exact provenance must remain optional and unavailable across gaps or fallback-only observations."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "RESEARCH-401",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-401-SOURCES",
+          "result": "passed",
+          "evidence": [
+            "Decision cites current official Apple pages for Endpoint Security, entitlement, client creation/TCC, event types, system-extension installation, activation, and user approval."
+          ]
+        },
+        {
+          "id": "CHECK-401-LOCAL",
+          "result": "passed",
+          "evidence": [
+            "Dated local evidence records SDK 26.2 inputs, zero signing identities, and an explicit systemextensionsctl observation failure without inferring absence."
+          ]
+        },
+        {
+          "id": "CHECK-401-SEPARATION",
+          "result": "passed",
+          "evidence": [
+            "Observed capability, synthetic testability, external unknowns, exact-provenance release blockers, and fallback guarantees are separate sections and matrix rows."
+          ]
+        },
+        {
+          "id": "CHECK-401-SAFETY",
+          "result": "passed",
+          "evidence": [
+            "Extension boundary is NOTIFY-only and non-blocking; fallback never promotes evidence to exact and remains functional without entitlement."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "RESEARCH-401"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "RESEARCH-401",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-401-SOURCES",
+          "result": "passed",
+          "evidence": [
+            "Decision cites current official Apple pages for Endpoint Security, entitlement, client creation/TCC, event types, system-extension installation, activation, and user approval."
+          ]
+        },
+        {
+          "id": "CHECK-401-LOCAL",
+          "result": "passed",
+          "evidence": [
+            "Dated local evidence records SDK 26.2 inputs, zero signing identities, and an explicit systemextensionsctl observation failure without inferring absence."
+          ]
+        },
+        {
+          "id": "CHECK-401-SEPARATION",
+          "result": "passed",
+          "evidence": [
+            "Observed capability, synthetic testability, external unknowns, exact-provenance release blockers, and fallback guarantees are separate sections and matrix rows."
+          ]
+        },
+        {
+          "id": "CHECK-401-SAFETY",
+          "result": "passed",
+          "evidence": [
+            "Extension boundary is NOTIFY-only and non-blocking; fallback never promotes evidence to exact and remains functional without entitlement."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "RESEARCH-401"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 5,
+  "context_id": "CTX-5579F0D7EC36982076C11B4392A4C7B9",
+  "previous_event_id": "EVENT-20260912T144540770670Z-C8F9E67C",
+  "previous_event_sha256": "a3d2acc1dd44502f59dcac521bea91cc44d3915f77001c316df56ce8529d2c92"
+}

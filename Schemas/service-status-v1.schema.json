@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/service-status-v1.schema.json",
+  "title": "Disk Steward Service Status v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "state", "observed_at", "components", "limitations"],
+  "properties": {
+    "schema": {"const": "service-status-v1"},
+    "state": {"enum": ["active", "degraded", "paused", "unavailable"]},
+    "observed_at": {"type": "string", "minLength": 1},
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "state", "reason"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "state": {"enum": ["active", "degraded", "paused", "unavailable"]},
+          "reason": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

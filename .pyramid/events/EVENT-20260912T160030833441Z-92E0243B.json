@@ -1,0 +1,287 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T160030833441Z-92E0243B",
+  "at": "2026-09-12T16:00:30.833263Z",
+  "graph_version": 62,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-311",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T17:49:37.087939Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:49:37.088078Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:00:30.833092Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-311",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/IPC/JSONValue.swift",
+        "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+        "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+        "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+        "Sources/DiskStewardMCP/MCPResponseSanitizer.swift",
+        "Sources/DiskStewardMCP/MCPServer.swift",
+        "Sources/DiskStewardMCP/main.swift",
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+        "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/JSONValue.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPResponseSanitizer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardMCP",
+          "result": "passed; 7 tests, 0 failures"
+        },
+        {
+          "command": "swift test --filter AppEvidenceIPC",
+          "result": "passed; 2 real Unix-socket tests, 0 failures"
+        },
+        {
+          "command": "swift run disk-witness-mcp --self-check",
+          "result": "passed; negotiated MCP 2025-06-18 and advertised tools/resources"
+        },
+        {
+          "command": "line-delimited stdio transcript",
+          "result": "passed; initialize, tools/list, and actionable app_unavailable tool result"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 76 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-311-01",
+          "result": "passed",
+          "reference": "The new disk-witness-mcp executable implements MCP initialization, initialized notification, ping, stable tools/resources discovery, resource reads, calls, cancellation state, JSON-RPC protocol errors, and actionable tool execution errors. It exposes exactly seven closed and bounded read-only tools, defensively strips content/environment/credential fields and redacts secret-like arguments, and rejects oversized results. The connector never opens SQLite; its Unix-domain client requires a current-user socket with no group/other permissions. The menu-bar app now owns a 0600 socket, verifies peer UID and PID, and serves live summary, explanations, provenance, registered process contexts, inferred task impact, review-only cleanup candidates, and an inline bundle produced by the same EvidenceBundleExporter. Real socket tests register/end a session, insert retained evidence, query it, verify task impact, and compare inline export structure."
+        }
+      ],
+      "discovered_risks": [
+        "macOS Unix-domain socket paths are length-limited; the product Application Support path is checked at startup and reports degraded IPC if it cannot bind.",
+        "MCP cancellation is checked before and during IPC reads/writes; the current line-oriented runner processes one request at a time, so a later cancellation notification cannot preempt a server call already blocking in that same stdio process.",
+        "Registered process contexts are reported as tool-linked and are not labeled proven writers; exact attribution remains unavailable until the optional privileged observer is installed.",
+        "Inline evidence export uses temporary app-owned bundle files and removes each completed bundle after encoding the response."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-311",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/IPC/JSONValue.swift",
+        "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+        "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+        "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+        "Sources/DiskStewardMCP/MCPResponseSanitizer.swift",
+        "Sources/DiskStewardMCP/MCPServer.swift",
+        "Sources/DiskStewardMCP/main.swift",
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+        "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/JSONValue.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPResponseSanitizer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardMCP",
+          "result": "passed; 7 tests, 0 failures"
+        },
+        {
+          "command": "swift test --filter AppEvidenceIPC",
+          "result": "passed; 2 real Unix-socket tests, 0 failures"
+        },
+        {
+          "command": "swift run disk-witness-mcp --self-check",
+          "result": "passed; negotiated MCP 2025-06-18 and advertised tools/resources"
+        },
+        {
+          "command": "line-delimited stdio transcript",
+          "result": "passed; initialize, tools/list, and actionable app_unavailable tool result"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 76 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-311-01",
+          "result": "passed",
+          "reference": "The new disk-witness-mcp executable implements MCP initialization, initialized notification, ping, stable tools/resources discovery, resource reads, calls, cancellation state, JSON-RPC protocol errors, and actionable tool execution errors. It exposes exactly seven closed and bounded read-only tools, defensively strips content/environment/credential fields and redacts secret-like arguments, and rejects oversized results. The connector never opens SQLite; its Unix-domain client requires a current-user socket with no group/other permissions. The menu-bar app now owns a 0600 socket, verifies peer UID and PID, and serves live summary, explanations, provenance, registered process contexts, inferred task impact, review-only cleanup candidates, and an inline bundle produced by the same EvidenceBundleExporter. Real socket tests register/end a session, insert retained evidence, query it, verify task impact, and compare inline export structure."
+        }
+      ],
+      "discovered_risks": [
+        "macOS Unix-domain socket paths are length-limited; the product Application Support path is checked at startup and reports degraded IPC if it cannot bind.",
+        "MCP cancellation is checked before and during IPC reads/writes; the current line-oriented runner processes one request at a time, so a later cancellation notification cannot preempt a server call already blocking in that same stdio process.",
+        "Registered process contexts are reported as tool-linked and are not labeled proven writers; exact attribution remains unavailable until the optional privileged observer is installed.",
+        "Inline evidence export uses temporary app-owned bundle files and removes each completed bundle after encoding the response."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-354AE7A7CC773102BC2CC0F731B3C1F3",
+  "previous_event_id": "EVENT-20260912T154937088275Z-9C02B21F",
+  "previous_event_sha256": "22f3021a2f7ec73fd8b350959a2aacccf9ef3f63000138c0ecc6b37077ec8e70"
+}

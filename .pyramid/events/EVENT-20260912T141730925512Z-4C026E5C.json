@@ -1,0 +1,371 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T141730925512Z-4C026E5C",
+  "at": "2026-09-12T14:17:30.925331Z",
+  "graph_version": 24,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "TASK-111",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:16:55.198330Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-111",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+        "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+        "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+        "Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift",
+        "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Snapshot",
+          "result": "passed; 6 tests, 0 failures, including live current-data-volume capture and export"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed; 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 14 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-111-01",
+          "result": "passed",
+          "reference": "Native URL volume resource keys produced nonnegative total, used, and available capacity for deterministic fixtures and the live current data volume. The exporter wrote storage-snapshot.json and codex-brief.md, with every payload byte count and SHA-256 digest recorded in a schema-shaped manifest. Tests assert the privacy flags are false and no environment payload exists."
+        }
+      ],
+      "discovered_risks": [
+        "Whole-volume collection intentionally omits inaccessible or non-local volumes and records metadata failures as limitations; detailed directory consumption remains outside this first-slice task.",
+        "The current manifest records full mount paths. Later privacy settings must support basename or hashed detail before exporting detailed file evidence.",
+        "Product version is an explicit 0.1.0 default until packaging supplies a release version."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-111",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-111-REPORT-COMPLETE",
+          "result": "failed",
+          "evidence": [
+            "The implementation report was recorded before Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift was added, so changed_files does not completely describe the audited source state."
+          ]
+        },
+        {
+          "id": "CHECK-111-TESTS",
+          "result": "passed",
+          "evidence": [
+            "The strengthened swift test --filter Snapshot and full swift test suites pass, but the complete evidence must be resubmitted through the task lifecycle."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-111"
+      ],
+      "recommended_action": "repair"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:17:30.925160Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-111",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+        "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+        "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+        "Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift",
+        "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Snapshot",
+          "result": "passed; 6 tests, 0 failures, including live current-data-volume capture and export"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed; 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 14 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-111-01",
+          "result": "passed",
+          "reference": "Native URL volume resource keys produced nonnegative total, used, and available capacity for deterministic fixtures and the live current data volume. The exporter wrote storage-snapshot.json and codex-brief.md, with every payload byte count and SHA-256 digest recorded in a schema-shaped manifest. Tests assert the privacy flags are false and no environment payload exists."
+        }
+      ],
+      "discovered_risks": [
+        "Whole-volume collection intentionally omits inaccessible or non-local volumes and records metadata failures as limitations; detailed directory consumption remains outside this first-slice task.",
+        "The current manifest records full mount paths. Later privacy settings must support basename or hashed detail before exporting detailed file evidence.",
+        "Product version is an explicit 0.1.0 default until packaging supplies a release version."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-111",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-111-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "The complete implementation report lists Package.swift and every source/test path changed for this node; all paths are inside TASK-111 allowed_write_scope."
+          ]
+        },
+        {
+          "id": "CHECK-111-NATIVE-CAPACITY",
+          "result": "passed",
+          "evidence": [
+            "VolumeSnapshotService uses Foundation URL volumeTotalCapacity, available-capacity, locality, internal/read-only, and remount URL resource keys; it filters explicitly non-local volumes, deduplicates resolved mount paths, and reports inaccessible metadata as limitations."
+          ]
+        },
+        {
+          "id": "CHECK-111-NONNEGATIVE",
+          "result": "passed",
+          "evidence": [
+            "VolumeCapacity clamps total and available byte values to a valid range and derives used = total - available. Fixture and live tests assert nonnegative totals and the capacity identity."
+          ]
+        },
+        {
+          "id": "CHECK-111-DETERMINISM",
+          "result": "passed",
+          "evidence": [
+            "Snapshots sort volumes and limitations; exports use injected identifiers/timestamps, a fixed payload order, and JSONEncoder sortedKeys. The fixed fixture test exercises this deterministic path."
+          ]
+        },
+        {
+          "id": "CHECK-111-SCHEMAS",
+          "result": "passed",
+          "evidence": [
+            "Generated storage-snapshot.json and manifest.json are validated by tests against Schemas/storage-snapshot-v1.schema.json and Schemas/export-manifest-v1.schema.json through the registered test helper."
+          ]
+        },
+        {
+          "id": "CHECK-111-INTEGRITY-PRIVACY",
+          "result": "passed",
+          "evidence": [
+            "SnapshotExporterTests recomputes SHA-256 and byte counts for each manifest-listed payload, checks privacy flags are false, verifies no environment payload exists, and confirms path traversal identifiers are rejected. Source inspection finds capacity metadata only and no file-content reads."
+          ]
+        },
+        {
+          "id": "CHECK-111-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter Snapshot passed 6 tests; swift test --filter Export passed 3 tests; full swift test passed 14 tests; git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-111"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-111",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-111-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "The complete implementation report lists Package.swift and every source/test path changed for this node; all paths are inside TASK-111 allowed_write_scope."
+          ]
+        },
+        {
+          "id": "CHECK-111-NATIVE-CAPACITY",
+          "result": "passed",
+          "evidence": [
+            "VolumeSnapshotService uses Foundation URL volumeTotalCapacity, available-capacity, locality, internal/read-only, and remount URL resource keys; it filters explicitly non-local volumes, deduplicates resolved mount paths, and reports inaccessible metadata as limitations."
+          ]
+        },
+        {
+          "id": "CHECK-111-NONNEGATIVE",
+          "result": "passed",
+          "evidence": [
+            "VolumeCapacity clamps total and available byte values to a valid range and derives used = total - available. Fixture and live tests assert nonnegative totals and the capacity identity."
+          ]
+        },
+        {
+          "id": "CHECK-111-DETERMINISM",
+          "result": "passed",
+          "evidence": [
+            "Snapshots sort volumes and limitations; exports use injected identifiers/timestamps, a fixed payload order, and JSONEncoder sortedKeys. The fixed fixture test exercises this deterministic path."
+          ]
+        },
+        {
+          "id": "CHECK-111-SCHEMAS",
+          "result": "passed",
+          "evidence": [
+            "Generated storage-snapshot.json and manifest.json are validated by tests against Schemas/storage-snapshot-v1.schema.json and Schemas/export-manifest-v1.schema.json through the registered test helper."
+          ]
+        },
+        {
+          "id": "CHECK-111-INTEGRITY-PRIVACY",
+          "result": "passed",
+          "evidence": [
+            "SnapshotExporterTests recomputes SHA-256 and byte counts for each manifest-listed payload, checks privacy flags are false, verifies no environment payload exists, and confirms path traversal identifiers are rejected. Source inspection finds capacity metadata only and no file-content reads."
+          ]
+        },
+        {
+          "id": "CHECK-111-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter Snapshot passed 6 tests; swift test --filter Export passed 3 tests; full swift test passed 14 tests; git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-111"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 5,
+  "context_id": "CTX-B5EE4D3D0C0BEFEF181AE23CE25A8D49",
+  "previous_event_id": "EVENT-20260912T141655198735Z-A5B891C8",
+  "previous_event_sha256": "5d33a99f065f4224c6382329f24d4189e54e71fb6da9efd98f30d83fee4967ad"
+}

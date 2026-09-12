@@ -1,0 +1,177 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T124659417530Z-69DDC4C4",
+  "at": "2026-09-12T12:46:59.417386Z",
+  "graph_version": 6,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "RESEARCH-101",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T14:46:34.176070Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T12:46:34.176206Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T12:46:59.417225Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-101",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/architecture/toolchain.md",
+        "docs/tasks/evidence/RESEARCH-101/environment.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "docs/architecture/toolchain.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RESEARCH-101/environment.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift --version",
+          "result": "passed: Apple Swift 6.2.4, arm64-apple-macosx15.0"
+        },
+        {
+          "command": "xcodebuild -version",
+          "result": "passed: Xcode 26.3 build 17C529"
+        },
+        {
+          "command": "xcrun --show-sdk-path",
+          "result": "passed: Xcode macOS SDK resolved"
+        },
+        {
+          "command": "xcodebuild -showsdks",
+          "result": "passed with recorded shell warnings: macOS 26.2 SDK listed"
+        },
+        {
+          "command": "security find-identity -v -p codesigning",
+          "result": "passed as diagnostic: zero valid identities found and recorded as unavailable"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-101-01",
+          "result": "passed",
+          "reference": "docs/architecture/toolchain.md defines observed versions, macOS 13 minimum, Swift package plus Xcode-project layout, dependency policy, build commands, signing limitations, and follow-up validation; raw outputs are in docs/tasks/evidence/RESEARCH-101/environment.md"
+        }
+      ],
+      "discovered_risks": [
+        "No valid code-signing identity is installed, so Developer ID distribution, notarization, and production system-extension signing are not currently demonstrable.",
+        "xcodebuild -showsdks emitted FSEvents/cache warnings in the automated shell even though it completed successfully; TASK-110 must verify whether project builds are affected.",
+        "Endpoint Security entitlement availability remains external and must preserve the standard unprivileged fallback."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-101",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/architecture/toolchain.md",
+        "docs/tasks/evidence/RESEARCH-101/environment.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "docs/architecture/toolchain.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RESEARCH-101/environment.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift --version",
+          "result": "passed: Apple Swift 6.2.4, arm64-apple-macosx15.0"
+        },
+        {
+          "command": "xcodebuild -version",
+          "result": "passed: Xcode 26.3 build 17C529"
+        },
+        {
+          "command": "xcrun --show-sdk-path",
+          "result": "passed: Xcode macOS SDK resolved"
+        },
+        {
+          "command": "xcodebuild -showsdks",
+          "result": "passed with recorded shell warnings: macOS 26.2 SDK listed"
+        },
+        {
+          "command": "security find-identity -v -p codesigning",
+          "result": "passed as diagnostic: zero valid identities found and recorded as unavailable"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-101-01",
+          "result": "passed",
+          "reference": "docs/architecture/toolchain.md defines observed versions, macOS 13 minimum, Swift package plus Xcode-project layout, dependency policy, build commands, signing limitations, and follow-up validation; raw outputs are in docs/tasks/evidence/RESEARCH-101/environment.md"
+        }
+      ],
+      "discovered_risks": [
+        "No valid code-signing identity is installed, so Developer ID distribution, notarization, and production system-extension signing are not currently demonstrable.",
+        "xcodebuild -showsdks emitted FSEvents/cache warnings in the automated shell even though it completed successfully; TASK-110 must verify whether project builds are affected.",
+        "Endpoint Security entitlement availability remains external and must preserve the standard unprivileged fallback."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 2,
+  "context_id": "CTX-26713442970A7F3780B6C197718F974B",
+  "previous_event_id": "EVENT-20260912T124634176405Z-8021AD39",
+  "previous_event_sha256": "a4c18f3bb7bc0c774b85bf00c2386f8bc94b2b83362238cab4b2a03c236e7e3c"
+}

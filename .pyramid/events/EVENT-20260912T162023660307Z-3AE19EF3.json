@@ -1,0 +1,301 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T162023660307Z-3AE19EF3",
+  "at": "2026-09-12T16:20:23.660127Z",
+  "graph_version": 69,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "GATE-390",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:20:05.174902Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+        "docs/tasks/evidence/GATE-390/report.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/report.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter AgentQueryableEvidenceIncrement",
+          "result": "passed; 1 independent end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 83 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "rg destructive-surface inspection",
+          "result": "only non-destructive warning text matched in connector/integration surfaces"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "passed",
+          "reference": "The independent test starts the real app-owned backend and private socket, registers a session, writes retained evidence, drives the built MCP executable through discovery, explain-growth, task-impact, export, cleanup-candidate, and rejected destructive calls, compares app/MCP export detail, checks exact forbidden keys and response bounds, repeats human snapshot/export and click/menu contracts, then stops the app service and verifies an actionable app_unavailable result. Isolated client tests and all inherited scenarios pass in the same 83-test build."
+        }
+      ],
+      "discovered_risks": [
+        "Timestamp ordering at session-registration boundaries must remain explicit; events preceding registration correctly stay unknown.",
+        "Endpoint Security exact provenance is intentionally outside this increment, so workspace-only task impact remains inferred.",
+        "Current stdio request handling is sequential; cancellation checks bound connector IPC, but a later notification cannot preempt an already-blocked request in the same line-oriented process."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:20:23.659941Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+        "docs/tasks/evidence/GATE-390/report.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/report.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter AgentQueryableEvidenceIncrement",
+          "result": "passed; 1 independent end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 83 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        },
+        {
+          "command": "rg destructive-surface inspection",
+          "result": "only non-destructive warning text matched in connector/integration surfaces"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "passed",
+          "reference": "The independent test starts the real app-owned backend and private socket, registers a session, writes retained evidence, drives the built MCP executable through discovery, explain-growth, task-impact, export, cleanup-candidate, and rejected destructive calls, compares app/MCP export detail, checks exact forbidden keys and response bounds, repeats human snapshot/export and click/menu contracts, then stops the app service and verifies an actionable app_unavailable result. Isolated client tests and all inherited scenarios pass in the same 83-test build."
+        }
+      ],
+      "discovered_risks": [
+        "Timestamp ordering at session-registration boundaries must remain explicit; events preceding registration correctly stay unknown.",
+        "Endpoint Security exact provenance is intentionally outside this increment, so workspace-only task impact remains inferred.",
+        "Current stdio request handling is sequential; cancellation checks bound connector IPC, but a later notification cannot preempt an already-blocked request in the same line-oriented process."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-390-CONSTRUCT",
+          "result": "passed",
+          "evidence": [
+            "The current candidate builds under Swift 6 on macOS and all 83 tests pass in one suite."
+          ]
+        },
+        {
+          "id": "CHECK-390-ENTRY",
+          "result": "passed",
+          "evidence": [
+            "Fresh isolated Codex and Claude configurations discover the shared stdio connector; no live personal configuration is used."
+          ]
+        },
+        {
+          "id": "CHECK-390-QUERY",
+          "result": "passed",
+          "evidence": [
+            "A built-connector transcript discovers seven read-only tools, explains one retained event, correlates it only to the unique active task as inferred, and emits a bounded sanitized result."
+          ]
+        },
+        {
+          "id": "CHECK-390-EXPORT",
+          "result": "passed",
+          "evidence": [
+            "MCP inline export and direct app-service export contain equal summary and event detail for the same requested range and basename privacy mode."
+          ]
+        },
+        {
+          "id": "CHECK-390-NONDESTRUCTIVE",
+          "result": "passed",
+          "evidence": [
+            "The inventory contains no destructive tool, cleanup candidates explicitly require review, an attempted delete_file call is rejected, and static inspection found only warning-language matches."
+          ]
+        },
+        {
+          "id": "CHECK-390-RECOVERY",
+          "result": "passed",
+          "evidence": [
+            "After the private socket is stopped, the connector returns app_unavailable, a retry/recovery instruction to open Disk Steward, and no query result."
+          ]
+        },
+        {
+          "id": "CHECK-390-HUMAN",
+          "result": "passed",
+          "evidence": [
+            "The independent test refreshes the compact status model, exports a snapshot, and repeats left/right click routing plus Export, Settings, About, and Quit labels; inherited monitoring/export tests also pass."
+          ]
+        },
+        {
+          "id": "CHECK-390-SECURITY",
+          "result": "passed",
+          "evidence": [
+            "Exact forbidden keys are absent, output stays below 4 MiB, the connector never opens SQLite, session IPC uses a private current-user socket, and client upgrades/uninstalls preserve unrelated configuration and evidence."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-030"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-390-CONSTRUCT",
+          "result": "passed",
+          "evidence": [
+            "The current candidate builds under Swift 6 on macOS and all 83 tests pass in one suite."
+          ]
+        },
+        {
+          "id": "CHECK-390-ENTRY",
+          "result": "passed",
+          "evidence": [
+            "Fresh isolated Codex and Claude configurations discover the shared stdio connector; no live personal configuration is used."
+          ]
+        },
+        {
+          "id": "CHECK-390-QUERY",
+          "result": "passed",
+          "evidence": [
+            "A built-connector transcript discovers seven read-only tools, explains one retained event, correlates it only to the unique active task as inferred, and emits a bounded sanitized result."
+          ]
+        },
+        {
+          "id": "CHECK-390-EXPORT",
+          "result": "passed",
+          "evidence": [
+            "MCP inline export and direct app-service export contain equal summary and event detail for the same requested range and basename privacy mode."
+          ]
+        },
+        {
+          "id": "CHECK-390-NONDESTRUCTIVE",
+          "result": "passed",
+          "evidence": [
+            "The inventory contains no destructive tool, cleanup candidates explicitly require review, an attempted delete_file call is rejected, and static inspection found only warning-language matches."
+          ]
+        },
+        {
+          "id": "CHECK-390-RECOVERY",
+          "result": "passed",
+          "evidence": [
+            "After the private socket is stopped, the connector returns app_unavailable, a retry/recovery instruction to open Disk Steward, and no query result."
+          ]
+        },
+        {
+          "id": "CHECK-390-HUMAN",
+          "result": "passed",
+          "evidence": [
+            "The independent test refreshes the compact status model, exports a snapshot, and repeats left/right click routing plus Export, Settings, About, and Quit labels; inherited monitoring/export tests also pass."
+          ]
+        },
+        {
+          "id": "CHECK-390-SECURITY",
+          "result": "passed",
+          "evidence": [
+            "Exact forbidden keys are absent, output stays below 4 MiB, the connector never opens SQLite, session IPC uses a private current-user socket, and client upgrades/uninstalls preserve unrelated configuration and evidence."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-030"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-60650B133357BC1083746AF3FFE28001",
+  "previous_event_id": "EVENT-20260912T162005175248Z-F8DF9FC5",
+  "previous_event_sha256": "b408ae7223ebbdcfa69ba87f174f8aa3b0b15ea491483d1984d46bf6cd75605b"
+}

@@ -1,0 +1,361 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T145605127337Z-F908C147",
+  "at": "2026-09-12T14:56:05.127163Z",
+  "graph_version": 40,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "TASK-211",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:55:07.727787Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-211",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+        "Sources/DiskStewardCore/Monitoring/WriteCoalescer.swift",
+        "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+        "Sources/DiskStewardCore/Explanation/GrowthExplanation.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+        "Tests/DiskStewardCoreTests/Explanation/ExplanationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/WriteCoalescer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Explanation/GrowthExplanation.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Explanation/ExplanationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Monitoring",
+          "result": "passed; 8 tests, 0 failures, including a native FSEvents write smoke trace"
+        },
+        {
+          "command": "swift test --filter Explanation",
+          "result": "passed; 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 38 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-211-01",
+          "result": "passed",
+          "reference": "A deterministic temporary-filesystem test writes allocated data inside and outside a watched root: the inside write becomes inferred detailed evidence while the outside allocation becomes an unknown-confidence unexplained cause. Monitoring policy tests prove watched, dynamically registered, active investigation, expired investigation, and excluded roots. Scanner tests prove metadata-only bounded enumeration plus unavailable-root and entry-limit disclosure. Synthetic FSEvents flags prove gap disclosure and exclusion filtering, while a live macOS FSEvents smoke test writes a file and receives a rescan-required path hint. Coalescing tests bound repeated matching writes, and explanation tests preserve limitations and weaken confidence across event gaps."
+        }
+      ],
+      "discovered_risks": [
+        "FSEvents is intentionally notification-only and cannot establish creator-process identity; metadata rescans derive byte deltas with inferred confidence.",
+        "Whole-volume allocation can change outside configured roots, so residual growth is exported as unexplained rather than attributed speculatively.",
+        "FSEvents drop, wrap, mount, unmount, and root-change flags force unknown confidence and an explicit rescan limitation.",
+        "External volumes are sampled for aggregate capacity only when returned by the existing volume service; file-level monitoring remains limited to configured roots."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:56:05.126987Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-211",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+        "Sources/DiskStewardCore/Monitoring/WriteCoalescer.swift",
+        "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+        "Sources/DiskStewardCore/Explanation/GrowthExplanation.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+        "Tests/DiskStewardCoreTests/Explanation/ExplanationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/WriteCoalescer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Explanation/GrowthExplanation.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Explanation/ExplanationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Monitoring",
+          "result": "passed; 8 tests, 0 failures, including a native FSEvents write smoke trace"
+        },
+        {
+          "command": "swift test --filter Explanation",
+          "result": "passed; 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 38 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-211-01",
+          "result": "passed",
+          "reference": "A deterministic temporary-filesystem test writes allocated data inside and outside a watched root: the inside write becomes inferred detailed evidence while the outside allocation becomes an unknown-confidence unexplained cause. Monitoring policy tests prove watched, dynamically registered, active investigation, expired investigation, and excluded roots. Scanner tests prove metadata-only bounded enumeration plus unavailable-root and entry-limit disclosure. Synthetic FSEvents flags prove gap disclosure and exclusion filtering, while a live macOS FSEvents smoke test writes a file and receives a rescan-required path hint. Coalescing tests bound repeated matching writes, and explanation tests preserve limitations and weaken confidence across event gaps."
+        }
+      ],
+      "discovered_risks": [
+        "FSEvents is intentionally notification-only and cannot establish creator-process identity; metadata rescans derive byte deltas with inferred confidence.",
+        "Whole-volume allocation can change outside configured roots, so residual growth is exported as unexplained rather than attributed speculatively.",
+        "FSEvents drop, wrap, mount, unmount, and root-change flags force unknown confidence and an explicit rescan limitation.",
+        "External volumes are sampled for aggregate capacity only when returned by the existing volume service; file-level monitoring remains limited to configured roots."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-211",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-211-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "Every implementation and test path is within Sources/DiskStewardCore/Monitoring/**, Sources/DiskStewardCore/Explanation/**, Tests/DiskStewardCoreTests/Monitoring/**, or Tests/DiskStewardCoreTests/Explanation/**."
+          ]
+        },
+        {
+          "id": "CHECK-211-VOLUME",
+          "result": "passed",
+          "evidence": [
+            "WholeVolumeSampler reuses the proven VolumeSnapshotService and emits per-mount used-byte deltas without enabling file-level monitoring for external volumes."
+          ]
+        },
+        {
+          "id": "CHECK-211-FSEVENTS",
+          "result": "passed",
+          "evidence": [
+            "TargetedFSEventsCollector uses macOS file-event, watch-root, no-defer streams for policy roots. Its API labels every event as a rescan-required hint and makes no process-identity claim. A live temporary-file write generated the expected hint."
+          ]
+        },
+        {
+          "id": "CHECK-211-SCOPE-LIMITS",
+          "result": "passed",
+          "evidence": [
+            "Policy and scanner tests cover watched, registered, active investigation, expired investigation, excluded, unavailable, maximum-entry, and maximum-depth behavior. Limitations name configured detail roots, exclusions, expired investigations, unavailable roots, and scan limits."
+          ]
+        },
+        {
+          "id": "CHECK-211-GAPS",
+          "result": "passed",
+          "evidence": [
+            "Deterministic FSEvents interpretation recognizes dropped, wrapped, root-change, mount, and unmount gap classes; a gap is preserved even if the accompanying path is outside policy scope and requires affected-root rescan."
+          ]
+        },
+        {
+          "id": "CHECK-211-BOUNDED",
+          "result": "passed",
+          "evidence": [
+            "The scanner reads URL resource metadata only, skips symlinks and exclusions, enforces depth and entry ceilings, and WriteCoalescer merges only same-path/same-operation events inside the bounded time window."
+          ]
+        },
+        {
+          "id": "CHECK-211-EXPLANATION",
+          "result": "passed",
+          "evidence": [
+            "A filesystem fixture proves inside-root allocation becomes detailed inferred evidence while outside-root allocation remains unknown-confidence unexplained growth. Explanations group only positive deltas, preserve scope limitations, sample at most five paths, and weaken detailed confidence to unknown on event gaps."
+          ]
+        },
+        {
+          "id": "CHECK-211-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Monitoring suite passed 8 tests, explanation suite passed 3 tests, full suite passed 38 tests, swift build passed, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-211"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-211",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-211-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "Every implementation and test path is within Sources/DiskStewardCore/Monitoring/**, Sources/DiskStewardCore/Explanation/**, Tests/DiskStewardCoreTests/Monitoring/**, or Tests/DiskStewardCoreTests/Explanation/**."
+          ]
+        },
+        {
+          "id": "CHECK-211-VOLUME",
+          "result": "passed",
+          "evidence": [
+            "WholeVolumeSampler reuses the proven VolumeSnapshotService and emits per-mount used-byte deltas without enabling file-level monitoring for external volumes."
+          ]
+        },
+        {
+          "id": "CHECK-211-FSEVENTS",
+          "result": "passed",
+          "evidence": [
+            "TargetedFSEventsCollector uses macOS file-event, watch-root, no-defer streams for policy roots. Its API labels every event as a rescan-required hint and makes no process-identity claim. A live temporary-file write generated the expected hint."
+          ]
+        },
+        {
+          "id": "CHECK-211-SCOPE-LIMITS",
+          "result": "passed",
+          "evidence": [
+            "Policy and scanner tests cover watched, registered, active investigation, expired investigation, excluded, unavailable, maximum-entry, and maximum-depth behavior. Limitations name configured detail roots, exclusions, expired investigations, unavailable roots, and scan limits."
+          ]
+        },
+        {
+          "id": "CHECK-211-GAPS",
+          "result": "passed",
+          "evidence": [
+            "Deterministic FSEvents interpretation recognizes dropped, wrapped, root-change, mount, and unmount gap classes; a gap is preserved even if the accompanying path is outside policy scope and requires affected-root rescan."
+          ]
+        },
+        {
+          "id": "CHECK-211-BOUNDED",
+          "result": "passed",
+          "evidence": [
+            "The scanner reads URL resource metadata only, skips symlinks and exclusions, enforces depth and entry ceilings, and WriteCoalescer merges only same-path/same-operation events inside the bounded time window."
+          ]
+        },
+        {
+          "id": "CHECK-211-EXPLANATION",
+          "result": "passed",
+          "evidence": [
+            "A filesystem fixture proves inside-root allocation becomes detailed inferred evidence while outside-root allocation remains unknown-confidence unexplained growth. Explanations group only positive deltas, preserve scope limitations, sample at most five paths, and weaken detailed confidence to unknown on event gaps."
+          ]
+        },
+        {
+          "id": "CHECK-211-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Monitoring suite passed 8 tests, explanation suite passed 3 tests, full suite passed 38 tests, swift build passed, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-211"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 5,
+  "context_id": "CTX-D8DC49548F53AEDC69ACBE73B3DAA74E",
+  "previous_event_id": "EVENT-20260912T145507728114Z-6012CA85",
+  "previous_event_sha256": "d4cfbe77ca2b1c663c13bd5a16e1f5d16dc8122e40ba4b2aaabbaad5882168f3"
+}

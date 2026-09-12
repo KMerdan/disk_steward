@@ -1,0 +1,261 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T162540643893Z-0B8F4A4C",
+  "at": "2026-09-12T16:25:40.643722Z",
+  "graph_version": 72,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "CONTRACT-401",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T18:21:23.097198Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:21:23.097346Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:25:40.643551Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-401",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/EndpointSecurity/privileged-event-v1.schema.json",
+        "Schemas/EndpointSecurity/privileged-bridge-status-v1.schema.json",
+        "Fixtures/EndpointSecurity/exact-create.json",
+        "Fixtures/EndpointSecurity/exact-rename.json",
+        "Fixtures/EndpointSecurity/exact-close-coalesced.json",
+        "Fixtures/EndpointSecurity/pid-reuse-first.json",
+        "Fixtures/EndpointSecurity/pid-reuse-second.json",
+        "Fixtures/EndpointSecurity/invalid-exact-incomplete.json",
+        "Fixtures/EndpointSecurity/status-cases.json",
+        "Fixtures/EndpointSecurity/privacy-filter-cases.json",
+        "Tests/ContractTests/EndpointSecurity/EndpointSecurityContractTests.swift",
+        "docs/architecture/provenance.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Schemas/EndpointSecurity/privileged-event-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/EndpointSecurity/privileged-bridge-status-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/exact-create.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/exact-rename.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/exact-close-coalesced.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/pid-reuse-first.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/pid-reuse-second.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/invalid-exact-incomplete.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/status-cases.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/privacy-filter-cases.json",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/EndpointSecurity/EndpointSecurityContractTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/provenance.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EndpointSecurityContract",
+          "result": "passed; 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 88 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-402-01",
+          "result": "passed",
+          "reference": "Closed event and status schemas plus deterministic fixtures cover exact create/rename/close, bounded write coalescing, PID reuse separated by start time, incomplete linkage rejection, watched/excluded path filtering, no-content privacy, not-entitled/not-permitted/unavailable states, dropped sequences, overload counts, bounded retry posture, and always-active non-exact fallback. Five contract tests validate every shape and explicitly reject an exact claim with missing file identity, unknown measurement, a preceding gap, and missed deadline."
+        }
+      ],
+      "discovered_risks": [
+        "Live Endpoint Security activation and event receipt remain untestable without Apple entitlement, provisioning, signing identity, Full Disk Access, and an approved test host.",
+        "The system-extension transport's code-signing and application-group policy must be bound to actual identifiers during release packaging.",
+        "Exact attribution is event-local; any sequence discontinuity, stream restart, overload, or incomplete measurement opens a visible gap and forces downgrade."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-401",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/EndpointSecurity/privileged-event-v1.schema.json",
+        "Schemas/EndpointSecurity/privileged-bridge-status-v1.schema.json",
+        "Fixtures/EndpointSecurity/exact-create.json",
+        "Fixtures/EndpointSecurity/exact-rename.json",
+        "Fixtures/EndpointSecurity/exact-close-coalesced.json",
+        "Fixtures/EndpointSecurity/pid-reuse-first.json",
+        "Fixtures/EndpointSecurity/pid-reuse-second.json",
+        "Fixtures/EndpointSecurity/invalid-exact-incomplete.json",
+        "Fixtures/EndpointSecurity/status-cases.json",
+        "Fixtures/EndpointSecurity/privacy-filter-cases.json",
+        "Tests/ContractTests/EndpointSecurity/EndpointSecurityContractTests.swift",
+        "docs/architecture/provenance.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Schemas/EndpointSecurity/privileged-event-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/EndpointSecurity/privileged-bridge-status-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/exact-create.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/exact-rename.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/exact-close-coalesced.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/pid-reuse-first.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/pid-reuse-second.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/invalid-exact-incomplete.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/status-cases.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/EndpointSecurity/privacy-filter-cases.json",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/EndpointSecurity/EndpointSecurityContractTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/provenance.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EndpointSecurityContract",
+          "result": "passed; 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 88 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-402-01",
+          "result": "passed",
+          "reference": "Closed event and status schemas plus deterministic fixtures cover exact create/rename/close, bounded write coalescing, PID reuse separated by start time, incomplete linkage rejection, watched/excluded path filtering, no-content privacy, not-entitled/not-permitted/unavailable states, dropped sequences, overload counts, bounded retry posture, and always-active non-exact fallback. Five contract tests validate every shape and explicitly reject an exact claim with missing file identity, unknown measurement, a preceding gap, and missed deadline."
+        }
+      ],
+      "discovered_risks": [
+        "Live Endpoint Security activation and event receipt remain untestable without Apple entitlement, provisioning, signing identity, Full Disk Access, and an approved test host.",
+        "The system-extension transport's code-signing and application-group policy must be bound to actual identifiers during release packaging.",
+        "Exact attribution is event-local; any sequence discontinuity, stream restart, overload, or incomplete measurement opens a visible gap and forces downgrade."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-C53CEA8271191E26A9878C64EF3CFEC3",
+  "previous_event_id": "EVENT-20260912T162123097543Z-DB8E1874",
+  "previous_event_sha256": "1709d80212d1746ddd5fc552ed52e78d48b9cc75c376e5b68193065d8a2846fa"
+}

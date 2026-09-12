@@ -1,0 +1,377 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T142551730862Z-8F210FBC",
+  "at": "2026-09-12T14:25:51.730690Z",
+  "graph_version": 27,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "TASK-112",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:25:15.884724Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-112",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardApp/AppConfiguration.swift",
+        "Sources/DiskStewardApp/AppSurfaces.swift",
+        "Sources/DiskStewardApp/ApplicationDelegate.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/main.swift",
+        "Tests/DiskStewardAppTests/DiskStewardAppTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AppConfiguration.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AppSurfaces.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/ApplicationDelegate.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/DiskStewardAppTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardApp",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed; DiskStewardApp compiled and linked"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed; launched status item with accessibility label Disk Steward, accessory policy, live snapshot, status-board left route, utility-menu right route, and all required menu entries"
+        },
+        {
+          "command": "swift run DiskStewardApp",
+          "result": "passed launch observation; normal AppKit run loop remained alive for five seconds and was then intentionally interrupted"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 18 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-112-01",
+          "result": "passed",
+          "reference": "StatusItemSurface routes leftMouseUp to the SwiftUI status board and rightMouseUp to an NSMenu. The status board reads the real snapshot view model and exposes refresh and Export Evidence controls. The menu contains Export Current Evidence, Settings, About, and Quit. AppConfiguration and the live launch report both use NSApplication.ActivationPolicy.accessory, avoiding normal Dock presence. Accessibility labels are defined on the status button, board controls, menu items, settings, and about surfaces."
+        }
+      ],
+      "discovered_risks": [
+        "SwiftPM launches an executable rather than a distributable signed .app bundle; packaging and login-item behavior remain later work.",
+        "The first-slice export action writes to Documents/Disk Steward Exports and reveals the result in Finder; user-selectable destinations belong in later settings work.",
+        "This node intentionally shows only the current capacity snapshot; history, thresholds, and cleanup controls remain out of scope."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:25:51.730503Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-112",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardApp/AppConfiguration.swift",
+        "Sources/DiskStewardApp/AppSurfaces.swift",
+        "Sources/DiskStewardApp/ApplicationDelegate.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/main.swift",
+        "Tests/DiskStewardAppTests/DiskStewardAppTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AppConfiguration.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AppSurfaces.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/ApplicationDelegate.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/DiskStewardAppTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardApp",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed; DiskStewardApp compiled and linked"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed; launched status item with accessibility label Disk Steward, accessory policy, live snapshot, status-board left route, utility-menu right route, and all required menu entries"
+        },
+        {
+          "command": "swift run DiskStewardApp",
+          "result": "passed launch observation; normal AppKit run loop remained alive for five seconds and was then intentionally interrupted"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 18 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-112-01",
+          "result": "passed",
+          "reference": "StatusItemSurface routes leftMouseUp to the SwiftUI status board and rightMouseUp to an NSMenu. The status board reads the real snapshot view model and exposes refresh and Export Evidence controls. The menu contains Export Current Evidence, Settings, About, and Quit. AppConfiguration and the live launch report both use NSApplication.ActivationPolicy.accessory, avoiding normal Dock presence. Accessibility labels are defined on the status button, board controls, menu items, settings, and about surfaces."
+        }
+      ],
+      "discovered_risks": [
+        "SwiftPM launches an executable rather than a distributable signed .app bundle; packaging and login-item behavior remain later work.",
+        "The first-slice export action writes to Documents/Disk Steward Exports and reveals the result in Finder; user-selectable destinations belong in later settings work.",
+        "This node intentionally shows only the current capacity snapshot; history, thresholds, and cleanup controls remain out of scope."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-112",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-112-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "The implementation report covers Package.swift, Sources/DiskStewardApp/**, and Tests/DiskStewardAppTests/** only, matching the node write contract."
+          ]
+        },
+        {
+          "id": "CHECK-112-CLICK-SURFACES",
+          "result": "passed",
+          "evidence": [
+            "StatusItemController configures the button to send leftMouseUp and rightMouseUp. StatusItemSurface maps left click to an NSPopover-hosted SwiftUI board and right click to an NSMenu; automated tests assert the routes differ."
+          ]
+        },
+        {
+          "id": "CHECK-112-BOARD-DATA",
+          "result": "passed",
+          "evidence": [
+            "StatusBoardViewModel calls VolumeSnapshotService, presents used/total/available capacity, refreshes on demand, and passes the current snapshot to SnapshotExporter. Its state/export test passed with a deterministic fixture."
+          ]
+        },
+        {
+          "id": "CHECK-112-MENU-SURFACES",
+          "result": "passed",
+          "evidence": [
+            "The live --ui-smoke report listed Export Current Evidence, Settings…, About Disk Steward, and Quit Disk Steward. Source inspection connects each enabled item to export, SwiftUI settings/about windows, or termination."
+          ]
+        },
+        {
+          "id": "CHECK-112-ACCESSIBILITY",
+          "result": "passed",
+          "evidence": [
+            "The launch report returned status_item_accessibility_label=Disk Steward. Status button help, each menu item, refresh, disk usage, snapshot status, export, settings, and about surfaces have explicit accessibility labels or values."
+          ]
+        },
+        {
+          "id": "CHECK-112-NO-DOCK",
+          "result": "passed",
+          "evidence": [
+            "Both source and automated test pin NSApplication.ActivationPolicy.accessory; the live launch report returned activation_policy=accessory."
+          ]
+        },
+        {
+          "id": "CHECK-112-LAUNCH",
+          "result": "passed",
+          "evidence": [
+            "swift run DiskStewardApp --ui-smoke launched the native status item, found a live volume snapshot, and emitted the expected interaction/accessibility report. A normal swift run DiskStewardApp process entered and remained in the AppKit run loop for the observation window."
+          ]
+        },
+        {
+          "id": "CHECK-112-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter DiskStewardApp passed 4 tests; swift build passed; full swift test passed 18 tests; git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-112"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-112",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-112-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "The implementation report covers Package.swift, Sources/DiskStewardApp/**, and Tests/DiskStewardAppTests/** only, matching the node write contract."
+          ]
+        },
+        {
+          "id": "CHECK-112-CLICK-SURFACES",
+          "result": "passed",
+          "evidence": [
+            "StatusItemController configures the button to send leftMouseUp and rightMouseUp. StatusItemSurface maps left click to an NSPopover-hosted SwiftUI board and right click to an NSMenu; automated tests assert the routes differ."
+          ]
+        },
+        {
+          "id": "CHECK-112-BOARD-DATA",
+          "result": "passed",
+          "evidence": [
+            "StatusBoardViewModel calls VolumeSnapshotService, presents used/total/available capacity, refreshes on demand, and passes the current snapshot to SnapshotExporter. Its state/export test passed with a deterministic fixture."
+          ]
+        },
+        {
+          "id": "CHECK-112-MENU-SURFACES",
+          "result": "passed",
+          "evidence": [
+            "The live --ui-smoke report listed Export Current Evidence, Settings…, About Disk Steward, and Quit Disk Steward. Source inspection connects each enabled item to export, SwiftUI settings/about windows, or termination."
+          ]
+        },
+        {
+          "id": "CHECK-112-ACCESSIBILITY",
+          "result": "passed",
+          "evidence": [
+            "The launch report returned status_item_accessibility_label=Disk Steward. Status button help, each menu item, refresh, disk usage, snapshot status, export, settings, and about surfaces have explicit accessibility labels or values."
+          ]
+        },
+        {
+          "id": "CHECK-112-NO-DOCK",
+          "result": "passed",
+          "evidence": [
+            "Both source and automated test pin NSApplication.ActivationPolicy.accessory; the live launch report returned activation_policy=accessory."
+          ]
+        },
+        {
+          "id": "CHECK-112-LAUNCH",
+          "result": "passed",
+          "evidence": [
+            "swift run DiskStewardApp --ui-smoke launched the native status item, found a live volume snapshot, and emitted the expected interaction/accessibility report. A normal swift run DiskStewardApp process entered and remained in the AppKit run loop for the observation window."
+          ]
+        },
+        {
+          "id": "CHECK-112-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter DiskStewardApp passed 4 tests; swift build passed; full swift test passed 18 tests; git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-112"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 5,
+  "context_id": "CTX-89B481E6B4882DCA302B058C0722E1A9",
+  "previous_event_id": "EVENT-20260912T142515885057Z-9E3C6A52",
+  "previous_event_sha256": "49327dfa652d0e6ee8ebb6a7e7ce465d7fa42b62dec13a927ab8b452e97d82d4"
+}

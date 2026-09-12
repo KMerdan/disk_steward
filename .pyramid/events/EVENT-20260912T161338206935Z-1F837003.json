@@ -1,0 +1,307 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T161338206935Z-1F837003",
+  "at": "2026-09-12T16:13:38.206763Z",
+  "graph_version": 65,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-312",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T18:01:15.187903Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:01:15.188039Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:13:38.206586Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-312",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Integrations/Codex/config.toml.fragment",
+        "Integrations/Codex/disk-steward/.codex-plugin/plugin.json",
+        "Integrations/Codex/disk-steward/.mcp.json",
+        "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md",
+        "Integrations/Claude/mcp.template.json",
+        "Integrations/Claude/README.md",
+        "Scripts/Integration/install",
+        "Scripts/Integration/uninstall",
+        "Scripts/Integration/doctor",
+        "Scripts/Integration/session",
+        "Scripts/Integration/json-config.swift",
+        "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+        "docs/integrations/README.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "source"
+        },
+        {
+          "path": "Integrations/Codex/config.toml.fragment",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Codex/disk-steward/.codex-plugin/plugin.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Codex/disk-steward/.mcp.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md",
+          "class": "source"
+        },
+        {
+          "path": "Integrations/Claude/mcp.template.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Claude/README.md",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/install",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/uninstall",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/doctor",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/session",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/json-config.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/integrations/README.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter IntegrationInstall",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "Scripts/Integration/doctor --dry-run",
+          "result": "passed; described four read-only checks and made no changes"
+        },
+        {
+          "command": "validate_plugin.py Integrations/Codex/disk-steward",
+          "result": "passed using a temporary PyYAML dependency"
+        },
+        {
+          "command": "quick_validate.py Integrations/Codex/disk-steward/skills/disk-steward-evidence",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 82 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-312-01",
+          "result": "passed",
+          "reference": "Six isolated integration tests prove mutation-free install/uninstall previews; idempotent Codex and Claude installs; preservation of unrelated TOML, JSON, and evidence sentinels; dated recoverable backups; fail-closed malformed-marker handling; real connector initialization, tool discovery, and evidence query over a private Unix socket; real session register/end traffic; actionable unavailable-app diagnostics; and uninstall limited to the owned disk_steward entry and plugin. The Codex plugin and evidence skill pass their official structural validators."
+        }
+      ],
+      "discovered_risks": [
+        "Codex and Claude may evolve their local configuration schemas; installer ownership markers and JSON key isolation make upgrades reversible, while diagnostics expose discovery failures.",
+        "Task registration improves correlation but cannot prove individual file writes; the integration skill and session result preserve that limitation.",
+        "The adapters depend only on macOS system zsh and Swift; the shipped app package must include or resolve the connector executable path selected during installation.",
+        "Uninstall moves owned plugin/config state into a dated backup rather than destroying it, so users may later choose when to remove those small backups."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-312",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Integrations/Codex/config.toml.fragment",
+        "Integrations/Codex/disk-steward/.codex-plugin/plugin.json",
+        "Integrations/Codex/disk-steward/.mcp.json",
+        "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md",
+        "Integrations/Claude/mcp.template.json",
+        "Integrations/Claude/README.md",
+        "Scripts/Integration/install",
+        "Scripts/Integration/uninstall",
+        "Scripts/Integration/doctor",
+        "Scripts/Integration/session",
+        "Scripts/Integration/json-config.swift",
+        "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+        "docs/integrations/README.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "source"
+        },
+        {
+          "path": "Integrations/Codex/config.toml.fragment",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Codex/disk-steward/.codex-plugin/plugin.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Codex/disk-steward/.mcp.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md",
+          "class": "source"
+        },
+        {
+          "path": "Integrations/Claude/mcp.template.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Integrations/Claude/README.md",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/install",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/uninstall",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/doctor",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/session",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Integration/json-config.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/integrations/README.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter IntegrationInstall",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "Scripts/Integration/doctor --dry-run",
+          "result": "passed; described four read-only checks and made no changes"
+        },
+        {
+          "command": "validate_plugin.py Integrations/Codex/disk-steward",
+          "result": "passed using a temporary PyYAML dependency"
+        },
+        {
+          "command": "quick_validate.py Integrations/Codex/disk-steward/skills/disk-steward-evidence",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 82 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-312-01",
+          "result": "passed",
+          "reference": "Six isolated integration tests prove mutation-free install/uninstall previews; idempotent Codex and Claude installs; preservation of unrelated TOML, JSON, and evidence sentinels; dated recoverable backups; fail-closed malformed-marker handling; real connector initialization, tool discovery, and evidence query over a private Unix socket; real session register/end traffic; actionable unavailable-app diagnostics; and uninstall limited to the owned disk_steward entry and plugin. The Codex plugin and evidence skill pass their official structural validators."
+        }
+      ],
+      "discovered_risks": [
+        "Codex and Claude may evolve their local configuration schemas; installer ownership markers and JSON key isolation make upgrades reversible, while diagnostics expose discovery failures.",
+        "Task registration improves correlation but cannot prove individual file writes; the integration skill and session result preserve that limitation.",
+        "The adapters depend only on macOS system zsh and Swift; the shipped app package must include or resolve the connector executable path selected during installation.",
+        "Uninstall moves owned plugin/config state into a dated backup rather than destroying it, so users may later choose when to remove those small backups."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-FCA5A2AB76B31B127E3FEC18AAC23D6B",
+  "previous_event_id": "EVENT-20260912T160115188222Z-89C24674",
+  "previous_event_sha256": "99af75b9e37911e2827043dbb4fbb7ed5a7c0d4c207bc2a0475dfa5ef3a8f776"
+}

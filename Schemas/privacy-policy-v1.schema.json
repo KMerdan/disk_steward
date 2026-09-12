@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/privacy-policy-v1.schema.json",
+  "title": "Disk Steward Privacy Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "record_file_contents", "capture_environment", "path_detail", "excluded_paths", "redacted_argument_patterns"],
+  "properties": {
+    "schema": {"const": "privacy-policy-v1"},
+    "record_file_contents": {"const": false},
+    "capture_environment": {"const": false},
+    "path_detail": {"enum": ["full", "basename", "hashed"]},
+    "excluded_paths": {"type": "array", "items": {"type": "string"}},
+    "redacted_argument_patterns": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

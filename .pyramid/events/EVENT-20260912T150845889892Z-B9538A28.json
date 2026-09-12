@@ -1,0 +1,309 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T150845889892Z-B9538A28",
+  "at": "2026-09-12T15:08:45.889723Z",
+  "graph_version": 44,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-212",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T16:59:04.527895Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:59:04.528042Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:08:45.889547Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-212",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+        "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+        "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+        "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+        "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardApp",
+          "result": "passed; 13 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 47 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed; accessory app launched with status item, distinct click routes, required menu labels, and live snapshot"
+        },
+        {
+          "command": "DISK_STEWARD_GATE_EVIDENCE=... swift test --filter SnapshotIncrementTests.testLiveSnapshotRendersAndDeterministicExportIsInspectable",
+          "result": "passed; updated compact status board rendered and visually inspected"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-212-01",
+          "result": "passed",
+          "reference": "Persisted settings expose launch-at-login, normalized watched and excluded roots, bounded retention, capacity and growth thresholds, sample interval, pause, and expiring investigation state. The concrete SMAppService adapter is isolated behind a tested backend contract. The lifecycle combines scheduled whole-volume/metadata samples with debounced FSEvents hints, records snapshots and detailed deltas in SQLite, forwards event gaps into explanation confidence, throttles retention work to six-hour intervals, and retains bounded status history. Injected failure then success reproducibly produces accessible Degraded then Recovered states. Notifications fire only on threshold crossings. The existing popover now presents state, detail, growth, pause/resume, capacity, and export; the settings menu opens the complete control surface. Visual evidence: /Users/merdankiji/Documents/Codex/2026-09-12/as-x20/work/pyramid-disk-steward/TASK-212-ui-smoke/rendered-status-board.png"
+        }
+      ],
+      "discovered_risks": [
+        "SMAppService.mainApp registration requires a properly bundled application; unit tests verify adapter semantics while signed-bundle behavior remains a packaging observation for the increment gate.",
+        "User notification authorization is requested only when a threshold crossing first needs delivery, and denial does not interrupt evidence collection.",
+        "A targeted FSEvents failure leaves scheduled whole-volume and configured-root sampling active and surfaces an explicit degraded state.",
+        "Settings changes restart the targeted stream; the sampling interval itself takes full effect on the next loop iteration."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-212",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+        "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+        "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+        "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+        "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardApp",
+          "result": "passed; 13 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 47 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed; accessory app launched with status item, distinct click routes, required menu labels, and live snapshot"
+        },
+        {
+          "command": "DISK_STEWARD_GATE_EVIDENCE=... swift test --filter SnapshotIncrementTests.testLiveSnapshotRendersAndDeterministicExportIsInspectable",
+          "result": "passed; updated compact status board rendered and visually inspected"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-212-01",
+          "result": "passed",
+          "reference": "Persisted settings expose launch-at-login, normalized watched and excluded roots, bounded retention, capacity and growth thresholds, sample interval, pause, and expiring investigation state. The concrete SMAppService adapter is isolated behind a tested backend contract. The lifecycle combines scheduled whole-volume/metadata samples with debounced FSEvents hints, records snapshots and detailed deltas in SQLite, forwards event gaps into explanation confidence, throttles retention work to six-hour intervals, and retains bounded status history. Injected failure then success reproducibly produces accessible Degraded then Recovered states. Notifications fire only on threshold crossings. The existing popover now presents state, detail, growth, pause/resume, capacity, and export; the settings menu opens the complete control surface. Visual evidence: /Users/merdankiji/Documents/Codex/2026-09-12/as-x20/work/pyramid-disk-steward/TASK-212-ui-smoke/rendered-status-board.png"
+        }
+      ],
+      "discovered_risks": [
+        "SMAppService.mainApp registration requires a properly bundled application; unit tests verify adapter semantics while signed-bundle behavior remains a packaging observation for the increment gate.",
+        "User notification authorization is requested only when a threshold crossing first needs delivery, and denial does not interrupt evidence collection.",
+        "A targeted FSEvents failure leaves scheduled whole-volume and configured-root sampling active and surfaces an explicit degraded state.",
+        "Settings changes restart the targeted stream; the sampling interval itself takes full effect on the next loop iteration."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 6,
+  "context_id": "CTX-36AEA4AEDD0E7A56608C55A2E0EC6AA6",
+  "previous_event_id": "EVENT-20260912T145904528237Z-7C6D9E7F",
+  "previous_event_sha256": "4af98c2cfd5ae15e9f2487ca362cac04564ddb15b7b02b8b1031a5ae01bd8a88"
+}

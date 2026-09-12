@@ -1,0 +1,211 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T144207640510Z-E6656AF8",
+  "at": "2026-09-12T14:42:07.640325Z",
+  "graph_version": 33,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-210",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T16:32:58.014208Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:32:58.014361Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:42:07.640168Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-210",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/EvidenceStore/CSQLite/module.modulemap",
+        "Sources/DiskStewardCore/EvidenceStore/CSQLite/shim.h",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/CSQLite/module.modulemap",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/CSQLite/shim.h",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift package clean && swift test --filter EvidenceStore",
+          "result": "passed against Apple SDK SQLite; 8 tests, 0 failures, no deployment-target linker warning"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 27 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-210-01",
+          "result": "passed",
+          "reference": "The actor-owned WAL connection preserved 200 concurrent committed writes while 50 reads/integrity checks interleaved. Invalid multi-row insertion rolled back fully and a reopened store retained only committed evidence. Retention aggregated raw events into hourly summaries while preserving an unreviewed anomaly; a 12,000-row oversized fixture forced eviction plus VACUUM below the 10 MiB ceiling. SQLite backup produced a separately readable, integrity-ok database with matching event and snapshot counts. Corruption is rejected at open."
+        }
+      ],
+      "discovered_risks": [
+        "The system-library module deliberately links Apple SDK libsqlite3 rather than a Homebrew build so the macOS 13 deployment target remains valid.",
+        "Hard size-ceiling enforcement may evict the oldest unreviewed anomaly only after normal age-based compaction is insufficient; forced eviction count is surfaced in RetentionReport.",
+        "Direct database access remains internal to the app-owned core; MCP must consume a later sanitized service boundary."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-210",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/EvidenceStore/CSQLite/module.modulemap",
+        "Sources/DiskStewardCore/EvidenceStore/CSQLite/shim.h",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/CSQLite/module.modulemap",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/CSQLite/shim.h",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift package clean && swift test --filter EvidenceStore",
+          "result": "passed against Apple SDK SQLite; 8 tests, 0 failures, no deployment-target linker warning"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 27 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-210-01",
+          "result": "passed",
+          "reference": "The actor-owned WAL connection preserved 200 concurrent committed writes while 50 reads/integrity checks interleaved. Invalid multi-row insertion rolled back fully and a reopened store retained only committed evidence. Retention aggregated raw events into hourly summaries while preserving an unreviewed anomaly; a 12,000-row oversized fixture forced eviction plus VACUUM below the 10 MiB ceiling. SQLite backup produced a separately readable, integrity-ok database with matching event and snapshot counts. Corruption is rejected at open."
+        }
+      ],
+      "discovered_risks": [
+        "The system-library module deliberately links Apple SDK libsqlite3 rather than a Homebrew build so the macOS 13 deployment target remains valid.",
+        "Hard size-ceiling enforcement may evict the oldest unreviewed anomaly only after normal age-based compaction is insufficient; forced eviction count is surfaced in RetentionReport.",
+        "Direct database access remains internal to the app-owned core; MCP must consume a later sanitized service boundary."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 5,
+  "context_id": "CTX-5C3EF627075CF5DDC4D7F0877F008C40",
+  "previous_event_id": "EVENT-20260912T143258014545Z-A4617B85",
+  "previous_event_sha256": "a9ced8197c59e2898e9a10341eee13fac331e62bddc7da68cda83ad1d1b10115"
+}

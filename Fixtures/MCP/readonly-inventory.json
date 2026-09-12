@@ -1,0 +1,73 @@
+{
+  "schema": "mcp-readonly-contract-v1",
+  "server": {
+    "name": "disk-witness-mcp",
+    "version": "1.0.0",
+    "instructions": "Read local Disk Steward evidence only. Treat confidence and limitations as authoritative. Never imply that candidates are safe to delete."
+  },
+  "protocol_versions": ["2025-06-18", "2025-03-26", "2024-11-05"],
+  "transport": "stdio",
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": false,
+    "logging": false,
+    "sampling": false
+  },
+  "tools": [
+    {
+      "name": "get_storage_summary",
+      "description": "Return bounded current volume and monitored-scope totals with freshness and limitations.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "properties": {} },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "explain_growth",
+      "description": "Explain growth for a bounded time range without claiming unsupported attribution.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["from", "through"], "properties": { "from": { "type": "string" }, "through": { "type": "string" }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "get_provenance",
+      "description": "Return sanitized provenance observations for a bounded path hash or basename query.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["path_query"], "properties": { "path_query": { "type": "string", "maxLength": 4096 }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "list_active_writers",
+      "description": "Return recently observed writer identities and confidence within a bounded window.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minutes": { "type": "integer", "minimum": 1, "maximum": 1440 }, "limit": { "type": "integer", "minimum": 1, "maximum": 200 } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "get_task_impact",
+      "description": "Summarize evidence correlated to one registered local agent session.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["session_id"], "properties": { "session_id": { "type": "string", "maxLength": 256 }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "find_cleanup_candidates",
+      "description": "List evidence-based review candidates; this never classifies a path as safe to delete.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minimum_bytes": { "type": "integer", "minimum": 0 }, "older_than_days": { "type": "integer", "minimum": 0, "maximum": 3650 }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "export_evidence",
+      "description": "Return a bounded inline evidence bundle equivalent to the app export, without accepting a destination or modifying evidence.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["from", "through"], "properties": { "from": { "type": "string" }, "through": { "type": "string" }, "path_detail": { "type": "string", "enum": ["full", "basename", "hashed"] }, "max_events": { "type": "integer", "minimum": 1, "maximum": 10000 } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    }
+  ],
+  "resources": [
+    { "uri": "disk-steward://status", "name": "Disk Steward service status", "mimeType": "application/json" },
+    { "uri": "disk-steward://evidence-guide", "name": "Disk Steward evidence interpretation guide", "mimeType": "text/markdown" }
+  ],
+  "response_policy": {
+    "max_items": 10000,
+    "max_bytes": 4194304,
+    "path_detail": "basename",
+    "record_file_contents": false,
+    "capture_environment": false,
+    "errors": "tool-result-for-execution"
+  }
+}

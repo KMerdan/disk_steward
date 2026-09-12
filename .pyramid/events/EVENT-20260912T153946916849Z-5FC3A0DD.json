@@ -1,0 +1,325 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T153946916849Z-5FC3A0DD",
+  "at": "2026-09-12T15:39:46.916635Z",
+  "graph_version": 58,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "TASK-310",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:39:24.112939Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+        "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+        "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+        "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+        "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+        "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Session",
+          "result": "passed; 6 selected tests, 0 failures including 3 registry tests"
+        },
+        {
+          "command": "swift test --filter Correlation",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 67 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "The actor-isolated registry authenticates the current peer UID, private 0600 socket posture, and per-launch challenge digest; validates bounded leases and roots; rejects stale, duplicate, cross-task, and spoofed registrations; expires and ends sessions without persisting a secret. Process identity is PID plus start time, preventing PID reuse collisions. The macOS libproc inspector captures the live process and bounded ancestry. Correlation links unique descendants at tool-linked confidence, downgrades unique workspace/time matches to inferred, leaves ambiguous overlapping tasks unknown, ignores expired registrations, and sums only evidence assigned to the requested task."
+        }
+      ],
+      "discovered_risks": [
+        "Local ancestry snapshots are point-in-time; processes that exit before inspection may require the optional privileged event observer for stronger evidence.",
+        "The registry is in-memory by design and must be exposed only behind the private authenticated IPC service implemented by the connector node.",
+        "Workspace-only correlations are intentionally inferred, and overlapping workspaces intentionally produce unknown rather than choosing a task."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:39:46.916428Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+        "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+        "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+        "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+        "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+        "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Session",
+          "result": "passed; 6 selected tests, 0 failures including 3 registry tests"
+        },
+        {
+          "command": "swift test --filter Correlation",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 67 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "The actor-isolated registry authenticates the current peer UID, private 0600 socket posture, and per-launch challenge digest; validates bounded leases and roots; rejects stale, duplicate, cross-task, and spoofed registrations; expires and ends sessions without persisting a secret. Process identity is PID plus start time, preventing PID reuse collisions. The macOS libproc inspector captures the live process and bounded ancestry. Correlation links unique descendants at tool-linked confidence, downgrades unique workspace/time matches to inferred, leaves ambiguous overlapping tasks unknown, ignores expired registrations, and sums only evidence assigned to the requested task."
+        }
+      ],
+      "discovered_risks": [
+        "Local ancestry snapshots are point-in-time; processes that exit before inspection may require the optional privileged event observer for stronger evidence.",
+        "The registry is in-memory by design and must be exposed only behind the private authenticated IPC service implemented by the connector node.",
+        "Workspace-only correlations are intentionally inferred, and overlapping workspaces intentionally produce unknown rather than choosing a task."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All changed source and test files are confined to the declared Sessions and Correlation scopes."
+          ]
+        },
+        {
+          "id": "CHECK-310-AUTH",
+          "result": "passed",
+          "evidence": [
+            "Registry tests reject wrong UID, public socket mode, stale requests, duplicate sessions, and the same process identity assigned to concurrent tasks. The challenge comparison is length-aware and constant-time over UTF-8 bytes; only its digest is retained."
+          ]
+        },
+        {
+          "id": "CHECK-310-LIFECYCLE",
+          "result": "passed",
+          "evidence": [
+            "Active sessions end explicitly or expire at their bounded deadline. Ended/expired sessions remain available for historical interpretation but cannot claim later events."
+          ]
+        },
+        {
+          "id": "CHECK-310-PROCESS",
+          "result": "passed",
+          "evidence": [
+            "ProcessIdentity equality and hashing combine PID and start time. A test registers two generations of one PID without collision, and a live libproc smoke identifies the current test process and ancestry."
+          ]
+        },
+        {
+          "id": "CHECK-310-CORRELATION",
+          "result": "passed",
+          "evidence": [
+            "Synthetic descendant linkage selects the correct concurrent task at tool-linked confidence. Unique workspace-time evidence is inferred; overlapping workspaces, stale registrations, absent matches, and reused-PID mismatches remain unknown."
+          ]
+        },
+        {
+          "id": "CHECK-310-LEAKAGE",
+          "result": "passed",
+          "evidence": [
+            "TaskImpact includes only correlated events for the requested opaque session ID and does not roll ambiguous or outside-root events into a task total."
+          ]
+        },
+        {
+          "id": "CHECK-310-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Session-focused tests, correlation-focused tests, all 67 repository tests, swift build, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-310"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All changed source and test files are confined to the declared Sessions and Correlation scopes."
+          ]
+        },
+        {
+          "id": "CHECK-310-AUTH",
+          "result": "passed",
+          "evidence": [
+            "Registry tests reject wrong UID, public socket mode, stale requests, duplicate sessions, and the same process identity assigned to concurrent tasks. The challenge comparison is length-aware and constant-time over UTF-8 bytes; only its digest is retained."
+          ]
+        },
+        {
+          "id": "CHECK-310-LIFECYCLE",
+          "result": "passed",
+          "evidence": [
+            "Active sessions end explicitly or expire at their bounded deadline. Ended/expired sessions remain available for historical interpretation but cannot claim later events."
+          ]
+        },
+        {
+          "id": "CHECK-310-PROCESS",
+          "result": "passed",
+          "evidence": [
+            "ProcessIdentity equality and hashing combine PID and start time. A test registers two generations of one PID without collision, and a live libproc smoke identifies the current test process and ancestry."
+          ]
+        },
+        {
+          "id": "CHECK-310-CORRELATION",
+          "result": "passed",
+          "evidence": [
+            "Synthetic descendant linkage selects the correct concurrent task at tool-linked confidence. Unique workspace-time evidence is inferred; overlapping workspaces, stale registrations, absent matches, and reused-PID mismatches remain unknown."
+          ]
+        },
+        {
+          "id": "CHECK-310-LEAKAGE",
+          "result": "passed",
+          "evidence": [
+            "TaskImpact includes only correlated events for the requested opaque session ID and does not roll ambiguous or outside-root events into a task total."
+          ]
+        },
+        {
+          "id": "CHECK-310-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Session-focused tests, correlation-focused tests, all 67 repository tests, swift build, and git diff --check passed."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-310"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 6,
+  "context_id": "CTX-B8ABC9171DCD75470FED0F389D6085F0",
+  "previous_event_id": "EVENT-20260912T153924113289Z-9E57E0D6",
+  "previous_event_sha256": "abb6dba4399e1f9de8b8d78d0a75bdc5b7f81625486013bab2f64210f02a6668"
+}

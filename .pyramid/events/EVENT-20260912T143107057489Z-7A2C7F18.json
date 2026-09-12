@@ -1,0 +1,239 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T143107057489Z-7A2C7F18",
+  "at": "2026-09-12T14:31:07.057302Z",
+  "graph_version": 29,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "GATE-190",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T16:26:12.699401Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:26:12.699554Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T14:31:07.057110Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-190",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift",
+        "docs/tasks/evidence/GATE-190/interaction-checklist.md",
+        "docs/tasks/evidence/GATE-190/rendered-status-board.png",
+        "docs/tasks/evidence/GATE-190/export-fixture/codex-brief.md",
+        "docs/tasks/evidence/GATE-190/export-fixture/manifest.json",
+        "docs/tasks/evidence/GATE-190/export-fixture/storage-snapshot.json"
+      ],
+      "changed_assets": [
+        "docs/tasks/evidence/GATE-190/rendered-status-board.png"
+      ],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/interaction-checklist.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/rendered-status-board.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/export-fixture/codex-brief.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/export-fixture/manifest.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/export-fixture/storage-snapshot.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "DISK_STEWARD_GATE_EVIDENCE=docs/tasks/evidence/GATE-190 swift test --filter SnapshotIncrementTests",
+          "result": "passed; live current-volume snapshot, native SwiftUI render, deterministic export, privacy, byte count, and SHA-256 checks"
+        },
+        {
+          "command": "visual inspection of rendered-status-board.png",
+          "result": "passed after correcting transparent background; header, live path, capacity, progress, available capacity, refresh, and export control are legible"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 19 tests, 0 failures"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed with accessory policy, distinct click routes, live snapshot, accessibility label, and required utility menu"
+        },
+        {
+          "command": "shasum -a 256 export payloads",
+          "result": "passed; both recomputed hashes match manifest.json"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-190-01",
+          "result": "passed",
+          "reference": "A fresh build and 19-test suite pass. The native launch probe observes the menu-bar interaction contract and a live snapshot. The retained, visually inspected status-board PNG demonstrates the human surface. The retained deterministic export fixture has valid structured fields, matching SHA-256/byte counts, privacy flags forbidding contents/environment, and no destructive user action."
+        }
+      ],
+      "discovered_risks": [
+        "The desktop was locked during gate execution, so direct menu-bar clicking was unavailable; the retained native offscreen render and independent live launch/accessibility probe cover the rendered and runtime halves without weakening either check.",
+        "The first increment is a SwiftPM development executable, not yet a signed distributable app bundle.",
+        "The live status board currently displays the accessible path used to query the data volume; path redaction settings are scheduled for the evidence/export increment."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-190",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift",
+        "docs/tasks/evidence/GATE-190/interaction-checklist.md",
+        "docs/tasks/evidence/GATE-190/rendered-status-board.png",
+        "docs/tasks/evidence/GATE-190/export-fixture/codex-brief.md",
+        "docs/tasks/evidence/GATE-190/export-fixture/manifest.json",
+        "docs/tasks/evidence/GATE-190/export-fixture/storage-snapshot.json"
+      ],
+      "changed_assets": [
+        "docs/tasks/evidence/GATE-190/rendered-status-board.png"
+      ],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/interaction-checklist.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/rendered-status-board.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/export-fixture/codex-brief.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/export-fixture/manifest.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-190/export-fixture/storage-snapshot.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "DISK_STEWARD_GATE_EVIDENCE=docs/tasks/evidence/GATE-190 swift test --filter SnapshotIncrementTests",
+          "result": "passed; live current-volume snapshot, native SwiftUI render, deterministic export, privacy, byte count, and SHA-256 checks"
+        },
+        {
+          "command": "visual inspection of rendered-status-board.png",
+          "result": "passed after correcting transparent background; header, live path, capacity, progress, available capacity, refresh, and export control are legible"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 19 tests, 0 failures"
+        },
+        {
+          "command": "swift run DiskStewardApp --ui-smoke",
+          "result": "passed with accessory policy, distinct click routes, live snapshot, accessibility label, and required utility menu"
+        },
+        {
+          "command": "shasum -a 256 export payloads",
+          "result": "passed; both recomputed hashes match manifest.json"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-190-01",
+          "result": "passed",
+          "reference": "A fresh build and 19-test suite pass. The native launch probe observes the menu-bar interaction contract and a live snapshot. The retained, visually inspected status-board PNG demonstrates the human surface. The retained deterministic export fixture has valid structured fields, matching SHA-256/byte counts, privacy flags forbidding contents/environment, and no destructive user action."
+        }
+      ],
+      "discovered_risks": [
+        "The desktop was locked during gate execution, so direct menu-bar clicking was unavailable; the retained native offscreen render and independent live launch/accessibility probe cover the rendered and runtime halves without weakening either check.",
+        "The first increment is a SwiftPM development executable, not yet a signed distributable app bundle.",
+        "The live status board currently displays the accessible path used to query the data volume; path redaction settings are scheduled for the evidence/export increment."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 5,
+  "context_id": "CTX-AF28957EF3130053355F74308E937026",
+  "previous_event_id": "EVENT-20260912T142612699733Z-EC07FB30",
+  "previous_event_sha256": "b27d49a9b4de1054b3451c1f0862afebbc570ca8b58c740805d6f5b98e52f8b7"
+}

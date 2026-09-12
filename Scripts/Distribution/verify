@@ -1,0 +1,37 @@
+#!/bin/zsh
+set -euo pipefail
+
+mode="${1:-}"
+if [[ "$mode" != "--development" && "$mode" != "--release" ]]; then
+  print -u2 "usage: Scripts/Distribution/verify --development|--release"
+  exit 64
+fi
+
+repository=${0:A:h:h:h}
+cd "$repository"
+
+/usr/bin/plutil -lint Config/Entitlements/DiskStewardApp.entitlements >/dev/null
+/usr/bin/plutil -lint Config/Entitlements/DiskStewardEndpoint.entitlements >/dev/null
+/usr/bin/swift package dump-package >/dev/null
+
+grep -q 'com.apple.developer.endpoint-security.client' Config/Entitlements/DiskStewardEndpoint.entitlements
+grep -q 'com.apple.security.application-groups' Config/Entitlements/DiskStewardEndpoint.entitlements
+grep -q 'com.apple.security.application-groups' Config/Entitlements/DiskStewardApp.entitlements
+grep -q 'ENABLE_HARDENED_RUNTIME = YES' Config/Signing/Release.xcconfig
+
+if [[ "$mode" == "--release" ]]; then
+  if grep -q 'DISK_STEWARD_TEAM_ID_REQUIRED' Config/Signing/Release.xcconfig; then
+    print -u2 "Release blocked: replace the placeholder development team with the approved signing team."
+    exit 65
+  fi
+  identities=$(/usr/bin/security find-identity -v -p codesigning)
+  [[ "$identities" != *"0 valid identities found"* ]] || {
+    print -u2 "Release blocked: no valid code-signing identity is installed."
+    exit 66
+  }
+fi
+
+print "Distribution preflight passed for ${mode#--}."
+if [[ "$mode" == "--development" ]]; then
+  print "Signing, live system-extension activation, and notarization were not claimed."
+fi

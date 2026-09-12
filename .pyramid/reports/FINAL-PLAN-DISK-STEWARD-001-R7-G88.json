@@ -1,0 +1,2417 @@
+{
+  "schema": "pyramid-final-report-v1",
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "title": "Disk Steward macOS evidence monitor",
+  "revision": 7,
+  "graph_version": 88,
+  "completed_at": "2026-09-12T16:55:32.277653Z",
+  "completed_by": "codex",
+  "intent": {
+    "id": "INTENT-001",
+    "statement": "A macOS user can leave Disk Steward running as a lightweight menu-bar app, understand material disk growth, export trustworthy evidence for Codex or Claude, and query the same evidence through a read-only local MCP integration.",
+    "success_evidence": [
+      {
+        "id": "REQ-001",
+        "description": "A signed-development build launches as a menu-bar utility; left-click opens a compact status board and right-click exposes Export, Settings, About, and Quit."
+      },
+      {
+        "id": "REQ-002",
+        "description": "The app measures whole-volume capacity while collecting bounded detailed evidence for configured roots and registered agent process trees."
+      },
+      {
+        "id": "REQ-003",
+        "description": "Evidence identifies path, time, size delta, actor and agent session when observable, and labels exact, tool-linked, inferred, or unknown attribution without guessing."
+      },
+      {
+        "id": "REQ-004",
+        "description": "A user can export a portable, integrity-manifested evidence bundle containing a concise Codex brief and machine-readable detailed records."
+      },
+      {
+        "id": "REQ-005",
+        "description": "Codex and Claude can query sanitized evidence through the same read-only local MCP executable without rescanning the disk."
+      },
+      {
+        "id": "REQ-006",
+        "description": "Monitoring remains useful without restricted privileges and enables exact Endpoint Security provenance only when entitlement and user authorization are available."
+      },
+      {
+        "id": "REQ-007",
+        "description": "The app records no file contents, provides explicit privacy exclusions and retention limits, and performs no deletion or cleanup mutation in this intent."
+      },
+      {
+        "id": "REQ-008",
+        "description": "Automated and reproducible checks demonstrate buildability, evidence correctness, regression safety, bounded idle resource use, and recovery from unavailable monitoring components."
+      }
+    ],
+    "constraints": [
+      "Use a native Swift-first macOS architecture and keep the continuously running footprint bounded.",
+      "Prefer macOS 13 or newer, Swift 6, AppKit for status-item mouse behavior, SwiftUI for presented UI, SQLite for local evidence, and the official Swift MCP SDK.",
+      "Treat Endpoint Security entitlement approval as an external dependency and preserve a functional FSEvents/snapshot fallback.",
+      "Keep MCP read-only and avoid an externally reachable HTTP listener.",
+      "Do not persist file contents, secrets, or unbounded raw write-event streams.",
+      "Every attribution statement must carry method and confidence.",
+      "Generated evidence and databases must have deterministic retention and size controls."
+    ],
+    "non_goals": [
+      "Automatic deletion, cache purging, process termination, or destructive MCP tools.",
+      "Cloud synchronization, accounts, telemetry, or a hosted backend.",
+      "Windows or Linux support.",
+      "Detailed monitoring of external, network, Time Machine, or cloud-placeholder volumes by default.",
+      "Reading or classifying file contents.",
+      "Guaranteeing Apple Endpoint Security entitlement approval."
+    ],
+    "assumptions": [
+      {
+        "id": "ASM-001",
+        "statement": "The development machine has a compatible Xcode and Swift toolchain for a macOS 13+ Swift 6 application.",
+        "confidence": "medium",
+        "validation_node": "RESEARCH-101"
+      },
+      {
+        "id": "ASM-002",
+        "statement": "A native project layout can package the menu app, a local MCP executable, and later a system extension without introducing a second application language.",
+        "confidence": "medium",
+        "validation_node": "RESEARCH-101"
+      },
+      {
+        "id": "ASM-003",
+        "statement": "Endpoint Security entitlement may be unavailable or delayed, so exact system-wide attribution cannot be a prerequisite for the standard product path.",
+        "confidence": "high",
+        "validation_node": "RESEARCH-401"
+      },
+      {
+        "id": "ASM-004",
+        "statement": "A stdio MCP executable can serve both Codex and Claude while delegating sanitized queries to the local app-owned evidence service.",
+        "confidence": "high",
+        "validation_node": "CONTRACT-301"
+      }
+    ]
+  },
+  "success_evidence": [
+    {
+      "id": "REQ-001",
+      "description": "A signed-development build launches as a menu-bar utility; left-click opens a compact status board and right-click exposes Export, Settings, About, and Quit.",
+      "covered_by": [
+        "GATE-190",
+        "GATE-290",
+        "GATE-390",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-010",
+        "OUTCOME-020",
+        "RESEARCH-101",
+        "TASK-110",
+        "TASK-112",
+        "TASK-212"
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "description": "The app measures whole-volume capacity while collecting bounded detailed evidence for configured roots and registered agent process trees.",
+      "covered_by": [
+        "CONTRACT-101",
+        "CONTRACT-401",
+        "GATE-290",
+        "GATE-390",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-020",
+        "OUTCOME-040",
+        "TASK-210",
+        "TASK-211",
+        "TASK-212",
+        "TASK-310",
+        "TASK-410"
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "description": "Evidence identifies path, time, size delta, actor and agent session when observable, and labels exact, tool-linked, inferred, or unknown attribution without guessing.",
+      "covered_by": [
+        "CONTRACT-101",
+        "CONTRACT-301",
+        "CONTRACT-401",
+        "GATE-290",
+        "GATE-390",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-020",
+        "OUTCOME-030",
+        "OUTCOME-040",
+        "RESEARCH-401",
+        "TASK-210",
+        "TASK-211",
+        "TASK-213",
+        "TASK-310",
+        "TASK-312",
+        "TASK-410",
+        "TASK-411"
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "description": "A user can export a portable, integrity-manifested evidence bundle containing a concise Codex brief and machine-readable detailed records.",
+      "covered_by": [
+        "CONTRACT-101",
+        "CONTRACT-301",
+        "GATE-190",
+        "GATE-290",
+        "GATE-390",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-010",
+        "OUTCOME-020",
+        "OUTCOME-030",
+        "TASK-111",
+        "TASK-112",
+        "TASK-213",
+        "TASK-311"
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "description": "Codex and Claude can query sanitized evidence through the same read-only local MCP executable without rescanning the disk.",
+      "covered_by": [
+        "CONTRACT-301",
+        "GATE-390",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-030",
+        "RESEARCH-101",
+        "TASK-310",
+        "TASK-311",
+        "TASK-312",
+        "TASK-411"
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "description": "Monitoring remains useful without restricted privileges and enables exact Endpoint Security provenance only when entitlement and user authorization are available.",
+      "covered_by": [
+        "CONTRACT-401",
+        "GATE-290",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-040",
+        "RESEARCH-401",
+        "RISK-420",
+        "TASK-211",
+        "TASK-212",
+        "TASK-410",
+        "TASK-411"
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "description": "The app records no file contents, provides explicit privacy exclusions and retention limits, and performs no deletion or cleanup mutation in this intent.",
+      "covered_by": [
+        "CONTRACT-101",
+        "CONTRACT-301",
+        "CONTRACT-401",
+        "GATE-190",
+        "GATE-290",
+        "GATE-390",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-010",
+        "OUTCOME-020",
+        "OUTCOME-030",
+        "OUTCOME-040",
+        "RESEARCH-401",
+        "RISK-420",
+        "TASK-111",
+        "TASK-112",
+        "TASK-210",
+        "TASK-211",
+        "TASK-212",
+        "TASK-213",
+        "TASK-310",
+        "TASK-311",
+        "TASK-312",
+        "TASK-410",
+        "TASK-411"
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "description": "Automated and reproducible checks demonstrate buildability, evidence correctness, regression safety, bounded idle resource use, and recovery from unavailable monitoring components.",
+      "covered_by": [
+        "CONTRACT-101",
+        "CONTRACT-301",
+        "CONTRACT-401",
+        "GATE-190",
+        "GATE-290",
+        "GATE-390",
+        "GATE-490",
+        "INTENT-001",
+        "OUTCOME-010",
+        "OUTCOME-020",
+        "OUTCOME-030",
+        "OUTCOME-040",
+        "RESEARCH-101",
+        "RESEARCH-401",
+        "RISK-420",
+        "TASK-110",
+        "TASK-111",
+        "TASK-112",
+        "TASK-210",
+        "TASK-211",
+        "TASK-212",
+        "TASK-213",
+        "TASK-310",
+        "TASK-311",
+        "TASK-312",
+        "TASK-410",
+        "TASK-411"
+      ]
+    }
+  ],
+  "verified_primary_nodes": [
+    {
+      "id": "INTENT-001",
+      "title": "Trustworthy macOS storage evidence for humans and agents",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "INTENT-001",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-INTENT-GRAPH",
+            "result": "passed",
+            "evidence": [
+              "All 26 descendant primary nodes, including four outcome increments and their gates, are verified. GATE-490 independently repeats inherited scenarios."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-001",
+            "result": "passed",
+            "evidence": [
+              "The clean development executable carries an embedded SHA-256 ad-hoc signature and launches successfully in UI-smoke mode as an accessory menu-bar utility. Left click, right click, Export Current Evidence, Settings, About, and Quit routes are verified. It is not represented as Developer ID signed or distributable."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-002",
+            "result": "passed",
+            "evidence": [
+              "Live whole-volume capacity capture, configured watched roots, explicit excluded roots, FSEvents hints, metadata rescans, and registered agent process-tree correlation are implemented with bounded entries, depth, queues, and retention."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-003",
+            "result": "passed",
+            "evidence": [
+              "Evidence carries path, time, logical/allocated delta, actor/session when supported, method, limitations, causal references, and exact/tool-linked/inferred/unknown confidence. Ambiguous, historical, gapped, and PID-reuse cases do not guess."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-004",
+            "result": "passed",
+            "evidence": [
+              "Snapshot and evidence-bundle exports contain concise Codex briefs, machine-readable data, privacy declarations, limitations, file byte counts, SHA-256 integrity entries, and deterministic bounded ranges."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-005",
+            "result": "passed",
+            "evidence": [
+              "The bundled stdio MCP executable serves seven read-only tools over a private app-owned Unix socket. Codex and Claude install/config/session adapters preserve unrelated configuration and query persisted evidence without disk rescans."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-006",
+            "result": "passed",
+            "evidence": [
+              "Snapshot/FSEvents monitoring remains active without restricted privileges. Exact provenance is accepted only from complete, gap-free privileged fixtures or a future authorized live observer; entitlement absence and permission denial downgrade visibly."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-007",
+            "result": "passed",
+            "evidence": [
+              "Closed schemas and property tests prohibit file contents and environment data, sensitive metadata is redacted, exclusions and retention are explicit, evidence is preserved on uninstall, and no cleanup/delete mutation or telemetry surface exists."
+            ]
+          },
+          {
+            "id": "CHECK-REQ-008",
+            "result": "passed",
+            "evidence": [
+              "After a clean, all 105 automated tests pass; the macOS-targeted Xcode scheme builds; the app and MCP executables launch; queue/history/database bounds, overload accounting, unavailable-component recovery, export integrity, and development distribution preflight are reproducible. Signed-release CPU/memory measurements remain a release-stage check."
+            ]
+          },
+          {
+            "id": "CHECK-INTENT-NONGOALS",
+            "result": "passed",
+            "evidence": [
+              "The implementation performs no deletion, cache purge, process termination, destructive MCP action, cloud sync, account, telemetry, hosted service, cross-platform claim, external-volume deep scan, content read, or entitlement-guarantee claim."
+            ]
+          },
+          {
+            "id": "CHECK-INTENT-RESIDUAL",
+            "result": "passed",
+            "evidence": [
+              "Developer ID distribution, Apple Endpoint Security entitlement approval, production team/app-group identifiers, notarization, live activation, Full Disk Access, upgrade/deactivation, clean-host uninstall, and signed-artifact resource sampling are explicitly documented external release gates."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "INTENT-001"
+        ],
+        "recommended_action": "close"
+      }
+    },
+    {
+      "id": "OUTCOME-040",
+      "title": "Advanced trustworthy provenance",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-040",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-O40-CHILDREN",
+            "result": "passed",
+            "evidence": [
+              "OUTCOME-030, RESEARCH-401, CONTRACT-401, TASK-410, TASK-411, RISK-420, and GATE-490 are all verified with passing audits."
+            ]
+          },
+          {
+            "id": "CHECK-O40-EXACT",
+            "result": "passed",
+            "evidence": [
+              "Normalized privileged fixture events establish exact create, grow, and rename only with complete process/file identity, size measurement, timing, operation, path, and gap-free linkage; PID/start ancestry can link one authenticated task."
+            ]
+          },
+          {
+            "id": "CHECK-O40-FALLBACK",
+            "result": "passed",
+            "evidence": [
+              "Denied, pending, unavailable, not-entitled, crashed, overloaded, dropped, and gapped privileged states retain the standard snapshot/FSEvents path and never claim exact attribution."
+            ]
+          },
+          {
+            "id": "CHECK-O40-JOURNEYS",
+            "result": "passed",
+            "evidence": [
+              "The final gate relaunches the actual menu-bar executable and MCP connector, repeats live snapshot, status board, settings, watched/excluded monitoring, integrity-manifested export, provenance query, and stopped-service recovery journeys."
+            ]
+          },
+          {
+            "id": "CHECK-O40-SAFETY",
+            "result": "passed",
+            "evidence": [
+              "Privacy property tests, exclusion controls, bounded retention/history/queues, 100,000-event overload accounting, safe uninstall recovery, and fail-closed release preflight pass without adding deletion or telemetry."
+            ]
+          },
+          {
+            "id": "CHECK-O40-LIMITATIONS",
+            "result": "passed",
+            "evidence": [
+              "Fixture exactness is explicitly separated from unavailable Apple entitlement and signed-host evidence. Signing, notarization, live activation lifecycle, and signed-artifact resource measurements remain visible release gates."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-040",
+          "INTENT-001"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-030",
+      "title": "Agent-queryable storage evidence",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-030",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-O30-CHILDREN",
+            "result": "passed",
+            "evidence": [
+              "OUTCOME-020, CONTRACT-301, TASK-310, TASK-311, TASK-312, and GATE-390 are all verified passed with clear health."
+            ]
+          },
+          {
+            "id": "CHECK-O30-PROTOCOL",
+            "result": "passed",
+            "evidence": [
+              "The shared connector completes MCP initialization and discovery, advertises seven closed read-only tools plus two resources, separates protocol/execution errors, sanitizes results, and enforces response bounds."
+            ]
+          },
+          {
+            "id": "CHECK-O30-TASK",
+            "result": "passed",
+            "evidence": [
+              "Authenticated private-socket registration links one active session and workspace; the end-to-end gate attributes its retained artifact only as inferred and preserves the no-proof limitation."
+            ]
+          },
+          {
+            "id": "CHECK-O30-CLIENTS",
+            "result": "passed",
+            "evidence": [
+              "Validated Codex plugin/TOML and Claude JSON paths install, upgrade, diagnose, and uninstall in isolated roots while retaining unrelated configuration and evidence."
+            ]
+          },
+          {
+            "id": "CHECK-O30-EXPORT",
+            "result": "passed",
+            "evidence": [
+              "MCP and app-service exports have equal bounded summary and event detail for the same request, preserving the existing integrity-manifested export semantics."
+            ]
+          },
+          {
+            "id": "CHECK-O30-SAFETY",
+            "result": "passed",
+            "evidence": [
+              "No destructive MCP tool exists, delete_file is rejected, cleanup candidates require review, forbidden exact keys are absent, credentials are not bundled, and unavailable app state fails with recovery guidance rather than invented evidence."
+            ]
+          },
+          {
+            "id": "CHECK-O30-INHERITED",
+            "result": "passed",
+            "evidence": [
+              "The current 83-test suite repeats volume snapshot, menu-bar routes/status/export, persistent monitoring, notification, retention, recovery, redaction, and evidence-bundle scenarios in the same candidate."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-030"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-020",
+      "title": "Persistent bounded evidence recorder",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-020",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-O20-GATE",
+            "result": "passed",
+            "evidence": [
+              "GATE-290 independently passed with complete coverage of CONTRACT-101, both prior increment foundations, TASK-210 through TASK-213, and inherited OUTCOME-010 proof."
+            ]
+          },
+          {
+            "id": "CHECK-O20-ACTOR",
+            "result": "passed",
+            "evidence": [
+              "A user-facing settings model and view control watched/excluded roots, bounded retention, thresholds, sample interval, pause/resume, investigation window, and launch at login; the existing menu-bar popover presents live state and export."
+            ]
+          },
+          {
+            "id": "CHECK-O20-GROWTH",
+            "result": "passed",
+            "evidence": [
+              "The integrated fixture establishes a baseline, writes watched and outside-root allocations, records only the watched path as inferred detail, preserves outside growth as unknown, and emits one threshold-crossing signal."
+            ]
+          },
+          {
+            "id": "CHECK-O20-RETAIN",
+            "result": "passed",
+            "evidence": [
+              "SQLite WAL recovery, hard size ceilings, raw-to-hourly-to-daily retention, anomaly preservation, consistent backup, and export of retained rollups all pass focused and integrated tests."
+            ]
+          },
+          {
+            "id": "CHECK-O20-EXPORT",
+            "result": "passed",
+            "evidence": [
+              "The complete time-bounded bundle is deterministic for fixtures, schema-valid, hash-verifiable, concurrency-consistent, redacted, explicit about missing attribution, and human-readable."
+            ]
+          },
+          {
+            "id": "CHECK-O20-INHERITED",
+            "result": "passed",
+            "evidence": [
+              "The current 54-test suite and executable smoke re-establish the original live snapshot, compact status board, click routing/menu actions, and deterministic snapshot export against the current candidate."
+            ]
+          },
+          {
+            "id": "CHECK-O20-SAFETY",
+            "result": "passed",
+            "evidence": [
+              "No cleanup/deletion tool was added; no file contents or environment are captured; unavailable FSEvents degrades to scheduled sampling; unknown attribution is never guessed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-020"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-010",
+      "title": "Launchable disk snapshot and export utility",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-010",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-O10-CHILDREN",
+            "result": "passed",
+            "evidence": [
+              "All six primary children—RESEARCH-101, CONTRACT-101, TASK-110, TASK-111, TASK-112, and GATE-190—have verification=passed and health=clear."
+            ]
+          },
+          {
+            "id": "CHECK-O10-ACCEPTANCE",
+            "result": "passed",
+            "evidence": [
+              "GATE-190 retained a legible native status-board render, a live accessory-app launch report with distinct click routes and required menu, a deterministic parseable export fixture, matching integrity hashes, and privacy checks forbidding file contents."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-010"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "RESEARCH-101",
+      "title": "Validate native toolchain and packaging path",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "RESEARCH-101",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-101-01",
+            "result": "passed",
+            "evidence": [
+              "Fresh swift --version output matches docs/tasks/evidence/RESEARCH-101/environment.md: Swift 6.2.4 on arm64-apple-macosx15.0."
+            ]
+          },
+          {
+            "id": "CHECK-101-02",
+            "result": "passed",
+            "evidence": [
+              "Fresh xcodebuild -version and xcrun --show-sdk-path outputs match the captured Xcode 26.3 and installed SDK evidence."
+            ]
+          },
+          {
+            "id": "CHECK-101-03",
+            "result": "passed",
+            "evidence": [
+              "Fresh security find-identity diagnostic confirms zero valid code-signing identities; docs/architecture/toolchain.md correctly reports distribution and privileged signing as unavailable rather than passing."
+            ]
+          },
+          {
+            "id": "CHECK-101-04",
+            "result": "passed",
+            "evidence": [
+              "docs/architecture/toolchain.md is non-empty and explicitly defines minimum target, module/target layout, dependency policy, reproducible SwiftPM and Xcode commands, packaging boundary, and follow-up validation."
+            ]
+          },
+          {
+            "id": "CHECK-101-05",
+            "result": "passed",
+            "evidence": [
+              "docs/tasks/evidence/RESEARCH-101/environment.md is non-empty, separates observed command evidence from interpretation, links authoritative capability sources, and records the xcodebuild shell warning."
+            ]
+          },
+          {
+            "id": "CHECK-101-06",
+            "result": "passed",
+            "evidence": [
+              "git diff --check completed successfully; changed product files remain exactly within RESEARCH-101 allowed write scope."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "RESEARCH-101"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "CONTRACT-101",
+      "title": "Define core evidence and privacy contracts",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "CONTRACT-101",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-301-01",
+            "result": "passed",
+            "evidence": [
+              "swift test --filter ContractTests compiled and executed 7 tests with 0 failures; the full swift test suite executed 8 tests with 0 failures."
+            ]
+          },
+          {
+            "id": "CHECK-301-02",
+            "result": "passed",
+            "evidence": [
+              "Valid evidence, retention, privacy, and export cases are accepted by executable fixtures."
+            ]
+          },
+          {
+            "id": "CHECK-301-03",
+            "result": "passed",
+            "evidence": [
+              "Negative fixtures prove missing attribution confidence, a file_contents field, unbounded retention values, missing manifest limitations, and malformed SHA-256 are rejected."
+            ]
+          },
+          {
+            "id": "CHECK-301-04",
+            "result": "passed",
+            "evidence": [
+              "All six schemas are top-level closed objects with stable schema discriminators; explicit jq syntax checks passed for all schemas and fixtures."
+            ]
+          },
+          {
+            "id": "CHECK-301-05",
+            "result": "passed",
+            "evidence": [
+              "docs/architecture/evidence-contract.md covers component ownership, hybrid scope, exact/tool-linked/inferred/unknown semantics, logical versus allocated bytes, redaction, finite retention, WAL-consistent export, manifest integrity, degraded errors, and versioning."
+            ]
+          },
+          {
+            "id": "CHECK-301-06",
+            "result": "passed",
+            "evidence": [
+              "Source inspection finds no filesystem collector, deletion, process termination, content capture, mutation MCP tool, or other out-of-scope implementation."
+            ]
+          },
+          {
+            "id": "CHECK-301-07",
+            "result": "passed",
+            "evidence": [
+              "The known limitation that the local validator supports only currently used JSON Schema keywords is explicitly recorded and does not leave any used keyword untested."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "CONTRACT-101"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-110",
+      "title": "Create the native project foundation",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-110",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-110-01",
+            "result": "passed",
+            "evidence": [
+              "Package.swift declares macOS 13, DiskStewardCore, DiskStewardApp, and FoundationTests with no undeclared dependency."
+            ]
+          },
+          {
+            "id": "CHECK-110-02",
+            "result": "passed",
+            "evidence": [
+              "A disposable copy excluding .git, .pyramid, and .build completed swift package resolve and swift build; DiskStewardApp linked successfully."
+            ]
+          },
+          {
+            "id": "CHECK-110-03",
+            "result": "passed",
+            "evidence": [
+              "The same disposable copy completed swift test with 1 XCTest and 0 failures."
+            ]
+          },
+          {
+            "id": "CHECK-110-04",
+            "result": "passed",
+            "evidence": [
+              "swift package describe --type json reports the intended target dependency graph and macOS 13 platform."
+            ]
+          },
+          {
+            "id": "CHECK-110-05",
+            "result": "passed",
+            "evidence": [
+              "README.md reproduces resolve/build/test/run entry points and explicitly says the current accessory skeleton is not yet the visible increment."
+            ]
+          },
+          {
+            "id": "CHECK-110-06",
+            "result": "passed",
+            "evidence": [
+              "Source inspection finds only product identity and application-lifecycle skeleton behavior; no monitoring, file content access, cleanup, privileged extension, or destructive capability was introduced."
+            ]
+          },
+          {
+            "id": "CHECK-110-07",
+            "result": "passed",
+            "evidence": [
+              ".gitignore excludes build products and local SQLite/evidence state; git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-110"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-111",
+      "title": "Implement volume snapshot and basic export",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-111",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-111-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "The complete implementation report lists Package.swift and every source/test path changed for this node; all paths are inside TASK-111 allowed_write_scope."
+            ]
+          },
+          {
+            "id": "CHECK-111-NATIVE-CAPACITY",
+            "result": "passed",
+            "evidence": [
+              "VolumeSnapshotService uses Foundation URL volumeTotalCapacity, available-capacity, locality, internal/read-only, and remount URL resource keys; it filters explicitly non-local volumes, deduplicates resolved mount paths, and reports inaccessible metadata as limitations."
+            ]
+          },
+          {
+            "id": "CHECK-111-NONNEGATIVE",
+            "result": "passed",
+            "evidence": [
+              "VolumeCapacity clamps total and available byte values to a valid range and derives used = total - available. Fixture and live tests assert nonnegative totals and the capacity identity."
+            ]
+          },
+          {
+            "id": "CHECK-111-DETERMINISM",
+            "result": "passed",
+            "evidence": [
+              "Snapshots sort volumes and limitations; exports use injected identifiers/timestamps, a fixed payload order, and JSONEncoder sortedKeys. The fixed fixture test exercises this deterministic path."
+            ]
+          },
+          {
+            "id": "CHECK-111-SCHEMAS",
+            "result": "passed",
+            "evidence": [
+              "Generated storage-snapshot.json and manifest.json are validated by tests against Schemas/storage-snapshot-v1.schema.json and Schemas/export-manifest-v1.schema.json through the registered test helper."
+            ]
+          },
+          {
+            "id": "CHECK-111-INTEGRITY-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "SnapshotExporterTests recomputes SHA-256 and byte counts for each manifest-listed payload, checks privacy flags are false, verifies no environment payload exists, and confirms path traversal identifiers are rejected. Source inspection finds capacity metadata only and no file-content reads."
+            ]
+          },
+          {
+            "id": "CHECK-111-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "swift test --filter Snapshot passed 6 tests; swift test --filter Export passed 3 tests; full swift test passed 14 tests; git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-111"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-112",
+      "title": "Implement menu-bar shell and compact status board",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-112",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-112-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "The implementation report covers Package.swift, Sources/DiskStewardApp/**, and Tests/DiskStewardAppTests/** only, matching the node write contract."
+            ]
+          },
+          {
+            "id": "CHECK-112-CLICK-SURFACES",
+            "result": "passed",
+            "evidence": [
+              "StatusItemController configures the button to send leftMouseUp and rightMouseUp. StatusItemSurface maps left click to an NSPopover-hosted SwiftUI board and right click to an NSMenu; automated tests assert the routes differ."
+            ]
+          },
+          {
+            "id": "CHECK-112-BOARD-DATA",
+            "result": "passed",
+            "evidence": [
+              "StatusBoardViewModel calls VolumeSnapshotService, presents used/total/available capacity, refreshes on demand, and passes the current snapshot to SnapshotExporter. Its state/export test passed with a deterministic fixture."
+            ]
+          },
+          {
+            "id": "CHECK-112-MENU-SURFACES",
+            "result": "passed",
+            "evidence": [
+              "The live --ui-smoke report listed Export Current Evidence, Settings…, About Disk Steward, and Quit Disk Steward. Source inspection connects each enabled item to export, SwiftUI settings/about windows, or termination."
+            ]
+          },
+          {
+            "id": "CHECK-112-ACCESSIBILITY",
+            "result": "passed",
+            "evidence": [
+              "The launch report returned status_item_accessibility_label=Disk Steward. Status button help, each menu item, refresh, disk usage, snapshot status, export, settings, and about surfaces have explicit accessibility labels or values."
+            ]
+          },
+          {
+            "id": "CHECK-112-NO-DOCK",
+            "result": "passed",
+            "evidence": [
+              "Both source and automated test pin NSApplication.ActivationPolicy.accessory; the live launch report returned activation_policy=accessory."
+            ]
+          },
+          {
+            "id": "CHECK-112-LAUNCH",
+            "result": "passed",
+            "evidence": [
+              "swift run DiskStewardApp --ui-smoke launched the native status item, found a live volume snapshot, and emitted the expected interaction/accessibility report. A normal swift run DiskStewardApp process entered and remained in the AppKit run loop for the observation window."
+            ]
+          },
+          {
+            "id": "CHECK-112-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "swift test --filter DiskStewardApp passed 4 tests; swift build passed; full swift test passed 18 tests; git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-112"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-190",
+      "title": "Audit launchable snapshot increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-190",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-190-INHERITED",
+            "result": "passed",
+            "evidence": [
+              "CONTRACT-101, TASK-110, TASK-111, and TASK-112 are each implemented, independently audited, verification=passed, and health=clear."
+            ]
+          },
+          {
+            "id": "CHECK-190-HUMAN-JOURNEY",
+            "result": "passed",
+            "evidence": [
+              "The live launch probe created an accessory status item, exposed distinct status-board/utility-menu click routes, reported a live snapshot, and listed export/settings/about/quit. The interaction checklist traces every required human action."
+            ]
+          },
+          {
+            "id": "CHECK-190-RENDER",
+            "result": "passed",
+            "evidence": [
+              "rendered-status-board.png was generated from the production SwiftUI StatusBoardView with a live current-volume model. Visual inspection confirms a legible header, path, capacity summary, progress, available bytes, refresh control, and export action."
+            ]
+          },
+          {
+            "id": "CHECK-190-EXPORT",
+            "result": "passed",
+            "evidence": [
+              "The retained deterministic export fixture contains only codex-brief.md, storage-snapshot.json, and manifest.json. Its schema discriminators/privacy fields are correct, and independent shasum results exactly match both manifest digests."
+            ]
+          },
+          {
+            "id": "CHECK-190-SAFETY",
+            "result": "passed",
+            "evidence": [
+              "Contract tests reject file contents/environment capture. Source and surface inspection find no cleanup/delete user command. The only product removal call rolls back a newly created partial export on write failure."
+            ]
+          },
+          {
+            "id": "CHECK-190-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "swift build passed, full swift test passed 19 tests with 0 failures, the gate integration test passed, the launch probe passed, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-190",
+          "OUTCOME-010"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-210",
+      "title": "Implement bounded SQLite evidence store",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-210",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-210-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All changed paths are within Package.swift, Sources/DiskStewardCore/EvidenceStore/**, and Tests/DiskStewardCoreTests/EvidenceStore/**."
+            ]
+          },
+          {
+            "id": "CHECK-210-MIGRATION",
+            "result": "passed",
+            "evidence": [
+              "A clean database migrates transactionally to user_version=1, enables WAL/busy timeout/foreign keys, and returns PRAGMA quick_check=ok; newer schemas and corrupt files fail closed."
+            ]
+          },
+          {
+            "id": "CHECK-210-CONCURRENCY",
+            "result": "passed",
+            "evidence": [
+              "The Swift actor serializes one FULLMUTEX SQLite connection; the test interleaves 200 writes with 50 reads/integrity checks and retains exactly 200 events."
+            ]
+          },
+          {
+            "id": "CHECK-210-RECOVERY",
+            "result": "passed",
+            "evidence": [
+              "Batch validation failure after an earlier insert triggers ROLLBACK; close/reopen retains the prior committed event and excludes the partial batch."
+            ]
+          },
+          {
+            "id": "CHECK-210-RETENTION",
+            "result": "passed",
+            "evidence": [
+              "Age-based retention aggregates eligible raw rows to hourly and hourly to daily summaries, bounds daily history, preserves unreviewed anomalies when possible, checkpoints WAL, and vacuums. A forced 12,000-row fixture contracts below 10 MiB."
+            ]
+          },
+          {
+            "id": "CHECK-210-BACKUP",
+            "result": "passed",
+            "evidence": [
+              "SQLite's online backup API creates a consistent separate database; reopening reports 25 events, one snapshot, schema version 1, and integrity ok."
+            ]
+          },
+          {
+            "id": "CHECK-210-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "The event record accepts typed metadata fields only—no arbitrary payload, environment, command secret, or file-content field exists. Snapshot blobs encode the closed capacity-only StorageSnapshot contract."
+            ]
+          },
+          {
+            "id": "CHECK-210-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Focused suite passed 8 tests, full suite passed 27 tests, build and diff checks passed, and clean linkage uses SDK libsqlite3 without the earlier Homebrew deployment warning."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-210"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-211",
+      "title": "Implement hybrid monitoring and growth explanation",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-211",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-211-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "Every implementation and test path is within Sources/DiskStewardCore/Monitoring/**, Sources/DiskStewardCore/Explanation/**, Tests/DiskStewardCoreTests/Monitoring/**, or Tests/DiskStewardCoreTests/Explanation/**."
+            ]
+          },
+          {
+            "id": "CHECK-211-VOLUME",
+            "result": "passed",
+            "evidence": [
+              "WholeVolumeSampler reuses the proven VolumeSnapshotService and emits per-mount used-byte deltas without enabling file-level monitoring for external volumes."
+            ]
+          },
+          {
+            "id": "CHECK-211-FSEVENTS",
+            "result": "passed",
+            "evidence": [
+              "TargetedFSEventsCollector uses macOS file-event, watch-root, no-defer streams for policy roots. Its API labels every event as a rescan-required hint and makes no process-identity claim. A live temporary-file write generated the expected hint."
+            ]
+          },
+          {
+            "id": "CHECK-211-SCOPE-LIMITS",
+            "result": "passed",
+            "evidence": [
+              "Policy and scanner tests cover watched, registered, active investigation, expired investigation, excluded, unavailable, maximum-entry, and maximum-depth behavior. Limitations name configured detail roots, exclusions, expired investigations, unavailable roots, and scan limits."
+            ]
+          },
+          {
+            "id": "CHECK-211-GAPS",
+            "result": "passed",
+            "evidence": [
+              "Deterministic FSEvents interpretation recognizes dropped, wrapped, root-change, mount, and unmount gap classes; a gap is preserved even if the accompanying path is outside policy scope and requires affected-root rescan."
+            ]
+          },
+          {
+            "id": "CHECK-211-BOUNDED",
+            "result": "passed",
+            "evidence": [
+              "The scanner reads URL resource metadata only, skips symlinks and exclusions, enforces depth and entry ceilings, and WriteCoalescer merges only same-path/same-operation events inside the bounded time window."
+            ]
+          },
+          {
+            "id": "CHECK-211-EXPLANATION",
+            "result": "passed",
+            "evidence": [
+              "A filesystem fixture proves inside-root allocation becomes detailed inferred evidence while outside-root allocation remains unknown-confidence unexplained growth. Explanations group only positive deltas, preserve scope limitations, sample at most five paths, and weaken detailed confidence to unknown on event gaps."
+            ]
+          },
+          {
+            "id": "CHECK-211-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Monitoring suite passed 8 tests, explanation suite passed 3 tests, full suite passed 38 tests, swift build passed, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-211"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-212",
+      "title": "Add background lifecycle, settings, status, and notifications",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-212",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-212-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All changed app and test files are within revision 6's exact TASK-212 write scope; Pyramid update reported no scope drift."
+            ]
+          },
+          {
+            "id": "CHECK-212-SETTINGS",
+            "result": "passed",
+            "evidence": [
+              "Versioned Codable settings round-trip launch, roots, exclusions, retention, thresholds, sample interval, pause, and investigation controls. Values and paths normalize into contract bounds, and the resulting retention policy validates."
+            ]
+          },
+          {
+            "id": "CHECK-212-LAUNCH",
+            "result": "passed",
+            "evidence": [
+              "LaunchAtLoginController adapts SMAppService.mainApp through a test seam. Register, unregister, and failure/status reconciliation tests pass; signed app-bundle observation is correctly deferred to the increment gate."
+            ]
+          },
+          {
+            "id": "CHECK-212-PERSISTENCE",
+            "result": "passed",
+            "evidence": [
+              "PersistentMonitoringProbe samples whole-volume and watched-root metadata, stores snapshots and inferred events in the WAL store, verifies database integrity, forwards event gaps to explanations, and applies retention no more than once per six hours."
+            ]
+          },
+          {
+            "id": "CHECK-212-HYBRID",
+            "result": "passed",
+            "evidence": [
+              "MonitoringLifecycleController combines the scheduled loop with debounced targeted FSEvents hints, restarts its stream on root/exclusion/investigation changes, and preserves scheduled sampling with a degraded explanation if FSEvents cannot start."
+            ]
+          },
+          {
+            "id": "CHECK-212-STATES",
+            "result": "passed",
+            "evidence": [
+              "A scripted sampling failure followed by success deterministically produces Degraded then Recovered states; both accessible summaries name the failure or recovery. Pause/resume updates persisted state and bounded history keeps at most 20 transitions."
+            ]
+          },
+          {
+            "id": "CHECK-212-NOTIFICATIONS",
+            "result": "passed",
+            "evidence": [
+              "Capacity and growth notifications are distinct and confidence-aware; crossing-state tests prove unchanged above-threshold samples stay silent and a later re-crossing notifies again. Authorization denial cannot interrupt monitoring."
+            ]
+          },
+          {
+            "id": "CHECK-212-UI",
+            "result": "passed",
+            "evidence": [
+              "The real popover presents monitoring state/detail, growth, pause/resume, volume capacity, and export. Settings exposes lifecycle, roots, exclusions, thresholds, retention, and investigation. The updated 330-pixel board rendered without clipping and was visually inspected at TASK-212-ui-smoke/rendered-status-board.png."
+            ]
+          },
+          {
+            "id": "CHECK-212-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Focused app suite passed 13 tests, full suite passed 47 tests, swift build passed, UI smoke launch returned the expected accessory/menu/snapshot report, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-212"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-213",
+      "title": "Implement complete evidence bundle export",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-213",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-213-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All exporter, codec, test, and golden-fixture changes are within TASK-213's declared EvidenceBundle and Fixtures/Exports scopes; Pyramid reported no drift."
+            ]
+          },
+          {
+            "id": "CHECK-213-CONSISTENCY",
+            "result": "passed",
+            "evidence": [
+              "Export awaits EvidenceStore's actor-serialized SQLite backup before querying. Concurrent inserts can land before or after that point, while the extracted summary count always equals the decompressed event count from one immutable view."
+            ]
+          },
+          {
+            "id": "CHECK-213-BOUNDING",
+            "result": "passed",
+            "evidence": [
+              "Queries bind from/through timestamps and order deterministically. Raw detail is clamped to 1...100,000 rows and emits an explicit truncation limitation. Rollups include only overlapping requested buckets and disclose their bucket-boundary precision."
+            ]
+          },
+          {
+            "id": "CHECK-213-COMPLETENESS",
+            "result": "passed",
+            "evidence": [
+              "The bundle contains a Codex brief, structured summary, retained hourly/daily rollups, zlib JSON Lines event detail, snapshots, integrity document, and export-manifest-v1. A retention fixture proves hourly evidence remains exportable after raw rows expire."
+            ]
+          },
+          {
+            "id": "CHECK-213-SCHEMAS",
+            "result": "passed",
+            "evidence": [
+              "Golden manifest validates against export-manifest-v1 and each decompressed event validates against evidence-event-v1, including explicit JSON nulls for unobserved actor/session/size-before fields, confidence, method, and limitations."
+            ]
+          },
+          {
+            "id": "CHECK-213-INTEGRITY",
+            "result": "passed",
+            "evidence": [
+              "Every payload's recorded byte length and SHA-256 digest is recomputed in tests. integrity.json covers the five evidence payloads, and manifest.json records the integrity document's own hash."
+            ]
+          },
+          {
+            "id": "CHECK-213-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "The exporter reads only typed SQLite metadata and stored capacity snapshots. Secret-like path tokens are redacted before serialization, basename and SHA-256 path shaping are supported, and manifest privacy constants prohibit file contents and environment capture."
+            ]
+          },
+          {
+            "id": "CHECK-213-HUMAN",
+            "result": "passed",
+            "evidence": [
+              "The golden Codex brief was inspected and accurately states the requested range, retained evidence counts, category deltas, largest events, confidence/method, limitations, and machine-readable inspection path."
+            ]
+          },
+          {
+            "id": "CHECK-213-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Focused bundle suite passed 6 tests, full suite passed 53 tests, swift build passed, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-213"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-290",
+      "title": "Audit persistent evidence recorder increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-290",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-290-CONSTRUCT",
+            "result": "passed",
+            "evidence": [
+              "swift build passed and the current DiskStewardApp executable launched under its accessory UI smoke entry path."
+            ]
+          },
+          {
+            "id": "CHECK-290-INHERITED",
+            "result": "passed",
+            "evidence": [
+              "All increment-one behaviors re-ran in the 54-test suite: current volume capacity, menu-bar routing/labels, rendered status board, schema-valid deterministic snapshot export, and privacy contract."
+            ]
+          },
+          {
+            "id": "CHECK-290-JOURNEY",
+            "result": "passed",
+            "evidence": [
+              "The independent temporary-fixture scenario moved from baseline through watched-root growth, inferred detailed evidence, outside-root unknown explanation, threshold crossing, SQLite persistence, complete export, and process-object restart/reopen recovery."
+            ]
+          },
+          {
+            "id": "CHECK-290-EXPORT",
+            "result": "passed",
+            "evidence": [
+              "The integrated export decoded its manifest, recomputed every payload byte length and SHA-256 hash, and its brief named agent-growth.bin, inferred snapshot-delta attribution, and the no-content/no-environment privacy guarantee."
+            ]
+          },
+          {
+            "id": "CHECK-290-BOUNDS",
+            "result": "passed",
+            "evidence": [
+              "The reopened evidence database returned integrity ok, retained at least three snapshots and one detailed event, and remained below the test's 10 MiB hard ceiling. Raw export and monitor scans retain their independent count/depth/time bounds."
+            ]
+          },
+          {
+            "id": "CHECK-290-UI",
+            "result": "passed",
+            "evidence": [
+              "The visually inspected 330×270 current popover fit state, explanation, growth baseline, capacity, pause, refresh, and export controls; accessibility summaries and degraded/recovered copy are automated separately."
+            ]
+          },
+          {
+            "id": "CHECK-290-RESOURCE",
+            "result": "passed",
+            "evidence": [
+              "The measured launch smoke completed in 0.37 seconds with about 28.0 MiB maximum RSS, about 9.9 MiB peak footprint, zero swaps, and zero block I/O; evidence explicitly limits this claim to launch-path behavior."
+            ]
+          },
+          {
+            "id": "CHECK-290-REPRODUCTION",
+            "result": "passed",
+            "evidence": [
+              "Commands, scenario steps, measured values, UI evidence location, limitations, and platform context are recorded in docs/tasks/evidence/GATE-290/audit-observations.md."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-290",
+          "OUTCOME-020"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "CONTRACT-301",
+      "title": "Define agent session and read-only MCP contracts",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "CONTRACT-301",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-301-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All schemas, fixtures, tests, and architecture documentation are inside CONTRACT-301's exact allowed write scope; Pyramid submission reported no scope drift."
+            ]
+          },
+          {
+            "id": "CHECK-301-SESSION",
+            "result": "passed",
+            "evidence": [
+              "Versioned active and ended fixtures bind session identity to PID plus process start time, bounded ancestry, expiry, workspace scope, and local peer authentication. The invalid fixture rejects weak socket permissions, failed peer UID verification, persisted secrets, malformed challenges, and exact self-attribution."
+            ]
+          },
+          {
+            "id": "CHECK-301-READONLY",
+            "result": "passed",
+            "evidence": [
+              "Exactly seven approved tools are present. Every tool has a closed input object and readOnlyHint true, destructiveHint false, idempotentHint true, openWorldHint false. There is no destination argument or delete, move, stop, settings, or monitoring mutation tool."
+            ]
+          },
+          {
+            "id": "CHECK-301-BOUNDS",
+            "result": "passed",
+            "evidence": [
+              "Contract-wide output ceilings are 10,000 items and 4 MiB, while per-tool item, time, path, and age inputs have stricter limits. Oversize behavior is specified as an actionable execution error requiring query narrowing."
+            ]
+          },
+          {
+            "id": "CHECK-301-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "The response policy hard-disables file contents and environment capture. The sanitized response contains basename-only path data, confidence, method, truncation, and limitations and contains no home path, token argument, content, or environment material."
+            ]
+          },
+          {
+            "id": "CHECK-301-PROTOCOL",
+            "result": "passed",
+            "evidence": [
+              "Fixtures cover initialize negotiation, stable tools/resources, protocol error -32602, and app_unavailable as isError tool output with retryability, limitations, and recovery guidance. Structured results retain a compatibility text block."
+            ]
+          },
+          {
+            "id": "CHECK-301-CLIENTS",
+            "result": "passed",
+            "evidence": [
+              "Codex config.toml and Claude stdio JSON fixtures use the same credential-free bundled executable. The architecture boundary matches official Codex and Claude local MCP documentation reviewed on 2026-09-13."
+            ]
+          },
+          {
+            "id": "CHECK-301-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Focused MCP contract suite passed 6 tests, the full suite passed 60 tests, swift build passed, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "CONTRACT-301"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-310",
+      "title": "Implement agent session registry and process correlation",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-310",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-310-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All changed source and test files are confined to the declared Sessions and Correlation scopes."
+            ]
+          },
+          {
+            "id": "CHECK-310-AUTH",
+            "result": "passed",
+            "evidence": [
+              "Registry tests reject wrong UID, public socket mode, stale requests, duplicate sessions, and the same process identity assigned to concurrent tasks. The challenge comparison is length-aware and constant-time over UTF-8 bytes; only its digest is retained."
+            ]
+          },
+          {
+            "id": "CHECK-310-LIFECYCLE",
+            "result": "passed",
+            "evidence": [
+              "Active sessions end explicitly or expire at their bounded deadline. Ended/expired sessions remain available for historical interpretation but cannot claim later events."
+            ]
+          },
+          {
+            "id": "CHECK-310-PROCESS",
+            "result": "passed",
+            "evidence": [
+              "ProcessIdentity equality and hashing combine PID and start time. A test registers two generations of one PID without collision, and a live libproc smoke identifies the current test process and ancestry."
+            ]
+          },
+          {
+            "id": "CHECK-310-CORRELATION",
+            "result": "passed",
+            "evidence": [
+              "Synthetic descendant linkage selects the correct concurrent task at tool-linked confidence. Unique workspace-time evidence is inferred; overlapping workspaces, stale registrations, absent matches, and reused-PID mismatches remain unknown."
+            ]
+          },
+          {
+            "id": "CHECK-310-LEAKAGE",
+            "result": "passed",
+            "evidence": [
+              "TaskImpact includes only correlated events for the requested opaque session ID and does not roll ambiguous or outside-root events into a task total."
+            ]
+          },
+          {
+            "id": "CHECK-310-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Session-focused tests, correlation-focused tests, all 67 repository tests, swift build, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-310"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-311",
+      "title": "Implement the bundled read-only MCP connector",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-311",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-311-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "Plan revision 7 added only the app IPC directory, status composition root, and app IPC tests required for a functional shipped path. All implementation changes are within that reviewed scope."
+            ]
+          },
+          {
+            "id": "CHECK-311-MCP",
+            "result": "passed",
+            "evidence": [
+              "The built stdio executable negotiates supported protocol versions, enforces initialize ordering, advertises stable tools/resources, separates JSON-RPC and execution errors, and emits deterministic JSON Lines responses."
+            ]
+          },
+          {
+            "id": "CHECK-311-READONLY",
+            "result": "passed",
+            "evidence": [
+              "Exactly seven tools are present with closed inputs and read-only/non-destructive annotations. No tool accepts a destination or file/process/settings mutation. Cleanup results carry an explicit review-required safety statement."
+            ]
+          },
+          {
+            "id": "CHECK-311-IPC",
+            "result": "passed",
+            "evidence": [
+              "The connector rejects missing, non-socket, wrong-owner, or group/other-accessible endpoints. The app creates a private directory and 0600 socket, checks peer UID and kernel-reported PID, and removes only an owned socket at its exact service path."
+            ]
+          },
+          {
+            "id": "CHECK-311-QUERY",
+            "result": "passed",
+            "evidence": [
+              "Real socket tests query a live volume/store summary, register a local session, list its process context, export retained fixture evidence, infer only its matching task impact, end the session, and verify unavailable behavior after stop."
+            ]
+          },
+          {
+            "id": "CHECK-311-EXPORT",
+            "result": "passed",
+            "evidence": [
+              "Inline export invokes EvidenceBundleExporter against an actor-serialized store backup, includes manifest/summary/rollups/snapshots/events/brief, preserves requested path detail and event bounds, and removes the temporary bundle afterward."
+            ]
+          },
+          {
+            "id": "CHECK-311-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "Connector tests prove file_contents and environment fields are dropped, token-like arguments are redacted, output is bounded to 4 MiB, malformed/unknown input fails closed, and unavailable data is never represented as success."
+            ]
+          },
+          {
+            "id": "CHECK-311-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Seven connector tests, two real app IPC tests, the executable self-check, an actual stdio transcript, all 76 repository tests, swift build, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-311"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-312",
+      "title": "Package Codex and Claude integration paths",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-312",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-312-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "Every changed file is within TASK-312's Package.swift, Integrations, Scripts/Integration, Tests/IntegrationInstallTests, or docs/integrations scope."
+            ]
+          },
+          {
+            "id": "CHECK-312-CODEX",
+            "result": "passed",
+            "evidence": [
+              "The validated disk-steward plugin includes a valid manifest, a stdio MCP companion, and a validated narrow skill. The installer emits one owned TOML block with the exact connector and preserves unrelated configuration through install, repeat upgrade, and uninstall."
+            ]
+          },
+          {
+            "id": "CHECK-312-CLAUDE",
+            "result": "passed",
+            "evidence": [
+              "The Swift JSON merger creates or updates only mcpServers.disk_steward, retains unrelated root keys and MCP servers, writes atomically with mode 0600, and removes only the owned server during uninstall."
+            ]
+          },
+          {
+            "id": "CHECK-312-SESSION",
+            "result": "passed",
+            "evidence": [
+              "The standalone adapter verifies current-user ownership, socket type, and private mode before sending bounded registration/end envelopes. A real socket test captured registration and end results without persisted credentials."
+            ]
+          },
+          {
+            "id": "CHECK-312-DISCOVERY",
+            "result": "passed",
+            "evidence": [
+              "An installed connector completed initialize, tools/list, and get_storage_summary against a private fixture service; the transcript included the read-only catalog and fixture evidence and no delete tool."
+            ]
+          },
+          {
+            "id": "CHECK-312-SAFETY",
+            "result": "passed",
+            "evidence": [
+              "Dry runs create no configuration roots. Malformed Codex ownership markers fail closed before plugin/config replacement. Upgrades and uninstalls retain dated backups, and evidence sentinels remain byte-identical."
+            ]
+          },
+          {
+            "id": "CHECK-312-DIAGNOSTICS",
+            "result": "passed",
+            "evidence": [
+              "The required doctor dry run passed. Concrete diagnostics verify discovery, connector self-check, socket owner/mode, and provide an explicit open-app/enable-monitoring recovery path when unavailable without modifying evidence."
+            ]
+          },
+          {
+            "id": "CHECK-312-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Six focused integration tests, all 82 repository tests, swift build, git diff --check, plugin validation, and skill validation passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-312"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-390",
+      "title": "Audit agent-queryable evidence increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-390",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-390-CONSTRUCT",
+            "result": "passed",
+            "evidence": [
+              "The current candidate builds under Swift 6 on macOS and all 83 tests pass in one suite."
+            ]
+          },
+          {
+            "id": "CHECK-390-ENTRY",
+            "result": "passed",
+            "evidence": [
+              "Fresh isolated Codex and Claude configurations discover the shared stdio connector; no live personal configuration is used."
+            ]
+          },
+          {
+            "id": "CHECK-390-QUERY",
+            "result": "passed",
+            "evidence": [
+              "A built-connector transcript discovers seven read-only tools, explains one retained event, correlates it only to the unique active task as inferred, and emits a bounded sanitized result."
+            ]
+          },
+          {
+            "id": "CHECK-390-EXPORT",
+            "result": "passed",
+            "evidence": [
+              "MCP inline export and direct app-service export contain equal summary and event detail for the same requested range and basename privacy mode."
+            ]
+          },
+          {
+            "id": "CHECK-390-NONDESTRUCTIVE",
+            "result": "passed",
+            "evidence": [
+              "The inventory contains no destructive tool, cleanup candidates explicitly require review, an attempted delete_file call is rejected, and static inspection found only warning-language matches."
+            ]
+          },
+          {
+            "id": "CHECK-390-RECOVERY",
+            "result": "passed",
+            "evidence": [
+              "After the private socket is stopped, the connector returns app_unavailable, a retry/recovery instruction to open Disk Steward, and no query result."
+            ]
+          },
+          {
+            "id": "CHECK-390-HUMAN",
+            "result": "passed",
+            "evidence": [
+              "The independent test refreshes the compact status model, exports a snapshot, and repeats left/right click routing plus Export, Settings, About, and Quit labels; inherited monitoring/export tests also pass."
+            ]
+          },
+          {
+            "id": "CHECK-390-SECURITY",
+            "result": "passed",
+            "evidence": [
+              "Exact forbidden keys are absent, output stays below 4 MiB, the connector never opens SQLite, session IPC uses a private current-user socket, and client upgrades/uninstalls preserve unrelated configuration and evidence."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-390",
+          "OUTCOME-030"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "RESEARCH-401",
+      "title": "Validate Endpoint Security feasibility and fallback boundary",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "RESEARCH-401",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-401-SOURCES",
+            "result": "passed",
+            "evidence": [
+              "Decision cites current official Apple pages for Endpoint Security, entitlement, client creation/TCC, event types, system-extension installation, activation, and user approval."
+            ]
+          },
+          {
+            "id": "CHECK-401-LOCAL",
+            "result": "passed",
+            "evidence": [
+              "Dated local evidence records SDK 26.2 inputs, zero signing identities, and an explicit systemextensionsctl observation failure without inferring absence."
+            ]
+          },
+          {
+            "id": "CHECK-401-SEPARATION",
+            "result": "passed",
+            "evidence": [
+              "Observed capability, synthetic testability, external unknowns, exact-provenance release blockers, and fallback guarantees are separate sections and matrix rows."
+            ]
+          },
+          {
+            "id": "CHECK-401-SAFETY",
+            "result": "passed",
+            "evidence": [
+              "Extension boundary is NOTIFY-only and non-blocking; fallback never promotes evidence to exact and remains functional without entitlement."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "RESEARCH-401"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "CONTRACT-401",
+      "title": "Define privileged event bridge and provenance semantics",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "CONTRACT-401",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-401-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All changes are inside the declared EndpointSecurity schemas, fixtures, contract tests, and provenance architecture document."
+            ]
+          },
+          {
+            "id": "CHECK-401-OPERATIONS",
+            "result": "passed",
+            "evidence": [
+              "Schema-valid fixtures cover create, rename with destination, and close-backed coalesced writes with logical/allocated before, after, and delta values."
+            ]
+          },
+          {
+            "id": "CHECK-401-IDENTITY",
+            "result": "passed",
+            "evidence": [
+              "Process identity requires PID plus start time and file identity requires volume plus file ID; reused PID fixtures remain unequal identities."
+            ]
+          },
+          {
+            "id": "CHECK-401-EXACT",
+            "result": "passed",
+            "evidence": [
+              "Manual semantic checks require complete process/file linkage, complete non-unknown measurement, included scope, no preceding gap, deadline success, and the direct Endpoint Security method before exact is eligible."
+            ]
+          },
+          {
+            "id": "CHECK-401-LOSS",
+            "result": "passed",
+            "evidence": [
+              "Dropped-event and overload fixtures carry explicit gap and counts, forbid exact fallback confidence, keep snapshot/FSEvents active, and use bounded retry controls."
+            ]
+          },
+          {
+            "id": "CHECK-401-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "Path filtering deterministically excludes outside/excluded roots before emission, and contents, environment, arguments, and command line are absent from the event schema while privacy flags are constant false."
+            ]
+          },
+          {
+            "id": "CHECK-401-FALLBACK",
+            "result": "passed",
+            "evidence": [
+              "Not-entitled, not-permitted, unavailable, dropped, and overload statuses all retain active snapshot/FSEvents fallback and declare non-exact maximum confidence with limitations."
+            ]
+          },
+          {
+            "id": "CHECK-401-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Five focused contract tests, all 88 repository tests, swift build, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "CONTRACT-401"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-410",
+      "title": "Implement optional Endpoint Security observer",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-410",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-410-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All implementation changes are confined to TASK-410's Package.swift, Extensions/DiskStewardEndpoint, Sources/DiskStewardCore/EndpointBridge, Tests/DiskStewardEndpointTests, and Config/Entitlements scope."
+            ]
+          },
+          {
+            "id": "CHECK-410-NOTIFICATION",
+            "result": "passed",
+            "evidence": [
+              "The observer event inventory contains only notification-oriented create, write, close, rename, unlink, exec, and exit families. No authorization callback or blocking decision API is represented."
+            ]
+          },
+          {
+            "id": "CHECK-410-FILTER",
+            "result": "passed",
+            "evidence": [
+              "EndpointMonitoringScope applies watched-root and exclusion-prefix policy before normalization or bridge delivery; the fixture test proves an excluded path is discarded."
+            ]
+          },
+          {
+            "id": "CHECK-410-BRIDGE",
+            "result": "passed",
+            "evidence": [
+              "ProtectedEndpointBridge validates team, bundle, app group, designated requirement, and a constant-time challenge digest. A spoofed peer is rejected without event delivery."
+            ]
+          },
+          {
+            "id": "CHECK-410-IDENTITY",
+            "result": "passed",
+            "evidence": [
+              "Normalized events retain PID plus process-start time and file device/inode identity. Exact eligibility requires complete identity, size, deadline, and gap-free input."
+            ]
+          },
+          {
+            "id": "CHECK-410-BOUNDS",
+            "result": "passed",
+            "evidence": [
+              "The bounded buffer constrains both event count and byte use, coalesces only compatible consecutive writes, records dropped ranges, and downgrades after overload or sequence discontinuity."
+            ]
+          },
+          {
+            "id": "CHECK-410-FALLBACK",
+            "result": "passed",
+            "evidence": [
+              "Denied, crashed, overloaded, and missing-entitlement states keep the metadata fallback active and carry a visible reason; retry state is bounded. The runtime never attempts to bypass macOS security."
+            ]
+          },
+          {
+            "id": "CHECK-410-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Four focused endpoint tests, all 92 repository tests, Swift build, macOS-targeted Xcode build, and git diff --check passed."
+            ]
+          },
+          {
+            "id": "CHECK-410-LIVE-LIMIT",
+            "result": "passed",
+            "evidence": [
+              "No live entitlement claim is made. Apple-granted entitlement, release signing, system-extension activation, and user approval remain explicit distribution prerequisites; the deterministic fixture transport is the available acceptance evidence on this host."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-410"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-411",
+      "title": "Implement exact and inferred provenance engine",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-411",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-411-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All changed files are within the node's Core Provenance, App ProvenanceUI, Provenance tests, and Provenance fixtures scope."
+            ]
+          },
+          {
+            "id": "CHECK-411-EXACT",
+            "result": "passed",
+            "evidence": [
+              "Create, grow, and rename golden cases require matching operation, normalized destination path, observation time, logical and allocated deltas, complete file identity, deadline, and gap-free privileged input before claiming exact."
+            ]
+          },
+          {
+            "id": "CHECK-411-TASK",
+            "result": "passed",
+            "evidence": [
+              "A task link requires one authenticated session covering the event time and ancestry from the full writer identity to its registered process. The PID-reuse test proves a same-number/different-start process does not inherit the task."
+            ]
+          },
+          {
+            "id": "CHECK-411-DOWNGRADE",
+            "result": "passed",
+            "evidence": [
+              "Incomplete privileged evidence with a unique task is tool-linked, historical evidence is inferred without a current task assertion, and path-only evidence with a source gap is unknown."
+            ]
+          },
+          {
+            "id": "CHECK-411-FALSE-POSITIVE",
+            "result": "passed",
+            "evidence": [
+              "Overlapping workspaces, mismatched byte deltas, mismatched privileged observations, and gapped path hints do not select an actor or task."
+            ]
+          },
+          {
+            "id": "CHECK-411-REFERENCES",
+            "result": "passed",
+            "evidence": [
+              "Claims retain typed references to Endpoint Security event IDs, metadata events, FSEvents IDs, PID/start-time ancestry, session registration IDs, and historical records, each describing exactly what it supports."
+            ]
+          },
+          {
+            "id": "CHECK-411-PARITY",
+            "result": "passed",
+            "evidence": [
+              "UI, export, and MCP channels return the same ProvenancePresentationRecord. The board item renders that record without recalculating or upgrading evidence."
+            ]
+          },
+          {
+            "id": "CHECK-411-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "Models contain metadata, identities, causal references, and limitations only; no file-content field or content inspection exists."
+            ]
+          },
+          {
+            "id": "CHECK-411-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Five focused provenance tests, all 97 repository tests, Swift build, and git diff --check passed."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-411"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "RISK-420",
+      "title": "Enforce privacy, resource, permission, and release controls",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "RISK-420",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-420-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "All changed files are inside the node's explicit Package, Privacy, ResourceControl, Onboarding, SafetyTests, PerformanceTests, operations, Distribution, Signing, and evidence scopes."
+            ]
+          },
+          {
+            "id": "CHECK-420-PRIVACY",
+            "result": "passed",
+            "evidence": [
+              "Five hundred generated secrets placed independently in paths, commands, and executable locations were absent from JSON-encoded filtered metadata. Exclusions omit complete subtrees; basename and SHA-256 path modes are deterministic. No file-content or environment input exists."
+            ]
+          },
+          {
+            "id": "CHECK-420-RETENTION",
+            "result": "passed",
+            "evidence": [
+              "The resource budget matches the existing 512 MiB evidence-store cap, while existing retention tests cover bounded raw/rollup retention and forced eviction. Resource measurement history is capped and tested at 10,000 inputs."
+            ]
+          },
+          {
+            "id": "CHECK-420-OVERLOAD",
+            "result": "passed",
+            "evidence": [
+              "A 100,000-event unique-path storm completed in 1.342 seconds with at most 512 retained events under a 256 KiB configured queue. Every discarded event was counted, hasGap was set, and the budget evaluator required backpressure."
+            ]
+          },
+          {
+            "id": "CHECK-420-PERMISSIONS",
+            "result": "passed",
+            "evidence": [
+              "Not-requested, pending, denied, and unavailable permission states all report standard monitoring active, exact provenance unavailable, and no retry/bypass behavior."
+            ]
+          },
+          {
+            "id": "CHECK-420-UNINSTALL",
+            "result": "passed",
+            "evidence": [
+              "Evidence preservation is the default uninstall plan and deletion requires an explicit export-then-delete decision. Six focused integration tests prove dry-run immutability, recoverable backups, owned-entry removal, and preservation of unrelated settings and evidence."
+            ]
+          },
+          {
+            "id": "CHECK-420-DISTRIBUTION",
+            "result": "passed",
+            "evidence": [
+              "Development preflight validates package, entitlements, app group, and hardened-runtime configuration. Release preflight exits 65 on the placeholder team before signing; the runbook requires entitlement approval, provisioning, signing, notarization, clean-host activation, and uninstall verification."
+            ]
+          },
+          {
+            "id": "CHECK-420-REGRESSION",
+            "result": "passed",
+            "evidence": [
+              "Five safety tests, two performance tests, six focused integration tests, all 104 repository tests, Swift build, macOS-targeted Xcode build, distribution development preflight, and git diff --check passed."
+            ]
+          },
+          {
+            "id": "CHECK-420-LIVE-BUDGET",
+            "result": "passed",
+            "evidence": [
+              "The audit does not treat test-process timing as signed-product CPU/memory evidence. Production resource sampling and signed-host measurements remain a declared release check rather than an unsupported claim."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "RISK-420"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-490",
+      "title": "Audit advanced provenance and final intent",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-490",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-490-SCOPE",
+            "result": "passed",
+            "evidence": [
+              "The gate adds only its independent final increment test and residual-limitations report inside the allowed Final test and GATE-490 evidence scopes."
+            ]
+          },
+          {
+            "id": "CHECK-490-LAUNCH",
+            "result": "passed",
+            "evidence": [
+              "The test launches the built DiskStewardApp executable with its supported UI-smoke route and verifies status launched, accessory activation policy, snapshot availability, active IPC, left-click status board, right-click utility menu, and stable menu commands."
+            ]
+          },
+          {
+            "id": "CHECK-490-HUMAN",
+            "result": "passed",
+            "evidence": [
+              "A live volume snapshot populates the board, current snapshot export succeeds, and watched/excluded roots plus retention settings survive reload."
+            ]
+          },
+          {
+            "id": "CHECK-490-MONITORING",
+            "result": "passed",
+            "evidence": [
+              "A real temporary watched-root write becomes an inferred metadata event while a configured excluded subtree produces no event. SQLite integrity and the 10 MiB test retention cap are verified."
+            ]
+          },
+          {
+            "id": "CHECK-490-PROVENANCE",
+            "result": "passed",
+            "evidence": [
+              "The exact fixture joins matching path, operation, time, logical/allocated deltas, file identity, PID/start identity, and one authenticated session; Endpoint Security, metadata, ancestry, and session source references are all present and identical across UI/export/MCP projections."
+            ]
+          },
+          {
+            "id": "CHECK-490-FALLBACK",
+            "result": "passed",
+            "evidence": [
+              "Denied optional permissions retain standard monitoring and disable exact provenance. A gapped unprivileged observation stays unknown with no actor, and a stopped IPC service fails closed."
+            ]
+          },
+          {
+            "id": "CHECK-490-EXPORT",
+            "result": "passed",
+            "evidence": [
+              "The evidence bundle uses basename paths, declares no contents/environment, includes required limitations, and every payload matches its byte count and SHA-256 manifest digest."
+            ]
+          },
+          {
+            "id": "CHECK-490-MCP",
+            "result": "passed",
+            "evidence": [
+              "The built MCP connector initializes over the private socket, exposes exactly seven read-only tools with no delete tool, returns the persisted event through get_provenance, and contains no forbidden content/environment/token/secret/password keys."
+            ]
+          },
+          {
+            "id": "CHECK-490-PRIVACY-RESOURCE",
+            "result": "passed",
+            "evidence": [
+              "Sensitive path/command/executable values do not survive filtering, excluded paths are absent, the database remains below cap, the healthy resource measurement passes declared budgets, and separate stress evidence proves bounded overload accounting."
+            ]
+          },
+          {
+            "id": "CHECK-490-CLEAN",
+            "result": "passed",
+            "evidence": [
+              "After swift package clean, the full package rebuilt and all 105 tests passed. The macOS-targeted Xcode scheme and development distribution preflight also passed, and git diff --check is clean."
+            ]
+          },
+          {
+            "id": "CHECK-490-LIMITS",
+            "result": "passed",
+            "evidence": [
+              "The gate explicitly distinguishes fixture exactness from unavailable live entitlement evidence and leaves signing, notarization, activation lifecycle, and signed-artifact resource measurements as release limitations rather than weakening fallback acceptance."
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-490",
+          "OUTCOME-040",
+          "INTENT-001"
+        ],
+        "recommended_action": "advance"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DECISION-001",
+      "question": "What is the smallest honest delivery ladder from an empty repository?",
+      "choice": "Deliver four cumulative runnable increments: snapshot/export menu app; persistent evidence recorder; agent-queryable MCP integration; advanced exact provenance with fallback.",
+      "alternatives": [
+        "Horizontal backend-first then UI delivery",
+        "One final all-or-nothing release",
+        "Treat project scaffolding as an increment"
+      ],
+      "rationale": "Each selected rung gives the user a launchable, meaningful scenario and isolates storage, integration, and restricted-entitlement risks behind independent gates.",
+      "evidence": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "DECISION-002",
+      "question": "Which application stack should be primary?",
+      "choice": "Swift 6 with a small AppKit NSStatusItem shell, SwiftUI presentation, a shared Swift core, and SQLite persistence.",
+      "alternatives": [
+        "Electron",
+        "Tauri with a Rust core and web UI",
+        "Pure MenuBarExtra without AppKit status-item event handling"
+      ],
+      "rationale": "The selected stack directly accesses macOS monitoring, service-management, signing, and menu APIs while minimizing continuous runtime and cross-language boundaries.",
+      "evidence": [
+        "EV-002",
+        "EV-005",
+        "EV-006",
+        "EV-007"
+      ]
+    },
+    {
+      "id": "DECISION-003",
+      "question": "How broadly should monitoring persist detailed evidence?",
+      "choice": "Track whole-volume capacity everywhere accessible, but persist detailed evidence only for configured roots, registered agent process trees, and bounded investigation windows.",
+      "alternatives": [
+        "Persist every filesystem event indefinitely",
+        "Monitor only fixed prefixes",
+        "Scan the whole disk only when asked"
+      ],
+      "rationale": "The hybrid model preserves unexplained-growth detection and agent attribution without creating an unbounded privacy and resource burden.",
+      "evidence": [
+        "EV-003",
+        "EV-004"
+      ]
+    },
+    {
+      "id": "DECISION-004",
+      "question": "How should Codex and Claude access evidence?",
+      "choice": "Bundle one read-only Swift MCP stdio executable that delegates to the app-owned evidence service over a protected local IPC boundary.",
+      "alternatives": [
+        "Expose a persistent localhost HTTP server",
+        "Give each agent direct SQLite access",
+        "Maintain separate Codex and Claude implementations"
+      ],
+      "rationale": "One connector minimizes duplication and attack surface while keeping database ownership, sanitization, and retention inside the application.",
+      "evidence": [
+        "EV-007",
+        "EV-009"
+      ]
+    },
+    {
+      "id": "DECISION-005",
+      "question": "How should exact system-wide attribution depend on Endpoint Security?",
+      "choice": "Implement it as an advanced capability with explicit confidence semantics and retain a useful FSEvents/snapshot fallback.",
+      "alternatives": [
+        "Block the whole product on entitlement approval",
+        "Claim exact attribution from timestamps",
+        "Omit exact attribution entirely"
+      ],
+      "rationale": "Entitlement approval is external and cannot be guaranteed; the product must remain honest and useful in its absence.",
+      "evidence": [
+        "EV-003",
+        "EV-005"
+      ]
+    },
+    {
+      "id": "DECISION-006",
+      "question": "Should the first product intent perform cleanup?",
+      "choice": "No; it will explain, export, and recommend while all MCP tools remain read-only.",
+      "alternatives": [
+        "Automatic safe-category deletion",
+        "Agent-triggered cleanup tools",
+        "Process termination controls"
+      ],
+      "rationale": "Evidence trust and attribution accuracy must be established before introducing destructive operations.",
+      "evidence": [
+        "EV-003"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-001",
+      "claim": "The selected repository is an empty Git repository with no commits, source files, tests, or Pyramid state.",
+      "source": "/Users/merdankiji/localGit/disk_steward repository inspection on 2026-09-12",
+      "confidence": "high",
+      "freshness": "Observed immediately before planning",
+      "supports": [
+        "RESEARCH-101",
+        "TASK-110",
+        "OUTCOME-010"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-002",
+      "claim": "The user selected a background menu-bar product with a left-click compact information board and a right-click utility menu.",
+      "source": "User product definition in this Codex task",
+      "confidence": "high",
+      "freshness": "Current request context",
+      "supports": [
+        "TASK-112",
+        "OUTCOME-010",
+        "INTENT-001"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-003",
+      "claim": "The user selected evidence export as the primary product purpose, including file, actor, timestamp, process, and Codex or Claude task attribution where provable.",
+      "source": "User product definition in this Codex task",
+      "confidence": "high",
+      "freshness": "Current request context",
+      "supports": [
+        "CONTRACT-101",
+        "TASK-213",
+        "TASK-310",
+        "TASK-411",
+        "INTENT-001"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-004",
+      "claim": "The agreed monitoring model is whole-volume accounting plus detailed watched roots, registered agent process trees, and temporary investigation expansion.",
+      "source": "Selected product decision in this Codex task",
+      "confidence": "high",
+      "freshness": "Current request context",
+      "supports": [
+        "CONTRACT-101",
+        "TASK-211",
+        "OUTCOME-020"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-005",
+      "claim": "Apple documents Endpoint Security process and filesystem event monitoring as a system extension capability requiring a restricted entitlement.",
+      "source": "https://developer.apple.com/documentation/EndpointSecurity and https://developer.apple.com/system-extensions/ reviewed 2026-09-12",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed during product design",
+      "supports": [
+        "RESEARCH-401",
+        "CONTRACT-401",
+        "TASK-410",
+        "OUTCOME-040"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-006",
+      "claim": "Apple SMAppService supports registering login items, launch agents, and daemons on macOS 13 and later.",
+      "source": "https://developer.apple.com/documentation/servicemanagement/smappservice reviewed 2026-09-12",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed during product design",
+      "supports": [
+        "RESEARCH-101",
+        "TASK-212"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-007",
+      "claim": "The official MCP Swift SDK implements server and client components and supports local transports on macOS 13+ with Swift 6.",
+      "source": "https://github.com/modelcontextprotocol/swift-sdk reviewed 2026-09-12",
+      "confidence": "high",
+      "freshness": "Official SDK repository reviewed during product design",
+      "supports": [
+        "RESEARCH-101",
+        "CONTRACT-301",
+        "TASK-311"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-008",
+      "claim": "SQLite WAL permits concurrent readers and a writer but consistent export must include or checkpoint WAL state.",
+      "source": "https://www.sqlite.org/wal.html reviewed 2026-09-12",
+      "confidence": "high",
+      "freshness": "Official SQLite documentation reviewed during product design",
+      "supports": [
+        "CONTRACT-101",
+        "TASK-210",
+        "TASK-213"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-009",
+      "claim": "OpenAI documents Codex plugins as supporting skills and MCP servers, and Claude Code documents MCP server configuration.",
+      "source": "https://developers.openai.com/ and https://code.claude.com/docs/en/cli-usage reviewed 2026-09-12",
+      "confidence": "high",
+      "freshness": "Official product documentation reviewed during product design",
+      "supports": [
+        "CONTRACT-301",
+        "TASK-312",
+        "OUTCOME-030"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-010",
+      "claim": "TASK-212 must modify the existing status board and status item controller to make monitoring state and controls accessible from the already-launched menu-bar surface.",
+      "source": "Sources/DiskStewardApp/StatusItemController.swift, Sources/DiskStewardApp/StatusBoardView.swift, and TASK-212 contract inspected 2026-09-12",
+      "confidence": "high",
+      "freshness": "Direct repository and task-contract inspection immediately before revision 6",
+      "supports": [
+        "TASK-212"
+      ],
+      "contradicts": []
+    }
+  ],
+  "residual_risks": [
+    "RESEARCH-101: No valid code-signing identity is installed, so Developer ID distribution, notarization, and production system-extension signing are not currently demonstrable.",
+    "RESEARCH-101: xcodebuild -showsdks emitted FSEvents/cache warnings in the automated shell even though it completed successfully; TASK-110 must verify whether project builds are affected.",
+    "RESEARCH-101: Endpoint Security entitlement availability remains external and must preserve the standard unprivileged fallback.",
+    "CONTRACT-101: The local Swift test validator intentionally implements only the JSON Schema keywords used by the version-1 contracts; adding new schema keywords requires extending the validator or adopting a maintained validator dependency.",
+    "CONTRACT-101: Python jsonschema is not installed in the repository environment, so it was not counted as passing evidence; jq syntax validation and executable Swift contract tests are the recorded checks.",
+    "TASK-110: The first sandboxed disposable-copy attempt was blocked by nested sandbox/module-cache restrictions; the identical clean-copy commands passed outside that restriction, so this is recorded as harness behavior rather than a product defect.",
+    "TASK-110: The current app target is an intentionally invisible accessory-process skeleton. TASK-112 must provide the first user-visible status item and interaction lifecycle.",
+    "TASK-110: An Xcode app/system-extension project is still required before privileged packaging; its exact form remains deferred and must not be inferred from the successful SwiftPM build.",
+    "TASK-111: Whole-volume collection intentionally omits inaccessible or non-local volumes and records metadata failures as limitations; detailed directory consumption remains outside this first-slice task.",
+    "TASK-111: The current manifest records full mount paths. Later privacy settings must support basename or hashed detail before exporting detailed file evidence.",
+    "TASK-111: Product version is an explicit 0.1.0 default until packaging supplies a release version.",
+    "TASK-112: SwiftPM launches an executable rather than a distributable signed .app bundle; packaging and login-item behavior remain later work.",
+    "TASK-112: The first-slice export action writes to Documents/Disk Steward Exports and reveals the result in Finder; user-selectable destinations belong in later settings work.",
+    "TASK-112: This node intentionally shows only the current capacity snapshot; history, thresholds, and cleanup controls remain out of scope.",
+    "GATE-190: The desktop was locked during gate execution, so direct menu-bar clicking was unavailable; the retained native offscreen render and independent live launch/accessibility probe cover the rendered and runtime halves without weakening either check.",
+    "GATE-190: The first increment is a SwiftPM development executable, not yet a signed distributable app bundle.",
+    "GATE-190: The live status board currently displays the accessible path used to query the data volume; path redaction settings are scheduled for the evidence/export increment.",
+    "TASK-210: The system-library module deliberately links Apple SDK libsqlite3 rather than a Homebrew build so the macOS 13 deployment target remains valid.",
+    "TASK-210: Hard size-ceiling enforcement may evict the oldest unreviewed anomaly only after normal age-based compaction is insufficient; forced eviction count is surfaced in RetentionReport.",
+    "TASK-210: Direct database access remains internal to the app-owned core; MCP must consume a later sanitized service boundary.",
+    "TASK-211: FSEvents is intentionally notification-only and cannot establish creator-process identity; metadata rescans derive byte deltas with inferred confidence.",
+    "TASK-211: Whole-volume allocation can change outside configured roots, so residual growth is exported as unexplained rather than attributed speculatively.",
+    "TASK-211: FSEvents drop, wrap, mount, unmount, and root-change flags force unknown confidence and an explicit rescan limitation.",
+    "TASK-211: External volumes are sampled for aggregate capacity only when returned by the existing volume service; file-level monitoring remains limited to configured roots.",
+    "TASK-212: SMAppService.mainApp registration requires a properly bundled application; unit tests verify adapter semantics while signed-bundle behavior remains a packaging observation for the increment gate.",
+    "TASK-212: User notification authorization is requested only when a threshold crossing first needs delivery, and denial does not interrupt evidence collection.",
+    "TASK-212: A targeted FSEvents failure leaves scheduled whole-volume and configured-root sampling active and surfaces an explicit degraded state.",
+    "TASK-212: Settings changes restart the targeted stream; the sampling interval itself takes full effect on the next loop iteration.",
+    "TASK-213: Hourly and daily rollup tables do not retain consumer category, so category breakdowns cover raw detail while rollup totals remain path/operation structured evidence.",
+    "TASK-213: Rollup buckets may overlap an exact requested-range boundary; the bundle states this limitation instead of implying per-event precision.",
+    "TASK-213: Zlib was chosen for deterministic in-process compression; consumers must decompress events.jsonl.zlib before reading JSON Lines.",
+    "TASK-213: The integrity manifest hashes every evidence payload, while manifest.json carries the integrity file's hash and is not self-hashed.",
+    "GATE-290: The 0.37-second resource observation covers launch/smoke only; long-duration idle and degraded component budgets remain for RISK-420.",
+    "GATE-290: Signed-bundle SMAppService registration cannot be proven by the SwiftPM executable and remains a packaging-gate observation.",
+    "GATE-290: Outside-root growth is intentionally represented as unknown rather than correlated to the unmonitored fixture path.",
+    "CONTRACT-301: MCP tool annotations are advisory client metadata, so server implementation must independently enforce the same read-only routing and closed inputs.",
+    "CONTRACT-301: Codex and Claude configuration formats can evolve; packaged fragments require compatibility tests and explicit install-time diagnostics.",
+    "CONTRACT-301: Session registration alone can establish only tool-linked confidence; exact writer attribution remains dependent on the optional privileged observer.",
+    "TASK-310: Local ancestry snapshots are point-in-time; processes that exit before inspection may require the optional privileged event observer for stronger evidence.",
+    "TASK-310: The registry is in-memory by design and must be exposed only behind the private authenticated IPC service implemented by the connector node.",
+    "TASK-310: Workspace-only correlations are intentionally inferred, and overlapping workspaces intentionally produce unknown rather than choosing a task.",
+    "TASK-311: macOS Unix-domain socket paths are length-limited; the product Application Support path is checked at startup and reports degraded IPC if it cannot bind.",
+    "TASK-311: MCP cancellation is checked before and during IPC reads/writes; the current line-oriented runner processes one request at a time, so a later cancellation notification cannot preempt a server call already blocking in that same stdio process.",
+    "TASK-311: Registered process contexts are reported as tool-linked and are not labeled proven writers; exact attribution remains unavailable until the optional privileged observer is installed.",
+    "TASK-311: Inline evidence export uses temporary app-owned bundle files and removes each completed bundle after encoding the response.",
+    "TASK-312: Codex and Claude may evolve their local configuration schemas; installer ownership markers and JSON key isolation make upgrades reversible, while diagnostics expose discovery failures.",
+    "TASK-312: Task registration improves correlation but cannot prove individual file writes; the integration skill and session result preserve that limitation.",
+    "TASK-312: The adapters depend only on macOS system zsh and Swift; the shipped app package must include or resolve the connector executable path selected during installation.",
+    "TASK-312: Uninstall moves owned plugin/config state into a dated backup rather than destroying it, so users may later choose when to remove those small backups.",
+    "GATE-390: Timestamp ordering at session-registration boundaries must remain explicit; events preceding registration correctly stay unknown.",
+    "GATE-390: Endpoint Security exact provenance is intentionally outside this increment, so workspace-only task impact remains inferred.",
+    "GATE-390: Current stdio request handling is sequential; cancellation checks bound connector IPC, but a later notification cannot preempt an already-blocked request in the same line-oriented process.",
+    "RESEARCH-401: No valid signing identity or entitlement grant is available on this host.",
+    "RESEARCH-401: Installed system-extension state could not be observed in the current environment.",
+    "RESEARCH-401: Exact provenance must remain optional and unavailable across gaps or fallback-only observations.",
+    "CONTRACT-401: Live Endpoint Security activation and event receipt remain untestable without Apple entitlement, provisioning, signing identity, Full Disk Access, and an approved test host.",
+    "CONTRACT-401: The system-extension transport's code-signing and application-group policy must be bound to actual identifiers during release packaging.",
+    "CONTRACT-401: Exact attribution is event-local; any sequence discontinuity, stream restart, overload, or incomplete measurement opens a visible gap and forces downgrade.",
+    "TASK-410: A live Endpoint Security client cannot be activated or verified on this host without Apple-granted entitlement, a valid signing identity, system-extension installation, and user approval; the system runtime therefore fails closed as not-entitled while fixture transport supplies deterministic evidence.",
+    "TASK-410: Placeholder team, bundle, and application-group identifiers must be replaced and release-bound before distributing a signed build.",
+    "TASK-410: Any transport sequence loss, overload, restart, incomplete file identity, or missed completion deadline forces attribution below exact and keeps the fallback collector active.",
+    "TASK-411: Presentation parity is enforced through one shared immutable record; future channel-specific serializers must continue to consume it without modifying confidence, support, or limitations.",
+    "TASK-411: Exact claims remain event-local and require live privileged evidence; historical metadata and FSEvents hints cannot be upgraded retrospectively.",
+    "TASK-411: Workspace correlation is intentionally conservative: concurrent matching workspaces remain unknown even when that leaves useful activity unattributed.",
+    "RISK-420: The 100,000-event test validates deterministic queue bounds and loss accounting in the test process; production idle/load CPU and resident-memory budgets still require measurement on the signed release artifact and target macOS versions.",
+    "RISK-420: Apple entitlement approval, release team identifiers, provisioning, activation, Full Disk Access, Developer ID signing, and notarization remain external release gates.",
+    "RISK-420: Privacy filtering must remain upstream of persistence and every presentation channel; future fields require the same property-based leak tests before release.",
+    "GATE-490: No live Endpoint Security event is claimed because Apple entitlement, release signing, activation approval, and Full Disk Access are unavailable on this host.",
+    "GATE-490: The generated Swift-package DiskSteward scheme requires an explicit macOS destination from command-line Xcode; the macOS-targeted build passes.",
+    "GATE-490: Signed-artifact idle/load CPU and resident-memory measurements, notarization, upgrade, activation, deactivation, and clean-host uninstall remain release-stage evidence."
+  ]
+}

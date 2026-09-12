@@ -1,0 +1,169 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T152353698531Z-1BA3FE95",
+  "at": "2026-09-12T15:23:53.698348Z",
+  "graph_version": 50,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "GATE-290",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T17:19:39.884407Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:19:39.884555Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:23:53.698189Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-290",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+        "docs/tasks/evidence/GATE-290/audit-observations.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/audit-observations.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter PersistentRecorderIncrementTests",
+          "result": "passed; monitored growth, unknown outside-root growth, threshold, persistence, export integrity, and restart recovery scenario"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 54 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "/usr/bin/time -l .build/debug/DiskStewardApp --ui-smoke",
+          "result": "passed; expected menu/snapshot report, 0.37s elapsed, 29,392,896-byte maximum RSS, 10,404,560-byte peak footprint, 0 swaps"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/audit-observations.md records the independent integrated scenario, inherited increment-one regression, inspected popover, bounded launch resource sample, privacy limits, and restart recovery. The new increment test validates a real watched-root write, outside-root unexplained cause, one threshold notification, WAL persistence, basename-shaped complete bundle and hashes, human brief assertions, reopened database integrity, retained event/snapshot counts, and the 10 MiB fixture ceiling."
+        }
+      ],
+      "discovered_risks": [
+        "The 0.37-second resource observation covers launch/smoke only; long-duration idle and degraded component budgets remain for RISK-420.",
+        "Signed-bundle SMAppService registration cannot be proven by the SwiftPM executable and remains a packaging-gate observation.",
+        "Outside-root growth is intentionally represented as unknown rather than correlated to the unmonitored fixture path."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-290",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+        "docs/tasks/evidence/GATE-290/audit-observations.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/audit-observations.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter PersistentRecorderIncrementTests",
+          "result": "passed; monitored growth, unknown outside-root growth, threshold, persistence, export integrity, and restart recovery scenario"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 54 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "/usr/bin/time -l .build/debug/DiskStewardApp --ui-smoke",
+          "result": "passed; expected menu/snapshot report, 0.37s elapsed, 29,392,896-byte maximum RSS, 10,404,560-byte peak footprint, 0 swaps"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/audit-observations.md records the independent integrated scenario, inherited increment-one regression, inspected popover, bounded launch resource sample, privacy limits, and restart recovery. The new increment test validates a real watched-root write, outside-root unexplained cause, one threshold notification, WAL persistence, basename-shaped complete bundle and hashes, human brief assertions, reopened database integrity, retained event/snapshot counts, and the 10 MiB fixture ceiling."
+        }
+      ],
+      "discovered_risks": [
+        "The 0.37-second resource observation covers launch/smoke only; long-duration idle and degraded component budgets remain for RISK-420.",
+        "Signed-bundle SMAppService registration cannot be proven by the SwiftPM executable and remains a packaging-gate observation.",
+        "Outside-root growth is intentionally represented as unknown rather than correlated to the unmonitored fixture path."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 6,
+  "context_id": "CTX-CF20891B4E032807409F928C2777764A",
+  "previous_event_id": "EVENT-20260912T151939884743Z-6990AEA8",
+  "previous_event_sha256": "a3f2447b0b84704384d5fff962fc441751043d8964767ca071a2239d4ab13db6"
+}

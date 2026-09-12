@@ -1,0 +1,321 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T164640279509Z-80DBB938",
+  "at": "2026-09-12T16:46:40.279342Z",
+  "graph_version": 81,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "RISK-420",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T18:41:04.295570Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:41:04.295720Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:46:40.279174Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RISK-420",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/Privacy/EvidencePrivacyFilter.swift",
+        "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+        "Sources/DiskStewardApp/Onboarding/PermissionOnboarding.swift",
+        "Tests/SafetyTests/SafetyTests.swift",
+        "Tests/PerformanceTests/PerformanceTests.swift",
+        "Config/Signing/Development.xcconfig",
+        "Config/Signing/Release.xcconfig",
+        "Scripts/Distribution/verify",
+        "docs/operations/privacy-and-retention.md",
+        "docs/operations/permissions.md",
+        "docs/operations/distribution.md",
+        "docs/operations/uninstall.md",
+        "docs/tasks/evidence/RISK-420/safety-and-performance.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Privacy/EvidencePrivacyFilter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Onboarding/PermissionOnboarding.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/SafetyTests/SafetyTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/PerformanceTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Config/Signing/Development.xcconfig",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Signing/Release.xcconfig",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Distribution/verify",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/permissions.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/distribution.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/uninstall.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-420/safety-and-performance.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter SafetyTests",
+          "result": "passed; 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test --filter PerformanceTests",
+          "result": "passed; 2 tests, 0 failures; 100,000-event storm completed in 1.342 seconds"
+        },
+        {
+          "command": "swift test --filter IntegrationInstallTests",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 104 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed; explicitly made no signing, activation, or notarization claim"
+        },
+        {
+          "command": "Scripts/Distribution/verify --release",
+          "result": "expected fail-closed; exit 65 on placeholder signing team"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-420-01",
+          "result": "passed",
+          "reference": "Five safety tests prove 500 generated sensitive values do not survive encoded metadata, excluded roots are omitted, path minimization is deterministic, permission refusal keeps fallback visible, uninstall preserves evidence by default, and budget violations demand backpressure. Two performance tests prove a 100,000-event storm retains at most 512 events within a 256 KiB configured queue while accounting for every drop and gap, and 10,000 resource samples retain only the final configured 60. Existing six install/uninstall tests prove owned configuration removal is recoverable and unrelated settings/evidence remain unchanged. Development preflight passes; release preflight deliberately blocks unsigned placeholder configuration."
+        }
+      ],
+      "discovered_risks": [
+        "The 100,000-event test validates deterministic queue bounds and loss accounting in the test process; production idle/load CPU and resident-memory budgets still require measurement on the signed release artifact and target macOS versions.",
+        "Apple entitlement approval, release team identifiers, provisioning, activation, Full Disk Access, Developer ID signing, and notarization remain external release gates.",
+        "Privacy filtering must remain upstream of persistence and every presentation channel; future fields require the same property-based leak tests before release."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "RISK-420",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/Privacy/EvidencePrivacyFilter.swift",
+        "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+        "Sources/DiskStewardApp/Onboarding/PermissionOnboarding.swift",
+        "Tests/SafetyTests/SafetyTests.swift",
+        "Tests/PerformanceTests/PerformanceTests.swift",
+        "Config/Signing/Development.xcconfig",
+        "Config/Signing/Release.xcconfig",
+        "Scripts/Distribution/verify",
+        "docs/operations/privacy-and-retention.md",
+        "docs/operations/permissions.md",
+        "docs/operations/distribution.md",
+        "docs/operations/uninstall.md",
+        "docs/tasks/evidence/RISK-420/safety-and-performance.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Privacy/EvidencePrivacyFilter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Onboarding/PermissionOnboarding.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/SafetyTests/SafetyTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/PerformanceTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Config/Signing/Development.xcconfig",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Signing/Release.xcconfig",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Distribution/verify",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/permissions.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/distribution.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/uninstall.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-420/safety-and-performance.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter SafetyTests",
+          "result": "passed; 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test --filter PerformanceTests",
+          "result": "passed; 2 tests, 0 failures; 100,000-event storm completed in 1.342 seconds"
+        },
+        {
+          "command": "swift test --filter IntegrationInstallTests",
+          "result": "passed; 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 104 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed; explicitly made no signing, activation, or notarization claim"
+        },
+        {
+          "command": "Scripts/Distribution/verify --release",
+          "result": "expected fail-closed; exit 65 on placeholder signing team"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-420-01",
+          "result": "passed",
+          "reference": "Five safety tests prove 500 generated sensitive values do not survive encoded metadata, excluded roots are omitted, path minimization is deterministic, permission refusal keeps fallback visible, uninstall preserves evidence by default, and budget violations demand backpressure. Two performance tests prove a 100,000-event storm retains at most 512 events within a 256 KiB configured queue while accounting for every drop and gap, and 10,000 resource samples retain only the final configured 60. Existing six install/uninstall tests prove owned configuration removal is recoverable and unrelated settings/evidence remain unchanged. Development preflight passes; release preflight deliberately blocks unsigned placeholder configuration."
+        }
+      ],
+      "discovered_risks": [
+        "The 100,000-event test validates deterministic queue bounds and loss accounting in the test process; production idle/load CPU and resident-memory budgets still require measurement on the signed release artifact and target macOS versions.",
+        "Apple entitlement approval, release team identifiers, provisioning, activation, Full Disk Access, Developer ID signing, and notarization remain external release gates.",
+        "Privacy filtering must remain upstream of persistence and every presentation channel; future fields require the same property-based leak tests before release."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-D5EE779728C10C44E52310212CEC7AAD",
+  "previous_event_id": "EVENT-20260912T164104295919Z-65AD521E",
+  "previous_event_sha256": "4a133461e2b61f76ada88b2e0b6ddf9b2a14338b04a60966453eed0d36df1312"
+}

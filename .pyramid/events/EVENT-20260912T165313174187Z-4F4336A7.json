@@ -1,0 +1,345 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T165313174187Z-4F4336A7",
+  "at": "2026-09-12T16:53:13.174011Z",
+  "graph_version": 85,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "GATE-490",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:53:01.097725Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-490",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+        "docs/tasks/evidence/GATE-490/final-audit.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-490/final-audit.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter FinalProductIncrementTests",
+          "result": "passed; 1 end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift package clean && swift test",
+          "result": "passed; clean build and all 105 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed with unsigned/live-activation limitations stated"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-490-01",
+          "result": "passed",
+          "reference": "The independent final scenario launches the built DiskStewardApp in UI-smoke mode and the built disk-witness-mcp connector, captures a live disk snapshot, drives the status-board/export routes, round-trips settings and retention caps, detects a real watched-root file while excluding a configured subtree, proves exact fixture process/file/task attribution with causal references, proves denied-permission unknown fallback, removes generated sensitive values, integrity-checks a basename-only evidence bundle, queries provenance through all seven read-only MCP tools with no delete surface or forbidden keys, evaluates a healthy declared resource sample, and verifies stopped-service recovery fails closed. A clean compile plus all 105 tests and the Xcode scheme build pass."
+        }
+      ],
+      "discovered_risks": [
+        "No live Endpoint Security event is claimed because Apple entitlement, release signing, activation approval, and Full Disk Access are unavailable on this host.",
+        "The generated Swift-package DiskSteward scheme requires an explicit macOS destination from command-line Xcode; the macOS-targeted build passes.",
+        "Signed-artifact idle/load CPU and resident-memory measurements, notarization, upgrade, activation, deactivation, and clean-host uninstall remain release-stage evidence."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:53:13.173833Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-490",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+        "docs/tasks/evidence/GATE-490/final-audit.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-490/final-audit.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter FinalProductIncrementTests",
+          "result": "passed; 1 end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift package clean && swift test",
+          "result": "passed; clean build and all 105 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed with unsigned/live-activation limitations stated"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-490-01",
+          "result": "passed",
+          "reference": "The independent final scenario launches the built DiskStewardApp in UI-smoke mode and the built disk-witness-mcp connector, captures a live disk snapshot, drives the status-board/export routes, round-trips settings and retention caps, detects a real watched-root file while excluding a configured subtree, proves exact fixture process/file/task attribution with causal references, proves denied-permission unknown fallback, removes generated sensitive values, integrity-checks a basename-only evidence bundle, queries provenance through all seven read-only MCP tools with no delete surface or forbidden keys, evaluates a healthy declared resource sample, and verifies stopped-service recovery fails closed. A clean compile plus all 105 tests and the Xcode scheme build pass."
+        }
+      ],
+      "discovered_risks": [
+        "No live Endpoint Security event is claimed because Apple entitlement, release signing, activation approval, and Full Disk Access are unavailable on this host.",
+        "The generated Swift-package DiskSteward scheme requires an explicit macOS destination from command-line Xcode; the macOS-targeted build passes.",
+        "Signed-artifact idle/load CPU and resident-memory measurements, notarization, upgrade, activation, deactivation, and clean-host uninstall remain release-stage evidence."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-490",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-490-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "The gate adds only its independent final increment test and residual-limitations report inside the allowed Final test and GATE-490 evidence scopes."
+          ]
+        },
+        {
+          "id": "CHECK-490-LAUNCH",
+          "result": "passed",
+          "evidence": [
+            "The test launches the built DiskStewardApp executable with its supported UI-smoke route and verifies status launched, accessory activation policy, snapshot availability, active IPC, left-click status board, right-click utility menu, and stable menu commands."
+          ]
+        },
+        {
+          "id": "CHECK-490-HUMAN",
+          "result": "passed",
+          "evidence": [
+            "A live volume snapshot populates the board, current snapshot export succeeds, and watched/excluded roots plus retention settings survive reload."
+          ]
+        },
+        {
+          "id": "CHECK-490-MONITORING",
+          "result": "passed",
+          "evidence": [
+            "A real temporary watched-root write becomes an inferred metadata event while a configured excluded subtree produces no event. SQLite integrity and the 10 MiB test retention cap are verified."
+          ]
+        },
+        {
+          "id": "CHECK-490-PROVENANCE",
+          "result": "passed",
+          "evidence": [
+            "The exact fixture joins matching path, operation, time, logical/allocated deltas, file identity, PID/start identity, and one authenticated session; Endpoint Security, metadata, ancestry, and session source references are all present and identical across UI/export/MCP projections."
+          ]
+        },
+        {
+          "id": "CHECK-490-FALLBACK",
+          "result": "passed",
+          "evidence": [
+            "Denied optional permissions retain standard monitoring and disable exact provenance. A gapped unprivileged observation stays unknown with no actor, and a stopped IPC service fails closed."
+          ]
+        },
+        {
+          "id": "CHECK-490-EXPORT",
+          "result": "passed",
+          "evidence": [
+            "The evidence bundle uses basename paths, declares no contents/environment, includes required limitations, and every payload matches its byte count and SHA-256 manifest digest."
+          ]
+        },
+        {
+          "id": "CHECK-490-MCP",
+          "result": "passed",
+          "evidence": [
+            "The built MCP connector initializes over the private socket, exposes exactly seven read-only tools with no delete tool, returns the persisted event through get_provenance, and contains no forbidden content/environment/token/secret/password keys."
+          ]
+        },
+        {
+          "id": "CHECK-490-PRIVACY-RESOURCE",
+          "result": "passed",
+          "evidence": [
+            "Sensitive path/command/executable values do not survive filtering, excluded paths are absent, the database remains below cap, the healthy resource measurement passes declared budgets, and separate stress evidence proves bounded overload accounting."
+          ]
+        },
+        {
+          "id": "CHECK-490-CLEAN",
+          "result": "passed",
+          "evidence": [
+            "After swift package clean, the full package rebuilt and all 105 tests passed. The macOS-targeted Xcode scheme and development distribution preflight also passed, and git diff --check is clean."
+          ]
+        },
+        {
+          "id": "CHECK-490-LIMITS",
+          "result": "passed",
+          "evidence": [
+            "The gate explicitly distinguishes fixture exactness from unavailable live entitlement evidence and leaves signing, notarization, activation lifecycle, and signed-artifact resource measurements as release limitations rather than weakening fallback acceptance."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-490",
+        "OUTCOME-040",
+        "INTENT-001"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-490",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-490-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "The gate adds only its independent final increment test and residual-limitations report inside the allowed Final test and GATE-490 evidence scopes."
+          ]
+        },
+        {
+          "id": "CHECK-490-LAUNCH",
+          "result": "passed",
+          "evidence": [
+            "The test launches the built DiskStewardApp executable with its supported UI-smoke route and verifies status launched, accessory activation policy, snapshot availability, active IPC, left-click status board, right-click utility menu, and stable menu commands."
+          ]
+        },
+        {
+          "id": "CHECK-490-HUMAN",
+          "result": "passed",
+          "evidence": [
+            "A live volume snapshot populates the board, current snapshot export succeeds, and watched/excluded roots plus retention settings survive reload."
+          ]
+        },
+        {
+          "id": "CHECK-490-MONITORING",
+          "result": "passed",
+          "evidence": [
+            "A real temporary watched-root write becomes an inferred metadata event while a configured excluded subtree produces no event. SQLite integrity and the 10 MiB test retention cap are verified."
+          ]
+        },
+        {
+          "id": "CHECK-490-PROVENANCE",
+          "result": "passed",
+          "evidence": [
+            "The exact fixture joins matching path, operation, time, logical/allocated deltas, file identity, PID/start identity, and one authenticated session; Endpoint Security, metadata, ancestry, and session source references are all present and identical across UI/export/MCP projections."
+          ]
+        },
+        {
+          "id": "CHECK-490-FALLBACK",
+          "result": "passed",
+          "evidence": [
+            "Denied optional permissions retain standard monitoring and disable exact provenance. A gapped unprivileged observation stays unknown with no actor, and a stopped IPC service fails closed."
+          ]
+        },
+        {
+          "id": "CHECK-490-EXPORT",
+          "result": "passed",
+          "evidence": [
+            "The evidence bundle uses basename paths, declares no contents/environment, includes required limitations, and every payload matches its byte count and SHA-256 manifest digest."
+          ]
+        },
+        {
+          "id": "CHECK-490-MCP",
+          "result": "passed",
+          "evidence": [
+            "The built MCP connector initializes over the private socket, exposes exactly seven read-only tools with no delete tool, returns the persisted event through get_provenance, and contains no forbidden content/environment/token/secret/password keys."
+          ]
+        },
+        {
+          "id": "CHECK-490-PRIVACY-RESOURCE",
+          "result": "passed",
+          "evidence": [
+            "Sensitive path/command/executable values do not survive filtering, excluded paths are absent, the database remains below cap, the healthy resource measurement passes declared budgets, and separate stress evidence proves bounded overload accounting."
+          ]
+        },
+        {
+          "id": "CHECK-490-CLEAN",
+          "result": "passed",
+          "evidence": [
+            "After swift package clean, the full package rebuilt and all 105 tests passed. The macOS-targeted Xcode scheme and development distribution preflight also passed, and git diff --check is clean."
+          ]
+        },
+        {
+          "id": "CHECK-490-LIMITS",
+          "result": "passed",
+          "evidence": [
+            "The gate explicitly distinguishes fixture exactness from unavailable live entitlement evidence and leaves signing, notarization, activation lifecycle, and signed-artifact resource measurements as release limitations rather than weakening fallback acceptance."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-490",
+        "OUTCOME-040",
+        "INTENT-001"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-23C3568D1464B3CE5ABC511403B9CE05",
+  "previous_event_id": "EVENT-20260912T165301098095Z-9663EDD3",
+  "previous_event_sha256": "62159d68e3b43071ee3d6601a19c59b6656a6ddf15559f72eb9d6320412055a6"
+}

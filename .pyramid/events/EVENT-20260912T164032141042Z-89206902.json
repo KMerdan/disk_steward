@@ -1,0 +1,201 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T164032141042Z-89206902",
+  "at": "2026-09-12T16:40:32.140883Z",
+  "graph_version": 78,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-411",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T18:35:53.473656Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:35:53.473806Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:40:32.140734Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-411",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+        "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+        "Sources/DiskStewardApp/ProvenanceUI/ProvenanceBoardItem.swift",
+        "Tests/DiskStewardCoreTests/Provenance/ProvenanceEngineTests.swift",
+        "Fixtures/Provenance/golden-scenarios.json",
+        "Fixtures/Provenance/adversarial-scenarios.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/ProvenanceUI/ProvenanceBoardItem.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Provenance/ProvenanceEngineTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Provenance/golden-scenarios.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Provenance/adversarial-scenarios.json",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Provenance",
+          "result": "passed; 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 97 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-411-01",
+          "result": "passed",
+          "reference": "Golden create, grow, and rename scenarios produce exact claims only when a matching privileged process/file observation, complete size delta, time/path/operation match, and gap-free evidence agree. PID plus start time links the correct writer through authenticated ancestry to one task without leaking a reused PID. Incomplete privileged evidence becomes tool-linked only with a unique authenticated task; historical records become inferred; stream gaps, overlapping workspaces, and mismatched byte observations remain unknown. Each claim carries typed causal references, and the UI, export, and MCP presentation channels receive an identical evidence-bearing record."
+        }
+      ],
+      "discovered_risks": [
+        "Presentation parity is enforced through one shared immutable record; future channel-specific serializers must continue to consume it without modifying confidence, support, or limitations.",
+        "Exact claims remain event-local and require live privileged evidence; historical metadata and FSEvents hints cannot be upgraded retrospectively.",
+        "Workspace correlation is intentionally conservative: concurrent matching workspaces remain unknown even when that leaves useful activity unattributed."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-411",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+        "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+        "Sources/DiskStewardApp/ProvenanceUI/ProvenanceBoardItem.swift",
+        "Tests/DiskStewardCoreTests/Provenance/ProvenanceEngineTests.swift",
+        "Fixtures/Provenance/golden-scenarios.json",
+        "Fixtures/Provenance/adversarial-scenarios.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/ProvenanceUI/ProvenanceBoardItem.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Provenance/ProvenanceEngineTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Provenance/golden-scenarios.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Provenance/adversarial-scenarios.json",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Provenance",
+          "result": "passed; 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 97 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-411-01",
+          "result": "passed",
+          "reference": "Golden create, grow, and rename scenarios produce exact claims only when a matching privileged process/file observation, complete size delta, time/path/operation match, and gap-free evidence agree. PID plus start time links the correct writer through authenticated ancestry to one task without leaking a reused PID. Incomplete privileged evidence becomes tool-linked only with a unique authenticated task; historical records become inferred; stream gaps, overlapping workspaces, and mismatched byte observations remain unknown. Each claim carries typed causal references, and the UI, export, and MCP presentation channels receive an identical evidence-bearing record."
+        }
+      ],
+      "discovered_risks": [
+        "Presentation parity is enforced through one shared immutable record; future channel-specific serializers must continue to consume it without modifying confidence, support, or limitations.",
+        "Exact claims remain event-local and require live privileged evidence; historical metadata and FSEvents hints cannot be upgraded retrospectively.",
+        "Workspace correlation is intentionally conservative: concurrent matching workspaces remain unknown even when that leaves useful activity unattributed."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-6B551358048E2D0E292C84E13F35179E",
+  "previous_event_id": "EVENT-20260912T163553474000Z-FCAB27FD",
+  "previous_event_sha256": "c689a35794a5de4e3fa0027f4481c38a6e22f592261c87ede674f6b8b30e7803"
+}

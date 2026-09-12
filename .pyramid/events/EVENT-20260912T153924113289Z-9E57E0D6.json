@@ -1,0 +1,209 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T153924113289Z-9E57E0D6",
+  "at": "2026-09-12T15:39:24.113106Z",
+  "graph_version": 57,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-310",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T17:33:41.279334Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:33:41.279482Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T15:39:24.112939Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+        "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+        "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+        "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+        "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+        "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Session",
+          "result": "passed; 6 selected tests, 0 failures including 3 registry tests"
+        },
+        {
+          "command": "swift test --filter Correlation",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 67 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "The actor-isolated registry authenticates the current peer UID, private 0600 socket posture, and per-launch challenge digest; validates bounded leases and roots; rejects stale, duplicate, cross-task, and spoofed registrations; expires and ends sessions without persisting a secret. Process identity is PID plus start time, preventing PID reuse collisions. The macOS libproc inspector captures the live process and bounded ancestry. Correlation links unique descendants at tool-linked confidence, downgrades unique workspace/time matches to inferred, leaves ambiguous overlapping tasks unknown, ignores expired registrations, and sums only evidence assigned to the requested task."
+        }
+      ],
+      "discovered_risks": [
+        "Local ancestry snapshots are point-in-time; processes that exit before inspection may require the optional privileged event observer for stronger evidence.",
+        "The registry is in-memory by design and must be exposed only behind the private authenticated IPC service implemented by the connector node.",
+        "Workspace-only correlations are intentionally inferred, and overlapping workspaces intentionally produce unknown rather than choosing a task."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+        "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+        "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+        "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+        "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+        "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Session",
+          "result": "passed; 6 selected tests, 0 failures including 3 registry tests"
+        },
+        {
+          "command": "swift test --filter Correlation",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 67 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "The actor-isolated registry authenticates the current peer UID, private 0600 socket posture, and per-launch challenge digest; validates bounded leases and roots; rejects stale, duplicate, cross-task, and spoofed registrations; expires and ends sessions without persisting a secret. Process identity is PID plus start time, preventing PID reuse collisions. The macOS libproc inspector captures the live process and bounded ancestry. Correlation links unique descendants at tool-linked confidence, downgrades unique workspace/time matches to inferred, leaves ambiguous overlapping tasks unknown, ignores expired registrations, and sums only evidence assigned to the requested task."
+        }
+      ],
+      "discovered_risks": [
+        "Local ancestry snapshots are point-in-time; processes that exit before inspection may require the optional privileged event observer for stronger evidence.",
+        "The registry is in-memory by design and must be exposed only behind the private authenticated IPC service implemented by the connector node.",
+        "Workspace-only correlations are intentionally inferred, and overlapping workspaces intentionally produce unknown rather than choosing a task."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 6,
+  "context_id": "CTX-40051A330629EC95AC8D1CE595399EBA",
+  "previous_event_id": "EVENT-20260912T153341279662Z-441D88B6",
+  "previous_event_sha256": "3257eaaac792652ace7463b17e720418eefcde7f09d8891b6162fc32454f8e32"
+}

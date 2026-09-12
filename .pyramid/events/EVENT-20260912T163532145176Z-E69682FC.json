@@ -1,0 +1,393 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T163532145176Z-E69682FC",
+  "at": "2026-09-12T16:35:32.145003Z",
+  "graph_version": 76,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-410",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:34:35.657585Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-410",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/EndpointBridge/PrivilegedEventModels.swift",
+        "Sources/DiskStewardCore/EndpointBridge/EndpointEventNormalizer.swift",
+        "Sources/DiskStewardCore/EndpointBridge/BoundedEndpointEventBuffer.swift",
+        "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift",
+        "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+        "Extensions/DiskStewardEndpoint/Info.plist",
+        "Config/Entitlements/DiskStewardEndpoint.entitlements",
+        "Config/Entitlements/DiskStewardApp.entitlements",
+        "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/PrivilegedEventModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/EndpointEventNormalizer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/BoundedEndpointEventBuffer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift",
+          "class": "source"
+        },
+        {
+          "path": "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+          "class": "source"
+        },
+        {
+          "path": "Extensions/DiskStewardEndpoint/Info.plist",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Entitlements/DiskStewardEndpoint.entitlements",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Entitlements/DiskStewardApp.entitlements",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardEndpoint",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 92 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-410-01",
+          "result": "passed",
+          "reference": "A notification-only observer coordinator accepts only create, write, close, rename, unlink, exec, and exit event families, filters paths before normalization, preserves PID plus process-start identity, and delivers normalized events through a peer-validated challenge bridge. Fixture transport proves delivery without authorization events. The bounded buffer coalesces only compatible writes and represents overflow as a sequence gap. Denial, crash, overload, missing entitlement, and spoofed-peer cases retain an active metadata fallback and visible reason; no blocking or security bypass is implemented."
+        }
+      ],
+      "discovered_risks": [
+        "A live Endpoint Security client cannot be activated or verified on this host without Apple-granted entitlement, a valid signing identity, system-extension installation, and user approval; the system runtime therefore fails closed as not-entitled while fixture transport supplies deterministic evidence.",
+        "Placeholder team, bundle, and application-group identifiers must be replaced and release-bound before distributing a signed build.",
+        "Any transport sequence loss, overload, restart, incomplete file identity, or missed completion deadline forces attribution below exact and keeps the fallback collector active."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:35:32.144823Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-410",
+      "outcome": "implemented",
+      "changed_files": [
+        "Package.swift",
+        "Sources/DiskStewardCore/EndpointBridge/PrivilegedEventModels.swift",
+        "Sources/DiskStewardCore/EndpointBridge/EndpointEventNormalizer.swift",
+        "Sources/DiskStewardCore/EndpointBridge/BoundedEndpointEventBuffer.swift",
+        "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift",
+        "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+        "Extensions/DiskStewardEndpoint/Info.plist",
+        "Config/Entitlements/DiskStewardEndpoint.entitlements",
+        "Config/Entitlements/DiskStewardApp.entitlements",
+        "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Package.swift",
+          "class": "configuration"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/PrivilegedEventModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/EndpointEventNormalizer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/BoundedEndpointEventBuffer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift",
+          "class": "source"
+        },
+        {
+          "path": "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+          "class": "source"
+        },
+        {
+          "path": "Extensions/DiskStewardEndpoint/Info.plist",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Entitlements/DiskStewardEndpoint.entitlements",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Entitlements/DiskStewardApp.entitlements",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DiskStewardEndpoint",
+          "result": "passed; 4 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed; 92 tests, 0 failures"
+        },
+        {
+          "command": "swift build",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-410-01",
+          "result": "passed",
+          "reference": "A notification-only observer coordinator accepts only create, write, close, rename, unlink, exec, and exit event families, filters paths before normalization, preserves PID plus process-start identity, and delivers normalized events through a peer-validated challenge bridge. Fixture transport proves delivery without authorization events. The bounded buffer coalesces only compatible writes and represents overflow as a sequence gap. Denial, crash, overload, missing entitlement, and spoofed-peer cases retain an active metadata fallback and visible reason; no blocking or security bypass is implemented."
+        }
+      ],
+      "discovered_risks": [
+        "A live Endpoint Security client cannot be activated or verified on this host without Apple-granted entitlement, a valid signing identity, system-extension installation, and user approval; the system runtime therefore fails closed as not-entitled while fixture transport supplies deterministic evidence.",
+        "Placeholder team, bundle, and application-group identifiers must be replaced and release-bound before distributing a signed build.",
+        "Any transport sequence loss, overload, restart, incomplete file identity, or missed completion deadline forces attribution below exact and keeps the fallback collector active."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-410",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-410-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All implementation changes are confined to TASK-410's Package.swift, Extensions/DiskStewardEndpoint, Sources/DiskStewardCore/EndpointBridge, Tests/DiskStewardEndpointTests, and Config/Entitlements scope."
+          ]
+        },
+        {
+          "id": "CHECK-410-NOTIFICATION",
+          "result": "passed",
+          "evidence": [
+            "The observer event inventory contains only notification-oriented create, write, close, rename, unlink, exec, and exit families. No authorization callback or blocking decision API is represented."
+          ]
+        },
+        {
+          "id": "CHECK-410-FILTER",
+          "result": "passed",
+          "evidence": [
+            "EndpointMonitoringScope applies watched-root and exclusion-prefix policy before normalization or bridge delivery; the fixture test proves an excluded path is discarded."
+          ]
+        },
+        {
+          "id": "CHECK-410-BRIDGE",
+          "result": "passed",
+          "evidence": [
+            "ProtectedEndpointBridge validates team, bundle, app group, designated requirement, and a constant-time challenge digest. A spoofed peer is rejected without event delivery."
+          ]
+        },
+        {
+          "id": "CHECK-410-IDENTITY",
+          "result": "passed",
+          "evidence": [
+            "Normalized events retain PID plus process-start time and file device/inode identity. Exact eligibility requires complete identity, size, deadline, and gap-free input."
+          ]
+        },
+        {
+          "id": "CHECK-410-BOUNDS",
+          "result": "passed",
+          "evidence": [
+            "The bounded buffer constrains both event count and byte use, coalesces only compatible consecutive writes, records dropped ranges, and downgrades after overload or sequence discontinuity."
+          ]
+        },
+        {
+          "id": "CHECK-410-FALLBACK",
+          "result": "passed",
+          "evidence": [
+            "Denied, crashed, overloaded, and missing-entitlement states keep the metadata fallback active and carry a visible reason; retry state is bounded. The runtime never attempts to bypass macOS security."
+          ]
+        },
+        {
+          "id": "CHECK-410-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Four focused endpoint tests, all 92 repository tests, Swift build, macOS-targeted Xcode build, and git diff --check passed."
+          ]
+        },
+        {
+          "id": "CHECK-410-LIVE-LIMIT",
+          "result": "passed",
+          "evidence": [
+            "No live entitlement claim is made. Apple-granted entitlement, release signing, system-extension activation, and user approval remain explicit distribution prerequisites; the deterministic fixture transport is the available acceptance evidence on this host."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-410"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-410",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-410-SCOPE",
+          "result": "passed",
+          "evidence": [
+            "All implementation changes are confined to TASK-410's Package.swift, Extensions/DiskStewardEndpoint, Sources/DiskStewardCore/EndpointBridge, Tests/DiskStewardEndpointTests, and Config/Entitlements scope."
+          ]
+        },
+        {
+          "id": "CHECK-410-NOTIFICATION",
+          "result": "passed",
+          "evidence": [
+            "The observer event inventory contains only notification-oriented create, write, close, rename, unlink, exec, and exit families. No authorization callback or blocking decision API is represented."
+          ]
+        },
+        {
+          "id": "CHECK-410-FILTER",
+          "result": "passed",
+          "evidence": [
+            "EndpointMonitoringScope applies watched-root and exclusion-prefix policy before normalization or bridge delivery; the fixture test proves an excluded path is discarded."
+          ]
+        },
+        {
+          "id": "CHECK-410-BRIDGE",
+          "result": "passed",
+          "evidence": [
+            "ProtectedEndpointBridge validates team, bundle, app group, designated requirement, and a constant-time challenge digest. A spoofed peer is rejected without event delivery."
+          ]
+        },
+        {
+          "id": "CHECK-410-IDENTITY",
+          "result": "passed",
+          "evidence": [
+            "Normalized events retain PID plus process-start time and file device/inode identity. Exact eligibility requires complete identity, size, deadline, and gap-free input."
+          ]
+        },
+        {
+          "id": "CHECK-410-BOUNDS",
+          "result": "passed",
+          "evidence": [
+            "The bounded buffer constrains both event count and byte use, coalesces only compatible consecutive writes, records dropped ranges, and downgrades after overload or sequence discontinuity."
+          ]
+        },
+        {
+          "id": "CHECK-410-FALLBACK",
+          "result": "passed",
+          "evidence": [
+            "Denied, crashed, overloaded, and missing-entitlement states keep the metadata fallback active and carry a visible reason; retry state is bounded. The runtime never attempts to bypass macOS security."
+          ]
+        },
+        {
+          "id": "CHECK-410-REGRESSION",
+          "result": "passed",
+          "evidence": [
+            "Four focused endpoint tests, all 92 repository tests, Swift build, macOS-targeted Xcode build, and git diff --check passed."
+          ]
+        },
+        {
+          "id": "CHECK-410-LIVE-LIMIT",
+          "result": "passed",
+          "evidence": [
+            "No live entitlement claim is made. Apple-granted entitlement, release signing, system-extension activation, and user approval remain explicit distribution prerequisites; the deterministic fixture transport is the available acceptance evidence on this host."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-410"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-7F116312073A33D35D2F0236976696C3",
+  "previous_event_id": "EVENT-20260912T163435657924Z-495EA81F",
+  "previous_event_sha256": "d8ff7059704bf94b9410c27da962d3d87ea04ec907a835185cb0704958959ac4"
+}

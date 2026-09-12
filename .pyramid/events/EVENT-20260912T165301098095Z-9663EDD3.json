@@ -1,0 +1,169 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T165301098095Z-9663EDD3",
+  "at": "2026-09-12T16:53:01.097889Z",
+  "graph_version": 84,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "GATE-490",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-12T18:47:26.779157Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:47:26.779311Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T16:53:01.097725Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-490",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+        "docs/tasks/evidence/GATE-490/final-audit.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-490/final-audit.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter FinalProductIncrementTests",
+          "result": "passed; 1 end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift package clean && swift test",
+          "result": "passed; clean build and all 105 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed with unsigned/live-activation limitations stated"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-490-01",
+          "result": "passed",
+          "reference": "The independent final scenario launches the built DiskStewardApp in UI-smoke mode and the built disk-witness-mcp connector, captures a live disk snapshot, drives the status-board/export routes, round-trips settings and retention caps, detects a real watched-root file while excluding a configured subtree, proves exact fixture process/file/task attribution with causal references, proves denied-permission unknown fallback, removes generated sensitive values, integrity-checks a basename-only evidence bundle, queries provenance through all seven read-only MCP tools with no delete surface or forbidden keys, evaluates a healthy declared resource sample, and verifies stopped-service recovery fails closed. A clean compile plus all 105 tests and the Xcode scheme build pass."
+        }
+      ],
+      "discovered_risks": [
+        "No live Endpoint Security event is claimed because Apple entitlement, release signing, activation approval, and Full Disk Access are unavailable on this host.",
+        "The generated Swift-package DiskSteward scheme requires an explicit macOS destination from command-line Xcode; the macOS-targeted build passes.",
+        "Signed-artifact idle/load CPU and resident-memory measurements, notarization, upgrade, activation, deactivation, and clean-host uninstall remain release-stage evidence."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-490",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+        "docs/tasks/evidence/GATE-490/final-audit.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "source-change",
+      "changes": [
+        {
+          "path": "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-490/final-audit.md",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter FinalProductIncrementTests",
+          "result": "passed; 1 end-to-end test, 0 failures"
+        },
+        {
+          "command": "swift package clean && swift test",
+          "result": "passed; clean build and all 105 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -scheme DiskSteward -destination 'platform=macOS' build -quiet",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed with unsigned/live-activation limitations stated"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-490-01",
+          "result": "passed",
+          "reference": "The independent final scenario launches the built DiskStewardApp in UI-smoke mode and the built disk-witness-mcp connector, captures a live disk snapshot, drives the status-board/export routes, round-trips settings and retention caps, detects a real watched-root file while excluding a configured subtree, proves exact fixture process/file/task attribution with causal references, proves denied-permission unknown fallback, removes generated sensitive values, integrity-checks a basename-only evidence bundle, queries provenance through all seven read-only MCP tools with no delete surface or forbidden keys, evaluates a healthy declared resource sample, and verifies stopped-service recovery fails closed. A clean compile plus all 105 tests and the Xcode scheme build pass."
+        }
+      ],
+      "discovered_risks": [
+        "No live Endpoint Security event is claimed because Apple entitlement, release signing, activation approval, and Full Disk Access are unavailable on this host.",
+        "The generated Swift-package DiskSteward scheme requires an explicit macOS destination from command-line Xcode; the macOS-targeted build passes.",
+        "Signed-artifact idle/load CPU and resident-memory measurements, notarization, upgrade, activation, deactivation, and clean-host uninstall remain release-stage evidence."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-001",
+  "plan_revision": 7,
+  "context_id": "CTX-664619FBF0D6A5B6450368AB605FCB5E",
+  "previous_event_id": "EVENT-20260912T164726779498Z-2E50C5DA",
+  "previous_event_sha256": "fcd527f479a29402233377d0f5fec97f6a46d6a77c307a4c6187e65c88a4597d"
+}
