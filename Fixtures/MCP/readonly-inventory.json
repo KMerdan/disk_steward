@@ -22,6 +22,18 @@
       "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
     },
     {
+      "name": "get_evidence_lifecycle",
+      "description": "Return retention policy, actual tier coverage, database pressure, gaps, and export inventory.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "properties": {} },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "list_current_consumers",
+      "description": "Return only authoritative present current-state consumers with stable cursor pagination.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minimum_bytes": { "type": "integer", "minimum": 0 }, "cursor": { "type": "string" }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 }, "path_detail": { "type": "string", "enum": ["full", "basename", "hashed"] } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
       "name": "explain_growth",
       "description": "Explain growth for a bounded time range without claiming unsupported attribution.",
       "inputSchema": { "type": "object", "additionalProperties": false, "required": ["from", "through"], "properties": { "from": { "type": "string" }, "through": { "type": "string" }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
@@ -37,6 +49,12 @@
       "name": "list_active_writers",
       "description": "Return recently observed writer identities and confidence within a bounded window.",
       "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minutes": { "type": "integer", "minimum": 1, "maximum": 1440 }, "limit": { "type": "integer", "minimum": 1, "maximum": 200 } } },
+      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+    },
+    {
+      "name": "list_active_agent_sessions",
+      "description": "Return active authenticated task contexts without claiming observed writer identity.",
+      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minutes": { "type": "integer", "minimum": 1, "maximum": 1440 }, "limit": { "type": "integer", "minimum": 1, "maximum": 200 }, "cursor": { "type": "string" } } },
       "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
     },
     {

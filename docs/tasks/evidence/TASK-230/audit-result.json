@@ -1,0 +1,41 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-230",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-230-01",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+        "Fresh state defaults off; enable and disable persist across store reconstruction"
+      ]
+    },
+    {
+      "id": "CHECK-230-02",
+      "result": "passed",
+      "evidence": [
+        "Real Unix socket accepted a read query only while enabled, was current-user 0600, and was removed on disable",
+        "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift returns agent_access_disabled with explicit recovery"
+      ]
+    },
+    {
+      "id": "CHECK-230-03",
+      "result": "passed",
+      "evidence": [
+        "Non-mutation sentinels prove evidence, monitoring settings, Codex config, and Claude config remain unchanged",
+        "Full 116-test regression preserves the read-only catalog and private local IPC boundary"
+      ]
+    },
+    {
+      "id": "CHECK-230-04",
+      "result": "passed",
+      "evidence": [
+        "Off, Starting, On, and Needs Attention have distinct textual and accessibility summaries",
+        "Signed Xcode UI smoke reports agent_access off and ipc_service off from the same controller state"
+      ]
+    }
+  ],
+  "affected_claims": ["REQ-103", "REQ-104", "REQ-106", "REQ-107", "OUTCOME-210"],
+  "recommended_action": "advance"
+}

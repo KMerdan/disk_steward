@@ -1,0 +1,467 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T034358830742Z-3357A7FF",
+  "at": "2026-09-13T03:43:58.830555Z",
+  "graph_version": 68,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-241",
+  "before": {
+    "execution": "working",
+    "verification": "failed",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T05:30:12.434120Z",
+    "work_origin": "needs-rework",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:30:12.434284Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "docs/tasks/evidence/TASK-241/reconciliation-verification.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/reconciliation-verification.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceObjectLifecycleTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 111 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "SQLite schema v2 and atomic recordObservation persist scope, observation, per-root coverage, stable objects, temporal paths, file states, current state, changes, and gaps"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "recordObservation transaction and observation ID replay test prove rollback and idempotency"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "EvidenceObjectLifecycleTests covers baseline, modify, truncate, rename, replace, delete, path reuse, partial unknown, and scope entry/exit"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "PersistentMonitoringProbe uses durable state and restart test records resolved app-offline gap"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Complete and partial A/B/C tests prove deletion only after complete same-scope observation"
+        },
+        {
+          "criterion": "AC-241-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/reconciliation-verification.md and 111-test regression run"
+        }
+      ],
+      "discovered_risks": [
+        "Path-temporal fallback identity cannot prove replacement when filesystem identity metadata is unavailable; such conclusions remain observational.",
+        "Existing legacy evidence-event-v1 exports do not yet expose every v2 lifecycle field; TASK-243 and TASK-244 own bounded export and query projections."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-241",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-241-01",
+          "result": "passed",
+          "evidence": [
+            "Schema v2 retains v1 tables and adds scope_versions, observation_runs, observation_roots, file_objects, path_bindings, file_state_observations, current_file_state, change_events, and coverage_gaps",
+            "recordObservation applies all derived mutations inside one SQLite transaction and returns an existing observation without replay"
+          ]
+        },
+        {
+          "id": "CHECK-241-02",
+          "result": "passed",
+          "evidence": [
+            "EvidenceObjectLifecycleTests verifies complete A/B/C deletion and idempotent replay",
+            "Partial A/B/C keeps B unknown, non-actionable, and state-as-of O1 until a complete recovery observation"
+          ]
+        },
+        {
+          "id": "CHECK-241-03",
+          "result": "passed",
+          "evidence": [
+            "Identity-aware tests distinguish modify, truncate, rename, replacement/path reuse, scope entry, and scope exit",
+            "Scope removal emits scope-exit rather than deletion"
+          ]
+        },
+        {
+          "id": "CHECK-241-04",
+          "result": "passed",
+          "evidence": [
+            "Restart test reopens persisted state, records a bounded app-offline interval, and reconciles deletion only from a complete observation",
+            "Complete root coverage resolves earlier open root gaps without removing their history"
+          ]
+        },
+        {
+          "id": "CHECK-241-05",
+          "result": "passed",
+          "evidence": [
+            "swift test passed 111 tests with zero failures",
+            "git diff --check passed",
+            "Evidence contract explicitly limits hard-link, clone, compression, and path-temporal identity conclusions"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-13T03:30:01.966810Z",
+      "actor": "codex",
+      "reason": "Live unsigned Debug launch crashed after Downloads access because startup reconciliation assumed object identities were path-unique; hard-linked files legitimately violate that assumption.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/TASK-241/startup-hard-link-crash.json"
+    }
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:43:58.830364Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+        "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+        "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 143 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/DiskStewardDerivedData CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed: menu-bar UI contract available"
+        },
+        {
+          "command": "live startup scan",
+          "result": "passed: process alive, observation committed, no new crash report"
+        },
+        {
+          "command": "git diff --check -- repair files",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        }
+      ],
+      "discovered_risks": [
+        "Hard-linked objects remain intentionally excluded from cleanup candidates until the filesystem reports one remaining link because deleting one link may reclaim no allocated blocks.",
+        "The live observation reached the configured entry cap and is correctly labeled partial."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-241",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-241-01",
+          "result": "passed",
+          "evidence": [
+            "Schema v2 retains v1 tables and adds scope_versions, observation_runs, observation_roots, file_objects, path_bindings, file_state_observations, current_file_state, change_events, and coverage_gaps",
+            "recordObservation applies all derived mutations inside one SQLite transaction and returns an existing observation without replay"
+          ]
+        },
+        {
+          "id": "CHECK-241-02",
+          "result": "passed",
+          "evidence": [
+            "EvidenceObjectLifecycleTests verifies complete A/B/C deletion and idempotent replay",
+            "Partial A/B/C keeps B unknown, non-actionable, and state-as-of O1 until a complete recovery observation"
+          ]
+        },
+        {
+          "id": "CHECK-241-03",
+          "result": "passed",
+          "evidence": [
+            "Identity-aware tests distinguish modify, truncate, rename, replacement/path reuse, scope entry, and scope exit",
+            "Scope removal emits scope-exit rather than deletion"
+          ]
+        },
+        {
+          "id": "CHECK-241-04",
+          "result": "passed",
+          "evidence": [
+            "Restart test reopens persisted state, records a bounded app-offline interval, and reconciles deletion only from a complete observation",
+            "Complete root coverage resolves earlier open root gaps without removing their history"
+          ]
+        },
+        {
+          "id": "CHECK-241-05",
+          "result": "passed",
+          "evidence": [
+            "swift test passed 111 tests with zero failures",
+            "git diff --check passed",
+            "Evidence contract explicitly limits hard-link, clone, compression, and path-temporal identity conclusions"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-13T03:30:01.966810Z",
+      "actor": "codex",
+      "reason": "Live unsigned Debug launch crashed after Downloads access because startup reconciliation assumed object identities were path-unique; hard-linked files legitimately violate that assumption.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/TASK-241/startup-hard-link-crash.json"
+    }
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+        "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+        "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 143 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/DiskStewardDerivedData CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed: menu-bar UI contract available"
+        },
+        {
+          "command": "live startup scan",
+          "result": "passed: process alive, observation committed, no new crash report"
+        },
+        {
+          "command": "git diff --check -- repair files",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        }
+      ],
+      "discovered_risks": [
+        "Hard-linked objects remain intentionally excluded from cleanup candidates until the filesystem reports one remaining link because deleting one link may reclaim no allocated blocks.",
+        "The live observation reached the configured entry cap and is correctly labeled partial."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-D2A467DCD67F0C5269251E58337B1CD1",
+  "previous_event_id": "EVENT-20260913T033012434506Z-754BBC9A",
+  "previous_event_sha256": "2e34e893434dbe111f8aa4a5ef649f0b17781ce007551cf2f119ed2b2286e799"
+}

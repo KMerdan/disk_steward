@@ -1,0 +1,311 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T035454395781Z-ACD94EB4",
+  "at": "2026-09-13T03:54:54.395585Z",
+  "graph_version": 80,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "RISK-320",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-244 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-13T03:47:25.661308Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RISK-320",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/Distribution/release-policy-fixtures.json",
+        "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+        "docs/tasks/evidence/RISK-320/dependency-gap.json",
+        "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+        "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+        "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+        "docs/tasks/evidence/RISK-320/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Tests/Distribution/release-policy-fixtures.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/dependency-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed: 5 tests, 0 failures"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed without release claims"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 140 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-320-01",
+          "result": "passed",
+          "reference": "Tests/Distribution/release-policy-fixtures.json and Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift"
+        },
+        {
+          "criterion": "AC-320-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/artifact-inspection.txt"
+        },
+        {
+          "criterion": "EVREQ-320-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "RISK-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-320-01",
+          "result": "passed",
+          "evidence": [
+            "Twelve policy observations include one accepted complete Developer ID fixture and eleven precise failure modes",
+            "Actual verifier rejected missing helper, wrong application identifier, and unsigned nested code",
+            "Production controls bind exact app/helper IDs, Developer ID authority, Team ID, timestamp, runtime, exact standard entitlements, staple, and Gatekeeper"
+          ]
+        },
+        {
+          "id": "CHECK-320-02",
+          "result": "passed",
+          "evidence": [
+            "Standard and optional Endpoint Security entitlement key sets were decoded and compared",
+            "Credential scan found no private-key block, stored notary credentials, or inline Apple/notary password assignment",
+            "Two gaps discovered by the suite caused TASK-310 reopen-repair-reaudit cycles before this risk control was accepted"
+          ]
+        },
+        {
+          "id": "CHECK-320-03",
+          "result": "passed",
+          "evidence": [
+            "verify-release accepts only an actual .app or the sole app in an actual .xcarchive",
+            "Unsigned Release archive construction succeeds but release verification rejects it",
+            "140 tests pass and git diff --check passes"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-109",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:54:54.395370Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RISK-320",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/Distribution/release-policy-fixtures.json",
+        "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+        "docs/tasks/evidence/RISK-320/dependency-gap.json",
+        "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+        "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+        "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+        "docs/tasks/evidence/RISK-320/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Tests/Distribution/release-policy-fixtures.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/dependency-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed: 5 tests, 0 failures"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed without release claims"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 140 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-320-01",
+          "result": "passed",
+          "reference": "Tests/Distribution/release-policy-fixtures.json and Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift"
+        },
+        {
+          "criterion": "AC-320-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/artifact-inspection.txt"
+        },
+        {
+          "criterion": "EVREQ-320-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "RISK-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-320-REVALIDATE-01",
+          "result": "passed",
+          "evidence": [
+            "DistributionReleaseIntegrityTests passed all five valid and fail-closed artifact-policy cases in the 144-test suite.",
+            "The current Debug build is described only as unsigned development output and is not represented as a distributable release."
+          ]
+        },
+        {
+          "id": "CHECK-320-REVALIDATE-02",
+          "result": "passed",
+          "evidence": [
+            "TASK-310 remains credential-free and verified.",
+            "The missing Developer ID Application identity remains an explicit external release blocker rather than being bypassed or weakened."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "RISK-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-320-REVALIDATE-01",
+          "result": "passed",
+          "evidence": [
+            "DistributionReleaseIntegrityTests passed all five valid and fail-closed artifact-policy cases in the 144-test suite.",
+            "The current Debug build is described only as unsigned development output and is not represented as a distributable release."
+          ]
+        },
+        {
+          "id": "CHECK-320-REVALIDATE-02",
+          "result": "passed",
+          "evidence": [
+            "TASK-310 remains credential-free and verified.",
+            "The missing Developer ID Application identity remains an explicit external release blocker rather than being bypassed or weakened."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-7242ABE37FF65462E5BCB10CEAFAC18F",
+  "previous_event_id": "EVENT-20260913T035436844357Z-1A6CEC58",
+  "previous_event_sha256": "da724fe535a064077540cbc1dec5893b1beab9ed88e475bef8c1ac46ff1c8e67"
+}

@@ -1,0 +1,407 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T055225333539Z-8D64BAD4",
+  "at": "2026-09-13T05:52:25.333371Z",
+  "graph_version": 104,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "CONTRACT-240",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+    "updated_at": "2026-09-13T04:39:22.945431Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-240",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+        "Schemas/MCP/evidence-query-page-v1.schema.json",
+        "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+        "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+        "docs/architecture/evidence-object-lifecycle.md",
+        "docs/architecture/evidence-contract.md",
+        "docs/architecture/mcp.md",
+        "docs/operations/privacy-and-retention.md",
+        "docs/tasks/evidence/CONTRACT-240/contract-review.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/MCP/evidence-query-page-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-object-lifecycle.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-contract.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/mcp.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-240/contract-review.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "jsonschema abc-complete-deletion.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jsonschema abc-partial-observation.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jq empty on both new schemas and fixtures",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 105 tests, 0 failures"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-240-01",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md object lifecycle matrix"
+        },
+        {
+          "criterion": "AC-240-02",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md invariants and reconciliation state machine"
+        },
+        {
+          "criterion": "AC-240-03",
+          "result": "passed",
+          "reference": "partial coverage rules and abc-partial-observation.json"
+        },
+        {
+          "criterion": "AC-240-04",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md questions, timestamps, coverage and honest filesystem limits; Schemas/MCP/evidence-query-page-v1.schema.json"
+        },
+        {
+          "criterion": "AC-240-05",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md atomicity, recovery, migration and replay invariants"
+        },
+        {
+          "criterion": "AC-240-06",
+          "result": "passed",
+          "reference": "validated complete and partial A/B/C fixtures"
+        }
+      ],
+      "discovered_risks": [
+        "Periodic observation cannot discover a file created and deleted entirely between observations without a direct event source.",
+        "APFS sharing, clones, compression and hard links limit exact reclaimable-byte claims.",
+        "The planned Scripts/Contracts/validate.sh wrapper does not exist; equivalent jsonschema validation was executed directly."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-240",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-240-01",
+          "result": "passed",
+          "evidence": [
+            "docs/architecture/evidence-object-lifecycle.md defines all 14 persistent objects, identities, relationships, transitions and retention rules"
+          ]
+        },
+        {
+          "id": "CHECK-240-02",
+          "result": "passed",
+          "evidence": [
+            "The reconciliation table covers baseline, modify, truncate, rename, replace, delete, path reuse, scope change, restart and partial observations"
+          ]
+        },
+        {
+          "id": "CHECK-240-03",
+          "result": "passed",
+          "evidence": [
+            "Both normative A/B/C fixtures validate against Schemas/Evidence/reconciliation-scenario-v1.schema.json"
+          ]
+        },
+        {
+          "id": "CHECK-240-04",
+          "result": "passed",
+          "evidence": [
+            "Schemas/MCP/evidence-query-page-v1.schema.json and docs/architecture/mcp.md require filter-before-limit, stable pagination, interval, precision and coverage reporting"
+          ]
+        },
+        {
+          "id": "CHECK-240-05",
+          "result": "passed",
+          "evidence": [
+            "Atomicity, idempotency, failure recovery, migration and replay invariants are explicit; privacy and APFS limitations are retained"
+          ]
+        },
+        {
+          "id": "CHECK-240-06",
+          "result": "passed",
+          "evidence": [
+            "swift test: 105 tests passed with 0 failures"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:52:25.333296Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-240",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+        "Schemas/MCP/evidence-query-page-v1.schema.json",
+        "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+        "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+        "docs/architecture/evidence-object-lifecycle.md",
+        "docs/architecture/evidence-contract.md",
+        "docs/architecture/mcp.md",
+        "docs/operations/privacy-and-retention.md",
+        "docs/tasks/evidence/CONTRACT-240/contract-review.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/MCP/evidence-query-page-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-object-lifecycle.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-contract.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/mcp.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-240/contract-review.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "jsonschema abc-complete-deletion.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jsonschema abc-partial-observation.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jq empty on both new schemas and fixtures",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 105 tests, 0 failures"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-240-01",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md object lifecycle matrix"
+        },
+        {
+          "criterion": "AC-240-02",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md invariants and reconciliation state machine"
+        },
+        {
+          "criterion": "AC-240-03",
+          "result": "passed",
+          "reference": "partial coverage rules and abc-partial-observation.json"
+        },
+        {
+          "criterion": "AC-240-04",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md questions, timestamps, coverage and honest filesystem limits; Schemas/MCP/evidence-query-page-v1.schema.json"
+        },
+        {
+          "criterion": "AC-240-05",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md atomicity, recovery, migration and replay invariants"
+        },
+        {
+          "criterion": "AC-240-06",
+          "result": "passed",
+          "reference": "validated complete and partial A/B/C fixtures"
+        }
+      ],
+      "discovered_risks": [
+        "Periodic observation cannot discover a file created and deleted entirely between observations without a direct event source.",
+        "APFS sharing, clones, compression and hard links limit exact reclaimable-byte claims.",
+        "The planned Scripts/Contracts/validate.sh wrapper does not exist; equivalent jsonschema validation was executed directly."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-240",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-240-GENERATION-01",
+          "result": "passed",
+          "evidence": [
+            "docs/architecture/evidence-object-lifecycle.md defines a bounded, durable, per-scope scan-generation lifecycle with generation-local staging and atomic promotion",
+            "The contract states that partial slices never reconcile absence and that complete same-scope generations can prove the normative A/B/C deletion"
+          ]
+        },
+        {
+          "id": "CHECK-240-DIAGNOSTICS-01",
+          "result": "passed",
+          "evidence": [
+            "The contract requires status, export, and MCP diagnostics to expose active generation progress, last complete observation age, coverage state, gaps, and limitations",
+            "No contract permits file-content capture, environment-value capture, destructive MCP tools, or synthetic provenance"
+          ]
+        },
+        {
+          "id": "CHECK-240-FIXTURES-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests including ContractTests and the normative reconciliation fixtures",
+            "The historical Scripts/Contracts/validate.sh command is absent; schema validation is implemented by Tests/ContractTests/JSONSchemaContractValidator.swift and executed by swift test"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-240",
+        "TASK-241",
+        "TASK-243",
+        "TASK-244",
+        "GATE-290"
+      ],
+      "recommended_action": "Promote CONTRACT-240 and revalidate its dependent state, retention, and MCP implementations against schema-v5 generation semantics."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-240",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-240-GENERATION-01",
+          "result": "passed",
+          "evidence": [
+            "docs/architecture/evidence-object-lifecycle.md defines a bounded, durable, per-scope scan-generation lifecycle with generation-local staging and atomic promotion",
+            "The contract states that partial slices never reconcile absence and that complete same-scope generations can prove the normative A/B/C deletion"
+          ]
+        },
+        {
+          "id": "CHECK-240-DIAGNOSTICS-01",
+          "result": "passed",
+          "evidence": [
+            "The contract requires status, export, and MCP diagnostics to expose active generation progress, last complete observation age, coverage state, gaps, and limitations",
+            "No contract permits file-content capture, environment-value capture, destructive MCP tools, or synthetic provenance"
+          ]
+        },
+        {
+          "id": "CHECK-240-FIXTURES-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests including ContractTests and the normative reconciliation fixtures",
+            "The historical Scripts/Contracts/validate.sh command is absent; schema validation is implemented by Tests/ContractTests/JSONSchemaContractValidator.swift and executed by swift test"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-240",
+        "TASK-241",
+        "TASK-243",
+        "TASK-244",
+        "GATE-290"
+      ],
+      "recommended_action": "Promote CONTRACT-240 and revalidate its dependent state, retention, and MCP implementations against schema-v5 generation semantics."
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-DBE30E3F68B983EFBF281CA277C91449",
+  "previous_event_id": "EVENT-20260913T055111993160Z-CE6AD3EB",
+  "previous_event_sha256": "a468fa53158ac5590d56e43ace2c433618d835355592559c835221ea3f9eb892"
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/evidence/provenance-claim-v2.schema.json",
+  "title": "Disk Steward Provenance Claim v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "claim_id", "event_id", "method", "confidence", "actor", "process_ancestry", "session_registration_id", "support", "limitations", "detected_at", "occurred_start", "occurred_end", "contradictions", "supersedes_claim_id", "superseded_by_claim_id"],
+  "properties": {
+    "schema": {"const": "provenance-claim-v2"},
+    "claim_id": {"type": "string", "minLength": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "method": {"type": "string", "minLength": 1},
+    "confidence": {"enum": ["exact", "tool-linked", "inferred", "unknown"]},
+    "actor": {"anyOf": [{"$ref": "#/$defs/process"}, {"type": "null"}]},
+    "process_ancestry": {"type": "array", "items": {"$ref": "#/$defs/ancestry"}},
+    "session_registration_id": {"type": ["string", "null"], "format": "uuid"},
+    "support": {"type": "array", "items": {"$ref": "#/$defs/support"}},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "detected_at": {"type": "string", "format": "date-time"},
+    "occurred_start": {"type": "string", "format": "date-time"},
+    "occurred_end": {"type": "string", "format": "date-time"},
+    "contradictions": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "supersedes_claim_id": {"type": ["string", "null"]},
+    "superseded_by_claim_id": {"type": ["string", "null"]}
+  },
+  "$defs": {
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pid", "start_time", "executable_path"],
+      "properties": {
+        "pid": {"type": "integer", "minimum": 1},
+        "start_time": {"type": "string", "format": "date-time"},
+        "executable_path": {"type": ["string", "null"]}
+      }
+    },
+    "ancestry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["process", "parent"],
+      "properties": {
+        "process": {"$ref": "#/$defs/process"},
+        "parent": {"anyOf": [{"$ref": "#/$defs/process"}, {"type": "null"}]}
+      }
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "identifier", "supports"],
+      "properties": {
+        "kind": {"enum": ["endpoint-security", "fsevents", "metadata-snapshot", "process-ancestry", "agent-session", "historical-record"]},
+        "identifier": {"type": "string", "minLength": 1},
+        "supports": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

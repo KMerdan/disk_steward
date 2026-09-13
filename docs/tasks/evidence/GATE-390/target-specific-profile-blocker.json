@@ -1,0 +1,47 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-390",
+  "outcome": "blocked",
+  "changed_files": [
+    "docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "evidence-only",
+  "changes": [
+    {
+      "path": "docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "Inspect installed Disk Steward Developer ID Distribution provisioning profile",
+      "result": "passed: installed profile 193d15aa-43f8-4477-bdab-58cf2e59964f targets G3P6TU385Y.com.marudankiji.disksteward, authorizes group.com.marudankiji.disksteward, selects the Developer ID Application certificate, and expires 2044-09-08"
+    },
+    {
+      "command": "Scripts/Distribution/archive-release --release /Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive",
+      "result": "failed: Xcode still requires the application target to select a provisioning profile"
+    },
+    {
+      "command": "/usr/bin/xcodebuild ... PROVISIONING_PROFILE_SPECIFIER=Disk Steward Developer ID Distribution archive",
+      "result": "failed: the global override correctly reaches the profile but incorrectly applies it to disk-witness-mcp, which does not support provisioning profiles"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-390-01",
+      "result": "failed",
+      "reference": "No exact exported artifact exists because the current project cannot apply the Developer ID profile only to the DiskSteward application target."
+    },
+    {
+      "criterion": "AC-390-03",
+      "result": "passed",
+      "reference": "The release remains blocked without weakening signatures, entitlements, notarization, or Gatekeeper requirements; remediation is a target-specific profile setting in the release-packaging task."
+    }
+  ],
+  "discovered_risks": [
+    "A project-wide PROVISIONING_PROFILE_SPECIFIER applies the app profile to the MCP command-line helper and prevents archiving.",
+    "The application target currently has no target-specific Release profile selector, so Xcode cannot complete manual Developer ID signing."
+  ],
+  "suggested_graph_changes": []
+}

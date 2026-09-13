@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/evidence/reconciliation-scenario-v1.schema.json",
+  "title": "Disk Steward Reconciliation Scenario v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "scenario_id", "scope_version", "observations", "current_state", "changes", "coverage_gaps", "expectations"],
+  "properties": {
+    "schema": {"const": "reconciliation-scenario-v1"},
+    "scenario_id": {"type": "string", "minLength": 1},
+    "scope_version": {"type": "string", "minLength": 1},
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["observation_id", "trigger", "started_at", "completed_at", "root", "coverage", "objects"],
+        "properties": {
+          "observation_id": {"type": "string", "minLength": 1},
+          "trigger": {"enum": ["startup", "scheduled", "fsevent", "manual", "recovery"]},
+          "started_at": {"type": "string", "format": "date-time"},
+          "completed_at": {"type": "string", "format": "date-time"},
+          "root": {"type": "string", "minLength": 1},
+          "coverage": {"enum": ["complete", "partial", "failed"]},
+          "objects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["object_id", "path", "identity_method", "logical_bytes", "allocated_bytes"],
+              "properties": {
+                "object_id": {"type": "string", "minLength": 1},
+                "path": {"type": "string", "minLength": 1},
+                "identity_method": {"enum": ["volume-file-generation", "volume-file", "path-temporal"]},
+                "logical_bytes": {"type": "integer", "minimum": 0},
+                "allocated_bytes": {"type": "integer", "minimum": 0}
+              }
+            }
+          }
+        }
+      }
+    },
+    "current_state": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["object_id", "path", "state", "state_as_of", "actionable"],
+        "properties": {
+          "object_id": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "state": {"enum": ["present", "unknown", "stale", "out-of-scope"]},
+          "state_as_of": {"type": "string", "minLength": 1},
+          "actionable": {"type": "boolean"}
+        }
+      }
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["event_id", "operation", "object_id", "before_observation", "after_observation", "detected_at", "occurred_between", "logical_delta", "allocated_delta", "provenance_confidence"],
+        "properties": {
+          "event_id": {"type": "string", "minLength": 1},
+          "operation": {"enum": ["baseline", "create", "modify", "truncate", "rename", "replace", "delete", "scope-enter", "scope-exit"]},
+          "object_id": {"type": "string", "minLength": 1},
+          "before_observation": {"type": ["string", "null"]},
+          "after_observation": {"type": ["string", "null"]},
+          "detected_at": {"type": "string", "format": "date-time"},
+          "occurred_between": {
+            "type": "array",
+            "prefixItems": [{"type": "string", "format": "date-time"}, {"type": "string", "format": "date-time"}],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "logical_delta": {"type": "integer"},
+          "allocated_delta": {"type": "integer"},
+          "provenance_confidence": {"enum": ["exact", "tool-linked", "inferred", "unknown"]}
+        }
+      }
+    },
+    "coverage_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gap_id", "root", "reason", "start_at", "end_at", "state"],
+        "properties": {
+          "gap_id": {"type": "string", "minLength": 1},
+          "root": {"type": "string", "minLength": 1},
+          "reason": {"enum": ["app-offline", "event-drop", "root-unavailable", "permission-denied", "depth-cap", "entry-cap", "retention-pressure", "observer-unavailable", "other"]},
+          "start_at": {"type": "string", "format": "date-time"},
+          "end_at": {"type": ["string", "null"], "format": "date-time"},
+          "state": {"enum": ["open", "resolved"]}
+        }
+      }
+    },
+    "expectations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current_paths", "historical_only_paths", "cleanup_candidate_paths", "deleted_paths", "unknown_paths"],
+      "properties": {
+        "current_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "historical_only_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "cleanup_candidate_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "deleted_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "unknown_paths": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    }
+  }
+}

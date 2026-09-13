@@ -1,0 +1,39 @@
+{
+  "schema": "audit-result-v1",
+  "target": "CONTRACT-240",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-240-GENERATION-01",
+      "result": "passed",
+      "evidence": [
+        "docs/architecture/evidence-object-lifecycle.md defines a bounded, durable, per-scope scan-generation lifecycle with generation-local staging and atomic promotion",
+        "The contract states that partial slices never reconcile absence and that complete same-scope generations can prove the normative A/B/C deletion"
+      ]
+    },
+    {
+      "id": "CHECK-240-DIAGNOSTICS-01",
+      "result": "passed",
+      "evidence": [
+        "The contract requires status, export, and MCP diagnostics to expose active generation progress, last complete observation age, coverage state, gaps, and limitations",
+        "No contract permits file-content capture, environment-value capture, destructive MCP tools, or synthetic provenance"
+      ]
+    },
+    {
+      "id": "CHECK-240-FIXTURES-01",
+      "result": "passed",
+      "evidence": [
+        "The full Swift package suite passed 156 tests including ContractTests and the normative reconciliation fixtures",
+        "The historical Scripts/Contracts/validate.sh command is absent; schema validation is implemented by Tests/ContractTests/JSONSchemaContractValidator.swift and executed by swift test"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "CONTRACT-240",
+    "TASK-241",
+    "TASK-243",
+    "TASK-244",
+    "GATE-290"
+  ],
+  "recommended_action": "Promote CONTRACT-240 and revalidate its dependent state, retention, and MCP implementations against schema-v5 generation semantics."
+}

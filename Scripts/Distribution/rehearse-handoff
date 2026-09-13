@@ -1,0 +1,51 @@
+#!/bin/zsh
+set -euo pipefail
+
+repository=${0:A:h:h:h}
+temporary=$(/usr/bin/mktemp -d /private/tmp/disk-steward-release-rehearsal.XXXXXX)
+cleanup() {
+  if [[ "$temporary" == /private/tmp/disk-steward-release-rehearsal.* && -d "$temporary" ]]; then
+    /bin/rm -rf "$temporary"
+  fi
+}
+trap cleanup EXIT
+
+for script in release-preflight archive-release verify-release rehearse-handoff; do
+  /bin/zsh -n "$repository/Scripts/Distribution/$script"
+done
+/usr/bin/plutil -lint "$repository/Config/ExportOptions/DeveloperID.plist" >/dev/null
+/usr/bin/xmllint --noout "$repository/DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme"
+
+archive="$temporary/DiskSteward-Rehearsal.xcarchive"
+"$repository/Scripts/Distribution/archive-release" --unsigned-rehearsal "$archive"
+[[ -d "$archive/Products/Applications/Disk Steward.app" ]]
+[[ -x "$archive/Products/Applications/Disk Steward.app/Contents/Helpers/disk-witness-mcp" ]]
+
+set +e
+verification_output=$("$repository/Scripts/Distribution/verify-release" "$archive" 2>&1)
+verification_status=$?
+set -e
+if (( verification_status == 0 )); then
+  print -u2 "Rehearsal failed: an unsigned archive was incorrectly accepted as a release."
+  exit 70
+fi
+if [[ "$verification_output" != *"Release rejected"* ]]; then
+  print -u2 "Rehearsal failed: unsigned rejection did not provide actionable release guidance."
+  exit 70
+fi
+
+set +e
+preflight_output=$("$repository/Scripts/Distribution/release-preflight" 2>&1)
+preflight_status=$?
+set -e
+if (( preflight_status == 0 )); then
+  print "Credential preflight passed on this Mac."
+elif (( preflight_status == 66 )) && [[ "$preflight_output" == *"Next action:"* ]]; then
+  print "Credential preflight produced the expected exact Account Holder and Xcode next action."
+else
+  print -u2 "$preflight_output"
+  print -u2 "Credential preflight failed without the contracted diagnostic."
+  exit 70
+fi
+
+print "Release handoff rehearsal passed. The unsigned archive was constructable and correctly rejected for distribution; the development workflow remains usable."

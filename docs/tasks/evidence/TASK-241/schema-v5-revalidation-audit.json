@@ -1,0 +1,37 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-241",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-241-CONVERGENCE-01",
+      "result": "passed",
+      "evidence": [
+        "Schema v5 persists generation, per-root cursor, staged file metadata, coverage state, and abandonment status",
+        "Bounded slices leave authoritative current state unchanged until one complete same-scope generation is atomically reconciled"
+      ]
+    },
+    {
+      "id": "CHECK-241-ABC-01",
+      "result": "passed",
+      "evidence": [
+        "ConvergentScanGenerationTests proves A/B/C retains B during a partial generation and removes B only after the second generation completes",
+        "Restart resumes valid durable progress; invalid cursor or changed scope abandons staged state with a coverage gap instead of deletion"
+      ]
+    },
+    {
+      "id": "CHECK-241-REGRESSION-01",
+      "result": "passed",
+      "evidence": [
+        "The full Swift package suite passed 156 tests with no failures",
+        "The Xcode Debug application build succeeded"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-241",
+    "TASK-243",
+    "GATE-290"
+  ],
+  "recommended_action": "Promote TASK-241 and revalidate retention/lifecycle reporting over active and completed scan generations."
+}

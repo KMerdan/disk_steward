@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`GATE-290`](GATE-290-audit-persistent-evidence-recorder-increment.md) — Audit persistent evidence recorder increment
+- [`GATE-290`](GATE-290-audit-the-polished-native-application-increment.md) — Audit the polished native application increment
 
 ## Parallelism
 

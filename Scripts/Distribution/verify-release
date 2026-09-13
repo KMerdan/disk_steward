@@ -1,0 +1,112 @@
+#!/bin/zsh
+set -euo pipefail
+
+artifact_argument="${1:-}"
+if [[ -z "$artifact_argument" || "$artifact_argument" != /* ]]; then
+  print -u2 "usage: Scripts/Distribution/verify-release <absolute-app-or-xcarchive-path>"
+  exit 64
+fi
+artifact=${artifact_argument:A}
+if [[ ! -e "$artifact" ]]; then
+  print -u2 "Release artifact does not exist: $artifact"
+  exit 66
+fi
+
+if [[ "$artifact" == *.xcarchive ]]; then
+  app_candidates=("$artifact"/Products/Applications/*.app(N))
+  if (( ${#app_candidates} != 1 )); then
+    print -u2 "Expected exactly one application in the archive; found ${#app_candidates}."
+    exit 65
+  fi
+  app=${app_candidates[1]}
+elif [[ "$artifact" == *.app && -d "$artifact" ]]; then
+  app="$artifact"
+else
+  print -u2 "Artifact must be a .app bundle or .xcarchive."
+  exit 64
+fi
+
+helper="$app/Contents/Helpers/disk-witness-mcp"
+if [[ ! -x "$helper" ]]; then
+  print -u2 "Release rejected: bundled MCP helper is missing or not executable."
+  exit 67
+fi
+
+app_bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null || true)
+if [[ "$app_bundle_id" != "com.marudankiji.disksteward" ]]; then
+  print -u2 "Release rejected: application bundle identifier is '${app_bundle_id:-missing}', expected 'com.marudankiji.disksteward'."
+  exit 67
+fi
+
+verify_signature() {
+  local target="$1"
+  local label="$2"
+  local expected_identifier="$3"
+  local details
+  local identifier_found=false
+  if ! /usr/bin/codesign --verify --deep --strict --verbose=2 "$target" >/dev/null 2>&1; then
+    print -u2 "Release rejected: ${label} signature is missing, ad hoc, damaged, or incomplete."
+    exit 67
+  fi
+  details=$(/usr/bin/codesign -dvvv "$target" 2>&1)
+  if [[ "$details" == *"Authority=Apple Distribution:"* ]]; then
+    print -u2 "Release rejected: ${label} uses Apple Distribution; direct macOS distribution requires Developer ID Application."
+    exit 67
+  fi
+  if [[ "$details" != *"Authority=Developer ID Application:"* || "$details" != *"TeamIdentifier=G3P6TU385Y"* ]]; then
+    print -u2 "Release rejected: ${label} is not signed with Developer ID Application for Team G3P6TU385Y."
+    exit 67
+  fi
+  while IFS= read -r detail; do
+    if [[ "$detail" == "Identifier=${expected_identifier}" ]]; then
+      identifier_found=true
+      break
+    fi
+  done <<< "$details"
+  if [[ "$identifier_found" != true ]]; then
+    print -u2 "Release rejected: ${label} code-signing identifier is not '${expected_identifier}'."
+    exit 67
+  fi
+  if [[ "$details" != *"Timestamp="* || "$details" == *"Timestamp=none"* ]]; then
+    print -u2 "Release rejected: ${label} has no secure signing timestamp."
+    exit 67
+  fi
+  if [[ "$details" != *"runtime"* ]]; then
+    print -u2 "Release rejected: ${label} does not declare hardened runtime."
+    exit 67
+  fi
+}
+
+verify_signature "$helper" "MCP helper" "com.marudankiji.disksteward.mcp"
+verify_signature "$app" "application" "com.marudankiji.disksteward"
+
+entitlements=$(/usr/bin/codesign -d --entitlements :- "$app" 2>/dev/null)
+entitlement_key_count=0
+app_group_key_count=0
+app_group_value_count=0
+while IFS= read -r entitlement_line; do
+  if [[ "$entitlement_line" =~ '<key>([^<]+)</key>' ]]; then
+    (( entitlement_key_count += 1 ))
+    if [[ "$match[1]" == "com.apple.security.application-groups" ]]; then
+      (( app_group_key_count += 1 ))
+    fi
+  fi
+  if [[ "$entitlement_line" =~ '<string>([^<]+)</string>' && "$match[1]" == "group.com.marudankiji.disksteward" ]]; then
+    (( app_group_value_count += 1 ))
+  fi
+done <<< "$entitlements"
+if (( entitlement_key_count != 1 || app_group_key_count != 1 || app_group_value_count != 1 )); then
+  print -u2 "Release rejected: standard-app entitlements must contain exactly the production application group and no additional entitlement keys or group values."
+  exit 67
+fi
+
+if ! /usr/bin/xcrun stapler validate "$app" >/dev/null 2>&1; then
+  print -u2 "Release rejected: no valid notarization ticket is stapled. In Xcode Organizer select the archive, Distribute App > Developer ID > Upload, wait for Ready to distribute, then Export Notarized App."
+  exit 68
+fi
+if ! /usr/sbin/spctl --assess --type execute --verbose=4 "$app" >/dev/null 2>&1; then
+  print -u2 "Release rejected: Gatekeeper assessment did not accept the application."
+  exit 69
+fi
+
+print "Release verification passed: Developer ID identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, notarization staple, and Gatekeeper acceptance are valid."

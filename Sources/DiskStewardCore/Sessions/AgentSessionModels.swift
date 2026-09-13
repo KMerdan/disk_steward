@@ -56,10 +56,12 @@ public struct AgentSessionRegistration: Codable, Equatable, Sendable {
     public let process: ProcessIdentity
     public let workspaceRoots: [String]
     public let registeredAt: Date
+    public let lastHeartbeatAt: Date
     public let expiresAt: Date
     public let endedAt: Date?
     public let lifecycle: AgentSessionLifecycle
     public let authentication: SessionAuthenticationSummary
+    public let taskContext: String?
 
     public init(
         registrationID: UUID,
@@ -71,7 +73,9 @@ public struct AgentSessionRegistration: Codable, Equatable, Sendable {
         expiresAt: Date,
         endedAt: Date?,
         lifecycle: AgentSessionLifecycle,
-        authentication: SessionAuthenticationSummary
+        authentication: SessionAuthenticationSummary,
+        lastHeartbeatAt: Date? = nil,
+        taskContext: String? = nil
     ) {
         self.registrationID = registrationID
         self.client = client
@@ -79,10 +83,12 @@ public struct AgentSessionRegistration: Codable, Equatable, Sendable {
         self.process = process
         self.workspaceRoots = workspaceRoots
         self.registeredAt = registeredAt
+        self.lastHeartbeatAt = lastHeartbeatAt ?? registeredAt
         self.expiresAt = expiresAt
         self.endedAt = endedAt
         self.lifecycle = lifecycle
         self.authentication = authentication
+        self.taskContext = taskContext
     }
 
     public func covers(_ date: Date) -> Bool {
@@ -98,6 +104,7 @@ public struct SessionRegistrationRequest: Equatable, Sendable {
     public let workspaceRoots: [String]
     public let registeredAt: Date
     public let expiresAt: Date
+    public let taskContext: String?
 
     public init(
         registrationID: UUID = UUID(),
@@ -106,7 +113,8 @@ public struct SessionRegistrationRequest: Equatable, Sendable {
         process: ProcessIdentity,
         workspaceRoots: [String],
         registeredAt: Date,
-        expiresAt: Date
+        expiresAt: Date,
+        taskContext: String? = nil
     ) {
         self.registrationID = registrationID
         self.client = client
@@ -115,6 +123,7 @@ public struct SessionRegistrationRequest: Equatable, Sendable {
         self.workspaceRoots = workspaceRoots
         self.registeredAt = registeredAt
         self.expiresAt = expiresAt
+        self.taskContext = taskContext
     }
 }
 

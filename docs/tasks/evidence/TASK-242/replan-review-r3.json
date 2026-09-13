@@ -1,0 +1,45 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-TASK-242-MIGRATION-R3",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {"plan_id": "PLAN-DISK-STEWARD-002", "revision": 2, "sha256": "540473e170fa6b5e5f9c163f2d6bf0bbfae6d714f9281a67be6085c433d46137"},
+  "revised_plan": {"plan_id": "PLAN-DISK-STEWARD-002", "revision": 3, "sha256": "7a7a9849280367d3f237e15de417a4e8b815e250a8abedf55084784a76c3fdbc"},
+  "facts": [
+    {
+      "id": "FACT-TASK-242-SCHEMA-ASSERTION",
+      "claim": "The existing migration regression asserts schema version 2 and must advance to version 3 with the new durable provenance tables.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": ["Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift:12", "Focused EvidenceStoreTests output on 2026-09-13"],
+      "supports": ["TASK-242", "REQ-104"],
+      "freshness": "Observed 2026-09-13"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-TASK-242-MIGRATION-TEST",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": ["TASK-242"],
+      "claim": "TASK-242 changes the store schema but its original test scope omitted the existing schema migration assertion.",
+      "evidence": ["FACT-TASK-242-SCHEMA-ASSERTION"],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add only EvidenceStoreTests.swift to TASK-242 write scope.",
+      "rationale": "Updating the canonical migration assertion is required for a truthful full regression and introduces no product scope."
+    }
+  ],
+  "coverage": [
+    {"requirement": "REQ-104", "before_nodes": ["TASK-242"], "after_nodes": ["TASK-242"], "status": "strengthened"},
+    {"requirement": "REQ-108", "before_nodes": ["TASK-242"], "after_nodes": ["TASK-242"], "status": "preserved"},
+    {"requirement": "REQ-109", "before_nodes": ["TASK-242"], "after_nodes": ["TASK-242"], "status": "preserved"}
+  ],
+  "invariants": {"intent": "preserved", "success_evidence": "strengthened", "constraints": "preserved", "non_goals": "preserved", "assurance": "not-applicable", "audit_closure": "preserved", "execution_safety": "preserved"},
+  "metrics": {
+    "before": {"nodes": 17, "executable_nodes": 14, "edges": 47, "hard_dependencies": 15, "audit_gates": 2},
+    "after": {"nodes": 17, "executable_nodes": 14, "edges": 47, "hard_dependencies": 15, "audit_gates": 2}
+  },
+  "summary": "Retain the graph and acceptance path; include the one existing migration assertion affected by schema version 3.",
+  "limitations": ["The migration still requires the full task test and audit after the assertion is updated."]
+}

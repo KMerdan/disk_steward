@@ -1,0 +1,57 @@
+{
+  "schema": "disk-steward-task-241-hard-link-repair-verification-v1",
+  "verified_at": "2026-09-13T03:42:26Z",
+  "defect_evidence": "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+  "repair": {
+    "identity_model": "Multiple observed paths with one stable filesystem identity are grouped as one physical object.",
+    "representative_path": "The prior representative is retained when still observed; otherwise the lexicographically first observed path is selected.",
+    "path_lifecycle": "Every observed hard-link path receives a temporal binding; removing one link closes only that binding and does not emit a rename or deletion.",
+    "accounting": "Allocated bytes are counted once per physical object.",
+    "cleanup_safety": "Objects with more than one observed or filesystem-reported link are non-actionable.",
+    "input_safety": "Duplicate per-root coverage entries are rejected as an invalid observation before any database write."
+  },
+  "checks": [
+    {
+      "command": "swift test --filter 'EvidenceObjectLifecycleTests|MonitoringTests'",
+      "result": "passed",
+      "details": "16 tests, 0 failures before the duplicate-root guard was added"
+    },
+    {
+      "command": "swift test",
+      "result": "passed",
+      "details": "143 tests, 0 failures after the complete repair"
+    },
+    {
+      "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/DiskStewardDerivedData CODE_SIGNING_ALLOWED=NO build",
+      "result": "passed",
+      "details": "BUILD SUCCEEDED"
+    },
+    {
+      "command": "/private/tmp/DiskStewardDerivedData/Build/Products/Debug/Disk Steward.app/Contents/MacOS/Disk Steward --ui-smoke",
+      "result": "passed",
+      "details": "Accessory activation, status item, status board, right-click utility menu, and evidence export surface reported available."
+    },
+    {
+      "command": "launch repaired app and observe startup",
+      "result": "passed",
+      "details": "PID 48066 remained alive beyond 69 seconds, committed observation-16efe2fe40b3eac9, and produced no new Disk Steward crash report."
+    },
+    {
+      "command": "git diff --check -- repair files",
+      "result": "passed",
+      "details": "No whitespace errors."
+    }
+  ],
+  "live_observation": {
+    "observation_id": "observation-16efe2fe40b3eac9",
+    "coverage": "partial",
+    "coverage_reason": "The configured detailed-scan entry cap was reached; the app retained that limitation instead of asserting complete coverage.",
+    "present_physical_objects": 99958,
+    "allocated_bytes": 10973302784,
+    "non_actionable_objects": 42
+  },
+  "limitations": [
+    "The live scan is intentionally partial at the current 100,000-entry cap.",
+    "The Debug build is unsigned; the separately tracked Developer ID distribution gate remains blocked and was not altered by this repair."
+  ]
+}

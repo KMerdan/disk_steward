@@ -1,0 +1,55 @@
+{
+  "schema": "reconciliation-scenario-v1",
+  "scenario_id": "abc-partial-observation",
+  "scope_version": "scope-1",
+  "observations": [
+    {
+      "observation_id": "O1",
+      "trigger": "startup",
+      "started_at": "2026-09-13T00:00:00Z",
+      "completed_at": "2026-09-13T00:00:01Z",
+      "root": "/watched",
+      "coverage": "complete",
+      "objects": [
+        {"object_id": "A", "path": "/watched/a", "identity_method": "volume-file-generation", "logical_bytes": 10, "allocated_bytes": 4096},
+        {"object_id": "B", "path": "/watched/b", "identity_method": "volume-file-generation", "logical_bytes": 20, "allocated_bytes": 4096},
+        {"object_id": "C", "path": "/watched/c", "identity_method": "volume-file-generation", "logical_bytes": 30, "allocated_bytes": 4096}
+      ]
+    },
+    {
+      "observation_id": "O2",
+      "trigger": "scheduled",
+      "started_at": "2026-09-13T00:05:00Z",
+      "completed_at": "2026-09-13T00:05:01Z",
+      "root": "/watched",
+      "coverage": "partial",
+      "objects": [
+        {"object_id": "A", "path": "/watched/a", "identity_method": "volume-file-generation", "logical_bytes": 10, "allocated_bytes": 4096},
+        {"object_id": "C", "path": "/watched/c", "identity_method": "volume-file-generation", "logical_bytes": 30, "allocated_bytes": 4096}
+      ]
+    }
+  ],
+  "current_state": [
+    {"object_id": "A", "path": "/watched/a", "state": "present", "state_as_of": "O2", "actionable": true},
+    {"object_id": "B", "path": "/watched/b", "state": "unknown", "state_as_of": "O1", "actionable": false},
+    {"object_id": "C", "path": "/watched/c", "state": "present", "state_as_of": "O2", "actionable": true}
+  ],
+  "changes": [],
+  "coverage_gaps": [
+    {
+      "gap_id": "G-O2",
+      "root": "/watched",
+      "reason": "permission-denied",
+      "start_at": "2026-09-13T00:05:00Z",
+      "end_at": null,
+      "state": "open"
+    }
+  ],
+  "expectations": {
+    "current_paths": ["/watched/a", "/watched/c"],
+    "historical_only_paths": [],
+    "cleanup_candidate_paths": ["/watched/a", "/watched/c"],
+    "deleted_paths": [],
+    "unknown_paths": ["/watched/b"]
+  }
+}

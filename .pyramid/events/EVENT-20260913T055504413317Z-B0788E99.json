@@ -1,0 +1,391 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T055504413317Z-B0788E99",
+  "at": "2026-09-13T05:55:04.413136Z",
+  "graph_version": 108,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "GATE-290",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Evidence for TASK-251 failed; dependent verification is stale.",
+    "updated_at": "2026-09-13T05:45:02.721197Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-290",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-290/increment-audit.md",
+        "docs/tasks/evidence/GATE-290/agent-result.json",
+        "docs/tasks/evidence/GATE-290/audit-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-290/increment-audit.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/audit-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild Debug unsigned",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed"
+        },
+        {
+          "command": "embedded disk-witness-mcp initialize and tools/list",
+          "result": "passed: ten read-only tools"
+        },
+        {
+          "command": "bundle inspection",
+          "result": "passed: identity, LSUIElement, resources, app binary, and helper"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        },
+        {
+          "criterion": "AC-290-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        },
+        {
+          "criterion": "AC-290-03",
+          "result": "passed",
+          "reference": "swift test: 135 tests, 0 failures"
+        },
+        {
+          "criterion": "AC-290-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-290-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        },
+        {
+          "criterion": "AC-290-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-244/read-model-verification.md"
+        },
+        {
+          "criterion": "EVREQ-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-290",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-290-CURRENT-01",
+          "result": "passed",
+          "evidence": [
+            "Constructability: the canonical Xcode project built the unsigned Debug bundle successfully with its embedded disk-witness-mcp helper.",
+            "Entry: the exact rebuilt bundle launched as an accessory app and the executable's --ui-smoke contract reported its status item, status board, utility menu, and export surface."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-02",
+          "result": "passed",
+          "evidence": [
+            "Meaningful scenario: after Downloads permission, the current candidate completed a real 99,958-object startup observation and persisted its entry-cap limitation as partial coverage.",
+            "The final rebuilt candidate launched as PID 51280, committed observation-f149b82afd0acb7, and produced no new crash report."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-03",
+          "result": "passed",
+          "evidence": [
+            "Inherited behavior: 144 Swift tests passed with zero failures, including UI states, Agent Access, retention, exports, IPC, MCP, provenance, A/B/C reconciliation, and final-product increments.",
+            "The hard-link regression proves multiple paths reconcile as one physical object without double-counting or false deletion."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-04",
+          "result": "passed",
+          "evidence": [
+            "Safety: persisted and live multi-link objects are withheld from cleanup candidates because deleting one link may reclaim no blocks.",
+            "Duplicate root coverage fails before transaction writes; partial coverage remains non-actionable; no destructive or network MCP surface was added."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-05",
+          "result": "passed",
+          "evidence": [
+            "Reproduction: docs/tasks/evidence/TASK-241/hard-link-repair-verification.json records the build, UI smoke, database observation, and runtime checks.",
+            "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json records the cleanup fail-closed check and final candidate launch."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:55:04.413040Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-290",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-290/increment-audit.md",
+        "docs/tasks/evidence/GATE-290/agent-result.json",
+        "docs/tasks/evidence/GATE-290/audit-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-290/increment-audit.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/audit-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild Debug unsigned",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed"
+        },
+        {
+          "command": "embedded disk-witness-mcp initialize and tools/list",
+          "result": "passed: ten read-only tools"
+        },
+        {
+          "command": "bundle inspection",
+          "result": "passed: identity, LSUIElement, resources, app binary, and helper"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        },
+        {
+          "criterion": "AC-290-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        },
+        {
+          "criterion": "AC-290-03",
+          "result": "passed",
+          "reference": "swift test: 135 tests, 0 failures"
+        },
+        {
+          "criterion": "AC-290-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-290-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        },
+        {
+          "criterion": "AC-290-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-244/read-model-verification.md"
+        },
+        {
+          "criterion": "EVREQ-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-290",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-290-PRODUCT-01",
+          "result": "passed",
+          "evidence": [
+            "The canonical Xcode Debug app built successfully, embedded its read-only MCP helper, and was signed with the configured Apple Development identity",
+            "The built executable's --ui-smoke report returned status launched, accessory activation, an accessible Disk Steward status item, status-board left click, and the complete utility menu"
+          ]
+        },
+        {
+          "id": "CHECK-290-EVIDENCE-01",
+          "result": "passed",
+          "evidence": [
+            "The actual status-board export journey produces the eleven-role durable bundle, validates all hashes, records manual ownership, and reveals the result",
+            "A mid-generation export now exposes bounded progress, forces partial coverage, preserves the preceding authoritative current state, and warns that absence is not reconciled"
+          ]
+        },
+        {
+          "id": "CHECK-290-CHAIN-01",
+          "result": "passed",
+          "evidence": [
+            "Schema-v5 convergence tests cover durable multi-slice progress, A/B/C complete deletion versus partial uncertainty, restart resume, invalid cursor, and scope-change abandonment",
+            "The revalidated state, retention, MCP, and export nodes all preserve one authoritative evidence lifecycle"
+          ]
+        },
+        {
+          "id": "CHECK-290-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests with no failures",
+            "UI light/dark screenshots and accessibility notes remain in docs/tasks/evidence/TASK-220; no visual implementation changed in the schema-v5 repair"
+          ]
+        },
+        {
+          "id": "CHECK-290-SAFETY-01",
+          "result": "passed",
+          "evidence": [
+            "Agent Access off/on enforcement, current-state-only cleanup candidates, privacy shaping, retention pressure, pagination, and provenance regressions all passed",
+            "No destructive MCP operation, network listener, file-content read, environment-value capture, or auto-deletion of manual exports was introduced"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-290",
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "Promote the polished native application increment and revalidate the credential-free distribution workflow against the current candidate."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-290",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-290-PRODUCT-01",
+          "result": "passed",
+          "evidence": [
+            "The canonical Xcode Debug app built successfully, embedded its read-only MCP helper, and was signed with the configured Apple Development identity",
+            "The built executable's --ui-smoke report returned status launched, accessory activation, an accessible Disk Steward status item, status-board left click, and the complete utility menu"
+          ]
+        },
+        {
+          "id": "CHECK-290-EVIDENCE-01",
+          "result": "passed",
+          "evidence": [
+            "The actual status-board export journey produces the eleven-role durable bundle, validates all hashes, records manual ownership, and reveals the result",
+            "A mid-generation export now exposes bounded progress, forces partial coverage, preserves the preceding authoritative current state, and warns that absence is not reconciled"
+          ]
+        },
+        {
+          "id": "CHECK-290-CHAIN-01",
+          "result": "passed",
+          "evidence": [
+            "Schema-v5 convergence tests cover durable multi-slice progress, A/B/C complete deletion versus partial uncertainty, restart resume, invalid cursor, and scope-change abandonment",
+            "The revalidated state, retention, MCP, and export nodes all preserve one authoritative evidence lifecycle"
+          ]
+        },
+        {
+          "id": "CHECK-290-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests with no failures",
+            "UI light/dark screenshots and accessibility notes remain in docs/tasks/evidence/TASK-220; no visual implementation changed in the schema-v5 repair"
+          ]
+        },
+        {
+          "id": "CHECK-290-SAFETY-01",
+          "result": "passed",
+          "evidence": [
+            "Agent Access off/on enforcement, current-state-only cleanup candidates, privacy shaping, retention pressure, pagination, and provenance regressions all passed",
+            "No destructive MCP operation, network listener, file-content read, environment-value capture, or auto-deletion of manual exports was introduced"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-290",
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "Promote the polished native application increment and revalidate the credential-free distribution workflow against the current candidate."
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-D4FD678BF6BEF70656ED6D94C246B7D2",
+  "previous_event_id": "EVENT-20260913T055349720780Z-24072CCB",
+  "previous_event_sha256": "8d438723e96ec9080d310e4258d16bbeac7e9083d7169ea9aaa4849ce61a5be9"
+}

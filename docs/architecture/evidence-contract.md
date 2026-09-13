@@ -1,6 +1,7 @@
 # Evidence, Privacy, and Export Contract
 
-Status: version 1 contract for the first four demonstrable increments.
+Status: version 1 contract, extended by `evidence-object-lifecycle.md` for
+`PLAN-DISK-STEWARD-002`.
 
 ## Ownership boundaries
 
@@ -29,6 +30,15 @@ Every event carries both `confidence` and `method`, plus limitations and support
 
 Logical and allocated byte values are separate. A missing observation is `null`; zero means an observed zero. Deltas are signed integers. Collectors may coalesce repeated writes into one `write-summary`, but must retain the observation window and supporting references in their internal record.
 
+## Current state versus history
+
+The authoritative answer to “what exists now?” comes from `CurrentFileState`,
+not from summing historical event deltas. Immutable observation and change
+history explains how state changed. Both are linked through file-object identity,
+temporal path bindings, scope versions, and per-root coverage. The complete
+state machine, atomic transaction, restart, replay, path-reuse, and A/B/C
+deletion rules are normative in `evidence-object-lifecycle.md`.
+
 ## Privacy and redaction
 
 Disk Steward records metadata, never file contents. Environment-variable capture is disabled. Command strings pass through argument redaction before persistence or export. Users can exclude paths and select full, basename-only, or hashed path detail for exports.
@@ -37,7 +47,14 @@ Unknown fields are rejected in version 1 evidence objects. This makes accidental
 
 ## Retention and resource bounds
 
-The policy schema imposes finite limits on raw events, summaries, database bytes, and coalescing windows. Implementations may choose stricter limits. Reaching a limit triggers compaction or degraded status; it must not silently disable retention or grow without bound. Unreviewed anomaly preservation remains bounded by the database ceiling.
+The policy schema imposes finite limits on raw events, observations, provenance,
+anomalies, summaries, database bytes, and coalescing windows. Defaults are 7
+days of raw detail, at most 30 days of anomaly detail, 30 days of hourly
+summaries, 365 days of daily summaries, and a 512 MiB database ceiling.
+Current present state is not chronological history and survives history
+compaction. Reaching a limit triggers deterministic rollup or oldest-history
+expiry plus a retention and coverage-loss record; it must not silently stop
+collection or grow without bound.
 
 ## Export consistency and integrity
 
@@ -57,4 +74,3 @@ Errors are returned as structured status with component, reason, limitations, an
 ## Versioning
 
 All persisted and exported top-level objects contain a stable schema discriminator. Version 1 readers reject unsupported versions. Additive fields require a schema revision because version 1 uses closed objects to preserve privacy review and deterministic exports.
-

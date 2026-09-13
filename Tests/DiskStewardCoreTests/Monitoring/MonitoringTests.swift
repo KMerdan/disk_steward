@@ -67,6 +67,23 @@ final class MonitoringTests: XCTestCase, @unchecked Sendable {
         XCTAssertTrue(snapshot.limitations.contains { $0.contains("File-level detail is limited") })
     }
 
+    func testMetadataScannerPreservesSharedIdentityAndLinkCountForHardLinks() throws {
+        let fixture = try Fixture()
+        let original = fixture.watched.appending(path: "original.bin")
+        let alias = fixture.watched.appending(path: "alias.bin")
+        try Data(repeating: 3, count: 4_096).write(to: original)
+        try FileManager.default.linkItem(at: original, to: alias)
+
+        let snapshot = DirectoryMetadataScanner().scan(policy: MonitoringPolicy(watchedRoots: [fixture.watched]))
+        let originalMetadata = try XCTUnwrap(snapshot.entries[original.path])
+        let aliasMetadata = try XCTUnwrap(snapshot.entries[alias.path])
+
+        XCTAssertEqual(originalMetadata.objectID, aliasMetadata.objectID)
+        XCTAssertNotEqual(originalMetadata.identityMethod, .pathTemporal)
+        XCTAssertGreaterThanOrEqual(originalMetadata.linkCount, 2)
+        XCTAssertEqual(originalMetadata.linkCount, aliasMetadata.linkCount)
+    }
+
     func testGrowthInsideAndOutsideWatchedRootBecomesDetailedAndUnexplained() throws {
         let fixture = try Fixture()
         let policy = MonitoringPolicy(watchedRoots: [fixture.watched])

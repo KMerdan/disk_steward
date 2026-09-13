@@ -1,0 +1,30 @@
+{
+  "schema": "disk-steward-release-blocker-v1",
+  "status": "blocked",
+  "observed_at": "2026-09-13T06:25:44Z",
+  "team_id": "G3P6TU385Y",
+  "missing": [
+    "Developer ID provisioning profile for com.marudankiji.disksteward authorizing group.com.marudankiji.disksteward",
+    "exact Developer ID signed exported app",
+    "Apple notarization success and stapled ticket",
+    "Gatekeeper acceptance of that exact exported app"
+  ],
+  "installed_identity_classes": [
+    "Apple Development",
+    "Apple Distribution",
+    "Developer ID Application"
+  ],
+  "valid_local_codesigning_identities": 3,
+  "local_identity_observation": "Scripts/Distribution/release-preflight passed and confirmed an accessible Developer ID Application identity for Team G3P6TU385Y without reading or storing certificate secrets.",
+  "archive_observation": "Scripts/Distribution/archive-release --release /Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive reached Xcode archive signing and failed with exit 65: DiskSteward requires a provisioning profile. No release archive was produced.",
+  "developer_portal_observation": "The Developer ID Application certificate is now installed with its private key. A matching Developer ID provisioning profile remains required because the app claims an App Group entitlement.",
+  "not_accepted_as_substitutes": [
+    "Apple Development",
+    "Apple Distribution",
+    "ad hoc or unsigned archive"
+  ],
+  "next_action": "In Certificates, Identifiers & Profiles, verify the explicit App ID com.marudankiji.disksteward has App Groups enabled and includes group.com.marudankiji.disksteward. Create a macOS Developer ID provisioning profile for that App ID using the installed Developer ID Application certificate, download it, and install it. Then retry the DiskSteward-Release archive, use Organizer > Distribute App > Developer ID > Upload, wait for Ready to distribute, export the notarized app, and run Scripts/Distribution/verify-release on that exact exported app.",
+  "release_claimed": false,
+  "outcome_verified": false,
+  "intent_verified": false
+}

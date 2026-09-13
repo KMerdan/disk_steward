@@ -39,7 +39,7 @@ final class AgentSessionRegistryTests: XCTestCase {
             expiresAt: now.addingTimeInterval(20)
         )
         let expiring = try await registry.register(second, proof: proof, now: now)
-        let expiredCount = await registry.expireStale(at: now.addingTimeInterval(21))
+        let expiredCount = try await registry.expireStale(at: now.addingTimeInterval(21))
         XCTAssertEqual(expiredCount, 1)
         let expired = try await registry.registration(id: expiring.registrationID, proof: proof, now: now.addingTimeInterval(21))
         XCTAssertEqual(expired.lifecycle, .expired)

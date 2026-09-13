@@ -69,11 +69,11 @@ final class AgentQueryableEvidenceIncrementTests: XCTestCase {
 
         let tools = try XCTUnwrap(responses[2]?["result"] as? [String: Any])
         let inventory = try XCTUnwrap(tools["tools"] as? [[String: Any]])
-        XCTAssertEqual(inventory.count, 7)
+        XCTAssertEqual(inventory.count, 10)
         XCTAssertTrue(inventory.allSatisfy { ($0["annotations"] as? [String: Any])?["readOnlyHint"] as? Bool == true })
         XCTAssertFalse(inventory.contains { ($0["name"] as? String)?.contains("delete") == true })
 
-        XCTAssertEqual(try structured(responses, id: 3)["schema"] as? String, "growth-explanation-v1")
+        XCTAssertEqual(try structured(responses, id: 3)["schema"] as? String, "evidence-query-page-v1")
         let impact = try structured(responses, id: 4)
         XCTAssertEqual(impact["schema"] as? String, "task-impact-v1")
         XCTAssertEqual(impact["confidence"] as? String, "inferred")

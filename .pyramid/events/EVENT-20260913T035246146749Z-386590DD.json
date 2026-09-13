@@ -1,0 +1,400 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T035246146749Z-386590DD",
+  "at": "2026-09-13T03:52:46.146575Z",
+  "graph_version": 77,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "GATE-290",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-244 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-13T03:47:25.661308Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-290",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-290/increment-audit.md",
+        "docs/tasks/evidence/GATE-290/agent-result.json",
+        "docs/tasks/evidence/GATE-290/audit-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-290/increment-audit.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/audit-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild Debug unsigned",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed"
+        },
+        {
+          "command": "embedded disk-witness-mcp initialize and tools/list",
+          "result": "passed: ten read-only tools"
+        },
+        {
+          "command": "bundle inspection",
+          "result": "passed: identity, LSUIElement, resources, app binary, and helper"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        },
+        {
+          "criterion": "AC-290-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        },
+        {
+          "criterion": "AC-290-03",
+          "result": "passed",
+          "reference": "swift test: 135 tests, 0 failures"
+        },
+        {
+          "criterion": "AC-290-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-290-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        },
+        {
+          "criterion": "AC-290-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-244/read-model-verification.md"
+        },
+        {
+          "criterion": "EVREQ-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-290",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-290-01",
+          "result": "passed",
+          "evidence": [
+            "Clean Xcode build, app bundle inspection, built-app UI smoke, embedded helper initialization and ten-tool inventory"
+          ]
+        },
+        {
+          "id": "CHECK-290-02",
+          "result": "passed",
+          "evidence": [
+            "TASK-220 Aqua and Dark Aqua renders",
+            "Five-state deterministic action and accessibility matrix"
+          ]
+        },
+        {
+          "id": "CHECK-290-03",
+          "result": "passed",
+          "evidence": [
+            "swift test: 135 tests, 0 failures",
+            "No destructive tool or network listener exists"
+          ]
+        },
+        {
+          "id": "CHECK-290-04",
+          "result": "passed",
+          "evidence": [
+            "MCPAccessTests verify default off, enabled private service, prompt refusal on disable, and evidence/monitoring independence"
+          ]
+        },
+        {
+          "id": "CHECK-290-05",
+          "result": "passed",
+          "evidence": [
+            "TASK-243 retention and export lifecycle audit",
+            "TASK-244 get_evidence_lifecycle and complete export audit"
+          ]
+        },
+        {
+          "id": "CHECK-290-06",
+          "result": "passed",
+          "evidence": [
+            "A/B/C, partial uncertainty, restart, scope, rename, replace, reuse, cleanup, task impact, ordered provenance, pagination, and compaction survival are covered by passing tests"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-101",
+        "REQ-102",
+        "REQ-103",
+        "REQ-104",
+        "REQ-106",
+        "REQ-107",
+        "REQ-108",
+        "REQ-109",
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:52:46.146376Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-290",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-290/increment-audit.md",
+        "docs/tasks/evidence/GATE-290/agent-result.json",
+        "docs/tasks/evidence/GATE-290/audit-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-290/increment-audit.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-290/audit-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild Debug unsigned",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed"
+        },
+        {
+          "command": "embedded disk-witness-mcp initialize and tools/list",
+          "result": "passed: ten read-only tools"
+        },
+        {
+          "command": "bundle inspection",
+          "result": "passed: identity, LSUIElement, resources, app binary, and helper"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        },
+        {
+          "criterion": "AC-290-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        },
+        {
+          "criterion": "AC-290-03",
+          "result": "passed",
+          "reference": "swift test: 135 tests, 0 failures"
+        },
+        {
+          "criterion": "AC-290-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-290-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        },
+        {
+          "criterion": "AC-290-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-244/read-model-verification.md"
+        },
+        {
+          "criterion": "EVREQ-290-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-290",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-290-CURRENT-01",
+          "result": "passed",
+          "evidence": [
+            "Constructability: the canonical Xcode project built the unsigned Debug bundle successfully with its embedded disk-witness-mcp helper.",
+            "Entry: the exact rebuilt bundle launched as an accessory app and the executable's --ui-smoke contract reported its status item, status board, utility menu, and export surface."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-02",
+          "result": "passed",
+          "evidence": [
+            "Meaningful scenario: after Downloads permission, the current candidate completed a real 99,958-object startup observation and persisted its entry-cap limitation as partial coverage.",
+            "The final rebuilt candidate launched as PID 51280, committed observation-f149b82afd0acb7, and produced no new crash report."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-03",
+          "result": "passed",
+          "evidence": [
+            "Inherited behavior: 144 Swift tests passed with zero failures, including UI states, Agent Access, retention, exports, IPC, MCP, provenance, A/B/C reconciliation, and final-product increments.",
+            "The hard-link regression proves multiple paths reconcile as one physical object without double-counting or false deletion."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-04",
+          "result": "passed",
+          "evidence": [
+            "Safety: persisted and live multi-link objects are withheld from cleanup candidates because deleting one link may reclaim no blocks.",
+            "Duplicate root coverage fails before transaction writes; partial coverage remains non-actionable; no destructive or network MCP surface was added."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-05",
+          "result": "passed",
+          "evidence": [
+            "Reproduction: docs/tasks/evidence/TASK-241/hard-link-repair-verification.json records the build, UI smoke, database observation, and runtime checks.",
+            "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json records the cleanup fail-closed check and final candidate launch."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-290",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-290-CURRENT-01",
+          "result": "passed",
+          "evidence": [
+            "Constructability: the canonical Xcode project built the unsigned Debug bundle successfully with its embedded disk-witness-mcp helper.",
+            "Entry: the exact rebuilt bundle launched as an accessory app and the executable's --ui-smoke contract reported its status item, status board, utility menu, and export surface."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-02",
+          "result": "passed",
+          "evidence": [
+            "Meaningful scenario: after Downloads permission, the current candidate completed a real 99,958-object startup observation and persisted its entry-cap limitation as partial coverage.",
+            "The final rebuilt candidate launched as PID 51280, committed observation-f149b82afd0acb7, and produced no new crash report."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-03",
+          "result": "passed",
+          "evidence": [
+            "Inherited behavior: 144 Swift tests passed with zero failures, including UI states, Agent Access, retention, exports, IPC, MCP, provenance, A/B/C reconciliation, and final-product increments.",
+            "The hard-link regression proves multiple paths reconcile as one physical object without double-counting or false deletion."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-04",
+          "result": "passed",
+          "evidence": [
+            "Safety: persisted and live multi-link objects are withheld from cleanup candidates because deleting one link may reclaim no blocks.",
+            "Duplicate root coverage fails before transaction writes; partial coverage remains non-actionable; no destructive or network MCP surface was added."
+          ]
+        },
+        {
+          "id": "CHECK-290-CURRENT-05",
+          "result": "passed",
+          "evidence": [
+            "Reproduction: docs/tasks/evidence/TASK-241/hard-link-repair-verification.json records the build, UI smoke, database observation, and runtime checks.",
+            "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json records the cleanup fail-closed check and final candidate launch."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-FDE24525D36D438A18BED2B9035F04CD",
+  "previous_event_id": "EVENT-20260913T035156168805Z-6C4C9AFC",
+  "previous_event_sha256": "a21eb44b853980f463392dfeeceae996383bcb74962b4ff0b06ddaec2dede9a6"
+}

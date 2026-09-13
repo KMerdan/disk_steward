@@ -1,0 +1,66 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-244",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-244-01",
+      "result": "passed",
+      "evidence": [
+        "MCPToolCatalog exposes ten strictly read-only tools including lifecycle, current consumers, active sessions, and a compatibility writer alias",
+        "AppEvidenceQueryBackend reads the store directly for current, growth, provenance, impact, cleanup, lifecycle, and export results"
+      ]
+    },
+    {
+      "id": "CHECK-244-02",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+        "520-row filtering and stable keyset pagination execute before limit; duplicate basenames remain independent identities"
+      ]
+    },
+    {
+      "id": "CHECK-244-03",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+        "Deleted, unknown, partial, stale, inaccessible, and path-reused state cannot become a cleanup candidate; task impact separates historical and surviving bytes"
+      ]
+    },
+    {
+      "id": "CHECK-244-04",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardCoreTests/Provenance/DurableProvenanceLifecycleTests.swift",
+        "Canonical identity is matched before path shaping; ordered claims preserve intervals, unknowns, contradictions, and supersession without inventing authorship"
+      ]
+    },
+    {
+      "id": "CHECK-244-05",
+      "result": "passed",
+      "evidence": [
+        "Complete bundle payloads are created from one SQLite backup and include current-state, provenance, sessions, coverage, lifecycle, events, rollups, snapshots, integrity, and manifest data",
+        "Latest recorded retention policy is exported and no session or gap rows are silently capped"
+      ]
+    },
+    {
+      "id": "CHECK-244-06",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+        "The sessions tool and writer alias explicitly report writer_identity_observed=false; disabling Agent Access removes query availability without deleting evidence"
+      ]
+    },
+    {
+      "id": "CHECK-244-07",
+      "result": "passed",
+      "evidence": [
+        "swift test: 132 tests, 0 failures",
+        "git diff --check: passed",
+        "docs/tasks/evidence/TASK-244/read-model-verification.md"
+      ]
+    }
+  ],
+  "affected_claims": ["REQ-104", "REQ-106", "REQ-107", "REQ-108", "REQ-109", "OUTCOME-210"],
+  "recommended_action": "advance"
+}

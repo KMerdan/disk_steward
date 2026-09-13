@@ -1,0 +1,245 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T062713528735Z-70A9DD0D",
+  "at": "2026-09-13T06:27:13.528484Z",
+  "graph_version": 114,
+  "actor": "codex",
+  "type": "task.paused",
+  "node": "GATE-390",
+  "before": {
+    "execution": "working",
+    "verification": "failed",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T08:22:46.629781Z",
+    "work_origin": "needs-rework",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T06:22:46.629870Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "blocked",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 144 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild unsigned Debug build and live startup",
+          "result": "passed: native app outcome reverified"
+        },
+        {
+          "command": "Developer ID release prerequisite inspection",
+          "result": "blocked: no Developer ID Application identity with private key is available for Team G3P6TU385Y"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-02",
+          "result": "partially passed",
+          "reference": "The current unsigned development candidate passes the local journey; the nonexistent exported release cannot yet be launched."
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-390/release-blocker.json"
+        }
+      ],
+      "discovered_risks": [
+        "AC-390-01 cannot be tested until the Account Holder provides a Developer ID Application identity and Apple produces a notarized, stapled exported app."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-390-APPLICATION-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210, TASK-310, and RISK-320 are verified against the current schema-v5 candidate",
+            "The current app passed 156 Swift tests, a signed Debug Xcode build, UI smoke, durable multi-slice reconciliation, actionable menu export, MCP access, privacy, and distribution-negative tests"
+          ]
+        },
+        {
+          "id": "CHECK-390-DEVELOPER-ID-01",
+          "result": "failed",
+          "evidence": [
+            "Scripts/Distribution/release-preflight exited 66: no Developer ID Application identity for Team G3P6TU385Y is installed",
+            "Apple Development and Apple Distribution identities are explicitly rejected as substitutes for a direct-distribution Developer ID Application signature"
+          ]
+        },
+        {
+          "id": "CHECK-390-NOTARIZATION-01",
+          "result": "failed",
+          "evidence": [
+            "Without a Developer ID Application signed export there is no exact release artifact to submit for notarization",
+            "Therefore notarization acceptance, staple validation, Gatekeeper acceptance, release-artifact hash, and exported-app launch cannot truthfully be claimed"
+          ]
+        },
+        {
+          "id": "CHECK-390-BLOCKED-DISPOSITION-01",
+          "result": "passed",
+          "evidence": [
+            "The credential-free rehearsal constructed and inspected an unsigned archive, rejected it, removed the temporary archive, and left the development build usable",
+            "Exact remediation: the Apple Developer Account Holder must create or authorize a Developer ID Application certificate, install it with its private key in the login keychain through Xcode Settings > Accounts > Marudan Kiji > Manage Certificates, then run the documented archive/export/notarize/verify workflow"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "Obtain and install a Developer ID Application identity with its private key, export and notarize the exact app through Xcode Organizer, staple it, then rerun Scripts/Distribution/verify-release and this final gate."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "paused",
+    "verification": "failed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": "needs-rework",
+    "active_handoff_id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+    "paused_at": "2026-09-13T06:27:13.338367Z",
+    "paused_by": "codex",
+    "pause_mode": "handoff",
+    "resume_deadline": null,
+    "last_handoff": {
+      "id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+      "paused_at": "2026-09-13T06:27:13.338367Z",
+      "paused_by": "codex",
+      "mode": "handoff",
+      "resumed_at": null,
+      "resumed_by": null
+    },
+    "blocker": null,
+    "updated_at": "2026-09-13T06:27:13.338367Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "blocked",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 144 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild unsigned Debug build and live startup",
+          "result": "passed: native app outcome reverified"
+        },
+        {
+          "command": "Developer ID release prerequisite inspection",
+          "result": "blocked: no Developer ID Application identity with private key is available for Team G3P6TU385Y"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-02",
+          "result": "partially passed",
+          "reference": "The current unsigned development candidate passes the local journey; the nonexistent exported release cannot yet be launched."
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-390/release-blocker.json"
+        }
+      ],
+      "discovered_risks": [
+        "AC-390-01 cannot be tested until the Account Holder provides a Developer ID Application identity and Apple produces a notarized, stapled exported app."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-390-APPLICATION-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210, TASK-310, and RISK-320 are verified against the current schema-v5 candidate",
+            "The current app passed 156 Swift tests, a signed Debug Xcode build, UI smoke, durable multi-slice reconciliation, actionable menu export, MCP access, privacy, and distribution-negative tests"
+          ]
+        },
+        {
+          "id": "CHECK-390-DEVELOPER-ID-01",
+          "result": "failed",
+          "evidence": [
+            "Scripts/Distribution/release-preflight exited 66: no Developer ID Application identity for Team G3P6TU385Y is installed",
+            "Apple Development and Apple Distribution identities are explicitly rejected as substitutes for a direct-distribution Developer ID Application signature"
+          ]
+        },
+        {
+          "id": "CHECK-390-NOTARIZATION-01",
+          "result": "failed",
+          "evidence": [
+            "Without a Developer ID Application signed export there is no exact release artifact to submit for notarization",
+            "Therefore notarization acceptance, staple validation, Gatekeeper acceptance, release-artifact hash, and exported-app launch cannot truthfully be claimed"
+          ]
+        },
+        {
+          "id": "CHECK-390-BLOCKED-DISPOSITION-01",
+          "result": "passed",
+          "evidence": [
+            "The credential-free rehearsal constructed and inspected an unsigned archive, rejected it, removed the temporary archive, and left the development build usable",
+            "Exact remediation: the Apple Developer Account Holder must create or authorize a Developer ID Application certificate, install it with its private key in the login keychain through Xcode Settings > Accounts > Marudan Kiji > Manage Certificates, then run the documented archive/export/notarize/verify workflow"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "Obtain and install a Developer ID Application identity with its private key, export and notarize the exact app through Xcode Organizer, staple it, then rerun Scripts/Distribution/verify-release and this final gate."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": "Waiting for the user-owned Developer ID provisioning profile required by the App Group entitlement.",
+    "mode": "handoff",
+    "resume_deadline": null,
+    "handoff_id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+    "handoff_path": ".pyramid/handoffs/HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6.json",
+    "handoff_sha256": "555d51aa0e978be852444c89243225ddc05e7c058eaf595d331d31b44e811b2e"
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-A60E0358AFD0D2EA3CE1F2E0D5A34654",
+  "previous_event_id": "EVENT-20260913T062246630088Z-8EAA7ED6",
+  "previous_event_sha256": "f55a26d84a0d9880977106ddf21a25feca2cebb83e7a40184ed5227caefd6af9"
+}

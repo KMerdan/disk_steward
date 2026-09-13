@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/mcp/evidence-query-page-v1.schema.json",
+  "title": "Disk Steward Evidence Query Page v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "query", "observed_at", "state_as_of", "requested_interval", "retained_interval", "coverage", "precision", "matched_count", "returned_count", "truncated", "next_cursor", "items", "limitations"],
+  "properties": {
+    "schema": {"const": "evidence-query-page-v1"},
+    "query": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "state_as_of": {"type": ["string", "null"], "format": "date-time"},
+    "requested_interval": {"$ref": "#/$defs/interval"},
+    "retained_interval": {"anyOf": [{"$ref": "#/$defs/interval"}, {"type": "null"}]},
+    "coverage": {"enum": ["complete", "partial", "unknown"]},
+    "precision": {"enum": ["current", "raw", "hourly", "daily", "mixed", "unknown"]},
+    "matched_count": {"type": ["integer", "null"], "minimum": 0},
+    "returned_count": {"type": "integer", "minimum": 0},
+    "truncated": {"type": "boolean"},
+    "next_cursor": {"type": ["string", "null"]},
+    "items": {"type": "array", "items": {"type": "object"}},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "through"],
+      "properties": {
+        "from": {"type": "string", "format": "date-time"},
+        "through": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

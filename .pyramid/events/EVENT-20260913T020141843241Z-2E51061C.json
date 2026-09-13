@@ -1,0 +1,389 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T020141843241Z-2E51061C",
+  "at": "2026-09-13T02:01:41.843036Z",
+  "graph_version": 46,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-310",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T02:01:25.872052Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/ExportOptions/DeveloperID.plist",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/release-preflight",
+        "Scripts/Distribution/archive-release",
+        "Scripts/Distribution/verify-release",
+        "Scripts/Distribution/rehearse-handoff",
+        "docs/release/direct-distribution-handoff.md",
+        "docs/tasks/evidence/TASK-310/release-workflow.md",
+        "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+        "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+        "docs/tasks/evidence/TASK-310/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/ExportOptions/DeveloperID.plist",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/release-preflight",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/archive-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/rehearse-handoff",
+          "class": "source"
+        },
+        {
+          "path": "docs/release/direct-distribution-handoff.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/release-workflow.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "zsh -n Scripts/Distribution/{release-preflight,archive-release,verify-release,rehearse-handoff}",
+          "result": "passed"
+        },
+        {
+          "command": "plutil -lint Config/ExportOptions/DeveloperID.plist",
+          "result": "passed"
+        },
+        {
+          "command": "xmllint --noout DiskSteward-Release.xcscheme",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/release-preflight",
+          "result": "expected failure: exit 66 with precise Developer ID remediation"
+        },
+        {
+          "command": "Scripts/Distribution/rehearse-handoff",
+          "result": "passed: Release archive constructed, nested helper found, unsigned artifact rejected, temporary archive removed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/release-workflow.md"
+        },
+        {
+          "criterion": "AC-310-02",
+          "result": "passed",
+          "reference": "Scripts/Distribution/verify-release"
+        },
+        {
+          "criterion": "AC-310-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt"
+        },
+        {
+          "criterion": "EVREQ-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T02:01:41.842847Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/ExportOptions/DeveloperID.plist",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/release-preflight",
+        "Scripts/Distribution/archive-release",
+        "Scripts/Distribution/verify-release",
+        "Scripts/Distribution/rehearse-handoff",
+        "docs/release/direct-distribution-handoff.md",
+        "docs/tasks/evidence/TASK-310/release-workflow.md",
+        "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+        "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+        "docs/tasks/evidence/TASK-310/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/ExportOptions/DeveloperID.plist",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/release-preflight",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/archive-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/rehearse-handoff",
+          "class": "source"
+        },
+        {
+          "path": "docs/release/direct-distribution-handoff.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/release-workflow.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "zsh -n Scripts/Distribution/{release-preflight,archive-release,verify-release,rehearse-handoff}",
+          "result": "passed"
+        },
+        {
+          "command": "plutil -lint Config/ExportOptions/DeveloperID.plist",
+          "result": "passed"
+        },
+        {
+          "command": "xmllint --noout DiskSteward-Release.xcscheme",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/release-preflight",
+          "result": "expected failure: exit 66 with precise Developer ID remediation"
+        },
+        {
+          "command": "Scripts/Distribution/rehearse-handoff",
+          "result": "passed: Release archive constructed, nested helper found, unsigned artifact rejected, temporary archive removed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/release-workflow.md"
+        },
+        {
+          "criterion": "AC-310-02",
+          "result": "passed",
+          "reference": "Scripts/Distribution/verify-release"
+        },
+        {
+          "criterion": "AC-310-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt"
+        },
+        {
+          "criterion": "EVREQ-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-01",
+          "result": "passed",
+          "evidence": [
+            "Shared DiskSteward-Release scheme archives the Release app",
+            "Developer ID export options and handoff contain no account credentials",
+            "Release configuration requires hardened runtime and production entitlements"
+          ]
+        },
+        {
+          "id": "CHECK-310-02",
+          "result": "passed",
+          "evidence": [
+            "verify-release checks the actual app plus embedded MCP helper",
+            "Developer ID authority, Team ID, timestamp, runtime, app group, restricted entitlement absence, staple, and Gatekeeper are fail-closed gates",
+            "Apple Distribution, unsigned, ad hoc, damaged, shallow-only, and non-notarized artifacts cannot pass"
+          ]
+        },
+        {
+          "id": "CHECK-310-03",
+          "result": "passed",
+          "evidence": [
+            "Current missing Developer ID Application identity returns exit 66 before Xcode",
+            "Diagnostic names the Account Holder and exact Xcode Manage Certificates path",
+            "Unsigned rehearsal and the 135-test development suite remain usable"
+          ]
+        },
+        {
+          "id": "CHECK-310-04",
+          "result": "passed",
+          "evidence": [
+            "Credential-free rehearsal constructed an isolated Release archive and found executable nested helper",
+            "The verifier rejected the rehearsal archive and temporary data was removed",
+            "Signed/notarized inspection is correctly unavailable until the external Developer ID identity exists and is not fabricated"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-109",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-01",
+          "result": "passed",
+          "evidence": [
+            "Shared DiskSteward-Release scheme archives the Release app",
+            "Developer ID export options and handoff contain no account credentials",
+            "Release configuration requires hardened runtime and production entitlements"
+          ]
+        },
+        {
+          "id": "CHECK-310-02",
+          "result": "passed",
+          "evidence": [
+            "verify-release checks the actual app plus embedded MCP helper",
+            "Developer ID authority, Team ID, timestamp, runtime, app group, restricted entitlement absence, staple, and Gatekeeper are fail-closed gates",
+            "Apple Distribution, unsigned, ad hoc, damaged, shallow-only, and non-notarized artifacts cannot pass"
+          ]
+        },
+        {
+          "id": "CHECK-310-03",
+          "result": "passed",
+          "evidence": [
+            "Current missing Developer ID Application identity returns exit 66 before Xcode",
+            "Diagnostic names the Account Holder and exact Xcode Manage Certificates path",
+            "Unsigned rehearsal and the 135-test development suite remain usable"
+          ]
+        },
+        {
+          "id": "CHECK-310-04",
+          "result": "passed",
+          "evidence": [
+            "Credential-free rehearsal constructed an isolated Release archive and found executable nested helper",
+            "The verifier rejected the rehearsal archive and temporary data was removed",
+            "Signed/notarized inspection is correctly unavailable until the external Developer ID identity exists and is not fabricated"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-109",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-B1F778A158F327FF462B4CB1341485B1",
+  "previous_event_id": "EVENT-20260913T020125872469Z-36AEA6EA",
+  "previous_event_sha256": "5909e5edc9f7ba776e5cd994dc63e14fa6562da9d8d44f64b7a880f9b394a39d"
+}

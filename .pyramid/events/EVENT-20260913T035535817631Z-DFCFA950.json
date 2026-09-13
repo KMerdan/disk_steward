@@ -1,0 +1,149 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T035535817631Z-DFCFA950",
+  "at": "2026-09-13T03:55:35.817407Z",
+  "graph_version": 81,
+  "actor": "codex",
+  "type": "task.blocked",
+  "node": "GATE-390",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "at-risk",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T04:15:22.426547Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-244 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-13T03:47:25.661308Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "blocked",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T04:15:22.426547Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "The current app candidate is reverified, but no Developer ID Application identity with private key or notarized/stapled exported app exists for the final distribution audit.",
+    "updated_at": "2026-09-13T03:55:35.817236Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "blocked",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 144 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild unsigned Debug build and live startup",
+          "result": "passed: native app outcome reverified"
+        },
+        {
+          "command": "Developer ID release prerequisite inspection",
+          "result": "blocked: no Developer ID Application identity with private key is available for Team G3P6TU385Y"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-02",
+          "result": "partially passed",
+          "reference": "The current unsigned development candidate passes the local journey; the nonexistent exported release cannot yet be launched."
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-390/release-blocker.json"
+        }
+      ],
+      "discovered_risks": [
+        "AC-390-01 cannot be tested until the Account Holder provides a Developer ID Application identity and Apple produces a notarized, stapled exported app."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": "The current app candidate is reverified, but no Developer ID Application identity with private key or notarized/stapled exported app exists for the final distribution audit.",
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "blocked",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 144 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild unsigned Debug build and live startup",
+          "result": "passed: native app outcome reverified"
+        },
+        {
+          "command": "Developer ID release prerequisite inspection",
+          "result": "blocked: no Developer ID Application identity with private key is available for Team G3P6TU385Y"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-02",
+          "result": "partially passed",
+          "reference": "The current unsigned development candidate passes the local journey; the nonexistent exported release cannot yet be launched."
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-390/release-blocker.json"
+        }
+      ],
+      "discovered_risks": [
+        "AC-390-01 cannot be tested until the Account Holder provides a Developer ID Application identity and Apple produces a notarized, stapled exported app."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-DA01D4FF228F1CC98E2CB61F97B3F0E0",
+  "previous_event_id": "EVENT-20260913T035454395781Z-ACD94EB4",
+  "previous_event_sha256": "832bc111520ddc8c450e48048504d6ef9df6c0a3af3f0bed4d716c5cf0c5acc8"
+}

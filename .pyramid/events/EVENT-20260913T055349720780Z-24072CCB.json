@@ -1,0 +1,330 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T055349720780Z-24072CCB",
+  "at": "2026-09-13T05:53:49.720601Z",
+  "graph_version": 107,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-244",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+    "updated_at": "2026-09-13T04:39:22.945431Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-244",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+        "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json",
+        "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter AuthoritativeMCPReadModelTests",
+          "result": "passed: 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 144 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild unsigned Debug build and live startup",
+          "result": "passed: build succeeded, observation committed, no crash"
+        },
+        {
+          "command": "git diff --check -- MCP repair files",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-244-01",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift"
+        },
+        {
+          "criterion": "AC-244-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift"
+        },
+        {
+          "criterion": "AC-244-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json"
+        },
+        {
+          "criterion": "AC-244-04",
+          "result": "passed",
+          "reference": "swift test: 144 tests, 0 failures"
+        },
+        {
+          "criterion": "AC-244-05",
+          "result": "passed",
+          "reference": "swift test: 144 tests, 0 failures"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-244",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-244-HARDLINK-01",
+          "result": "passed",
+          "evidence": [
+            "The cleanup backend reads live st_nlink and returns no candidate unless it equals one.",
+            "The check occurs before any cleanup-candidate payload is constructed."
+          ]
+        },
+        {
+          "id": "CHECK-244-HARDLINK-02",
+          "result": "passed",
+          "evidence": [
+            "AuthoritativeMCPReadModelTests creates a real hard link after the persisted observation and verifies returned_count changes from one to zero.",
+            "The existing path-reuse and partial-coverage fail-closed tests continue to pass."
+          ]
+        },
+        {
+          "id": "CHECK-244-HARDLINK-03",
+          "result": "passed",
+          "evidence": [
+            "The complete suite passed 144 tests with zero failures.",
+            "The rebuilt app committed a fresh live observation without a crash."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-104",
+        "REQ-106",
+        "REQ-107",
+        "REQ-108",
+        "REQ-109",
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-13T03:47:25.661152Z",
+      "actor": "codex",
+      "reason": "Live cleanup-candidate revalidation must reject a file that gained an additional hard link after its persisted observation.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json"
+    }
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:53:49.720511Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-244",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+        "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json",
+        "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter AuthoritativeMCPReadModelTests",
+          "result": "passed: 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 144 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild unsigned Debug build and live startup",
+          "result": "passed: build succeeded, observation committed, no crash"
+        },
+        {
+          "command": "git diff --check -- MCP repair files",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-244-01",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift"
+        },
+        {
+          "criterion": "AC-244-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift"
+        },
+        {
+          "criterion": "AC-244-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json"
+        },
+        {
+          "criterion": "AC-244-04",
+          "result": "passed",
+          "reference": "swift test: 144 tests, 0 failures"
+        },
+        {
+          "criterion": "AC-244-05",
+          "result": "passed",
+          "reference": "swift test: 144 tests, 0 failures"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-244",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-244-LIFECYCLE-01",
+          "result": "passed",
+          "evidence": [
+            "get_evidence_lifecycle receives schema-v5 scan coverage including active generation identity, progress, last complete time, and synthetic unfinished-root gaps",
+            "Current-state queries remain bound to the last complete authoritative projection while a generation is active"
+          ]
+        },
+        {
+          "id": "CHECK-244-EXPORT-PARITY-01",
+          "result": "passed",
+          "evidence": [
+            "The durable bundle exporter and MCP read models derive from the same EvidenceStore semantics and disclose active-generation uncertainty",
+            "The repair does not add write-capable MCP tools, network listeners, file-content reads, or synthetic attribution"
+          ]
+        },
+        {
+          "id": "CHECK-244-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests including MCP contract, query, pagination, privacy, and Agent Access scenarios",
+            "The bundled MCP helper was rebuilt successfully by the Xcode application target"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-244",
+        "GATE-290"
+      ],
+      "recommended_action": "Promote TASK-244 and execute the polished application increment audit."
+    },
+    "last_reopen": {
+      "at": "2026-09-13T03:47:25.661152Z",
+      "actor": "codex",
+      "reason": "Live cleanup-candidate revalidation must reject a file that gained an additional hard link after its persisted observation.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json"
+    }
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-244",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-244-LIFECYCLE-01",
+          "result": "passed",
+          "evidence": [
+            "get_evidence_lifecycle receives schema-v5 scan coverage including active generation identity, progress, last complete time, and synthetic unfinished-root gaps",
+            "Current-state queries remain bound to the last complete authoritative projection while a generation is active"
+          ]
+        },
+        {
+          "id": "CHECK-244-EXPORT-PARITY-01",
+          "result": "passed",
+          "evidence": [
+            "The durable bundle exporter and MCP read models derive from the same EvidenceStore semantics and disclose active-generation uncertainty",
+            "The repair does not add write-capable MCP tools, network listeners, file-content reads, or synthetic attribution"
+          ]
+        },
+        {
+          "id": "CHECK-244-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests including MCP contract, query, pagination, privacy, and Agent Access scenarios",
+            "The bundled MCP helper was rebuilt successfully by the Xcode application target"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-244",
+        "GATE-290"
+      ],
+      "recommended_action": "Promote TASK-244 and execute the polished application increment audit."
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-AFDC38ED343818F0E6245C60DD2B4674",
+  "previous_event_id": "EVENT-20260913T055325806145Z-38797E46",
+  "previous_event_sha256": "f7cd30f3b9b4e90694fc26878ae8b5abc18791b3e3f3dacede1cb493fac275a8"
+}

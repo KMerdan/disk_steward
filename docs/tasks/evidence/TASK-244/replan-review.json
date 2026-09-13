@@ -1,0 +1,44 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-TASK-244-REGRESSION-SCOPE-R5",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {"plan_id": "PLAN-DISK-STEWARD-002", "revision": 4, "sha256": "9066ca7db00e15d4ce18b0d0e138519babcae64c8c884441d595df5514d691ed"},
+  "revised_plan": {"plan_id": "PLAN-DISK-STEWARD-002", "revision": 5, "sha256": "b751f1936f9e07bf635f64751601f813f7635837585731730eaa62124ecce6c7"},
+  "facts": [
+    {
+      "id": "FACT-TASK-244-CATALOG-COMPATIBILITY",
+      "claim": "TASK-244 changes the MCP tool inventory and complete export payload list, while existing exporter and final-product increment tests assert those public contracts.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": ["Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift", "Tests/IncrementTests/Final/FinalProductIncrementTests.swift", "AC-244-01"],
+      "supports": ["TASK-244", "REQ-104", "REQ-106"],
+      "freshness": "Observed 2026-09-13"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-TASK-244-REGRESSION-OWNERS",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": ["TASK-244"],
+      "claim": "The public catalog and export contract cannot be changed and truthfully regression-tested without their existing schema and increment owners.",
+      "evidence": ["FACT-TASK-244-CATALOG-COMPATIBILITY"],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add only the export-manifest schema, core export tests, and existing MCP/final increment test directories to TASK-244 write scope.",
+      "rationale": "This is a scope-ownership correction for already-declared acceptance criteria; topology, dependencies, intent, behavior constraints, and non-goals are unchanged."
+    }
+  ],
+  "coverage": [
+    {"requirement": "REQ-104", "before_nodes": ["TASK-244"], "after_nodes": ["TASK-244"], "status": "strengthened"},
+    {"requirement": "REQ-106", "before_nodes": ["TASK-244"], "after_nodes": ["TASK-244"], "status": "strengthened"}
+  ],
+  "invariants": {"intent": "preserved", "success_evidence": "strengthened", "constraints": "preserved", "non_goals": "preserved", "assurance": "not-applicable", "audit_closure": "preserved", "execution_safety": "preserved"},
+  "metrics": {
+    "before": {"nodes": 17, "executable_nodes": 12, "edges": 47, "hard_dependencies": 15, "audit_gates": 2},
+    "after": {"nodes": 17, "executable_nodes": 12, "edges": 47, "hard_dependencies": 15, "audit_gates": 2}
+  },
+  "summary": "Retain the graph and MCP read-model contract; add only the existing public-contract regression owners required to verify TASK-244.",
+  "limitations": ["The full Swift suite must prove compatibility after the catalog and bundle contract changes."]
+}

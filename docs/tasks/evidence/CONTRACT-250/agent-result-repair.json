@@ -1,0 +1,33 @@
+{
+  "schema": "agent-result-v1",
+  "task": "CONTRACT-250",
+  "outcome": "implemented",
+  "changed_files": [
+    "Schemas/export-manifest-v1.schema.json",
+    "docs/architecture/evidence-export.md",
+    "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+    "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+    "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Schemas/export-manifest-v1.schema.json", "class": "configuration"},
+    {"path": "docs/architecture/evidence-export.md", "class": "source"},
+    {"path": "docs/tasks/evidence/CONTRACT-250/contract-review.md", "class": "evidence"},
+    {"path": "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --filter 'ContractTests|SnapshotExporterTests'", "result": "passed: 27 tests, 0 failures"},
+    {"command": "jq empty on export and evidence contract schemas and fixtures", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-C250-01", "result": "passed", "reference": "actionable-export-v1 scope object and evidence-export.md scope vocabulary remain unchanged"},
+    {"criterion": "AC-C250-02", "result": "passed", "reference": "EvidenceUsefulnessContractTests still rejects the capacity-only fixture while SnapshotExporterTests pass"},
+    {"criterion": "AC-C250-03", "result": "passed", "reference": "actionable brief schema and decision order remain enforced"},
+    {"criterion": "AC-C250-04", "result": "passed", "reference": "scan-generation contract tests remain green"}
+  ],
+  "discovered_risks": [],
+  "suggested_graph_changes": []
+}

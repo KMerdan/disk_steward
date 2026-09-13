@@ -1,0 +1,311 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T054508862993Z-97A5B866",
+  "at": "2026-09-13T05:45:08.862814Z",
+  "graph_version": 101,
+  "actor": "codex",
+  "type": "task.taken",
+  "node": "TASK-251",
+  "before": {
+    "execution": "needs-rework",
+    "verification": "failed",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Audit failed; repair, approved expansion, or replan is required.",
+    "updated_at": "2026-09-13T05:45:02.721307Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-251",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "docs/tasks/evidence/TASK-251/real-export-journey.md",
+        "docs/tasks/evidence/TASK-251/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/real-export-journey.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'EvidenceBundleExporterTests|StatusBoardPresentationTests|StatusBoardEvidenceExportTests|AgentQueryableEvidenceIncrementTests|PersistentRecorderIncrementTests|SnapshotExporterTests'",
+          "result": "passed: 18 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 153 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "git diff --check on TASK-251 scope",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-251-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "AC-251-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "EVREQ-251-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-251/real-export-journey.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-251",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-251-SCHEMA5-01",
+          "result": "failed",
+          "evidence": [
+            "TASK-250 introduced durable active scan generations after TASK-251 was verified",
+            "EvidenceBundleExporter.coveragePayload still emits active_generation as null and readScope can therefore present the previous complete observation as current while a generation is partial"
+          ]
+        },
+        {
+          "id": "CHECK-251-SCHEMA5-02",
+          "result": "passed",
+          "evidence": [
+            "The menu/view-model durable exporter path and all existing bundle roles remain valid"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-251",
+        "GATE-290"
+      ],
+      "recommended_action": "Read schema-v5 scan generation progress into the consistent export view, force partial coverage while active, include bounded progress in coverage.json and the brief, and add a mid-generation export regression."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "working",
+    "verification": "failed",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T07:45:08.862735Z",
+    "work_origin": "needs-rework",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:45:08.862791Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-251",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "docs/tasks/evidence/TASK-251/real-export-journey.md",
+        "docs/tasks/evidence/TASK-251/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/real-export-journey.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'EvidenceBundleExporterTests|StatusBoardPresentationTests|StatusBoardEvidenceExportTests|AgentQueryableEvidenceIncrementTests|PersistentRecorderIncrementTests|SnapshotExporterTests'",
+          "result": "passed: 18 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 153 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "git diff --check on TASK-251 scope",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-251-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "AC-251-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "EVREQ-251-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-251/real-export-journey.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-251",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-251-SCHEMA5-01",
+          "result": "failed",
+          "evidence": [
+            "TASK-250 introduced durable active scan generations after TASK-251 was verified",
+            "EvidenceBundleExporter.coveragePayload still emits active_generation as null and readScope can therefore present the previous complete observation as current while a generation is partial"
+          ]
+        },
+        {
+          "id": "CHECK-251-SCHEMA5-02",
+          "result": "passed",
+          "evidence": [
+            "The menu/view-model durable exporter path and all existing bundle roles remain valid"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-251",
+        "GATE-290"
+      ],
+      "recommended_action": "Read schema-v5 scan generation progress into the consistent export view, force partial coverage while active, include bounded progress in coverage.json and the brief, and add a mid-generation export regression."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "lease_minutes": 120
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-6ADF05479637E76A6BA2A5FE754165D8",
+  "previous_event_id": "EVENT-20260913T054502721508Z-9D751530",
+  "previous_event_sha256": "88f2cd2f1c578cd720107ac11f1074b61c4c32ac90c8f289512e3c023fd46cb1"
+}

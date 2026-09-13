@@ -1,0 +1,373 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T233051644521Z-AF8E2E9F",
+  "at": "2026-09-12T23:30:51.644369Z",
+  "graph_version": 13,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-241",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:30:01.154659Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "docs/tasks/evidence/TASK-241/reconciliation-verification.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/reconciliation-verification.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceObjectLifecycleTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 111 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "SQLite schema v2 and atomic recordObservation persist scope, observation, per-root coverage, stable objects, temporal paths, file states, current state, changes, and gaps"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "recordObservation transaction and observation ID replay test prove rollback and idempotency"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "EvidenceObjectLifecycleTests covers baseline, modify, truncate, rename, replace, delete, path reuse, partial unknown, and scope entry/exit"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "PersistentMonitoringProbe uses durable state and restart test records resolved app-offline gap"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Complete and partial A/B/C tests prove deletion only after complete same-scope observation"
+        },
+        {
+          "criterion": "AC-241-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/reconciliation-verification.md and 111-test regression run"
+        }
+      ],
+      "discovered_risks": [
+        "Path-temporal fallback identity cannot prove replacement when filesystem identity metadata is unavailable; such conclusions remain observational.",
+        "Existing legacy evidence-event-v1 exports do not yet expose every v2 lifecycle field; TASK-243 and TASK-244 own bounded export and query projections."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:30:51.644202Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "docs/tasks/evidence/TASK-241/reconciliation-verification.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/reconciliation-verification.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceObjectLifecycleTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 111 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "SQLite schema v2 and atomic recordObservation persist scope, observation, per-root coverage, stable objects, temporal paths, file states, current state, changes, and gaps"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "recordObservation transaction and observation ID replay test prove rollback and idempotency"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "EvidenceObjectLifecycleTests covers baseline, modify, truncate, rename, replace, delete, path reuse, partial unknown, and scope entry/exit"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "PersistentMonitoringProbe uses durable state and restart test records resolved app-offline gap"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Complete and partial A/B/C tests prove deletion only after complete same-scope observation"
+        },
+        {
+          "criterion": "AC-241-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/reconciliation-verification.md and 111-test regression run"
+        }
+      ],
+      "discovered_risks": [
+        "Path-temporal fallback identity cannot prove replacement when filesystem identity metadata is unavailable; such conclusions remain observational.",
+        "Existing legacy evidence-event-v1 exports do not yet expose every v2 lifecycle field; TASK-243 and TASK-244 own bounded export and query projections."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-241",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-241-01",
+          "result": "passed",
+          "evidence": [
+            "Schema v2 retains v1 tables and adds scope_versions, observation_runs, observation_roots, file_objects, path_bindings, file_state_observations, current_file_state, change_events, and coverage_gaps",
+            "recordObservation applies all derived mutations inside one SQLite transaction and returns an existing observation without replay"
+          ]
+        },
+        {
+          "id": "CHECK-241-02",
+          "result": "passed",
+          "evidence": [
+            "EvidenceObjectLifecycleTests verifies complete A/B/C deletion and idempotent replay",
+            "Partial A/B/C keeps B unknown, non-actionable, and state-as-of O1 until a complete recovery observation"
+          ]
+        },
+        {
+          "id": "CHECK-241-03",
+          "result": "passed",
+          "evidence": [
+            "Identity-aware tests distinguish modify, truncate, rename, replacement/path reuse, scope entry, and scope exit",
+            "Scope removal emits scope-exit rather than deletion"
+          ]
+        },
+        {
+          "id": "CHECK-241-04",
+          "result": "passed",
+          "evidence": [
+            "Restart test reopens persisted state, records a bounded app-offline interval, and reconciles deletion only from a complete observation",
+            "Complete root coverage resolves earlier open root gaps without removing their history"
+          ]
+        },
+        {
+          "id": "CHECK-241-05",
+          "result": "passed",
+          "evidence": [
+            "swift test passed 111 tests with zero failures",
+            "git diff --check passed",
+            "Evidence contract explicitly limits hard-link, clone, compression, and path-temporal identity conclusions"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-241",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-241-01",
+          "result": "passed",
+          "evidence": [
+            "Schema v2 retains v1 tables and adds scope_versions, observation_runs, observation_roots, file_objects, path_bindings, file_state_observations, current_file_state, change_events, and coverage_gaps",
+            "recordObservation applies all derived mutations inside one SQLite transaction and returns an existing observation without replay"
+          ]
+        },
+        {
+          "id": "CHECK-241-02",
+          "result": "passed",
+          "evidence": [
+            "EvidenceObjectLifecycleTests verifies complete A/B/C deletion and idempotent replay",
+            "Partial A/B/C keeps B unknown, non-actionable, and state-as-of O1 until a complete recovery observation"
+          ]
+        },
+        {
+          "id": "CHECK-241-03",
+          "result": "passed",
+          "evidence": [
+            "Identity-aware tests distinguish modify, truncate, rename, replacement/path reuse, scope entry, and scope exit",
+            "Scope removal emits scope-exit rather than deletion"
+          ]
+        },
+        {
+          "id": "CHECK-241-04",
+          "result": "passed",
+          "evidence": [
+            "Restart test reopens persisted state, records a bounded app-offline interval, and reconciles deletion only from a complete observation",
+            "Complete root coverage resolves earlier open root gaps without removing their history"
+          ]
+        },
+        {
+          "id": "CHECK-241-05",
+          "result": "passed",
+          "evidence": [
+            "swift test passed 111 tests with zero failures",
+            "git diff --check passed",
+            "Evidence contract explicitly limits hard-link, clone, compression, and path-temporal identity conclusions"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 1,
+  "context_id": "CTX-B575168F3F18F50F967A1E541207D1CD",
+  "previous_event_id": "EVENT-20260912T233001155006Z-C35B2291",
+  "previous_event_sha256": "a00369288248810fbc483df47b72f33746d9c0d5777ce83206d31597ca7b5838"
+}

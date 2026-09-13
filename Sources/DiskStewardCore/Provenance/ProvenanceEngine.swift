@@ -57,7 +57,13 @@ public struct ProvenanceEngine: Sendable {
                 confidence: .inferred,
                 method: input.isHistorical ? "historical-workspace-correlation" : "workspace-temporal-correlation",
                 support: support,
-                limitations: limitations + ["Workspace and time correlation is a hypothesis; it does not identify the writer process."]
+                limitations: limitations + ["Workspace and time correlation is a hypothesis; it does not identify the writer process."],
+                claimID: input.claimID,
+                detectedAt: input.detectedAt,
+                occurredStart: input.occurredStart,
+                occurredEnd: input.occurredEnd,
+                contradictions: input.contradictions,
+                supersedesClaimID: input.supersedesClaimID
             )
         }
 
@@ -75,7 +81,13 @@ public struct ProvenanceEngine: Sendable {
             confidence: .unknown,
             method: "insufficient-causal-evidence",
             support: support,
-            limitations: limitations
+            limitations: limitations,
+            claimID: input.claimID,
+            detectedAt: input.detectedAt,
+            occurredStart: input.occurredStart,
+            occurredEnd: input.occurredEnd,
+            contradictions: input.contradictions,
+            supersedesClaimID: input.supersedesClaimID
         )
     }
 
@@ -150,7 +162,16 @@ public struct ProvenanceEngine: Sendable {
             confidence: confidence,
             method: method,
             support: support,
-            limitations: limitations
+            limitations: limitations,
+            claimID: input.claimID,
+            detectedAt: input.detectedAt,
+            occurredStart: input.occurredStart,
+            occurredEnd: input.occurredEnd,
+            observedAncestry: input.ancestry.records.values.sorted {
+                ($0.identity.pid, $0.identity.startTime) < ($1.identity.pid, $1.identity.startTime)
+            },
+            contradictions: input.contradictions,
+            supersedesClaimID: input.supersedesClaimID
         )
     }
 

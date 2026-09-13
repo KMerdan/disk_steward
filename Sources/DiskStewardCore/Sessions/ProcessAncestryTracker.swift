@@ -1,7 +1,7 @@
 import Darwin
 import Foundation
 
-public struct ProcessAncestryRecord: Equatable, Sendable {
+public struct ProcessAncestryRecord: Codable, Equatable, Sendable {
     public let identity: ProcessIdentity
     public let parent: ProcessIdentity?
 

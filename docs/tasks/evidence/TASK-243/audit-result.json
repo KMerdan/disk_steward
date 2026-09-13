@@ -1,0 +1,60 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-243",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-243-01",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+        "Raw, anomaly, hourly, daily, and snapshot boundaries are deterministic and repeated retention is idempotent"
+      ]
+    },
+    {
+      "id": "CHECK-243-02",
+      "result": "passed",
+      "evidence": [
+        "Current present state survives independent history compaction",
+        "Expired unknown tombstones are removed without resurrecting an object or changing surviving A state"
+      ]
+    },
+    {
+      "id": "CHECK-243-03",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift",
+        "Startup, six-hour, near-cap, pressure, retained-current, RetentionRun, and CoverageGap paths are verified"
+      ]
+    },
+    {
+      "id": "CHECK-243-04",
+      "result": "passed",
+      "evidence": [
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+        "Manual bundles remain user-owned while MCP temporary bundles are removed and recorded destroyed"
+      ]
+    },
+    {
+      "id": "CHECK-243-05",
+      "result": "passed",
+      "evidence": [
+        "Lifecycle status includes requested and actual tier coverage, count, precision, database usage/cap, last compaction, forced loss, current-state count/bytes, export inventory, and gaps",
+        "Interrupted exports recover failed and completed inventory remains bounded without pruning live transitions"
+      ]
+    },
+    {
+      "id": "CHECK-243-06",
+      "result": "passed",
+      "evidence": [
+        "swift test: 128 tests, 0 failures",
+        "git diff --check: passed",
+        "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+      ]
+    }
+  ],
+  "affected_claims": ["REQ-102", "REQ-104", "REQ-106", "REQ-108", "OUTCOME-210"],
+  "recommended_action": "advance"
+}

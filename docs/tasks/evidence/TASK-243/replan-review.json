@@ -1,0 +1,45 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-TASK-243-INLINE-EXPORT-R4",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {"plan_id": "PLAN-DISK-STEWARD-002", "revision": 3, "sha256": "7a7a9849280367d3f237e15de417a4e8b815e250a8abedf55084784a76c3fdbc"},
+  "revised_plan": {"plan_id": "PLAN-DISK-STEWARD-002", "revision": 4, "sha256": "9066ca7db00e15d4ce18b0d0e138519babcae64c8c884441d595df5514d691ed"},
+  "facts": [
+    {
+      "id": "FACT-TASK-243-INLINE-CLEANUP",
+      "claim": "MCP inline evidence bundles are created, read, and removed by AppEvidenceQueryBackend, while the original TASK-243 scope permits only core export and app lifecycle files.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": ["Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:276", "AC-243-04"],
+      "supports": ["TASK-243", "REQ-104", "REQ-106"],
+      "freshness": "Observed 2026-09-13"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-TASK-243-IPC-SCOPE",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": ["TASK-243"],
+      "claim": "The task cannot truthfully persist the temporary export's destroyed transition or test response cleanup without its existing IPC owner and test scope.",
+      "evidence": ["FACT-TASK-243-INLINE-CLEANUP"],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add only AppEvidenceQueryBackend.swift and its existing IPC test directory to TASK-243 write scope.",
+      "rationale": "This corrects ownership for an existing acceptance criterion without changing topology, dependencies, intent, non-goals, or product behavior beyond the declared lifecycle."
+    }
+  ],
+  "coverage": [
+    {"requirement": "REQ-104", "before_nodes": ["TASK-243"], "after_nodes": ["TASK-243"], "status": "strengthened"},
+    {"requirement": "REQ-106", "before_nodes": ["TASK-243"], "after_nodes": ["TASK-243"], "status": "strengthened"},
+    {"requirement": "REQ-108", "before_nodes": ["TASK-243"], "after_nodes": ["TASK-243"], "status": "preserved"}
+  ],
+  "invariants": {"intent": "preserved", "success_evidence": "strengthened", "constraints": "preserved", "non_goals": "preserved", "assurance": "not-applicable", "audit_closure": "preserved", "execution_safety": "preserved"},
+  "metrics": {
+    "before": {"nodes": 17, "executable_nodes": 12, "edges": 47, "hard_dependencies": 15, "audit_gates": 2},
+    "after": {"nodes": 17, "executable_nodes": 12, "edges": 47, "hard_dependencies": 15, "audit_gates": 2}
+  },
+  "summary": "Retain the graph and lifecycle contract; add the narrow IPC owner and regression-test scope required by AC-243-04.",
+  "limitations": ["The updated backend must still prove deletion and the persisted destroyed transition under the full test suite."]
+}

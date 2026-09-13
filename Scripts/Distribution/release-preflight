@@ -1,0 +1,22 @@
+#!/bin/zsh
+set -euo pipefail
+
+team_id="G3P6TU385Y"
+identities=$(/usr/bin/security find-identity -v -p codesigning 2>/dev/null || true)
+developer_id_found=false
+while IFS= read -r identity; do
+  if [[ "$identity" == *"Developer ID Application:"* && "$identity" == *"(${team_id})"* ]]; then
+    developer_id_found=true
+    break
+  fi
+done <<< "$identities"
+
+if [[ "$developer_id_found" != true ]]; then
+  print -u2 "Release blocked: no Developer ID Application identity for Team ${team_id} is installed."
+  print -u2 "Next action: ask the Apple Developer Account Holder to create or authorize a Developer ID Application certificate, then install it with its private key in your login keychain through Xcode Settings > Accounts > Marudan Kiji > Manage Certificates."
+  print -u2 "Apple Distribution and Apple Development certificates are not valid substitutes for direct distribution."
+  exit 66
+fi
+
+print "Release signing preflight passed: a Developer ID Application identity for Team ${team_id} is available."
+print "No certificate fingerprint, private key, account password, or notarization credential was read or stored by this script."

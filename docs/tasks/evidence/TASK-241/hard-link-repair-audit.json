@@ -1,0 +1,52 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-241",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-241-HARDLINK-01",
+      "result": "passed",
+      "evidence": [
+        "The real startup crash is preserved in docs/tasks/evidence/TASK-241/startup-hard-link-crash.json.",
+        "EvidenceObjectLifecycleTests proves two paths with one object identity reconcile as one physical object without a trap."
+      ]
+    },
+    {
+      "id": "CHECK-241-HARDLINK-02",
+      "result": "passed",
+      "evidence": [
+        "Hard-link path removal closes only the removed binding and emits neither false rename nor false deletion.",
+        "The last-link deletion produces a deletion only after complete relevant-root coverage."
+      ]
+    },
+    {
+      "id": "CHECK-241-HARDLINK-03",
+      "result": "passed",
+      "evidence": [
+        "DirectoryMetadataScanner reads st_nlink and its filesystem test creates a real hard link.",
+        "Multi-link objects are retained for evidence but excluded from actionable current-file reads."
+      ]
+    },
+    {
+      "id": "CHECK-241-HARDLINK-04",
+      "result": "passed",
+      "evidence": [
+        "Duplicate root-coverage input now fails as invalid before any transaction write.",
+        "The complete suite passed 143 tests with zero failures and the unsigned Xcode Debug build succeeded."
+      ]
+    },
+    {
+      "id": "CHECK-241-HARDLINK-05",
+      "result": "passed",
+      "evidence": [
+        "The repaired build completed a real startup scan, committed observation-16efe2fe40b3eac9, and remained alive beyond 69 seconds.",
+        "No new Disk Steward diagnostic crash report appeared after launch; the scan-cap limitation was persisted as partial coverage."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "OUTCOME-210",
+    "OUTCOME-220"
+  ],
+  "recommended_action": "advance"
+}

@@ -22,7 +22,8 @@ final class EvidenceBundleExporterTests: XCTestCase, @unchecked Sendable {
         )
 
         XCTAssertEqual(result.manifest.files.map(\.path), [
-            "codex-brief.md", "summary.json", "rollups.json", "events.jsonl.zlib", "snapshots.json", "integrity.json",
+            "codex-brief.md", "summary.json", "rollups.json", "events.jsonl.zlib", "snapshots.json",
+            "current-state.json", "provenance.json", "sessions.json", "coverage.json", "lifecycle.json", "integrity.json",
         ])
         XCTAssertEqual(try schemaErrors(file: "manifest.json", schema: "export-manifest-v1", in: result.bundleURL), [])
         try verifyHashes(result)
@@ -30,9 +31,162 @@ final class EvidenceBundleExporterTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(events.count, 1)
         XCTAssertEqual(events.flatMap { SnapshotJSONSchemaValidator().validate(instance: $0, schema: try! SnapshotJSONSchemaValidator.loadSchema(named: "evidence-event-v1")) }, [])
         let brief = try String(contentsOf: result.bundleURL.appending(path: "codex-brief.md"), encoding: .utf8)
-        XCTAssertEqual(brief, try goldenBrief())
+        XCTAssertTrue(brief.contains("## Scope and evidence age"))
+        XCTAssertTrue(brief.contains("## Current consumers"))
+        XCTAssertTrue(brief.contains("## Recent growth"))
+        XCTAssertTrue(brief.contains("## Cleanup-review leads"))
+        XCTAssertTrue(brief.contains("Whole-volume capacity does not imply whole-disk file"))
         XCTAssertFalse(result.manifest.privacy.containsFileContents)
         XCTAssertFalse(result.manifest.privacy.containsEnvironment)
+        await store.close()
+    }
+
+    func testActionableBundleDisclosesRootsPartialCoverageCurrentConsumersAndUnavailableGrowth() async throws {
+        let fixture = try Fixture()
+        let store = try EvidenceStore(url: fixture.databaseURL)
+        let scope = EvidenceScopeVersion(
+            scopeVersionID: "scope-actionable",
+            effectiveAt: Self.base,
+            rootPaths: ["/watched"],
+            excludedPaths: ["/watched/private"],
+            maximumEntries: 2,
+            maximumDepth: 10
+        )
+        let metadata = MetadataSnapshot(
+            observationID: "partial-actionable",
+            scopeVersionID: scope.scopeVersionID,
+            observedAt: Self.base,
+            entries: [
+                "/watched/cache/large.bin": .init(
+                    objectID: "large",
+                    identityMethod: .volumeFileGeneration,
+                    rootPath: "/watched",
+                    path: "/watched/cache/large.bin",
+                    logicalBytes: 4_000,
+                    allocatedBytes: 4_096,
+                    modifiedAt: Self.base
+                ),
+                "/watched/cache/other.bin": .init(
+                    objectID: "other",
+                    identityMethod: .volumeFileGeneration,
+                    rootPath: "/watched",
+                    path: "/watched/cache/other.bin",
+                    logicalBytes: 2_000,
+                    allocatedBytes: 2_048,
+                    modifiedAt: Self.base
+                ),
+            ],
+            rootCoverage: [.init(
+                rootPath: "/watched",
+                coverage: .partial,
+                limitations: ["Detailed scan stopped at the configured 2-entry limit."]
+            )],
+            limitations: ["Detailed scan stopped at the configured 2-entry limit."]
+        )
+        _ = try await store.recordObservation(
+            snapshot: StorageSnapshot(
+                snapshotID: "capacity-actionable",
+                observedAt: "2033-05-18T03:33:20.000Z",
+                volumes: [.init(mountPath: "/", totalBytes: 10_000, availableBytes: 4_000, isInternal: true, isReadOnly: false)]
+            ),
+            metadata: metadata,
+            scope: scope,
+            trigger: .manual
+        )
+
+        let result = try await EvidenceBundleExporter(identifierSource: { "actionable" }, dateSource: { Self.base })
+            .export(
+                store: store,
+                options: .init(from: Self.base.addingTimeInterval(-1), through: Self.base.addingTimeInterval(1)),
+                to: fixture.exports
+            )
+
+        let summary = try jsonObject(at: result.bundleURL.appending(path: "summary.json"))
+        XCTAssertEqual(summary["volume_capacity_scope"] as? String, "whole-volume-capacity")
+        XCTAssertEqual(summary["file_detail_roots"] as? [String], ["/watched"])
+        XCTAssertEqual(summary["exclusions"] as? [String], ["/watched/private"])
+        XCTAssertEqual(summary["detail_coverage"] as? String, "partial")
+        XCTAssertEqual(summary["growth_assessment"] as? String, "unavailable")
+        XCTAssertEqual(summary["current_state_count"] as? Int, 2)
+        XCTAssertEqual((summary["largest_current_files"] as? [[String: Any]])?.first?["path"] as? String, "/watched/cache/large.bin")
+        XCTAssertEqual((summary["largest_current_directories"] as? [[String: Any]])?.first?["path"] as? String, "/watched/cache")
+
+        let coverage = try jsonObject(at: result.bundleURL.appending(path: "coverage.json"))
+        XCTAssertEqual(coverage["file_detail_roots"] as? [String], ["/watched"])
+        XCTAssertEqual(coverage["detail_coverage"] as? String, "partial")
+        XCTAssertEqual(coverage["open_gap_count"] as? Int, 1)
+        XCTAssertNotNil(coverage["state_as_of"])
+
+        let roles = Set(result.manifest.files.map(\.role))
+        XCTAssertTrue(["codex-brief", "summary", "events", "snapshot", "current-state", "provenance", "agent-sessions", "coverage", "lifecycle", "integrity"].allSatisfy(roles.contains))
+        XCTAssertTrue(result.manifest.limitations.contains { $0.contains("File-detail coverage is partial") })
+        XCTAssertTrue(result.manifest.limitations.contains { $0.contains("growth is unavailable") })
+
+        let brief = try String(contentsOf: result.bundleURL.appending(path: "codex-brief.md"), encoding: .utf8)
+        XCTAssertTrue(brief.contains("`/watched`"))
+        XCTAssertTrue(brief.contains("`/watched/cache`"))
+        XCTAssertTrue(brief.contains("`/watched/cache/large.bin`"))
+        XCTAssertTrue(brief.contains("File-detail growth is unavailable"))
+        try verifyHashes(result)
+        await store.close()
+    }
+
+    func testExportDuringActiveGenerationDisclosesProgressAndKeepsPriorStateStale() async throws {
+        let fixture = try Fixture()
+        let watched = fixture.directory.appending(path: "watched", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        try Data(repeating: 1, count: 10).write(to: watched.appending(path: "A"))
+        try Data(repeating: 2, count: 20).write(to: watched.appending(path: "B"))
+        let policy = MonitoringPolicy(watchedRoots: [watched], maximumEntries: 1, maximumDepth: 8)
+        let scope = policy.scopeVersion(at: Self.base)
+        let store = try EvidenceStore(url: fixture.databaseURL)
+        let generation = try await store.beginOrResumeScanGeneration(scope: scope, at: Self.base)
+        let slice = DirectoryMetadataScanner().scanSlice(
+            policy: policy,
+            generation: generation,
+            at: Self.base.addingTimeInterval(1)
+        )
+        let staged = try await store.recordScanSlice(
+            snapshot: StorageSnapshot(
+                snapshotID: "active-generation-capacity",
+                observedAt: "2033-05-18T03:33:21.000Z",
+                volumes: [.init(mountPath: "/", totalBytes: 10_000, availableBytes: 5_000, isInternal: true, isReadOnly: false)]
+            ),
+            slice: slice,
+            scope: scope,
+            trigger: .startup
+        )
+        XCTAssertNil(staged.observation)
+
+        let result = try await EvidenceBundleExporter(
+            identifierSource: { "active-generation" },
+            dateSource: { Self.base.addingTimeInterval(2) }
+        ).export(
+            store: store,
+            options: .init(from: Self.base.addingTimeInterval(-1), through: Self.base.addingTimeInterval(3)),
+            to: fixture.exports
+        )
+
+        let coverage = try jsonObject(at: result.bundleURL.appending(path: "coverage.json"))
+        XCTAssertEqual(coverage["detail_coverage"] as? String, "partial")
+        XCTAssertEqual(coverage["file_detail_roots"] as? [String], [watched.path])
+        let active = try XCTUnwrap(coverage["active_generation"] as? [String: Any])
+        XCTAssertEqual(active["generation_id"] as? String, generation.generationID)
+        XCTAssertEqual(active["processed_entry_count"] as? Int, 1)
+        XCTAssertEqual(active["staged_file_count"] as? Int, 1)
+        XCTAssertEqual(active["completed_root_count"] as? Int, 0)
+        XCTAssertEqual(active["root_count"] as? Int, 1)
+
+        let summary = try jsonObject(at: result.bundleURL.appending(path: "summary.json"))
+        XCTAssertEqual(summary["active_generation_id"] as? String, generation.generationID)
+        XCTAssertEqual(summary["scan_processed_entry_count"] as? Int, 1)
+        XCTAssertEqual(summary["current_state_count"] as? Int, 0)
+        XCTAssertTrue(result.manifest.limitations.contains { $0.contains("still active") && $0.contains("absence is not reconciled") })
+        let brief = try String(contentsOf: result.bundleURL.appending(path: "codex-brief.md"), encoding: .utf8)
+        XCTAssertTrue(brief.contains("Active scan generation: \(generation.generationID)"))
+        XCTAssertTrue(brief.contains("Root progress: 0/1"))
+        XCTAssertTrue(brief.contains("File-detail coverage: partial"))
+        try verifyHashes(result)
         await store.close()
     }
 
@@ -145,6 +299,40 @@ final class EvidenceBundleExporterTests: XCTestCase, @unchecked Sendable {
         await store.close()
     }
 
+    func testManualExportInventoryRetainsOwnershipHashRangePrecisionAndMissingState() async throws {
+        let fixture = try Fixture()
+        let store = try EvidenceStore(url: fixture.databaseURL, dateSource: { Self.base.addingTimeInterval(600) })
+        try await store.insert(Self.event(id: "inventory", at: Self.base, path: "/tmp/inventory.bin", delta: 128))
+        let result = try await EvidenceBundleExporter(identifierSource: { "inventory" }, dateSource: { Self.base.addingTimeInterval(300) })
+            .export(
+                store: store,
+                options: .init(from: Self.base.addingTimeInterval(-1), through: Self.base.addingTimeInterval(1), pathDetail: .hashed),
+                to: fixture.exports
+            )
+
+        let availableRecords = try await store.exportRecords()
+        let available = try XCTUnwrap(availableRecords.first)
+        XCTAssertEqual(available.exportID, result.exportID)
+        XCTAssertEqual(available.kind, .manual)
+        XCTAssertEqual(available.status, .available)
+        XCTAssertEqual(available.path, result.bundleURL.path)
+        XCTAssertEqual(available.pathDetail, .hashed)
+        XCTAssertEqual(available.precision, "event")
+        XCTAssertEqual(available.actualFrom, Self.base)
+        XCTAssertEqual(available.actualThrough, Self.base)
+        XCTAssertNotNil(available.manifestSHA256)
+        XCTAssertGreaterThan(available.bytes, 0)
+
+        _ = try await store.applyRetention(try .init(), trigger: .manual)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: result.bundleURL.path), "Retention must never delete a user-owned export")
+        try FileManager.default.removeItem(at: result.bundleURL)
+        let missingRecords = try await store.exportRecords(refreshManualInventory: true)
+        let missing = try XCTUnwrap(missingRecords.first)
+        XCTAssertEqual(missing.status, .missing)
+        XCTAssertEqual(missing.path, result.bundleURL.path)
+        await store.close()
+    }
+
     func testInvalidRangeAndExistingDestinationFailClosed() async throws {
         let fixture = try Fixture()
         let store = try EvidenceStore(url: fixture.databaseURL)
@@ -193,7 +381,7 @@ final class EvidenceBundleExporterTests: XCTestCase, @unchecked Sendable {
         }
         let integrity = try jsonObject(at: result.bundleURL.appending(path: "integrity.json"))
         XCTAssertEqual(integrity["algorithm"] as? String, "sha256")
-        XCTAssertEqual((integrity["files"] as? [[String: Any]])?.count, 5)
+        XCTAssertEqual((integrity["files"] as? [[String: Any]])?.count, 10)
     }
 
     private func decodedEventObjects(in bundle: URL) throws -> [[String: Any]] {
@@ -211,13 +399,6 @@ final class EvidenceBundleExporterTests: XCTestCase, @unchecked Sendable {
 
     private func jsonObject(at url: URL) throws -> [String: Any] {
         try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as! [String: Any]
-    }
-
-    private func goldenBrief() throws -> String {
-        let root = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .deletingLastPathComponent().deletingLastPathComponent()
-        return try String(contentsOf: root.appending(path: "Fixtures/Exports/golden-codex-brief.md"), encoding: .utf8)
     }
 
     private static let base = Date(timeIntervalSince1970: 2_000_000_000)

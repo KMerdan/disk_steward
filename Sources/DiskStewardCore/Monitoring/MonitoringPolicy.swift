@@ -70,6 +70,22 @@ public struct MonitoringPolicy: Equatable, Sendable {
         return limitations.sorted()
     }
 
+    public func scopeVersion(at date: Date) -> EvidenceScopeVersion {
+        EvidenceScopeVersion(
+            scopeVersionID: Self.scopeIdentifier(
+                roots: activeRoots(at: date).map(\.path),
+                exclusions: normalizedUnique(excludedRoots).map(\.path),
+                maximumEntries: maximumEntries,
+                maximumDepth: maximumDepth
+            ),
+            effectiveAt: date,
+            rootPaths: activeRoots(at: date).map(\.path),
+            excludedPaths: normalizedUnique(excludedRoots).map(\.path),
+            maximumEntries: maximumEntries,
+            maximumDepth: maximumDepth
+        )
+    }
+
     private func normalizedUnique(_ urls: [URL]) -> [URL] {
         var seen: Set<String> = []
         return urls
@@ -85,5 +101,21 @@ public struct MonitoringPolicy: Equatable, Sendable {
     private static func contains(_ path: String, root: String) -> Bool {
         let normalizedRoot = normalized(root)
         return path == normalizedRoot || path.hasPrefix(normalizedRoot == "/" ? "/" : normalizedRoot + "/")
+    }
+
+    private static func scopeIdentifier(
+        roots: [String],
+        exclusions: [String],
+        maximumEntries: Int,
+        maximumDepth: Int
+    ) -> String {
+        let value = (roots.sorted() + ["--"] + exclusions.sorted() + ["entries=\(maximumEntries)", "depth=\(maximumDepth)"])
+            .joined(separator: "|")
+        var hash: UInt64 = 14_695_981_039_346_656_037
+        for byte in Data(value.utf8) {
+            hash ^= UInt64(byte)
+            hash &*= 1_099_511_628_211
+        }
+        return "scope-\(String(hash, radix: 16))"
     }
 }

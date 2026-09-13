@@ -1,0 +1,36 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-290",
+  "outcome": "implemented",
+  "changed_files": [
+    "docs/tasks/evidence/GATE-290/increment-audit.md",
+    "docs/tasks/evidence/GATE-290/agent-result.json",
+    "docs/tasks/evidence/GATE-290/audit-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "evidence-only",
+  "changes": [
+    {"path": "docs/tasks/evidence/GATE-290/increment-audit.md", "class": "evidence"},
+    {"path": "docs/tasks/evidence/GATE-290/agent-result.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/GATE-290/audit-result.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test", "result": "passed: 135 tests, 0 failures"},
+    {"command": "xcodebuild Debug unsigned", "result": "passed: BUILD SUCCEEDED"},
+    {"command": "built app --ui-smoke", "result": "passed"},
+    {"command": "embedded disk-witness-mcp initialize and tools/list", "result": "passed: ten read-only tools"},
+    {"command": "bundle inspection", "result": "passed: identity, LSUIElement, resources, app binary, and helper"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-290-01", "result": "passed", "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"},
+    {"criterion": "AC-290-02", "result": "passed", "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"},
+    {"criterion": "AC-290-03", "result": "passed", "reference": "swift test: 135 tests, 0 failures"},
+    {"criterion": "AC-290-04", "result": "passed", "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"},
+    {"criterion": "AC-290-05", "result": "passed", "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"},
+    {"criterion": "AC-290-06", "result": "passed", "reference": "docs/tasks/evidence/TASK-244/read-model-verification.md"},
+    {"criterion": "EVREQ-290-01", "result": "passed", "reference": "docs/tasks/evidence/GATE-290/increment-audit.md"}
+  ],
+  "discovered_risks": [],
+  "suggested_graph_changes": []
+}

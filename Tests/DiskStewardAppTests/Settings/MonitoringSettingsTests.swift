@@ -52,4 +52,42 @@ final class MonitoringSettingsTests: XCTestCase {
         XCTAssertNil(store.settings.investigationRoot)
         XCTAssertNil(store.settings.investigationExpiresAt)
     }
+
+    func testFolderSelectionNavigatesDirectoriesAndRejectsInvalidPaths() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let alpha = root.appending(path: "Alpha", directoryHint: .isDirectory)
+        let beta = root.appending(path: "Beta", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: alpha, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: beta, withIntermediateDirectories: true)
+        try Data("not a directory".utf8).write(to: root.appending(path: "note.txt"))
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let model = FolderSelectionModel(initialURL: root, homeURL: root)
+        XCTAssertEqual(model.currentURL, root.standardizedFileURL)
+        XCTAssertEqual(model.directories.map(\.lastPathComponent), ["Alpha", "Beta"])
+        XCTAssertEqual(model.selectedURL, root.standardizedFileURL)
+
+        model.navigate(to: alpha)
+        XCTAssertEqual(model.currentURL, alpha.standardizedFileURL)
+        model.goUp()
+        XCTAssertEqual(model.currentURL, root.standardizedFileURL)
+
+        model.pathText = root.appending(path: "missing").path
+        model.goToTypedPath()
+        XCTAssertEqual(model.currentURL, root.standardizedFileURL)
+        XCTAssertNotNil(model.errorMessage)
+    }
+
+    func testChosenWatchedFolderIsStandardizedPersistedAndDeduplicated() {
+        let persistence = EphemeralSettingsPersistence()
+        let store = MonitoringSettingsStore(persistence: persistence, key: "folder-selection")
+        let selected = URL(fileURLWithPath: "/tmp/../tmp/non-default", isDirectory: true)
+
+        store.addWatchedRoot(selected.standardizedFileURL)
+        store.addWatchedRoot(selected.standardizedFileURL)
+
+        let reloaded = MonitoringSettingsStore(persistence: persistence, key: "folder-selection")
+        XCTAssertEqual(reloaded.settings.watchedRoots.filter { $0 == "/tmp/non-default" }, ["/tmp/non-default"])
+    }
 }

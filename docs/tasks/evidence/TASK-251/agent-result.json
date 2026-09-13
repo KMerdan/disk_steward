@@ -1,0 +1,44 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-251",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/StatusItemController.swift",
+    "Sources/DiskStewardApp/StatusBoardView.swift",
+    "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+    "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+    "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+    "docs/tasks/evidence/TASK-251/real-export-journey.md",
+    "docs/tasks/evidence/TASK-251/agent-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Sources/DiskStewardApp/StatusItemController.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/StatusBoardView.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/StatusBoardViewModel.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift", "class": "source"},
+    {"path": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift", "class": "source"},
+    {"path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift", "class": "source"},
+    {"path": "docs/tasks/evidence/TASK-251/real-export-journey.md", "class": "evidence"},
+    {"path": "docs/tasks/evidence/TASK-251/agent-result.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --filter 'EvidenceBundleExporterTests|StatusBoardPresentationTests|StatusBoardEvidenceExportTests|AgentQueryableEvidenceIncrementTests|PersistentRecorderIncrementTests|SnapshotExporterTests'", "result": "passed: 18 tests, 0 failures"},
+    {"command": "swift test", "result": "passed: 153 tests, 0 failures"},
+    {"command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build", "result": "passed: BUILD SUCCEEDED"},
+    {"command": "git diff --check on TASK-251 scope", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-251-01", "result": "passed", "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"},
+    {"criterion": "AC-251-02", "result": "passed", "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"},
+    {"criterion": "AC-251-03", "result": "passed", "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"},
+    {"criterion": "AC-251-04", "result": "passed", "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"},
+    {"criterion": "EVREQ-251-01", "result": "passed", "reference": "docs/tasks/evidence/TASK-251/real-export-journey.md"}
+  ],
+  "discovered_risks": [],
+  "suggested_graph_changes": []
+}

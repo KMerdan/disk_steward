@@ -1,0 +1,45 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-310",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-310-01",
+      "result": "passed",
+      "evidence": [
+        "Shared DiskSteward-Release scheme archives the Release app",
+        "Developer ID export options and handoff contain no account credentials",
+        "Release configuration requires hardened runtime and production entitlements"
+      ]
+    },
+    {
+      "id": "CHECK-310-02",
+      "result": "passed",
+      "evidence": [
+        "verify-release checks the actual app plus embedded MCP helper",
+        "Application and helper identifiers, Developer ID authority, Team ID, timestamp, runtime, exact standard-app entitlement key/value set, staple, and Gatekeeper are fail-closed gates",
+        "Apple Distribution, unsigned, ad hoc, damaged, shallow-only, and non-notarized artifacts cannot pass"
+      ]
+    },
+    {
+      "id": "CHECK-310-03",
+      "result": "passed",
+      "evidence": [
+        "Current missing Developer ID Application identity returns exit 66 before Xcode",
+        "Diagnostic names the Account Holder and exact Xcode Manage Certificates path",
+        "Unsigned rehearsal and the 135-test development suite remain usable"
+      ]
+    },
+    {
+      "id": "CHECK-310-04",
+      "result": "passed",
+      "evidence": [
+        "Credential-free rehearsal constructed an isolated Release archive and found executable nested helper",
+        "The verifier rejected the rehearsal archive and temporary data was removed",
+        "Signed/notarized inspection is correctly unavailable until the external Developer ID identity exists and is not fabricated"
+      ]
+    }
+  ],
+  "affected_claims": ["REQ-109", "OUTCOME-220"],
+  "recommended_action": "advance"
+}

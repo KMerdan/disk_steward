@@ -37,7 +37,7 @@ final class MCPContractTests: XCTestCase {
         XCTAssertEqual(capabilities["prompts"] as? Bool, false)
 
         let tools = try XCTUnwrap(inventory["tools"] as? [[String: Any]])
-        XCTAssertEqual(tools.count, 7)
+        XCTAssertEqual(tools.count, 10)
         XCTAssertEqual(Set(tools.compactMap { $0["name"] as? String }).count, tools.count)
         for tool in tools {
             let annotations = try XCTUnwrap(tool["annotations"] as? [String: Any])

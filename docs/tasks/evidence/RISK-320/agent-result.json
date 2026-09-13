@@ -1,0 +1,38 @@
+{
+  "schema": "agent-result-v1",
+  "task": "RISK-320",
+  "outcome": "implemented",
+  "changed_files": [
+    "Tests/Distribution/release-policy-fixtures.json",
+    "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+    "docs/tasks/evidence/RISK-320/dependency-gap.json",
+    "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+    "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+    "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+    "docs/tasks/evidence/RISK-320/agent-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Tests/Distribution/release-policy-fixtures.json", "class": "configuration"},
+    {"path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift", "class": "source"},
+    {"path": "docs/tasks/evidence/RISK-320/dependency-gap.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/RISK-320/entitlement-key-gap.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/RISK-320/artifact-inspection.txt", "class": "evidence"},
+    {"path": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md", "class": "evidence"},
+    {"path": "docs/tasks/evidence/RISK-320/agent-result.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --filter DistributionReleaseIntegrityTests", "result": "passed: 5 tests, 0 failures"},
+    {"command": "Scripts/Distribution/verify --development", "result": "passed without release claims"},
+    {"command": "swift test", "result": "passed: 140 tests, 0 failures"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-320-01", "result": "passed", "reference": "Tests/Distribution/release-policy-fixtures.json and Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift"},
+    {"criterion": "AC-320-02", "result": "passed", "reference": "docs/tasks/evidence/RISK-320/artifact-inspection.txt"},
+    {"criterion": "EVREQ-320-01", "result": "passed", "reference": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md"}
+  ],
+  "discovered_risks": [],
+  "suggested_graph_changes": []
+}

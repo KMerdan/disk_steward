@@ -1,0 +1,23 @@
+{
+  "schema": "disk-steward-task-241-runtime-defect-v1",
+  "observed_at": "2026-09-13T03:24:14Z",
+  "build": {
+    "configuration": "Debug",
+    "signing": "disabled",
+    "app_path": "/private/tmp/DiskStewardDerivedData/Build/Products/Debug/Disk Steward.app",
+    "build_result": "passed"
+  },
+  "runtime": {
+    "result": "crashed",
+    "incident_id": "B543DB3A-0007-4663-9272-BF656BE46F98",
+    "exception": "EXC_BREAKPOINT / SIGTRAP",
+    "source": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:147",
+    "failure": "Dictionary(uniqueKeysWithValues:) received more than one path carrying the same stable filesystem object identity during the first post-permission observation."
+  },
+  "contract_impact": [
+    "A hard-linked file can legitimately have multiple paths and one object identity.",
+    "A valid metadata observation must not crash reconciliation.",
+    "Hard-linked objects must not be presented as ordinary safe cleanup candidates because deleting one link may reclaim no blocks."
+  ],
+  "required_repair": "Reconcile duplicate object identities deterministically, preserve one physical object in current-state accounting, mark multi-link objects non-actionable, and cover startup plus repeated observations with regression tests."
+}

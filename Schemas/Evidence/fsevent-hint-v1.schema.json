@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/evidence/fsevent-hint-v1.schema.json",
+  "title": "Disk Steward FSEvents Hint v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "hint_id", "observation_id", "event_id", "observed_at", "path", "kind", "raw_flags", "requires_rescan", "signals", "limitations"],
+  "properties": {
+    "schema": {"const": "fsevent-hint-v1"},
+    "hint_id": {"type": "string", "minLength": 1},
+    "observation_id": {"type": "string", "minLength": 1},
+    "event_id": {"type": "integer", "minimum": 0},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "path": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["created", "removed", "renamed", "modified", "metadata-changed", "root-changed", "unknown"]},
+    "raw_flags": {"type": "integer", "minimum": 0},
+    "requires_rescan": {"type": "boolean"},
+    "signals": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  }
+}

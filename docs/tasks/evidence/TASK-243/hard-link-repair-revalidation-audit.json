@@ -1,0 +1,36 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-243",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-243-REVALIDATE-01",
+      "result": "passed",
+      "evidence": [
+        "TASK-241 now represents hard-linked paths as one physical current-state object, preventing double-counted retained state.",
+        "Multi-link records remain present evidence but non-actionable until only one link remains."
+      ]
+    },
+    {
+      "id": "CHECK-243-REVALIDATE-02",
+      "result": "passed",
+      "evidence": [
+        "Focused EvidenceRetentionLifecycleTests and EvidenceBundleExporterTests passed within 15 selected tests with zero failures.",
+        "The complete suite passed 143 tests with zero failures."
+      ]
+    },
+    {
+      "id": "CHECK-243-REVALIDATE-03",
+      "result": "passed",
+      "evidence": [
+        "The repaired live startup committed current state and retained the configured entry-cap limitation as a coverage gap.",
+        "No automatic deletion or export ownership behavior was introduced by the repair."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "OUTCOME-210",
+    "OUTCOME-220"
+  ],
+  "recommended_action": "advance"
+}

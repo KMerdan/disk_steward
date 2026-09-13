@@ -1,0 +1,46 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-390",
+  "outcome": "blocked",
+  "changed_files": [
+    "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "evidence-only",
+  "changes": [
+    {
+      "path": "docs/tasks/evidence/GATE-390/runtime-revalidation-blocked-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "swift test",
+      "result": "passed: 144 tests, 0 failures"
+    },
+    {
+      "command": "xcodebuild unsigned Debug build and live startup",
+      "result": "passed: native app outcome reverified"
+    },
+    {
+      "command": "Developer ID release prerequisite inspection",
+      "result": "blocked: no Developer ID Application identity with private key is available for Team G3P6TU385Y"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-390-02",
+      "result": "partially passed",
+      "reference": "The current unsigned development candidate passes the local journey; the nonexistent exported release cannot yet be launched."
+    },
+    {
+      "criterion": "AC-390-03",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/GATE-390/release-blocker.json"
+    }
+  ],
+  "discovered_risks": [
+    "AC-390-01 cannot be tested until the Account Holder provides a Developer ID Application identity and Apple produces a notarized, stapled exported app."
+  ],
+  "suggested_graph_changes": []
+}

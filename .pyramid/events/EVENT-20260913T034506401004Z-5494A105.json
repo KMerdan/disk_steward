@@ -1,0 +1,409 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T034506401004Z-5494A105",
+  "at": "2026-09-13T03:45:06.400806Z",
+  "graph_version": 69,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-241",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:43:58.830364Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+        "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+        "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 143 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/DiskStewardDerivedData CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed: menu-bar UI contract available"
+        },
+        {
+          "command": "live startup scan",
+          "result": "passed: process alive, observation committed, no new crash report"
+        },
+        {
+          "command": "git diff --check -- repair files",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        }
+      ],
+      "discovered_risks": [
+        "Hard-linked objects remain intentionally excluded from cleanup candidates until the filesystem reports one remaining link because deleting one link may reclaim no allocated blocks.",
+        "The live observation reached the configured entry cap and is correctly labeled partial."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-241",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-241-01",
+          "result": "passed",
+          "evidence": [
+            "Schema v2 retains v1 tables and adds scope_versions, observation_runs, observation_roots, file_objects, path_bindings, file_state_observations, current_file_state, change_events, and coverage_gaps",
+            "recordObservation applies all derived mutations inside one SQLite transaction and returns an existing observation without replay"
+          ]
+        },
+        {
+          "id": "CHECK-241-02",
+          "result": "passed",
+          "evidence": [
+            "EvidenceObjectLifecycleTests verifies complete A/B/C deletion and idempotent replay",
+            "Partial A/B/C keeps B unknown, non-actionable, and state-as-of O1 until a complete recovery observation"
+          ]
+        },
+        {
+          "id": "CHECK-241-03",
+          "result": "passed",
+          "evidence": [
+            "Identity-aware tests distinguish modify, truncate, rename, replacement/path reuse, scope entry, and scope exit",
+            "Scope removal emits scope-exit rather than deletion"
+          ]
+        },
+        {
+          "id": "CHECK-241-04",
+          "result": "passed",
+          "evidence": [
+            "Restart test reopens persisted state, records a bounded app-offline interval, and reconciles deletion only from a complete observation",
+            "Complete root coverage resolves earlier open root gaps without removing their history"
+          ]
+        },
+        {
+          "id": "CHECK-241-05",
+          "result": "passed",
+          "evidence": [
+            "swift test passed 111 tests with zero failures",
+            "git diff --check passed",
+            "Evidence contract explicitly limits hard-link, clone, compression, and path-temporal identity conclusions"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-13T03:30:01.966810Z",
+      "actor": "codex",
+      "reason": "Live unsigned Debug launch crashed after Downloads access because startup reconciliation assumed object identities were path-unique; hard-linked files legitimately violate that assumption.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/TASK-241/startup-hard-link-crash.json"
+    }
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:45:06.400596Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+        "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+        "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed: 143 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/DiskStewardDerivedData CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "built app --ui-smoke",
+          "result": "passed: menu-bar UI contract available"
+        },
+        {
+          "command": "live startup scan",
+          "result": "passed: process alive, observation committed, no new crash report"
+        },
+        {
+          "command": "git diff --check -- repair files",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+        }
+      ],
+      "discovered_risks": [
+        "Hard-linked objects remain intentionally excluded from cleanup candidates until the filesystem reports one remaining link because deleting one link may reclaim no allocated blocks.",
+        "The live observation reached the configured entry cap and is correctly labeled partial."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-241",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-241-HARDLINK-01",
+          "result": "passed",
+          "evidence": [
+            "The real startup crash is preserved in docs/tasks/evidence/TASK-241/startup-hard-link-crash.json.",
+            "EvidenceObjectLifecycleTests proves two paths with one object identity reconcile as one physical object without a trap."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-02",
+          "result": "passed",
+          "evidence": [
+            "Hard-link path removal closes only the removed binding and emits neither false rename nor false deletion.",
+            "The last-link deletion produces a deletion only after complete relevant-root coverage."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-03",
+          "result": "passed",
+          "evidence": [
+            "DirectoryMetadataScanner reads st_nlink and its filesystem test creates a real hard link.",
+            "Multi-link objects are retained for evidence but excluded from actionable current-file reads."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-04",
+          "result": "passed",
+          "evidence": [
+            "Duplicate root-coverage input now fails as invalid before any transaction write.",
+            "The complete suite passed 143 tests with zero failures and the unsigned Xcode Debug build succeeded."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-05",
+          "result": "passed",
+          "evidence": [
+            "The repaired build completed a real startup scan, committed observation-16efe2fe40b3eac9, and remained alive beyond 69 seconds.",
+            "No new Disk Steward diagnostic crash report appeared after launch; the scan-cap limitation was persisted as partial coverage."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-13T03:30:01.966810Z",
+      "actor": "codex",
+      "reason": "Live unsigned Debug launch crashed after Downloads access because startup reconciliation assumed object identities were path-unique; hard-linked files legitimately violate that assumption.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/TASK-241/startup-hard-link-crash.json"
+    }
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-241",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-241-HARDLINK-01",
+          "result": "passed",
+          "evidence": [
+            "The real startup crash is preserved in docs/tasks/evidence/TASK-241/startup-hard-link-crash.json.",
+            "EvidenceObjectLifecycleTests proves two paths with one object identity reconcile as one physical object without a trap."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-02",
+          "result": "passed",
+          "evidence": [
+            "Hard-link path removal closes only the removed binding and emits neither false rename nor false deletion.",
+            "The last-link deletion produces a deletion only after complete relevant-root coverage."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-03",
+          "result": "passed",
+          "evidence": [
+            "DirectoryMetadataScanner reads st_nlink and its filesystem test creates a real hard link.",
+            "Multi-link objects are retained for evidence but excluded from actionable current-file reads."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-04",
+          "result": "passed",
+          "evidence": [
+            "Duplicate root-coverage input now fails as invalid before any transaction write.",
+            "The complete suite passed 143 tests with zero failures and the unsigned Xcode Debug build succeeded."
+          ]
+        },
+        {
+          "id": "CHECK-241-HARDLINK-05",
+          "result": "passed",
+          "evidence": [
+            "The repaired build completed a real startup scan, committed observation-16efe2fe40b3eac9, and remained alive beyond 69 seconds.",
+            "No new Disk Steward diagnostic crash report appeared after launch; the scan-cap limitation was persisted as partial coverage."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-1D247AF47E4CD8D213D140BA10EE44A5",
+  "previous_event_id": "EVENT-20260913T034358830742Z-3357A7FF",
+  "previous_event_sha256": "7dab81bce17056c945982b99b0ce2cdb9bcbc85a2df0f6a4e75de407af2a9271"
+}

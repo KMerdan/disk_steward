@@ -1,0 +1,287 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T053051393454Z-6744E52D",
+  "at": "2026-09-13T05:30:51.393277Z",
+  "graph_version": 93,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "CONTRACT-250",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:29:26.071459Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-250",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/export-manifest-v1.schema.json",
+        "docs/architecture/evidence-export.md",
+        "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+        "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+        "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/export-manifest-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/architecture/evidence-export.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'ContractTests|SnapshotExporterTests'",
+          "result": "passed: 27 tests, 0 failures"
+        },
+        {
+          "command": "jq empty on export and evidence contract schemas and fixtures",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-C250-01",
+          "result": "passed",
+          "reference": "actionable-export-v1 scope object and evidence-export.md scope vocabulary remain unchanged"
+        },
+        {
+          "criterion": "AC-C250-02",
+          "result": "passed",
+          "reference": "EvidenceUsefulnessContractTests still rejects the capacity-only fixture while SnapshotExporterTests pass"
+        },
+        {
+          "criterion": "AC-C250-03",
+          "result": "passed",
+          "reference": "actionable brief schema and decision order remain enforced"
+        },
+        {
+          "criterion": "AC-C250-04",
+          "result": "passed",
+          "reference": "scan-generation contract tests remain green"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-250",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-C250-REGRESSION-01",
+          "result": "failed",
+          "evidence": [
+            "swift test: SnapshotExporterTests.testExportIsDeterministicSchemaValidAndIntegrityChecked failed because export-manifest-v1 required 11 files",
+            "swift test: SnapshotExporterTests.testLiveCurrentDataVolumeCanBeExported failed for the same compatibility reason"
+          ]
+        },
+        {
+          "id": "CHECK-C250-BOUNDARY-02",
+          "result": "passed",
+          "evidence": [
+            "Schemas/Evidence/actionable-export-v1.schema.json already owns the eleven-payload actionable-bundle requirement"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-250",
+        "TASK-251"
+      ],
+      "recommended_action": "Repair export-manifest-v1 so it remains the shared integrity envelope, keep required actionable roles in actionable-export-v1 and semantic contract tests, rerun the full regression suite, then re-audit."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:30:51.393187Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-250",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/export-manifest-v1.schema.json",
+        "docs/architecture/evidence-export.md",
+        "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+        "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+        "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/export-manifest-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/architecture/evidence-export.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'ContractTests|SnapshotExporterTests'",
+          "result": "passed: 27 tests, 0 failures"
+        },
+        {
+          "command": "jq empty on export and evidence contract schemas and fixtures",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-C250-01",
+          "result": "passed",
+          "reference": "actionable-export-v1 scope object and evidence-export.md scope vocabulary remain unchanged"
+        },
+        {
+          "criterion": "AC-C250-02",
+          "result": "passed",
+          "reference": "EvidenceUsefulnessContractTests still rejects the capacity-only fixture while SnapshotExporterTests pass"
+        },
+        {
+          "criterion": "AC-C250-03",
+          "result": "passed",
+          "reference": "actionable brief schema and decision order remain enforced"
+        },
+        {
+          "criterion": "AC-C250-04",
+          "result": "passed",
+          "reference": "scan-generation contract tests remain green"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-250",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-C250-REPAIR-01",
+          "result": "passed",
+          "evidence": [
+            "Schemas/export-manifest-v1.schema.json retains minItems: 1 for the shared integrity envelope",
+            "Schemas/Evidence/actionable-export-v1.schema.json retains the eleven required actionable payload roles"
+          ]
+        },
+        {
+          "id": "CHECK-C250-REPAIR-02",
+          "result": "passed",
+          "evidence": [
+            "docs/architecture/evidence-export.md documents the generic-manifest/actionable-contract boundary",
+            "docs/tasks/evidence/CONTRACT-250/contract-review.md records the compatibility repair"
+          ]
+        },
+        {
+          "id": "CHECK-C250-REPAIR-03",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter 'ContractTests|SnapshotExporterTests': 27 tests passed, 0 failures"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-250"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-250",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-C250-REPAIR-01",
+          "result": "passed",
+          "evidence": [
+            "Schemas/export-manifest-v1.schema.json retains minItems: 1 for the shared integrity envelope",
+            "Schemas/Evidence/actionable-export-v1.schema.json retains the eleven required actionable payload roles"
+          ]
+        },
+        {
+          "id": "CHECK-C250-REPAIR-02",
+          "result": "passed",
+          "evidence": [
+            "docs/architecture/evidence-export.md documents the generic-manifest/actionable-contract boundary",
+            "docs/tasks/evidence/CONTRACT-250/contract-review.md records the compatibility repair"
+          ]
+        },
+        {
+          "id": "CHECK-C250-REPAIR-03",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter 'ContractTests|SnapshotExporterTests': 27 tests passed, 0 failures"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-250"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-7B73A2C47B155CE7F636767B9CE961A2",
+  "previous_event_id": "EVENT-20260913T052926071711Z-D0F4896C",
+  "previous_event_sha256": "4567dfcc672946a71210ed2eafd422b958e52680959d3097fe5535230c995f66"
+}

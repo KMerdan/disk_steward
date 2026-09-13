@@ -1,0 +1,26 @@
+{
+  "schema": "scan-generation-scenario-v1",
+  "scenario_id": "multi-slice-completion",
+  "root": "/watched",
+  "entry_cap": 2,
+  "generations": [
+    {
+      "generation_id": "G1",
+      "scope_version": "scope-1",
+      "state": "complete",
+      "abandonment_reason": null,
+      "slices": [
+        {"slice_index": 0, "cursor_before": null, "cursor_after": "frontier-2", "staged_objects": 2, "restart_boundary": false, "has_more": true, "authoritative_reconciliation": false},
+        {"slice_index": 1, "cursor_before": "frontier-2", "cursor_after": "frontier-4", "staged_objects": 4, "restart_boundary": false, "has_more": true, "authoritative_reconciliation": false},
+        {"slice_index": 2, "cursor_before": "frontier-4", "cursor_after": null, "staged_objects": 5, "restart_boundary": false, "has_more": false, "authoritative_reconciliation": true}
+      ]
+    }
+  ],
+  "expectations": {
+    "completed_generation_id": "G1",
+    "current_state_source": "G1",
+    "change_history_source": "G1",
+    "entry_cap_gap": "resolved",
+    "absence_action": "reconcile-after-completion"
+  }
+}

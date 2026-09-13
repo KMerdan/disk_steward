@@ -18,7 +18,7 @@ final class DiskStewardMCPTests: XCTestCase {
         let listed = try response(server, request(id: 2, method: "tools/list", params: [:]))
         let tools = try XCTUnwrap(listed.objectValue?["result"]?.objectValue?["tools"])
         guard case let .array(entries) = tools else { return XCTFail("missing tools") }
-        XCTAssertEqual(entries.count, 7)
+        XCTAssertEqual(entries.count, MCPToolCatalog.names.count)
         XCTAssertEqual(Set(entries.compactMap { $0.objectValue?["name"]?.stringValue }), Set(MCPToolCatalog.names))
         for entry in entries {
             let annotations = try XCTUnwrap(entry.objectValue?["annotations"]?.objectValue)
@@ -75,6 +75,16 @@ final class DiskStewardMCPTests: XCTestCase {
     }
 
     func testUnavailableAppAndInsecureSocketReturnActionableErrors() throws {
+        let disabled = initializedServer(client: FakeIPCClient(error: DiskStewardIPCError.agentAccessDisabled))
+        let disabledOutput = try response(disabled, request(id: 60, method: "tools/call", params: [
+            "name": .string("get_storage_summary"), "arguments": .object([:]),
+        ]))
+        let disabledResult = try XCTUnwrap(disabledOutput.objectValue?["result"]?.objectValue)
+        XCTAssertEqual(disabledResult["isError"], .bool(true))
+        XCTAssertEqual(disabledResult["structuredContent"]?.objectValue?["code"], .string("agent_access_disabled"))
+        XCTAssertEqual(disabledResult["structuredContent"]?.objectValue?["retryable"], .bool(false))
+        XCTAssertTrue(disabledResult["structuredContent"]?.objectValue?["recovery"]?.stringValue?.contains("turn on Agent Access") == true)
+
         let unavailable = initializedServer(client: FakeIPCClient(error: DiskStewardIPCError.appUnavailable))
         let output = try response(unavailable, request(id: 6, method: "tools/call", params: [
             "name": .string("get_storage_summary"), "arguments": .object([:]),

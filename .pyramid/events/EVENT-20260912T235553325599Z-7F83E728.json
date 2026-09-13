@@ -1,0 +1,391 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T235553325599Z-7F83E728",
+  "at": "2026-09-12T23:55:53.325448Z",
+  "graph_version": 19,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-230",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:55:15.713249Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-230",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+        "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+        "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+        "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+        "Sources/DiskStewardMCP/MCPServer.swift",
+        "Sources/DiskStewardMCP/main.swift",
+        "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+        "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+        "docs/tasks/evidence/TASK-230/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter MCPAccessTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 116 tests, 0 failures"
+        },
+        {
+          "command": "./Scripts/Development/build_xcode_project",
+          "result": "passed: signed Debug app build succeeded"
+        },
+        {
+          "command": "codesign --verify --deep --strict --verbose=2 <Debug app>",
+          "result": "passed"
+        },
+        {
+          "command": "<Debug app executable> --ui-smoke",
+          "result": "passed: agent_access off and ipc_service off"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-230-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-230-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift and Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift"
+        },
+        {
+          "criterion": "AC-230-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-230/agent-access-verification.md"
+        },
+        {
+          "criterion": "AC-230-04",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift and Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:55:53.325287Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-230",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+        "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+        "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+        "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+        "Sources/DiskStewardMCP/MCPServer.swift",
+        "Sources/DiskStewardMCP/main.swift",
+        "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+        "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+        "docs/tasks/evidence/TASK-230/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter MCPAccessTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 116 tests, 0 failures"
+        },
+        {
+          "command": "./Scripts/Development/build_xcode_project",
+          "result": "passed: signed Debug app build succeeded"
+        },
+        {
+          "command": "codesign --verify --deep --strict --verbose=2 <Debug app>",
+          "result": "passed"
+        },
+        {
+          "command": "<Debug app executable> --ui-smoke",
+          "result": "passed: agent_access off and ipc_service off"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-230-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-230-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift and Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift"
+        },
+        {
+          "criterion": "AC-230-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-230/agent-access-verification.md"
+        },
+        {
+          "criterion": "AC-230-04",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift and Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-230",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-230-01",
+          "result": "passed",
+          "evidence": [
+            "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+            "Fresh state defaults off; enable and disable persist across store reconstruction"
+          ]
+        },
+        {
+          "id": "CHECK-230-02",
+          "result": "passed",
+          "evidence": [
+            "Real Unix socket accepted a read query only while enabled, was current-user 0600, and was removed on disable",
+            "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift returns agent_access_disabled with explicit recovery"
+          ]
+        },
+        {
+          "id": "CHECK-230-03",
+          "result": "passed",
+          "evidence": [
+            "Non-mutation sentinels prove evidence, monitoring settings, Codex config, and Claude config remain unchanged",
+            "Full 116-test regression preserves the read-only catalog and private local IPC boundary"
+          ]
+        },
+        {
+          "id": "CHECK-230-04",
+          "result": "passed",
+          "evidence": [
+            "Off, Starting, On, and Needs Attention have distinct textual and accessibility summaries",
+            "Signed Xcode UI smoke reports agent_access off and ipc_service off from the same controller state"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-103",
+        "REQ-104",
+        "REQ-106",
+        "REQ-107",
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-230",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-230-01",
+          "result": "passed",
+          "evidence": [
+            "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+            "Fresh state defaults off; enable and disable persist across store reconstruction"
+          ]
+        },
+        {
+          "id": "CHECK-230-02",
+          "result": "passed",
+          "evidence": [
+            "Real Unix socket accepted a read query only while enabled, was current-user 0600, and was removed on disable",
+            "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift returns agent_access_disabled with explicit recovery"
+          ]
+        },
+        {
+          "id": "CHECK-230-03",
+          "result": "passed",
+          "evidence": [
+            "Non-mutation sentinels prove evidence, monitoring settings, Codex config, and Claude config remain unchanged",
+            "Full 116-test regression preserves the read-only catalog and private local IPC boundary"
+          ]
+        },
+        {
+          "id": "CHECK-230-04",
+          "result": "passed",
+          "evidence": [
+            "Off, Starting, On, and Needs Attention have distinct textual and accessibility summaries",
+            "Signed Xcode UI smoke reports agent_access off and ipc_service off from the same controller state"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-103",
+        "REQ-104",
+        "REQ-106",
+        "REQ-107",
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 1,
+  "context_id": "CTX-CCF03399FCD1AB54A4E54778A25272A5",
+  "previous_event_id": "EVENT-20260912T235515713598Z-A1A33AF4",
+  "previous_event_sha256": "b9eb40f63b840b3e1c982b6ea5ac8c60c1c7a8fd38d174bd8f7e8cb30f84bd11"
+}

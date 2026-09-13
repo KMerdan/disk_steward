@@ -1,0 +1,37 @@
+{
+  "schema": "audit-result-v1",
+  "target": "RISK-320",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-320-NEGATIVE-01",
+      "result": "passed",
+      "evidence": [
+        "DistributionReleaseIntegrityTests passed all five tests against the current candidate",
+        "The actual verifier rejects missing nested helper code, wrong bundle identity, unsigned artifacts, invalid entitlement sets, and incomplete Developer ID fixtures"
+      ]
+    },
+    {
+      "id": "CHECK-320-SECRETS-01",
+      "result": "passed",
+      "evidence": [
+        "Repository release surfaces passed the credential-material regression and standard versus optional entitlements remain separated",
+        "The release handoff reads no certificate fingerprint, private key, account password, or notarization credential"
+      ]
+    },
+    {
+      "id": "CHECK-320-ACTUAL-ARTIFACT-01",
+      "result": "passed",
+      "evidence": [
+        "The handoff rehearsal inspected the actual constructed archive and nested MCP helper, then correctly rejected the unsigned artifact",
+        "A successful compile or Apple Development signature is never represented as direct-distribution success"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "RISK-320",
+    "GATE-390",
+    "OUTCOME-220"
+  ],
+  "recommended_action": "Promote RISK-320 and run the final gate, which must remain blocked until a real Developer ID Application signed, notarized, and stapled artifact exists."
+}

@@ -1,0 +1,361 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T054437111989Z-D9BEB315",
+  "at": "2026-09-13T05:44:37.111826Z",
+  "graph_version": 99,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-250",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:44:13.638408Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-250",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "docs/tasks/evidence/TASK-250/convergent-scan-verification.md",
+        "docs/tasks/evidence/TASK-250/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-250/convergent-scan-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-250/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'MonitoringTests|EvidenceObjectLifecycleTests|ConvergentScanGenerationTests|MonitoringLifecycleTests|EvidenceStoreTests'",
+          "result": "passed: 30 tests, 0 failures"
+        },
+        {
+          "command": "swift test --filter 'ConvergentScanGenerationTests|MonitoringLifecycleTests|EvidenceObjectLifecycleTests'",
+          "result": "passed: 13 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 155 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check on TASK-250 scope",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-250-01",
+          "result": "passed",
+          "reference": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift schema-v5 scan tables and recordScanSlice"
+        },
+        {
+          "criterion": "AC-250-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:testSmallSlicesResumeReconcileOnlyWhenCompleteAndDeleteBAfterFullSecondGeneration"
+        },
+        {
+          "criterion": "AC-250-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:testInvalidCursorAndScopeChangeAbandonStagingWithoutInventingDeletion"
+        },
+        {
+          "criterion": "AC-250-04",
+          "result": "passed",
+          "reference": "EvidenceScanCoverageStatus, EvidenceLifecycleStatus.scanCoverage, and synthetic scan-generation-incomplete query gaps"
+        },
+        {
+          "criterion": "EVREQ-250-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-250/convergent-scan-verification.md"
+        }
+      ],
+      "discovered_risks": [
+        "A human evidence export created during an active generation must read the new scan-generation tables so it cannot present the preceding completed observation as current without disclosing in-progress coverage."
+      ],
+      "suggested_graph_changes": [
+        "Re-audit TASK-251 against schema-v5 and extend coverage.json/brief with active generation progress before GATE-290."
+      ]
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:44:37.111737Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-250",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "docs/tasks/evidence/TASK-250/convergent-scan-verification.md",
+        "docs/tasks/evidence/TASK-250/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-250/convergent-scan-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-250/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'MonitoringTests|EvidenceObjectLifecycleTests|ConvergentScanGenerationTests|MonitoringLifecycleTests|EvidenceStoreTests'",
+          "result": "passed: 30 tests, 0 failures"
+        },
+        {
+          "command": "swift test --filter 'ConvergentScanGenerationTests|MonitoringLifecycleTests|EvidenceObjectLifecycleTests'",
+          "result": "passed: 13 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 155 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check on TASK-250 scope",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-250-01",
+          "result": "passed",
+          "reference": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift schema-v5 scan tables and recordScanSlice"
+        },
+        {
+          "criterion": "AC-250-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:testSmallSlicesResumeReconcileOnlyWhenCompleteAndDeleteBAfterFullSecondGeneration"
+        },
+        {
+          "criterion": "AC-250-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:testInvalidCursorAndScopeChangeAbandonStagingWithoutInventingDeletion"
+        },
+        {
+          "criterion": "AC-250-04",
+          "result": "passed",
+          "reference": "EvidenceScanCoverageStatus, EvidenceLifecycleStatus.scanCoverage, and synthetic scan-generation-incomplete query gaps"
+        },
+        {
+          "criterion": "EVREQ-250-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-250/convergent-scan-verification.md"
+        }
+      ],
+      "discovered_risks": [
+        "A human evidence export created during an active generation must read the new scan-generation tables so it cannot present the preceding completed observation as current without disclosing in-progress coverage."
+      ],
+      "suggested_graph_changes": [
+        "Re-audit TASK-251 against schema-v5 and extend coverage.json/brief with active generation progress before GATE-290."
+      ]
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-250",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-250-01",
+          "result": "passed",
+          "evidence": [
+            "Schema version 5 persists scan generations and path-keyed staged metadata separately from authoritative current state",
+            "DirectoryMetadataScanner.scanSlice persists per-directory child cursors and caps each slice by the configured entry budget"
+          ]
+        },
+        {
+          "id": "CHECK-250-02",
+          "result": "passed",
+          "evidence": [
+            "ConvergentScanGenerationTests proves restart resumes the same generation and B remains until complete second-generation reconciliation",
+            "Completion uses a stable generation observation identifier and removes staging only after idempotent observation commit"
+          ]
+        },
+        {
+          "id": "CHECK-250-03",
+          "result": "passed",
+          "evidence": [
+            "ConvergentScanGenerationTests proves invalid cursor and changed scope abandon staging without current-state mutation or deletion",
+            "Generation history is capped and completed/abandoned staging rows are deleted"
+          ]
+        },
+        {
+          "id": "CHECK-250-04",
+          "result": "passed",
+          "evidence": [
+            "EvidenceScanCoverageStatus and lifecycleStatus disclose roots, exclusions, current progress, last completion, and partial/complete/stale state",
+            "Active generations appear as scan-generation-incomplete lifecycle/query gaps"
+          ]
+        },
+        {
+          "id": "CHECK-250-05",
+          "result": "passed",
+          "evidence": [
+            "swift test: 155 tests passed, 0 failures",
+            "git diff --check on TASK-250 scope: passed",
+            "docs/tasks/evidence/TASK-250/convergent-scan-verification.md"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-250"
+      ],
+      "recommended_action": "advance; re-audit TASK-251 integration so exported coverage includes active generation state"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-250",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-250-01",
+          "result": "passed",
+          "evidence": [
+            "Schema version 5 persists scan generations and path-keyed staged metadata separately from authoritative current state",
+            "DirectoryMetadataScanner.scanSlice persists per-directory child cursors and caps each slice by the configured entry budget"
+          ]
+        },
+        {
+          "id": "CHECK-250-02",
+          "result": "passed",
+          "evidence": [
+            "ConvergentScanGenerationTests proves restart resumes the same generation and B remains until complete second-generation reconciliation",
+            "Completion uses a stable generation observation identifier and removes staging only after idempotent observation commit"
+          ]
+        },
+        {
+          "id": "CHECK-250-03",
+          "result": "passed",
+          "evidence": [
+            "ConvergentScanGenerationTests proves invalid cursor and changed scope abandon staging without current-state mutation or deletion",
+            "Generation history is capped and completed/abandoned staging rows are deleted"
+          ]
+        },
+        {
+          "id": "CHECK-250-04",
+          "result": "passed",
+          "evidence": [
+            "EvidenceScanCoverageStatus and lifecycleStatus disclose roots, exclusions, current progress, last completion, and partial/complete/stale state",
+            "Active generations appear as scan-generation-incomplete lifecycle/query gaps"
+          ]
+        },
+        {
+          "id": "CHECK-250-05",
+          "result": "passed",
+          "evidence": [
+            "swift test: 155 tests passed, 0 failures",
+            "git diff --check on TASK-250 scope: passed",
+            "docs/tasks/evidence/TASK-250/convergent-scan-verification.md"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-250"
+      ],
+      "recommended_action": "advance; re-audit TASK-251 integration so exported coverage includes active generation state"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-E57DD4EAAC007D5225ABD52BC7D728B7",
+  "previous_event_id": "EVENT-20260913T054413638665Z-1EAC426B",
+  "previous_event_sha256": "21c17a23ee4c1aced568520e35c2cb2496a530c18bb2b578629352dbf83575ff"
+}

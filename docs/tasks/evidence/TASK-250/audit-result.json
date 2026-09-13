@@ -1,0 +1,52 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-250",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-250-01",
+      "result": "passed",
+      "evidence": [
+        "Schema version 5 persists scan generations and path-keyed staged metadata separately from authoritative current state",
+        "DirectoryMetadataScanner.scanSlice persists per-directory child cursors and caps each slice by the configured entry budget"
+      ]
+    },
+    {
+      "id": "CHECK-250-02",
+      "result": "passed",
+      "evidence": [
+        "ConvergentScanGenerationTests proves restart resumes the same generation and B remains until complete second-generation reconciliation",
+        "Completion uses a stable generation observation identifier and removes staging only after idempotent observation commit"
+      ]
+    },
+    {
+      "id": "CHECK-250-03",
+      "result": "passed",
+      "evidence": [
+        "ConvergentScanGenerationTests proves invalid cursor and changed scope abandon staging without current-state mutation or deletion",
+        "Generation history is capped and completed/abandoned staging rows are deleted"
+      ]
+    },
+    {
+      "id": "CHECK-250-04",
+      "result": "passed",
+      "evidence": [
+        "EvidenceScanCoverageStatus and lifecycleStatus disclose roots, exclusions, current progress, last completion, and partial/complete/stale state",
+        "Active generations appear as scan-generation-incomplete lifecycle/query gaps"
+      ]
+    },
+    {
+      "id": "CHECK-250-05",
+      "result": "passed",
+      "evidence": [
+        "swift test: 155 tests passed, 0 failures",
+        "git diff --check on TASK-250 scope: passed",
+        "docs/tasks/evidence/TASK-250/convergent-scan-verification.md"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-250"
+  ],
+  "recommended_action": "advance; re-audit TASK-251 integration so exported coverage includes active generation state"
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "audit-result-v1",
+  "target": "RISK-320",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-320-01",
+      "result": "passed",
+      "evidence": [
+        "Twelve policy observations include one accepted complete Developer ID fixture and eleven precise failure modes",
+        "Actual verifier rejected missing helper, wrong application identifier, and unsigned nested code",
+        "Production controls bind exact app/helper IDs, Developer ID authority, Team ID, timestamp, runtime, exact standard entitlements, staple, and Gatekeeper"
+      ]
+    },
+    {
+      "id": "CHECK-320-02",
+      "result": "passed",
+      "evidence": [
+        "Standard and optional Endpoint Security entitlement key sets were decoded and compared",
+        "Credential scan found no private-key block, stored notary credentials, or inline Apple/notary password assignment",
+        "Two gaps discovered by the suite caused TASK-310 reopen-repair-reaudit cycles before this risk control was accepted"
+      ]
+    },
+    {
+      "id": "CHECK-320-03",
+      "result": "passed",
+      "evidence": [
+        "verify-release accepts only an actual .app or the sole app in an actual .xcarchive",
+        "Unsigned Release archive construction succeeds but release verification rejects it",
+        "140 tests pass and git diff --check passes"
+      ]
+    }
+  ],
+  "affected_claims": ["REQ-109", "OUTCOME-220"],
+  "recommended_action": "advance"
+}

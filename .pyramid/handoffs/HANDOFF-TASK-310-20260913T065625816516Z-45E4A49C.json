@@ -1,0 +1,106 @@
+{
+  "schema": "pyramid-handoff-v1",
+  "id": "HANDOFF-TASK-310-20260913T065625816516Z-45E4A49C",
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "task": "TASK-310",
+  "graph_version": 123,
+  "actor": "codex",
+  "pause_mode": "handoff",
+  "reason": "Waiting for the user-owned Xcode Organizer notarization submission and notarized app export.",
+  "created_at": "2026-09-13T06:56:25.816510Z",
+  "resume_deadline": null,
+  "summary": "Target-specific Developer ID profile signing is repaired and a strictly verified signed archive is open in Xcode Organizer; Apple notarization and notarized export remain user-owned.",
+  "progress": [
+    "Verified the installed Disk Steward Developer ID Distribution profile targets G3P6TU385Y.com.marudankiji.disksteward and authorizes group.com.marudankiji.disksteward.",
+    "Observed that the app needs the profile while disk-witness-mcp must remain profile-free.",
+    "Replanned only TASK-310 write scope in plan revision 8; no nodes, edges, intent criteria, or release gates changed.",
+    "Added target-specific Release provisioning settings to Config/Packaging/project.yml and regenerated the Xcode project and both shared schemes.",
+    "Created the real signed archive at /Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive.",
+    "Verified outside the restricted shell that the app and MCP helper are valid Developer ID Application signatures with hardened runtime and secure timestamps.",
+    "Opened the archive in Xcode Organizer."
+  ],
+  "changed_files": [
+    "Config/Packaging/project.yml",
+    "DiskSteward.xcodeproj/project.pbxproj",
+    "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+    "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme"
+  ],
+  "changed_assets": [],
+  "checks": [
+    {
+      "command": "Inspect installed Disk Steward Developer ID Distribution provisioning profile",
+      "result": "passed",
+      "notes": "Profile UUID 193d15aa-43f8-4477-bdab-58cf2e59964f targets the canonical app, authorizes the canonical App Group, contains the selected Developer ID Application certificate, and expires 2044-09-08. No private key was read or stored."
+    },
+    {
+      "command": "xcodegen generate --spec Config/Packaging/project.yml --project-root . --project .",
+      "result": "passed",
+      "notes": "Regenerated project.pbxproj plus DiskSteward and DiskSteward-Release shared schemes with app-only profile selection and an empty helper profile selector."
+    },
+    {
+      "command": "Scripts/Distribution/archive-release --release /Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive",
+      "result": "passed",
+      "notes": "Release preflight passed and Xcode created the archive. The only warning was a missing App Category, which does not affect signature validity."
+    },
+    {
+      "command": "codesign --verify --deep --strict --verbose=4 <archived Disk Steward.app>",
+      "result": "passed",
+      "notes": "Normal macOS code-signing services validated the app and nested MCP helper. A prior restricted-shell result was a sandbox/trust-service false negative and was not used as evidence."
+    },
+    {
+      "command": "codesign -dv --verbose=4 <app and helper>; codesign --display --entitlements - <app>",
+      "result": "passed",
+      "notes": "Both executables use Developer ID Application: Marudan Kiji (G3P6TU385Y), Team G3P6TU385Y, runtime flag 0x10000, and secure timestamps. The app contains only the expected application identifier, team identifier, and group.com.marudankiji.disksteward App Group entitlement."
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Apply the provisioning profile only to the DiskSteward application target and explicitly clear it for disk-witness-mcp.",
+      "rationale": "An application bundle can embed the profile authorizing App Groups, while the nested command-line executable cannot accept a provisioning profile and needs only its Developer ID signature.",
+      "reference": "Config/Packaging/project.yml"
+    }
+  ],
+  "assumptions": [
+    "The user will use the Apple account already connected to Xcode Organizer to submit this exact archive for notarization."
+  ],
+  "blockers": [
+    "Apple notarization submission, acceptance, ticket stapling, and notarized app export have not yet occurred."
+  ],
+  "risks": [
+    "The archive must not be distributed until Apple accepts notarization and the exact exported app passes staple and Gatekeeper verification.",
+    "The App Category warning should be repaired before a polished public release, although it does not invalidate the current signature or notarization test."
+  ],
+  "next_steps": [
+    "In Xcode Organizer select the Disk Steward archive and click Distribute App.",
+    "Choose Developer ID, then Upload, follow Xcode's signing review, and submit to Apple.",
+    "Wait until Xcode reports the archive is ready to distribute or otherwise shows notarization success.",
+    "Export the notarized app to a known folder without modifying it.",
+    "Resume TASK-310 from this canonical handoff, record the exported app path, run Scripts/Distribution/verify-release on the exact app, and finish the remaining Pyramid audits."
+  ],
+  "recommended_first_action": "Complete Xcode Organizer: Distribute App > Developer ID > Upload for the already-open archive, then export the notarized app after Apple accepts it.",
+  "context_references": [
+    "Config/Packaging/project.yml",
+    "DiskSteward.xcodeproj/project.pbxproj",
+    "Scripts/Distribution/archive-release",
+    "Scripts/Distribution/verify-release",
+    "docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json",
+    "/Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive"
+  ],
+  "external_session_refs": [
+    "Xcode Organizer with DiskSteward-Release-2026-09-13.xcarchive open"
+  ],
+  "running_resources": [],
+  "fingerprint": {
+    "plan_sha256": "59a4063a5ef2bdfb84be1b6b8fadd1bf30d07c1deefde69dd6c2353038000893",
+    "baseline_sha256": null,
+    "assurance_sha256": null,
+    "worktree": {
+      "kind": "git",
+      "head": "8d88cb0d9e41baec2d274585d00b1c5b3982af4e",
+      "branch": "main",
+      "unstaged_sha256": "8bfc9e2d2548d9496af5c13593ba077878cad8b78433bd00214c260631fd9868",
+      "staged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_sha256": "dbe52e6b3986ed8e9219ad6eacc31c7c545ea50aab7c0e38ca72927e59b65f28"
+    }
+  }
+}

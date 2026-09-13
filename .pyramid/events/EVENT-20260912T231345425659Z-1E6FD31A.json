@@ -1,0 +1,281 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T231345425659Z-1E6FD31A",
+  "at": "2026-09-12T23:13:45.425478Z",
+  "graph_version": 6,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "CONTRACT-240",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T01:08:09.760381Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:08:09.760548Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:13:45.425277Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-240",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+        "Schemas/MCP/evidence-query-page-v1.schema.json",
+        "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+        "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+        "docs/architecture/evidence-object-lifecycle.md",
+        "docs/architecture/evidence-contract.md",
+        "docs/architecture/mcp.md",
+        "docs/operations/privacy-and-retention.md",
+        "docs/tasks/evidence/CONTRACT-240/contract-review.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/MCP/evidence-query-page-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-object-lifecycle.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-contract.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/mcp.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-240/contract-review.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "jsonschema abc-complete-deletion.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jsonschema abc-partial-observation.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jq empty on both new schemas and fixtures",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 105 tests, 0 failures"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-240-01",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md object lifecycle matrix"
+        },
+        {
+          "criterion": "AC-240-02",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md invariants and reconciliation state machine"
+        },
+        {
+          "criterion": "AC-240-03",
+          "result": "passed",
+          "reference": "partial coverage rules and abc-partial-observation.json"
+        },
+        {
+          "criterion": "AC-240-04",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md questions, timestamps, coverage and honest filesystem limits; Schemas/MCP/evidence-query-page-v1.schema.json"
+        },
+        {
+          "criterion": "AC-240-05",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md atomicity, recovery, migration and replay invariants"
+        },
+        {
+          "criterion": "AC-240-06",
+          "result": "passed",
+          "reference": "validated complete and partial A/B/C fixtures"
+        }
+      ],
+      "discovered_risks": [
+        "Periodic observation cannot discover a file created and deleted entirely between observations without a direct event source.",
+        "APFS sharing, clones, compression and hard links limit exact reclaimable-byte claims.",
+        "The planned Scripts/Contracts/validate.sh wrapper does not exist; equivalent jsonschema validation was executed directly."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-240",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+        "Schemas/MCP/evidence-query-page-v1.schema.json",
+        "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+        "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+        "docs/architecture/evidence-object-lifecycle.md",
+        "docs/architecture/evidence-contract.md",
+        "docs/architecture/mcp.md",
+        "docs/operations/privacy-and-retention.md",
+        "docs/tasks/evidence/CONTRACT-240/contract-review.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/MCP/evidence-query-page-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-object-lifecycle.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-contract.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/mcp.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-240/contract-review.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "jsonschema abc-complete-deletion.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jsonschema abc-partial-observation.json reconciliation-scenario-v1.schema.json",
+          "result": "passed"
+        },
+        {
+          "command": "jq empty on both new schemas and fixtures",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 105 tests, 0 failures"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-240-01",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md object lifecycle matrix"
+        },
+        {
+          "criterion": "AC-240-02",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md invariants and reconciliation state machine"
+        },
+        {
+          "criterion": "AC-240-03",
+          "result": "passed",
+          "reference": "partial coverage rules and abc-partial-observation.json"
+        },
+        {
+          "criterion": "AC-240-04",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md questions, timestamps, coverage and honest filesystem limits; Schemas/MCP/evidence-query-page-v1.schema.json"
+        },
+        {
+          "criterion": "AC-240-05",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md atomicity, recovery, migration and replay invariants"
+        },
+        {
+          "criterion": "AC-240-06",
+          "result": "passed",
+          "reference": "validated complete and partial A/B/C fixtures"
+        }
+      ],
+      "discovered_risks": [
+        "Periodic observation cannot discover a file created and deleted entirely between observations without a direct event source.",
+        "APFS sharing, clones, compression and hard links limit exact reclaimable-byte claims.",
+        "The planned Scripts/Contracts/validate.sh wrapper does not exist; equivalent jsonschema validation was executed directly."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 1,
+  "context_id": "CTX-7208C6242148062127A68E83FCF8DDC2",
+  "previous_event_id": "EVENT-20260912T230809760773Z-AAA2C9B2",
+  "previous_event_sha256": "d825d92c6cec59947f3dfea8793f9aa556ec675393054514f1cff3f99960f7c0"
+}

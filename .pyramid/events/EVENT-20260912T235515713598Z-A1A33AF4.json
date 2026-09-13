@@ -1,0 +1,301 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T235515713598Z-A1A33AF4",
+  "at": "2026-09-12T23:55:15.713428Z",
+  "graph_version": 18,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-230",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T02:43:19.504375Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:43:19.504551Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:55:15.713249Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-230",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+        "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+        "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+        "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+        "Sources/DiskStewardMCP/MCPServer.swift",
+        "Sources/DiskStewardMCP/main.swift",
+        "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+        "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+        "docs/tasks/evidence/TASK-230/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter MCPAccessTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 116 tests, 0 failures"
+        },
+        {
+          "command": "./Scripts/Development/build_xcode_project",
+          "result": "passed: signed Debug app build succeeded"
+        },
+        {
+          "command": "codesign --verify --deep --strict --verbose=2 <Debug app>",
+          "result": "passed"
+        },
+        {
+          "command": "<Debug app executable> --ui-smoke",
+          "result": "passed: agent_access off and ipc_service off"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-230-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-230-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift and Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift"
+        },
+        {
+          "criterion": "AC-230-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-230/agent-access-verification.md"
+        },
+        {
+          "criterion": "AC-230-04",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift and Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": "Agent Access now defaults off, persists user intent, exclusively owns the private read-only Unix socket lifecycle, reports disabled versus unavailable honestly, and passes privacy, accessibility, MCP, full regression, signed Xcode build, codesign, and UI smoke checks.",
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-230",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+        "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+        "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+        "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+        "Sources/DiskStewardMCP/MCPServer.swift",
+        "Sources/DiskStewardMCP/main.swift",
+        "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+        "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+        "docs/tasks/evidence/TASK-230/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/MCPServer.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardMCP/main.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-access-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-230/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter MCPAccessTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 116 tests, 0 failures"
+        },
+        {
+          "command": "./Scripts/Development/build_xcode_project",
+          "result": "passed: signed Debug app build succeeded"
+        },
+        {
+          "command": "codesign --verify --deep --strict --verbose=2 <Debug app>",
+          "result": "passed"
+        },
+        {
+          "command": "<Debug app executable> --ui-smoke",
+          "result": "passed: agent_access off and ipc_service off"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-230-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        },
+        {
+          "criterion": "AC-230-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift and Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift"
+        },
+        {
+          "criterion": "AC-230-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-230/agent-access-verification.md"
+        },
+        {
+          "criterion": "AC-230-04",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift and Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 1,
+  "context_id": "CTX-542E78E2482D830F82A259AF5D8BFC27",
+  "previous_event_id": "EVENT-20260912T234319504757Z-9DDC2F88",
+  "previous_event_sha256": "7a86b90003878e332f82a4779286cd85ab4ec11529528b488ecbe75809d7cd2e"
+}

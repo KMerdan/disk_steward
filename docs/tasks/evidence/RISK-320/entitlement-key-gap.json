@@ -1,0 +1,9 @@
+{
+  "schema": "pyramid-reopen-evidence-v1",
+  "target": "TASK-310",
+  "discovered_by": "RISK-320",
+  "finding": "The standard-app entitlement check asserted the app-group value but not the com.apple.security.application-groups key, allowing a malformed dictionary with the value under another key to satisfy a substring check.",
+  "preserved_requirement": "The actual exported app must contain the production app group under the application-groups entitlement key and must not contain the restricted Endpoint Security key.",
+  "repair": "Require both exact entitlement key and group value in the decoded codesign entitlement plist.",
+  "secrets_observed": false
+}

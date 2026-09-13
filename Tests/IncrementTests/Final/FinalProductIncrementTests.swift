@@ -160,10 +160,10 @@ final class FinalProductIncrementTests: XCTestCase {
         XCTAssertEqual(mcp.status, 0, mcp.stderr)
         let responses = try responseMap(mcp.stdout)
         let tools = try XCTUnwrap((responses[2]?["result"] as? [String: Any])?["tools"] as? [[String: Any]])
-        XCTAssertEqual(tools.count, 7)
+        XCTAssertEqual(tools.count, 10)
         XCTAssertFalse(tools.contains { ($0["name"] as? String)?.contains("delete") == true })
         let provenance = try structured(responses, id: 3)
-        XCTAssertEqual(provenance["schema"] as? String, "provenance-query-v1")
+        XCTAssertEqual(provenance["schema"] as? String, "evidence-query-page-v1")
         XCTAssertEqual((provenance["items"] as? [[String: Any]])?.count, 1)
         XCTAssertFalse(containsForbiddenKey(provenance, names: ["file_contents", "environment", "token", "secret", "password"]))
 

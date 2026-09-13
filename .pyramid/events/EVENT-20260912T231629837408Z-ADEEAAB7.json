@@ -1,0 +1,231 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T231629837408Z-ADEEAAB7",
+  "at": "2026-09-12T23:16:29.837216Z",
+  "graph_version": 10,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "RESEARCH-201",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:16:03.835570Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-201",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/release/signing-readiness.md",
+        "docs/tasks/evidence/RESEARCH-201/environment.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/release/signing-readiness.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RESEARCH-201/environment.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "security find-identity -v -p codesigning",
+          "result": "passed: sanitized inventory reviewed"
+        },
+        {
+          "command": "xcodebuild -version",
+          "result": "passed: Xcode 26.3 build 17C529"
+        },
+        {
+          "command": "swift --version",
+          "result": "passed: Swift 6.2.4"
+        },
+        {
+          "command": "xcrun notarytool --version",
+          "result": "passed: 1.1.0 (39)"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-202-01",
+          "result": "passed",
+          "reference": "docs/release/signing-readiness.md distinguishes paid-team development, Apple Distribution, Developer ID, identifiers, notarization and optional Endpoint Security"
+        },
+        {
+          "criterion": "AC-202-02",
+          "result": "passed",
+          "reference": "Every unverified or unavailable row names one exact Xcode or Apple Developer action and remains explicitly unverified"
+        }
+      ],
+      "discovered_risks": [
+        "No Developer ID Application identity for Team G3P6TU385Y is installed.",
+        "No Apple Development identity for Team G3P6TU385Y was observed.",
+        "Identifier, App Group, notarization authorization and Endpoint Security approval remain external unverified state."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:16:29.837022Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-201",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/release/signing-readiness.md",
+        "docs/tasks/evidence/RESEARCH-201/environment.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/release/signing-readiness.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RESEARCH-201/environment.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "security find-identity -v -p codesigning",
+          "result": "passed: sanitized inventory reviewed"
+        },
+        {
+          "command": "xcodebuild -version",
+          "result": "passed: Xcode 26.3 build 17C529"
+        },
+        {
+          "command": "swift --version",
+          "result": "passed: Swift 6.2.4"
+        },
+        {
+          "command": "xcrun notarytool --version",
+          "result": "passed: 1.1.0 (39)"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-202-01",
+          "result": "passed",
+          "reference": "docs/release/signing-readiness.md distinguishes paid-team development, Apple Distribution, Developer ID, identifiers, notarization and optional Endpoint Security"
+        },
+        {
+          "criterion": "AC-202-02",
+          "result": "passed",
+          "reference": "Every unverified or unavailable row names one exact Xcode or Apple Developer action and remains explicitly unverified"
+        }
+      ],
+      "discovered_risks": [
+        "No Developer ID Application identity for Team G3P6TU385Y is installed.",
+        "No Apple Development identity for Team G3P6TU385Y was observed.",
+        "Identifier, App Group, notarization authorization and Endpoint Security approval remain external unverified state."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "RESEARCH-201",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-202-01",
+          "result": "passed",
+          "evidence": [
+            "Dated sanitized inventory distinguishes Xcode, notarytool, paid team, Apple Development, Apple Distribution and missing Developer ID Application state"
+          ]
+        },
+        {
+          "id": "CHECK-202-02",
+          "result": "passed",
+          "evidence": [
+            "App ID, App Group, notarization authorization and optional Endpoint Security remain explicitly unverified with exact owner actions"
+          ]
+        },
+        {
+          "id": "CHECK-202-03",
+          "result": "passed",
+          "evidence": [
+            "No fingerprints, profile contents, account tokens, device IDs, private keys or passwords were written"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "RESEARCH-201",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-202-01",
+          "result": "passed",
+          "evidence": [
+            "Dated sanitized inventory distinguishes Xcode, notarytool, paid team, Apple Development, Apple Distribution and missing Developer ID Application state"
+          ]
+        },
+        {
+          "id": "CHECK-202-02",
+          "result": "passed",
+          "evidence": [
+            "App ID, App Group, notarization authorization and optional Endpoint Security remain explicitly unverified with exact owner actions"
+          ]
+        },
+        {
+          "id": "CHECK-202-03",
+          "result": "passed",
+          "evidence": [
+            "No fingerprints, profile contents, account tokens, device IDs, private keys or passwords were written"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 1,
+  "context_id": "CTX-090082A8EE0C98E8428042539034B774",
+  "previous_event_id": "EVENT-20260912T231603835966Z-A5C8C596",
+  "previous_event_sha256": "cd93ac84ff34881166dbe8e7fa0ead88e4374cad18786787f8c5342dc499c15c"
+}

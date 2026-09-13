@@ -1,0 +1,95 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-241",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+    "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+    "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/tasks/evidence/TASK-241/startup-hard-link-crash.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "swift test",
+      "result": "passed: 143 tests, 0 failures"
+    },
+    {
+      "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/DiskStewardDerivedData CODE_SIGNING_ALLOWED=NO build",
+      "result": "passed: BUILD SUCCEEDED"
+    },
+    {
+      "command": "built app --ui-smoke",
+      "result": "passed: menu-bar UI contract available"
+    },
+    {
+      "command": "live startup scan",
+      "result": "passed: process alive, observation committed, no new crash report"
+    },
+    {
+      "command": "git diff --check -- repair files",
+      "result": "passed"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-241-01",
+      "result": "passed",
+      "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+    },
+    {
+      "criterion": "AC-241-02",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+    },
+    {
+      "criterion": "AC-241-03",
+      "result": "passed",
+      "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+    },
+    {
+      "criterion": "AC-241-04",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-241/hard-link-repair-verification.json"
+    },
+    {
+      "criterion": "AC-241-05",
+      "result": "passed",
+      "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+    }
+  ],
+  "discovered_risks": [
+    "Hard-linked objects remain intentionally excluded from cleanup candidates until the filesystem reports one remaining link because deleting one link may reclaim no allocated blocks.",
+    "The live observation reached the configured entry cap and is correctly labeled partial."
+  ],
+  "suggested_graph_changes": []
+}

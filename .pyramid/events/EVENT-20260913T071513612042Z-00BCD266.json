@@ -1,0 +1,237 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T071513612042Z-00BCD266",
+  "at": "2026-09-13T07:15:13.611849Z",
+  "graph_version": 129,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-252",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T09:09:24.041704Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T07:09:24.041765Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T07:15:13.611758Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-252",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+        "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+        "docs/tasks/evidence/TASK-252/interaction-regression.md",
+        "docs/tasks/evidence/TASK-252/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-252/interaction-regression.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-252/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'MonitoringSettingsTests|StatusBoardEvidenceExportTests'",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 158 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-derived build",
+          "result": "passed; Apple Development signed app produced"
+        },
+        {
+          "command": "rg -n 'NSOpenPanel|openAndSavePanelService|runModal\\(\\)' Sources Tests",
+          "result": "passed: no matches"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-252-01",
+          "result": "passed",
+          "reference": "MonitoringSettingsTests and docs/tasks/evidence/TASK-252/interaction-regression.md"
+        },
+        {
+          "criterion": "AC-252-02",
+          "result": "passed",
+          "reference": "StatusBoardEvidenceExportTests and StatusItemController success callback"
+        },
+        {
+          "criterion": "AC-252-03",
+          "result": "passed",
+          "reference": "6 focused and 158 full Swift tests plus successful Xcode Debug build"
+        },
+        {
+          "criterion": "EVREQ-252-01",
+          "result": "pending-audit",
+          "reference": "Exact rebuilt app is running; final menu click-through remains in GATE-290"
+        }
+      ],
+      "discovered_risks": [
+        "Protected folders still require the user's normal macOS privacy permission.",
+        "The previous signed archive predates TASK-252 and must not be notarized or distributed."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-252",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+        "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+        "docs/tasks/evidence/TASK-252/interaction-regression.md",
+        "docs/tasks/evidence/TASK-252/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-252/interaction-regression.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-252/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'MonitoringSettingsTests|StatusBoardEvidenceExportTests'",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 158 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-derived build",
+          "result": "passed; Apple Development signed app produced"
+        },
+        {
+          "command": "rg -n 'NSOpenPanel|openAndSavePanelService|runModal\\(\\)' Sources Tests",
+          "result": "passed: no matches"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-252-01",
+          "result": "passed",
+          "reference": "MonitoringSettingsTests and docs/tasks/evidence/TASK-252/interaction-regression.md"
+        },
+        {
+          "criterion": "AC-252-02",
+          "result": "passed",
+          "reference": "StatusBoardEvidenceExportTests and StatusItemController success callback"
+        },
+        {
+          "criterion": "AC-252-03",
+          "result": "passed",
+          "reference": "6 focused and 158 full Swift tests plus successful Xcode Debug build"
+        },
+        {
+          "criterion": "EVREQ-252-01",
+          "result": "pending-audit",
+          "reference": "Exact rebuilt app is running; final menu click-through remains in GATE-290"
+        }
+      ],
+      "discovered_risks": [
+        "Protected folders still require the user's normal macOS privacy permission.",
+        "The previous signed archive predates TASK-252 and must not be notarized or distributed."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 10,
+  "context_id": "CTX-23ED6D0F837C8B92B51C4C2D96F8BEE2",
+  "previous_event_id": "EVENT-20260913T070924041948Z-A98DD872",
+  "previous_event_sha256": "1b8a76a95f8c4440c25faaea67f4575baed753a10212ae922b31e3a44855d916"
+}

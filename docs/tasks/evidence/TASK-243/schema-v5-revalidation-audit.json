@@ -1,0 +1,37 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-243",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-243-GENERATION-LIFECYCLE-01",
+      "result": "passed",
+      "evidence": [
+        "EvidenceStore bounds scan-generation history and exposes active generation progress through EvidenceLifecycleStatus",
+        "Active unfinished roots create synthetic coverage gaps without converting staged observations into authoritative current state"
+      ]
+    },
+    {
+      "id": "CHECK-243-COMPACTION-01",
+      "result": "passed",
+      "evidence": [
+        "Existing retention tests continue to prove current-state survival, tier boundaries, pressure eviction diagnostics, and manual-versus-temporary export ownership",
+        "Schema-v5 generation staging is retired after promotion and abandoned safely on invalid restart or scope change"
+      ]
+    },
+    {
+      "id": "CHECK-243-REGRESSION-01",
+      "result": "passed",
+      "evidence": [
+        "The full Swift package suite passed 156 tests with no failures",
+        "The Xcode Debug application build succeeded"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-243",
+    "TASK-244",
+    "GATE-290"
+  ],
+  "recommended_action": "Promote TASK-243 and revalidate MCP lifecycle and current-state queries over schema-v5 coverage."
+}

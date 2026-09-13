@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/evidence/agent-session-v2.schema.json",
+  "title": "Disk Steward Agent Session v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "registration_id", "client", "session_id", "process", "workspace_roots", "task_context", "registered_at", "last_heartbeat_at", "expires_at", "ended_at", "lifecycle", "authentication"],
+  "properties": {
+    "schema": {"const": "agent-session-v2"},
+    "registration_id": {"type": "string", "format": "uuid"},
+    "client": {"enum": ["codex", "claude", "other-local"]},
+    "session_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "process": {"$ref": "#/$defs/process"},
+    "workspace_roots": {"type": "array", "maxItems": 32, "items": {"type": "string", "pattern": "^/"}, "uniqueItems": true},
+    "task_context": {"type": ["string", "null"], "maxLength": 1024},
+    "registered_at": {"type": "string", "format": "date-time"},
+    "last_heartbeat_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "ended_at": {"type": ["string", "null"], "format": "date-time"},
+    "lifecycle": {"enum": ["active", "ended", "expired"]},
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transport", "socket_mode", "peer_uid_verified", "challenge_digest", "secret_persisted"],
+      "properties": {
+        "transport": {"const": "unix-domain-socket"},
+        "socket_mode": {"const": 384},
+        "peer_uid_verified": {"const": true},
+        "challenge_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "secret_persisted": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "process": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pid", "start_time", "executable_path"],
+      "properties": {
+        "pid": {"type": "integer", "minimum": 1},
+        "start_time": {"type": "string", "format": "date-time"},
+        "executable_path": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+Actual verifier negative inspection, 2026-09-13
+
+Fixture: executable app shell, expected bundle ID, missing nested helper
+Result: exit 67; rejected because bundled MCP helper is missing
+
+Fixture: executable app shell and helper, wrong application bundle ID
+Result: exit 67; rejected before signature inspection because application bundle identifier is wrong
+
+Fixture: executable app shell and helper, correct application bundle ID, unsigned
+Result: exit 67; rejected because MCP helper signature is missing/ad hoc/damaged/incomplete
+
+Unsigned Release archive rehearsal
+Result: archive construction succeeded; embedded helper was executable; verify-release rejected it; temporary archive was removed
+
+Signed and notarized release
+Result: not available on this Mac because Developer ID Application is absent. The workflow returns exit 66 and does not substitute Apple Distribution or claim release success.

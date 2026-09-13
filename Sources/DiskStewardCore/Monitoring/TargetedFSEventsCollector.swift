@@ -1,8 +1,8 @@
 import CoreServices
 import Foundation
 
-public struct TargetedChangeHint: Equatable, Sendable {
-    public enum Kind: String, Equatable, Sendable {
+public struct TargetedChangeHint: Codable, Equatable, Sendable {
+    public enum Kind: String, Codable, Equatable, Sendable {
         case created
         case removed
         case renamed
@@ -17,17 +17,29 @@ public struct TargetedChangeHint: Equatable, Sendable {
     public let observedAt: Date
     public let kind: Kind
     public let requiresRescan: Bool
+    public let rawFlags: UInt32
+    public let signals: [String]
 
-    public init(path: String, eventID: UInt64, observedAt: Date, kind: Kind, requiresRescan: Bool) {
+    public init(
+        path: String,
+        eventID: UInt64,
+        observedAt: Date,
+        kind: Kind,
+        requiresRescan: Bool,
+        rawFlags: UInt32 = 0,
+        signals: [String] = []
+    ) {
         self.path = path
         self.eventID = eventID
         self.observedAt = observedAt
         self.kind = kind
         self.requiresRescan = requiresRescan
+        self.rawFlags = rawFlags
+        self.signals = Array(Set(signals)).sorted()
     }
 }
 
-public struct TargetedChangeBatch: Equatable, Sendable {
+public struct TargetedChangeBatch: Codable, Equatable, Sendable {
     public let hints: [TargetedChangeHint]
     public let eventGap: Bool
     public let limitations: [String]
@@ -81,7 +93,9 @@ enum FSEventsBatchInterpreter {
                     eventID: eventIDs[index],
                     observedAt: observedAt,
                     kind: kind(for: eventFlags),
-                    requiresRescan: true
+                    requiresRescan: true,
+                    rawFlags: eventFlags,
+                    signals: signals(for: eventFlags)
                 )
             )
         }
@@ -116,6 +130,25 @@ enum FSEventsBatchInterpreter {
         )
         if flags & metadataFlags != 0 { return .metadataChanged }
         return .unknown
+    }
+
+    private static func signals(for flags: FSEventStreamEventFlags) -> [String] {
+        var values: [String] = []
+        let candidates: [(FSEventStreamEventFlags, String)] = [
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagItemCreated), "item-created"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagItemRemoved), "item-removed"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagItemRenamed), "item-renamed"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagItemModified), "item-modified"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagMustScanSubDirs), "must-scan-subdirectories"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagUserDropped), "user-dropped"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagKernelDropped), "kernel-dropped"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagEventIdsWrapped), "event-ids-wrapped"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagRootChanged), "root-changed"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagMount), "volume-mounted"),
+            (FSEventStreamEventFlags(kFSEventStreamEventFlagUnmount), "volume-unmounted"),
+        ]
+        for (flag, name) in candidates where flags & flag != 0 { values.append(name) }
+        return values.sorted()
     }
 }
 

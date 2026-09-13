@@ -75,6 +75,14 @@ final class AppEvidenceIPCIntegrationTests: XCTestCase {
         }
         XCTAssertEqual(events.count, 1)
         XCTAssertEqual(events.first?.objectValue?["path"], .string("artifact.zip"))
+        let exportRecords = try await writer.exportRecords()
+        XCTAssertEqual(exportRecords.count, 1)
+        XCTAssertEqual(exportRecords.first?.kind, .temporary)
+        XCTAssertEqual(exportRecords.first?.status, .destroyed)
+        XCTAssertNil(exportRecords.first?.path)
+        let inlineExportRoot = FileManager.default.temporaryDirectory.appending(path: "DiskStewardIPCExports")
+        let remainingBundles = (try? FileManager.default.contentsOfDirectory(atPath: inlineExportRoot.path)) ?? []
+        XCTAssertFalse(remainingBundles.contains { $0.contains(exportRecords[0].exportID) })
 
         let impact = try client.call(
             tool: "get_task_impact",
@@ -108,6 +116,72 @@ final class AppEvidenceIPCIntegrationTests: XCTestCase {
         XCTAssertThrowsError(try client.call(tool: "get_storage_summary", arguments: [:], isCancelled: { false })) { error in
             XCTAssertEqual(error as? DiskStewardIPCError, .appUnavailable)
         }
+    }
+
+    func testEndedSessionHeartbeatAndHistoricalImpactSurviveBackendRestart() async throws {
+        let root = shortTemporaryRoot(prefix: "ds-session-restart")
+        let database = root.appending(path: "evidence.sqlite")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let peer = IPCPeerIdentity(uid: getuid(), gid: getgid(), pid: getpid())
+        var backend: AppEvidenceQueryBackend? = try AppEvidenceQueryBackend(databaseURL: database)
+        let registered = try await backend!.handleIPC(
+            method: "sessions/register",
+            payload: .object([
+                "client": .string("codex"),
+                "session_id": .string("historical-task"),
+                "workspace_roots": .array([.string(root.path)]),
+                "task_context": .string("Codex task retained across app restart"),
+                "lease_seconds": .integer(600),
+            ]),
+            peer: peer
+        )
+        let registrationID = try XCTUnwrap(registered.objectValue?["registration_id"]?.stringValue)
+        let heartbeat = try await backend!.handleIPC(
+            method: "sessions/heartbeat",
+            payload: .object(["registration_id": .string(registrationID), "lease_seconds": .integer(900)]),
+            peer: peer
+        )
+        XCTAssertEqual(heartbeat.objectValue?["lifecycle"], .string("active"))
+
+        let eventTime = Date()
+        let writer = try EvidenceStore(url: database)
+        try await writer.insert(.init(
+            eventID: "historical-impact-event",
+            observedAt: eventTime,
+            operation: .create,
+            path: root.appending(path: "artifact.zip").path,
+            logicalDelta: 2_048,
+            allocatedDelta: 4_096,
+            consumerCategory: "agent-artifact",
+            confidence: .inferred
+        ))
+        let ended = try await backend!.handleIPC(
+            method: "sessions/end",
+            payload: .object(["registration_id": .string(registrationID)]),
+            peer: peer
+        )
+        XCTAssertEqual(ended.objectValue?["lifecycle"], .string("ended"))
+        backend = nil
+
+        let restarted = try AppEvidenceQueryBackend(databaseURL: database)
+        let impact = try await restarted.handleIPC(
+            method: "tools/call",
+            payload: .object([
+                "name": .string("get_task_impact"),
+                "arguments": .object([
+                    "session_id": .string("historical-task"),
+                    "from": .string(ISO8601DateFormatter().string(from: eventTime.addingTimeInterval(-10))),
+                    "through": .string(ISO8601DateFormatter().string(from: eventTime.addingTimeInterval(10))),
+                    "limit": .integer(100),
+                ]),
+            ]),
+            peer: peer
+        )
+        XCTAssertEqual(impact.objectValue?["allocated_delta"], .integer(4_096))
+        XCTAssertEqual(impact.objectValue?["confidence"], .string("inferred"))
+        XCTAssertEqual(impact.objectValue?["method"], .string("retained-session-temporal-and-workspace-correlation"))
+        XCTAssertEqual(impact.objectValue?["session_lifecycle"], .array([.string("ended")]))
     }
 
     private func shortTemporaryRoot(prefix: String) -> URL {

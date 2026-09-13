@@ -1,0 +1,29 @@
+{
+  "schema": "disk-steward-replan-trigger-v1",
+  "observed_at": "2026-09-13T04:10:00Z",
+  "user_export": "/Users/merdankiji/Documents/Disk Steward Exports/disk-steward-38741853-6471-4166-8ebf-5393ec3711db",
+  "findings": [
+    {
+      "id": "FINDING-EXPORT-01",
+      "claim": "The actual menu-produced export is about 1.7 KB and contains only manifest.json, codex-brief.md, and storage-snapshot.json; it has no current-state, event, provenance, session, coverage, lifecycle, or rollup payload."
+    },
+    {
+      "id": "FINDING-EXPORT-02",
+      "claim": "StatusItemController routes Export Current Evidence to StatusBoardViewModel.exportCurrentSnapshot, which invokes the legacy SnapshotExporter instead of EvidenceBundleExporter."
+    },
+    {
+      "id": "FINDING-EXPORT-03",
+      "claim": "The export claims whole-volume scope and no limitations although file-level evidence covers only /Users/merdankiji/Documents/Codex and has an open entry-cap coverage gap."
+    },
+    {
+      "id": "FINDING-EXPORT-04",
+      "claim": "The live database contains 99,958 present file objects and about 10.97 GB of allocated watched-root evidence that the menu export omitted."
+    },
+    {
+      "id": "FINDING-EXPORT-05",
+      "claim": "All seven recorded detailed observations are partial at the configured entry cap and change_events is empty, so repeated scans do not yet converge to a trustworthy growth history for this root."
+    }
+  ],
+  "impact": "The current GATE-290 and OUTCOME-210 passes are stale because their export smoke did not inspect the exact artifact created from the menu against a populated live evidence database.",
+  "intent_change": false
+}

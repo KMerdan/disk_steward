@@ -5,8 +5,11 @@ enum MCPToolCatalog {
     static let supportedProtocolVersions = ["2025-06-18", "2025-03-26", "2024-11-05"]
     static let names = [
         "get_storage_summary",
+        "get_evidence_lifecycle",
+        "list_current_consumers",
         "explain_growth",
         "get_provenance",
+        "list_active_agent_sessions",
         "list_active_writers",
         "get_task_impact",
         "find_cleanup_candidates",
@@ -18,28 +21,38 @@ enum MCPToolCatalog {
     static var tools: [JSONValue] {
         [
             tool("get_storage_summary", "Return bounded current volume and monitored-scope totals with freshness and limitations.", properties: [:]),
+            tool("get_evidence_lifecycle", "Return retention policy, actual tier coverage, database pressure, gaps, and export inventory.", properties: [:]),
+            tool("list_current_consumers", "Return only authoritative present current-state consumers with stable cursor pagination.", properties: consumerProperties()),
             tool("explain_growth", "Explain growth for a bounded time range without unsupported attribution.", required: ["from", "through"], properties: [
                 "from": .object(["type": .string("string")]),
                 "through": .object(["type": .string("string")]),
                 "limit": integer(minimum: 1, maximum: 500),
+                "cursor": string(maximum: 4_096),
+                "path_detail": pathDetail(),
             ]),
             tool("get_provenance", "Return sanitized provenance observations for a bounded path query.", required: ["path_query"], properties: [
                 "path_query": .object(["type": .string("string"), "maxLength": .integer(4_096)]),
                 "limit": integer(minimum: 1, maximum: 500),
+                "cursor": string(maximum: 4_096),
+                "path_detail": pathDetail(),
             ]),
-            tool("list_active_writers", "Return recently observed writer identities and confidence within a bounded window.", properties: [
+            tool("list_active_agent_sessions", "Return active authenticated agent task contexts without claiming they are file writers.", properties: [
                 "minutes": integer(minimum: 1, maximum: 1_440),
                 "limit": integer(minimum: 1, maximum: 200),
+                "cursor": string(maximum: 4_096),
+            ]),
+            tool("list_active_writers", "Deprecated compatibility alias for list_active_agent_sessions; it does not claim writer identity.", properties: [
+                "minutes": integer(minimum: 1, maximum: 1_440),
+                "limit": integer(minimum: 1, maximum: 200),
+                "cursor": string(maximum: 4_096),
             ]),
             tool("get_task_impact", "Summarize evidence correlated to one registered local agent session.", required: ["session_id"], properties: [
                 "session_id": .object(["type": .string("string"), "maxLength": .integer(256)]),
                 "limit": integer(minimum: 1, maximum: 500),
+                "from": .object(["type": .string("string")]),
+                "through": .object(["type": .string("string")]),
             ]),
-            tool("find_cleanup_candidates", "List evidence-based review candidates without declaring any path safe to delete.", properties: [
-                "minimum_bytes": integer(minimum: 0, maximum: Int64.max),
-                "older_than_days": integer(minimum: 0, maximum: 3_650),
-                "limit": integer(minimum: 1, maximum: 500),
-            ]),
+            tool("find_cleanup_candidates", "List revalidated present-state review candidates without declaring any path safe to delete.", properties: cleanupProperties()),
             tool("export_evidence", "Return a bounded inline evidence bundle equivalent to app export without modifying evidence.", required: ["from", "through"], properties: [
                 "from": .object(["type": .string("string")]),
                 "through": .object(["type": .string("string")]),
@@ -72,16 +85,20 @@ enum MCPToolCatalog {
         switch tool {
         case "get_storage_summary":
             allowed = []; required = []
+        case "get_evidence_lifecycle":
+            allowed = []; required = []
+        case "list_current_consumers":
+            allowed = ["root_path", "category", "minimum_bytes", "cursor", "limit", "path_detail"]; required = []
         case "explain_growth":
-            allowed = ["from", "through", "limit"]; required = ["from", "through"]
+            allowed = ["from", "through", "limit", "cursor", "path_detail"]; required = ["from", "through"]
         case "get_provenance":
-            allowed = ["path_query", "limit"]; required = ["path_query"]
-        case "list_active_writers":
-            allowed = ["minutes", "limit"]; required = []
+            allowed = ["path_query", "limit", "cursor", "path_detail"]; required = ["path_query"]
+        case "list_active_agent_sessions", "list_active_writers":
+            allowed = ["minutes", "limit", "cursor"]; required = []
         case "get_task_impact":
-            allowed = ["session_id", "limit"]; required = ["session_id"]
+            allowed = ["session_id", "limit", "from", "through"]; required = ["session_id"]
         case "find_cleanup_candidates":
-            allowed = ["minimum_bytes", "older_than_days", "limit"]; required = []
+            allowed = ["root_path", "category", "minimum_bytes", "older_than_days", "cursor", "limit", "path_detail"]; required = []
         case "export_evidence":
             allowed = ["from", "through", "path_detail", "max_events"]; required = ["from", "through"]
         default:
@@ -94,7 +111,7 @@ enum MCPToolCatalog {
             return "Missing required argument: \(missing)"
         }
         if let limit = arguments["limit"]?.integerValue {
-            let maximum: Int64 = tool == "list_active_writers" ? 200 : 500
+            let maximum: Int64 = ["list_active_writers", "list_active_agent_sessions"].contains(tool) ? 200 : 500
             if !(1 ... maximum).contains(limit) { return "limit must be between 1 and \(maximum)" }
         } else if arguments["limit"] != nil {
             return "limit must be an integer"
@@ -129,18 +146,22 @@ enum MCPToolCatalog {
         } else if arguments["session_id"] != nil, arguments["session_id"]?.stringValue == nil {
             return "session_id must be a string"
         }
+        for name in ["cursor", "root_path", "category"] where arguments[name] != nil {
+            guard let value = arguments[name]?.stringValue, !value.isEmpty, value.utf8.count <= 4_096 else {
+                return "\(name) must contain 1...4096 UTF-8 bytes"
+            }
+        }
         if let detail = arguments["path_detail"]?.stringValue,
            !["full", "basename", "hashed"].contains(detail) {
             return "path_detail must be full, basename, or hashed"
         } else if arguments["path_detail"] != nil, arguments["path_detail"]?.stringValue == nil {
             return "path_detail must be a string"
         }
-        if required.contains("from") {
+        if required.contains("from") || arguments["from"] != nil || arguments["through"] != nil {
             guard let from = arguments["from"]?.stringValue,
                   let through = arguments["through"]?.stringValue
             else { return "from and through must be strings" }
-            let formatter = ISO8601DateFormatter()
-            guard let start = formatter.date(from: from), let end = formatter.date(from: through) else {
+            guard let start = parseTimestamp(from), let end = parseTimestamp(through) else {
                 return "from and through must be ISO-8601 timestamps"
             }
             if start >= end { return "through must be later than from" }
@@ -175,5 +196,36 @@ enum MCPToolCatalog {
 
     private static func integer(minimum: Int64, maximum: Int64) -> JSONValue {
         .object(["type": .string("integer"), "minimum": .integer(minimum), "maximum": .integer(maximum)])
+    }
+
+    private static func string(maximum: Int64) -> JSONValue {
+        .object(["type": .string("string"), "minLength": .integer(1), "maxLength": .integer(maximum)])
+    }
+
+    private static func pathDetail() -> JSONValue {
+        .object(["type": .string("string"), "enum": .array([.string("full"), .string("basename"), .string("hashed")])])
+    }
+
+    private static func consumerProperties() -> [String: JSONValue] {
+        [
+            "root_path": string(maximum: 4_096),
+            "category": string(maximum: 256),
+            "minimum_bytes": integer(minimum: 0, maximum: Int64.max),
+            "cursor": string(maximum: 4_096),
+            "limit": integer(minimum: 1, maximum: 500),
+            "path_detail": pathDetail(),
+        ]
+    }
+
+    private static func cleanupProperties() -> [String: JSONValue] {
+        var values = consumerProperties()
+        values["older_than_days"] = integer(minimum: 0, maximum: 3_650)
+        return values
+    }
+
+    private static func parseTimestamp(_ value: String) -> Date? {
+        let fractional = ISO8601DateFormatter()
+        fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return fractional.date(from: value) ?? ISO8601DateFormatter().date(from: value)
     }
 }

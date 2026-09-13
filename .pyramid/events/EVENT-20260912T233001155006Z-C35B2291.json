@@ -1,0 +1,271 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260912T233001155006Z-C35B2291",
+  "at": "2026-09-12T23:30:01.154805Z",
+  "graph_version": 12,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "TASK-241",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T01:16:50.683222Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:16:50.683379Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-12T23:30:01.154659Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "docs/tasks/evidence/TASK-241/reconciliation-verification.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/reconciliation-verification.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceObjectLifecycleTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 111 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "SQLite schema v2 and atomic recordObservation persist scope, observation, per-root coverage, stable objects, temporal paths, file states, current state, changes, and gaps"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "recordObservation transaction and observation ID replay test prove rollback and idempotency"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "EvidenceObjectLifecycleTests covers baseline, modify, truncate, rename, replace, delete, path reuse, partial unknown, and scope entry/exit"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "PersistentMonitoringProbe uses durable state and restart test records resolved app-offline gap"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Complete and partial A/B/C tests prove deletion only after complete same-scope observation"
+        },
+        {
+          "criterion": "AC-241-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/reconciliation-verification.md and 111-test regression run"
+        }
+      ],
+      "discovered_risks": [
+        "Path-temporal fallback identity cannot prove replacement when filesystem identity metadata is unavailable; such conclusions remain observational.",
+        "Existing legacy evidence-event-v1 exports do not yet expose every v2 lifecycle field; TASK-243 and TASK-244 own bounded export and query projections."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-241",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+        "docs/tasks/evidence/TASK-241/reconciliation-verification.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-241/reconciliation-verification.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceObjectLifecycleTests",
+          "result": "passed: 6 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 111 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-241-01",
+          "result": "passed",
+          "reference": "SQLite schema v2 and atomic recordObservation persist scope, observation, per-root coverage, stable objects, temporal paths, file states, current state, changes, and gaps"
+        },
+        {
+          "criterion": "AC-241-02",
+          "result": "passed",
+          "reference": "recordObservation transaction and observation ID replay test prove rollback and idempotency"
+        },
+        {
+          "criterion": "AC-241-03",
+          "result": "passed",
+          "reference": "EvidenceObjectLifecycleTests covers baseline, modify, truncate, rename, replace, delete, path reuse, partial unknown, and scope entry/exit"
+        },
+        {
+          "criterion": "AC-241-04",
+          "result": "passed",
+          "reference": "PersistentMonitoringProbe uses durable state and restart test records resolved app-offline gap"
+        },
+        {
+          "criterion": "AC-241-05",
+          "result": "passed",
+          "reference": "Complete and partial A/B/C tests prove deletion only after complete same-scope observation"
+        },
+        {
+          "criterion": "AC-241-06",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-241/reconciliation-verification.md and 111-test regression run"
+        }
+      ],
+      "discovered_risks": [
+        "Path-temporal fallback identity cannot prove replacement when filesystem identity metadata is unavailable; such conclusions remain observational.",
+        "Existing legacy evidence-event-v1 exports do not yet expose every v2 lifecycle field; TASK-243 and TASK-244 own bounded export and query projections."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 1,
+  "context_id": "CTX-1BB297ED5FE5061B8052C41AC97DD42E",
+  "previous_event_id": "EVENT-20260912T231650683576Z-034144BE",
+  "previous_event_sha256": "653c383e893d9bf55001d792decf7444d97ea42e862b8dc3431fbc7e41a7c11d"
+}

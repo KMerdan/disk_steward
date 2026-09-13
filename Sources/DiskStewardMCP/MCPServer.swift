@@ -139,6 +139,8 @@ public final class MCPServer: @unchecked Sendable {
 
     private func toolError(id: JSONValue, error: Error) -> JSONValue {
         switch error {
+        case DiskStewardIPCError.agentAccessDisabled:
+            return toolError(id: id, code: "agent_access_disabled", message: "Disk Steward Agent Access is off. No evidence was queried or fabricated.", retryable: false, recovery: "Open Disk Steward and turn on Agent Access, then retry.")
         case DiskStewardIPCError.appUnavailable:
             return toolError(id: id, code: "app_unavailable", message: "Disk Steward is unavailable. No evidence was fabricated.", retryable: true, recovery: "Open Disk Steward and verify Monitoring is enabled, then retry.")
         case let DiskStewardIPCError.insecureSocket(reason):

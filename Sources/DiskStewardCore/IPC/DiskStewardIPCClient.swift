@@ -13,6 +13,7 @@ public protocol DiskStewardIPCClient: Sendable {
 
 public enum DiskStewardIPCError: Error, Equatable, LocalizedError {
     case appUnavailable
+    case agentAccessDisabled
     case insecureSocket(String)
     case connectionFailed(Int32)
     case malformedResponse
@@ -23,6 +24,7 @@ public enum DiskStewardIPCError: Error, Equatable, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .appUnavailable: return "Disk Steward is not running or its local evidence service is unavailable."
+        case .agentAccessDisabled: return "Disk Steward Agent Access is disabled by the user."
         case let .insecureSocket(reason): return "Disk Steward refused an insecure local socket: \(reason)"
         case let .connectionFailed(code): return "Disk Steward local connection failed with errno \(code)."
         case .malformedResponse: return "Disk Steward returned a malformed local response."
@@ -36,15 +38,21 @@ public enum DiskStewardIPCError: Error, Equatable, LocalizedError {
 public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
     public let socketPath: String
     public let maximumResponseBytes: Int
+    public let accessStateURL: URL?
 
-    public init(socketPath: String, maximumResponseBytes: Int = 4 * 1_024 * 1_024) {
+    public init(
+        socketPath: String,
+        maximumResponseBytes: Int = 4 * 1_024 * 1_024,
+        accessStateURL: URL? = nil
+    ) {
         self.socketPath = socketPath
         self.maximumResponseBytes = min(max(1_024, maximumResponseBytes), 4 * 1_024 * 1_024)
+        self.accessStateURL = accessStateURL
     }
 
     public static func defaultSocketPath() -> String {
         let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return applicationSupport.appending(path: "DiskSteward/disk-steward.sock").path
+        return applicationSupport.appending(path: "Disk Steward/disk-steward.sock").path
     }
 
     public func call(
@@ -123,7 +131,13 @@ public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
     private func verifySocket() throws {
         var status = stat()
         guard lstat(socketPath, &status) == 0 else {
-            if errno == ENOENT { throw DiskStewardIPCError.appUnavailable }
+            if errno == ENOENT {
+                if let accessStateURL,
+                   (try? AgentAccessStateFile(url: accessStateURL).readEnabled()) == false {
+                    throw DiskStewardIPCError.agentAccessDisabled
+                }
+                throw DiskStewardIPCError.appUnavailable
+            }
             throw DiskStewardIPCError.connectionFailed(errno)
         }
         guard status.st_mode & S_IFMT == S_IFSOCK else {

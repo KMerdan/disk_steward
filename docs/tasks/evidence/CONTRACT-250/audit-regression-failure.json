@@ -1,0 +1,27 @@
+{
+  "schema": "audit-result-v1",
+  "target": "CONTRACT-250",
+  "result": "fail",
+  "checks": [
+    {
+      "id": "CHECK-C250-REGRESSION-01",
+      "result": "failed",
+      "evidence": [
+        "swift test: SnapshotExporterTests.testExportIsDeterministicSchemaValidAndIntegrityChecked failed because export-manifest-v1 required 11 files",
+        "swift test: SnapshotExporterTests.testLiveCurrentDataVolumeCanBeExported failed for the same compatibility reason"
+      ]
+    },
+    {
+      "id": "CHECK-C250-BOUNDARY-02",
+      "result": "passed",
+      "evidence": [
+        "Schemas/Evidence/actionable-export-v1.schema.json already owns the eleven-payload actionable-bundle requirement"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "CONTRACT-250",
+    "TASK-251"
+  ],
+  "recommended_action": "Repair export-manifest-v1 so it remains the shared integrity envelope, keep required actionable roles in actionable-export-v1 and semantic contract tests, rerun the full regression suite, then re-audit."
+}

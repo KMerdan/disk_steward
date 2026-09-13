@@ -1,0 +1,37 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-310",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-310-CURRENT-CANDIDATE-01",
+      "result": "passed",
+      "evidence": [
+        "OUTCOME-210 is verified against the current schema-v5 application candidate with 156 passing tests, a successful signed Debug build, and a passing UI smoke",
+        "The evidence/export repair does not change release scripts, identifiers, entitlements, credential handling, or archive topology"
+      ]
+    },
+    {
+      "id": "CHECK-310-REHEARSAL-01",
+      "result": "passed",
+      "evidence": [
+        "Scripts/Distribution/rehearse-handoff constructed an unsigned archive containing the app and bundled MCP helper, then correctly rejected it as a release",
+        "The credential preflight returned the contracted exact Account Holder and Xcode action because no Developer ID Application identity is installed"
+      ]
+    },
+    {
+      "id": "CHECK-310-DEVELOPMENT-01",
+      "result": "passed",
+      "evidence": [
+        "Scripts/Distribution/verify --development passed while explicitly disclaiming signing, live system-extension activation, and notarization",
+        "The normal development app remains buildable and runnable after the failed-closed release preflight"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-310",
+    "RISK-320",
+    "GATE-390"
+  ],
+  "recommended_action": "Promote TASK-310, retain Developer ID Application as the external final-release prerequisite, and revalidate distribution safety controls."
+}

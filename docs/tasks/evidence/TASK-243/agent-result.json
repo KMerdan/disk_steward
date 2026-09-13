@@ -1,0 +1,62 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-243",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+    "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "Schemas/retention-policy-v1.schema.json",
+    "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+    "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+    "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+    "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift",
+    "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+    "docs/operations/privacy-and-retention.md",
+    "docs/tasks/evidence/TASK-243/agent-result.json",
+    "docs/tasks/evidence/TASK-243/lifecycle-verification.md",
+    "docs/tasks/evidence/TASK-243/replan-review.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift", "class": "source"},
+    {"path": "Schemas/retention-policy-v1.schema.json", "class": "configuration"},
+    {"path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift", "class": "source"},
+    {"path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift", "class": "source"},
+    {"path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift", "class": "source"},
+    {"path": "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift", "class": "source"},
+    {"path": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift", "class": "source"},
+    {"path": "docs/operations/privacy-and-retention.md", "class": "configuration"},
+    {"path": "docs/tasks/evidence/TASK-243/agent-result.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/TASK-243/lifecycle-verification.md", "class": "evidence"},
+    {"path": "docs/tasks/evidence/TASK-243/replan-review.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --filter EvidenceRetentionLifecycleTests", "result": "passed: 3 tests, 0 failures"},
+    {"command": "swift test", "result": "passed: 128 tests, 0 failures"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-243-01", "result": "passed", "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift"},
+    {"criterion": "AC-243-02", "result": "passed", "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift"},
+    {"criterion": "AC-243-03", "result": "passed", "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift"},
+    {"criterion": "AC-243-04", "result": "passed", "reference": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift"},
+    {"criterion": "AC-243-05", "result": "passed", "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"},
+    {"criterion": "EVREQ-243-01", "result": "passed", "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"}
+  ],
+  "discovered_risks": [],
+  "suggested_graph_changes": []
+}

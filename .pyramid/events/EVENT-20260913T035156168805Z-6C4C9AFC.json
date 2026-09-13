@@ -1,0 +1,413 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T035156168805Z-6C4C9AFC",
+  "at": "2026-09-13T03:51:56.168630Z",
+  "graph_version": 76,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-220",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-244 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-13T03:47:25.661308Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-220",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+        "docs/tasks/evidence/TASK-220/status-board-light.png",
+        "docs/tasks/evidence/TASK-220/status-board-dark.png",
+        "docs/tasks/evidence/TASK-220/launch-smoke.json",
+        "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md",
+        "docs/tasks/evidence/TASK-220/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/status-board-light.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/status-board-dark.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/launch-smoke.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter StatusBoardPresentationTests",
+          "result": "passed: 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task-220-derived CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "Disk Steward --ui-smoke",
+          "result": "passed: accessory app, visible status item contract, snapshot available, Agent Access off"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-220-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/status-board-light.png"
+        },
+        {
+          "criterion": "AC-220-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift"
+        },
+        {
+          "criterion": "AC-220-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        },
+        {
+          "criterion": "AC-220-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/status-board-dark.png"
+        },
+        {
+          "criterion": "AC-220-05",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/StatusBoardViewModel.swift"
+        },
+        {
+          "criterion": "EVREQ-220-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-220",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-220-01",
+          "result": "passed",
+          "evidence": [
+            "status-board-light.png and status-board-dark.png",
+            "Capacity/free-space and recent change form the first readable group using native material, typography, symbols, semantic color, progress, buttons, and toggles"
+          ]
+        },
+        {
+          "id": "CHECK-220-02",
+          "result": "passed",
+          "evidence": [
+            "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+            "Active, paused, degraded, no-baseline, and error states have unique text, deterministic actions, symbols, and textual accessibility summaries"
+          ]
+        },
+        {
+          "id": "CHECK-220-03",
+          "result": "passed",
+          "evidence": [
+            "Both appearance renders share a 352-point compact geometry without clipped primary or secondary content",
+            "System colors/materials adapt across Aqua and Dark Aqua and status meaning never relies on color alone"
+          ]
+        },
+        {
+          "id": "CHECK-220-04",
+          "result": "passed",
+          "evidence": [
+            "Agent Access is separated by a divider and uses its own privacy copy and native switch",
+            "The off state explicitly says monitoring and stored evidence continue"
+          ]
+        },
+        {
+          "id": "CHECK-220-05",
+          "result": "passed",
+          "evidence": [
+            "Monitoring row shows evidence observation time and database bytes versus cap without adding raw logs, retained tiers, or export inventory",
+            "Export Evidence is the only prominent action and existing export tests verify bundle creation"
+          ]
+        },
+        {
+          "id": "CHECK-220-06",
+          "result": "passed",
+          "evidence": [
+            "swift test: 135 tests, 0 failures",
+            "Xcode Debug build: BUILD SUCCEEDED",
+            "Built-app UI smoke: accessory launch, status item label, snapshot, click routes, Agent Access off, and utility menu verified",
+            "git diff --check: passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-101",
+        "REQ-102",
+        "REQ-103",
+        "REQ-104",
+        "REQ-107",
+        "REQ-108",
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:51:56.168443Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-220",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+        "docs/tasks/evidence/TASK-220/status-board-light.png",
+        "docs/tasks/evidence/TASK-220/status-board-dark.png",
+        "docs/tasks/evidence/TASK-220/launch-smoke.json",
+        "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md",
+        "docs/tasks/evidence/TASK-220/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/status-board-light.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/status-board-dark.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/launch-smoke.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-220/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter StatusBoardPresentationTests",
+          "result": "passed: 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task-220-derived CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed: BUILD SUCCEEDED"
+        },
+        {
+          "command": "Disk Steward --ui-smoke",
+          "result": "passed: accessory app, visible status item contract, snapshot available, Agent Access off"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-220-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/status-board-light.png"
+        },
+        {
+          "criterion": "AC-220-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift"
+        },
+        {
+          "criterion": "AC-220-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        },
+        {
+          "criterion": "AC-220-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/status-board-dark.png"
+        },
+        {
+          "criterion": "AC-220-05",
+          "result": "passed",
+          "reference": "Sources/DiskStewardApp/StatusBoardViewModel.swift"
+        },
+        {
+          "criterion": "EVREQ-220-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-220",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-220-RUNTIME-01",
+          "result": "passed",
+          "evidence": [
+            "The exact rebuilt app executable passed --ui-smoke with accessory activation, status item, status board, utility menu, and export surface available.",
+            "The app completed a live startup scan after Downloads permission and remained running as PID 51280."
+          ]
+        },
+        {
+          "id": "CHECK-220-RUNTIME-02",
+          "result": "passed",
+          "evidence": [
+            "The repaired evidence and MCP dependencies are verified.",
+            "The complete suite passed 144 tests with zero failures, including status-board and MCP Access behavior."
+          ]
+        },
+        {
+          "id": "CHECK-220-RUNTIME-03",
+          "result": "passed",
+          "evidence": [
+            "The live observation reports partial coverage at the configured entry cap rather than presenting stale or incomplete data as current complete evidence.",
+            "No new crash report appeared after final launch."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-220",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-220-RUNTIME-01",
+          "result": "passed",
+          "evidence": [
+            "The exact rebuilt app executable passed --ui-smoke with accessory activation, status item, status board, utility menu, and export surface available.",
+            "The app completed a live startup scan after Downloads permission and remained running as PID 51280."
+          ]
+        },
+        {
+          "id": "CHECK-220-RUNTIME-02",
+          "result": "passed",
+          "evidence": [
+            "The repaired evidence and MCP dependencies are verified.",
+            "The complete suite passed 144 tests with zero failures, including status-board and MCP Access behavior."
+          ]
+        },
+        {
+          "id": "CHECK-220-RUNTIME-03",
+          "result": "passed",
+          "evidence": [
+            "The live observation reports partial coverage at the configured entry cap rather than presenting stale or incomplete data as current complete evidence.",
+            "No new crash report appeared after final launch."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-12DC2D0FC4663275C16167BA30569D64",
+  "previous_event_id": "EVENT-20260913T035118986537Z-60A31E95",
+  "previous_event_sha256": "b82f3d4cb30994c955d1e491c939dd809dcf98aeffd0d2c1caac8cb7bef533b4"
+}

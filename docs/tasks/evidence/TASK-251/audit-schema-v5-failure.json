@@ -1,0 +1,27 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-251",
+  "result": "fail",
+  "checks": [
+    {
+      "id": "CHECK-251-SCHEMA5-01",
+      "result": "failed",
+      "evidence": [
+        "TASK-250 introduced durable active scan generations after TASK-251 was verified",
+        "EvidenceBundleExporter.coveragePayload still emits active_generation as null and readScope can therefore present the previous complete observation as current while a generation is partial"
+      ]
+    },
+    {
+      "id": "CHECK-251-SCHEMA5-02",
+      "result": "passed",
+      "evidence": [
+        "The menu/view-model durable exporter path and all existing bundle roles remain valid"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-251",
+    "GATE-290"
+  ],
+  "recommended_action": "Read schema-v5 scan generation progress into the consistent export view, force partial coverage while active, include bounded progress in coverage.json and the brief, and add a mid-generation export regression."
+}

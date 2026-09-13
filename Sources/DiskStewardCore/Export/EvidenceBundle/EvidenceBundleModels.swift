@@ -23,6 +23,8 @@ public struct EvidenceBundleExportOptions: Equatable, Sendable {
 public struct EvidenceBundleExportResult: Sendable {
     public let bundleURL: URL
     public let manifest: EvidenceBundleManifest
+    public let exportID: String
+    public let kind: EvidenceExportKind
 }
 
 public struct EvidenceBundleManifest: Codable, Equatable, Sendable {
@@ -96,25 +98,81 @@ struct EvidenceBundleSummary: Codable, Equatable {
         }
     }
 
+    struct CurrentConsumer: Codable, Equatable {
+        let path: String
+        let kind: String
+        let itemCount: Int
+        let logicalBytes: Int64
+        let allocatedBytes: Int64
+        let actionable: Bool
+
+        enum CodingKeys: String, CodingKey {
+            case path
+            case kind
+            case itemCount = "item_count"
+            case logicalBytes = "logical_bytes"
+            case allocatedBytes = "allocated_bytes"
+            case actionable
+        }
+    }
+
     let schema: String
     let requestedRange: EvidenceBundleManifest.RequestedRange
+    let volumeCapacityScope: String
+    let fileDetailRoots: [String]
+    let exclusions: [String]
+    let detailCoverage: String
+    let stateAsOf: String?
+    let lastCompleteObservationAt: String?
+    let openGapCount: Int
+    let activeGenerationID: String?
+    let activeGenerationStartedAt: String?
+    let scanCompletedRootCount: Int
+    let scanRootCount: Int
+    let scanProcessedEntryCount: Int
+    let scanStagedFileCount: Int
+    let currentStateCount: Int
+    let currentStateAllocatedBytes: Int64
+    let growthAssessment: String
     let rawEventCount: Int
     let snapshotCount: Int
     let hourlySummaryCount: Int
     let dailySummaryCount: Int
     let allocatedDelta: Int64
     let categories: [Category]
+    let largestCurrentDirectories: [CurrentConsumer]
+    let largestCurrentFiles: [CurrentConsumer]
+    let cleanupReviewLeads: [CurrentConsumer]
     let limitations: [String]
 
     enum CodingKeys: String, CodingKey {
         case schema
         case requestedRange = "requested_range"
+        case volumeCapacityScope = "volume_capacity_scope"
+        case fileDetailRoots = "file_detail_roots"
+        case exclusions
+        case detailCoverage = "detail_coverage"
+        case stateAsOf = "state_as_of"
+        case lastCompleteObservationAt = "last_complete_observation_at"
+        case openGapCount = "open_gap_count"
+        case activeGenerationID = "active_generation_id"
+        case activeGenerationStartedAt = "active_generation_started_at"
+        case scanCompletedRootCount = "scan_completed_root_count"
+        case scanRootCount = "scan_root_count"
+        case scanProcessedEntryCount = "scan_processed_entry_count"
+        case scanStagedFileCount = "scan_staged_file_count"
+        case currentStateCount = "current_state_count"
+        case currentStateAllocatedBytes = "current_state_allocated_bytes"
+        case growthAssessment = "growth_assessment"
         case rawEventCount = "raw_event_count"
         case snapshotCount = "snapshot_count"
         case hourlySummaryCount = "hourly_summary_count"
         case dailySummaryCount = "daily_summary_count"
         case allocatedDelta = "allocated_delta"
         case categories
+        case largestCurrentDirectories = "largest_current_directories"
+        case largestCurrentFiles = "largest_current_files"
+        case cleanupReviewLeads = "cleanup_review_leads"
         case limitations
     }
 }
@@ -206,10 +264,10 @@ struct ExportedEvidenceEvent: Codable {
 
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encodeNil(forKey: .processID)
-            try container.encodeNil(forKey: .executable)
-            try container.encodeNil(forKey: .command)
-            try container.encodeNil(forKey: .workingDirectory)
+            try container.encode(processID, forKey: .processID)
+            try container.encode(executable, forKey: .executable)
+            try container.encode(command, forKey: .command)
+            try container.encode(workingDirectory, forKey: .workingDirectory)
             try container.encode(ancestorExecutables, forKey: .ancestorExecutables)
         }
     }
@@ -230,9 +288,9 @@ struct ExportedEvidenceEvent: Codable {
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(provider, forKey: .provider)
-            try container.encodeNil(forKey: .sessionID)
-            try container.encodeNil(forKey: .title)
-            try container.encodeNil(forKey: .workingDirectory)
+            try container.encode(sessionID, forKey: .sessionID)
+            try container.encode(title, forKey: .title)
+            try container.encode(workingDirectory, forKey: .workingDirectory)
         }
     }
 

@@ -1,0 +1,235 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-REPLAN-20260913-ACTIONABLE-EXPORT",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-002",
+    "revision": 6,
+    "sha256": "f88d72102397f166ddea20a332cdf993211cae6fa5844326dafc288ec3808931"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-002",
+    "revision": 7,
+    "sha256": "7e6082636db505861d6895e27a6b55f06089b3c2d1423767411dc91587f66c46"
+  },
+  "facts": [
+    {
+      "id": "FACT-REPLAN-001",
+      "claim": "The actual bundle created from the running app's human export action contains only a capacity brief, a capacity snapshot, and a manifest, totaling less than two kilobytes.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "EV-118",
+        "docs/tasks/evidence/REPLAN-20260913-actionable-export/trigger-evidence.json"
+      ],
+      "supports": [
+        "REQ-110",
+        "TASK-251",
+        "GATE-290"
+      ],
+      "freshness": "Observed from the user-supplied export on 2026-09-13."
+    },
+    {
+      "id": "FACT-REPLAN-002",
+      "claim": "The menu and status-board path invokes the legacy SnapshotExporter even though EvidenceBundleExporter already implements richer EvidenceStore-backed roles.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "EV-119",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift"
+      ],
+      "supports": [
+        "TASK-251",
+        "GATE-290"
+      ],
+      "freshness": "Verified against the repository source on 2026-09-13."
+    },
+    {
+      "id": "FACT-REPLAN-003",
+      "claim": "The live EvidenceStore contains nearly one hundred thousand current-state records and more than ten gigabytes of allocated watched-root state, but every recorded observation is partial at the same entry cap and no change event exists.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "EV-120",
+        "docs/tasks/evidence/REPLAN-20260913-actionable-export/trigger-evidence.json"
+      ],
+      "supports": [
+        "TASK-250",
+        "TASK-251",
+        "GATE-290"
+      ],
+      "freshness": "Read from the live local EvidenceStore on 2026-09-13."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-REPLAN-001",
+      "class": "unsupported-claim",
+      "affected_nodes": [
+        "GATE-290",
+        "OUTCOME-210"
+      ],
+      "claim": "The prior verified export journey did not prove that the human-facing action exported the durable evidence needed by a human or agent.",
+      "evidence": [
+        "EV-118",
+        "EV-119"
+      ],
+      "counterevidence": [
+        "EV-103"
+      ],
+      "disposition": "applied",
+      "change": "Added REQ-110, TASK-251, exact menu-path evidence, and stronger GATE-290 and release-gate acceptance.",
+      "rationale": "A component-level exporter test cannot substitute for inspecting the artifact created by the actor-visible application path."
+    },
+    {
+      "id": "FINDING-REPLAN-002",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "CONTRACT-240",
+        "TASK-241",
+        "GATE-290"
+      ],
+      "claim": "The prior graph required honest partial-scan semantics but did not require capped scans to make durable forward progress toward a complete generation.",
+      "evidence": [
+        "EV-120"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Added the capped-generation constraint, CONTRACT-250, TASK-250, multi-slice acceptance, and convergence evidence at GATE-290.",
+      "rationale": "Without an eventual-completion contract, repeated safe partial scans can remain permanently unable to establish changes or deletions."
+    },
+    {
+      "id": "FINDING-REPLAN-003",
+      "class": "under-decomposition",
+      "affected_nodes": [
+        "GATE-290",
+        "OUTCOME-210"
+      ],
+      "claim": "Export wiring and scan convergence affect different implementation surfaces and can be delivered independently behind one shared evidence contract.",
+      "evidence": [
+        "EV-119",
+        "EV-120"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Introduced one contract node and two parallel implementation nodes, then joined them at the existing native-application audit gate.",
+      "rationale": "The split preserves concurrency without allowing either branch to bypass the combined actor-visible evidence audit."
+    },
+    {
+      "id": "FINDING-REPLAN-004",
+      "class": "unjustified-dependency",
+      "affected_nodes": [
+        "CONTRACT-250",
+        "TASK-250",
+        "TASK-251",
+        "GATE-290"
+      ],
+      "claim": "Hard dependencies from the new repair nodes to older implemented nodes created an assurance deadlock after GATE-290 was reopened: the old nodes could only regain verification at the gate that the new nodes were prevented from reaching.",
+      "evidence": [
+        "EV-120"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Removed four hard edges to CONTRACT-240, TASK-241, TASK-243, and TASK-244 while retaining those artifacts as explicit required context; CONTRACT-250 remains the hard prerequisite for both repair branches and GATE-290 remains their assurance join.",
+      "rationale": "The prior implementations exist and are inspectable, but their reopened assurance state must not prevent the work that the same audit is meant to verify."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-101",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-210", "GATE-290", "TASK-310", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-210", "GATE-290", "TASK-310", "GATE-390"],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-102",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "CONTRACT-201", "CONTRACT-240", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "CONTRACT-201", "CONTRACT-240", "TASK-243", "TASK-244", "TASK-220", "TASK-251", "GATE-290", "GATE-390"],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-103",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "CONTRACT-201", "TASK-230", "CONTRACT-240", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "CONTRACT-201", "TASK-230", "CONTRACT-240", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "GATE-390"],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-104",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-210", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-210", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "CONTRACT-250", "TASK-250", "TASK-251", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-105",
+      "before_nodes": ["INTENT-002", "OUTCOME-220", "CONTRACT-201", "RESEARCH-201", "TASK-310", "RISK-320", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-220", "CONTRACT-201", "RESEARCH-201", "TASK-310", "RISK-320", "GATE-390"],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-106",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "RESEARCH-201", "TASK-210", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "RESEARCH-201", "TASK-210", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-107",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-230", "TASK-244", "TASK-220", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-230", "TASK-244", "TASK-220", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-108",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "CONTRACT-250", "TASK-250", "TASK-251", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-109",
+      "before_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-201", "TASK-230", "CONTRACT-240", "TASK-241", "TASK-242", "TASK-243", "TASK-244", "TASK-220", "CONTRACT-250", "TASK-250", "TASK-251", "GATE-290", "TASK-310", "RISK-320", "GATE-390"],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-110",
+      "before_nodes": [],
+      "after_nodes": ["INTENT-002", "OUTCOME-210", "OUTCOME-220", "CONTRACT-250", "TASK-250", "TASK-251", "GATE-290", "GATE-390"],
+      "status": "strengthened"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "strengthened",
+    "constraints": "strengthened",
+    "non_goals": "preserved",
+    "assurance": "strengthened",
+    "audit_closure": "strengthened",
+    "execution_safety": "strengthened"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 20,
+      "executable_nodes": 17,
+      "edges": 59,
+      "hard_dependencies": 40,
+      "audit_gates": 2
+    },
+    "after": {
+      "nodes": 20,
+      "executable_nodes": 17,
+      "edges": 55,
+      "hard_dependencies": 36,
+      "audit_gates": 2
+    }
+  },
+  "summary": "The candidate preserves the distributable menu-bar-app intent and all valid implementation history while removing four circular assurance dependencies discovered after the first replan application. The shared contract becomes immediately executable, its two repair branches depend only on that contract, and the existing application and final distribution audits still revalidate the older implementation surfaces together with scan convergence and the actual menu-created export.",
+  "limitations": [
+    "The replan does not itself repair exporter wiring or scan traversal.",
+    "Whole-volume file attribution remains outside the standard unprivileged product; detailed evidence is limited to configured roots and declared exclusions.",
+    "Final direct distribution remains contingent on a Developer ID Application identity and user-owned Apple notarization access."
+  ]
+}

@@ -136,6 +136,27 @@ final class SQLiteConnection {
         guard code == SQLITE_OK else { throw lastError(code) }
     }
 
+    func bindNull(at index: Int32, in statement: OpaquePointer) throws {
+        let code = sqlite3_bind_null(statement, index)
+        guard code == SQLITE_OK else { throw lastError(code) }
+    }
+
+    func bind(_ value: String?, at index: Int32, in statement: OpaquePointer) throws {
+        if let value {
+            try bind(value, at: index, in: statement)
+        } else {
+            try bindNull(at: index, in: statement)
+        }
+    }
+
+    func bind(_ value: Double?, at index: Int32, in statement: OpaquePointer) throws {
+        if let value {
+            try bind(value, at: index, in: statement)
+        } else {
+            try bindNull(at: index, in: statement)
+        }
+    }
+
     func stepDone(_ statement: OpaquePointer) throws {
         let code = sqlite3_step(statement)
         guard code == SQLITE_DONE else { throw lastError(code) }

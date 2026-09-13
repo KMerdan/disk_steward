@@ -1,0 +1,44 @@
+#!/bin/zsh
+set -euo pipefail
+
+repository=${0:A:h:h:h}
+mode="${1:-}"
+archive_argument="${2:-}"
+
+if [[ "$mode" != "--release" && "$mode" != "--unsigned-rehearsal" ]]; then
+  print -u2 "usage: Scripts/Distribution/archive-release --release|--unsigned-rehearsal <absolute-output.xcarchive>"
+  exit 64
+fi
+if [[ -z "$archive_argument" || "$archive_argument" != /* || "$archive_argument" != *.xcarchive ]]; then
+  print -u2 "Archive path must be an absolute, previously unused .xcarchive path."
+  exit 64
+fi
+archive_path=${archive_argument:A}
+if [[ -e "$archive_path" ]]; then
+  print -u2 "Refusing to overwrite existing archive: $archive_path"
+  exit 73
+fi
+
+if [[ "$mode" == "--release" ]]; then
+  "$repository/Scripts/Distribution/release-preflight"
+  signing_arguments=()
+else
+  signing_arguments=(CODE_SIGNING_ALLOWED=NO)
+  print "Unsigned rehearsal only: this proves archive construction, not release signing or notarization."
+fi
+
+cd "$repository"
+/usr/bin/xcodebuild \
+  -quiet \
+  -project DiskSteward.xcodeproj \
+  -scheme DiskSteward-Release \
+  -configuration Release \
+  -destination 'generic/platform=macOS' \
+  -archivePath "$archive_path" \
+  "${signing_arguments[@]}" \
+  archive
+
+print "Archive created: $archive_path"
+if [[ "$mode" == "--unsigned-rehearsal" ]]; then
+  print "Expected next step: obtain Developer ID Application access and rerun with --release; do not distribute this rehearsal archive."
+fi

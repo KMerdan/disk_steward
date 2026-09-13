@@ -1,0 +1,374 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T052926071711Z-D0F4896C",
+  "at": "2026-09-13T05:29:26.071542Z",
+  "graph_version": 92,
+  "actor": "codex",
+  "type": "task.implemented",
+  "node": "CONTRACT-250",
+  "before": {
+    "execution": "working",
+    "verification": "failed",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-13T07:28:40.531601Z",
+    "work_origin": "needs-rework",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:28:40.531663Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-250",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/architecture/evidence-export.md",
+        "docs/architecture/evidence-object-lifecycle.md",
+        "Schemas/Evidence/actionable-export-v1.schema.json",
+        "Schemas/Evidence/scan-generation-scenario-v1.schema.json",
+        "Schemas/export-manifest-v1.schema.json",
+        "Fixtures/Contracts/valid-export-manifest.json",
+        "Fixtures/Contracts/Evidence/actionable-export-valid.json",
+        "Fixtures/Contracts/Evidence/actionable-export-missing-roles.json",
+        "Fixtures/Contracts/Evidence/actionable-export-false-complete.json",
+        "Fixtures/Contracts/Evidence/scan-generation-multi-slice.json",
+        "Fixtures/Contracts/Evidence/scan-generation-restart.json",
+        "Fixtures/Contracts/Evidence/scan-generation-scope-change.json",
+        "Tests/ContractTests/Evidence/EvidenceUsefulnessContractTests.swift",
+        "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+        "docs/tasks/evidence/CONTRACT-250/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "docs/architecture/evidence-export.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/architecture/evidence-object-lifecycle.md",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/Evidence/actionable-export-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/Evidence/scan-generation-scenario-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Schemas/export-manifest-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Fixtures/Contracts/valid-export-manifest.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/actionable-export-valid.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/actionable-export-missing-roles.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/actionable-export-false-complete.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/scan-generation-multi-slice.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/scan-generation-restart.json",
+          "class": "source"
+        },
+        {
+          "path": "Fixtures/Contracts/Evidence/scan-generation-scope-change.json",
+          "class": "source"
+        },
+        {
+          "path": "Tests/ContractTests/Evidence/EvidenceUsefulnessContractTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter ContractTests",
+          "result": "passed: 24 tests, 0 failures; includes 6 EvidenceUsefulnessContractTests"
+        },
+        {
+          "command": "git diff --check -- CONTRACT-250 scoped files",
+          "result": "passed"
+        },
+        {
+          "command": "jq empty on CONTRACT-250 schemas and fixtures",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-C250-01",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-export.md#scope-vocabulary and actionable-export-valid.json"
+        },
+        {
+          "criterion": "AC-C250-02",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-export.md#required-bundle-roles and EvidenceUsefulnessContractTests.testCapacityOnlyBundleFailsRequiredRoleContract"
+        },
+        {
+          "criterion": "AC-C250-03",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-export.md#decision-focused-brief and actionable-export-v1.schema.json"
+        },
+        {
+          "criterion": "AC-C250-04",
+          "result": "passed",
+          "reference": "docs/architecture/evidence-object-lifecycle.md#bounded-scan-generation-lifecycle and the three scan-generation fixtures"
+        }
+      ],
+      "discovered_risks": [
+        "The existing exporter and scanner do not yet implement this contract; TASK-250 and TASK-251 remain required before GATE-290."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-250",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-C250-REGRESSION-01",
+          "result": "failed",
+          "evidence": [
+            "swift test: SnapshotExporterTests.testExportIsDeterministicSchemaValidAndIntegrityChecked failed because export-manifest-v1 required 11 files",
+            "swift test: SnapshotExporterTests.testLiveCurrentDataVolumeCanBeExported failed for the same compatibility reason"
+          ]
+        },
+        {
+          "id": "CHECK-C250-BOUNDARY-02",
+          "result": "passed",
+          "evidence": [
+            "Schemas/Evidence/actionable-export-v1.schema.json already owns the eleven-payload actionable-bundle requirement"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-250",
+        "TASK-251"
+      ],
+      "recommended_action": "Repair export-manifest-v1 so it remains the shared integrity envelope, keep required actionable roles in actionable-export-v1 and semantic contract tests, rerun the full regression suite, then re-audit."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:29:26.071459Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-250",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/export-manifest-v1.schema.json",
+        "docs/architecture/evidence-export.md",
+        "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+        "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+        "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/export-manifest-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/architecture/evidence-export.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'ContractTests|SnapshotExporterTests'",
+          "result": "passed: 27 tests, 0 failures"
+        },
+        {
+          "command": "jq empty on export and evidence contract schemas and fixtures",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-C250-01",
+          "result": "passed",
+          "reference": "actionable-export-v1 scope object and evidence-export.md scope vocabulary remain unchanged"
+        },
+        {
+          "criterion": "AC-C250-02",
+          "result": "passed",
+          "reference": "EvidenceUsefulnessContractTests still rejects the capacity-only fixture while SnapshotExporterTests pass"
+        },
+        {
+          "criterion": "AC-C250-03",
+          "result": "passed",
+          "reference": "actionable brief schema and decision order remain enforced"
+        },
+        {
+          "criterion": "AC-C250-04",
+          "result": "passed",
+          "reference": "scan-generation contract tests remain green"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-250",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-C250-REGRESSION-01",
+          "result": "failed",
+          "evidence": [
+            "swift test: SnapshotExporterTests.testExportIsDeterministicSchemaValidAndIntegrityChecked failed because export-manifest-v1 required 11 files",
+            "swift test: SnapshotExporterTests.testLiveCurrentDataVolumeCanBeExported failed for the same compatibility reason"
+          ]
+        },
+        {
+          "id": "CHECK-C250-BOUNDARY-02",
+          "result": "passed",
+          "evidence": [
+            "Schemas/Evidence/actionable-export-v1.schema.json already owns the eleven-payload actionable-bundle requirement"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-250",
+        "TASK-251"
+      ],
+      "recommended_action": "Repair export-manifest-v1 so it remains the shared integrity envelope, keep required actionable roles in actionable-export-v1 and semantic contract tests, rerun the full regression suite, then re-audit."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-250",
+      "outcome": "implemented",
+      "changed_files": [
+        "Schemas/export-manifest-v1.schema.json",
+        "docs/architecture/evidence-export.md",
+        "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+        "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+        "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Schemas/export-manifest-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/architecture/evidence-export.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/contract-review.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/audit-regression-failure.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/CONTRACT-250/agent-result-repair.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter 'ContractTests|SnapshotExporterTests'",
+          "result": "passed: 27 tests, 0 failures"
+        },
+        {
+          "command": "jq empty on export and evidence contract schemas and fixtures",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-C250-01",
+          "result": "passed",
+          "reference": "actionable-export-v1 scope object and evidence-export.md scope vocabulary remain unchanged"
+        },
+        {
+          "criterion": "AC-C250-02",
+          "result": "passed",
+          "reference": "EvidenceUsefulnessContractTests still rejects the capacity-only fixture while SnapshotExporterTests pass"
+        },
+        {
+          "criterion": "AC-C250-03",
+          "result": "passed",
+          "reference": "actionable brief schema and decision order remain enforced"
+        },
+        {
+          "criterion": "AC-C250-04",
+          "result": "passed",
+          "reference": "scan-generation contract tests remain green"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-7B7A22574206B06DF824FBE1A2F48DC2",
+  "previous_event_id": "EVENT-20260913T052840531860Z-BF12B0BA",
+  "previous_event_sha256": "9e8bdaae74b4fa7277adc18dcf87dcc00306167586e7468006284c0c6d4673cf"
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-251",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-251-01",
+      "result": "passed",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift routes production menu export through EvidenceStore and EvidenceBundleExporter",
+        "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift verifies asynchronous success, failure, Finder completion callback, and manual export inventory"
+      ]
+    },
+    {
+      "id": "CHECK-251-02",
+      "result": "passed",
+      "evidence": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift emits all actionable roles and an ordered decision brief",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift verifies partial scope, current consumers, unavailable growth, privacy shaping, determinism, and integrity"
+      ]
+    },
+    {
+      "id": "CHECK-251-03",
+      "result": "passed",
+      "evidence": [
+        "swift test: 153 tests passed, 0 failures",
+        "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build: BUILD SUCCEEDED",
+        "git diff --check on TASK-251 scope: passed"
+      ]
+    },
+    {
+      "id": "CHECK-251-04",
+      "result": "passed",
+      "evidence": [
+        "docs/tasks/evidence/TASK-251/real-export-journey.md"
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-251"
+  ],
+  "recommended_action": "advance"
+}

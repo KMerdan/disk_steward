@@ -1,0 +1,422 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T035436844357Z-1A6CEC58",
+  "at": "2026-09-13T03:54:36.844133Z",
+  "graph_version": 79,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-310",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-244 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-13T03:47:25.661308Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/ExportOptions/DeveloperID.plist",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/release-preflight",
+        "Scripts/Distribution/archive-release",
+        "Scripts/Distribution/verify-release",
+        "Scripts/Distribution/rehearse-handoff",
+        "docs/release/direct-distribution-handoff.md",
+        "docs/tasks/evidence/TASK-310/release-workflow.md",
+        "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+        "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+        "docs/tasks/evidence/TASK-310/reopen-repair.md",
+        "docs/tasks/evidence/TASK-310/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/ExportOptions/DeveloperID.plist",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/release-preflight",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/archive-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/rehearse-handoff",
+          "class": "source"
+        },
+        {
+          "path": "docs/release/direct-distribution-handoff.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/release-workflow.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/reopen-repair.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "zsh -n Scripts/Distribution/{release-preflight,archive-release,verify-release,rehearse-handoff}",
+          "result": "passed"
+        },
+        {
+          "command": "plutil -lint Config/ExportOptions/DeveloperID.plist",
+          "result": "passed"
+        },
+        {
+          "command": "xmllint --noout DiskSteward-Release.xcscheme",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/release-preflight",
+          "result": "expected failure: exit 66 with precise Developer ID remediation"
+        },
+        {
+          "command": "Scripts/Distribution/rehearse-handoff",
+          "result": "passed: Release archive constructed, nested helper found, unsigned artifact rejected, temporary archive removed"
+        },
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed after reopen repair: 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/release-workflow.md"
+        },
+        {
+          "criterion": "AC-310-02",
+          "result": "passed",
+          "reference": "Scripts/Distribution/verify-release; repaired after RISK-320 review to verify application/helper identifiers and the exact standard-app entitlement key/value set"
+        },
+        {
+          "criterion": "AC-310-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt"
+        },
+        {
+          "criterion": "EVREQ-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-01",
+          "result": "passed",
+          "evidence": [
+            "Shared DiskSteward-Release scheme archives the Release app",
+            "Developer ID export options and handoff contain no account credentials",
+            "Release configuration requires hardened runtime and production entitlements"
+          ]
+        },
+        {
+          "id": "CHECK-310-02",
+          "result": "passed",
+          "evidence": [
+            "verify-release checks the actual app plus embedded MCP helper",
+            "Application and helper identifiers, Developer ID authority, Team ID, timestamp, runtime, exact standard-app entitlement key/value set, staple, and Gatekeeper are fail-closed gates",
+            "Apple Distribution, unsigned, ad hoc, damaged, shallow-only, and non-notarized artifacts cannot pass"
+          ]
+        },
+        {
+          "id": "CHECK-310-03",
+          "result": "passed",
+          "evidence": [
+            "Current missing Developer ID Application identity returns exit 66 before Xcode",
+            "Diagnostic names the Account Holder and exact Xcode Manage Certificates path",
+            "Unsigned rehearsal and the 135-test development suite remain usable"
+          ]
+        },
+        {
+          "id": "CHECK-310-04",
+          "result": "passed",
+          "evidence": [
+            "Credential-free rehearsal constructed an isolated Release archive and found executable nested helper",
+            "The verifier rejected the rehearsal archive and temporary data was removed",
+            "Signed/notarized inspection is correctly unavailable until the external Developer ID identity exists and is not fabricated"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "REQ-109",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-13T02:09:59.567794Z",
+      "actor": "codex",
+      "reason": "RISK-320 negative testing found the entitlement check asserted the app-group value but not its required key.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/RISK-320/entitlement-key-gap.json"
+    }
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T03:54:36.843920Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/ExportOptions/DeveloperID.plist",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/release-preflight",
+        "Scripts/Distribution/archive-release",
+        "Scripts/Distribution/verify-release",
+        "Scripts/Distribution/rehearse-handoff",
+        "docs/release/direct-distribution-handoff.md",
+        "docs/tasks/evidence/TASK-310/release-workflow.md",
+        "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+        "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+        "docs/tasks/evidence/TASK-310/reopen-repair.md",
+        "docs/tasks/evidence/TASK-310/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/ExportOptions/DeveloperID.plist",
+          "class": "source"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/release-preflight",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/archive-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/rehearse-handoff",
+          "class": "source"
+        },
+        {
+          "path": "docs/release/direct-distribution-handoff.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/release-workflow.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/reopen-repair.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-310/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "zsh -n Scripts/Distribution/{release-preflight,archive-release,verify-release,rehearse-handoff}",
+          "result": "passed"
+        },
+        {
+          "command": "plutil -lint Config/ExportOptions/DeveloperID.plist",
+          "result": "passed"
+        },
+        {
+          "command": "xmllint --noout DiskSteward-Release.xcscheme",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/release-preflight",
+          "result": "expected failure: exit 66 with precise Developer ID remediation"
+        },
+        {
+          "command": "Scripts/Distribution/rehearse-handoff",
+          "result": "passed: Release archive constructed, nested helper found, unsigned artifact rejected, temporary archive removed"
+        },
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed after reopen repair: 5 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 135 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/release-workflow.md"
+        },
+        {
+          "criterion": "AC-310-02",
+          "result": "passed",
+          "reference": "Scripts/Distribution/verify-release; repaired after RISK-320 review to verify application/helper identifiers and the exact standard-app entitlement key/value set"
+        },
+        {
+          "criterion": "AC-310-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt"
+        },
+        {
+          "criterion": "EVREQ-310-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-REVALIDATE-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210 is verified against the repaired current app candidate.",
+            "The hard-link repairs do not alter release scripts, signing configuration, credentials, or entitlements."
+          ]
+        },
+        {
+          "id": "CHECK-310-REVALIDATE-02",
+          "result": "passed",
+          "evidence": [
+            "The full 144-test run includes DistributionReleaseIntegrityTests with all five tests passing.",
+            "The release workflow continues to fail closed when a Developer ID Application identity is unavailable while leaving the unsigned Debug app buildable and runnable."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-13T02:09:59.567794Z",
+      "actor": "codex",
+      "reason": "RISK-320 negative testing found the entitlement check asserted the app-group value but not its required key.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/RISK-320/entitlement-key-gap.json"
+    }
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-REVALIDATE-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210 is verified against the repaired current app candidate.",
+            "The hard-link repairs do not alter release scripts, signing configuration, credentials, or entitlements."
+          ]
+        },
+        {
+          "id": "CHECK-310-REVALIDATE-02",
+          "result": "passed",
+          "evidence": [
+            "The full 144-test run includes DistributionReleaseIntegrityTests with all five tests passing.",
+            "The release workflow continues to fail closed when a Developer ID Application identity is unavailable while leaving the unsigned Debug app buildable and runnable."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 5,
+  "context_id": "CTX-B0D4CE7EC07CD710648A946D04F3585A",
+  "previous_event_id": "EVENT-20260913T035328715179Z-39D3BF65",
+  "previous_event_sha256": "83b4b496d27aa397949298c696e3d732743c188182bbdac2440f6963d45ccd3b"
+}

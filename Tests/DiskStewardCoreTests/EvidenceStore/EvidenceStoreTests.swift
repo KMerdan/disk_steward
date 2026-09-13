@@ -9,7 +9,7 @@ final class EvidenceStoreTests: XCTestCase, @unchecked Sendable {
 
         let diagnostics = try await store.diagnostics()
 
-        XCTAssertEqual(diagnostics.schemaVersion, 1)
+        XCTAssertEqual(diagnostics.schemaVersion, 5)
         XCTAssertEqual(diagnostics.journalMode.lowercased(), "wal")
         XCTAssertEqual(diagnostics.integrity, "ok")
         await store.close()
@@ -162,6 +162,13 @@ final class EvidenceStoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertLessThanOrEqual(report.storageBytes, policy.maxDatabaseBytes)
         XCTAssertLessThan(remainingEvents, events.count)
         XCTAssertEqual(integrity, "ok")
+        let runs = try await store.retentionRuns()
+        let gaps = try await store.retentionCoverageGaps()
+        XCTAssertEqual(runs.first?.runID, report.runID)
+        XCTAssertEqual(runs.first?.result, .completed)
+        XCTAssertEqual(runs.first?.forcedEvictions, report.forcedEvictions)
+        XCTAssertEqual(gaps.first?.retentionRunID, report.runID)
+        XCTAssertEqual(gaps.first?.rowsRemoved, report.forcedEvictions)
         await store.close()
     }
 

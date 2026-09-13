@@ -1,0 +1,460 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T055325806145Z-38797E46",
+  "at": "2026-09-13T05:53:25.805963Z",
+  "graph_version": 106,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-243",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+    "updated_at": "2026-09-13T04:39:22.945431Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-243",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Schemas/retention-policy-v1.schema.json",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift",
+        "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+        "docs/operations/privacy-and-retention.md",
+        "docs/tasks/evidence/TASK-243/agent-result.json",
+        "docs/tasks/evidence/TASK-243/lifecycle-verification.md",
+        "docs/tasks/evidence/TASK-243/replan-review.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/retention-policy-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-243/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-243/lifecycle-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-243/replan-review.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceRetentionLifecycleTests",
+          "result": "passed: 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 128 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-243-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-243-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-243-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift"
+        },
+        {
+          "criterion": "AC-243-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift"
+        },
+        {
+          "criterion": "AC-243-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        },
+        {
+          "criterion": "EVREQ-243-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-243",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-243-REVALIDATE-01",
+          "result": "passed",
+          "evidence": [
+            "TASK-241 now represents hard-linked paths as one physical current-state object, preventing double-counted retained state.",
+            "Multi-link records remain present evidence but non-actionable until only one link remains."
+          ]
+        },
+        {
+          "id": "CHECK-243-REVALIDATE-02",
+          "result": "passed",
+          "evidence": [
+            "Focused EvidenceRetentionLifecycleTests and EvidenceBundleExporterTests passed within 15 selected tests with zero failures.",
+            "The complete suite passed 143 tests with zero failures."
+          ]
+        },
+        {
+          "id": "CHECK-243-REVALIDATE-03",
+          "result": "passed",
+          "evidence": [
+            "The repaired live startup committed current state and retained the configured entry-cap limitation as a coverage gap.",
+            "No automatic deletion or export ownership behavior was introduced by the repair."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T05:53:25.805871Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-243",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Schemas/retention-policy-v1.schema.json",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift",
+        "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+        "docs/operations/privacy-and-retention.md",
+        "docs/tasks/evidence/TASK-243/agent-result.json",
+        "docs/tasks/evidence/TASK-243/lifecycle-verification.md",
+        "docs/tasks/evidence/TASK-243/replan-review.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Schemas/retention-policy-v1.schema.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/operations/privacy-and-retention.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-243/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-243/lifecycle-verification.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-243/replan-review.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceRetentionLifecycleTests",
+          "result": "passed: 3 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 128 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-243-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-243-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift"
+        },
+        {
+          "criterion": "AC-243-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift"
+        },
+        {
+          "criterion": "AC-243-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift"
+        },
+        {
+          "criterion": "AC-243-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        },
+        {
+          "criterion": "EVREQ-243-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-243/lifecycle-verification.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-243",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-243-GENERATION-LIFECYCLE-01",
+          "result": "passed",
+          "evidence": [
+            "EvidenceStore bounds scan-generation history and exposes active generation progress through EvidenceLifecycleStatus",
+            "Active unfinished roots create synthetic coverage gaps without converting staged observations into authoritative current state"
+          ]
+        },
+        {
+          "id": "CHECK-243-COMPACTION-01",
+          "result": "passed",
+          "evidence": [
+            "Existing retention tests continue to prove current-state survival, tier boundaries, pressure eviction diagnostics, and manual-versus-temporary export ownership",
+            "Schema-v5 generation staging is retired after promotion and abandoned safely on invalid restart or scope change"
+          ]
+        },
+        {
+          "id": "CHECK-243-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests with no failures",
+            "The Xcode Debug application build succeeded"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-243",
+        "TASK-244",
+        "GATE-290"
+      ],
+      "recommended_action": "Promote TASK-243 and revalidate MCP lifecycle and current-state queries over schema-v5 coverage."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-243",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-243-GENERATION-LIFECYCLE-01",
+          "result": "passed",
+          "evidence": [
+            "EvidenceStore bounds scan-generation history and exposes active generation progress through EvidenceLifecycleStatus",
+            "Active unfinished roots create synthetic coverage gaps without converting staged observations into authoritative current state"
+          ]
+        },
+        {
+          "id": "CHECK-243-COMPACTION-01",
+          "result": "passed",
+          "evidence": [
+            "Existing retention tests continue to prove current-state survival, tier boundaries, pressure eviction diagnostics, and manual-versus-temporary export ownership",
+            "Schema-v5 generation staging is retired after promotion and abandoned safely on invalid restart or scope change"
+          ]
+        },
+        {
+          "id": "CHECK-243-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "The full Swift package suite passed 156 tests with no failures",
+            "The Xcode Debug application build succeeded"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-243",
+        "TASK-244",
+        "GATE-290"
+      ],
+      "recommended_action": "Promote TASK-243 and revalidate MCP lifecycle and current-state queries over schema-v5 coverage."
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 7,
+  "context_id": "CTX-D769F2252EA50E2A077890F4C110DC5C",
+  "previous_event_id": "EVENT-20260913T055259074514Z-9EC4D911",
+  "previous_event_sha256": "55b51430182810eaa1c773bda704a94df831ae4a6ac48c89737930987c034db6"
+}

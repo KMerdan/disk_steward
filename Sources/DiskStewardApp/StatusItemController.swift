@@ -20,8 +20,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let settingsStore: MonitoringSettingsStore
     private let lifecycle: MonitoringLifecycleController
     private let launchAtLogin: LaunchAtLoginController
-    private var ipcServer: UnixSocketEvidenceServer?
-    private var ipcServiceStatus = "unavailable"
+    private let agentAccess: MCPAccessController
     private var settingsWindow: NSWindow?
     private var aboutWindow: NSWindow?
 
@@ -32,6 +31,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         launchAtLogin = LaunchAtLoginController()
         let probe: MonitoringProbing
         var supportDirectory: URL?
+        var evidenceDatabaseURL: URL?
         do {
             let support = try FileManager.default.url(
                 for: .applicationSupportDirectory,
@@ -40,35 +40,57 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 create: true
             ).appending(path: "Disk Steward", directoryHint: .isDirectory)
             supportDirectory = support
-            probe = try PersistentMonitoringProbe(databaseURL: support.appending(path: "evidence.sqlite"))
+            let databaseURL = support.appending(path: "evidence.sqlite")
+            evidenceDatabaseURL = databaseURL
+            probe = try PersistentMonitoringProbe(databaseURL: databaseURL)
         } catch {
             probe = UnavailableMonitoringProbe(reason: error.localizedDescription)
         }
         lifecycle = MonitoringLifecycleController(settingsStore: settingsStore, probe: probe)
-        viewModel = StatusBoardViewModel(lifecycle: lifecycle)
+        let durableExporter: StatusBoardViewModel.EvidenceExporter?
+        if let databaseURL = evidenceDatabaseURL {
+            durableExporter = { @Sendable destination async throws -> EvidenceBundleExportResult in
+                let store = try EvidenceStore(url: databaseURL)
+                let now = Date()
+                do {
+                    let result = try await EvidenceBundleExporter().export(
+                        store: store,
+                        options: .init(from: now.addingTimeInterval(-30 * 86_400), through: now),
+                        to: destination
+                    )
+                    await store.close()
+                    return result
+                } catch {
+                    await store.close()
+                    throw error
+                }
+            }
+        } else {
+            durableExporter = nil
+        }
+        viewModel = StatusBoardViewModel(
+            evidenceExporter: durableExporter,
+            exportCompletion: { url in NSWorkspace.shared.open(url) },
+            lifecycle: lifecycle
+        )
+        let accessSettings = AgentAccessSettingsStore(
+            stateFile: .init(url: supportDirectory?.appending(path: "agent-access.json") ?? AgentAccessStateFile.defaultURL())
+        )
+        agentAccess = MCPAccessController(settingsStore: accessSettings) {
+            guard let supportDirectory else {
+                throw CocoaError(.fileNoSuchFile, userInfo: [NSLocalizedDescriptionKey: "Application Support is unavailable."])
+            }
+            let backend = try AppEvidenceQueryBackend(databaseURL: supportDirectory.appending(path: "evidence.sqlite"))
+            return UnixSocketEvidenceServer(
+                socketPath: supportDirectory.appending(path: "disk-steward.sock").path,
+                handler: backend
+            )
+        }
         super.init()
         configureStatusItem()
         configurePopover()
         configureMenu()
-        if let supportDirectory {
-            do {
-                let backend = try AppEvidenceQueryBackend(databaseURL: supportDirectory.appending(path: "evidence.sqlite"))
-                let server = UnixSocketEvidenceServer(
-                    socketPath: supportDirectory.appending(path: "disk-steward.sock").path,
-                    handler: backend
-                )
-                try server.start()
-                ipcServer = server
-                ipcServiceStatus = "active"
-            } catch {
-                ipcServiceStatus = "degraded: \(error.localizedDescription)"
-            }
-        }
         lifecycle.start()
-    }
-
-    deinit {
-        ipcServer?.stop()
     }
 
     @objc func handleStatusItemClick(_ sender: Any?) {
@@ -89,7 +111,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             "right_click_surface": StatusItemSurface.route(for: .rightMouseUp).rawValue,
             "menu_items": utilityMenu.items.filter { !$0.isSeparatorItem }.map(\.title),
             "snapshot_available": viewModel.primaryVolume != nil,
-            "ipc_service": ipcServiceStatus,
+            "agent_access": agentAccess.state.kind.rawValue,
+            "ipc_service": agentAccess.state.kind == .on ? "active" : agentAccess.state.kind.rawValue,
         ]
     }
 
@@ -109,7 +132,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         popover.behavior = .transient
         popover.animates = true
         popover.delegate = self
-        popover.contentViewController = NSHostingController(rootView: StatusBoardView(viewModel: viewModel, lifecycle: lifecycle))
+        popover.contentViewController = NSHostingController(
+            rootView: StatusBoardView(
+                viewModel: viewModel,
+                lifecycle: lifecycle,
+                agentAccess: agentAccess,
+                onOpenSettings: { [weak self] in self?.showSettings() }
+            )
+        )
     }
 
     private func configureMenu() {
@@ -145,8 +175,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     }
 
     @objc private func exportEvidence() {
-        guard let url = viewModel.exportCurrentSnapshot() else { return }
-        NSWorkspace.shared.activateFileViewerSelecting([url])
+        Task { @MainActor in
+            _ = await viewModel.exportCurrentEvidence()
+        }
     }
 
     @objc private func showSettings() {

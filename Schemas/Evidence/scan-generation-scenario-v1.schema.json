@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/evidence/scan-generation-scenario-v1.schema.json",
+  "title": "Disk Steward Scan Generation Scenario v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "scenario_id", "root", "entry_cap", "generations", "expectations"],
+  "properties": {
+    "schema": {"const": "scan-generation-scenario-v1"},
+    "scenario_id": {"type": "string", "minLength": 1},
+    "root": {"type": "string", "minLength": 1},
+    "entry_cap": {"type": "integer", "minimum": 1},
+    "generations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["generation_id", "scope_version", "state", "abandonment_reason", "slices"],
+        "properties": {
+          "generation_id": {"type": "string", "minLength": 1},
+          "scope_version": {"type": "string", "minLength": 1},
+          "state": {"enum": ["started", "in-progress", "complete", "abandoned"]},
+          "abandonment_reason": {"type": ["string", "null"]},
+          "slices": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["slice_index", "cursor_before", "cursor_after", "staged_objects", "restart_boundary", "has_more", "authoritative_reconciliation"],
+              "properties": {
+                "slice_index": {"type": "integer", "minimum": 0},
+                "cursor_before": {"type": ["string", "null"]},
+                "cursor_after": {"type": ["string", "null"]},
+                "staged_objects": {"type": "integer", "minimum": 0},
+                "restart_boundary": {"type": "boolean"},
+                "has_more": {"type": "boolean"},
+                "authoritative_reconciliation": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "expectations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["completed_generation_id", "current_state_source", "change_history_source", "entry_cap_gap", "absence_action"],
+      "properties": {
+        "completed_generation_id": {"type": ["string", "null"]},
+        "current_state_source": {"type": ["string", "null"]},
+        "change_history_source": {"type": ["string", "null"]},
+        "entry_cap_gap": {"enum": ["open", "resolved"]},
+        "absence_action": {"enum": ["retain-unknown", "reconcile-after-completion"]}
+      }
+    }
+  }
+}

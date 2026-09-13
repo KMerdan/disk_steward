@@ -1,0 +1,78 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-244",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+    "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json",
+    "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-defect.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "swift test --filter AuthoritativeMCPReadModelTests",
+      "result": "passed: 3 tests, 0 failures"
+    },
+    {
+      "command": "swift test",
+      "result": "passed: 144 tests, 0 failures"
+    },
+    {
+      "command": "xcodebuild unsigned Debug build and live startup",
+      "result": "passed: build succeeded, observation committed, no crash"
+    },
+    {
+      "command": "git diff --check -- MCP repair files",
+      "result": "passed"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-244-01",
+      "result": "passed",
+      "reference": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift"
+    },
+    {
+      "criterion": "AC-244-02",
+      "result": "passed",
+      "reference": "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift"
+    },
+    {
+      "criterion": "AC-244-03",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-244/live-hard-link-revalidation-verification.json"
+    },
+    {
+      "criterion": "AC-244-04",
+      "result": "passed",
+      "reference": "swift test: 144 tests, 0 failures"
+    },
+    {
+      "criterion": "AC-244-05",
+      "result": "passed",
+      "reference": "swift test: 144 tests, 0 failures"
+    }
+  ],
+  "discovered_risks": [],
+  "suggested_graph_changes": []
+}

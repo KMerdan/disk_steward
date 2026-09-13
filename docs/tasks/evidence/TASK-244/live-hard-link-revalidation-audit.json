@@ -1,0 +1,40 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-244",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-244-HARDLINK-01",
+      "result": "passed",
+      "evidence": [
+        "The cleanup backend reads live st_nlink and returns no candidate unless it equals one.",
+        "The check occurs before any cleanup-candidate payload is constructed."
+      ]
+    },
+    {
+      "id": "CHECK-244-HARDLINK-02",
+      "result": "passed",
+      "evidence": [
+        "AuthoritativeMCPReadModelTests creates a real hard link after the persisted observation and verifies returned_count changes from one to zero.",
+        "The existing path-reuse and partial-coverage fail-closed tests continue to pass."
+      ]
+    },
+    {
+      "id": "CHECK-244-HARDLINK-03",
+      "result": "passed",
+      "evidence": [
+        "The complete suite passed 144 tests with zero failures.",
+        "The rebuilt app committed a fresh live observation without a crash."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "REQ-104",
+    "REQ-106",
+    "REQ-107",
+    "REQ-108",
+    "REQ-109",
+    "OUTCOME-210"
+  ],
+  "recommended_action": "advance"
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "pyramid-handoff-v1",
+  "id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "task": "GATE-390",
+  "graph_version": 114,
+  "actor": "codex",
+  "pause_mode": "handoff",
+  "reason": "Waiting for the user-owned Developer ID provisioning profile required by the App Group entitlement.",
+  "created_at": "2026-09-13T06:27:13.338367Z",
+  "resume_deadline": null,
+  "summary": "The Developer ID Application identity and private key are valid, but the signed archive is blocked because the App Group entitlement requires a matching Developer ID provisioning profile.",
+  "progress": [
+    "Confirmed Developer ID Application: Marudan Kiji (G3P6TU385Y) is installed and valid.",
+    "Scripts/Distribution/release-preflight passed and verified that the identity has an accessible private key.",
+    "Claimed GATE-390 at graph revision 113 and attempted the real Release archive.",
+    "Xcode reached manual signing and stopped with exit 65 because DiskSteward requires a provisioning profile; no release archive was produced.",
+    "Updated the release blocker evidence with the narrower, current requirement."
+  ],
+  "changed_files": [
+    "docs/tasks/evidence/GATE-390/release-blocker.json"
+  ],
+  "changed_assets": [],
+  "checks": [
+    {
+      "command": "Scripts/Distribution/release-preflight",
+      "result": "passed",
+      "notes": "Developer ID Application identity for Team G3P6TU385Y is available with an accessible private key. The script intentionally did not read or store certificate fingerprints, private keys, passwords, or notarization credentials."
+    },
+    {
+      "command": "Scripts/Distribution/archive-release --release /Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive",
+      "result": "failed",
+      "notes": "Exit 65: DiskSteward requires a provisioning profile; no archive was produced. This narrows the external requirement from a missing certificate to a missing Developer ID provisioning profile for the App Group entitlement."
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Keep the App Group entitlement and require a matching Developer ID provisioning profile.",
+      "rationale": "Removing the entitlement would break the product's shared-state contract and weaken the release verification criteria.",
+      "reference": "Config/Entitlements/DiskStewardApp.entitlements"
+    }
+  ],
+  "assumptions": [
+    "Team G3P6TU385Y can register or edit the explicit App ID com.marudankiji.disksteward and App Group group.com.marudankiji.disksteward."
+  ],
+  "blockers": [
+    "No matching Developer ID provisioning profile is installed for com.marudankiji.disksteward with group.com.marudankiji.disksteward."
+  ],
+  "risks": [
+    "A Developer ID certificate alone cannot authorize the restricted App Group entitlement.",
+    "Removing the App Group entitlement would invalidate shared-state behavior and the release evidence contract."
+  ],
+  "next_steps": [
+    "In Apple Developer Certificates, Identifiers & Profiles, verify or register the explicit App ID com.marudankiji.disksteward.",
+    "Enable App Groups for that App ID and select group.com.marudankiji.disksteward.",
+    "Create a macOS Developer ID provisioning profile for the App ID using the installed Developer ID Application certificate, then download and install it.",
+    "Resume GATE-390 from the canonical handoff and retry the signed archive to a fresh path.",
+    "In Xcode Organizer, choose Distribute App, Developer ID, Upload; wait for Ready to distribute and export the notarized app.",
+    "Run Scripts/Distribution/verify-release against the exact exported app, complete the remaining audits, and close the intent."
+  ],
+  "recommended_first_action": "Install the matching Developer ID provisioning profile, then resume GATE-390 and retry the signed archive.",
+  "context_references": [
+    "docs/tasks/evidence/GATE-390/release-blocker.json",
+    "Config/Signing/Release.xcconfig",
+    "Config/Entitlements/DiskStewardApp.entitlements",
+    "Scripts/Distribution/archive-release",
+    "Scripts/Distribution/verify-release"
+  ],
+  "external_session_refs": [],
+  "running_resources": [],
+  "fingerprint": {
+    "plan_sha256": "7e6082636db505861d6895e27a6b55f06089b3c2d1423767411dc91587f66c46",
+    "baseline_sha256": null,
+    "assurance_sha256": null,
+    "worktree": {
+      "kind": "git",
+      "head": "8d88cb0d9e41baec2d274585d00b1c5b3982af4e",
+      "branch": "main",
+      "unstaged_sha256": "c61c0e2eb566d0949094e95cae154f1df68e458321017453759acce383eea173",
+      "staged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_sha256": "848f724fbdb4753e99fd6c1bd56e51ba53d1e9961dc8310d315c637db2b15795"
+    }
+  }
+}

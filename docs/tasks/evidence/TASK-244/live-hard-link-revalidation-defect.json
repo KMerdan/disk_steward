@@ -1,0 +1,7 @@
+{
+  "schema": "disk-steward-task-244-runtime-safety-defect-v1",
+  "observed_at": "2026-09-13T03:47:00Z",
+  "finding": "Cleanup-candidate revalidation checks live path identity, size, and modification time but does not reject a file whose filesystem link count increased after the persisted observation.",
+  "risk": "Deleting one hard-link path may reclaim no allocated blocks, so presenting it as an ordinary cleanup candidate would overstate reclaimable evidence.",
+  "required_repair": "Require a live st_nlink value of exactly one and prove that adding a hard link after observation removes the object from MCP cleanup candidates."
+}

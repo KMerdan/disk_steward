@@ -1,0 +1,61 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-TASK-242-SCOPE-R2",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-002",
+    "revision": 1,
+    "sha256": "cbaafbe43619aaac574d6611f58a2f53f3257a6d4c54cfb91f2dbdf1e3a8d884"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-002",
+    "revision": 2,
+    "sha256": "540473e170fa6b5e5f9c163f2d6bf0bbfae6d714f9281a67be6085c433d46137"
+  },
+  "facts": [
+    {
+      "id": "FACT-TASK-242-APP-INTEGRATION",
+      "claim": "AppEvidenceQueryBackend constructs the live AgentSessionRegistry and owns the historical task-impact query path.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": ["Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift"],
+      "supports": ["TASK-242", "REQ-109"],
+      "freshness": "Inspected 2026-09-13"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-TASK-242-SCOPE",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": ["TASK-242"],
+      "claim": "The original write scope could implement storage primitives but could not wire them into the running app restart path promised by AC-242-03.",
+      "evidence": ["FACT-TASK-242-APP-INTEGRATION"],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add only AppEvidenceQueryBackend.swift and its existing IPC test directory to TASK-242 write scope and context.",
+      "rationale": "This is the smallest scope that makes durable restart and historical task-impact behavior exercisable; no topology, intent, dependency, increment, or release contract changes."
+    }
+  ],
+  "coverage": [
+    {"requirement": "REQ-104", "before_nodes": ["TASK-242"], "after_nodes": ["TASK-242"], "status": "preserved"},
+    {"requirement": "REQ-108", "before_nodes": ["TASK-242"], "after_nodes": ["TASK-242"], "status": "preserved"},
+    {"requirement": "REQ-109", "before_nodes": ["TASK-242"], "after_nodes": ["TASK-242"], "status": "strengthened"}
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "strengthened",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "not-applicable",
+    "audit_closure": "preserved",
+    "execution_safety": "preserved"
+  },
+  "metrics": {
+    "before": {"nodes": 17, "executable_nodes": 14, "edges": 47, "hard_dependencies": 15, "audit_gates": 2},
+    "after": {"nodes": 17, "executable_nodes": 14, "edges": 47, "hard_dependencies": 15, "audit_gates": 2}
+  },
+  "summary": "Retain the full path and all verified work; widen one active node's declared integration scope so its existing restart acceptance can be implemented honestly.",
+  "limitations": ["This review changes declared implementation scope only; it does not itself prove the persistence behavior, which remains subject to TASK-242 tests and audit."]
+}
