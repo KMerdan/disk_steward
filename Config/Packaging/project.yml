@@ -97,9 +97,44 @@ targets:
         script: |
           set -eu
           helpers_dir="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Helpers"
+          helper="${helpers_dir}/disk-witness-mcp"
           mkdir -p "${helpers_dir}"
-          install -m 755 "${BUILT_PRODUCTS_DIR}/disk-witness-mcp" "${helpers_dir}/disk-witness-mcp"
-          test -x "${helpers_dir}/disk-witness-mcp"
+          install -m 755 "${BUILT_PRODUCTS_DIR}/disk-witness-mcp" "${helper}"
+          test -x "${helper}"
+
+          if [ "${CODE_SIGNING_ALLOWED:-NO}" = "YES" ] && [ -n "${EXPANDED_CODE_SIGN_IDENTITY:-}" ]; then
+            helper_entitlements="${CONFIGURATION_TEMP_DIR}/disk-witness-mcp.build/disk-witness-mcp.xcent"
+            if [ ! -f "${helper_entitlements}" ]; then
+              echo "error: MCP helper signing entitlements are missing: ${helper_entitlements}" >&2
+              exit 1
+            fi
+
+            timestamp_argument="--timestamp=none"
+            case "${EXPANDED_CODE_SIGN_IDENTITY_NAME:-}" in
+              "Developer ID Application:"*) timestamp_argument="--timestamp" ;;
+            esac
+
+            /usr/bin/codesign \
+              --force \
+              --sign "${EXPANDED_CODE_SIGN_IDENTITY}" \
+              --options runtime \
+              "${timestamp_argument}" \
+              --identifier com.marudankiji.disksteward.mcp \
+              --entitlements "${helper_entitlements}" \
+              "${helper}"
+
+            # Rebuild the universal container after codesign changes each slice's
+            # signature size. Without this normalization, both thin slices are
+            # valid but the fat binary fails verification on macOS 15.
+            /usr/bin/lipo "${helper}" -thin x86_64 -output "${DERIVED_FILE_DIR}/disk-witness-mcp-x86_64"
+            /usr/bin/lipo "${helper}" -thin arm64 -output "${DERIVED_FILE_DIR}/disk-witness-mcp-arm64"
+            /usr/bin/lipo -create \
+              "${DERIVED_FILE_DIR}/disk-witness-mcp-x86_64" \
+              "${DERIVED_FILE_DIR}/disk-witness-mcp-arm64" \
+              -output "${DERIVED_FILE_DIR}/disk-witness-mcp-universal"
+            /usr/bin/install -m 755 "${DERIVED_FILE_DIR}/disk-witness-mcp-universal" "${helper}"
+            /usr/bin/codesign --verify --strict --verbose=2 "${helper}"
+          fi
         outputFiles:
           - $(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/disk-witness-mcp
 

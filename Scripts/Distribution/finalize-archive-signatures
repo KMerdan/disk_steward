@@ -1,0 +1,65 @@
+#!/bin/zsh
+set -euo pipefail
+
+app_argument="${1:-}"
+if [[ -z "$app_argument" || "$app_argument" != /* || "$app_argument" != *.app ]]; then
+  print -u2 "usage: Scripts/Distribution/finalize-archive-signatures <absolute-app-path>"
+  exit 64
+fi
+
+app=${app_argument:A}
+helper="$app/Contents/Helpers/disk-witness-mcp"
+if [[ ! -d "$app" || ! -x "$helper" ]]; then
+  print -u2 "Release signing input is incomplete: $app"
+  exit 66
+fi
+
+identity=$(/usr/bin/security find-identity -v -p codesigning \
+  | /usr/bin/awk '/"Developer ID Application: .* \(G3P6TU385Y\)"/ { print $2; exit }')
+if [[ -z "$identity" ]]; then
+  print -u2 "Developer ID Application identity for Team G3P6TU385Y is unavailable."
+  exit 66
+fi
+
+temporary_directory=$(/usr/bin/mktemp -d "${TMPDIR:-/tmp}/disk-steward-signing.XXXXXX")
+trap '/bin/rm -rf "$temporary_directory"' EXIT
+helper_entitlements="$temporary_directory/helper-entitlements.plist"
+app_entitlements="$temporary_directory/app-entitlements.plist"
+
+/usr/libexec/PlistBuddy -c 'Add :com.apple.application-identifier string G3P6TU385Y.com.marudankiji.disksteward.mcp' "$helper_entitlements" >/dev/null
+/usr/libexec/PlistBuddy -c 'Add :com.apple.application-identifier string G3P6TU385Y.com.marudankiji.disksteward' "$app_entitlements" >/dev/null
+/usr/libexec/PlistBuddy -c 'Add :com.apple.developer.team-identifier string G3P6TU385Y' "$app_entitlements" >/dev/null
+/usr/libexec/PlistBuddy -c 'Add :com.apple.security.application-groups array' "$app_entitlements" >/dev/null
+/usr/libexec/PlistBuddy -c 'Add :com.apple.security.application-groups:0 string group.com.marudankiji.disksteward' "$app_entitlements" >/dev/null
+
+/usr/bin/codesign \
+  --force \
+  --sign "$identity" \
+  --options runtime \
+  --timestamp \
+  --identifier com.marudankiji.disksteward.mcp \
+  --entitlements "$helper_entitlements" \
+  "$helper"
+
+# codesign can change the two signature slots by different amounts. Recreate
+# the fat container so its architecture offsets match the newly signed slices.
+/usr/bin/lipo "$helper" -thin x86_64 -output "$temporary_directory/helper-x86_64"
+/usr/bin/lipo "$helper" -thin arm64 -output "$temporary_directory/helper-arm64"
+/usr/bin/lipo -create \
+  "$temporary_directory/helper-x86_64" \
+  "$temporary_directory/helper-arm64" \
+  -output "$temporary_directory/helper-universal"
+/usr/bin/install -m 755 "$temporary_directory/helper-universal" "$helper"
+/usr/bin/codesign --verify --strict --verbose=2 "$helper"
+
+/usr/bin/codesign \
+  --force \
+  --sign "$identity" \
+  --options runtime \
+  --timestamp \
+  --identifier com.marudankiji.disksteward \
+  --entitlements "$app_entitlements" \
+  "$app"
+
+/usr/bin/codesign --verify --deep --strict --verbose=2 "$app"
+print "Finalized archive signatures: $app"
