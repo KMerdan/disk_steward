@@ -5,7 +5,7 @@ A macOS user can install and launch Disk Steward as a polished native menu-bar a
 
 ## Current State
 
-- Graph version: `131`
+- Graph version: `132`
 - Plan revision: `11`
 - Lifecycle: `active`
 - Verified primary nodes: `11/22`

@@ -41,7 +41,7 @@ Verify the exact exported application and rerun the polished app journey before 
 - `RESEARCH-201` (validation-requires, passed)
 - `TASK-310` (integration-requires, failed)
 - `RISK-320` (integration-requires, pending)
-- `TASK-253` (integration-requires, unverified)
+- `TASK-253` (integration-requires, pending)
 
 ## Required Context
 

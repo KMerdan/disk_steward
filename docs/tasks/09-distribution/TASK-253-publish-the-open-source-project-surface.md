@@ -8,10 +8,10 @@
 - Wave: `9`
 - Workstream: `distribution`
 - Selection: `primary`
-- Execution: `working`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `pending`
 - Health: `clear`
-- Availability: `working`
+- Availability: `implemented`
 - Goal trace: `TASK-253` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal

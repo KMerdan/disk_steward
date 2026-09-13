@@ -15,4 +15,13 @@ Date: 2026-09-13
 
 ## Publication evidence
 
-The public GitHub URL, visibility, detected license, default branch, and pushed commit are recorded after publication so this file never claims an external result before it exists.
+- Repository: `https://github.com/KMerdan/disk_steward`
+- Visibility: `PUBLIC`
+- Default branch: `main`
+- First published candidate: `b94bf56532009b362ad6d07774524e5257329b7c`
+- GitHub license detection: `MIT License` (`mit`)
+- Description: `Native macOS menu-bar disk evidence monitor with bounded local history and read-only MCP for Codex and Claude.`
+- Topics: `developer-tools`, `disk-usage`, `macos`, `mcp`, `menu-bar`, `privacy`, `swift`
+- Remote content checks found `README.md` and both screenshot assets at their README paths; their GitHub object sizes match the local 8,182-byte README, 105,251-byte light capture, and 104,021-byte dark capture.
+
+The evidence commit that adds these post-publication checks is pushed separately, so the first candidate hash above remains an immutable reference to the source and public project surface that were inspected.
