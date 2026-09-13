@@ -16,7 +16,7 @@
 
 ## Goal
 
-The polished application has an honest MIT-licensed public source surface and can be archived and verified through Apple's direct-distribution path with a clear manual Xcode handoff.
+The polished application has an honest MIT-licensed public product surface, a concise evidence-grounded product story, a truthful Homebrew discovery path, and an inspectable Apple direct-distribution workflow.
 
 ## Deliverables
 
@@ -46,11 +46,15 @@ The polished application has an honest MIT-licensed public source surface and ca
 
 - `AC-O220-01` — The archive and export workflow preserves the verified app journey and produces an inspectable direct-distribution artifact without storing credentials.
 - `AC-O220-02` — The public project surface accurately presents the current product, source-development path, privacy and MCP boundaries, and pre-release distribution status under the MIT license.
+- `AC-O220-03` — A 30-second product video and timecoded transcript clearly connect AI-created local disk growth to Disk Steward's bounded evidence and read-only agent handoff using real product visuals and sourced, supportable claims.
+- `AC-O220-04` — A public Homebrew tap contains a valid cask and operational release checklist; its availability state cannot permit installation until the referenced immutable artifact is Developer ID signed, notarized, stapled, and checksum-pinned.
 
 ## Required Evidence
 
 - `EVREQ-O220-01` (increment-audit) — Archive, signing, entitlements, nested-code, notarization, stapling, Gatekeeper, launch, and inherited regression evidence.
 - `EVREQ-O220-02` (public-repository-audit) — Public GitHub repository metadata, README screenshot rendering, MIT license detection, pushed commit identity, and public-safety scan.
+- `EVREQ-O220-03` (promotion-audit) — Exact 30-second rendered MP4, visual keyframes, timecoded transcript, source ledger, and accessibility-readable captions.
+- `EVREQ-O220-04` (homebrew-publication-audit) — Cask style and audit results, public tap URL and commit, release-state guard, and documented activation procedure.
 
 ## Audit Gates
 

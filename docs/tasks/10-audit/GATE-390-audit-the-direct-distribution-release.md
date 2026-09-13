@@ -16,7 +16,7 @@
 
 ## Goal
 
-Verify the exact exported application and rerun the polished app journey before declaring it safe to share outside Xcode.
+Verify the exact exported application, public product story, Homebrew release posture, and polished app journey before declaring it safe to share outside Xcode.
 
 ## Deliverables
 
@@ -39,9 +39,11 @@ Verify the exact exported application and rerun the polished app journey before 
 
 - `OUTCOME-210` (validation-requires, unverified)
 - `RESEARCH-201` (validation-requires, passed)
-- `TASK-310` (integration-requires, failed)
+- `TASK-310` (integration-requires, unverified)
 - `RISK-320` (integration-requires, pending)
 - `TASK-253` (integration-requires, pending)
+- `TASK-260` (integration-requires, pending)
+- `TASK-321` (integration-requires, pending)
 
 ## Required Context
 
@@ -51,6 +53,8 @@ Verify the exact exported application and rerun the polished app journey before 
 - RISK-320 evidence
 - Exact exported release artifact
 - TASK-253 public-repository evidence
+- TASK-260 promotional evidence
+- TASK-321 Homebrew tap evidence
 
 ## Validation Commands
 
@@ -60,6 +64,9 @@ Verify the exact exported application and rerun the polished app journey before 
 - xcrun stapler validate
 - gh repo view KMerdan/disk_steward --json url,visibility,licenseInfo,defaultBranchRef
 - git status --short --branch
+- ffprobe or afinfo exact-duration inspection
+- brew style --cask
+- brew audit --cask
 
 ## Acceptance Criteria
 
@@ -67,10 +74,13 @@ Verify the exact exported application and rerun the polished app journey before 
 - `AC-390-02` — The exported app launches on the target Mac, exposes the status board, preserves the fresh-install MCP-off default, successfully toggles read-only Agent Access on and off, adds a non-default watched folder without invoking the open/save panel service, completes or honestly advances a capped watched-root generation, creates and verifies an actionable bundle through the actual menu action, opens the completed export directory in Finder, reruns the inherited evidence-chain matrix including A/B/C deletion and partial-scan uncertainty, and keeps the full regression suite green.
 - `AC-390-03` — If user-owned Apple credentials or approval are unavailable, the gate records a blocked release with exact remediation and does not mark OUTCOME-220 or INTENT-002 verified.
 - `AC-390-04` — The public KMerdan repository is reachable, identifies the MIT license, renders real product screenshots, points developers to reproducible checks, distinguishes available source development from planned notarized and Homebrew distribution, and contains no committed credentials, private keys, provisioning profiles, runtime databases, or build products.
+- `AC-390-05` — The published promo is exactly 30 seconds, legible at 1920x1080, captioned, supported by its source transcript, and uses real Disk Steward product imagery.
+- `AC-390-06` — The public Homebrew tap validates and remains explicitly disabled while no notarized immutable release asset exists; activation requires a real version, checksum, release URL, and release verification evidence.
 
 ## Required Evidence
 
 - `EVREQ-390-01` (final-release-audit) — Artifact hash and contents, codesign and entitlement output, notarization and staple result, Gatekeeper result, launch and product-journey transcript, actual menu-created evidence bundle and integrity result, complete tests, and secret-safety result.
+- `EVREQ-390-02` (public-promotion-and-tap-audit) — Published video and transcript URLs, exact media duration, visual inspection evidence, public tap state, cask validation output, and truthful installability result.
 
 ## Audit Gates
 

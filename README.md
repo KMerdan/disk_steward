@@ -11,6 +11,17 @@
   </p>
 </div>
 
+<p align="center">
+  <a href="docs/media/disk-steward-promo-30s.mp4">
+    <img src="docs/media/disk-steward-promo-poster.png" width="880" alt="Watch the 30-second Disk Steward product story">
+  </a>
+</p>
+<p align="center">
+  <strong><a href="docs/media/disk-steward-promo-30s.mp4">Watch the 30-second product story</a></strong>
+  ·
+  <a href="docs/research/promo-30s-transcript.md">Read the timecoded transcript and research</a>
+</p>
+
 <table>
   <tr>
     <td align="center"><strong>Light</strong></td>
@@ -134,13 +145,15 @@ That distinction is what lets an agent choose the next investigation without tre
 | `Integrations` | Codex and Claude Code configuration templates |
 | `Schemas` and `Fixtures` | Versioned evidence and MCP contracts |
 | `Tests` | Unit, contract, integration, safety, performance, and release checks |
+| `Packaging/Homebrew` | Canonical disabled cask and notarized-release activation checklist |
+| `promo` | Reproducible Remotion source for the public 30-second product story |
 | `docs` | Architecture, operations, release, and evidence design notes |
 
 ## Distribution status
 
-Disk Steward is currently a **developer preview**. Source builds and the credential-free release verification workflow are available. A public notarized binary and Homebrew cask are **not published yet**; those will be added only after the exact Developer ID artifact passes notarization, stapling, Gatekeeper, launch, and regression checks.
+Disk Steward is currently a **developer preview**. Source builds and the credential-free release verification workflow are available. The public [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) contains an inspectable cask, but installation is intentionally **disabled** until the exact Developer ID artifact passes notarization, stapling, Gatekeeper, launch, and regression checks.
 
-Release engineering is documented in [direct distribution](docs/operations/distribution.md) and the [release handoff](docs/release/direct-distribution-handoff.md).
+Release engineering is documented in [direct distribution](docs/operations/distribution.md), the [release handoff](docs/release/direct-distribution-handoff.md), and the [Homebrew activation checklist](Packaging/Homebrew/README.md).
 
 ## Contributing
 

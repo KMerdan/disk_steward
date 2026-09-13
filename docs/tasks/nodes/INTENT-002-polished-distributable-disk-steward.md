@@ -16,7 +16,7 @@
 
 ## Goal
 
-Disk Steward is a native, legible, verifiably distributable menu-bar product without regression of its evidence mission.
+Disk Steward is a native, legible, explainable, openly discoverable, and verifiably distributable menu-bar product without regression of its evidence mission.
 
 ## Deliverables
 
@@ -46,11 +46,13 @@ Disk Steward is a native, legible, verifiably distributable menu-bar product wit
 
 - `AC-INTENT-201` — The final distribution audit passes the complete inherited application journey, including enforced MCP off and on states, convergent watched-root coverage, and an actual menu-created actionable evidence bundle, and validates a signed, notarized, stapled artifact or truthfully reports the exact missing Apple credential step.
 - `AC-INTENT-202` — The public source repository renders the real product clearly, carries an MIT license, documents safe local development and agent integration, and makes no unsupported claim that a notarized binary or Homebrew package is already available.
+- `AC-INTENT-203` — The public project includes an exactly 30-second research-grounded promotional video with a timecoded transcript, and a public Homebrew tap whose disabled or installable state truthfully matches notarized release availability.
 
 ## Required Evidence
 
 - `EVREQ-INTENT-201` (release-evidence) — Verified Xcode application, status-board UX, MCP privacy control, bounded evidence lifecycle, regression, archive, signature, notarization, Gatekeeper, launch, and secret-safety results.
 - `EVREQ-INTENT-202` (public-repository-evidence) — Public repository URL and visibility, rendered README assets, detected MIT license, clean pushed main commit, and bounded credential and generated-artifact safety scan.
+- `EVREQ-INTENT-203` (promotion-and-package-evidence) — Rendered media inspection, exact-duration metadata, transcript and source review, Homebrew cask validation, public tap metadata, and proof that package availability fails closed until a notarized release asset exists.
 
 ## Audit Gates
 

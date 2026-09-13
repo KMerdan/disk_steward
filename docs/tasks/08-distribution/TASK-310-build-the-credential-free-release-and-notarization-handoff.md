@@ -9,7 +9,7 @@
 - Workstream: `distribution`
 - Selection: `primary`
 - Execution: `needs-rework`
-- Verification: `failed`
+- Verification: `unverified`
 - Health: `at-risk`
 - Availability: `locked`
 - Goal trace: `TASK-310` → `OUTCOME-220` → `INTENT-002`
