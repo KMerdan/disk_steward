@@ -80,23 +80,56 @@ verify_signature() {
 verify_signature "$helper" "MCP helper" "com.marudankiji.disksteward.mcp"
 verify_signature "$app" "application" "com.marudankiji.disksteward"
 
-entitlements=$(/usr/bin/codesign -d --entitlements :- "$app" 2>/dev/null)
+helper_entitlements=$(/usr/bin/codesign -d --entitlements :- "$helper" 2>/dev/null | /usr/bin/plutil -convert xml1 -o - -)
+helper_entitlement_key_count=0
+helper_identifier_key_count=0
+helper_identifier_value_count=0
+while IFS= read -r entitlement_line; do
+  if [[ "$entitlement_line" =~ '<key>([^<]+)</key>' ]]; then
+    (( helper_entitlement_key_count += 1 ))
+    if [[ "$match[1]" == "com.apple.application-identifier" ]]; then
+      (( helper_identifier_key_count += 1 ))
+    fi
+  fi
+  if [[ "$entitlement_line" =~ '<string>([^<]+)</string>' && "$match[1]" == "G3P6TU385Y.com.marudankiji.disksteward.mcp" ]]; then
+    (( helper_identifier_value_count += 1 ))
+  fi
+done <<< "$helper_entitlements"
+if (( helper_entitlement_key_count != 1 || helper_identifier_key_count != 1 || helper_identifier_value_count != 1 )); then
+  print -u2 "Release rejected: MCP helper entitlements must contain exactly its canonical application identifier and no additional entitlement keys or values."
+  exit 67
+fi
+
+entitlements=$(/usr/bin/codesign -d --entitlements :- "$app" 2>/dev/null | /usr/bin/plutil -convert xml1 -o - -)
 entitlement_key_count=0
+app_identifier_key_count=0
+app_identifier_value_count=0
+team_identifier_key_count=0
+team_identifier_value_count=0
 app_group_key_count=0
 app_group_value_count=0
 while IFS= read -r entitlement_line; do
   if [[ "$entitlement_line" =~ '<key>([^<]+)</key>' ]]; then
     (( entitlement_key_count += 1 ))
-    if [[ "$match[1]" == "com.apple.security.application-groups" ]]; then
-      (( app_group_key_count += 1 ))
-    fi
+    case "$match[1]" in
+      com.apple.application-identifier) (( app_identifier_key_count += 1 )) ;;
+      com.apple.developer.team-identifier) (( team_identifier_key_count += 1 )) ;;
+      com.apple.security.application-groups) (( app_group_key_count += 1 )) ;;
+    esac
   fi
-  if [[ "$entitlement_line" =~ '<string>([^<]+)</string>' && "$match[1]" == "group.com.marudankiji.disksteward" ]]; then
-    (( app_group_value_count += 1 ))
+  if [[ "$entitlement_line" =~ '<string>([^<]+)</string>' ]]; then
+    case "$match[1]" in
+      G3P6TU385Y.com.marudankiji.disksteward) (( app_identifier_value_count += 1 )) ;;
+      G3P6TU385Y) (( team_identifier_value_count += 1 )) ;;
+      group.com.marudankiji.disksteward) (( app_group_value_count += 1 )) ;;
+    esac
   fi
 done <<< "$entitlements"
-if (( entitlement_key_count != 1 || app_group_key_count != 1 || app_group_value_count != 1 )); then
-  print -u2 "Release rejected: standard-app entitlements must contain exactly the production application group and no additional entitlement keys or group values."
+if (( entitlement_key_count != 3
+      || app_identifier_key_count != 1 || app_identifier_value_count != 1
+      || team_identifier_key_count != 1 || team_identifier_value_count != 1
+      || app_group_key_count != 1 || app_group_value_count != 1 )); then
+  print -u2 "Release rejected: standard-app entitlements must contain exactly the production app identity, team identity, and application group with no additional entitlement keys or group values."
   exit 67
 fi
 
