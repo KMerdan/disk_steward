@@ -6,7 +6,7 @@
   <p>
     <img alt="macOS 13+" src="https://img.shields.io/badge/macOS-13%2B-111111?logo=apple&logoColor=white">
     <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white">
-    <img alt="Developer preview" src="https://img.shields.io/badge/status-developer_preview-F59E0B">
+    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.0.0"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.0.0-2563EB"></a>
     <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-2563EB"></a>
   </p>
 </div>
@@ -88,6 +88,18 @@ Disk Steward is an evidence tool, not a cleanup tool.
 
 The complete model is documented in [privacy and retention](docs/operations/privacy-and-retention.md), [evidence object lifecycle](docs/architecture/evidence-object-lifecycle.md), and the [actionable export contract](docs/architecture/evidence-export.md).
 
+## Install
+
+Disk Steward 1.0.0 is Developer ID signed, hardened, notarized, and distributed as a universal macOS app through the public Homebrew tap:
+
+```sh
+brew trust KMerdan/disk-steward
+brew tap KMerdan/disk-steward
+brew install --cask disk-steward
+```
+
+The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.0.0 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.0.0).
+
 ## Build and run
 
 ### Requirements
@@ -145,13 +157,13 @@ That distinction is what lets an agent choose the next investigation without tre
 | `Integrations` | Codex and Claude Code configuration templates |
 | `Schemas` and `Fixtures` | Versioned evidence and MCP contracts |
 | `Tests` | Unit, contract, integration, safety, performance, and release checks |
-| `Packaging/Homebrew` | Canonical disabled cask and notarized-release activation checklist |
+| `Packaging/Homebrew` | Canonical release cask and notarized-release checklist |
 | `promo` | Reproducible Remotion source for the public 30-second product story |
 | `docs` | Architecture, operations, release, and evidence design notes |
 
 ## Distribution status
 
-Disk Steward is currently a **developer preview**. Source builds and the credential-free release verification workflow are available. The public [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) contains an inspectable cask, but installation is intentionally **disabled** until the exact Developer ID artifact passes notarization, stapling, Gatekeeper, launch, and regression checks.
+Disk Steward 1.0.0 is publicly available from the [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) and as a versioned GitHub release. The published archive has passed Developer ID identity, nested-helper signature, hardened runtime, secure timestamp, production entitlement, notarization staple, Gatekeeper, and archive round-trip checks.
 
 Release engineering is documented in [direct distribution](docs/operations/distribution.md), the [release handoff](docs/release/direct-distribution-handoff.md), and the [Homebrew activation checklist](Packaging/Homebrew/README.md).
 

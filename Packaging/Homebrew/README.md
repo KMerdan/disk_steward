@@ -1,6 +1,6 @@
 # Homebrew publication
 
-The canonical cask is [`Casks/disk-steward.rb`](Casks/disk-steward.rb). It is intentionally **disabled** while Disk Steward has no verified, notarized release asset. Publishing the tap now makes the packaging contract inspectable without allowing Homebrew to install an unnotarized developer build.
+The canonical cask is [`Casks/disk-steward.rb`](Casks/disk-steward.rb). It resolves the immutable, notarized Disk Steward 1.0.0 release archive and pins its SHA-256 digest.
 
 ## Current behavior
 
@@ -10,11 +10,11 @@ brew tap KMerdan/disk-steward
 brew install --cask disk-steward
 ```
 
-Current Homebrew releases require explicit trust before loading a third-party tap. Trust the KMerdan tap only if you intend to accept its current and future casks. The tap command then succeeds; the install command stops with the cask's disabled reason. That is the expected pre-release behavior.
+Current Homebrew releases require explicit trust before loading a third-party tap. Trust the KMerdan tap only if you intend to accept its current and future casks. The commands above install Disk Steward into `/Applications`.
 
 ## Activate a release
 
-Do not remove `disable!` until the exact archive intended for Homebrew has passed the release gate.
+For future releases, do not update the cask until the exact archive intended for Homebrew has passed the release gate.
 
 1. Archive with the `DiskSteward-Release` scheme and export a Developer ID application.
 2. Verify every executable signature, hardened runtime, production entitlements, and secure timestamp with `Scripts/Distribution/verify`.
@@ -46,7 +46,7 @@ Do not remove `disable!` until the exact archive intended for Homebrew has passe
 
 8. Confirm a fresh tap/install resolves the immutable asset and that the installed app passes `spctl --assess --type execute --verbose=4`.
 
-The placeholder `version :latest` and `sha256 :no_check` are acceptable only while `disable!` makes the cask unavailable. An enabled cask must use the exact version and checksum above.
+An enabled cask must use an immutable release URL and the exact version and checksum above.
 
 ## Why this is gated
 

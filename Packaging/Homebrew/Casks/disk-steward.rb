@@ -1,15 +1,13 @@
 cask "disk-steward" do
-  version :latest
-  sha256 :no_check
+  version "1.0.0"
+  sha256 "5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135"
 
-  url "https://github.com/KMerdan/disk_steward/archive/refs/heads/main.tar.gz"
+  url "https://github.com/KMerdan/disk_steward/releases/download/v#{version}/Disk-Steward-#{version}.zip"
   name "Disk Steward"
   desc "Evidence-first disk growth monitor with local read-only agent access"
   homepage "https://github.com/KMerdan/disk_steward"
 
-  disable! date: "2026-09-13", because: "has no notarized release artifact yet"
-
-  depends_on macos: :ventura
+  depends_on macos: ">= :ventura"
 
   app "Disk Steward.app"
 
