@@ -7,7 +7,7 @@ cask "disk-steward" do
   desc "Evidence-first disk growth monitor with local read-only agent access"
   homepage "https://github.com/KMerdan/disk_steward"
 
-  depends_on macos: ">= :ventura"
+  depends_on macos: :ventura
 
   app "Disk Steward.app"
 
