@@ -1,0 +1,307 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T133711359585Z-693CE107",
+  "at": "2026-09-13T13:37:11.359394Z",
+  "graph_version": 148,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-321",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T08:23:31.096947Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-321",
+      "outcome": "implemented",
+      "changed_files": [
+        "Packaging/Homebrew/Casks/disk-steward.rb",
+        "Packaging/Homebrew/README.md",
+        "README.md",
+        "docs/tasks/evidence/TASK-321/homebrew-publication-audit.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Packaging/Homebrew/Casks/disk-steward.rb",
+          "class": "source"
+        },
+        {
+          "path": "Packaging/Homebrew/README.md",
+          "class": "source"
+        },
+        {
+          "path": "README.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-321/homebrew-publication-audit.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "brew trust KMerdan/disk-steward",
+          "result": "passed"
+        },
+        {
+          "command": "brew tap KMerdan/disk-steward",
+          "result": "passed: 1 cask tapped"
+        },
+        {
+          "command": "brew style --cask kmerdan/disk-steward/disk-steward",
+          "result": "passed: 1 file inspected, no offenses"
+        },
+        {
+          "command": "brew audit --cask --strict kmerdan/disk-steward/disk-steward",
+          "result": "passed"
+        },
+        {
+          "command": "brew install --cask kmerdan/disk-steward/disk-steward",
+          "result": "passed fail-closed check: installation refused with the explicit no-notarized-artifact reason"
+        },
+        {
+          "command": "gh repo view KMerdan/homebrew-disk-steward",
+          "result": "passed: public, main, MIT"
+        },
+        {
+          "command": "gh release list --repo KMerdan/disk_steward",
+          "result": "passed: no release assets, confirming disabled state is required"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-321-01",
+          "result": "passed",
+          "reference": "Packaging/Homebrew/Casks/disk-steward.rb and successful Homebrew style/audit"
+        },
+        {
+          "criterion": "AC-321-02",
+          "result": "passed",
+          "reference": "Packaging/Homebrew/README.md and expected disabled install refusal"
+        },
+        {
+          "criterion": "AC-321-03",
+          "result": "passed",
+          "reference": "https://github.com/KMerdan/homebrew-disk-steward at ce50961100453ed589d3a14603b21936c6728011"
+        }
+      ],
+      "discovered_risks": [
+        "Current Homebrew releases require explicit trust before loading a third-party tap; the public instructions now disclose the broad trust scope before the tap command.",
+        "The cask must remain disabled until a notarized immutable release asset, exact version, and SHA-256 exist."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-13T13:37:11.359311Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-321",
+      "outcome": "implemented",
+      "changed_files": [
+        "Packaging/Homebrew/Casks/disk-steward.rb",
+        "Packaging/Homebrew/README.md",
+        "README.md",
+        "docs/tasks/evidence/TASK-321/homebrew-publication-audit.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Packaging/Homebrew/Casks/disk-steward.rb",
+          "class": "source"
+        },
+        {
+          "path": "Packaging/Homebrew/README.md",
+          "class": "source"
+        },
+        {
+          "path": "README.md",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-321/homebrew-publication-audit.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "brew trust KMerdan/disk-steward",
+          "result": "passed"
+        },
+        {
+          "command": "brew tap KMerdan/disk-steward",
+          "result": "passed: 1 cask tapped"
+        },
+        {
+          "command": "brew style --cask kmerdan/disk-steward/disk-steward",
+          "result": "passed: 1 file inspected, no offenses"
+        },
+        {
+          "command": "brew audit --cask --strict kmerdan/disk-steward/disk-steward",
+          "result": "passed"
+        },
+        {
+          "command": "brew install --cask kmerdan/disk-steward/disk-steward",
+          "result": "passed fail-closed check: installation refused with the explicit no-notarized-artifact reason"
+        },
+        {
+          "command": "gh repo view KMerdan/homebrew-disk-steward",
+          "result": "passed: public, main, MIT"
+        },
+        {
+          "command": "gh release list --repo KMerdan/disk_steward",
+          "result": "passed: no release assets, confirming disabled state is required"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-321-01",
+          "result": "passed",
+          "reference": "Packaging/Homebrew/Casks/disk-steward.rb and successful Homebrew style/audit"
+        },
+        {
+          "criterion": "AC-321-02",
+          "result": "passed",
+          "reference": "Packaging/Homebrew/README.md and expected disabled install refusal"
+        },
+        {
+          "criterion": "AC-321-03",
+          "result": "passed",
+          "reference": "https://github.com/KMerdan/homebrew-disk-steward at ce50961100453ed589d3a14603b21936c6728011"
+        }
+      ],
+      "discovered_risks": [
+        "Current Homebrew releases require explicit trust before loading a third-party tap; the public instructions now disclose the broad trust scope before the tap command.",
+        "The cask must remain disabled until a notarized immutable release asset, exact version, and SHA-256 exist."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-321",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-321-ASSET-01",
+          "result": "passed",
+          "evidence": [
+            "Public v1.0.0 release asset Disk-Steward-1.0.0.zip exists at the immutable versioned URL",
+            "GitHub asset digest and independent downloaded SHA-256 both equal 5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135"
+          ]
+        },
+        {
+          "id": "CHECK-321-CASK-01",
+          "result": "passed",
+          "evidence": [
+            "brew style --cask KMerdan/disk-steward/disk-steward inspected one file with no offenses",
+            "brew audit --cask --strict KMerdan/disk-steward/disk-steward completed successfully"
+          ]
+        },
+        {
+          "id": "CHECK-321-PUBLICATION-01",
+          "result": "passed",
+          "evidence": [
+            "KMerdan/homebrew-disk-steward is public and its activated cask is pushed at commit e01b85d",
+            "The canonical main-repository cask and release documentation are pushed through commit d051567"
+          ]
+        },
+        {
+          "id": "CHECK-321-INSTALL-01",
+          "result": "passed",
+          "evidence": [
+            "brew install --cask KMerdan/disk-steward/disk-steward installed version 1.0.0 into /Applications",
+            "The installed app passed the full release verifier and launched from /Applications/Disk Steward.app"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-321",
+        "GATE-390"
+      ],
+      "recommended_action": "Advance the public Homebrew distribution path to the final release gate."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-321",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-321-ASSET-01",
+          "result": "passed",
+          "evidence": [
+            "Public v1.0.0 release asset Disk-Steward-1.0.0.zip exists at the immutable versioned URL",
+            "GitHub asset digest and independent downloaded SHA-256 both equal 5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135"
+          ]
+        },
+        {
+          "id": "CHECK-321-CASK-01",
+          "result": "passed",
+          "evidence": [
+            "brew style --cask KMerdan/disk-steward/disk-steward inspected one file with no offenses",
+            "brew audit --cask --strict KMerdan/disk-steward/disk-steward completed successfully"
+          ]
+        },
+        {
+          "id": "CHECK-321-PUBLICATION-01",
+          "result": "passed",
+          "evidence": [
+            "KMerdan/homebrew-disk-steward is public and its activated cask is pushed at commit e01b85d",
+            "The canonical main-repository cask and release documentation are pushed through commit d051567"
+          ]
+        },
+        {
+          "id": "CHECK-321-INSTALL-01",
+          "result": "passed",
+          "evidence": [
+            "brew install --cask KMerdan/disk-steward/disk-steward installed version 1.0.0 into /Applications",
+            "The installed app passed the full release verifier and launched from /Applications/Disk Steward.app"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-321",
+        "GATE-390"
+      ],
+      "recommended_action": "Advance the public Homebrew distribution path to the final release gate."
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-9930511E39560A960C19C350E4D00F62",
+  "previous_event_id": "EVENT-20260913T133705332548Z-65EA8DA8",
+  "previous_event_sha256": "8fdfbcc60997de2b7a317ee3493ff4de61b65e12860e03e5e6263fd3f900ec77"
+}

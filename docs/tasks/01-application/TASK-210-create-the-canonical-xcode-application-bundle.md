@@ -9,9 +9,9 @@
 - Workstream: `application`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `passed`
-- Health: `clear`
-- Availability: `verified`
+- Verification: `pending`
+- Health: `at-risk`
+- Availability: `implemented`
 - Goal trace: `TASK-210` → `OUTCOME-210` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal
@@ -73,3 +73,4 @@ Add a maintainable Xcode application product that reuses the package sources, la
 ## Audit Gates
 
 - None
+

@@ -1,0 +1,347 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260913T133705332548Z-65EA8DA8",
+  "at": "2026-09-13T13:37:05.332346Z",
+  "graph_version": 147,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-310",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": {
+      "id": "HANDOFF-TASK-310-20260913T091717681357Z-FA860894",
+      "paused_at": "2026-09-13T09:17:17.681349Z",
+      "paused_by": "codex",
+      "mode": "hold",
+      "resumed_at": "2026-09-13T13:23:25.435524Z",
+      "resumed_by": "codex",
+      "accepted_stale_drift": [
+        "worktree changed since the handoff"
+      ]
+    },
+    "blocker": null,
+    "updated_at": "2026-09-13T13:36:04.841878Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/Packaging/project.yml",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/finalize-archive-signatures",
+        "Scripts/Distribution/verify-release"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/Packaging/project.yml",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Distribution/finalize-archive-signatures",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "xcodebuild archive -scheme DiskSteward-Release (fresh universal archive at /private/tmp/DiskSteward-1.0.0-final.xcarchive)",
+          "result": "passed"
+        },
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed (5 tests, 0 failures)"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release '/Users/merdankiji/localGit/disk_steward/Disk Steward.app'",
+          "result": "passed"
+        },
+        {
+          "command": "ditto archive round-trip followed by Scripts/Distribution/verify-release on the extracted application",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'",
+          "result": "passed after Homebrew installation"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme and /private/tmp/DiskSteward-1.0.0-final.xcarchive"
+        },
+        {
+          "criterion": "AC-310-02",
+          "result": "passed",
+          "reference": "Scripts/Distribution/verify-release and the notarized v1.0.0 app verified before packaging, after extraction, and after Homebrew installation"
+        },
+        {
+          "criterion": "AC-310-03",
+          "result": "passed",
+          "reference": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift and credential-free Organizer handoff rehearsal"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-CURRENT-CANDIDATE-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210 is verified against the current schema-v5 application candidate with 156 passing tests, a successful signed Debug build, and a passing UI smoke",
+            "The evidence/export repair does not change release scripts, identifiers, entitlements, credential handling, or archive topology"
+          ]
+        },
+        {
+          "id": "CHECK-310-REHEARSAL-01",
+          "result": "passed",
+          "evidence": [
+            "Scripts/Distribution/rehearse-handoff constructed an unsigned archive containing the app and bundled MCP helper, then correctly rejected it as a release",
+            "The credential preflight returned the contracted exact Account Holder and Xcode action because no Developer ID Application identity is installed"
+          ]
+        },
+        {
+          "id": "CHECK-310-DEVELOPMENT-01",
+          "result": "passed",
+          "evidence": [
+            "Scripts/Distribution/verify --development passed while explicitly disclaiming signing, live system-extension activation, and notarization",
+            "The normal development app remains buildable and runnable after the failed-closed release preflight"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-310",
+        "RISK-320",
+        "GATE-390"
+      ],
+      "recommended_action": "Promote TASK-310, retain Developer ID Application as the external final-release prerequisite, and revalidate distribution safety controls."
+    },
+    "last_reopen": {
+      "at": "2026-09-13T06:49:07.840767Z",
+      "actor": "codex",
+      "reason": "The installed Developer ID profile exposed a target-scoping defect: the app requires the profile while the bundled MCP command-line helper must explicitly opt out.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json"
+    }
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": {
+      "id": "HANDOFF-TASK-310-20260913T091717681357Z-FA860894",
+      "paused_at": "2026-09-13T09:17:17.681349Z",
+      "paused_by": "codex",
+      "mode": "hold",
+      "resumed_at": "2026-09-13T13:23:25.435524Z",
+      "resumed_by": "codex",
+      "accepted_stale_drift": [
+        "worktree changed since the handoff"
+      ]
+    },
+    "blocker": null,
+    "updated_at": "2026-09-13T13:37:05.332264Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-310",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/Packaging/project.yml",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/finalize-archive-signatures",
+        "Scripts/Distribution/verify-release"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/Packaging/project.yml",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Distribution/finalize-archive-signatures",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        }
+      ],
+      "checks": [
+        {
+          "command": "xcodebuild archive -scheme DiskSteward-Release (fresh universal archive at /private/tmp/DiskSteward-1.0.0-final.xcarchive)",
+          "result": "passed"
+        },
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed (5 tests, 0 failures)"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release '/Users/merdankiji/localGit/disk_steward/Disk Steward.app'",
+          "result": "passed"
+        },
+        {
+          "command": "ditto archive round-trip followed by Scripts/Distribution/verify-release on the extracted application",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'",
+          "result": "passed after Homebrew installation"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-310-01",
+          "result": "passed",
+          "reference": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme and /private/tmp/DiskSteward-1.0.0-final.xcarchive"
+        },
+        {
+          "criterion": "AC-310-02",
+          "result": "passed",
+          "reference": "Scripts/Distribution/verify-release and the notarized v1.0.0 app verified before packaging, after extraction, and after Homebrew installation"
+        },
+        {
+          "criterion": "AC-310-03",
+          "result": "passed",
+          "reference": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift and credential-free Organizer handoff rehearsal"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-ARCHIVE-01",
+          "result": "passed",
+          "evidence": [
+            "Fresh DiskSteward-Release archive completed at /private/tmp/DiskSteward-1.0.0-final.xcarchive",
+            "DistributionReleaseIntegrityTests: 5 passed, 0 failed"
+          ]
+        },
+        {
+          "id": "CHECK-310-EXPORTED-APP-01",
+          "result": "passed",
+          "evidence": [
+            "Scripts/Distribution/verify-release passed on the exact exported app",
+            "The verifier confirmed Developer ID Application identity, Team G3P6TU385Y, canonical app and MCP helper identifiers, hardened runtime, secure timestamps, exact production entitlements, notarization staple, and Gatekeeper acceptance"
+          ]
+        },
+        {
+          "id": "CHECK-310-ROUNDTRIP-01",
+          "result": "passed",
+          "evidence": [
+            "The zipped release was extracted into a fresh temporary directory and passed the same complete release verifier",
+            "The Homebrew-installed app at /Applications/Disk Steward.app passed the same complete release verifier"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-310",
+        "RISK-320",
+        "GATE-390"
+      ],
+      "recommended_action": "Advance the signed, notarized direct-distribution artifact to the final release gate."
+    },
+    "last_reopen": {
+      "at": "2026-09-13T06:49:07.840767Z",
+      "actor": "codex",
+      "reason": "The installed Developer ID profile exposed a target-scoping defect: the app requires the profile while the bundled MCP command-line helper must explicitly opt out.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json"
+    }
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-310",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-310-ARCHIVE-01",
+          "result": "passed",
+          "evidence": [
+            "Fresh DiskSteward-Release archive completed at /private/tmp/DiskSteward-1.0.0-final.xcarchive",
+            "DistributionReleaseIntegrityTests: 5 passed, 0 failed"
+          ]
+        },
+        {
+          "id": "CHECK-310-EXPORTED-APP-01",
+          "result": "passed",
+          "evidence": [
+            "Scripts/Distribution/verify-release passed on the exact exported app",
+            "The verifier confirmed Developer ID Application identity, Team G3P6TU385Y, canonical app and MCP helper identifiers, hardened runtime, secure timestamps, exact production entitlements, notarization staple, and Gatekeeper acceptance"
+          ]
+        },
+        {
+          "id": "CHECK-310-ROUNDTRIP-01",
+          "result": "passed",
+          "evidence": [
+            "The zipped release was extracted into a fresh temporary directory and passed the same complete release verifier",
+            "The Homebrew-installed app at /Applications/Disk Steward.app passed the same complete release verifier"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-310",
+        "RISK-320",
+        "GATE-390"
+      ],
+      "recommended_action": "Advance the signed, notarized direct-distribution artifact to the final release gate."
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-413BF2F39DD392CA9AC9DAEC99F3FEB5",
+  "previous_event_id": "EVENT-20260913T133604842154Z-7756D0CB",
+  "previous_event_sha256": "614a493e391308c87ecffb013e4e6522b8ae3b77631b8d646a50dc324d4778c4"
+}

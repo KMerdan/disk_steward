@@ -39,7 +39,7 @@ Verify the canonical bundle, redesigned dashboard, embedded MCP helper, converge
 
 - `CONTRACT-201` (validation-requires, passed)
 - `CONTRACT-240` (validation-requires, passed)
-- `TASK-210` (integration-requires, passed)
+- `TASK-210` (integration-requires, pending)
 - `TASK-230` (integration-requires, passed)
 - `TASK-241` (integration-requires, passed)
 - `TASK-242` (integration-requires, passed)
@@ -89,3 +89,4 @@ Verify the canonical bundle, redesigned dashboard, embedded MCP helper, converge
 ## Audit Gates
 
 - None
+

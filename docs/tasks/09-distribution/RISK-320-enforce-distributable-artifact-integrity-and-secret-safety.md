@@ -38,7 +38,7 @@ Turn common macOS release failure modes into deterministic checks so an incomple
 
 ## Dependencies
 
-- `TASK-310` (requires, unverified)
+- `TASK-310` (requires, passed)
 
 ## Required Context
 
@@ -64,3 +64,4 @@ Turn common macOS release failure modes into deterministic checks so an incomple
 ## Audit Gates
 
 - None
+

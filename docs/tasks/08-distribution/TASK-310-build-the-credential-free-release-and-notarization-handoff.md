@@ -8,10 +8,10 @@
 - Wave: `8`
 - Workstream: `distribution`
 - Selection: `primary`
-- Execution: `needs-rework`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `locked`
+- Execution: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-310` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal
@@ -44,17 +44,17 @@ Provide inspectable archive, export, verification, and Xcode Organizer instructi
 
 ## Dependencies
 
-- `OUTCOME-210` (requires, unverified)
 - `RESEARCH-201` (requires, passed)
 
 ## Required Context
 
-- OUTCOME-210 audit evidence
 - RESEARCH-201 readiness record
 - DiskSteward.xcodeproj
 - Config/Signing
 - Config/Entitlements
 - Scripts/Distribution
+- Exported notarized app showing the single-file MCP helper identifier mismatch
+- Current exported and notarized application bundle evidence
 
 ## Validation Commands
 
@@ -66,7 +66,7 @@ Provide inspectable archive, export, verification, and Xcode Organizer instructi
 ## Acceptance Criteria
 
 - `AC-310-01` — A release scheme archives the app with hardened runtime and production entitlements, and documented Xcode Organizer steps guide Developer ID distribution and notarization without embedding account credentials.
-- `AC-310-02` — Release scripts accept an archive or exported artifact, verify expected identity class, nested MCP code, entitlements, timestamp, notarization and staple status, and Gatekeeper acceptance, and reject ad hoc or Apple Distribution-only output for direct release.
+- `AC-310-02` — Release scripts accept an archive or exported artifact, verify expected identity class, the single-file MCP helper code-signing identity and application-identifier entitlement, entitlements, timestamp, notarization and staple status, and Gatekeeper acceptance, and reject ad hoc or Apple Distribution-only output for direct release.
 - `AC-310-03` — When Developer ID access is missing, the workflow stops with the precise Xcode or account-holder action and leaves a usable development build intact.
 
 ## Required Evidence
@@ -76,3 +76,4 @@ Provide inspectable archive, export, verification, and Xcode Organizer instructi
 ## Audit Gates
 
 - None
+

@@ -1,0 +1,117 @@
+{
+  "schema": "pyramid-handoff-v1",
+  "id": "HANDOFF-TASK-310-20260913T085901892011Z-D75E7571",
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "task": "TASK-310",
+  "graph_version": 142,
+  "actor": "codex",
+  "pause_mode": "hold",
+  "reason": "Waiting for the user to notarize and export the corrected archive before Homebrew publication",
+  "created_at": "2026-09-13T08:59:01.892000Z",
+  "resume_deadline": "2026-09-13T10:59:01.892006Z",
+  "summary": "Corrected the bundled MCP helper signing identity and tightened entitlement verification; paused at the user-owned Apple notarization boundary before Homebrew publication.",
+  "progress": [
+    "Diagnosed the installed notarized app: app signature, staple, and Gatekeeper passed, but the helper code-signing identifier was disk-witness-mcp instead of com.marudankiji.disksteward.mcp.",
+    "Embedded a generated Info.plist section in the single-file helper so Xcode signs it with the canonical identifier.",
+    "Updated the release verifier to require the helper application identifier and the exact Developer ID injected app identity, team identity, and application group.",
+    "Built /private/tmp/DiskSteward-1.0.0-fixed.xcarchive and opened it in Xcode Organizer.",
+    "Committed and pushed the correction as 76a8660; Homebrew activation remains intentionally blocked until the corrected archive is notarized and exported."
+  ],
+  "changed_files": [
+    "Config/Packaging/project.yml",
+    "DiskSteward.xcodeproj/project.pbxproj",
+    "Scripts/Distribution/verify-release"
+  ],
+  "changed_assets": [],
+  "checks": [
+    {
+      "command": "swift test",
+      "result": "passed",
+      "notes": "158 tests passed with zero failures."
+    },
+    {
+      "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward-Release -configuration Release -archivePath /private/tmp/DiskSteward-1.0.0-fixed.xcarchive clean archive",
+      "result": "passed",
+      "notes": "Clean universal Developer ID archive succeeded."
+    },
+    {
+      "command": "codesign --verify --deep --strict --verbose=4 <fixed app>",
+      "result": "passed",
+      "notes": "The enclosing app and nested helper are valid; helper identifier is com.marudankiji.disksteward.mcp with hardened runtime and secure timestamp."
+    },
+    {
+      "command": "swift test --filter DistributionReleaseIntegrityTests",
+      "result": "passed",
+      "notes": "Five focused distribution tests passed."
+    },
+    {
+      "command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.0.0-fixed.xcarchive",
+      "result": "partial",
+      "notes": "All pre-notarization checks pass; verifier exits 68 only because no notarization ticket is stapled yet."
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Embed a generated Info.plist in the command-line helper.",
+      "rationale": "This makes Xcode and codesign derive the canonical reverse-DNS helper identifier without manual post-signing or stored credentials.",
+      "reference": "Config/Packaging/project.yml"
+    },
+    {
+      "decision": "Keep the Homebrew cask disabled until the corrected notarized artifact exists.",
+      "rationale": "The published cask must use an immutable release URL and SHA-256 for an artifact that passes the complete release verifier.",
+      "reference": "docs/tasks/09-distribution/TASK-321-publish-a-fail-closed-homebrew-tap.md"
+    }
+  ],
+  "assumptions": [
+    "The user will use the newly opened fixed archive rather than the older installed notarized app.",
+    "The release tag will be v1.0.0 once the corrected artifact passes notarization and Gatekeeper."
+  ],
+  "blockers": [
+    "The user must select the fixed archive in Xcode Organizer, choose Distribute App > Developer ID > Upload, wait for Ready to distribute, and export the notarized app."
+  ],
+  "risks": [
+    "Selecting the older archive or packaging the current /Applications copy would reintroduce the wrong helper identifier.",
+    "Publishing before the immutable release asset exists would make the Homebrew cask unverifiable."
+  ],
+  "next_steps": [
+    "User notarizes and exports /private/tmp/DiskSteward-1.0.0-fixed.xcarchive.",
+    "Run Scripts/Distribution/verify-release on the exported app and require a complete pass.",
+    "Create a versioned zip, compute SHA-256, publish GitHub release v1.0.0, activate the cask with the immutable asset URL and checksum, push the tap, and run a clean brew install smoke test."
+  ],
+  "recommended_first_action": "In Xcode Organizer, confirm the selected archive was created around 17:53 and upload that fixed archive to the Apple notary service.",
+  "context_references": [
+    "docs/tasks/08-distribution/TASK-310-build-the-credential-free-release-and-notarization-handoff.md",
+    "docs/tasks/09-distribution/TASK-321-publish-a-fail-closed-homebrew-tap.md",
+    "Scripts/Distribution/verify-release",
+    "Config/Packaging/project.yml"
+  ],
+  "external_session_refs": [
+    "/private/tmp/DiskSteward-1.0.0-fixed.xcarchive",
+    "https://github.com/KMerdan/disk_steward/commit/76a8660"
+  ],
+  "running_resources": [
+    {
+      "description": "Xcode Organizer is open with the fixed archive.",
+      "status": "waiting for user notarization upload",
+      "resume_command": "open '/private/tmp/DiskSteward-1.0.0-fixed.xcarchive'"
+    },
+    {
+      "description": "/Applications/Disk Steward.app is the older notarized build and must not be used as the Homebrew release artifact.",
+      "status": "running but release-ineligible because its helper identifier is stale",
+      "resume_command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'"
+    }
+  ],
+  "fingerprint": {
+    "plan_sha256": "703b549119100b476b72335d028f775aedbe7ccae54ddc3dff57e1d1d540f40e",
+    "baseline_sha256": null,
+    "assurance_sha256": null,
+    "worktree": {
+      "kind": "git",
+      "head": "76a86608e3986fda301cd539f8c1caeb06a10aba",
+      "branch": "main",
+      "unstaged_sha256": "a19f09499919c5b615e4bbdd4df266ab416922ebc374eeccfe88b10f229e7d8f",
+      "staged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

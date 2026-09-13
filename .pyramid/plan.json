@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "PLAN-DISK-STEWARD-002",
   "title": "Polished and Direct-Distribution-Ready Disk Steward",
-  "revision": 13,
+  "revision": 15,
   "intent": {
     "id": "INTENT-002",
     "statement": "A macOS user can install and launch Disk Steward as a polished native menu-bar application, understand why it exists through a research-grounded 30-second product story, inspect its MIT-licensed public source, discover a truthful Homebrew distribution path, and receive a verifiably signed and notarized direct-distribution artifact without weakening the existing monitoring, evidence, privacy, or MCP behavior.",
@@ -458,6 +458,18 @@
       "freshness": "Observed 2026-09-13",
       "supports": [
         "TASK-321",
+        "GATE-390"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-128",
+      "claim": "The Xcode-exported app is Developer ID signed, notarized, stapled, Gatekeeper accepted, and universal, but the single-file disk-witness-mcp helper has code-signing Identifier=disk-witness-mcp while its application-identifier entitlement is G3P6TU385Y.com.marudankiji.disksteward.mcp; the release verifier correctly blocked publication because the helper lacks the planned embedded reverse-DNS identity.",
+      "source": "Scripts/Distribution/verify-release, codesign -dvvv, codesign entitlement inspection, xcrun stapler validate, and spctl assessment of /Users/merdankiji/localGit/disk_steward/Disk Steward.app on 2026-09-13",
+      "confidence": "high",
+      "freshness": "Observed 2026-09-13",
+      "supports": [
+        "TASK-310",
         "GATE-390"
       ],
       "contradicts": []
@@ -2050,7 +2062,7 @@
         },
         {
           "id": "AC-310-02",
-          "description": "Release scripts accept an archive or exported artifact, verify expected identity class, nested MCP code, entitlements, timestamp, notarization and staple status, and Gatekeeper acceptance, and reject ad hoc or Apple Distribution-only output for direct release."
+          "description": "Release scripts accept an archive or exported artifact, verify expected identity class, the single-file MCP helper code-signing identity and application-identifier entitlement, entitlements, timestamp, notarization and staple status, and Gatekeeper acceptance, and reject ad hoc or Apple Distribution-only output for direct release."
         },
         {
           "id": "AC-310-03",
@@ -2066,12 +2078,13 @@
       ],
       "agent": {
         "required_context": [
-          "OUTCOME-210 audit evidence",
           "RESEARCH-201 readiness record",
           "DiskSteward.xcodeproj",
           "Config/Signing",
           "Config/Entitlements",
-          "Scripts/Distribution"
+          "Scripts/Distribution",
+          "Exported notarized app showing the single-file MCP helper identifier mismatch",
+          "Current exported and notarized application bundle evidence"
         ],
         "allowed_write_scope": [
           "Config/Packaging/project.yml",
@@ -2741,11 +2754,6 @@
       "from": "OUTCOME-210",
       "to": "GATE-290",
       "type": "validated-by"
-    },
-    {
-      "from": "TASK-310",
-      "to": "OUTCOME-210",
-      "type": "requires"
     },
     {
       "from": "TASK-310",

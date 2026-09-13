@@ -1,0 +1,120 @@
+{
+  "schema": "pyramid-handoff-v1",
+  "id": "HANDOFF-TASK-310-20260913T091717681357Z-FA860894",
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "task": "TASK-310",
+  "graph_version": 144,
+  "actor": "codex",
+  "pause_mode": "hold",
+  "reason": "Waiting for replacement notarization of the corrected universal-helper archive before Homebrew publication",
+  "created_at": "2026-09-13T09:17:17.681349Z",
+  "resume_deadline": "2026-09-13T11:17:17.681353Z",
+  "summary": "Diagnosed a universal MCP helper signing defect, repaired and verified the Release scheme, and paused for replacement Apple notarization before Homebrew publication.",
+  "progress": [
+    "Verified that /Applications/Disk Steward.app and the prior archive had the canonical helper identifier but an invalid universal helper signature.",
+    "Reproduced the defect in a clean archive and proved that each thin architecture was valid while the fat Mach-O container failed verification.",
+    "Added release finalization that signs the helper, reconstructs the universal container from its valid slices, re-signs the enclosing app, and verifies the complete bundle.",
+    "Added the finalizer as a Release scheme archive post-action and retained an in-build helper signing check for non-archive Release builds.",
+    "Built and verified /private/tmp/DiskSteward-1.0.0-final.xcarchive; all signature, identity, entitlement, timestamp, runtime, and architecture checks pass, and only the expected missing notarization staple gate remains.",
+    "Committed and pushed the repair as 484a593, then opened the exact final archive in Xcode Organizer."
+  ],
+  "changed_files": [
+    "Config/Packaging/project.yml",
+    "DiskSteward.xcodeproj/project.pbxproj",
+    "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+    "Scripts/Distribution/finalize-archive-signatures"
+  ],
+  "changed_assets": [],
+  "checks": [
+    {
+      "command": "swift test --filter DistributionReleaseIntegrityTests",
+      "result": "passed",
+      "notes": "Five focused distribution tests passed with zero failures."
+    },
+    {
+      "command": "xcodebuild -quiet -project DiskSteward.xcodeproj -scheme DiskSteward-Release -configuration Release -destination generic/platform=macOS -archivePath /private/tmp/DiskSteward-1.0.0-final.xcarchive archive",
+      "result": "passed",
+      "notes": "The real Release scheme and archive post-action completed successfully."
+    },
+    {
+      "command": "codesign --verify --deep --strict --verbose=4 /private/tmp/DiskSteward-1.0.0-final.xcarchive/Products/Applications/Disk Steward.app",
+      "result": "passed",
+      "notes": "Both universal helper slices and the enclosing app satisfy their Developer ID designated requirements."
+    },
+    {
+      "command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.0.0-final.xcarchive",
+      "result": "partial",
+      "notes": "All pre-notarization checks pass; exit occurs only at the expected missing staple gate."
+    },
+    {
+      "command": "git push origin main",
+      "result": "passed",
+      "notes": "Commit 484a593 is published on KMerdan/disk_steward main."
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Reconstruct the universal helper container after signing its slices.",
+      "rationale": "On macOS 15, codesign produced two valid thin slices but left stale fat-container offsets; lipo reconstruction yields a persistently valid universal executable.",
+      "reference": "Scripts/Distribution/finalize-archive-signatures"
+    },
+    {
+      "decision": "Run final release signing as an Archive post-action.",
+      "rationale": "Archive deployment processing occurs after normal target post-build scripts and can otherwise invalidate the nested helper; the scheme post-action establishes the final distributable state.",
+      "reference": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme"
+    }
+  ],
+  "assumptions": [
+    "The user will upload the exact archive named DiskSteward-1.0.0-final created around 18:16 JST, not the earlier fixed or installed copies.",
+    "Apple notarization must be repeated because the repaired artifact has new code-directory hashes."
+  ],
+  "blockers": [
+    "The user must select /private/tmp/DiskSteward-1.0.0-final.xcarchive in Xcode Organizer, choose Distribute App > Developer ID > Upload, wait for Ready to distribute, and export the notarized app."
+  ],
+  "risks": [
+    "The current /Applications/Disk Steward.app is signature-invalid and must not be used for the GitHub or Homebrew artifact.",
+    "Publishing the cask before the replacement notarized app passes verify-release would ship a Gatekeeper-rejected build."
+  ],
+  "next_steps": [
+    "Upload DiskSteward-1.0.0-final from Organizer and wait for Ready to distribute.",
+    "Export the notarized app to /Users/merdankiji/localGit/disk_steward without replacing the archive.",
+    "Run Scripts/Distribution/verify-release on the exported app and require a full pass.",
+    "Package the verified app, publish GitHub release v1.0.0, activate and push the Homebrew cask, and run a clean brew install smoke test."
+  ],
+  "recommended_first_action": "In the already-open Organizer, confirm the archive creation time is around 18:16 JST and its name is DiskSteward-1.0.0-final, then upload that archive to Apple notarization.",
+  "context_references": [
+    "Scripts/Distribution/finalize-archive-signatures",
+    "Scripts/Distribution/verify-release",
+    "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+    "docs/tasks/09-distribution/TASK-321-publish-a-fail-closed-homebrew-tap.md"
+  ],
+  "external_session_refs": [
+    "/private/tmp/DiskSteward-1.0.0-final.xcarchive",
+    "https://github.com/KMerdan/disk_steward/commit/484a593"
+  ],
+  "running_resources": [
+    {
+      "description": "Xcode Organizer is open with the corrected final archive.",
+      "status": "waiting for user replacement notarization upload",
+      "resume_command": "open '/private/tmp/DiskSteward-1.0.0-final.xcarchive'"
+    },
+    {
+      "description": "/Applications/Disk Steward.app is an invalid earlier build and is excluded from release packaging.",
+      "status": "do not publish",
+      "resume_command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'"
+    }
+  ],
+  "fingerprint": {
+    "plan_sha256": "703b549119100b476b72335d028f775aedbe7ccae54ddc3dff57e1d1d540f40e",
+    "baseline_sha256": null,
+    "assurance_sha256": null,
+    "worktree": {
+      "kind": "git",
+      "head": "484a5939fd61e89fdfbfb8446916940575b7d61a",
+      "branch": "main",
+      "unstaged_sha256": "2bfa0daff2ea6e046e8a4f95997d2ae24d1bbc220d557b04c389fb0575a25a29",
+      "staged_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

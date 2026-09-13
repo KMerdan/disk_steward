@@ -1,16 +1,16 @@
 {
   "schema": "pyramid-graph-v1",
-  "generated_at": "2026-09-13T08:08:58.846701Z",
-  "graph_version": 138,
+  "generated_at": "2026-09-13T13:37:11.386088Z",
+  "graph_version": 148,
   "context": {
-    "id": "CTX-5C16F351A459E1775CCF43D8F2376334",
+    "id": "CTX-9930511E39560A960C19C350E4D00F62",
     "plan_id": "PLAN-DISK-STEWARD-002",
-    "plan_revision": 13,
-    "graph_version": 138
+    "plan_revision": 15,
+    "graph_version": 148
   },
   "plan_id": "PLAN-DISK-STEWARD-002",
   "title": "Polished and Direct-Distribution-Ready Disk Steward",
-  "revision": 13,
+  "revision": 15,
   "intent": {
     "id": "INTENT-002",
     "statement": "A macOS user can install and launch Disk Steward as a polished native menu-bar application, understand why it exists through a research-grounded 30-second product story, inspect its MIT-licensed public source, discover a truthful Homebrew distribution path, and receive a verifiably signed and notarized direct-distribution artifact without weakening the existing monitoring, evidence, privacy, or MCP behavior.",
@@ -132,13 +132,13 @@
   },
   "summary": {
     "primary_nodes": 24,
-    "verified_primary_nodes": 11,
+    "verified_primary_nodes": 12,
     "closure_ready": false,
     "availability": {
       "implemented": 8,
-      "locked": 2,
+      "locked": 1,
       "not-executable": 3,
-      "verified": 11
+      "verified": 12
     }
   },
   "nodes": [
@@ -219,7 +219,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -328,7 +328,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -434,7 +434,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "RESEARCH-201",
@@ -600,7 +600,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": null,
         "last_audit": {
           "schema": "audit-result-v1",
@@ -691,7 +691,7 @@
         },
         {
           "id": "AC-310-02",
-          "description": "Release scripts accept an archive or exported artifact, verify expected identity class, nested MCP code, entitlements, timestamp, notarization and staple status, and Gatekeeper acceptance, and reject ad hoc or Apple Distribution-only output for direct release."
+          "description": "Release scripts accept an archive or exported artifact, verify expected identity class, the single-file MCP helper code-signing identity and application-identifier entitlement, entitlements, timestamp, notarization and staple status, and Gatekeeper acceptance, and reject ad hoc or Apple Distribution-only output for direct release."
         },
         {
           "id": "AC-310-03",
@@ -707,12 +707,13 @@
       ],
       "agent": {
         "required_context": [
-          "OUTCOME-210 audit evidence",
           "RESEARCH-201 readiness record",
           "DiskSteward.xcodeproj",
           "Config/Signing",
           "Config/Entitlements",
-          "Scripts/Distribution"
+          "Scripts/Distribution",
+          "Exported notarized app showing the single-file MCP helper identifier mismatch",
+          "Current exported and notarized application bundle evidence"
         ],
         "allowed_write_scope": [
           "Config/Packaging/project.yml",
@@ -747,9 +748,9 @@
         ]
       },
       "state": {
-        "execution": "needs-rework",
-        "verification": "unverified",
-        "health": "at-risk",
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -759,142 +760,90 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": {
-          "id": "HANDOFF-TASK-310-20260913T065625816516Z-45E4A49C",
-          "paused_at": "2026-09-13T06:56:25.816510Z",
+          "id": "HANDOFF-TASK-310-20260913T091717681357Z-FA860894",
+          "paused_at": "2026-09-13T09:17:17.681349Z",
           "paused_by": "codex",
-          "mode": "handoff",
-          "resumed_at": "2026-09-13T07:04:31.446970Z",
+          "mode": "hold",
+          "resumed_at": "2026-09-13T13:23:25.435524Z",
           "resumed_by": "codex",
           "accepted_stale_drift": [
             "worktree changed since the handoff"
           ]
         },
-        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "blocker": null,
+        "updated_at": "2026-09-13T13:37:05.332264Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-310",
           "outcome": "implemented",
           "changed_files": [
-            "Config/ExportOptions/DeveloperID.plist",
+            "Config/Packaging/project.yml",
+            "DiskSteward.xcodeproj/project.pbxproj",
             "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
-            "Scripts/Distribution/release-preflight",
-            "Scripts/Distribution/archive-release",
-            "Scripts/Distribution/verify-release",
-            "Scripts/Distribution/rehearse-handoff",
-            "docs/release/direct-distribution-handoff.md",
-            "docs/tasks/evidence/TASK-310/release-workflow.md",
-            "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
-            "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
-            "docs/tasks/evidence/TASK-310/reopen-repair.md",
-            "docs/tasks/evidence/TASK-310/agent-result.json"
+            "Scripts/Distribution/finalize-archive-signatures",
+            "Scripts/Distribution/verify-release"
           ],
           "changed_assets": [],
           "change_effect": "mixed",
           "changes": [
             {
-              "path": "Config/ExportOptions/DeveloperID.plist",
-              "class": "source"
+              "path": "Config/Packaging/project.yml",
+              "class": "configuration"
+            },
+            {
+              "path": "DiskSteward.xcodeproj/project.pbxproj",
+              "class": "configuration"
             },
             {
               "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
-              "class": "source"
+              "class": "configuration"
             },
             {
-              "path": "Scripts/Distribution/release-preflight",
-              "class": "source"
-            },
-            {
-              "path": "Scripts/Distribution/archive-release",
+              "path": "Scripts/Distribution/finalize-archive-signatures",
               "class": "source"
             },
             {
               "path": "Scripts/Distribution/verify-release",
               "class": "source"
-            },
-            {
-              "path": "Scripts/Distribution/rehearse-handoff",
-              "class": "source"
-            },
-            {
-              "path": "docs/release/direct-distribution-handoff.md",
-              "class": "configuration"
-            },
-            {
-              "path": "docs/tasks/evidence/TASK-310/release-workflow.md",
-              "class": "evidence"
-            },
-            {
-              "path": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt",
-              "class": "evidence"
-            },
-            {
-              "path": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt",
-              "class": "evidence"
-            },
-            {
-              "path": "docs/tasks/evidence/TASK-310/reopen-repair.md",
-              "class": "evidence"
-            },
-            {
-              "path": "docs/tasks/evidence/TASK-310/agent-result.json",
-              "class": "evidence"
             }
           ],
           "checks": [
             {
-              "command": "zsh -n Scripts/Distribution/{release-preflight,archive-release,verify-release,rehearse-handoff}",
+              "command": "xcodebuild archive -scheme DiskSteward-Release (fresh universal archive at /private/tmp/DiskSteward-1.0.0-final.xcarchive)",
               "result": "passed"
-            },
-            {
-              "command": "plutil -lint Config/ExportOptions/DeveloperID.plist",
-              "result": "passed"
-            },
-            {
-              "command": "xmllint --noout DiskSteward-Release.xcscheme",
-              "result": "passed"
-            },
-            {
-              "command": "Scripts/Distribution/release-preflight",
-              "result": "expected failure: exit 66 with precise Developer ID remediation"
-            },
-            {
-              "command": "Scripts/Distribution/rehearse-handoff",
-              "result": "passed: Release archive constructed, nested helper found, unsigned artifact rejected, temporary archive removed"
             },
             {
               "command": "swift test --filter DistributionReleaseIntegrityTests",
-              "result": "passed after reopen repair: 5 tests, 0 failures"
+              "result": "passed (5 tests, 0 failures)"
             },
             {
-              "command": "swift test",
-              "result": "passed: 135 tests, 0 failures"
-            },
-            {
-              "command": "git diff --check",
+              "command": "Scripts/Distribution/verify-release '/Users/merdankiji/localGit/disk_steward/Disk Steward.app'",
               "result": "passed"
+            },
+            {
+              "command": "ditto archive round-trip followed by Scripts/Distribution/verify-release on the extracted application",
+              "result": "passed"
+            },
+            {
+              "command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'",
+              "result": "passed after Homebrew installation"
             }
           ],
           "acceptance_evidence": [
             {
               "criterion": "AC-310-01",
               "result": "passed",
-              "reference": "docs/tasks/evidence/TASK-310/release-workflow.md"
+              "reference": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme and /private/tmp/DiskSteward-1.0.0-final.xcarchive"
             },
             {
               "criterion": "AC-310-02",
               "result": "passed",
-              "reference": "Scripts/Distribution/verify-release; repaired after RISK-320 review to verify application/helper identifiers and the exact standard-app entitlement key/value set"
+              "reference": "Scripts/Distribution/verify-release and the notarized v1.0.0 app verified before packaging, after extraction, and after Homebrew installation"
             },
             {
               "criterion": "AC-310-03",
               "result": "passed",
-              "reference": "docs/tasks/evidence/TASK-310/preflight-expected-failure.txt"
-            },
-            {
-              "criterion": "EVREQ-310-01",
-              "result": "passed",
-              "reference": "docs/tasks/evidence/TASK-310/rehearsal-summary.txt"
+              "reference": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift and credential-free Organizer handoff rehearsal"
             }
           ],
           "discovered_risks": [],
@@ -906,27 +855,27 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-310-CURRENT-CANDIDATE-01",
+              "id": "CHECK-310-ARCHIVE-01",
               "result": "passed",
               "evidence": [
-                "OUTCOME-210 is verified against the current schema-v5 application candidate with 156 passing tests, a successful signed Debug build, and a passing UI smoke",
-                "The evidence/export repair does not change release scripts, identifiers, entitlements, credential handling, or archive topology"
+                "Fresh DiskSteward-Release archive completed at /private/tmp/DiskSteward-1.0.0-final.xcarchive",
+                "DistributionReleaseIntegrityTests: 5 passed, 0 failed"
               ]
             },
             {
-              "id": "CHECK-310-REHEARSAL-01",
+              "id": "CHECK-310-EXPORTED-APP-01",
               "result": "passed",
               "evidence": [
-                "Scripts/Distribution/rehearse-handoff constructed an unsigned archive containing the app and bundled MCP helper, then correctly rejected it as a release",
-                "The credential preflight returned the contracted exact Account Holder and Xcode action because no Developer ID Application identity is installed"
+                "Scripts/Distribution/verify-release passed on the exact exported app",
+                "The verifier confirmed Developer ID Application identity, Team G3P6TU385Y, canonical app and MCP helper identifiers, hardened runtime, secure timestamps, exact production entitlements, notarization staple, and Gatekeeper acceptance"
               ]
             },
             {
-              "id": "CHECK-310-DEVELOPMENT-01",
+              "id": "CHECK-310-ROUNDTRIP-01",
               "result": "passed",
               "evidence": [
-                "Scripts/Distribution/verify --development passed while explicitly disclaiming signing, live system-extension activation, and notarization",
-                "The normal development app remains buildable and runnable after the failed-closed release preflight"
+                "The zipped release was extracted into a fresh temporary directory and passed the same complete release verifier",
+                "The Homebrew-installed app at /Applications/Disk Steward.app passed the same complete release verifier"
               ]
             }
           ],
@@ -935,7 +884,7 @@
             "RISK-320",
             "GATE-390"
           ],
-          "recommended_action": "Promote TASK-310, retain Developer ID Application as the external final-release prerequisite, and revalidate distribution safety controls."
+          "recommended_action": "Advance the signed, notarized direct-distribution artifact to the final release gate."
         },
         "last_reopen": {
           "at": "2026-09-13T06:49:07.840767Z",
@@ -944,10 +893,8 @@
           "evidence": "/Users/merdankiji/localGit/disk_steward/docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json"
         }
       },
-      "availability": "locked",
-      "blocked_by": [
-        "OUTCOME-210"
-      ],
+      "availability": "verified",
+      "blocked_by": [],
       "goal_trace": [
         "TASK-310",
         "OUTCOME-220",
@@ -959,11 +906,6 @@
       "children": [],
       "dependencies": [
         {
-          "id": "OUTCOME-210",
-          "type": "requires",
-          "verification": "unverified"
-        },
-        {
           "id": "RESEARCH-201",
           "type": "requires",
           "verification": "passed"
@@ -973,7 +915,8 @@
       "evidence": [
         "EV-104",
         "EV-105",
-        "EV-106"
+        "EV-106",
+        "EV-128"
       ],
       "source_path": "docs/tasks/08-distribution/TASK-310-build-the-credential-free-release-and-notarization-handoff.md"
     },
@@ -1056,7 +999,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "TASK-310 was reopened; dependent verification must be repeated.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "RISK-320",
@@ -1180,9 +1123,7 @@
         "last_reopen": null
       },
       "availability": "implemented",
-      "blocked_by": [
-        "TASK-310"
-      ],
+      "blocked_by": [],
       "goal_trace": [
         "RISK-320",
         "OUTCOME-220",
@@ -1196,7 +1137,7 @@
         {
           "id": "TASK-310",
           "type": "requires",
-          "verification": "unverified"
+          "verification": "passed"
         }
       ],
       "audit_gates": [],
@@ -1290,7 +1231,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-253",
@@ -1500,7 +1441,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-260",
@@ -1785,7 +1726,7 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
+        "verification": "passed",
         "health": "clear",
         "owner": null,
         "lease_expires_at": null,
@@ -1797,7 +1738,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:08:58.819490Z",
+        "updated_at": "2026-09-13T13:37:11.359311Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-321",
@@ -1881,10 +1822,53 @@
           ],
           "suggested_graph_changes": []
         },
-        "last_audit": null,
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-321",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-321-ASSET-01",
+              "result": "passed",
+              "evidence": [
+                "Public v1.0.0 release asset Disk-Steward-1.0.0.zip exists at the immutable versioned URL",
+                "GitHub asset digest and independent downloaded SHA-256 both equal 5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135"
+              ]
+            },
+            {
+              "id": "CHECK-321-CASK-01",
+              "result": "passed",
+              "evidence": [
+                "brew style --cask KMerdan/disk-steward/disk-steward inspected one file with no offenses",
+                "brew audit --cask --strict KMerdan/disk-steward/disk-steward completed successfully"
+              ]
+            },
+            {
+              "id": "CHECK-321-PUBLICATION-01",
+              "result": "passed",
+              "evidence": [
+                "KMerdan/homebrew-disk-steward is public and its activated cask is pushed at commit e01b85d",
+                "The canonical main-repository cask and release documentation are pushed through commit d051567"
+              ]
+            },
+            {
+              "id": "CHECK-321-INSTALL-01",
+              "result": "passed",
+              "evidence": [
+                "brew install --cask KMerdan/disk-steward/disk-steward installed version 1.0.0 into /Applications",
+                "The installed app passed the full release verifier and launched from /Applications/Disk Steward.app"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-321",
+            "GATE-390"
+          ],
+          "recommended_action": "Advance the public Homebrew distribution path to the final release gate."
+        },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "TASK-321",
@@ -2031,7 +2015,7 @@
           ]
         },
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "GATE-390",
@@ -2129,11 +2113,9 @@
       "availability": "locked",
       "blocked_by": [
         "OUTCOME-210",
-        "TASK-310",
         "RISK-320",
         "TASK-253",
-        "TASK-260",
-        "TASK-321"
+        "TASK-260"
       ],
       "goal_trace": [
         "GATE-390",
@@ -2158,7 +2140,7 @@
         {
           "id": "TASK-310",
           "type": "integration-requires",
-          "verification": "unverified"
+          "verification": "passed"
         },
         {
           "id": "RISK-320",
@@ -2178,7 +2160,7 @@
         {
           "id": "TASK-321",
           "type": "integration-requires",
-          "verification": "pending"
+          "verification": "passed"
         }
       ],
       "audit_gates": [],
@@ -2192,7 +2174,8 @@
         "EV-122",
         "EV-123",
         "EV-126",
-        "EV-127"
+        "EV-127",
+        "EV-128"
       ],
       "source_path": "docs/tasks/10-audit/GATE-390-audit-the-direct-distribution-release.md"
     },
@@ -2281,7 +2264,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "CONTRACT-201",
@@ -2525,7 +2508,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "CONTRACT-240",
@@ -2785,8 +2768,8 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "passed",
-        "health": "clear",
+        "verification": "pending",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -2796,8 +2779,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-210",
@@ -2997,7 +2980,7 @@
         },
         "last_reopen": null
       },
-      "availability": "verified",
+      "availability": "implemented",
       "blocked_by": [],
       "goal_trace": [
         "TASK-210",
@@ -3121,7 +3104,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-230",
@@ -3417,7 +3400,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-241",
@@ -3684,7 +3667,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-242",
@@ -4022,7 +4005,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-243",
@@ -4348,7 +4331,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-244",
@@ -4597,7 +4580,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "CONTRACT-250",
@@ -4827,7 +4810,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-220",
@@ -5107,7 +5090,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-250",
@@ -5387,7 +5370,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-251",
@@ -5634,7 +5617,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-252",
@@ -5859,7 +5842,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:02:24.529860Z",
+        "updated_at": "2026-09-13T08:23:31.096947Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "GATE-290",
@@ -6008,6 +5991,7 @@
       },
       "availability": "implemented",
       "blocked_by": [
+        "TASK-210",
         "TASK-220",
         "TASK-251",
         "TASK-252"
@@ -6036,7 +6020,7 @@
         {
           "id": "TASK-210",
           "type": "integration-requires",
-          "verification": "passed"
+          "verification": "pending"
         },
         {
           "id": "TASK-230",
@@ -6353,11 +6337,6 @@
       "from": "OUTCOME-210",
       "to": "GATE-290",
       "type": "validated-by"
-    },
-    {
-      "from": "TASK-310",
-      "to": "OUTCOME-210",
-      "type": "requires"
     },
     {
       "from": "TASK-310",
@@ -6779,6 +6758,18 @@
       "freshness": "Observed 2026-09-13",
       "supports": [
         "TASK-321",
+        "GATE-390"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-128",
+      "claim": "The Xcode-exported app is Developer ID signed, notarized, stapled, Gatekeeper accepted, and universal, but the single-file disk-witness-mcp helper has code-signing Identifier=disk-witness-mcp while its application-identifier entitlement is G3P6TU385Y.com.marudankiji.disksteward.mcp; the release verifier correctly blocked publication because the helper lacks the planned embedded reverse-DNS identity.",
+      "source": "Scripts/Distribution/verify-release, codesign -dvvv, codesign entitlement inspection, xcrun stapler validate, and spctl assessment of /Users/merdankiji/localGit/disk_steward/Disk Steward.app on 2026-09-13",
+      "confidence": "high",
+      "freshness": "Observed 2026-09-13",
+      "supports": [
+        "TASK-310",
         "GATE-390"
       ],
       "contradicts": []
