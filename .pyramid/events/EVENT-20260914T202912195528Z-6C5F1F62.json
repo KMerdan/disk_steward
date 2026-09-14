@@ -1,0 +1,469 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260914T202912195528Z-6C5F1F62",
+  "at": "2026-09-14T20:29:12.195332Z",
+  "graph_version": 149,
+  "actor": "codex",
+  "type": "audit.fail",
+  "node": "TASK-210",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+    "updated_at": "2026-09-13T08:23:31.096947Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-210",
+      "outcome": "implemented",
+      "changed_files": [
+        "README.md",
+        "Config/Packaging/DiskSteward-Info.plist",
+        "Config/Packaging/project.yml",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "DiskSteward.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme",
+        "Resources/App/Assets.xcassets/Contents.json",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-16.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-32.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-64.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-128.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-256.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-512.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+        "Scripts/Development/build_xcode_project",
+        "Scripts/Development/generate_app_icon.swift",
+        "docs/tasks/evidence/TASK-210/build-and-launch.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "README.md",
+          "class": "source"
+        },
+        {
+          "path": "Config/Packaging/DiskSteward-Info.plist",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Packaging/project.yml",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme",
+          "class": "configuration"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/Contents.json",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-16.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-32.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-64.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-128.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-256.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-512.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Development/build_xcode_project",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Development/generate_app_icon.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-210/build-and-launch.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "xcodebuild Debug signed build",
+          "result": "passed"
+        },
+        {
+          "command": "xcodebuild CI unsigned build",
+          "result": "passed"
+        },
+        {
+          "command": "codesign --verify --deep --strict",
+          "result": "passed"
+        },
+        {
+          "command": "app --ui-smoke and real open launch",
+          "result": "passed"
+        },
+        {
+          "command": "bundled MCP initialize request",
+          "result": "passed"
+        },
+        {
+          "command": "swift test (111 tests)",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-210-01",
+          "result": "passed",
+          "reference": "Shared scheme built a signed LSUIElement app, UI smoke reported accessory status item, and a real launched process remained running without Endpoint Security"
+        },
+        {
+          "criterion": "AC-210-02",
+          "result": "passed",
+          "reference": "Version 1.0.0 metadata, complete compiled AppIcon, privacy descriptions, executable Contents/Helpers/disk-witness-mcp, and successful MCP initialize transcript"
+        },
+        {
+          "criterion": "AC-210-03",
+          "result": "passed",
+          "reference": "Signed Debug build used automatic development signing for G3P6TU385Y; explicit unsigned CI configuration also built successfully"
+        }
+      ],
+      "discovered_risks": [
+        "Developer ID Application signing and notarization remain release-stage external prerequisites, not Debug build blockers.",
+        "Config/Packaging/project.yml is canonical; manual pbxproj edits can be overwritten by regeneration."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-210",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-210-01",
+          "result": "passed",
+          "evidence": [
+            "Shared DiskSteward scheme builds a signed Debug LSUIElement application with permanent identifier and without the Endpoint Security target",
+            "UI smoke and real open launch verify the accessory menu-bar process"
+          ]
+        },
+        {
+          "id": "CHECK-210-02",
+          "result": "passed",
+          "evidence": [
+            "Bundle has version 1.0.0 build 1, privacy descriptions, compiled AppIcon.icns and Assets.car",
+            "Contents/Helpers/disk-witness-mcp is executable and returns a valid read-only MCP initialize response"
+          ]
+        },
+        {
+          "id": "CHECK-210-03",
+          "result": "passed",
+          "evidence": [
+            "Debug automatic signing resolved team G3P6TU385Y and the canonical app group",
+            "CI configuration built with signing explicitly disabled"
+          ]
+        },
+        {
+          "id": "CHECK-210-04",
+          "result": "passed",
+          "evidence": [
+            "codesign deep strict verification passed",
+            "swift test passed 111 tests with zero failures and git diff --check passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-210",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "needs-rework",
+    "verification": "failed",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Audit failed; repair, approved expansion, or replan is required.",
+    "updated_at": "2026-09-14T20:29:12.195298Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-210",
+      "outcome": "implemented",
+      "changed_files": [
+        "README.md",
+        "Config/Packaging/DiskSteward-Info.plist",
+        "Config/Packaging/project.yml",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "DiskSteward.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme",
+        "Resources/App/Assets.xcassets/Contents.json",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-16.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-32.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-64.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-128.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-256.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-512.png",
+        "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+        "Scripts/Development/build_xcode_project",
+        "Scripts/Development/generate_app_icon.swift",
+        "docs/tasks/evidence/TASK-210/build-and-launch.md"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "README.md",
+          "class": "source"
+        },
+        {
+          "path": "Config/Packaging/DiskSteward-Info.plist",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Packaging/project.yml",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme",
+          "class": "configuration"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/Contents.json",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-16.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-32.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-64.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-128.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-256.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-512.png",
+          "class": "source"
+        },
+        {
+          "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Development/build_xcode_project",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Development/generate_app_icon.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-210/build-and-launch.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "xcodebuild Debug signed build",
+          "result": "passed"
+        },
+        {
+          "command": "xcodebuild CI unsigned build",
+          "result": "passed"
+        },
+        {
+          "command": "codesign --verify --deep --strict",
+          "result": "passed"
+        },
+        {
+          "command": "app --ui-smoke and real open launch",
+          "result": "passed"
+        },
+        {
+          "command": "bundled MCP initialize request",
+          "result": "passed"
+        },
+        {
+          "command": "swift test (111 tests)",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-210-01",
+          "result": "passed",
+          "reference": "Shared scheme built a signed LSUIElement app, UI smoke reported accessory status item, and a real launched process remained running without Endpoint Security"
+        },
+        {
+          "criterion": "AC-210-02",
+          "result": "passed",
+          "reference": "Version 1.0.0 metadata, complete compiled AppIcon, privacy descriptions, executable Contents/Helpers/disk-witness-mcp, and successful MCP initialize transcript"
+        },
+        {
+          "criterion": "AC-210-03",
+          "result": "passed",
+          "reference": "Signed Debug build used automatic development signing for G3P6TU385Y; explicit unsigned CI configuration also built successfully"
+        }
+      ],
+      "discovered_risks": [
+        "Developer ID Application signing and notarization remain release-stage external prerequisites, not Debug build blockers.",
+        "Config/Packaging/project.yml is canonical; manual pbxproj edits can be overwritten by regeneration."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-210",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-210-PERSISTENCE-01",
+          "result": "failed",
+          "evidence": [
+            "The notarized /Applications/Disk Steward.app passed codesign --verify --deep --strict, Gatekeeper assessment, and Scripts/Distribution/verify-release.",
+            "A LaunchServices launch created Disk Steward process 90344, then the process disappeared without a crash report.",
+            "Unified logging recorded AppKit AutomaticTermination setting _kLSApplicationWouldBeTerminatedByTALKey=1 immediately before the menu-bar-only process disappeared.",
+            "Sources/DiskStewardApp/ApplicationDelegate.swift creates the status controller but does not hold a ProcessInfo automatic-termination activity or explicitly disable automatic termination."
+          ]
+        },
+        {
+          "id": "CHECK-210-SIGNATURE-01",
+          "result": "passed",
+          "evidence": [
+            "codesign reported the installed application valid on disk and satisfying its designated requirement.",
+            "spctl accepted the installed application with source Notarized Developer ID.",
+            "Scripts/Distribution/verify-release passed the exact /Applications bundle."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-210",
+        "OUTCOME-210",
+        "GATE-290"
+      ],
+      "recommended_action": "Reopen TASK-210, keep a process-lifetime automatic-termination assertion for the menu-bar monitor, add regression coverage, rebuild, and prove a Finder or LaunchServices launch remains alive with a visible status item."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-210",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-210-PERSISTENCE-01",
+          "result": "failed",
+          "evidence": [
+            "The notarized /Applications/Disk Steward.app passed codesign --verify --deep --strict, Gatekeeper assessment, and Scripts/Distribution/verify-release.",
+            "A LaunchServices launch created Disk Steward process 90344, then the process disappeared without a crash report.",
+            "Unified logging recorded AppKit AutomaticTermination setting _kLSApplicationWouldBeTerminatedByTALKey=1 immediately before the menu-bar-only process disappeared.",
+            "Sources/DiskStewardApp/ApplicationDelegate.swift creates the status controller but does not hold a ProcessInfo automatic-termination activity or explicitly disable automatic termination."
+          ]
+        },
+        {
+          "id": "CHECK-210-SIGNATURE-01",
+          "result": "passed",
+          "evidence": [
+            "codesign reported the installed application valid on disk and satisfying its designated requirement.",
+            "spctl accepted the installed application with source Notarized Developer ID.",
+            "Scripts/Distribution/verify-release passed the exact /Applications bundle."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-210",
+        "OUTCOME-210",
+        "GATE-290"
+      ],
+      "recommended_action": "Reopen TASK-210, keep a process-lifetime automatic-termination assertion for the menu-bar monitor, add regression coverage, rebuild, and prove a Finder or LaunchServices launch remains alive with a visible status item."
+    },
+    "invalidated": [
+      "GATE-290",
+      "GATE-390"
+    ],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-6ABBE7E9DAD3F1C0E454EA18C070E12D",
+  "previous_event_id": "EVENT-20260913T133711359585Z-693CE107",
+  "previous_event_sha256": "6273b91ce3cfdc3b1993d268f52cb8525dba1d04a897eb86028ab926c172e910"
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-252",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-252-FOLDER-01",
+      "result": "passed",
+      "evidence": [
+        "docs/tasks/evidence/TASK-252/interaction-regression.md",
+        "MonitoringSettingsTests passed in the fresh suite, including arbitrary directory navigation, invalid-path rejection, standardized persistence, and deduplication.",
+        "Source inspection found no NSOpenPanel, openAndSavePanelService, or runModal use under Sources or Tests."
+      ]
+    },
+    {
+      "id": "CHECK-252-EXPORT-01",
+      "result": "passed",
+      "evidence": [
+        "StatusBoardEvidenceExportTests passed in the fresh suite, proving the completed directory is opened only after successful export and not for unavailable or failed export.",
+        "StatusItemController uses NSWorkspace.shared.open on the completed bundle URL supplied by the durable exporter."
+      ]
+    },
+    {
+      "id": "CHECK-252-RUNTIME-01",
+      "result": "passed",
+      "evidence": [
+        "The exact installed app launched and remained registered after the current menu-bar recovery rehearsal.",
+        "The prior rebuilt-app rehearsal added the interaction fix before notarization and Homebrew installation.",
+        "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+      ]
+    },
+    {
+      "id": "CHECK-252-REGRESSION-01",
+      "result": "passed",
+      "evidence": [
+        "swift test executed 158 tests with 0 failures.",
+        "The Xcode Debug verification build completed with BUILD SUCCEEDED."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-252",
+    "OUTCOME-210",
+    "GATE-290"
+  ],
+  "recommended_action": "advance"
+}

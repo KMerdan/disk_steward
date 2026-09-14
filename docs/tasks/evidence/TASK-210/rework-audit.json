@@ -1,0 +1,48 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-210",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-210-PERSISTENCE-02",
+      "result": "passed",
+      "evidence": [
+        "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
+        "The installed process remained registered after LaunchServices launch as PID 74859.",
+        "The status-item smoke report returned accessibility label Disk Steward and both click surfaces.",
+        "A fresh menu-bar capture showed the restored drive icon immediately to the right of iBar Pro's ellipsis control."
+      ]
+    },
+    {
+      "id": "CHECK-210-DISCONFIRMATION-01",
+      "result": "passed",
+      "evidence": [
+        "The icon was absent while PID 63908 and its LaunchServices application record were still live, disproving an app-exit explanation for that observation.",
+        "iBar Pro was running and its persisted always-display rule already named com.marudankiji.disksteward, demonstrating a stale live presentation cache.",
+        "Restarting iBar Pro and relaunching Disk Steward restored the icon without changing Disk Steward code, configuration, or data."
+      ]
+    },
+    {
+      "id": "CHECK-210-BUILD-01",
+      "result": "passed",
+      "evidence": [
+        "The required Xcode Debug unsigned verification build completed with BUILD SUCCEEDED.",
+        "swift test executed 158 tests with 0 failures."
+      ]
+    },
+    {
+      "id": "CHECK-210-SIGNATURE-02",
+      "result": "passed",
+      "evidence": [
+        "The installed application passed codesign deep strict verification.",
+        "Gatekeeper accepted the installed application as Notarized Developer ID."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-210",
+    "OUTCOME-210",
+    "GATE-290"
+  ],
+  "recommended_action": "advance; treat future icon-only disappearance with a live-process check and refresh the active third-party menu-bar manager before changing Disk Steward lifecycle code"
+}

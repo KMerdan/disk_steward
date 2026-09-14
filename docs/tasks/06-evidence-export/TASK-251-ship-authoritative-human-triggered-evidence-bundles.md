@@ -9,9 +9,9 @@
 - Workstream: `evidence-export`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-251` → `OUTCOME-210` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal

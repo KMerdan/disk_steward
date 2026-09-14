@@ -1,0 +1,32 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-210",
+  "result": "fail",
+  "checks": [
+    {
+      "id": "CHECK-210-PERSISTENCE-01",
+      "result": "failed",
+      "evidence": [
+        "The notarized /Applications/Disk Steward.app passed codesign --verify --deep --strict, Gatekeeper assessment, and Scripts/Distribution/verify-release.",
+        "A LaunchServices launch created Disk Steward process 90344, then the process disappeared without a crash report.",
+        "Unified logging recorded AppKit AutomaticTermination setting _kLSApplicationWouldBeTerminatedByTALKey=1 immediately before the menu-bar-only process disappeared.",
+        "Sources/DiskStewardApp/ApplicationDelegate.swift creates the status controller but does not hold a ProcessInfo automatic-termination activity or explicitly disable automatic termination."
+      ]
+    },
+    {
+      "id": "CHECK-210-SIGNATURE-01",
+      "result": "passed",
+      "evidence": [
+        "codesign reported the installed application valid on disk and satisfying its designated requirement.",
+        "spctl accepted the installed application with source Notarized Developer ID.",
+        "Scripts/Distribution/verify-release passed the exact /Applications bundle."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-210",
+    "OUTCOME-210",
+    "GATE-290"
+  ],
+  "recommended_action": "Reopen TASK-210, keep a process-lifetime automatic-termination assertion for the menu-bar monitor, add regression coverage, rebuild, and prove a Finder or LaunchServices launch remains alive with a visible status item."
+}

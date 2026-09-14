@@ -9,9 +9,9 @@
 - Workstream: `audit`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `GATE-290` → `OUTCOME-210` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal
@@ -39,17 +39,17 @@ Verify the canonical bundle, redesigned dashboard, embedded MCP helper, converge
 
 - `CONTRACT-201` (validation-requires, passed)
 - `CONTRACT-240` (validation-requires, passed)
-- `TASK-210` (integration-requires, pending)
+- `TASK-210` (integration-requires, passed)
 - `TASK-230` (integration-requires, passed)
 - `TASK-241` (integration-requires, passed)
 - `TASK-242` (integration-requires, passed)
 - `TASK-243` (integration-requires, passed)
 - `TASK-244` (integration-requires, passed)
-- `TASK-220` (integration-requires, pending)
+- `TASK-220` (integration-requires, passed)
 - `CONTRACT-250` (validation-requires, passed)
 - `TASK-250` (integration-requires, passed)
-- `TASK-251` (integration-requires, pending)
-- `TASK-252` (integration-requires, pending)
+- `TASK-251` (integration-requires, passed)
+- `TASK-252` (integration-requires, passed)
 
 ## Required Context
 

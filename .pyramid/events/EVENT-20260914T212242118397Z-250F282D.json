@@ -1,0 +1,284 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260914T212242118397Z-250F282D",
+  "at": "2026-09-14T21:22:42.118097Z",
+  "graph_version": 152,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-210",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-14T21:22:08.022332Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-210",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task210-derived CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed"
+        },
+        {
+          "command": "installed app UI smoke, process inspection, iBar refresh, and visual menu-bar verification",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-210-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+        },
+        {
+          "criterion": "AC-210-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
+        },
+        {
+          "criterion": "AC-210-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
+        }
+      ],
+      "discovered_risks": [
+        "Third-party menu-bar managers can hide or temporarily omit a valid status item independently of Disk Steward.",
+        "The earlier automatic-termination diagnosis was not supported once the live process, status-item smoke report, and iBar state were inspected together."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-210",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-210-PERSISTENCE-01",
+          "result": "failed",
+          "evidence": [
+            "The notarized /Applications/Disk Steward.app passed codesign --verify --deep --strict, Gatekeeper assessment, and Scripts/Distribution/verify-release.",
+            "A LaunchServices launch created Disk Steward process 90344, then the process disappeared without a crash report.",
+            "Unified logging recorded AppKit AutomaticTermination setting _kLSApplicationWouldBeTerminatedByTALKey=1 immediately before the menu-bar-only process disappeared.",
+            "Sources/DiskStewardApp/ApplicationDelegate.swift creates the status controller but does not hold a ProcessInfo automatic-termination activity or explicitly disable automatic termination."
+          ]
+        },
+        {
+          "id": "CHECK-210-SIGNATURE-01",
+          "result": "passed",
+          "evidence": [
+            "codesign reported the installed application valid on disk and satisfying its designated requirement.",
+            "spctl accepted the installed application with source Notarized Developer ID.",
+            "Scripts/Distribution/verify-release passed the exact /Applications bundle."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-210",
+        "OUTCOME-210",
+        "GATE-290"
+      ],
+      "recommended_action": "Reopen TASK-210, keep a process-lifetime automatic-termination assertion for the menu-bar monitor, add regression coverage, rebuild, and prove a Finder or LaunchServices launch remains alive with a visible status item."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-14T21:22:42.117879Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-210",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task210-derived CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed"
+        },
+        {
+          "command": "installed app UI smoke, process inspection, iBar refresh, and visual menu-bar verification",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-210-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+        },
+        {
+          "criterion": "AC-210-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
+        },
+        {
+          "criterion": "AC-210-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
+        }
+      ],
+      "discovered_risks": [
+        "Third-party menu-bar managers can hide or temporarily omit a valid status item independently of Disk Steward.",
+        "The earlier automatic-termination diagnosis was not supported once the live process, status-item smoke report, and iBar state were inspected together."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-210",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-210-PERSISTENCE-02",
+          "result": "passed",
+          "evidence": [
+            "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
+            "The installed process remained registered after LaunchServices launch as PID 74859.",
+            "The status-item smoke report returned accessibility label Disk Steward and both click surfaces.",
+            "A fresh menu-bar capture showed the restored drive icon immediately to the right of iBar Pro's ellipsis control."
+          ]
+        },
+        {
+          "id": "CHECK-210-DISCONFIRMATION-01",
+          "result": "passed",
+          "evidence": [
+            "The icon was absent while PID 63908 and its LaunchServices application record were still live, disproving an app-exit explanation for that observation.",
+            "iBar Pro was running and its persisted always-display rule already named com.marudankiji.disksteward, demonstrating a stale live presentation cache.",
+            "Restarting iBar Pro and relaunching Disk Steward restored the icon without changing Disk Steward code, configuration, or data."
+          ]
+        },
+        {
+          "id": "CHECK-210-BUILD-01",
+          "result": "passed",
+          "evidence": [
+            "The required Xcode Debug unsigned verification build completed with BUILD SUCCEEDED.",
+            "swift test executed 158 tests with 0 failures."
+          ]
+        },
+        {
+          "id": "CHECK-210-SIGNATURE-02",
+          "result": "passed",
+          "evidence": [
+            "The installed application passed codesign deep strict verification.",
+            "Gatekeeper accepted the installed application as Notarized Developer ID."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-210",
+        "OUTCOME-210",
+        "GATE-290"
+      ],
+      "recommended_action": "advance; treat future icon-only disappearance with a live-process check and refresh the active third-party menu-bar manager before changing Disk Steward lifecycle code"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-210",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-210-PERSISTENCE-02",
+          "result": "passed",
+          "evidence": [
+            "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
+            "The installed process remained registered after LaunchServices launch as PID 74859.",
+            "The status-item smoke report returned accessibility label Disk Steward and both click surfaces.",
+            "A fresh menu-bar capture showed the restored drive icon immediately to the right of iBar Pro's ellipsis control."
+          ]
+        },
+        {
+          "id": "CHECK-210-DISCONFIRMATION-01",
+          "result": "passed",
+          "evidence": [
+            "The icon was absent while PID 63908 and its LaunchServices application record were still live, disproving an app-exit explanation for that observation.",
+            "iBar Pro was running and its persisted always-display rule already named com.marudankiji.disksteward, demonstrating a stale live presentation cache.",
+            "Restarting iBar Pro and relaunching Disk Steward restored the icon without changing Disk Steward code, configuration, or data."
+          ]
+        },
+        {
+          "id": "CHECK-210-BUILD-01",
+          "result": "passed",
+          "evidence": [
+            "The required Xcode Debug unsigned verification build completed with BUILD SUCCEEDED.",
+            "swift test executed 158 tests with 0 failures."
+          ]
+        },
+        {
+          "id": "CHECK-210-SIGNATURE-02",
+          "result": "passed",
+          "evidence": [
+            "The installed application passed codesign deep strict verification.",
+            "Gatekeeper accepted the installed application as Notarized Developer ID."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-210",
+        "OUTCOME-210",
+        "GATE-290"
+      ],
+      "recommended_action": "advance; treat future icon-only disappearance with a live-process check and refresh the active third-party menu-bar manager before changing Disk Steward lifecycle code"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-45E8BF2B89CE792AAECED4917DD3C159",
+  "previous_event_id": "EVENT-20260914T212208022721Z-0664C655",
+  "previous_event_sha256": "2fb2f57b2e31aaa654a2ad787032d42f3a7bdc11d0a332bd2c380b5cbe806240"
+}

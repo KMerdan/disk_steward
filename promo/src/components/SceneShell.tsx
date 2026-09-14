@@ -1,45 +1,41 @@
 import React from 'react';
-import {interpolate, useCurrentFrame} from 'remotion';
-import {colors, scene} from '../styles';
+import {Img, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {clamp, colors, scene} from '../styles';
 
 export const SceneShell: React.FC<{
   children: React.ReactNode;
-  duration: number;
   accent?: string;
-}> = ({children, duration, accent = colors.blue}) => {
+  label?: string;
+}> = ({children, accent = colors.blue, label}) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(
-    frame,
-    [0, 12, duration - 12, duration],
-    [0, 1, 1, 0],
-    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-  );
-  const rise = interpolate(frame, [0, 20], [22, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const {durationInFrames} = useVideoConfig();
 
   return (
     <div
       style={{
         ...scene,
-        opacity,
-        transform: `translateY(${rise}px)`,
-        background: `radial-gradient(circle at 80% 20%, ${accent}24 0, transparent 34%), radial-gradient(circle at 18% 92%, #214d7d35 0, transparent 33%), #080C14`,
+        background: colors.background,
       }}
     >
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          opacity: 0.18,
+          opacity: 0.08,
           backgroundImage:
             'linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px)',
           backgroundSize: '64px 64px',
           maskImage: 'linear-gradient(to bottom, rgba(0,0,0,.8), transparent 88%)',
         }}
       />
-      <div style={{position: 'relative', height: '100%'}}>{children}</div>
+      <div style={{position: 'absolute', width: 980, height: 980, borderRadius: '50%', right: -260, top: -390, background: accent, opacity: 0.16, filter: 'blur(140px)', scale: interpolate(frame, [0, durationInFrames], [.92, 1.14], clamp), translate: `${interpolate(frame, [0, durationInFrames], [0, -70], clamp)}px ${interpolate(frame, [0, durationInFrames], [0, 85], clamp)}px`}} />
+      <div style={{position: 'absolute', width: 720, height: 720, borderRadius: '50%', left: -290, bottom: -360, background: '#153E78', opacity: 0.18, filter: 'blur(130px)', scale: interpolate(frame, [0, durationInFrames], [1.08, .9], clamp)}} />
+      <div style={{position: 'absolute', left: 42, top: 34, display: 'flex', alignItems: 'center', gap: 13, zIndex: 4}}>
+        <Img src={staticFile('app-icon.png')} style={{width: 36, height: 36, borderRadius: 9}} />
+        <span style={{fontSize: 20, fontWeight: 720, letterSpacing: -0.2}}>Disk Steward</span>
+        {label ? <span style={{fontSize: 18, color: colors.muted}}>· {label}</span> : null}
+      </div>
+      <div style={{position: 'relative', height: '100%', perspective: 1600}}>{children}</div>
     </div>
   );
 };
@@ -51,7 +47,7 @@ export const Kicker: React.FC<{children: React.ReactNode; color?: string}> = ({
   <div
     style={{
       color,
-      fontSize: 28,
+      fontSize: 25,
       fontWeight: 700,
       letterSpacing: 2.8,
       textTransform: 'uppercase',
@@ -69,9 +65,9 @@ export const Headline: React.FC<{children: React.ReactNode; maxWidth?: number}> 
   <div
     style={{
       maxWidth,
-      fontSize: 88,
-      lineHeight: 0.98,
-      letterSpacing: -4.5,
+      fontSize: 104,
+      lineHeight: 0.96,
+      letterSpacing: -5.6,
       fontWeight: 760,
     }}
   >
@@ -88,7 +84,7 @@ export const Supporting: React.FC<{children: React.ReactNode; maxWidth?: number}
       maxWidth,
       marginTop: 30,
       color: colors.muted,
-      fontSize: 41,
+      fontSize: 38,
       lineHeight: 1.25,
       letterSpacing: -0.7,
     }}

@@ -1,16 +1,17 @@
 import type {CSSProperties} from 'react';
 
 export const colors = {
-  ink: '#F4F7FB',
-  muted: '#AAB4C4',
-  blue: '#5EA7FF',
-  cyan: '#62E4F5',
-  green: '#55D68A',
-  amber: '#FFB958',
-  red: '#FF706B',
-  panel: 'rgba(20, 27, 39, 0.82)',
+  ink: '#F7F8FB',
+  muted: '#A7AFBD',
+  blue: '#3187FF',
+  cyan: '#53E2F3',
+  green: '#42D477',
+  amber: '#FFAA29',
+  orange: '#FF7A16',
+  red: '#FF5F57',
+  panel: 'rgba(16, 21, 31, 0.84)',
   line: 'rgba(255,255,255,0.11)',
-  background: '#080C14',
+  background: '#05070C',
 };
 
 export const fontFamily =
@@ -22,7 +23,7 @@ export const monoFamily =
 export const scene: CSSProperties = {
   position: 'absolute',
   inset: 0,
-  padding: '92px 112px 116px',
+  padding: '88px 112px 132px',
   color: colors.ink,
   fontFamily,
   overflow: 'hidden',
@@ -32,5 +33,10 @@ export const panel: CSSProperties = {
   border: `1px solid ${colors.line}`,
   borderRadius: 32,
   background: colors.panel,
-  boxShadow: '0 36px 100px rgba(0,0,0,0.36)',
+  boxShadow: '0 38px 110px rgba(0,0,0,0.42)',
+};
+
+export const clamp = {
+  extrapolateLeft: 'clamp' as const,
+  extrapolateRight: 'clamp' as const,
 };

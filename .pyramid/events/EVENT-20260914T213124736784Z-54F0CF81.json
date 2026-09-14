@@ -1,0 +1,335 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260914T213124736784Z-54F0CF81",
+  "at": "2026-09-14T21:31:24.736551Z",
+  "graph_version": 158,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "RISK-320",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-310 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-13T08:23:31.096947Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RISK-320",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/Distribution/release-policy-fixtures.json",
+        "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+        "docs/tasks/evidence/RISK-320/dependency-gap.json",
+        "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+        "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+        "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+        "docs/tasks/evidence/RISK-320/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Tests/Distribution/release-policy-fixtures.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/dependency-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed: 5 tests, 0 failures"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed without release claims"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 140 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-320-01",
+          "result": "passed",
+          "reference": "Tests/Distribution/release-policy-fixtures.json and Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift"
+        },
+        {
+          "criterion": "AC-320-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/artifact-inspection.txt"
+        },
+        {
+          "criterion": "EVREQ-320-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "RISK-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-320-NEGATIVE-01",
+          "result": "passed",
+          "evidence": [
+            "DistributionReleaseIntegrityTests passed all five tests against the current candidate",
+            "The actual verifier rejects missing nested helper code, wrong bundle identity, unsigned artifacts, invalid entitlement sets, and incomplete Developer ID fixtures"
+          ]
+        },
+        {
+          "id": "CHECK-320-SECRETS-01",
+          "result": "passed",
+          "evidence": [
+            "Repository release surfaces passed the credential-material regression and standard versus optional entitlements remain separated",
+            "The release handoff reads no certificate fingerprint, private key, account password, or notarization credential"
+          ]
+        },
+        {
+          "id": "CHECK-320-ACTUAL-ARTIFACT-01",
+          "result": "passed",
+          "evidence": [
+            "The handoff rehearsal inspected the actual constructed archive and nested MCP helper, then correctly rejected the unsigned artifact",
+            "A successful compile or Apple Development signature is never represented as direct-distribution success"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "RISK-320",
+        "GATE-390",
+        "OUTCOME-220"
+      ],
+      "recommended_action": "Promote RISK-320 and run the final gate, which must remain blocked until a real Developer ID Application signed, notarized, and stapled artifact exists."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-14T21:31:24.736421Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RISK-320",
+      "outcome": "implemented",
+      "changed_files": [
+        "Tests/Distribution/release-policy-fixtures.json",
+        "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+        "docs/tasks/evidence/RISK-320/dependency-gap.json",
+        "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+        "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+        "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+        "docs/tasks/evidence/RISK-320/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Tests/Distribution/release-policy-fixtures.json",
+          "class": "configuration"
+        },
+        {
+          "path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/dependency-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/entitlement-key-gap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/artifact-inspection.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/RISK-320/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DistributionReleaseIntegrityTests",
+          "result": "passed: 5 tests, 0 failures"
+        },
+        {
+          "command": "Scripts/Distribution/verify --development",
+          "result": "passed without release claims"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 140 tests, 0 failures"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-320-01",
+          "result": "passed",
+          "reference": "Tests/Distribution/release-policy-fixtures.json and Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift"
+        },
+        {
+          "criterion": "AC-320-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/artifact-inspection.txt"
+        },
+        {
+          "criterion": "EVREQ-320-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/RISK-320/security-and-entitlement-evidence.md"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "RISK-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-320-ACTUAL-ARTIFACT-01",
+          "result": "passed",
+          "evidence": [
+            "Scripts/Distribution/verify-release passed the exact /Applications/Disk Steward.app bundle.",
+            "Strict deep codesign verification passed for the app and nested helper.",
+            "Gatekeeper accepted the app as Notarized Developer ID and stapler validation succeeded.",
+            "The verifier confirmed canonical identity, Team ID, hardened runtime, secure timestamps, production entitlements, notarization staple, and nested-code integrity."
+          ]
+        },
+        {
+          "id": "CHECK-320-NEGATIVE-01",
+          "result": "passed",
+          "evidence": [
+            "DistributionReleaseIntegrityTests passed in the fresh 158-test suite, including missing-helper, wrong-bundle, unsigned-artifact, entitlement separation, and credential-material rejection cases.",
+            "No tracked p12, certificate, provisioning-profile, runtime database, app bundle, or xcarchive path was found."
+          ]
+        },
+        {
+          "id": "CHECK-320-IMMUTABLE-RELEASE-01",
+          "result": "passed",
+          "evidence": [
+            "GitHub v1.0.0 publishes Disk-Steward-1.0.0.zip with immutable digest sha256:5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135.",
+            "The Homebrew cask resolves the same tagged release and passes style and online audit."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "RISK-320",
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "RISK-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-320-ACTUAL-ARTIFACT-01",
+          "result": "passed",
+          "evidence": [
+            "Scripts/Distribution/verify-release passed the exact /Applications/Disk Steward.app bundle.",
+            "Strict deep codesign verification passed for the app and nested helper.",
+            "Gatekeeper accepted the app as Notarized Developer ID and stapler validation succeeded.",
+            "The verifier confirmed canonical identity, Team ID, hardened runtime, secure timestamps, production entitlements, notarization staple, and nested-code integrity."
+          ]
+        },
+        {
+          "id": "CHECK-320-NEGATIVE-01",
+          "result": "passed",
+          "evidence": [
+            "DistributionReleaseIntegrityTests passed in the fresh 158-test suite, including missing-helper, wrong-bundle, unsigned-artifact, entitlement separation, and credential-material rejection cases.",
+            "No tracked p12, certificate, provisioning-profile, runtime database, app bundle, or xcarchive path was found."
+          ]
+        },
+        {
+          "id": "CHECK-320-IMMUTABLE-RELEASE-01",
+          "result": "passed",
+          "evidence": [
+            "GitHub v1.0.0 publishes Disk-Steward-1.0.0.zip with immutable digest sha256:5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135.",
+            "The Homebrew cask resolves the same tagged release and passes style and online audit."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "RISK-320",
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-444E884E98156400344217CBFB25429A",
+  "previous_event_id": "EVENT-20260914T212717397156Z-93DDC688",
+  "previous_event_sha256": "9c28260320ab243a381722c07c77d33946603240796501f3a77ce79f9f3617dd"
+}

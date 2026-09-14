@@ -1,0 +1,40 @@
+{
+  "schema": "audit-result-v1",
+  "target": "RISK-320",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-320-ACTUAL-ARTIFACT-01",
+      "result": "passed",
+      "evidence": [
+        "Scripts/Distribution/verify-release passed the exact /Applications/Disk Steward.app bundle.",
+        "Strict deep codesign verification passed for the app and nested helper.",
+        "Gatekeeper accepted the app as Notarized Developer ID and stapler validation succeeded.",
+        "The verifier confirmed canonical identity, Team ID, hardened runtime, secure timestamps, production entitlements, notarization staple, and nested-code integrity."
+      ]
+    },
+    {
+      "id": "CHECK-320-NEGATIVE-01",
+      "result": "passed",
+      "evidence": [
+        "DistributionReleaseIntegrityTests passed in the fresh 158-test suite, including missing-helper, wrong-bundle, unsigned-artifact, entitlement separation, and credential-material rejection cases.",
+        "No tracked p12, certificate, provisioning-profile, runtime database, app bundle, or xcarchive path was found."
+      ]
+    },
+    {
+      "id": "CHECK-320-IMMUTABLE-RELEASE-01",
+      "result": "passed",
+      "evidence": [
+        "GitHub v1.0.0 publishes Disk-Steward-1.0.0.zip with immutable digest sha256:5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135.",
+        "The Homebrew cask resolves the same tagged release and passes style and online audit."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "RISK-320",
+    "GATE-390",
+    "OUTCOME-220",
+    "INTENT-002"
+  ],
+  "recommended_action": "advance"
+}

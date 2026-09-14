@@ -37,11 +37,11 @@ Verify the exact exported application, public product story, Homebrew release po
 
 ## Dependencies
 
-- `OUTCOME-210` (validation-requires, unverified)
+- `OUTCOME-210` (validation-requires, passed)
 - `RESEARCH-201` (validation-requires, passed)
 - `TASK-310` (integration-requires, passed)
-- `RISK-320` (integration-requires, pending)
-- `TASK-253` (integration-requires, pending)
+- `RISK-320` (integration-requires, passed)
+- `TASK-253` (integration-requires, passed)
 - `TASK-260` (integration-requires, pending)
 - `TASK-321` (integration-requires, passed)
 

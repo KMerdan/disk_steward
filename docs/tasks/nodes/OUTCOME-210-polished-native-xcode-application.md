@@ -9,9 +9,9 @@
 - Workstream: `application`
 - Selection: `primary`
 - Execution: `planned`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `not-executable`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `OUTCOME-210` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal

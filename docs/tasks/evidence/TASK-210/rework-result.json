@@ -1,0 +1,52 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-210",
+  "outcome": "implemented",
+  "changed_files": [
+    "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "evidence-only",
+  "changes": [
+    {
+      "path": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task210-derived CODE_SIGNING_ALLOWED=NO build",
+      "result": "passed"
+    },
+    {
+      "command": "swift test",
+      "result": "passed"
+    },
+    {
+      "command": "installed app UI smoke, process inspection, iBar refresh, and visual menu-bar verification",
+      "result": "passed"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-210-01",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+    },
+    {
+      "criterion": "AC-210-02",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
+    },
+    {
+      "criterion": "AC-210-03",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
+    }
+  ],
+  "discovered_risks": [
+    "Third-party menu-bar managers can hide or temporarily omit a valid status item independently of Disk Steward.",
+    "The earlier automatic-termination diagnosis was not supported once the live process, status-item smoke report, and iBar state were inspected together."
+  ],
+  "suggested_graph_changes": []
+}

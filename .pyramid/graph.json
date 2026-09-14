@@ -1,12 +1,12 @@
 {
   "schema": "pyramid-graph-v1",
-  "generated_at": "2026-09-13T13:37:11.386088Z",
-  "graph_version": 148,
+  "generated_at": "2026-09-14T21:31:28.228628Z",
+  "graph_version": 159,
   "context": {
-    "id": "CTX-9930511E39560A960C19C350E4D00F62",
+    "id": "CTX-71E4EB2199C4CDC4C0E07194BA528885",
     "plan_id": "PLAN-DISK-STEWARD-002",
     "plan_revision": 15,
-    "graph_version": 148
+    "graph_version": 159
   },
   "plan_id": "PLAN-DISK-STEWARD-002",
   "title": "Polished and Direct-Distribution-Ready Disk Steward",
@@ -132,13 +132,13 @@
   },
   "summary": {
     "primary_nodes": 24,
-    "verified_primary_nodes": 12,
+    "verified_primary_nodes": 20,
     "closure_ready": false,
     "availability": {
-      "implemented": 8,
+      "implemented": 1,
       "locked": 1,
-      "not-executable": 3,
-      "verified": 12
+      "not-executable": 2,
+      "verified": 20
     }
   },
   "nodes": [
@@ -588,8 +588,8 @@
       },
       "state": {
         "execution": "planned",
-        "verification": "unverified",
-        "health": "at-risk",
+        "verification": "passed",
+        "health": "clear",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -599,8 +599,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "blocker": null,
+        "updated_at": "2026-09-14T21:27:17.396804Z",
         "last_result": null,
         "last_audit": {
           "schema": "audit-result-v1",
@@ -608,32 +608,41 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-O210-JOURNEY-01",
+              "id": "CHECK-O210-CURRENT-JOURNEY-01",
               "result": "passed",
               "evidence": [
-                "GATE-290 passed after every application, evidence-state, retention, query, convergence, and export dependency was verified",
-                "The current signed Debug candidate builds, launches as a menu-bar accessory, exposes Agent Access and utility controls, and passes the real durable export journey"
+                "GATE-290 passed against the current installed and source candidates after every contributing contract and implementation was verified.",
+                "The notarized app launches from Applications, presents its visible status item and native board, keeps monitoring active, and exposes an independently controlled read-only MCP service."
               ]
             },
             {
-              "id": "CHECK-O210-TRUTH-01",
+              "id": "CHECK-O210-CURRENT-EVIDENCE-01",
               "result": "passed",
               "evidence": [
-                "Durable multi-slice scans converge without false deletion, and active-generation exports state their partial coverage and stale-authoritative boundary",
-                "The full 156-test suite, Xcode build, UI smoke, light/dark UI evidence, MCP controls, and privacy checks are green"
+                "The current export path produces an integrity-verifiable, decision-useful EvidenceStore bundle with current consumers, bounded history, provenance, coverage, lifecycle, gaps, limitations, and manual ownership.",
+                "Folder selection no longer invokes the crashing open/save panel service, and successful export opens the completed directory in Finder."
+              ]
+            },
+            {
+              "id": "CHECK-O210-CURRENT-REGRESSION-01",
+              "result": "passed",
+              "evidence": [
+                "swift test executed 158 tests with 0 failures.",
+                "The current Xcode Debug verification build completed with BUILD SUCCEEDED.",
+                "docs/tasks/evidence/GATE-290/current-release-increment-audit.json"
               ]
             }
           ],
           "affected_claims": [
             "OUTCOME-210",
-            "TASK-310",
-            "OUTCOME-220"
+            "OUTCOME-220",
+            "INTENT-002"
           ],
-          "recommended_action": "Promote OUTCOME-210 and revalidate the distribution handoff and artifact-integrity controls."
+          "recommended_action": "advance"
         },
         "last_reopen": null
       },
-      "availability": "not-executable",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "OUTCOME-210",
@@ -987,8 +996,8 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
-        "health": "at-risk",
+        "verification": "passed",
+        "health": "clear",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -998,8 +1007,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": "TASK-310 was reopened; dependent verification must be repeated.",
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "blocker": null,
+        "updated_at": "2026-09-14T21:31:24.736421Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "RISK-320",
@@ -1089,40 +1098,43 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-320-NEGATIVE-01",
-              "result": "passed",
-              "evidence": [
-                "DistributionReleaseIntegrityTests passed all five tests against the current candidate",
-                "The actual verifier rejects missing nested helper code, wrong bundle identity, unsigned artifacts, invalid entitlement sets, and incomplete Developer ID fixtures"
-              ]
-            },
-            {
-              "id": "CHECK-320-SECRETS-01",
-              "result": "passed",
-              "evidence": [
-                "Repository release surfaces passed the credential-material regression and standard versus optional entitlements remain separated",
-                "The release handoff reads no certificate fingerprint, private key, account password, or notarization credential"
-              ]
-            },
-            {
               "id": "CHECK-320-ACTUAL-ARTIFACT-01",
               "result": "passed",
               "evidence": [
-                "The handoff rehearsal inspected the actual constructed archive and nested MCP helper, then correctly rejected the unsigned artifact",
-                "A successful compile or Apple Development signature is never represented as direct-distribution success"
+                "Scripts/Distribution/verify-release passed the exact /Applications/Disk Steward.app bundle.",
+                "Strict deep codesign verification passed for the app and nested helper.",
+                "Gatekeeper accepted the app as Notarized Developer ID and stapler validation succeeded.",
+                "The verifier confirmed canonical identity, Team ID, hardened runtime, secure timestamps, production entitlements, notarization staple, and nested-code integrity."
+              ]
+            },
+            {
+              "id": "CHECK-320-NEGATIVE-01",
+              "result": "passed",
+              "evidence": [
+                "DistributionReleaseIntegrityTests passed in the fresh 158-test suite, including missing-helper, wrong-bundle, unsigned-artifact, entitlement separation, and credential-material rejection cases.",
+                "No tracked p12, certificate, provisioning-profile, runtime database, app bundle, or xcarchive path was found."
+              ]
+            },
+            {
+              "id": "CHECK-320-IMMUTABLE-RELEASE-01",
+              "result": "passed",
+              "evidence": [
+                "GitHub v1.0.0 publishes Disk-Steward-1.0.0.zip with immutable digest sha256:5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135.",
+                "The Homebrew cask resolves the same tagged release and passes style and online audit."
               ]
             }
           ],
           "affected_claims": [
             "RISK-320",
             "GATE-390",
-            "OUTCOME-220"
+            "OUTCOME-220",
+            "INTENT-002"
           ],
-          "recommended_action": "Promote RISK-320 and run the final gate, which must remain blocked until a real Developer ID Application signed, notarized, and stapled artifact exists."
+          "recommended_action": "advance"
         },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "RISK-320",
@@ -1219,7 +1231,7 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
+        "verification": "passed",
         "health": "clear",
         "owner": null,
         "lease_expires_at": null,
@@ -1231,7 +1243,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "updated_at": "2026-09-14T21:31:28.200140Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-253",
@@ -1327,10 +1339,48 @@
           "discovered_risks": [],
           "suggested_graph_changes": []
         },
-        "last_audit": null,
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-253",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-253-PUBLIC-01",
+              "result": "passed",
+              "evidence": [
+                "https://github.com/KMerdan/disk_steward is PUBLIC with main as its default branch.",
+                "GitHub identifies the MIT License and the repository exposes an accurate description and macOS, MCP, menu-bar, privacy, disk-usage, Swift, and developer-tools topics."
+              ]
+            },
+            {
+              "id": "CHECK-253-DOCS-01",
+              "result": "passed",
+              "evidence": [
+                "README.md presents real light and dark product screenshots, the 30-second story, evidence architecture, read-only MCP integration, privacy, verification, development, and Homebrew installation.",
+                "The repository contains the standard MIT license with the 2026 copyright notice."
+              ]
+            },
+            {
+              "id": "CHECK-253-SAFETY-01",
+              "result": "passed",
+              "evidence": [
+                "The fresh 158-test suite includes repository credential-material checks.",
+                "A tracked-file scan found no p12, certificate, provisioning profile, evidence.sqlite, app bundle, or xcarchive output.",
+                "git diff --check passed."
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-253",
+            "GATE-390",
+            "OUTCOME-220",
+            "INTENT-002"
+          ],
+          "recommended_action": "advance"
+        },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "TASK-253",
@@ -2014,8 +2064,8 @@
             "worktree changed since the handoff"
           ]
         },
-        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "blocker": "Evidence for TASK-210 failed; dependent verification is stale.",
+        "updated_at": "2026-09-14T20:29:12.195193Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "GATE-390",
@@ -2112,9 +2162,6 @@
       },
       "availability": "locked",
       "blocked_by": [
-        "OUTCOME-210",
-        "RISK-320",
-        "TASK-253",
         "TASK-260"
       ],
       "goal_trace": [
@@ -2130,7 +2177,7 @@
         {
           "id": "OUTCOME-210",
           "type": "validation-requires",
-          "verification": "unverified"
+          "verification": "passed"
         },
         {
           "id": "RESEARCH-201",
@@ -2145,12 +2192,12 @@
         {
           "id": "RISK-320",
           "type": "integration-requires",
-          "verification": "pending"
+          "verification": "passed"
         },
         {
           "id": "TASK-253",
           "type": "integration-requires",
-          "verification": "pending"
+          "verification": "passed"
         },
         {
           "id": "TASK-260",
@@ -2768,8 +2815,8 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
-        "health": "at-risk",
+        "verification": "passed",
+        "health": "clear",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -2779,135 +2826,34 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "blocker": null,
+        "updated_at": "2026-09-14T21:22:42.117879Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-210",
           "outcome": "implemented",
           "changed_files": [
-            "README.md",
-            "Config/Packaging/DiskSteward-Info.plist",
-            "Config/Packaging/project.yml",
-            "DiskSteward.xcodeproj/project.pbxproj",
-            "DiskSteward.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
-            "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme",
-            "Resources/App/Assets.xcassets/Contents.json",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-16.png",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-32.png",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-64.png",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-128.png",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-256.png",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-512.png",
-            "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
-            "Scripts/Development/build_xcode_project",
-            "Scripts/Development/generate_app_icon.swift",
-            "docs/tasks/evidence/TASK-210/build-and-launch.md"
+            "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
           ],
           "changed_assets": [],
-          "change_effect": "mixed",
+          "change_effect": "evidence-only",
           "changes": [
             {
-              "path": "README.md",
-              "class": "source"
-            },
-            {
-              "path": "Config/Packaging/DiskSteward-Info.plist",
-              "class": "configuration"
-            },
-            {
-              "path": "Config/Packaging/project.yml",
-              "class": "configuration"
-            },
-            {
-              "path": "DiskSteward.xcodeproj/project.pbxproj",
-              "class": "configuration"
-            },
-            {
-              "path": "DiskSteward.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
-              "class": "configuration"
-            },
-            {
-              "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme",
-              "class": "configuration"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/Contents.json",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-16.png",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-32.png",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-64.png",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-128.png",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-256.png",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-512.png",
-              "class": "source"
-            },
-            {
-              "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
-              "class": "source"
-            },
-            {
-              "path": "Scripts/Development/build_xcode_project",
-              "class": "source"
-            },
-            {
-              "path": "Scripts/Development/generate_app_icon.swift",
-              "class": "source"
-            },
-            {
-              "path": "docs/tasks/evidence/TASK-210/build-and-launch.md",
+              "path": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
               "class": "evidence"
             }
           ],
           "checks": [
             {
-              "command": "xcodebuild Debug signed build",
+              "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task210-derived CODE_SIGNING_ALLOWED=NO build",
               "result": "passed"
             },
             {
-              "command": "xcodebuild CI unsigned build",
+              "command": "swift test",
               "result": "passed"
             },
             {
-              "command": "codesign --verify --deep --strict",
-              "result": "passed"
-            },
-            {
-              "command": "app --ui-smoke and real open launch",
-              "result": "passed"
-            },
-            {
-              "command": "bundled MCP initialize request",
-              "result": "passed"
-            },
-            {
-              "command": "swift test (111 tests)",
-              "result": "passed"
-            },
-            {
-              "command": "git diff --check",
+              "command": "installed app UI smoke, process inspection, iBar refresh, and visual menu-bar verification",
               "result": "passed"
             }
           ],
@@ -2915,22 +2861,22 @@
             {
               "criterion": "AC-210-01",
               "result": "passed",
-              "reference": "Shared scheme built a signed LSUIElement app, UI smoke reported accessory status item, and a real launched process remained running without Endpoint Security"
+              "reference": "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
             },
             {
               "criterion": "AC-210-02",
               "result": "passed",
-              "reference": "Version 1.0.0 metadata, complete compiled AppIcon, privacy descriptions, executable Contents/Helpers/disk-witness-mcp, and successful MCP initialize transcript"
+              "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
             },
             {
               "criterion": "AC-210-03",
               "result": "passed",
-              "reference": "Signed Debug build used automatic development signing for G3P6TU385Y; explicit unsigned CI configuration also built successfully"
+              "reference": "docs/tasks/evidence/TASK-210/build-and-launch.md"
             }
           ],
           "discovered_risks": [
-            "Developer ID Application signing and notarization remain release-stage external prerequisites, not Debug build blockers.",
-            "Config/Packaging/project.yml is canonical; manual pbxproj edits can be overwritten by regeneration."
+            "Third-party menu-bar managers can hide or temporarily omit a valid status item independently of Disk Steward.",
+            "The earlier automatic-termination diagnosis was not supported once the live process, status-item smoke report, and iBar state were inspected together."
           ],
           "suggested_graph_changes": []
         },
@@ -2940,47 +2886,51 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-210-01",
+              "id": "CHECK-210-PERSISTENCE-02",
               "result": "passed",
               "evidence": [
-                "Shared DiskSteward scheme builds a signed Debug LSUIElement application with permanent identifier and without the Endpoint Security target",
-                "UI smoke and real open launch verify the accessory menu-bar process"
+                "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json",
+                "The installed process remained registered after LaunchServices launch as PID 74859.",
+                "The status-item smoke report returned accessibility label Disk Steward and both click surfaces.",
+                "A fresh menu-bar capture showed the restored drive icon immediately to the right of iBar Pro's ellipsis control."
               ]
             },
             {
-              "id": "CHECK-210-02",
+              "id": "CHECK-210-DISCONFIRMATION-01",
               "result": "passed",
               "evidence": [
-                "Bundle has version 1.0.0 build 1, privacy descriptions, compiled AppIcon.icns and Assets.car",
-                "Contents/Helpers/disk-witness-mcp is executable and returns a valid read-only MCP initialize response"
+                "The icon was absent while PID 63908 and its LaunchServices application record were still live, disproving an app-exit explanation for that observation.",
+                "iBar Pro was running and its persisted always-display rule already named com.marudankiji.disksteward, demonstrating a stale live presentation cache.",
+                "Restarting iBar Pro and relaunching Disk Steward restored the icon without changing Disk Steward code, configuration, or data."
               ]
             },
             {
-              "id": "CHECK-210-03",
+              "id": "CHECK-210-BUILD-01",
               "result": "passed",
               "evidence": [
-                "Debug automatic signing resolved team G3P6TU385Y and the canonical app group",
-                "CI configuration built with signing explicitly disabled"
+                "The required Xcode Debug unsigned verification build completed with BUILD SUCCEEDED.",
+                "swift test executed 158 tests with 0 failures."
               ]
             },
             {
-              "id": "CHECK-210-04",
+              "id": "CHECK-210-SIGNATURE-02",
               "result": "passed",
               "evidence": [
-                "codesign deep strict verification passed",
-                "swift test passed 111 tests with zero failures and git diff --check passed"
+                "The installed application passed codesign deep strict verification.",
+                "Gatekeeper accepted the installed application as Notarized Developer ID."
               ]
             }
           ],
           "affected_claims": [
+            "TASK-210",
             "OUTCOME-210",
-            "OUTCOME-220"
+            "GATE-290"
           ],
-          "recommended_action": "advance"
+          "recommended_action": "advance; treat future icon-only disappearance with a live-process check and refresh the active third-party menu-bar manager before changing Disk Steward lifecycle code"
         },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "TASK-210",
@@ -4798,8 +4748,8 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
-        "health": "at-risk",
+        "verification": "passed",
+        "health": "clear",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -4809,8 +4759,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "blocker": null,
+        "updated_at": "2026-09-14T21:25:00.343160Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-220",
@@ -4929,38 +4879,43 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-220-RUNTIME-01",
+              "id": "CHECK-220-REPLAN-01",
               "result": "passed",
               "evidence": [
-                "The exact rebuilt app executable passed --ui-smoke with accessory activation, status item, status board, utility menu, and export surface available.",
-                "The app completed a live startup scan after Downloads permission and remained running as PID 51280."
+                "docs/tasks/evidence/TASK-220/status-board-light.png",
+                "docs/tasks/evidence/TASK-220/status-board-dark.png",
+                "docs/tasks/evidence/TASK-220/visual-accessibility-verification.md",
+                "The native board hierarchy, semantic states, Agent Access separation, evidence freshness, and database-cap presentation remain within the replanned contract."
               ]
             },
             {
-              "id": "CHECK-220-RUNTIME-02",
+              "id": "CHECK-220-RUNTIME-04",
               "result": "passed",
               "evidence": [
-                "The repaired evidence and MCP dependencies are verified.",
-                "The complete suite passed 144 tests with zero failures, including status-board and MCP Access behavior."
+                "The installed UI smoke returned accessory activation, Disk Steward status-item accessibility label, both click surfaces, current snapshot availability, and read-only MCP state.",
+                "The installed status item was visually present after the third-party menu-bar manager cache was refreshed.",
+                "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
               ]
             },
             {
-              "id": "CHECK-220-RUNTIME-03",
+              "id": "CHECK-220-REGRESSION-01",
               "result": "passed",
               "evidence": [
-                "The live observation reports partial coverage at the configured entry cap rather than presenting stale or incomplete data as current complete evidence.",
-                "No new crash report appeared after final launch."
+                "swift test executed 158 tests with 0 failures, including StatusBoardPresentationTests and MCPAccessTests.",
+                "The Xcode Debug verification build completed with BUILD SUCCEEDED."
               ]
             }
           ],
           "affected_claims": [
-            "OUTCOME-210"
+            "TASK-220",
+            "OUTCOME-210",
+            "GATE-290"
           ],
           "recommended_action": "advance"
         },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "TASK-220",
@@ -5358,8 +5313,8 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
-        "health": "at-risk",
+        "verification": "passed",
+        "health": "clear",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -5369,8 +5324,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "blocker": null,
+        "updated_at": "2026-09-14T21:25:03.391581Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-251",
@@ -5470,39 +5425,40 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-251-SCHEMA5-01",
+              "id": "CHECK-251-EXPORT-01",
               "result": "passed",
               "evidence": [
-                "EvidenceBundleExporter reads active schema-v5 scan generation progress from the same consistent SQLite backup used for bundle payloads",
-                "An active generation forces partial detail coverage and states that authoritative current state is the preceding complete observation until reconciliation"
+                "docs/tasks/evidence/TASK-251/real-export-journey.md",
+                "EvidenceBundleExporterTests passed in the fresh 158-test suite, covering consistent backup views, schema validation, hashes, privacy shaping, bounded records, active-generation disclosure, and manual export inventory."
               ]
             },
             {
-              "id": "CHECK-251-SCHEMA5-02",
+              "id": "CHECK-251-UI-01",
               "result": "passed",
               "evidence": [
-                "The menu/view-model durable exporter path and all eleven evidence roles remain intact",
-                "EvidenceBundleExporterTests passed 9 tests and the full package passed 156 tests"
+                "StatusBoardEvidenceExportTests passed in the fresh suite, covering the actual view-model durable export path, Finder reveal callback on success, and failure behavior.",
+                "StatusItemController routes both menu and board export actions through the durable EvidenceStore exporter."
               ]
             },
             {
-              "id": "CHECK-251-BUILD-01",
+              "id": "CHECK-251-REGRESSION-01",
               "result": "passed",
               "evidence": [
-                "Xcode Debug application build succeeded and was signed with the configured Apple Development identity",
-                "Scoped git diff whitespace validation passed"
+                "swift test executed 158 tests with 0 failures.",
+                "The Xcode Debug verification build completed with BUILD SUCCEEDED."
               ]
             }
           ],
           "affected_claims": [
             "TASK-251",
+            "OUTCOME-210",
             "GATE-290"
           ],
-          "recommended_action": "Promote TASK-251 and re-audit the application increment against the convergent scan and truthful active-generation export lifecycle."
+          "recommended_action": "advance"
         },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "TASK-251",
@@ -5605,7 +5561,7 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
+        "verification": "passed",
         "health": "clear",
         "owner": null,
         "lease_expires_at": null,
@@ -5617,7 +5573,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "updated_at": "2026-09-14T21:25:07.217242Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-252",
@@ -5708,10 +5664,56 @@
           ],
           "suggested_graph_changes": []
         },
-        "last_audit": null,
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-252",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-252-FOLDER-01",
+              "result": "passed",
+              "evidence": [
+                "docs/tasks/evidence/TASK-252/interaction-regression.md",
+                "MonitoringSettingsTests passed in the fresh suite, including arbitrary directory navigation, invalid-path rejection, standardized persistence, and deduplication.",
+                "Source inspection found no NSOpenPanel, openAndSavePanelService, or runModal use under Sources or Tests."
+              ]
+            },
+            {
+              "id": "CHECK-252-EXPORT-01",
+              "result": "passed",
+              "evidence": [
+                "StatusBoardEvidenceExportTests passed in the fresh suite, proving the completed directory is opened only after successful export and not for unavailable or failed export.",
+                "StatusItemController uses NSWorkspace.shared.open on the completed bundle URL supplied by the durable exporter."
+              ]
+            },
+            {
+              "id": "CHECK-252-RUNTIME-01",
+              "result": "passed",
+              "evidence": [
+                "The exact installed app launched and remained registered after the current menu-bar recovery rehearsal.",
+                "The prior rebuilt-app rehearsal added the interaction fix before notarization and Homebrew installation.",
+                "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
+              ]
+            },
+            {
+              "id": "CHECK-252-REGRESSION-01",
+              "result": "passed",
+              "evidence": [
+                "swift test executed 158 tests with 0 failures.",
+                "The Xcode Debug verification build completed with BUILD SUCCEEDED."
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-252",
+            "OUTCOME-210",
+            "GATE-290"
+          ],
+          "recommended_action": "advance"
+        },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "TASK-252",
@@ -5830,8 +5832,8 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
-        "health": "at-risk",
+        "verification": "passed",
+        "health": "clear",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -5841,8 +5843,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-13T08:23:31.096947Z",
+        "blocker": null,
+        "updated_at": "2026-09-14T21:26:36.243890Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "GATE-290",
@@ -5940,43 +5942,57 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-290-PRODUCT-01",
+              "id": "CHECK-290-CURRENT-PRODUCT-01",
               "result": "passed",
               "evidence": [
-                "The canonical Xcode Debug app built successfully, embedded its read-only MCP helper, and was signed with the configured Apple Development identity",
-                "The built executable's --ui-smoke report returned status launched, accessory activation, an accessible Disk Steward status item, status-board left click, and the complete utility menu"
+                "The current Xcode Debug verification build completed with BUILD SUCCEEDED and embedded the disk-witness-mcp helper.",
+                "The installed notarized app passed strict signature and Gatekeeper checks, launched as a live accessory application, created the labeled status item, and remained registered after relaunch.",
+                "docs/tasks/evidence/TASK-210/menu-bar-recovery-verification.json"
               ]
             },
             {
-              "id": "CHECK-290-EVIDENCE-01",
+              "id": "CHECK-290-CURRENT-UI-01",
               "result": "passed",
               "evidence": [
-                "The actual status-board export journey produces the eleven-role durable bundle, validates all hashes, records manual ownership, and reveals the result",
-                "A mid-generation export now exposes bounded progress, forces partial coverage, preserves the preceding authoritative current state, and warns that absence is not reconciled"
+                "docs/tasks/evidence/TASK-220/status-board-light.png",
+                "docs/tasks/evidence/TASK-220/status-board-dark.png",
+                "docs/tasks/evidence/TASK-220/replan-revalidation-audit.json",
+                "The installed menu-bar drive icon was visually restored and present beside the active iBar control."
               ]
             },
             {
-              "id": "CHECK-290-CHAIN-01",
+              "id": "CHECK-290-CURRENT-EXPORT-01",
               "result": "passed",
               "evidence": [
-                "Schema-v5 convergence tests cover durable multi-slice progress, A/B/C complete deletion versus partial uncertainty, restart resume, invalid cursor, and scope-change abandonment",
-                "The revalidated state, retention, MCP, and export nodes all preserve one authoritative evidence lifecycle"
+                "docs/tasks/evidence/TASK-251/replan-revalidation-audit.json",
+                "docs/tasks/evidence/TASK-252/audit-result.json",
+                "Fresh exporter and status-board tests prove one consistent eleven-role EvidenceStore bundle, valid hashes, privacy shaping, honest coverage, manual ownership, and success-only Finder handoff."
               ]
             },
             {
-              "id": "CHECK-290-REGRESSION-01",
+              "id": "CHECK-290-CURRENT-MCP-01",
               "result": "passed",
               "evidence": [
-                "The full Swift package suite passed 156 tests with no failures",
-                "UI light/dark screenshots and accessibility notes remain in docs/tasks/evidence/TASK-220; no visual implementation changed in the schema-v5 repair"
+                "The installed helper completed MCP protocol 2025-06-18 initialization and tools/list against the live app service.",
+                "All ten tools declare readOnlyHint=true, destructiveHint=false, and openWorldHint=false; no delete or write tool exists.",
+                "The catalog includes storage summary, lifecycle, current consumers, growth, provenance, sessions, task impact, cleanup review candidates, and bounded export."
               ]
             },
             {
-              "id": "CHECK-290-SAFETY-01",
+              "id": "CHECK-290-CURRENT-LIFECYCLE-01",
               "result": "passed",
               "evidence": [
-                "Agent Access off/on enforcement, current-state-only cleanup candidates, privacy shaping, retention pressure, pagination, and provenance regressions all passed",
-                "No destructive MCP operation, network listener, file-content read, environment-value capture, or auto-deletion of manual exports was introduced"
+                "The fresh suite passed convergence, A/B/C deletion versus partial uncertainty, restart and scope change, rename, replacement, path reuse, cleanup revalidation, session impact, pagination, compaction, retention pressure, and lifecycle disclosure scenarios.",
+                "The fresh suite also passed Agent Access off/on enforcement without altering monitoring or evidence."
+              ]
+            },
+            {
+              "id": "CHECK-290-CURRENT-REGRESSION-01",
+              "result": "passed",
+              "evidence": [
+                "swift test executed 158 tests with 0 failures.",
+                "git diff --check passed.",
+                "No product source change was needed for the menu-bar incident because the live-process and iBar cache evidence disconfirmed an app lifecycle defect."
               ]
             }
           ],
@@ -5985,17 +6001,12 @@
             "OUTCOME-210",
             "OUTCOME-220"
           ],
-          "recommended_action": "Promote the polished native application increment and revalidate the credential-free distribution workflow against the current candidate."
+          "recommended_action": "advance"
         },
         "last_reopen": null
       },
-      "availability": "implemented",
-      "blocked_by": [
-        "TASK-210",
-        "TASK-220",
-        "TASK-251",
-        "TASK-252"
-      ],
+      "availability": "verified",
+      "blocked_by": [],
       "goal_trace": [
         "GATE-290",
         "OUTCOME-210",
@@ -6020,7 +6031,7 @@
         {
           "id": "TASK-210",
           "type": "integration-requires",
-          "verification": "pending"
+          "verification": "passed"
         },
         {
           "id": "TASK-230",
@@ -6050,7 +6061,7 @@
         {
           "id": "TASK-220",
           "type": "integration-requires",
-          "verification": "pending"
+          "verification": "passed"
         },
         {
           "id": "CONTRACT-250",
@@ -6065,12 +6076,12 @@
         {
           "id": "TASK-251",
           "type": "integration-requires",
-          "verification": "pending"
+          "verification": "passed"
         },
         {
           "id": "TASK-252",
           "type": "integration-requires",
-          "verification": "pending"
+          "verification": "passed"
         }
       ],
       "audit_gates": [],

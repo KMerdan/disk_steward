@@ -1,0 +1,348 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260914T212503391958Z-34CE8D01",
+  "at": "2026-09-14T21:25:03.391728Z",
+  "graph_version": 154,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-251",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+    "updated_at": "2026-09-13T08:23:31.096947Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-251",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "docs/tasks/evidence/TASK-251/real-export-journey.md",
+        "docs/tasks/evidence/TASK-251/audit-schema-v5-failure.json",
+        "docs/tasks/evidence/TASK-251/agent-result-schema-v5-repair.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/real-export-journey.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/audit-schema-v5-failure.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/agent-result-schema-v5-repair.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceBundleExporterTests",
+          "result": "passed: 9 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 156 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build",
+          "result": "passed: BUILD SUCCEEDED; Apple Development signed"
+        },
+        {
+          "command": "git diff --check on TASK-251 scope",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-251-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "AC-251-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "EVREQ-251-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-251/real-export-journey.md"
+        },
+        {
+          "criterion": "CHECK-251-SCHEMA5-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-251",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-251-SCHEMA5-01",
+          "result": "passed",
+          "evidence": [
+            "EvidenceBundleExporter reads active schema-v5 scan generation progress from the same consistent SQLite backup used for bundle payloads",
+            "An active generation forces partial detail coverage and states that authoritative current state is the preceding complete observation until reconciliation"
+          ]
+        },
+        {
+          "id": "CHECK-251-SCHEMA5-02",
+          "result": "passed",
+          "evidence": [
+            "The menu/view-model durable exporter path and all eleven evidence roles remain intact",
+            "EvidenceBundleExporterTests passed 9 tests and the full package passed 156 tests"
+          ]
+        },
+        {
+          "id": "CHECK-251-BUILD-01",
+          "result": "passed",
+          "evidence": [
+            "Xcode Debug application build succeeded and was signed with the configured Apple Development identity",
+            "Scoped git diff whitespace validation passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-251",
+        "GATE-290"
+      ],
+      "recommended_action": "Promote TASK-251 and re-audit the application increment against the convergent scan and truthful active-generation export lifecycle."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-14T21:25:03.391581Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-251",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "docs/tasks/evidence/TASK-251/real-export-journey.md",
+        "docs/tasks/evidence/TASK-251/audit-schema-v5-failure.json",
+        "docs/tasks/evidence/TASK-251/agent-result-schema-v5-repair.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/real-export-journey.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/audit-schema-v5-failure.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-251/agent-result-schema-v5-repair.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter EvidenceBundleExporterTests",
+          "result": "passed: 9 tests, 0 failures"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 156 tests, 0 failures"
+        },
+        {
+          "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build",
+          "result": "passed: BUILD SUCCEEDED; Apple Development signed"
+        },
+        {
+          "command": "git diff --check on TASK-251 scope",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-251-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "AC-251-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        },
+        {
+          "criterion": "AC-251-04",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift"
+        },
+        {
+          "criterion": "EVREQ-251-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-251/real-export-journey.md"
+        },
+        {
+          "criterion": "CHECK-251-SCHEMA5-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift"
+        }
+      ],
+      "discovered_risks": [],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-251",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-251-EXPORT-01",
+          "result": "passed",
+          "evidence": [
+            "docs/tasks/evidence/TASK-251/real-export-journey.md",
+            "EvidenceBundleExporterTests passed in the fresh 158-test suite, covering consistent backup views, schema validation, hashes, privacy shaping, bounded records, active-generation disclosure, and manual export inventory."
+          ]
+        },
+        {
+          "id": "CHECK-251-UI-01",
+          "result": "passed",
+          "evidence": [
+            "StatusBoardEvidenceExportTests passed in the fresh suite, covering the actual view-model durable export path, Finder reveal callback on success, and failure behavior.",
+            "StatusItemController routes both menu and board export actions through the durable EvidenceStore exporter."
+          ]
+        },
+        {
+          "id": "CHECK-251-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "swift test executed 158 tests with 0 failures.",
+            "The Xcode Debug verification build completed with BUILD SUCCEEDED."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-251",
+        "OUTCOME-210",
+        "GATE-290"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-251",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-251-EXPORT-01",
+          "result": "passed",
+          "evidence": [
+            "docs/tasks/evidence/TASK-251/real-export-journey.md",
+            "EvidenceBundleExporterTests passed in the fresh 158-test suite, covering consistent backup views, schema validation, hashes, privacy shaping, bounded records, active-generation disclosure, and manual export inventory."
+          ]
+        },
+        {
+          "id": "CHECK-251-UI-01",
+          "result": "passed",
+          "evidence": [
+            "StatusBoardEvidenceExportTests passed in the fresh suite, covering the actual view-model durable export path, Finder reveal callback on success, and failure behavior.",
+            "StatusItemController routes both menu and board export actions through the durable EvidenceStore exporter."
+          ]
+        },
+        {
+          "id": "CHECK-251-REGRESSION-01",
+          "result": "passed",
+          "evidence": [
+            "swift test executed 158 tests with 0 failures.",
+            "The Xcode Debug verification build completed with BUILD SUCCEEDED."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-251",
+        "OUTCOME-210",
+        "GATE-290"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-30EA9641ADE9E5B20710ABF442C05B4E",
+  "previous_event_id": "EVENT-20260914T212500343540Z-4AE6728E",
+  "previous_event_sha256": "73bf2344c3fd7983108c32fd33e6b3b662f5bc9a637ad65a45319d51c3920069"
+}

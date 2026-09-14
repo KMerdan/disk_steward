@@ -1,52 +1,52 @@
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {Headline, Kicker, SceneShell, Supporting} from '../components/SceneShell';
-import {colors, monoFamily, panel} from '../styles';
+import {SceneShell} from '../components/SceneShell';
+import {clamp, colors, monoFamily} from '../styles';
 
-const artifacts = [
-  ['worktree-17', '2.8 GB'],
-  ['DerivedData', '6.4 GB'],
-  ['agent-export.zip', '1.1 GB'],
-  ['Downloads', '+3.7 GB'],
-];
+const debris = [
+  ['worktree', '2.8 GB', -210, -170, -8],
+  ['DerivedData', '6.4 GB', 70, -245, 5],
+  ['cache', '3.1 GB', 265, -60, 9],
+  ['export.zip', '1.1 GB', 170, 150, -5],
+  ['Downloads', '+3.7 GB', -150, 205, 6],
+] as const;
 
 export const AgentWorkScene: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const done = spring({frame, fps, config: {damping: 16}});
+  const complete = spring({frame: frame - 6, fps, config: {damping: 15, stiffness: 125}});
 
   return (
-    <SceneShell duration={150} accent={colors.cyan}>
-      <div style={{display: 'grid', gridTemplateColumns: '1.05fr .95fr', gap: 84, height: '100%', alignItems: 'center'}}>
-        <div>
-          <Kicker>01 · The hidden cost of speed</Kicker>
-          <Headline>AI work finishes. Its disk footprint may not.</Headline>
-          <Supporting>Local agents create useful work—and the supporting files can outlive the task.</Supporting>
+    <SceneShell accent={colors.orange} label="The invisible aftermath">
+      <div style={{position: 'absolute', inset: 0, display: 'grid', placeItems: 'center'}}>
+        <div style={{position: 'absolute', fontSize: 300, fontWeight: 900, letterSpacing: -20, color: 'rgba(255,255,255,.035)', scale: interpolate(frame, [0, 105], [1, 1.18], clamp)}}>DONE</div>
+
+        <div style={{position: 'relative', width: 560, height: 330, borderRadius: 35, background: 'rgba(15,20,29,.94)', border: '1px solid rgba(255,255,255,.16)', boxShadow: '0 50px 140px rgba(0,0,0,.62)', scale: .88 + complete * .12, rotate: `${interpolate(frame, [0, 45], [-4, 0], clamp)}deg`, zIndex: 3}}>
+          <div style={{height: 54, display: 'flex', alignItems: 'center', gap: 10, padding: '0 20px', borderBottom: '1px solid rgba(255,255,255,.09)'}}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map((color) => <span key={color} style={{width: 13, height: 13, borderRadius: 99, background: color}} />)}
+            <span style={{marginLeft: 12, color: colors.muted, fontFamily: monoFamily, fontSize: 18}}>agent-session</span>
+          </div>
+          <div style={{padding: '38px 42px'}}>
+            <div style={{fontFamily: monoFamily, color: colors.muted, fontSize: 20}}>✓ tests passed</div>
+            <div style={{fontFamily: monoFamily, color: colors.muted, fontSize: 20, marginTop: 13}}>✓ artifact exported</div>
+            <div style={{display: 'flex', alignItems: 'center', gap: 16, marginTop: 34}}>
+              <span style={{width: 44, height: 44, borderRadius: 99, display: 'grid', placeItems: 'center', background: colors.green, color: '#061109', fontSize: 26, fontWeight: 900}}>✓</span>
+              <span style={{fontSize: 42, fontWeight: 820, letterSpacing: -1.6}}>Task complete</span>
+            </div>
+          </div>
         </div>
-        <div style={{...panel, padding: 30, minHeight: 560}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: 16, borderBottom: `1px solid ${colors.line}`, paddingBottom: 24}}>
-            <div style={{width: 16, height: 16, borderRadius: 99, background: colors.green, boxShadow: `0 0 22px ${colors.green}`}} />
-            <div style={{fontSize: 31, fontWeight: 700}}>Agent task complete</div>
-            <div style={{marginLeft: 'auto', color: colors.green, fontSize: 26}}>✓ 47 files changed</div>
-          </div>
-          <div style={{marginTop: 28, color: colors.muted, fontFamily: monoFamily, fontSize: 23}}>Local artifacts left behind</div>
-          <div style={{display: 'grid', gap: 16, marginTop: 20}}>
-            {artifacts.map(([name, size], index) => {
-              const entrance = spring({frame: frame - 28 - index * 15, fps, config: {damping: 18}});
-              const glow = interpolate(frame, [55 + index * 10, 120], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-              return (
-                <div key={name} style={{display: 'flex', alignItems: 'center', padding: '20px 22px', borderRadius: 18, background: `rgba(94,167,255,${0.07 + glow * 0.06})`, border: `1px solid rgba(94,167,255,.18)`, opacity: entrance, transform: `translateX(${(1 - entrance) * 40}px)`}}>
-                  <div style={{fontSize: 28, fontFamily: monoFamily}}>▱ {name}</div>
-                  <div style={{marginLeft: 'auto', fontSize: 28, color: colors.amber, fontWeight: 720}}>{size}</div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{height: 12, borderRadius: 99, background: 'rgba(255,255,255,.08)', overflow: 'hidden', marginTop: 34}}>
-            <div style={{height: '100%', width: `${31 + done * 46}%`, background: `linear-gradient(90deg, ${colors.blue}, ${colors.amber})`, borderRadius: 99}} />
-          </div>
-          <div style={{display: 'flex', marginTop: 13, color: colors.muted, fontSize: 23}}><span>Storage used</span><span style={{marginLeft: 'auto', color: colors.ink}}>77%</span></div>
-        </div>
+
+        {debris.map(([name, size, x, y, rotation], index) => {
+          const fly = spring({frame: frame - 34 - index * 5, fps, config: {damping: 17, stiffness: 95}});
+          return (
+            <div key={name} style={{position: 'absolute', left: '50%', top: '50%', display: 'flex', alignItems: 'center', gap: 13, padding: '13px 17px', borderRadius: 15, background: 'rgba(20,25,35,.96)', border: `1px solid ${colors.orange}50`, boxShadow: '0 20px 55px rgba(0,0,0,.42)', translate: `${x * fly - 80}px ${y * fly - 24}px`, rotate: `${rotation * fly}deg`, scale: .72 + fly * .28, opacity: fly, zIndex: 5}}>
+              <span style={{fontFamily: monoFamily, fontSize: 18}}>{name}</span>
+              <span style={{color: colors.orange, fontSize: 17, fontWeight: 760}}>{size}</span>
+            </div>
+          );
+        })}
+
+        <div style={{position: 'absolute', left: 110, bottom: 160, fontSize: 82, lineHeight: .9, fontWeight: 860, letterSpacing: -4, opacity: interpolate(frame, [52, 69], [0, 1], clamp), translate: `${interpolate(frame, [52, 69], [-30, 0], clamp)}px 0px`}}>DONE.<br/><span style={{color: colors.orange}}>NOT GONE.</span></div>
       </div>
     </SceneShell>
   );

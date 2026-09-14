@@ -1,0 +1,65 @@
+{
+  "schema": "disk-steward-menu-bar-recovery-evidence-v1",
+  "recorded_at": "2026-09-15T06:21:00+09:00",
+  "installed_app": "/Applications/Disk Steward.app",
+  "bundle_identifier": "com.marudankiji.disksteward",
+  "finding": "The installed app was running and had created its status item; iBar Pro's live menu-bar cache omitted it until iBar Pro was restarted and Disk Steward was relaunched.",
+  "disconfirmed_hypotheses": [
+    "The installed app was rejected by Gatekeeper.",
+    "The installed app crashed during launch.",
+    "The app failed to create an NSStatusItem.",
+    "Automatic termination was required to explain the missing icon."
+  ],
+  "checks": [
+    {
+      "command": "codesign --verify --deep --strict --verbose=4 '/Applications/Disk Steward.app'",
+      "result": "passed",
+      "evidence": "valid on disk; satisfies its Designated Requirement"
+    },
+    {
+      "command": "spctl --assess --type execute --verbose=4 '/Applications/Disk Steward.app'",
+      "result": "passed",
+      "evidence": "accepted; source=Notarized Developer ID"
+    },
+    {
+      "command": "'/Applications/Disk Steward.app/Contents/MacOS/Disk Steward' --ui-smoke",
+      "result": "passed",
+      "evidence": "status=launched, activation_policy=accessory, status_item_accessibility_label=Disk Steward, left and right click surfaces present"
+    },
+    {
+      "command": "pgrep and launchctl inspection before recovery",
+      "result": "passed",
+      "evidence": "PID 63908 and application.com.marudankiji.disksteward were live while the icon was absent"
+    },
+    {
+      "command": "iBar Pro preference inspection",
+      "result": "passed",
+      "evidence": "arrOfAlwaysDisplay contained Item-0 >>> com.marudankiji.disksteward, proving the persisted rule and live presentation were inconsistent"
+    },
+    {
+      "command": "restart iBar Pro; open -n '/Applications/Disk Steward.app'; capture menu bar",
+      "result": "passed",
+      "evidence": "PID 74859 remained registered and the Disk Steward drive icon was visibly restored immediately to the right of iBar's ellipsis control"
+    },
+    {
+      "command": "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task210-derived CODE_SIGNING_ALLOWED=NO build",
+      "result": "passed",
+      "evidence": "BUILD SUCCEEDED"
+    },
+    {
+      "command": "swift test",
+      "result": "passed",
+      "evidence": "158 tests executed with 0 failures"
+    }
+  ],
+  "recovery": [
+    "Quit and reopen iBar Pro to refresh its menu-bar item cache.",
+    "Relaunch /Applications/Disk Steward.app.",
+    "Confirm the drive icon appears immediately to the right of iBar's ellipsis control."
+  ],
+  "product_change_required": false,
+  "limitations": [
+    "A third-party menu-bar manager can hide or temporarily omit any status item independently of the app's process lifecycle.",
+    "Disk Steward cannot force another application's live item cache to refresh."
+  ]
+}
