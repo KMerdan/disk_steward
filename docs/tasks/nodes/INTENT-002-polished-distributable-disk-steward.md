@@ -9,9 +9,9 @@
 - Workstream: `intent`
 - Selection: `primary`
 - Execution: `planned`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `not-executable`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `INTENT-002`
 
 ## Goal
@@ -32,7 +32,7 @@ Disk Steward is a native, legible, explainable, openly discoverable, and verifia
 
 ## Dependencies
 
-- `OUTCOME-220` (validation-requires, unverified)
+- `OUTCOME-220` (validation-requires, passed)
 
 ## Required Context
 

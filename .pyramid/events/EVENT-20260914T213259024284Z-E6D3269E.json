@@ -1,0 +1,255 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260914T213259024284Z-E6D3269E",
+  "at": "2026-09-14T21:32:59.024031Z",
+  "graph_version": 161,
+  "actor": "codex",
+  "type": "task.taken",
+  "node": "GATE-390",
+  "before": {
+    "execution": "needs-rework",
+    "verification": "unverified",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": {
+      "id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+      "paused_at": "2026-09-13T06:27:13.338367Z",
+      "paused_by": "codex",
+      "mode": "handoff",
+      "resumed_at": "2026-09-13T06:46:48.440925Z",
+      "resumed_by": "codex",
+      "accepted_stale_drift": [
+        "worktree changed since the handoff"
+      ]
+    },
+    "blocker": "Evidence for TASK-210 failed; dependent verification is stale.",
+    "updated_at": "2026-09-14T20:29:12.195193Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "blocked",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "Inspect installed Disk Steward Developer ID Distribution provisioning profile",
+          "result": "passed: installed profile 193d15aa-43f8-4477-bdab-58cf2e59964f targets G3P6TU385Y.com.marudankiji.disksteward, authorizes group.com.marudankiji.disksteward, selects the Developer ID Application certificate, and expires 2044-09-08"
+        },
+        {
+          "command": "Scripts/Distribution/archive-release --release /Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive",
+          "result": "failed: Xcode still requires the application target to select a provisioning profile"
+        },
+        {
+          "command": "/usr/bin/xcodebuild ... PROVISIONING_PROFILE_SPECIFIER=Disk Steward Developer ID Distribution archive",
+          "result": "failed: the global override correctly reaches the profile but incorrectly applies it to disk-witness-mcp, which does not support provisioning profiles"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "failed",
+          "reference": "No exact exported artifact exists because the current project cannot apply the Developer ID profile only to the DiskSteward application target."
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "The release remains blocked without weakening signatures, entitlements, notarization, or Gatekeeper requirements; remediation is a target-specific profile setting in the release-packaging task."
+        }
+      ],
+      "discovered_risks": [
+        "A project-wide PROVISIONING_PROFILE_SPECIFIER applies the app profile to the MCP command-line helper and prevents archiving.",
+        "The application target currently has no target-specific Release profile selector, so Xcode cannot complete manual Developer ID signing."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-390-APPLICATION-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210, TASK-310, and RISK-320 are verified against the current schema-v5 candidate",
+            "The current app passed 156 Swift tests, a signed Debug Xcode build, UI smoke, durable multi-slice reconciliation, actionable menu export, MCP access, privacy, and distribution-negative tests"
+          ]
+        },
+        {
+          "id": "CHECK-390-DEVELOPER-ID-01",
+          "result": "failed",
+          "evidence": [
+            "Scripts/Distribution/release-preflight exited 66: no Developer ID Application identity for Team G3P6TU385Y is installed",
+            "Apple Development and Apple Distribution identities are explicitly rejected as substitutes for a direct-distribution Developer ID Application signature"
+          ]
+        },
+        {
+          "id": "CHECK-390-NOTARIZATION-01",
+          "result": "failed",
+          "evidence": [
+            "Without a Developer ID Application signed export there is no exact release artifact to submit for notarization",
+            "Therefore notarization acceptance, staple validation, Gatekeeper acceptance, release-artifact hash, and exported-app launch cannot truthfully be claimed"
+          ]
+        },
+        {
+          "id": "CHECK-390-BLOCKED-DISPOSITION-01",
+          "result": "passed",
+          "evidence": [
+            "The credential-free rehearsal constructed and inspected an unsigned archive, rejected it, removed the temporary archive, and left the development build usable",
+            "Exact remediation: the Apple Developer Account Holder must create or authorize a Developer ID Application certificate, install it with its private key in the login keychain through Xcode Settings > Accounts > Marudan Kiji > Manage Certificates, then run the documented archive/export/notarize/verify workflow"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "Obtain and install a Developer ID Application identity with its private key, export and notarize the exact app through Xcode Organizer, staple it, then rerun Scripts/Distribution/verify-release and this final gate."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-14T23:32:59.023864Z",
+    "work_origin": "needs-rework",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": {
+      "id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+      "paused_at": "2026-09-13T06:27:13.338367Z",
+      "paused_by": "codex",
+      "mode": "handoff",
+      "resumed_at": "2026-09-13T06:46:48.440925Z",
+      "resumed_by": "codex",
+      "accepted_stale_drift": [
+        "worktree changed since the handoff"
+      ]
+    },
+    "blocker": null,
+    "updated_at": "2026-09-14T21:32:59.023996Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "blocked",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/target-specific-profile-blocker.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "Inspect installed Disk Steward Developer ID Distribution provisioning profile",
+          "result": "passed: installed profile 193d15aa-43f8-4477-bdab-58cf2e59964f targets G3P6TU385Y.com.marudankiji.disksteward, authorizes group.com.marudankiji.disksteward, selects the Developer ID Application certificate, and expires 2044-09-08"
+        },
+        {
+          "command": "Scripts/Distribution/archive-release --release /Users/merdankiji/Documents/Codex/DiskSteward-Release-2026-09-13.xcarchive",
+          "result": "failed: Xcode still requires the application target to select a provisioning profile"
+        },
+        {
+          "command": "/usr/bin/xcodebuild ... PROVISIONING_PROFILE_SPECIFIER=Disk Steward Developer ID Distribution archive",
+          "result": "failed: the global override correctly reaches the profile but incorrectly applies it to disk-witness-mcp, which does not support provisioning profiles"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "failed",
+          "reference": "No exact exported artifact exists because the current project cannot apply the Developer ID profile only to the DiskSteward application target."
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "The release remains blocked without weakening signatures, entitlements, notarization, or Gatekeeper requirements; remediation is a target-specific profile setting in the release-packaging task."
+        }
+      ],
+      "discovered_risks": [
+        "A project-wide PROVISIONING_PROFILE_SPECIFIER applies the app profile to the MCP command-line helper and prevents archiving.",
+        "The application target currently has no target-specific Release profile selector, so Xcode cannot complete manual Developer ID signing."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-390-APPLICATION-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210, TASK-310, and RISK-320 are verified against the current schema-v5 candidate",
+            "The current app passed 156 Swift tests, a signed Debug Xcode build, UI smoke, durable multi-slice reconciliation, actionable menu export, MCP access, privacy, and distribution-negative tests"
+          ]
+        },
+        {
+          "id": "CHECK-390-DEVELOPER-ID-01",
+          "result": "failed",
+          "evidence": [
+            "Scripts/Distribution/release-preflight exited 66: no Developer ID Application identity for Team G3P6TU385Y is installed",
+            "Apple Development and Apple Distribution identities are explicitly rejected as substitutes for a direct-distribution Developer ID Application signature"
+          ]
+        },
+        {
+          "id": "CHECK-390-NOTARIZATION-01",
+          "result": "failed",
+          "evidence": [
+            "Without a Developer ID Application signed export there is no exact release artifact to submit for notarization",
+            "Therefore notarization acceptance, staple validation, Gatekeeper acceptance, release-artifact hash, and exported-app launch cannot truthfully be claimed"
+          ]
+        },
+        {
+          "id": "CHECK-390-BLOCKED-DISPOSITION-01",
+          "result": "passed",
+          "evidence": [
+            "The credential-free rehearsal constructed and inspected an unsigned archive, rejected it, removed the temporary archive, and left the development build usable",
+            "Exact remediation: the Apple Developer Account Holder must create or authorize a Developer ID Application certificate, install it with its private key in the login keychain through Xcode Settings > Accounts > Marudan Kiji > Manage Certificates, then run the documented archive/export/notarize/verify workflow"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "Obtain and install a Developer ID Application identity with its private key, export and notarize the exact app through Xcode Organizer, staple it, then rerun Scripts/Distribution/verify-release and this final gate."
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "lease_minutes": 120
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-FF963DEDD168C43BB04A1F5CDEB945E8",
+  "previous_event_id": "EVENT-20260914T213232444034Z-F64DA9BA",
+  "previous_event_sha256": "8c25b776b05379a8007e7f38743a55af5b08d829676812b88525ac0050b724c3"
+}

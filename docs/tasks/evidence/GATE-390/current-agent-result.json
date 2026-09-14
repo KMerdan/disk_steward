@@ -1,0 +1,92 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-390",
+  "outcome": "implemented",
+  "changed_files": [
+    "docs/tasks/evidence/GATE-390/current-final-release-audit.md",
+    "docs/tasks/evidence/GATE-390/current-agent-result.json",
+    "docs/tasks/evidence/GATE-390/current-audit-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "evidence-only",
+  "changes": [
+    {
+      "path": "docs/tasks/evidence/GATE-390/current-final-release-audit.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/tasks/evidence/GATE-390/current-agent-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/tasks/evidence/GATE-390/current-audit-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'",
+      "result": "passed"
+    },
+    {
+      "command": "codesign, stapler, and Gatekeeper verification",
+      "result": "passed"
+    },
+    {
+      "command": "swift test",
+      "result": "passed: 158 tests, 0 failures"
+    },
+    {
+      "command": "installed helper initialize and tools/list",
+      "result": "passed: ten read-only, non-destructive tools"
+    },
+    {
+      "command": "public GitHub repository and v1.0.0 release inspection",
+      "result": "passed"
+    },
+    {
+      "command": "brew style, online audit, info, and archive checksum",
+      "result": "passed"
+    },
+    {
+      "command": "Remotion typecheck, composition, media metadata, and representative-frame inspection",
+      "result": "passed"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-390-01",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/GATE-390/current-final-release-audit.md"
+    },
+    {
+      "criterion": "AC-390-02",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/GATE-290/current-release-increment-audit.json"
+    },
+    {
+      "criterion": "AC-390-03",
+      "result": "passed",
+      "reference": "User-owned signing and notarization prerequisites are now available and the exact release verification passes, so the blocked branch does not apply."
+    },
+    {
+      "criterion": "AC-390-04",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-253/current-public-repository-audit.json"
+    },
+    {
+      "criterion": "AC-390-05",
+      "result": "passed",
+      "reference": "docs/tasks/evidence/TASK-260/current-media-audit.json"
+    },
+    {
+      "criterion": "AC-390-06",
+      "result": "passed",
+      "reference": "The cask is active only after the immutable notarized v1.0.0 asset became available, and its checksum, URL, style, and online audit pass."
+    }
+  ],
+  "discovered_risks": [
+    "Third-party menu-bar managers may hide a running app's status item and should be refreshed before diagnosing a process-lifecycle failure."
+  ],
+  "suggested_graph_changes": []
+}

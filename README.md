@@ -35,6 +35,12 @@
 
 Disk usage tools are good at showing a snapshot. Disk Steward is designed for the harder question: **what changed, where, when, and how confidently do we know?** It keeps a bounded local evidence history, presents the important part in the menu bar, and can export an integrity-checked bundle for a human, Codex, or Claude Code.
 
+## Built as an evidence trail
+
+Disk Steward was developed through two completed Pyramid intents: first the trustworthy evidence engine, then the polished and notarized product. The ledger records 255 lifecycle events, including five audits that failed and triggered visible repair instead of being papered over.
+
+**[Explore the visual development history →](docs/development-history.md)**
+
 ## What it does
 
 - **Shows storage health at a glance.** Capacity, free space, recent growth, monitoring health, and evidence recency stay in one compact native popover.

@@ -9,9 +9,9 @@
 - Workstream: `product-story`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `implemented`
+- Availability: `verified`
 - Goal trace: `TASK-260` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal

@@ -8,10 +8,10 @@
 - Wave: `10`
 - Workstream: `audit`
 - Selection: `primary`
-- Execution: `needs-rework`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `locked`
+- Execution: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `GATE-390` → `OUTCOME-220` → `INTENT-002`
 
 ## Goal
@@ -42,7 +42,7 @@ Verify the exact exported application, public product story, Homebrew release po
 - `TASK-310` (integration-requires, passed)
 - `RISK-320` (integration-requires, passed)
 - `TASK-253` (integration-requires, passed)
-- `TASK-260` (integration-requires, pending)
+- `TASK-260` (integration-requires, passed)
 - `TASK-321` (integration-requires, passed)
 
 ## Required Context

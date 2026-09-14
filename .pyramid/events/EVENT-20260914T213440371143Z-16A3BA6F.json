@@ -1,0 +1,413 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260914T213440371143Z-16A3BA6F",
+  "at": "2026-09-14T21:34:40.370912Z",
+  "graph_version": 163,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "GATE-390",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": {
+      "id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+      "paused_at": "2026-09-13T06:27:13.338367Z",
+      "paused_by": "codex",
+      "mode": "handoff",
+      "resumed_at": "2026-09-13T06:46:48.440925Z",
+      "resumed_by": "codex",
+      "accepted_stale_drift": [
+        "worktree changed since the handoff"
+      ]
+    },
+    "blocker": null,
+    "updated_at": "2026-09-14T21:34:20.208719Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/current-final-release-audit.md",
+        "docs/tasks/evidence/GATE-390/current-agent-result.json",
+        "docs/tasks/evidence/GATE-390/current-audit-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/current-final-release-audit.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/current-agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/current-audit-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'",
+          "result": "passed"
+        },
+        {
+          "command": "codesign, stapler, and Gatekeeper verification",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 158 tests, 0 failures"
+        },
+        {
+          "command": "installed helper initialize and tools/list",
+          "result": "passed: ten read-only, non-destructive tools"
+        },
+        {
+          "command": "public GitHub repository and v1.0.0 release inspection",
+          "result": "passed"
+        },
+        {
+          "command": "brew style, online audit, info, and archive checksum",
+          "result": "passed"
+        },
+        {
+          "command": "Remotion typecheck, composition, media metadata, and representative-frame inspection",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-390/current-final-release-audit.md"
+        },
+        {
+          "criterion": "AC-390-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/current-release-increment-audit.json"
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "User-owned signing and notarization prerequisites are now available and the exact release verification passes, so the blocked branch does not apply."
+        },
+        {
+          "criterion": "AC-390-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-253/current-public-repository-audit.json"
+        },
+        {
+          "criterion": "AC-390-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-260/current-media-audit.json"
+        },
+        {
+          "criterion": "AC-390-06",
+          "result": "passed",
+          "reference": "The cask is active only after the immutable notarized v1.0.0 asset became available, and its checksum, URL, style, and online audit pass."
+        }
+      ],
+      "discovered_risks": [
+        "Third-party menu-bar managers may hide a running app's status item and should be refreshed before diagnosing a process-lifecycle failure."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "fail",
+      "checks": [
+        {
+          "id": "CHECK-390-APPLICATION-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210, TASK-310, and RISK-320 are verified against the current schema-v5 candidate",
+            "The current app passed 156 Swift tests, a signed Debug Xcode build, UI smoke, durable multi-slice reconciliation, actionable menu export, MCP access, privacy, and distribution-negative tests"
+          ]
+        },
+        {
+          "id": "CHECK-390-DEVELOPER-ID-01",
+          "result": "failed",
+          "evidence": [
+            "Scripts/Distribution/release-preflight exited 66: no Developer ID Application identity for Team G3P6TU385Y is installed",
+            "Apple Development and Apple Distribution identities are explicitly rejected as substitutes for a direct-distribution Developer ID Application signature"
+          ]
+        },
+        {
+          "id": "CHECK-390-NOTARIZATION-01",
+          "result": "failed",
+          "evidence": [
+            "Without a Developer ID Application signed export there is no exact release artifact to submit for notarization",
+            "Therefore notarization acceptance, staple validation, Gatekeeper acceptance, release-artifact hash, and exported-app launch cannot truthfully be claimed"
+          ]
+        },
+        {
+          "id": "CHECK-390-BLOCKED-DISPOSITION-01",
+          "result": "passed",
+          "evidence": [
+            "The credential-free rehearsal constructed and inspected an unsigned archive, rejected it, removed the temporary archive, and left the development build usable",
+            "Exact remediation: the Apple Developer Account Holder must create or authorize a Developer ID Application certificate, install it with its private key in the login keychain through Xcode Settings > Accounts > Marudan Kiji > Manage Certificates, then run the documented archive/export/notarize/verify workflow"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "Obtain and install a Developer ID Application identity with its private key, export and notarize the exact app through Xcode Organizer, staple it, then rerun Scripts/Distribution/verify-release and this final gate."
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": {
+      "id": "HANDOFF-GATE-390-20260913T062713338373Z-4AD7EEA6",
+      "paused_at": "2026-09-13T06:27:13.338367Z",
+      "paused_by": "codex",
+      "mode": "handoff",
+      "resumed_at": "2026-09-13T06:46:48.440925Z",
+      "resumed_by": "codex",
+      "accepted_stale_drift": [
+        "worktree changed since the handoff"
+      ]
+    },
+    "blocker": null,
+    "updated_at": "2026-09-14T21:34:40.370779Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-390",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-390/current-final-release-audit.md",
+        "docs/tasks/evidence/GATE-390/current-agent-result.json",
+        "docs/tasks/evidence/GATE-390/current-audit-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-390/current-final-release-audit.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/current-agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-390/current-audit-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "Scripts/Distribution/verify-release '/Applications/Disk Steward.app'",
+          "result": "passed"
+        },
+        {
+          "command": "codesign, stapler, and Gatekeeper verification",
+          "result": "passed"
+        },
+        {
+          "command": "swift test",
+          "result": "passed: 158 tests, 0 failures"
+        },
+        {
+          "command": "installed helper initialize and tools/list",
+          "result": "passed: ten read-only, non-destructive tools"
+        },
+        {
+          "command": "public GitHub repository and v1.0.0 release inspection",
+          "result": "passed"
+        },
+        {
+          "command": "brew style, online audit, info, and archive checksum",
+          "result": "passed"
+        },
+        {
+          "command": "Remotion typecheck, composition, media metadata, and representative-frame inspection",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-390-01",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-390/current-final-release-audit.md"
+        },
+        {
+          "criterion": "AC-390-02",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/GATE-290/current-release-increment-audit.json"
+        },
+        {
+          "criterion": "AC-390-03",
+          "result": "passed",
+          "reference": "User-owned signing and notarization prerequisites are now available and the exact release verification passes, so the blocked branch does not apply."
+        },
+        {
+          "criterion": "AC-390-04",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-253/current-public-repository-audit.json"
+        },
+        {
+          "criterion": "AC-390-05",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-260/current-media-audit.json"
+        },
+        {
+          "criterion": "AC-390-06",
+          "result": "passed",
+          "reference": "The cask is active only after the immutable notarized v1.0.0 asset became available, and its checksum, URL, style, and online audit pass."
+        }
+      ],
+      "discovered_risks": [
+        "Third-party menu-bar managers may hide a running app's status item and should be refreshed before diagnosing a process-lifecycle failure."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-390-ARTIFACT-01",
+          "result": "passed",
+          "evidence": [
+            "The exact installed app passed the release verifier, deep strict code-signature verification, stapler validation, and Gatekeeper assessment.",
+            "Developer ID Application identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, and notarization are valid.",
+            "The Homebrew-fetched archive SHA-256 matches the GitHub release digest: 5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135."
+          ]
+        },
+        {
+          "id": "CHECK-390-JOURNEY-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210 and GATE-290 pass against the current candidate.",
+            "The installed app is live with a visible status item after the iBar cache recovery, and its bundled helper exposes ten read-only tools.",
+            "The fresh 158-test suite covers the full monitored-folder, export, lifecycle, convergence, provenance, privacy, and MCP interaction matrix."
+          ]
+        },
+        {
+          "id": "CHECK-390-PUBLIC-01",
+          "result": "passed",
+          "evidence": [
+            "KMerdan/disk_steward is public on main with GitHub-recognized MIT licensing, real screenshots, reproducible verification, and no prohibited tracked artifacts.",
+            "Commit 5750d370d0ec8d0e22fd89dd2a050003e7950473 publicly contains the current promo source, media, transcript, and audit evidence."
+          ]
+        },
+        {
+          "id": "CHECK-390-PROMO-01",
+          "result": "passed",
+          "evidence": [
+            "The current Remotion composition is exactly 900 frames at 30 fps and 1920x1080.",
+            "The H.264/AAC MP4 reports 30 seconds, has readable burned-in captions, uses the real Disk Steward UI, and visibly explains the read-only MCP/no-delete boundary."
+          ]
+        },
+        {
+          "id": "CHECK-390-HOMEBREW-01",
+          "result": "passed",
+          "evidence": [
+            "The public kmerdan/disk-steward tap resolves cask version 1.0.0 from the immutable GitHub asset.",
+            "brew style reported no offenses and the online cask audit completed successfully.",
+            "The cask is installed from the verified archive and declares macOS 13 or newer."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "advance to final outcome and intent verification"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-390",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-390-ARTIFACT-01",
+          "result": "passed",
+          "evidence": [
+            "The exact installed app passed the release verifier, deep strict code-signature verification, stapler validation, and Gatekeeper assessment.",
+            "Developer ID Application identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, and notarization are valid.",
+            "The Homebrew-fetched archive SHA-256 matches the GitHub release digest: 5cc6cafeecde5508c58a062726f5b9f9cec9f4d8a1fa722e4472413496684135."
+          ]
+        },
+        {
+          "id": "CHECK-390-JOURNEY-01",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-210 and GATE-290 pass against the current candidate.",
+            "The installed app is live with a visible status item after the iBar cache recovery, and its bundled helper exposes ten read-only tools.",
+            "The fresh 158-test suite covers the full monitored-folder, export, lifecycle, convergence, provenance, privacy, and MCP interaction matrix."
+          ]
+        },
+        {
+          "id": "CHECK-390-PUBLIC-01",
+          "result": "passed",
+          "evidence": [
+            "KMerdan/disk_steward is public on main with GitHub-recognized MIT licensing, real screenshots, reproducible verification, and no prohibited tracked artifacts.",
+            "Commit 5750d370d0ec8d0e22fd89dd2a050003e7950473 publicly contains the current promo source, media, transcript, and audit evidence."
+          ]
+        },
+        {
+          "id": "CHECK-390-PROMO-01",
+          "result": "passed",
+          "evidence": [
+            "The current Remotion composition is exactly 900 frames at 30 fps and 1920x1080.",
+            "The H.264/AAC MP4 reports 30 seconds, has readable burned-in captions, uses the real Disk Steward UI, and visibly explains the read-only MCP/no-delete boundary."
+          ]
+        },
+        {
+          "id": "CHECK-390-HOMEBREW-01",
+          "result": "passed",
+          "evidence": [
+            "The public kmerdan/disk-steward tap resolves cask version 1.0.0 from the immutable GitHub asset.",
+            "brew style reported no offenses and the online cask audit completed successfully.",
+            "The cask is installed from the verified archive and declares macOS 13 or newer."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-390",
+        "OUTCOME-220",
+        "INTENT-002"
+      ],
+      "recommended_action": "advance to final outcome and intent verification"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-002",
+  "plan_revision": 15,
+  "context_id": "CTX-12C801CB98027B324C5B4395AB648AAB",
+  "previous_event_id": "EVENT-20260914T213420209127Z-8D66FCA1",
+  "previous_event_sha256": "78e91f1bc06116bb1e805f631ea044504c0976414bff3fd7b510abedc27b42b1"
+}
