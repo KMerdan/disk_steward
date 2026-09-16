@@ -139,6 +139,65 @@ final class MonitoringLifecycleTests: XCTestCase {
         XCTAssertEqual(historyCount, 120)
     }
 
+    func testDatabasePressureRunsStartupRecoveryBeforeCircuitBreaker() async throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let watched = directory.appending(path: "watched", directoryHint: .isDirectory)
+        let database = directory.appending(path: "store/evidence.sqlite")
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        var settings = MonitoringSettings.defaults
+        settings.watchedRoots = [watched.path]
+        settings.excludedRoots = []
+        settings.maxDatabaseMiB = 10
+        let source = SequencedDatabasePressureSource(capBytes: 10 * 1_024 * 1_024)
+        let probe = try PersistentMonitoringProbe(
+            databaseURL: database,
+            resourceBudget: ResourceBudget(maximumResidentBytes: 2 * 1_024 * 1_024 * 1_024),
+            resourceMeasurementSource: source.measure
+        )
+
+        let observation = try await probe.sample(settings: settings)
+
+        XCTAssertNotNil(observation.evidenceLifecycle?.lastCompaction)
+        XCTAssertGreaterThanOrEqual(source.callCount, 2)
+        let reader = try EvidenceStore(url: database)
+        let diagnostics = try await reader.diagnostics()
+        XCTAssertEqual(diagnostics.observationCount, 1)
+        await reader.close()
+    }
+
+    func testConfiguredDatabaseLimitIsTheMonitoringSourceOfTruth() async throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let watched = directory.appending(path: "watched", directoryHint: .isDirectory)
+        let database = directory.appending(path: "store/evidence.sqlite")
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        var settings = MonitoringSettings.defaults
+        settings.watchedRoots = [watched.path]
+        settings.excludedRoots = []
+        settings.maxDatabaseMiB = 1_024
+        let probe = try PersistentMonitoringProbe(
+            databaseURL: database,
+            resourceMeasurementSource: { _, underLoad in
+                ResourceMeasurement(
+                    cpuPercent: 0,
+                    residentBytes: 0,
+                    databaseBytes: 600 * 1_024 * 1_024,
+                    pendingEvents: 0,
+                    receivedEvents: 0,
+                    droppedEvents: 0,
+                    underLoad: underLoad
+                )
+            }
+        )
+
+        let observation = try await probe.sample(settings: settings)
+
+        XCTAssertNotNil(observation.evidenceLifecycle)
+    }
+
     func testPersistentProbeCapsOneSafetySliceToARepresentableBatch() async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
         let watched = directory.appending(path: "watched", directoryHint: .isDirectory)
@@ -195,6 +254,36 @@ final class MonitoringLifecycleTests: XCTestCase {
 }
 
 private struct FixtureError: Error {}
+
+private final class SequencedDatabasePressureSource: @unchecked Sendable {
+    private let lock = NSLock()
+    private let capBytes: Int64
+    private var calls = 0
+
+    init(capBytes: Int64) {
+        self.capBytes = capBytes
+    }
+
+    var callCount: Int {
+        lock.withLock { calls }
+    }
+
+    func measure(databaseURL _: URL, underLoad: Bool) -> ResourceMeasurement {
+        let databaseBytes = lock.withLock { () -> Int64 in
+            calls += 1
+            return calls == 1 ? capBytes + 1 : 0
+        }
+        return ResourceMeasurement(
+            cpuPercent: 0,
+            residentBytes: 0,
+            databaseBytes: databaseBytes,
+            pendingEvents: 0,
+            receivedEvents: 0,
+            droppedEvents: 0,
+            underLoad: underLoad
+        )
+    }
+}
 
 private actor FailingThenHealthyProbe: MonitoringProbing {
     private var calls = 0

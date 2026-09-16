@@ -1,0 +1,271 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T073447473139Z-D0DDB45F",
+  "at": "2026-09-16T07:34:47.473049Z",
+  "graph_version": 48,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "GATE-350",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-304 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-16T04:21:56.930481Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-350",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-350/agent-result.json",
+        "docs/tasks/evidence/GATE-350/final-candidate-audit.json"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-350/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-350/final-candidate-audit.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed (184 tests, 0 failures)"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+          "result": "correctly rejected at missing notarization staple with exit 68"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-G350-01",
+          "result": "passed",
+          "reference": "all inherited gates and final candidate workloads pass; the unchanged promotion gate rejects the exact candidate before release"
+        }
+      ],
+      "discovered_risks": [
+        "The archive in /private/tmp is an engineering candidate, not a durable release asset.",
+        "Apple notarization, stapling, Gatekeeper and installed-launch proof remain intentionally unsatisfied external promotion controls."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-350",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-G350-01",
+          "result": "passed",
+          "evidence": [
+            "GATE-310, GATE-320, GATE-330 and GATE-340 remain passed",
+            "TASK-305 is implemented and audited"
+          ]
+        },
+        {
+          "id": "CHECK-G350-02",
+          "result": "passed",
+          "evidence": [
+            "fresh 184-test run has zero failures",
+            "100,000-event storm and 864-cycle soak pass"
+          ]
+        },
+        {
+          "id": "CHECK-G350-03",
+          "result": "passed",
+          "evidence": [
+            "exact universal Developer ID candidate hashes and isolated launch are recorded",
+            "migration survives four interruption checkpoints"
+          ]
+        },
+        {
+          "id": "CHECK-G350-04",
+          "result": "passed",
+          "evidence": [
+            "production verifier exits 68 at missing staple",
+            "no upload, notarization or publication is claimed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-350",
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T07:34:47.472970Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-350",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-350/agent-result.json",
+        "docs/tasks/evidence/GATE-350/final-candidate-audit.json"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-350/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/GATE-350/final-candidate-audit.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed (184 tests, 0 failures)"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+          "result": "correctly rejected at missing notarization staple with exit 68"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-G350-01",
+          "result": "passed",
+          "reference": "all inherited gates and final candidate workloads pass; the unchanged promotion gate rejects the exact candidate before release"
+        }
+      ],
+      "discovered_risks": [
+        "The archive in /private/tmp is an engineering candidate, not a durable release asset.",
+        "Apple notarization, stapling, Gatekeeper and installed-launch proof remain intentionally unsatisfied external promotion controls."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-350",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-G350-INHERITED",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-340 is independently verified after the reopened recovery task",
+            "TASK-305 is independently re-verified against the 1.1.1 build 3 candidate and the production legacy database"
+          ]
+        },
+        {
+          "id": "CHECK-G350-LIVE-UPGRADE",
+          "result": "passed",
+          "evidence": [
+            "the exact installed candidate recovered the 1.6 GB legacy store without loss of current-file truth",
+            "the initial and second-cycle retention runs completed without limitations",
+            "SQLite integrity and foreign-key checks passed after migration",
+            "the process returned to approximately 65 MiB RSS instead of the historical 78-81 GB failure mode"
+          ]
+        },
+        {
+          "id": "CHECK-G350-RELEASE-TRUST",
+          "result": "passed",
+          "evidence": [
+            "the candidate is universal and strictly Developer ID signed with its nested MCP helper",
+            "the isolated launch smoke proves accessory/menu-bar activation",
+            "the unchanged production verifier rejects the unstapled candidate before Gatekeeper or distribution",
+            "publication remains unauthorized and did not occur"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-350",
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance the engineering outcome; keep external release promotion blocked until the exact artifact is notarized, stapled, Gatekeeper accepted, re-verified after installation, and explicitly authorized for publication"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-350",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-G350-INHERITED",
+          "result": "passed",
+          "evidence": [
+            "OUTCOME-340 is independently verified after the reopened recovery task",
+            "TASK-305 is independently re-verified against the 1.1.1 build 3 candidate and the production legacy database"
+          ]
+        },
+        {
+          "id": "CHECK-G350-LIVE-UPGRADE",
+          "result": "passed",
+          "evidence": [
+            "the exact installed candidate recovered the 1.6 GB legacy store without loss of current-file truth",
+            "the initial and second-cycle retention runs completed without limitations",
+            "SQLite integrity and foreign-key checks passed after migration",
+            "the process returned to approximately 65 MiB RSS instead of the historical 78-81 GB failure mode"
+          ]
+        },
+        {
+          "id": "CHECK-G350-RELEASE-TRUST",
+          "result": "passed",
+          "evidence": [
+            "the candidate is universal and strictly Developer ID signed with its nested MCP helper",
+            "the isolated launch smoke proves accessory/menu-bar activation",
+            "the unchanged production verifier rejects the unstapled candidate before Gatekeeper or distribution",
+            "publication remains unauthorized and did not occur"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-350",
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance the engineering outcome; keep external release promotion blocked until the exact artifact is notarized, stapled, Gatekeeper accepted, re-verified after installation, and explicitly authorized for publication"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 2,
+  "context_id": "CTX-FD6612287AE426FA615DC433C5787902",
+  "previous_event_id": "EVENT-20260916T073337539805Z-378F035D",
+  "previous_event_sha256": "b5336f12927966814e3ebb87204aacab16e4f11b23bd75e7dd502c2fa5a2f9d1"
+}

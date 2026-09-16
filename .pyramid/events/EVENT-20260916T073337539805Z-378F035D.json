@@ -1,0 +1,499 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T073337539805Z-378F035D",
+  "at": "2026-09-16T07:33:37.539709Z",
+  "graph_version": 47,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "TASK-305",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-304 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-16T04:21:56.930481Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-305",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/Packaging/DiskSteward-Info.plist",
+        "Config/Packaging/project.yml",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/archive-release",
+        "Scripts/Distribution/finalize-archive-signatures",
+        "Scripts/Distribution/verify-release",
+        "Sources/DiskStewardApp/ApplicationDelegate.swift",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+        "Tests/PerformanceTests/PerformanceTests.swift",
+        "docs/tasks/evidence/TASK-305/agent-result.json",
+        "docs/tasks/evidence/TASK-305/release-candidate-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/Packaging/DiskSteward-Info.plist",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Packaging/project.yml",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Distribution/archive-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/finalize-archive-signatures",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/ApplicationDelegate.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/PerformanceTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-305/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-305/release-candidate-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed (184 tests, 0 failures)"
+        },
+        {
+          "command": "swift test --filter PerformanceTests",
+          "result": "passed (5 tests, including 100,000 events and 864-cycle soak)"
+        },
+        {
+          "command": "Scripts/Distribution/archive-release --release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+          "result": "correctly rejected at missing notarization staple after all local signature controls passed"
+        },
+        {
+          "command": "isolated candidate --ui-smoke",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-305-01",
+          "result": "passed",
+          "reference": "consistent SQLite backup, explicit capacity preflight, validated atomic switch, idempotent schema-6 backfill, and recovery tests at four injected interruption points"
+        },
+        {
+          "criterion": "AC-305-02",
+          "result": "passed",
+          "reference": "184-test workload matrix, 100,000-event overload test, 864-cycle/72-hour-equivalent soak, x86_64+arm64 candidate, and exact candidate launch smoke"
+        },
+        {
+          "criterion": "AC-305-03",
+          "result": "passed",
+          "reference": "production verifier accepts Developer ID/hardened runtime/timestamp/entitlements then blocks the unstapled candidate before Gatekeeper or release"
+        }
+      ],
+      "discovered_risks": [
+        "The rc4 candidate is intentionally not distributable: it has not been submitted to Apple's notarization service and therefore has no staple.",
+        "The release archive is in /private/tmp and is not a published or durable release asset.",
+        "A later authorized promotion must run verify-release again against the exact notarized artifact; no current evidence claims publication."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-305",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-305-01",
+          "result": "passed",
+          "evidence": [
+            "legacy evidence survives validated shadow migration",
+            "insufficient capacity leaves the original untouched",
+            "all four interruption checkpoints recover"
+          ]
+        },
+        {
+          "id": "CHECK-305-02",
+          "result": "passed",
+          "evidence": [
+            "184-test suite",
+            "100,000-event storm",
+            "864-cycle lifecycle soak",
+            "sleep/wake and launch-at-login tests",
+            "streaming export and MCP tests"
+          ]
+        },
+        {
+          "id": "CHECK-305-03",
+          "result": "passed",
+          "evidence": [
+            "1.1.0 build 2 contains x86_64 and arm64",
+            "Developer ID, Team ID, hardened runtime, timestamp, nested signatures and hashes verified",
+            "isolated exact-candidate launch passed"
+          ]
+        },
+        {
+          "id": "CHECK-305-04",
+          "result": "passed",
+          "evidence": [
+            "verify-release stops at missing notarization staple",
+            "no notarization upload or publication occurred",
+            "Gatekeeper and final launch remain non-bypassable promotion gates"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-305",
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T07:33:37.539603Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-305",
+      "outcome": "implemented",
+      "changed_files": [
+        "Config/Packaging/DiskSteward-Info.plist",
+        "Config/Packaging/project.yml",
+        "DiskSteward.xcodeproj/project.pbxproj",
+        "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+        "Scripts/Distribution/archive-release",
+        "Scripts/Distribution/finalize-archive-signatures",
+        "Scripts/Distribution/verify-release",
+        "Sources/DiskStewardApp/ApplicationDelegate.swift",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+        "Tests/PerformanceTests/PerformanceTests.swift",
+        "docs/tasks/evidence/TASK-305/agent-result.json",
+        "docs/tasks/evidence/TASK-305/release-candidate-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Config/Packaging/DiskSteward-Info.plist",
+          "class": "configuration"
+        },
+        {
+          "path": "Config/Packaging/project.yml",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/project.pbxproj",
+          "class": "configuration"
+        },
+        {
+          "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Distribution/archive-release",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/finalize-archive-signatures",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Distribution/verify-release",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/ApplicationDelegate.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusItemController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/PerformanceTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-305/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-305/release-candidate-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test",
+          "result": "passed (184 tests, 0 failures)"
+        },
+        {
+          "command": "swift test --filter PerformanceTests",
+          "result": "passed (5 tests, including 100,000 events and 864-cycle soak)"
+        },
+        {
+          "command": "Scripts/Distribution/archive-release --release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+          "result": "passed"
+        },
+        {
+          "command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+          "result": "correctly rejected at missing notarization staple after all local signature controls passed"
+        },
+        {
+          "command": "isolated candidate --ui-smoke",
+          "result": "passed"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-305-01",
+          "result": "passed",
+          "reference": "consistent SQLite backup, explicit capacity preflight, validated atomic switch, idempotent schema-6 backfill, and recovery tests at four injected interruption points"
+        },
+        {
+          "criterion": "AC-305-02",
+          "result": "passed",
+          "reference": "184-test workload matrix, 100,000-event overload test, 864-cycle/72-hour-equivalent soak, x86_64+arm64 candidate, and exact candidate launch smoke"
+        },
+        {
+          "criterion": "AC-305-03",
+          "result": "passed",
+          "reference": "production verifier accepts Developer ID/hardened runtime/timestamp/entitlements then blocks the unstapled candidate before Gatekeeper or release"
+        }
+      ],
+      "discovered_risks": [
+        "The rc4 candidate is intentionally not distributable: it has not been submitted to Apple's notarization service and therefore has no staple.",
+        "The release archive is in /private/tmp and is not a published or durable release asset.",
+        "A later authorized promotion must run verify-release again against the exact notarized artifact; no current evidence claims publication."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-305",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-305-RECOVERY",
+          "result": "passed",
+          "evidence": [
+            "a durable SQLite-consistent backup and the prior installed app were preserved before migration",
+            "the production 1.6 GB store recovered to 528089088 bytes on startup",
+            "4398152 historical observations were reduced to 949582 while all 99977 current-file records survived",
+            "post-migration quick_check is ok and foreign_key_check reports zero violations"
+          ]
+        },
+        {
+          "id": "CHECK-305-BOUNDS",
+          "result": "passed",
+          "evidence": [
+            "observed peak RSS was 218368 KiB during recovery and stable RSS was approximately 65 MiB",
+            "a second pressure cycle reduced database-family storage from 596466048 to 528551936 bytes without further eviction",
+            "the second sample completed and the observed database family remained below the configured 536870912-byte cap"
+          ]
+        },
+        {
+          "id": "CHECK-305-CANDIDATE",
+          "result": "passed",
+          "evidence": [
+            "1.1.1 build 3 contains x86_64 and arm64 app and MCP-helper binaries",
+            "strict Developer ID nested-signature verification and isolated accessory-app launch smoke passed",
+            "187 tests passed with zero failures"
+          ]
+        },
+        {
+          "id": "CHECK-305-PROMOTION-GATE",
+          "result": "passed",
+          "evidence": [
+            "the production verifier progressed through local artifact checks and rejected the candidate at the missing notarization staple with exit 68",
+            "no notarization upload, GitHub release, Homebrew update, or other publication occurred"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-305",
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance to final candidate gate while keeping public release blocked pending explicit authorization, notarization, stapling, Gatekeeper, and installed-artifact re-verification"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-305",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-305-RECOVERY",
+          "result": "passed",
+          "evidence": [
+            "a durable SQLite-consistent backup and the prior installed app were preserved before migration",
+            "the production 1.6 GB store recovered to 528089088 bytes on startup",
+            "4398152 historical observations were reduced to 949582 while all 99977 current-file records survived",
+            "post-migration quick_check is ok and foreign_key_check reports zero violations"
+          ]
+        },
+        {
+          "id": "CHECK-305-BOUNDS",
+          "result": "passed",
+          "evidence": [
+            "observed peak RSS was 218368 KiB during recovery and stable RSS was approximately 65 MiB",
+            "a second pressure cycle reduced database-family storage from 596466048 to 528551936 bytes without further eviction",
+            "the second sample completed and the observed database family remained below the configured 536870912-byte cap"
+          ]
+        },
+        {
+          "id": "CHECK-305-CANDIDATE",
+          "result": "passed",
+          "evidence": [
+            "1.1.1 build 3 contains x86_64 and arm64 app and MCP-helper binaries",
+            "strict Developer ID nested-signature verification and isolated accessory-app launch smoke passed",
+            "187 tests passed with zero failures"
+          ]
+        },
+        {
+          "id": "CHECK-305-PROMOTION-GATE",
+          "result": "passed",
+          "evidence": [
+            "the production verifier progressed through local artifact checks and rejected the candidate at the missing notarization staple with exit 68",
+            "no notarization upload, GitHub release, Homebrew update, or other publication occurred"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-305",
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance to final candidate gate while keeping public release blocked pending explicit authorization, notarization, stapling, Gatekeeper, and installed-artifact re-verification"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 2,
+  "context_id": "CTX-4C21D69B57370F8281B40DC099901329",
+  "previous_event_id": "EVENT-20260916T051845687065Z-A13423FB",
+  "previous_event_sha256": "2e607524add752ba059f5d178f5751835fa32c68ef17f321948f835ba3245484"
+}

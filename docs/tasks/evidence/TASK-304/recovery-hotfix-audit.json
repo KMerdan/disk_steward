@@ -1,0 +1,50 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-304",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-304-HF-01",
+      "result": "passed",
+      "evidence": [
+        "MonitoringLifecycleTests proves database pressure enters startup retention before the circuit breaker and completes a sample only after pressure clears."
+      ]
+    },
+    {
+      "id": "CHECK-304-HF-02",
+      "result": "passed",
+      "evidence": [
+        "The capacity fixture evicts 20,000 obsolete detailed rows while preserving the current authoritative state.",
+        "A backup of the reported production store converged from 1,717,772,288 bytes to 528,093,240 bytes after 3,448,570 bounded evictions."
+      ]
+    },
+    {
+      "id": "CHECK-304-HF-03",
+      "result": "passed",
+      "evidence": [
+        "Legacy object and scan-generation scope references are retained in foreign-key-safe order.",
+        "Synthetic and production-backup foreign_key_check results both contain zero violations."
+      ]
+    },
+    {
+      "id": "CHECK-304-HF-04",
+      "result": "passed",
+      "evidence": [
+        "The persisted user database limit, rather than an unrelated fixed ResourceBudget default, controls the monitoring storage breaker."
+      ]
+    },
+    {
+      "id": "CHECK-304-HF-05",
+      "result": "passed",
+      "evidence": [
+        "Retention, monitoring lifecycle, export, and MCP focused suites pass.",
+        "The complete 187-test suite and git diff whitespace validation pass."
+      ]
+    }
+  ],
+  "affected_claims": [
+    "TASK-304",
+    "OUTCOME-340"
+  ],
+  "recommended_action": "advance"
+}

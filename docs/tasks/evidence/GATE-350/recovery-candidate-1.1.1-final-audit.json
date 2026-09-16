@@ -1,0 +1,37 @@
+{
+  "schema": "audit-result-v1",
+  "target": "GATE-350",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-G350-INHERITED",
+      "result": "passed",
+      "evidence": [
+        "OUTCOME-340 is independently verified after the reopened recovery task",
+        "TASK-305 is independently re-verified against the 1.1.1 build 3 candidate and the production legacy database"
+      ]
+    },
+    {
+      "id": "CHECK-G350-LIVE-UPGRADE",
+      "result": "passed",
+      "evidence": [
+        "the exact installed candidate recovered the 1.6 GB legacy store without loss of current-file truth",
+        "the initial and second-cycle retention runs completed without limitations",
+        "SQLite integrity and foreign-key checks passed after migration",
+        "the process returned to approximately 65 MiB RSS instead of the historical 78-81 GB failure mode"
+      ]
+    },
+    {
+      "id": "CHECK-G350-RELEASE-TRUST",
+      "result": "passed",
+      "evidence": [
+        "the candidate is universal and strictly Developer ID signed with its nested MCP helper",
+        "the isolated launch smoke proves accessory/menu-bar activation",
+        "the unchanged production verifier rejects the unstapled candidate before Gatekeeper or distribution",
+        "publication remains unauthorized and did not occur"
+      ]
+    }
+  ],
+  "affected_claims": ["GATE-350", "OUTCOME-350", "INTENT-003"],
+  "recommended_action": "advance the engineering outcome; keep external release promotion blocked until the exact artifact is notarized, stapled, Gatekeeper accepted, re-verified after installation, and explicitly authorized for publication"
+}

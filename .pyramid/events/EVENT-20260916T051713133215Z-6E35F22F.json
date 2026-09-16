@@ -1,0 +1,413 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T051713133215Z-6E35F22F",
+  "at": "2026-09-16T05:17:13.133099Z",
+  "graph_version": 44,
+  "actor": "codex-root",
+  "type": "audit.pass",
+  "node": "TASK-304",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T05:16:13.851862Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-304",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+        "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+        "docs/tasks/evidence/TASK-304/recovery-hotfix-verification.json",
+        "docs/tasks/evidence/TASK-304/recovery-hotfix-agent-result.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+          "class": "unknown"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/recovery-hotfix-verification.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/recovery-hotfix-agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Retention",
+          "result": "passed (10 tests)"
+        },
+        {
+          "command": "swift test --filter MonitoringLifecycleTests",
+          "result": "passed (9 tests before final added source-of-truth case; full suite covers 10)"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed (26 tests)"
+        },
+        {
+          "command": "swift test --filter MCP",
+          "result": "passed (23 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (187 tests)"
+        },
+        {
+          "command": "production-backup recovery harness",
+          "result": "passed (1.60 GiB to 503.6 MiB; integrity ok; zero foreign-key violations)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-304-01",
+          "result": "passed",
+          "reference": "Recovery runs before traversal, legacy detailed history is capacity-evictable in bounded batches, configured storage limit is authoritative, and the production backup converged below 512 MiB."
+        },
+        {
+          "criterion": "AC-304-02",
+          "result": "passed",
+          "reference": "Current authoritative file state and explicit unknown records survive capacity recovery; forced precision loss remains recorded as a retention coverage gap."
+        },
+        {
+          "criterion": "AC-304-03",
+          "result": "passed",
+          "reference": "Export and MCP focused suites remain green after storage-recovery changes."
+        }
+      ],
+      "discovered_risks": [
+        "A capacity recovery can perform one bounded VACUUM and temporarily requires additional free disk space; the existing one-VACUUM-per-run guard remains in force.",
+        "The production backup validation is representative of the reported store but does not mutate or automatically repair the user's live database."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-304",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-304-01",
+          "result": "passed",
+          "evidence": [
+            "two unchanged complete generations retain one detailed state row",
+            "storage admission rejects an oversized batch before writing",
+            "DB/WAL/SHM bytes are separately observable"
+          ]
+        },
+        {
+          "id": "CHECK-304-02",
+          "result": "passed",
+          "evidence": [
+            "retention processes 10,050 expired rows as 10,000 plus 50",
+            "capacity eviction has a 64-batch ceiling",
+            "compaction performs at most one VACUUM per run"
+          ]
+        },
+        {
+          "id": "CHECK-304-03",
+          "result": "passed",
+          "evidence": [
+            "cursor mutation produces explicit cursorExpired",
+            "query pages cap at 500",
+            "export-related table caps and limitations are explicit"
+          ]
+        },
+        {
+          "id": "CHECK-304-04",
+          "result": "passed",
+          "evidence": [
+            "10,000 events stream through 64 KiB zlib chunks",
+            "payloads are written and hashed independently",
+            "manual export ownership remains user-controlled"
+          ]
+        },
+        {
+          "id": "CHECK-304-05",
+          "result": "passed",
+          "evidence": [
+            "Retention, Export, and MCP focused suites pass",
+            "full 179-test suite passes",
+            "git diff --check passes"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-304",
+        "OUTCOME-340"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-16T04:21:56.930266Z",
+      "actor": "codex-root",
+      "reason": "Production 1.1.0 database exceeded its budget and entered an unrecoverable pre-retention circuit-breaker state; field evidence also exposed incomplete capacity eviction and foreign-key-unsafe detailed-history compaction.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/incidents/evidence-database-budget-deadlock-2026-09-16.json"
+    }
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T05:17:13.132953Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-304",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+        "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+        "docs/tasks/evidence/TASK-304/recovery-hotfix-verification.json",
+        "docs/tasks/evidence/TASK-304/recovery-hotfix-agent-result.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+          "class": "unknown"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/recovery-hotfix-verification.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/recovery-hotfix-agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Retention",
+          "result": "passed (10 tests)"
+        },
+        {
+          "command": "swift test --filter MonitoringLifecycleTests",
+          "result": "passed (9 tests before final added source-of-truth case; full suite covers 10)"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed (26 tests)"
+        },
+        {
+          "command": "swift test --filter MCP",
+          "result": "passed (23 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (187 tests)"
+        },
+        {
+          "command": "production-backup recovery harness",
+          "result": "passed (1.60 GiB to 503.6 MiB; integrity ok; zero foreign-key violations)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-304-01",
+          "result": "passed",
+          "reference": "Recovery runs before traversal, legacy detailed history is capacity-evictable in bounded batches, configured storage limit is authoritative, and the production backup converged below 512 MiB."
+        },
+        {
+          "criterion": "AC-304-02",
+          "result": "passed",
+          "reference": "Current authoritative file state and explicit unknown records survive capacity recovery; forced precision loss remains recorded as a retention coverage gap."
+        },
+        {
+          "criterion": "AC-304-03",
+          "result": "passed",
+          "reference": "Export and MCP focused suites remain green after storage-recovery changes."
+        }
+      ],
+      "discovered_risks": [
+        "A capacity recovery can perform one bounded VACUUM and temporarily requires additional free disk space; the existing one-VACUUM-per-run guard remains in force.",
+        "The production backup validation is representative of the reported store but does not mutate or automatically repair the user's live database."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-304",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-304-HF-01",
+          "result": "passed",
+          "evidence": [
+            "MonitoringLifecycleTests proves database pressure enters startup retention before the circuit breaker and completes a sample only after pressure clears."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-02",
+          "result": "passed",
+          "evidence": [
+            "The capacity fixture evicts 20,000 obsolete detailed rows while preserving the current authoritative state.",
+            "A backup of the reported production store converged from 1,717,772,288 bytes to 528,093,240 bytes after 3,448,570 bounded evictions."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-03",
+          "result": "passed",
+          "evidence": [
+            "Legacy object and scan-generation scope references are retained in foreign-key-safe order.",
+            "Synthetic and production-backup foreign_key_check results both contain zero violations."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-04",
+          "result": "passed",
+          "evidence": [
+            "The persisted user database limit, rather than an unrelated fixed ResourceBudget default, controls the monitoring storage breaker."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-05",
+          "result": "passed",
+          "evidence": [
+            "Retention, monitoring lifecycle, export, and MCP focused suites pass.",
+            "The complete 187-test suite and git diff whitespace validation pass."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-304",
+        "OUTCOME-340"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-16T04:21:56.930266Z",
+      "actor": "codex-root",
+      "reason": "Production 1.1.0 database exceeded its budget and entered an unrecoverable pre-retention circuit-breaker state; field evidence also exposed incomplete capacity eviction and foreign-key-unsafe detailed-history compaction.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/incidents/evidence-database-budget-deadlock-2026-09-16.json"
+    }
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-304",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-304-HF-01",
+          "result": "passed",
+          "evidence": [
+            "MonitoringLifecycleTests proves database pressure enters startup retention before the circuit breaker and completes a sample only after pressure clears."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-02",
+          "result": "passed",
+          "evidence": [
+            "The capacity fixture evicts 20,000 obsolete detailed rows while preserving the current authoritative state.",
+            "A backup of the reported production store converged from 1,717,772,288 bytes to 528,093,240 bytes after 3,448,570 bounded evictions."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-03",
+          "result": "passed",
+          "evidence": [
+            "Legacy object and scan-generation scope references are retained in foreign-key-safe order.",
+            "Synthetic and production-backup foreign_key_check results both contain zero violations."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-04",
+          "result": "passed",
+          "evidence": [
+            "The persisted user database limit, rather than an unrelated fixed ResourceBudget default, controls the monitoring storage breaker."
+          ]
+        },
+        {
+          "id": "CHECK-304-HF-05",
+          "result": "passed",
+          "evidence": [
+            "Retention, monitoring lifecycle, export, and MCP focused suites pass.",
+            "The complete 187-test suite and git diff whitespace validation pass."
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-304",
+        "OUTCOME-340"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 2,
+  "context_id": "CTX-8B1403265FB133A41084B8A3B8ADC058",
+  "previous_event_id": "EVENT-20260916T051613852106Z-9455D874",
+  "previous_event_sha256": "5b8d0802e78f3ea6bcf7c985ea58faa41663161d720158948d3a355f9d3e7423"
+}

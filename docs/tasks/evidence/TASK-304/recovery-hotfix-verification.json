@@ -1,0 +1,31 @@
+{
+  "schema": "disk-steward-recovery-verification-v1",
+  "incident": "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+  "synthetic_fixture": {
+    "obsolete_detailed_rows": 20000,
+    "current_rows_preserved": 1,
+    "foreign_key_violations": 0,
+    "result": "passed"
+  },
+  "production_backup": {
+    "source_mutated": false,
+    "storage_bytes_before": 1717772288,
+    "storage_bytes_after": 528093240,
+    "file_state_observations_before": 4398152,
+    "file_state_observations_after": 949582,
+    "forced_evictions": 3448570,
+    "present_current_files_after": 99958,
+    "unknown_current_files_after": 19,
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "result": "passed"
+  },
+  "checks": [
+    {"command": "swift test --filter Retention", "tests": 10, "result": "passed"},
+    {"command": "swift test --filter MonitoringLifecycleTests", "tests": 9, "result": "passed"},
+    {"command": "swift test --filter Export", "tests": 26, "result": "passed"},
+    {"command": "swift test --filter MCP", "tests": 23, "result": "passed"},
+    {"command": "swift test", "tests": 187, "result": "passed"},
+    {"command": "git diff --check", "result": "passed"}
+  ]
+}

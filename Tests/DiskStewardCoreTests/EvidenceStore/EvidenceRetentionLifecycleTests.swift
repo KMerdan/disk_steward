@@ -164,6 +164,89 @@ final class EvidenceRetentionLifecycleTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(afterSecond, 0)
     }
 
+    func testCapacityRecoveryEvictsLegacyDetailedHistoryWithoutBreakingCurrentTruth() async throws {
+        let fixture = try RetentionFixture()
+        defer { fixture.cleanup() }
+        var store: EvidenceStore? = try EvidenceStore(url: fixture.databaseURL, dateSource: { self.now })
+        await store!.close()
+        store = nil
+
+        let connection = try SQLiteConnection(url: fixture.databaseURL)
+        defer { connection.close() }
+        try connection.execute("PRAGMA foreign_keys=ON")
+        let nowValue = now.timeIntervalSince1970
+        let oldValue = now.addingTimeInterval(-10 * 86_400).timeIntervalSince1970
+        try connection.execute(
+            """
+            INSERT INTO scope_versions (scope_version_id, effective_at, roots_json, exclusions_json, maximum_entries, maximum_depth)
+            VALUES ('legacy-scope', \(oldValue), '["/fixture"]', '[]', 100000, 20),
+                   ('scan-scope', \(oldValue), '["/scan"]', '[]', 100000, 20);
+
+            INSERT INTO scan_generations (generation_id, scope_version_id, status, started_at, updated_at, completed_at, processed_entry_count, staged_file_count, progress)
+            VALUES ('scan-only', 'scan-scope', 'completed', \(oldValue), \(oldValue), \(oldValue), 0, 0, X'7B7D');
+
+            INSERT INTO observation_runs (observation_id, scope_version_id, trigger, started_at, completed_at, coverage, event_gap)
+            VALUES ('legacy-observation', 'legacy-scope', 'scheduled', \(nowValue - 60), \(nowValue - 60), 'complete', 0),
+                   ('current-observation', 'legacy-scope', 'scheduled', \(nowValue), \(nowValue), 'complete', 0);
+
+            WITH digits(value) AS (VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)),
+                 sequence(number) AS (
+                    SELECT a.value + 10*b.value + 100*c.value + 1000*d.value + 10000*e.value
+                    FROM digits a, digits b, digits c, digits d, digits e
+                    WHERE a.value + 10*b.value + 100*c.value + 1000*d.value + 10000*e.value < 20000
+                 )
+            INSERT INTO file_objects (object_id, identity_method, first_observed_at, last_observed_at, lifecycle_state)
+            SELECT printf('legacy-%05d', number), 'path-temporal', \(oldValue), \(oldValue), 'present'
+            FROM sequence;
+
+            WITH digits(value) AS (VALUES (0),(1),(2),(3),(4),(5),(6),(7),(8),(9)),
+                 sequence(number) AS (
+                    SELECT a.value + 10*b.value + 100*c.value + 1000*d.value + 10000*e.value
+                    FROM digits a, digits b, digits c, digits d, digits e
+                    WHERE a.value + 10*b.value + 100*c.value + 1000*d.value + 10000*e.value < 20000
+                 )
+            INSERT INTO file_state_observations (observation_id, object_id, path, root_path, logical_bytes, allocated_bytes, modified_at, existence, confidence)
+            SELECT 'legacy-observation', printf('legacy-%05d', number),
+                   '/fixture/' || printf('legacy-%05d-', number) || hex(zeroblob(512)),
+                   '/fixture', 1, 4096, \(oldValue), 'present', 'inferred'
+            FROM sequence;
+
+            INSERT INTO file_objects (object_id, identity_method, first_observed_at, last_observed_at, lifecycle_state)
+            VALUES ('current-object', 'path-temporal', \(nowValue), \(nowValue), 'present');
+            INSERT INTO file_state_observations (observation_id, object_id, path, root_path, logical_bytes, allocated_bytes, modified_at, existence, confidence)
+            VALUES ('current-observation', 'current-object', '/fixture/current', '/fixture', 10, 16, \(nowValue), 'present', 'inferred');
+            INSERT INTO current_file_state (object_id, identity_method, path, root_path, scope_version_id, logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable)
+            VALUES ('current-object', 'path-temporal', '/fixture/current', '/fixture', 'legacy-scope', 10, 16, \(nowValue), 'present', 'current-observation', \(nowValue), 1);
+            """
+        )
+        connection.close()
+
+        let capBytes: Int64 = 10 * 1_024 * 1_024
+        store = try EvidenceStore(url: fixture.databaseURL, dateSource: { self.now })
+        let before = try await store!.diagnostics()
+        XCTAssertGreaterThan(before.storageBytes, capBytes)
+
+        let report = try await store!.applyRetention(
+            try EvidenceStoreRetentionPolicy(maxDatabaseBytes: capBytes),
+            trigger: .pressure
+        )
+        let after = try await store!.diagnostics()
+        let current = try await store!.currentFiles(includeNonActionable: true)
+
+        XCTAssertEqual(report.forcedEvictions, 20_000)
+        XCTAssertEqual(after.fileStateObservationCount, 1)
+        XCTAssertLessThanOrEqual(after.storageBytes, capBytes)
+        XCTAssertEqual(current.map(\.objectID), ["current-object"])
+        XCTAssertEqual(current.first?.stateAsOfObservationID, "current-observation")
+        await store!.close()
+        store = nil
+
+        let verifier = try SQLiteConnection(url: fixture.databaseURL)
+        XCTAssertEqual(try verifier.scalarInt("SELECT COUNT(*) FROM pragma_foreign_key_check"), 0)
+        XCTAssertEqual(try verifier.scalarInt("SELECT COUNT(*) FROM scope_versions WHERE scope_version_id = 'scan-scope'"), 1)
+        verifier.close()
+    }
+
     private func event(_ id: String, daysAgo: Int, anomaly: Bool = false) -> EvidenceStoreEvent {
         .init(
             eventID: id,

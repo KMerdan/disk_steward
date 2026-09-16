@@ -5,7 +5,7 @@ Disk Steward continuously monitors realistic developer folders without exhaustin
 
 ## Current State
 
-- Graph version: `40`
+- Graph version: `51`
 - Plan revision: `2`
 - Lifecycle: `completed`
 - Verified primary nodes: `16/16`

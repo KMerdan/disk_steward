@@ -1,0 +1,26 @@
+{
+  "schema": "audit-result-v1",
+  "target": "OUTCOME-350",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-O350-RECOVERY-CANDIDATE",
+      "result": "passed",
+      "evidence": [
+        "TASK-305 and GATE-350 are independently verified after the recovery hotfix",
+        "the exact 1.1.1 build 3 candidate passed tests, signing, architecture, isolated launch, live legacy upgrade, second-cycle recovery, integrity, and bounded-resource checks",
+        "rollback artifacts are durable and verified"
+      ]
+    },
+    {
+      "id": "CHECK-O350-PROMOTION-BOUNDARY",
+      "result": "passed",
+      "evidence": [
+        "the production verifier fails closed at the missing notarization staple",
+        "the engineering candidate is ready for authorized promotion but is not represented as a public release"
+      ]
+    }
+  ],
+  "affected_claims": ["OUTCOME-350", "INTENT-003"],
+  "recommended_action": "advance the bounded/crash-resilient engineering intent while retaining the explicit external release gate"
+}

@@ -1,0 +1,157 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T073547032599Z-5F93591D",
+  "at": "2026-09-16T07:35:47.032505Z",
+  "graph_version": 49,
+  "actor": "codex",
+  "type": "audit.pass",
+  "node": "OUTCOME-350",
+  "before": {
+    "execution": "planned",
+    "verification": "unverified",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-304 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-09-16T04:21:56.930481Z",
+    "last_result": null,
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "OUTCOME-350",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-O350-01",
+          "result": "passed",
+          "evidence": [
+            "schema-1-through-5 migration uses a capacity-preflighted validated shadow and atomic switch",
+            "legacy evidence survives all four injected interruption boundaries"
+          ]
+        },
+        {
+          "id": "CHECK-O350-02",
+          "result": "passed",
+          "evidence": [
+            "fresh install, legacy upgrade, large-root, correctness, sleep/wake, login, export and read-only MCP scenarios pass",
+            "100,000-event overload and 864-cycle/72-hour-equivalent soak pass"
+          ]
+        },
+        {
+          "id": "CHECK-O350-03",
+          "result": "passed",
+          "evidence": [
+            "exact 1.1.0 build 2 candidate is universal, Developer ID signed and isolated-launch tested",
+            "production verifier rejects it at missing notarization staple"
+          ]
+        },
+        {
+          "id": "CHECK-O350-04",
+          "result": "passed",
+          "evidence": [
+            "TASK-305 passed audit",
+            "GATE-350 passed final cumulative audit",
+            "OUTCOME-340 remains verified"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "planned",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T07:35:47.032437Z",
+    "last_result": null,
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "OUTCOME-350",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-O350-RECOVERY-CANDIDATE",
+          "result": "passed",
+          "evidence": [
+            "TASK-305 and GATE-350 are independently verified after the recovery hotfix",
+            "the exact 1.1.1 build 3 candidate passed tests, signing, architecture, isolated launch, live legacy upgrade, second-cycle recovery, integrity, and bounded-resource checks",
+            "rollback artifacts are durable and verified"
+          ]
+        },
+        {
+          "id": "CHECK-O350-PROMOTION-BOUNDARY",
+          "result": "passed",
+          "evidence": [
+            "the production verifier fails closed at the missing notarization staple",
+            "the engineering candidate is ready for authorized promotion but is not represented as a public release"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance the bounded/crash-resilient engineering intent while retaining the explicit external release gate"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "OUTCOME-350",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-O350-RECOVERY-CANDIDATE",
+          "result": "passed",
+          "evidence": [
+            "TASK-305 and GATE-350 are independently verified after the recovery hotfix",
+            "the exact 1.1.1 build 3 candidate passed tests, signing, architecture, isolated launch, live legacy upgrade, second-cycle recovery, integrity, and bounded-resource checks",
+            "rollback artifacts are durable and verified"
+          ]
+        },
+        {
+          "id": "CHECK-O350-PROMOTION-BOUNDARY",
+          "result": "passed",
+          "evidence": [
+            "the production verifier fails closed at the missing notarization staple",
+            "the engineering candidate is ready for authorized promotion but is not represented as a public release"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "OUTCOME-350",
+        "INTENT-003"
+      ],
+      "recommended_action": "advance the bounded/crash-resilient engineering intent while retaining the explicit external release gate"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 2,
+  "context_id": "CTX-09D96F181D1C3908547EBDA252F6392A",
+  "previous_event_id": "EVENT-20260916T073447473139Z-D0DDB45F",
+  "previous_event_sha256": "2bd2957e2038bfae7db642d43ef5470305de1844cf2a6bd98d63c4dcb94301f6"
+}

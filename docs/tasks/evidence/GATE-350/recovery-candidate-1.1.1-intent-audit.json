@@ -1,0 +1,36 @@
+{
+  "schema": "audit-result-v1",
+  "target": "INTENT-003",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-INTENT-BOUNDED",
+      "result": "passed",
+      "evidence": [
+        "every cumulative task, outcome, and gate is verified after reopening the production incident path",
+        "the production legacy store recovered below its configured cap and remained bounded through a second cycle",
+        "memory returned to a stable approximately 65 MiB after a bounded recovery peak"
+      ]
+    },
+    {
+      "id": "CHECK-INTENT-CORRECT",
+      "result": "passed",
+      "evidence": [
+        "all 99977 current-file records survived migration",
+        "present and unknown lifecycle states remain explicit",
+        "SQLite integrity and foreign-key checks pass",
+        "187 deterministic tests, the 100000-event storm, and the 864-cycle soak pass"
+      ]
+    },
+    {
+      "id": "CHECK-INTENT-TRUST",
+      "result": "passed",
+      "evidence": [
+        "the installed engineering candidate is universal, Developer ID signed, and accessory-launch verified",
+        "release verification remains fail-closed at notarization and no publication occurred"
+      ]
+    }
+  ],
+  "affected_claims": ["INTENT-003"],
+  "recommended_action": "close the engineering intent; open a separately authorized promotion cycle for notarization and public 1.1.1 distribution"
+}

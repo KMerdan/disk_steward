@@ -1437,7 +1437,8 @@ public actor EvidenceStore {
             var bytes = storageBytes()
             var recordedForcedLoss = false
             var evictionBatches = 0
-            let maximumEvictionBatches = 64
+            let capacityEvictionBatchLimit = 10_000
+            let maximumEvictionBatches = 512
             while bytes > policy.maxDatabaseBytes,
                   try reclaimableStorageBytes(connection: connection) > policy.maxDatabaseBytes,
                   evictionBatches < maximumEvictionBatches
@@ -1447,7 +1448,7 @@ public actor EvidenceStore {
                     try insertRetentionGap(runID: runID, at: startedAt, connection: connection)
                     recordedForcedLoss = true
                 }
-                let removed = try evictOldestBatch(limit: 1_000)
+                let removed = try evictOldestBatch(limit: capacityEvictionBatchLimit)
                 forcedEvictions += removed
                 evictionBatches += 1
                 try updateRetentionGap(runID: runID, rowsRemoved: forcedEvictions, connection: connection)
@@ -1457,7 +1458,7 @@ public actor EvidenceStore {
             if evictionBatches == maximumEvictionBatches,
                try reclaimableStorageBytes(connection: connection) > policy.maxDatabaseBytes
             {
-                limitations.append("Capacity eviction stopped after 64 bounded batches; a later pressure retention run will continue the work.")
+                limitations.append("Capacity eviction stopped after 512 bounded batches; a later pressure retention run will continue the work.")
             }
             // Compact at most once per retention run. Repeated VACUUM operations can
             // transiently double disk use and were a second resource-amplification path.
@@ -2630,14 +2631,14 @@ public actor EvidenceStore {
         try connection.execute(
             "DELETE FROM file_state_observations WHERE observation_id IN (SELECT observation_id FROM observation_runs WHERE completed_at < \(rawCutoff)) AND observation_id NOT IN (SELECT state_as_of_observation_id FROM current_file_state)"
         )
-        let unreferencedObjects = "object_id NOT IN (SELECT object_id FROM current_file_state) AND object_id NOT IN (SELECT object_id FROM change_events) AND last_observed_at < \(rawCutoff)"
+        let unreferencedObjects = "object_id NOT IN (SELECT object_id FROM current_file_state) AND object_id NOT IN (SELECT object_id FROM change_events) AND object_id NOT IN (SELECT object_id FROM file_state_observations) AND last_observed_at < \(rawCutoff)"
         try connection.execute("DELETE FROM path_bindings WHERE object_id IN (SELECT object_id FROM file_objects WHERE \(unreferencedObjects))")
         try connection.execute("DELETE FROM file_objects WHERE \(unreferencedObjects)")
         try connection.execute(
-            "DELETE FROM observation_runs WHERE completed_at < \(rawCutoff) AND observation_id NOT IN (SELECT state_as_of_observation_id FROM current_file_state) AND observation_id NOT IN (SELECT after_observation_id FROM change_events) AND observation_id NOT IN (SELECT observation_id FROM coverage_gaps)"
+            "DELETE FROM observation_runs WHERE completed_at < \(rawCutoff) AND observation_id NOT IN (SELECT observation_id FROM file_state_observations) AND observation_id NOT IN (SELECT state_as_of_observation_id FROM current_file_state) AND observation_id NOT IN (SELECT after_observation_id FROM change_events) AND observation_id NOT IN (SELECT observation_id FROM coverage_gaps)"
         )
         try connection.execute(
-            "DELETE FROM scope_versions WHERE scope_version_id NOT IN (SELECT scope_version_id FROM observation_runs) AND scope_version_id NOT IN (SELECT scope_version_id FROM current_file_state)"
+            "DELETE FROM scope_versions WHERE scope_version_id NOT IN (SELECT scope_version_id FROM observation_runs) AND scope_version_id NOT IN (SELECT scope_version_id FROM current_file_state) AND scope_version_id NOT IN (SELECT scope_version_id FROM scan_generations)"
         )
         try connection.execute(
             "DELETE FROM agent_sessions WHERE lifecycle != 'active' AND COALESCE(ended_at, expires_at) < \(dailyCutoff)"
@@ -2857,30 +2858,90 @@ public actor EvidenceStore {
 
     private func evictOldestBatch(limit: Int) throws -> Int {
         let connection = try requireConnection()
-        let candidates = [
+        var candidates: [(table: String, timeColumn: String, timestamp: Double, observationID: String?)] = try [
             (table: "events", time: "observed_at"),
             (table: "hourly_summaries", time: "bucket_start"),
             (table: "daily_summaries", time: "bucket_start"),
             (table: "snapshots", time: "observed_at"),
-        ]
-        let oldest = try candidates.compactMap { candidate -> (String, String, Double)? in
+        ].compactMap { candidate -> (table: String, timeColumn: String, timestamp: Double, observationID: String?)? in
             try connection.withStatement("SELECT MIN(\(candidate.time)) FROM \(candidate.table)") { statement in
                 guard sqlite3_step(statement) == SQLITE_ROW,
                       sqlite3_column_type(statement, 0) != SQLITE_NULL
                 else { return nil }
-                return (candidate.table, candidate.time, sqlite3_column_double(statement, 0))
+                return (candidate.table, candidate.time, sqlite3_column_double(statement, 0), nil)
             }
-        }.min { $0.2 < $1.2 }
-        guard let (table, timeColumn, _) = oldest else { return 0 }
-        let before = Int(try connection.scalarInt("SELECT COUNT(*) FROM \(table)"))
+        }
+        if let detailed = try oldestEvictableDetailedObservation(connection: connection) {
+            candidates.append(("file_state_observations", "completed_at", detailed.completedAt, detailed.observationID))
+        }
+        guard let oldest = candidates.min(by: { $0.timestamp < $1.timestamp }) else { return 0 }
+
+        if oldest.table == "file_state_observations", let observationID = oldest.observationID {
+            try connection.withStatement(
+                """
+                DELETE FROM file_state_observations
+                WHERE rowid IN (
+                    SELECT history.rowid
+                    FROM file_state_observations AS history
+                    WHERE history.observation_id = ?
+                      AND NOT EXISTS (
+                          SELECT 1 FROM current_file_state AS current
+                          WHERE current.object_id = history.object_id
+                            AND current.state_as_of_observation_id = history.observation_id
+                      )
+                    ORDER BY history.object_id
+                    LIMIT ?
+                )
+                """
+            ) { statement in
+                try connection.bind(observationID, at: 1, in: statement)
+                try connection.bind(Int64(limit), at: 2, in: statement)
+                try connection.stepDone(statement)
+            }
+            return Int(try connection.scalarInt("SELECT changes()"))
+        }
+
+        let table = oldest.table
+        let timeColumn = oldest.timeColumn
         try connection.execute(
             "DELETE FROM \(table) WHERE rowid IN (SELECT rowid FROM \(table) ORDER BY \(timeColumn), rowid LIMIT \(limit))"
         )
-        return before - Int(try connection.scalarInt("SELECT COUNT(*) FROM \(table)"))
+        return Int(try connection.scalarInt("SELECT changes()"))
     }
 
     private func hasEvictableHistory(connection: SQLiteConnection) throws -> Bool {
-        try connection.scalarInt("SELECT (SELECT COUNT(*) FROM events) + (SELECT COUNT(*) FROM hourly_summaries) + (SELECT COUNT(*) FROM daily_summaries) + (SELECT COUNT(*) FROM snapshots)") > 0
+        if try connection.scalarInt("SELECT EXISTS(SELECT 1 FROM events) OR EXISTS(SELECT 1 FROM hourly_summaries) OR EXISTS(SELECT 1 FROM daily_summaries) OR EXISTS(SELECT 1 FROM snapshots)") != 0 {
+            return true
+        }
+        return try oldestEvictableDetailedObservation(connection: connection) != nil
+    }
+
+    private func oldestEvictableDetailedObservation(
+        connection: SQLiteConnection
+    ) throws -> (observationID: String, completedAt: Double)? {
+        try connection.withStatement(
+            """
+            SELECT run.observation_id, run.completed_at
+            FROM observation_runs AS run
+            WHERE EXISTS (
+                SELECT 1
+                FROM file_state_observations AS history
+                WHERE history.observation_id = run.observation_id
+                  AND NOT EXISTS (
+                      SELECT 1 FROM current_file_state AS current
+                      WHERE current.object_id = history.object_id
+                        AND current.state_as_of_observation_id = history.observation_id
+                  )
+            )
+            ORDER BY run.completed_at, run.observation_id
+            LIMIT 1
+            """
+        ) { statement in
+            guard sqlite3_step(statement) == SQLITE_ROW,
+                  let identifier = sqlite3_column_text(statement, 0)
+            else { return nil }
+            return (String(cString: identifier), sqlite3_column_double(statement, 1))
+        }
     }
 
     private func storageBytes() -> Int64 {

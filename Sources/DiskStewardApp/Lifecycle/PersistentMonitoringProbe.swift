@@ -94,7 +94,8 @@ actor PersistentMonitoringProbe: MonitoringProbing {
             maximumDepth: configuredPolicy.maximumDepth,
             coalescingWindow: configuredPolicy.coalescingWindow
         )
-        try enforceResourceBudget(settings: settings, underLoad: false)
+        let retentionPolicy = try settings.retentionPolicy()
+        try await recoverStorageBeforeSampling(settings: settings, policy: retentionPolicy, now: now)
         let (snapshot, volumeGrowth) = try volumeSampler.sample(after: previousStorage)
         let scope = policy.scopeVersion(at: now)
         let generation = try await store.beginOrResumeScanGeneration(scope: scope, at: now)
@@ -125,7 +126,6 @@ actor PersistentMonitoringProbe: MonitoringProbing {
             scopeLimitations: volumeGrowth.limitations + policy.scopeLimitations(at: now) + scanLimitations
         )
 
-        let retentionPolicy = try settings.retentionPolicy()
         let diagnostics = try await store.diagnostics()
         // Retention may remove unreferenced scope rows. A partial generation
         // still owns its scope and must finish or be abandoned first.
@@ -163,15 +163,65 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         resourceHistory.samples
     }
 
+    /// Storage pressure is recoverable work, unlike memory or queue pressure.
+    /// Run retention before the database circuit breaker so an over-budget
+    /// legacy store cannot permanently lock itself out of its own cleanup path.
+    private func recoverStorageBeforeSampling(
+        settings: MonitoringSettings,
+        policy: EvidenceStoreRetentionPolicy,
+        now: Date
+    ) async throws {
+        let initial = resourceMeasurement(underLoad: false)
+        try enforceNonDatabaseBudget(initial, settings: settings)
+
+        let diagnostics = try await store.diagnostics()
+        let observedStorage = max(initial.databaseBytes, diagnostics.storageBytes)
+        if let trigger = RetentionSchedule().trigger(
+            lastRunAt: lastRetentionAt,
+            now: now,
+            databaseBytes: observedStorage,
+            capBytes: policy.maxDatabaseBytes
+        ) {
+            _ = try await store.applyRetention(policy, trigger: trigger)
+            lastRetentionAt = now
+            try enforceResourceBudget(settings: settings, underLoad: false)
+        } else {
+            try enforce(initial, settings: settings)
+        }
+    }
+
     private func enforceResourceBudget(settings: MonitoringSettings, underLoad: Bool) throws {
+        try enforce(resourceMeasurement(underLoad: underLoad), settings: settings)
+    }
+
+    private func resourceMeasurement(underLoad: Bool) -> ResourceMeasurement {
         let measurement = resourceMeasurementSource(databaseURL, underLoad)
         resourceHistory.append(measurement)
+        return measurement
+    }
+
+    private func enforceNonDatabaseBudget(_ measurement: ResourceMeasurement, settings: MonitoringSettings) throws {
+        let withoutDatabasePressure = ResourceMeasurement(
+            cpuPercent: measurement.cpuPercent,
+            residentBytes: measurement.residentBytes,
+            databaseBytes: 0,
+            pendingEvents: measurement.pendingEvents,
+            receivedEvents: measurement.receivedEvents,
+            droppedEvents: measurement.droppedEvents,
+            underLoad: measurement.underLoad
+        )
+        try enforce(withoutDatabasePressure, settings: settings)
+    }
+
+    private func enforce(_ measurement: ResourceMeasurement, settings: MonitoringSettings) throws {
         let configuredDatabaseBytes = Int64(settings.maxDatabaseMiB) * 1_024 * 1_024
         let effective = ResourceBudget(
             maximumIdleCPUPercent: resourceBudget.maximumIdleCPUPercent,
             maximumLoadCPUPercent: resourceBudget.maximumLoadCPUPercent,
             maximumResidentBytes: resourceBudget.maximumResidentBytes,
-            maximumDatabaseBytes: min(resourceBudget.maximumDatabaseBytes, configuredDatabaseBytes),
+            // The persisted retention setting is the single source of truth for
+            // live-store capacity. ResourceBudget still owns process limits.
+            maximumDatabaseBytes: configuredDatabaseBytes,
             maximumPendingEvents: resourceBudget.maximumPendingEvents,
             maximumLossRatio: resourceBudget.maximumLossRatio
         )

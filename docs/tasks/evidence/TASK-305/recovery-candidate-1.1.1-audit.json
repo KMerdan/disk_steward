@@ -1,0 +1,45 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-305",
+  "result": "pass",
+  "checks": [
+    {
+      "id": "CHECK-305-RECOVERY",
+      "result": "passed",
+      "evidence": [
+        "a durable SQLite-consistent backup and the prior installed app were preserved before migration",
+        "the production 1.6 GB store recovered to 528089088 bytes on startup",
+        "4398152 historical observations were reduced to 949582 while all 99977 current-file records survived",
+        "post-migration quick_check is ok and foreign_key_check reports zero violations"
+      ]
+    },
+    {
+      "id": "CHECK-305-BOUNDS",
+      "result": "passed",
+      "evidence": [
+        "observed peak RSS was 218368 KiB during recovery and stable RSS was approximately 65 MiB",
+        "a second pressure cycle reduced database-family storage from 596466048 to 528551936 bytes without further eviction",
+        "the second sample completed and the observed database family remained below the configured 536870912-byte cap"
+      ]
+    },
+    {
+      "id": "CHECK-305-CANDIDATE",
+      "result": "passed",
+      "evidence": [
+        "1.1.1 build 3 contains x86_64 and arm64 app and MCP-helper binaries",
+        "strict Developer ID nested-signature verification and isolated accessory-app launch smoke passed",
+        "187 tests passed with zero failures"
+      ]
+    },
+    {
+      "id": "CHECK-305-PROMOTION-GATE",
+      "result": "passed",
+      "evidence": [
+        "the production verifier progressed through local artifact checks and rejected the candidate at the missing notarization staple with exit 68",
+        "no notarization upload, GitHub release, Homebrew update, or other publication occurred"
+      ]
+    }
+  ],
+  "affected_claims": ["TASK-305", "OUTCOME-350", "INTENT-003"],
+  "recommended_action": "advance to final candidate gate while keeping public release blocked pending explicit authorization, notarization, stapling, Gatekeeper, and installed-artifact re-verification"
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "disk-steward-incident-evidence-v1",
+  "observed_at": "2026-09-16T13:11:00+09:00",
+  "release": "1.1.0 (2)",
+  "symptom": "Detailed sampling stopped by the safety circuit breaker: Evidence-database budget exceeded.",
+  "database": {
+    "configured_cap_mib": 512,
+    "file_size_mib": 1638,
+    "page_count": 419370,
+    "freelist_count": 1,
+    "current_file_state_rows": 99977,
+    "file_state_observation_rows": 4398152,
+    "dominant_table_mib": 1183,
+    "dominant_index_mib": 256.5
+  },
+  "retention": {
+    "latest_result": "failed",
+    "latest_error": "SQLite error 19: FOREIGN KEY constraint failed",
+    "prior_limitation": "The database remains above its cap because no evictable history remains; live current-state truth was preserved."
+  },
+  "code_findings": [
+    "The monitoring probe enforces the database budget before pressure retention can run.",
+    "The effective cap is the lower of the user setting and a fixed 512 MiB resource budget.",
+    "Capacity eviction omits file_state_observations even though it is the dominant historical table.",
+    "Detailed-history deletion can violate observation-run foreign-key references."
+  ],
+  "safety_requirements": [
+    "Never infer file deletion from retention or incomplete coverage.",
+    "Preserve current_file_state and every observation run it references.",
+    "Run recovery before permitting another detailed scan.",
+    "Bound every recovery batch and report precision loss explicitly."
+  ]
+}

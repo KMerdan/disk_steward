@@ -1,12 +1,12 @@
 {
   "schema": "pyramid-graph-v1",
-  "generated_at": "2026-09-16T03:35:13.623570Z",
-  "graph_version": 40,
+  "generated_at": "2026-09-16T07:37:06.585255Z",
+  "graph_version": 51,
   "context": {
-    "id": "CTX-E0FC095A062D3FADCEE9297C3C319811",
+    "id": "CTX-0A75639007AD6CCFEA1B26E3D44965A8",
     "plan_id": "PLAN-DISK-STEWARD-003",
     "plan_revision": 2,
-    "graph_version": 40
+    "graph_version": 51
   },
   "plan_id": "PLAN-DISK-STEWARD-003",
   "title": "Bounded and Crash-Resilient Disk Steward",
@@ -66,9 +66,9 @@
   },
   "lifecycle": {
     "status": "completed",
-    "completed_at": "2026-09-16T03:35:13.538433Z",
-    "completed_by": "codex-root",
-    "completion_report": ".pyramid/reports/FINAL-PLAN-DISK-STEWARD-003-R2-G40.json",
+    "completed_at": "2026-09-16T07:37:06.473965Z",
+    "completed_by": "codex",
+    "completion_report": ".pyramid/reports/FINAL-PLAN-DISK-STEWARD-003-R2-G51.json",
     "change_dossier": null,
     "archived_at": null,
     "archived_by": null,
@@ -142,7 +142,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-16T03:34:37.153382Z",
+        "updated_at": "2026-09-16T07:36:30.452865Z",
         "last_result": null,
         "last_audit": {
           "schema": "audit-result-v1",
@@ -150,42 +150,37 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-I003-01",
+              "id": "CHECK-INTENT-BOUNDED",
               "result": "passed",
               "evidence": [
-                "all five outcomes and all five increment gates are verified",
-                "fresh cumulative suite passes 184 tests with zero failures"
+                "every cumulative task, outcome, and gate is verified after reopening the production incident path",
+                "the production legacy store recovered below its configured cap and remained bounded through a second cycle",
+                "memory returned to a stable approximately 65 MiB after a bounded recovery peak"
               ]
             },
             {
-              "id": "CHECK-I003-02",
+              "id": "CHECK-INTENT-CORRECT",
               "result": "passed",
               "evidence": [
-                "resource measurement, circuit breaking and bounded slices prevent the historic unbounded-memory failure mode",
-                "streaming traversal and fair resumable cursors bound large-root work"
+                "all 99977 current-file records survived migration",
+                "present and unknown lifecycle states remain explicit",
+                "SQLite integrity and foreign-key checks pass",
+                "187 deterministic tests, the 100000-event storm, and the 864-cycle soak pass"
               ]
             },
             {
-              "id": "CHECK-I003-03",
+              "id": "CHECK-INTENT-TRUST",
               "result": "passed",
               "evidence": [
-                "atomic reconciliation and recoverable migration preserve explainable evidence across interruption",
-                "retention, query, provenance and export consumers are bounded"
-              ]
-            },
-            {
-              "id": "CHECK-I003-04",
-              "result": "passed",
-              "evidence": [
-                "exact signed universal candidate passes isolated launch and deterministic 72-hour-equivalent lifecycle soak",
-                "release gate correctly rejects promotion before notarization, stapling, Gatekeeper and installed-launch proof"
+                "the installed engineering candidate is universal, Developer ID signed, and accessory-launch verified",
+                "release verification remains fail-closed at notarization and no publication occurred"
               ]
             }
           ],
           "affected_claims": [
             "INTENT-003"
           ],
-          "recommended_action": "close-intent"
+          "recommended_action": "close the engineering intent; open a separately authorized promotion cycle for notarization and public 1.1.1 distribution"
         },
         "last_reopen": null
       },
@@ -255,7 +250,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-16T03:33:55.567407Z",
+        "updated_at": "2026-09-16T07:35:47.032437Z",
         "last_result": null,
         "last_audit": {
           "schema": "audit-result-v1",
@@ -263,36 +258,20 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-O350-01",
+              "id": "CHECK-O350-RECOVERY-CANDIDATE",
               "result": "passed",
               "evidence": [
-                "schema-1-through-5 migration uses a capacity-preflighted validated shadow and atomic switch",
-                "legacy evidence survives all four injected interruption boundaries"
+                "TASK-305 and GATE-350 are independently verified after the recovery hotfix",
+                "the exact 1.1.1 build 3 candidate passed tests, signing, architecture, isolated launch, live legacy upgrade, second-cycle recovery, integrity, and bounded-resource checks",
+                "rollback artifacts are durable and verified"
               ]
             },
             {
-              "id": "CHECK-O350-02",
+              "id": "CHECK-O350-PROMOTION-BOUNDARY",
               "result": "passed",
               "evidence": [
-                "fresh install, legacy upgrade, large-root, correctness, sleep/wake, login, export and read-only MCP scenarios pass",
-                "100,000-event overload and 864-cycle/72-hour-equivalent soak pass"
-              ]
-            },
-            {
-              "id": "CHECK-O350-03",
-              "result": "passed",
-              "evidence": [
-                "exact 1.1.0 build 2 candidate is universal, Developer ID signed and isolated-launch tested",
-                "production verifier rejects it at missing notarization staple"
-              ]
-            },
-            {
-              "id": "CHECK-O350-04",
-              "result": "passed",
-              "evidence": [
-                "TASK-305 passed audit",
-                "GATE-350 passed final cumulative audit",
-                "OUTCOME-340 remains verified"
+                "the production verifier fails closed at the missing notarization staple",
+                "the engineering candidate is ready for authorized promotion but is not represented as a public release"
               ]
             }
           ],
@@ -300,7 +279,7 @@
             "OUTCOME-350",
             "INTENT-003"
           ],
-          "recommended_action": "advance"
+          "recommended_action": "advance the bounded/crash-resilient engineering intent while retaining the explicit external release gate"
         },
         "last_reopen": null
       },
@@ -377,7 +356,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-16T03:28:09.351562Z",
+        "updated_at": "2026-09-16T05:18:45.686818Z",
         "last_result": null,
         "last_audit": {
           "schema": "audit-result-v1",
@@ -385,24 +364,24 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-340-01",
+              "id": "CHECK-O340-HF-01",
               "result": "passed",
               "evidence": [
-                "TASK-304 change-only storage, admission, retention, pagination, and export controls are verified"
+                "The repaired candidate recovers an over-budget production-shaped evidence store before scanning and converges below the configured cap."
               ]
             },
             {
-              "id": "CHECK-340-02",
+              "id": "CHECK-O340-HF-02",
               "result": "passed",
               "evidence": [
-                "GATE-340 confirms every evidence consumer has a finite budget and controlled degradation remains visible"
+                "All 187 current tests re-establish inherited containment, traversal, evidence correctness, export, UI, and MCP behavior."
               ]
             },
             {
-              "id": "CHECK-340-03",
+              "id": "CHECK-O340-HF-03",
               "result": "passed",
               "evidence": [
-                "all inherited behavior passes in the 179-test suite"
+                "Current truth is preserved, capacity loss is explicit, and SQLite integrity and foreign-key checks pass after recovery."
               ]
             }
           ],
@@ -502,7 +481,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-16T03:33:29.156755Z",
+        "updated_at": "2026-09-16T07:34:47.472970Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "GATE-350",
@@ -555,35 +534,31 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-G350-01",
+              "id": "CHECK-G350-INHERITED",
               "result": "passed",
               "evidence": [
-                "GATE-310, GATE-320, GATE-330 and GATE-340 remain passed",
-                "TASK-305 is implemented and audited"
+                "OUTCOME-340 is independently verified after the reopened recovery task",
+                "TASK-305 is independently re-verified against the 1.1.1 build 3 candidate and the production legacy database"
               ]
             },
             {
-              "id": "CHECK-G350-02",
+              "id": "CHECK-G350-LIVE-UPGRADE",
               "result": "passed",
               "evidence": [
-                "fresh 184-test run has zero failures",
-                "100,000-event storm and 864-cycle soak pass"
+                "the exact installed candidate recovered the 1.6 GB legacy store without loss of current-file truth",
+                "the initial and second-cycle retention runs completed without limitations",
+                "SQLite integrity and foreign-key checks passed after migration",
+                "the process returned to approximately 65 MiB RSS instead of the historical 78-81 GB failure mode"
               ]
             },
             {
-              "id": "CHECK-G350-03",
+              "id": "CHECK-G350-RELEASE-TRUST",
               "result": "passed",
               "evidence": [
-                "exact universal Developer ID candidate hashes and isolated launch are recorded",
-                "migration survives four interruption checkpoints"
-              ]
-            },
-            {
-              "id": "CHECK-G350-04",
-              "result": "passed",
-              "evidence": [
-                "production verifier exits 68 at missing staple",
-                "no upload, notarization or publication is claimed"
+                "the candidate is universal and strictly Developer ID signed with its nested MCP helper",
+                "the isolated launch smoke proves accessory/menu-bar activation",
+                "the unchanged production verifier rejects the unstapled candidate before Gatekeeper or distribution",
+                "publication remains unauthorized and did not occur"
               ]
             }
           ],
@@ -592,7 +567,7 @@
             "OUTCOME-350",
             "INTENT-003"
           ],
-          "recommended_action": "advance"
+          "recommended_action": "advance the engineering outcome; keep external release promotion blocked until the exact artifact is notarized, stapled, Gatekeeper accepted, re-verified after installation, and explicitly authorized for publication"
         },
         "last_reopen": null
       },
@@ -709,7 +684,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-16T03:31:43.389000Z",
+        "updated_at": "2026-09-16T07:33:37.539603Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-305",
@@ -865,41 +840,39 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-305-01",
+              "id": "CHECK-305-RECOVERY",
               "result": "passed",
               "evidence": [
-                "legacy evidence survives validated shadow migration",
-                "insufficient capacity leaves the original untouched",
-                "all four interruption checkpoints recover"
+                "a durable SQLite-consistent backup and the prior installed app were preserved before migration",
+                "the production 1.6 GB store recovered to 528089088 bytes on startup",
+                "4398152 historical observations were reduced to 949582 while all 99977 current-file records survived",
+                "post-migration quick_check is ok and foreign_key_check reports zero violations"
               ]
             },
             {
-              "id": "CHECK-305-02",
+              "id": "CHECK-305-BOUNDS",
               "result": "passed",
               "evidence": [
-                "184-test suite",
-                "100,000-event storm",
-                "864-cycle lifecycle soak",
-                "sleep/wake and launch-at-login tests",
-                "streaming export and MCP tests"
+                "observed peak RSS was 218368 KiB during recovery and stable RSS was approximately 65 MiB",
+                "a second pressure cycle reduced database-family storage from 596466048 to 528551936 bytes without further eviction",
+                "the second sample completed and the observed database family remained below the configured 536870912-byte cap"
               ]
             },
             {
-              "id": "CHECK-305-03",
+              "id": "CHECK-305-CANDIDATE",
               "result": "passed",
               "evidence": [
-                "1.1.0 build 2 contains x86_64 and arm64",
-                "Developer ID, Team ID, hardened runtime, timestamp, nested signatures and hashes verified",
-                "isolated exact-candidate launch passed"
+                "1.1.1 build 3 contains x86_64 and arm64 app and MCP-helper binaries",
+                "strict Developer ID nested-signature verification and isolated accessory-app launch smoke passed",
+                "187 tests passed with zero failures"
               ]
             },
             {
-              "id": "CHECK-305-04",
+              "id": "CHECK-305-PROMOTION-GATE",
               "result": "passed",
               "evidence": [
-                "verify-release stops at missing notarization staple",
-                "no notarization upload or publication occurred",
-                "Gatekeeper and final launch remain non-bypassable promotion gates"
+                "the production verifier progressed through local artifact checks and rejected the candidate at the missing notarization staple with exit 68",
+                "no notarization upload, GitHub release, Homebrew update, or other publication occurred"
               ]
             }
           ],
@@ -908,7 +881,7 @@
             "OUTCOME-350",
             "INTENT-003"
           ],
-          "recommended_action": "advance"
+          "recommended_action": "advance to final candidate gate while keeping public release blocked pending explicit authorization, notarization, stapling, Gatekeeper, and installed-artifact re-verification"
         },
         "last_reopen": null
       },
@@ -1119,7 +1092,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-16T03:28:09.351562Z",
+        "updated_at": "2026-09-16T05:18:07.940460Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "GATE-340",
@@ -1161,24 +1134,45 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-G340-01",
+              "id": "CHECK-G340-HF-CONSTRUCT",
               "result": "passed",
               "evidence": [
-                "every ingestion, traversal, reconciliation, history, query, retention, and export boundary has a finite limit"
+                "The package builds and all 187 tests pass on the current candidate."
               ]
             },
             {
-              "id": "CHECK-G340-02",
+              "id": "CHECK-G340-HF-ENTRY",
               "result": "passed",
               "evidence": [
-                "loss, partial traversal, stale revision, and capacity pressure remain explicitly visible"
+                "PersistentMonitoringProbe enters the same startup sampling path used by the installed menu-bar application and performs retention before traversal under database pressure."
               ]
             },
             {
-              "id": "CHECK-G340-03",
+              "id": "CHECK-G340-HF-SCENARIO",
               "result": "passed",
               "evidence": [
-                "swift test: 179 tests passed with 0 failures"
+                "A consistent backup of the reported 1.60 GiB store recovered below its 512 MiB cap without modifying the live source database."
+              ]
+            },
+            {
+              "id": "CHECK-G340-HF-INHERITED",
+              "result": "passed",
+              "evidence": [
+                "Current-state, incomplete-coverage, export, and read-only MCP regression suites pass against the repaired candidate."
+              ]
+            },
+            {
+              "id": "CHECK-G340-HF-SAFETY",
+              "result": "passed",
+              "evidence": [
+                "Current truth survives forced history eviction; retention records precision loss; synthetic and production-backup integrity and foreign-key checks pass."
+              ]
+            },
+            {
+              "id": "CHECK-G340-HF-REPRODUCTION",
+              "result": "passed",
+              "evidence": [
+                "docs/tasks/evidence/TASK-304/recovery-hotfix-verification.json records fixture sizes, before/after production-backup metrics, and reproducible test commands."
               ]
             }
           ],
@@ -1302,54 +1296,32 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-16T03:28:09.351562Z",
+        "updated_at": "2026-09-16T05:17:13.132953Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-304",
           "outcome": "implemented",
           "changed_files": [
+            "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
             "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
-            "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
-            "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
-            "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
-            "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
-            "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
-            "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+            "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
             "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
-            "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
-            "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
-            "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
-            "docs/tasks/evidence/TASK-304/agent-result.json",
-            "docs/tasks/evidence/TASK-304/bounded-consumers-verification.json"
+            "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+            "docs/tasks/evidence/TASK-304/recovery-hotfix-verification.json",
+            "docs/tasks/evidence/TASK-304/recovery-hotfix-agent-result.json"
           ],
           "change_effect": "mixed",
           "changes": [
+            {
+              "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+              "class": "source"
+            },
             {
               "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
               "class": "source"
             },
             {
-              "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
-              "class": "source"
-            },
-            {
-              "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
-              "class": "source"
-            },
-            {
-              "path": "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
-              "class": "source"
-            },
-            {
-              "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
-              "class": "source"
-            },
-            {
-              "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
-              "class": "source"
-            },
-            {
-              "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+              "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
               "class": "source"
             },
             {
@@ -1357,30 +1329,26 @@
               "class": "source"
             },
             {
-              "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
-              "class": "source"
+              "path": "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+              "class": "unknown"
             },
             {
-              "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
-              "class": "source"
-            },
-            {
-              "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
-              "class": "source"
-            },
-            {
-              "path": "docs/tasks/evidence/TASK-304/agent-result.json",
+              "path": "docs/tasks/evidence/TASK-304/recovery-hotfix-verification.json",
               "class": "evidence"
             },
             {
-              "path": "docs/tasks/evidence/TASK-304/bounded-consumers-verification.json",
+              "path": "docs/tasks/evidence/TASK-304/recovery-hotfix-agent-result.json",
               "class": "evidence"
             }
           ],
           "checks": [
             {
               "command": "swift test --filter Retention",
-              "result": "passed (9 tests)"
+              "result": "passed (10 tests)"
+            },
+            {
+              "command": "swift test --filter MonitoringLifecycleTests",
+              "result": "passed (9 tests before final added source-of-truth case; full suite covers 10)"
             },
             {
               "command": "swift test --filter Export",
@@ -1392,7 +1360,11 @@
             },
             {
               "command": "swift test",
-              "result": "passed (179 tests)"
+              "result": "passed (187 tests)"
+            },
+            {
+              "command": "production-backup recovery harness",
+              "result": "passed (1.60 GiB to 503.6 MiB; integrity ok; zero foreign-key violations)"
             },
             {
               "command": "git diff --check",
@@ -1403,23 +1375,22 @@
             {
               "criterion": "AC-304-01",
               "result": "passed",
-              "reference": "unchanged-generation history test, DB/WAL/SHM accounting, pre-write storage admission, 10,050-row bounded retention continuation, and bounded capacity eviction"
+              "reference": "Recovery runs before traversal, legacy detailed history is capacity-evictable in bounded batches, configured storage limit is authoritative, and the production backup converged below 512 MiB."
             },
             {
               "criterion": "AC-304-02",
               "result": "passed",
-              "reference": "shared EvidenceStore page limits, revision-pinned cursor expiry, bounded provenance state, explicit truncation/cap limitations, and MCP storage breakdown"
+              "reference": "Current authoritative file state and explicit unknown records survive capacity recovery; forced precision loss remains recorded as a retention coverage gap."
             },
             {
               "criterion": "AC-304-03",
               "result": "passed",
-              "reference": "10,000-event chunk-streamed zlib export, per-payload writes and incremental hashes, integrity verification, and manual export ownership tests"
+              "reference": "Export and MCP focused suites remain green after storage-recovery changes."
             }
           ],
           "discovered_risks": [
-            "Existing databases still use a bounded single VACUUM when compaction is required; migration and failure-injection coverage for that operation belongs to TASK-305.",
-            "Raw event export memory is capped at 100,000 records and related tables at 25,000 records; event serialization/compression is streamed, while each non-event JSON payload is bounded and encoded independently.",
-            "The configured admission cap is process configuration rather than a new persisted schema field; release defaults remain 512 MiB."
+            "A capacity recovery can perform one bounded VACUUM and temporarily requires additional free disk space; the existing one-VACUUM-per-run guard remains in force.",
+            "The production backup validation is representative of the reported store but does not mutate or automatically repair the user's live database."
           ],
           "suggested_graph_changes": []
         },
@@ -1429,48 +1400,41 @@
           "result": "pass",
           "checks": [
             {
-              "id": "CHECK-304-01",
+              "id": "CHECK-304-HF-01",
               "result": "passed",
               "evidence": [
-                "two unchanged complete generations retain one detailed state row",
-                "storage admission rejects an oversized batch before writing",
-                "DB/WAL/SHM bytes are separately observable"
+                "MonitoringLifecycleTests proves database pressure enters startup retention before the circuit breaker and completes a sample only after pressure clears."
               ]
             },
             {
-              "id": "CHECK-304-02",
+              "id": "CHECK-304-HF-02",
               "result": "passed",
               "evidence": [
-                "retention processes 10,050 expired rows as 10,000 plus 50",
-                "capacity eviction has a 64-batch ceiling",
-                "compaction performs at most one VACUUM per run"
+                "The capacity fixture evicts 20,000 obsolete detailed rows while preserving the current authoritative state.",
+                "A backup of the reported production store converged from 1,717,772,288 bytes to 528,093,240 bytes after 3,448,570 bounded evictions."
               ]
             },
             {
-              "id": "CHECK-304-03",
+              "id": "CHECK-304-HF-03",
               "result": "passed",
               "evidence": [
-                "cursor mutation produces explicit cursorExpired",
-                "query pages cap at 500",
-                "export-related table caps and limitations are explicit"
+                "Legacy object and scan-generation scope references are retained in foreign-key-safe order.",
+                "Synthetic and production-backup foreign_key_check results both contain zero violations."
               ]
             },
             {
-              "id": "CHECK-304-04",
+              "id": "CHECK-304-HF-04",
               "result": "passed",
               "evidence": [
-                "10,000 events stream through 64 KiB zlib chunks",
-                "payloads are written and hashed independently",
-                "manual export ownership remains user-controlled"
+                "The persisted user database limit, rather than an unrelated fixed ResourceBudget default, controls the monitoring storage breaker."
               ]
             },
             {
-              "id": "CHECK-304-05",
+              "id": "CHECK-304-HF-05",
               "result": "passed",
               "evidence": [
-                "Retention, Export, and MCP focused suites pass",
-                "full 179-test suite passes",
-                "git diff --check passes"
+                "Retention, monitoring lifecycle, export, and MCP focused suites pass.",
+                "The complete 187-test suite and git diff whitespace validation pass."
               ]
             }
           ],
@@ -1480,7 +1444,12 @@
           ],
           "recommended_action": "advance"
         },
-        "last_reopen": null
+        "last_reopen": {
+          "at": "2026-09-16T04:21:56.930266Z",
+          "actor": "codex-root",
+          "reason": "Production 1.1.0 database exceeded its budget and entered an unrecoverable pre-retention circuit-breaker state; field evidence also exposed incomplete capacity eviction and foreign-key-unsafe detailed-history compaction.",
+          "evidence": "/Users/merdankiji/localGit/disk_steward/docs/incidents/evidence-database-budget-deadlock-2026-09-16.json"
+        }
       },
       "availability": "verified",
       "blocked_by": [],
@@ -3614,6 +3583,72 @@
         "ending": "The intent ended with all required primary evidence verified.",
         "why_this_result": "The selected decisions were Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments — The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact; Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof — A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication.",
         "changed_files": 46,
+        "provenance_status": "partial",
+        "replay_fidelity": "partial",
+        "bound_commit": null,
+        "binding_status": "pending",
+        "binding_next_action": "Commit the implementation, ensure the worktree is clean, then bind this chronicle.",
+        "current_applicability": "historical"
+      },
+      {
+        "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-003-2563BA4DE6-C2",
+        "plan_id": "PLAN-DISK-STEWARD-003",
+        "title": "Bounded and Crash-Resilient Disk Steward",
+        "recorded_at": "2026-09-16T07:37:06.555542Z",
+        "outcome": "completed",
+        "intent": "Disk Steward continuously monitors realistic developer folders without exhausting host memory or growing its evidence indefinitely, survives interrupted work, and reports current, historical, incomplete, and unavailable evidence honestly through the app, exports, and read-only MCP.",
+        "path": [
+          "The app fails safely",
+          "Large roots complete within resource limits",
+          "Evidence stays correct through change and interruption",
+          "All evidence consumers remain bounded",
+          "A verified safe upgrade candidate is ready for release promotion"
+        ],
+        "progress": [
+          "Implemented Add containment, diagnostics, and safe startup.",
+          "Accepted evidence for Add containment, diagnostics, and safe startup.",
+          "Implemented Audit safe failure increment.",
+          "Accepted evidence for Audit safe failure increment.",
+          "Accepted evidence for The app fails safely.",
+          "Implemented Replace repeated listings with bounded resumable traversal.",
+          "Accepted evidence for Replace repeated listings with bounded resumable traversal.",
+          "Implemented Audit bounded traversal increment.",
+          "Accepted evidence for Audit bounded traversal increment.",
+          "Accepted evidence for Large roots complete within resource limits.",
+          "Implemented Make reconciliation and event recovery bounded and authoritative.",
+          "Accepted evidence for Make reconciliation and event recovery bounded and authoritative.",
+          "Implemented Audit evidence correctness increment.",
+          "Accepted evidence for Audit evidence correctness increment.",
+          "Accepted evidence for Evidence stays correct through change and interruption.",
+          "Implemented Bound retention, storage admission, export, UI, and MCP.",
+          "Accepted evidence for Bound retention, storage admission, export, UI, and MCP.",
+          "Implemented Audit bounded evidence-system increment.",
+          "Accepted evidence for Audit bounded evidence-system increment.",
+          "Accepted evidence for All evidence consumers remain bounded.",
+          "Implemented Migrate, stress, package, and verify the release candidate.",
+          "Accepted evidence for Migrate, stress, package, and verify the release candidate.",
+          "Implemented Audit safe upgrade and final intent.",
+          "Accepted evidence for Audit safe upgrade and final intent.",
+          "Accepted evidence for A verified safe upgrade candidate is ready for release promotion.",
+          "Accepted evidence for Bounded and crash-resilient Disk Steward.",
+          "Implemented Bound retention, storage admission, export, UI, and MCP.",
+          "Accepted evidence for Bound retention, storage admission, export, UI, and MCP.",
+          "Accepted evidence for Audit bounded evidence-system increment.",
+          "Accepted evidence for All evidence consumers remain bounded.",
+          "Accepted evidence for Migrate, stress, package, and verify the release candidate.",
+          "Accepted evidence for Audit safe upgrade and final intent.",
+          "Accepted evidence for A verified safe upgrade candidate is ready for release promotion.",
+          "Accepted evidence for Bounded and crash-resilient Disk Steward."
+        ],
+        "turning_points": [
+          "Decision: Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments — The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact",
+          "Decision: Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof — A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication",
+          "plan.replanned at graph version 31",
+          "task.reopened at graph version 41"
+        ],
+        "ending": "The intent ended with all required primary evidence verified.",
+        "why_this_result": "The selected decisions were Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments — The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact; Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof — A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication.",
+        "changed_files": 41,
         "provenance_status": "partial",
         "replay_fidelity": "partial",
         "bound_commit": null,

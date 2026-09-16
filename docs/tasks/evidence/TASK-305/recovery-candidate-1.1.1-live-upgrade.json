@@ -1,0 +1,82 @@
+{
+  "schema": "disk-steward-live-upgrade-evidence-v1",
+  "task": "TASK-305",
+  "recorded_at": "2026-09-16T16:31:00+09:00",
+  "candidate": {
+    "version": "1.1.1",
+    "build": 3,
+    "archive": "/private/tmp/DiskSteward-1.1.1-rc1.xcarchive",
+    "installed_app": "/Applications/Disk Steward.app",
+    "architectures": ["x86_64", "arm64"],
+    "application_sha256": "19ec89aa8706a8b04abb86d57140a6874f4fb618b88a522f7331d3e800fadb1c",
+    "mcp_helper_sha256": "937156b4051eaf36e6238e0193a3a193a4aa876151707d00a9a9d7f38001c06e",
+    "rollback_zip_sha256": "1a31fb04ee09d2cd0edcb05555892a129a08d36cfd83068712f9c222c9bdee37",
+    "signing": "Developer ID Application for Team G3P6TU385Y; strict nested signature verification passed",
+    "notarization": "not submitted; production verifier correctly stopped at the missing staple gate"
+  },
+  "rollback": {
+    "directory": "/Users/merdankiji/Documents/Disk Steward Backups/20260916-162011",
+    "database_backup": "evidence-before-1.1.1.sqlite",
+    "database_backup_sha256": "f2848d6f2fe5e2f2480e04490047811f032b12f86b71c779c1e3150c3e44422a",
+    "previous_app": "Disk Steward-1.1.0-installed.app",
+    "candidate_zip": "Disk-Steward-1.1.1-rc1.zip",
+    "database_quick_check": "ok",
+    "database_foreign_key_violations": 0
+  },
+  "live_upgrade": {
+    "database_bytes_before": 1717739520,
+    "file_state_observations_before": 4398152,
+    "current_file_state_before": 99977,
+    "startup_retention": {
+      "run_id": "retention-0aa0a17f-bd7a-464b-996f-5cb8fc4b4b72",
+      "storage_bytes_before": 1717772288,
+      "storage_bytes_after": 528089088,
+      "forced_evictions": 3448570,
+      "result": "completed",
+      "limitations": []
+    },
+    "file_state_observations_after": 949582,
+    "current_file_state_after": 99977,
+    "current_presence": {"present": 99958, "unknown": 19},
+    "database_quick_check_after": "ok",
+    "database_foreign_key_violations_after": 0,
+    "peak_observed_rss_kib": 218368,
+    "stable_observed_rss_kib": 66160
+  },
+  "second_cycle": {
+    "run_id": "retention-0d1d1e0f-483c-4cb9-b379-44681ce890aa",
+    "trigger": "pressure",
+    "storage_bytes_before": 596466048,
+    "storage_bytes_after": 528551936,
+    "forced_evictions": 0,
+    "result": "completed",
+    "limitations": [],
+    "database_family_bytes_observed_after": 528786808,
+    "configured_cap_bytes": 536870912,
+    "sample_finished": true,
+    "active_generation_processed_entries": 512,
+    "active_generation_staged_files": 179
+  },
+  "continued_cycles": {
+    "observed_through": "2026-09-16T16:37:36+09:00",
+    "latest_retention_started": "2026-09-16T16:37:07+09:00",
+    "latest_storage_bytes_before": 529359488,
+    "latest_storage_bytes_after": 528551936,
+    "latest_result": "completed",
+    "latest_limitations": [],
+    "active_generation_processed_entries": 6144,
+    "active_generation_staged_files": 4397,
+    "current_file_state": 99977,
+    "rss_kib": 80704,
+    "database_quick_check": "ok",
+    "database_foreign_key_violations": 0
+  },
+  "checks": [
+    {"command": "swift test", "result": "passed: 187 tests, 0 failures"},
+    {"command": "Scripts/Distribution/archive-release --release /private/tmp/DiskSteward-1.1.1-rc1.xcarchive", "result": "passed"},
+    {"command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.1-rc1.xcarchive", "result": "correctly rejected with exit 68 at missing notarization staple after local signature controls passed"},
+    {"command": "installed candidate --ui-smoke", "result": "passed with accessory activation policy and status item"},
+    {"command": "two-cycle live upgrade against backed-up 1.6 GB database", "result": "passed; current truth preserved and storage bounded"}
+  ],
+  "release_policy": "This evidence authorizes neither notarization upload nor publication. GitHub and Homebrew remain on 1.1.0 until explicit release authorization."
+}
