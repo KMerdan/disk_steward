@@ -1,0 +1,19 @@
+{
+  "schema": "disk-steward-integration-audit-v1",
+  "target": "GATE-490",
+  "audited_at": "2026-09-16T09:33:59Z",
+  "result": "pass",
+  "checks": [
+    {"command": "swift test --disable-sandbox --filter AgentIntegration", "result": "passed", "tests": 10},
+    {"command": "swift test --disable-sandbox --filter IntegrationInstallTests", "result": "passed", "tests": 6},
+    {"command": "Scripts/Development/build_xcode_project", "result": "passed"}
+  ],
+  "configuration_fixtures": {
+    "before": "Foreign entries and evidence fixture files present; no Agent Access enablement.",
+    "after": "Foreign entries and evidence preserved; only receipted disk-steward entries removed; Agent Access remains off."
+  },
+  "notes": [
+    "Unix-socket integration checks require execution outside the tool sandbox; they pass in the host test environment.",
+    "Conflicting and unavailable states are explicit and mutation-free."
+  ]
+}

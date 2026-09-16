@@ -1,0 +1,28 @@
+{
+  "schema": "disk-steward-cross-client-integration-verification-v1",
+  "task": "TASK-502",
+  "verified_at": "2026-09-16T09:41:31Z",
+  "result": "pass",
+  "checks": [
+    {"command": "swift test --disable-sandbox", "result": "passed", "tests": 213},
+    {"command": "Scripts/Development/build_xcode_project", "result": "passed"},
+    {"command": "built helper --self-check", "result": "passed", "protocol": "2025-06-18"},
+    {"command": "codesign --verify --deep --strict built Debug app", "result": "passed"},
+    {"command": "Scripts/Distribution/verify-release built Debug app", "result": "expected-rejection", "boundary": "Developer ID Application identity"}
+  ],
+  "packaged_helper": {
+    "relative_path": "Contents/Helpers/disk-witness-mcp",
+    "executable": true,
+    "signature_valid": true,
+    "self_check": "passed"
+  },
+  "lifecycle_matrix": [
+    "Codex: official shared-user CLI lifecycle",
+    "Claude Code: official user-scoped CLI lifecycle",
+    "Cursor: client-owned installation handoff plus receipted inspection",
+    "VS Code: client-owned installation handoff plus receipted inspection",
+    "Claude Desktop: transactional JSON lifecycle with backup",
+    "Other client: copy-only portable configuration"
+  ],
+  "release_note": "The strict release verifier correctly rejects a Development-signed Debug build; notarization and publishing are outside this intent."
+}

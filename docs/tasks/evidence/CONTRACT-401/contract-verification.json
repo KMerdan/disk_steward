@@ -1,0 +1,29 @@
+{
+  "schema": "disk-steward-agent-integration-contract-verification-v1",
+  "task": "CONTRACT-401",
+  "verified_at": "2026-09-16T09:22:00Z",
+  "checks": [
+    {
+      "command": "swift test --filter AgentIntegrationContractTests",
+      "result": "passed",
+      "tests": 6
+    }
+  ],
+  "covered_states": [
+    "notDetected",
+    "available",
+    "configured",
+    "approvalPending",
+    "verified",
+    "broken",
+    "conflict",
+    "unavailable"
+  ],
+  "safety_properties": [
+    "Detection evaluates only descriptor-declared executable and application candidates.",
+    "An unreceipted definition is external and a changed receipted definition is a conflict.",
+    "Receipts are one-per-client, atomically written, and mode 0600.",
+    "Client setup state contains no Agent Access mutation or derived dependency.",
+    "Command failures preserve executable, exit status, and actionable stderr."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "agent-result-v1",
+  "task": "CONTRACT-401",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+    "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+    "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift",
+    "docs/tasks/evidence/CONTRACT-401/contract-verification.json",
+    "docs/tasks/evidence/CONTRACT-401/agent-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift", "class": "source"},
+    {"path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift", "class": "source"},
+    {"path": "docs/tasks/evidence/CONTRACT-401/contract-verification.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/CONTRACT-401/agent-result.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --filter AgentIntegrationContractTests", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-401-01", "result": "passed", "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift"},
+    {"criterion": "AC-401-02", "result": "passed", "reference": "docs/tasks/evidence/CONTRACT-401/contract-verification.json"}
+  ],
+  "discovered_risks": [
+    "Client-owned approval cannot always be verified from Disk Steward and must remain an explicit approvalPending state."
+  ],
+  "suggested_graph_changes": []
+}

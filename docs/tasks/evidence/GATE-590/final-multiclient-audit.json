@@ -1,0 +1,22 @@
+{
+  "schema": "disk-steward-final-multiclient-audit-v1",
+  "target": "GATE-590",
+  "audited_at": "2026-09-16T09:43:00Z",
+  "result": "pass",
+  "checks": [
+    {"command": "swift test --disable-sandbox", "result": "passed", "tests": 213},
+    {"command": "Scripts/Development/build_xcode_project", "result": "passed"},
+    {"command": "built helper self-check", "result": "passed"},
+    {"command": "codesign --verify --deep --strict built Debug app", "result": "passed"},
+    {"command": "Scripts/Distribution/verify-release built Debug app", "result": "expected-rejection-at-release-identity-boundary"}
+  ],
+  "safety_inspection": {
+    "administrator_access": "not requested",
+    "credentials": "not collected or stored",
+    "agent_access": "separate opt-in state; adapter tests prove no implicit enablement",
+    "conflicts": "fail closed without overwrite or removal",
+    "mcp_surface": "read-only catalog; delete_file is explicitly rejected as unknown",
+    "direct_configuration": "limited to one receipted entry with atomic write and backup"
+  },
+  "client_matrix": ["Codex", "Claude Code", "Cursor", "Visual Studio Code", "Claude Desktop", "Other MCP Client"]
+}

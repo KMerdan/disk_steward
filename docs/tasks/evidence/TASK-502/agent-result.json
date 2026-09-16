@@ -1,0 +1,37 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-502",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+    "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+    "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+    "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+    "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+    "docs/tasks/evidence/TASK-502/agent-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift", "class": "source"},
+    {"path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift", "class": "source"},
+    {"path": "docs/tasks/evidence/TASK-502/final-integration-verification.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/TASK-502/agent-result.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --disable-sandbox", "result": "passed", "tests": 213},
+    {"command": "Scripts/Development/build_xcode_project", "result": "passed"},
+    {"command": "nested helper self-check and deep signature verification", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-502-01", "result": "passed", "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"},
+    {"criterion": "AC-502-02", "result": "passed", "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"},
+    {"criterion": "AC-502-03", "result": "passed", "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift"}
+  ],
+  "discovered_risks": [
+    "A distributable artifact still requires the existing Developer ID, notarization, and universal-architecture release workflow; this intent intentionally did not publish one."
+  ],
+  "suggested_graph_changes": []
+}

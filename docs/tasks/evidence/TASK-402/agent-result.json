@@ -1,0 +1,33 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-402",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+    "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+    "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+    "docs/tasks/evidence/TASK-402/adapter-verification.json",
+    "docs/tasks/evidence/TASK-402/agent-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift", "class": "source"},
+    {"path": "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift", "class": "source"},
+    {"path": "docs/tasks/evidence/TASK-402/adapter-verification.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/TASK-402/agent-result.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --disable-sandbox --filter CodexAndClaudeCodeAdapterTests", "result": "passed", "tests": 7},
+    {"command": "swift test --disable-sandbox --filter AgentIntegrationContractTests", "result": "passed", "tests": 6}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-402-01", "result": "passed", "reference": "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift"},
+    {"criterion": "AC-402-02", "result": "passed", "reference": "docs/tasks/evidence/TASK-402/adapter-verification.json"}
+  ],
+  "discovered_risks": [
+    "A client CLI output-format change will fail as malformed instead of guessing or editing an unknown configuration."
+  ],
+  "suggested_graph_changes": []
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-490",
+  "outcome": "implemented",
+  "changed_files": [
+    "docs/tasks/evidence/GATE-490/increment-audit.json",
+    "docs/tasks/evidence/GATE-490/agent-result.json"
+  ],
+  "changed_assets": [],
+  "change_effect": "evidence-only",
+  "changes": [
+    {"path": "docs/tasks/evidence/GATE-490/increment-audit.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/GATE-490/agent-result.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --disable-sandbox --filter AgentIntegration", "result": "passed", "tests": 10},
+    {"command": "swift test --disable-sandbox --filter IntegrationInstallTests", "result": "passed", "tests": 6},
+    {"command": "Scripts/Development/build_xcode_project", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-490-01", "result": "passed", "reference": "docs/tasks/evidence/GATE-490/increment-audit.json"},
+    {"criterion": "AC-490-02", "result": "passed", "reference": "docs/tasks/evidence/GATE-490/increment-audit.json"}
+  ],
+  "discovered_risks": [],
+  "suggested_graph_changes": []
+}

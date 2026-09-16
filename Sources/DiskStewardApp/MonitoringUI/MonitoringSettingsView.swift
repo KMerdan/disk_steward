@@ -5,6 +5,8 @@ struct MonitoringSettingsView: View {
     @ObservedObject var settingsStore: MonitoringSettingsStore
     @ObservedObject var lifecycle: MonitoringLifecycleController
     @ObservedObject var launchAtLogin: LaunchAtLoginController
+    @ObservedObject var agentAccess: MCPAccessController
+    @ObservedObject var agentIntegrations: AgentIntegrationManager
     @State private var investigationHours = 1
     @State private var folderSelection: FolderSelectionPurpose?
 
@@ -24,6 +26,24 @@ struct MonitoringSettingsView: View {
                 Button(settingsStore.settings.monitoringPaused ? "Resume Monitoring" : "Pause Monitoring") {
                     settingsStore.settings.monitoringPaused ? lifecycle.resume() : lifecycle.pause()
                 }
+            }
+
+            Section("AI access") {
+                Toggle("Agent Access (read only)", isOn: Binding(
+                    get: { agentAccess.isEnabled },
+                    set: { enabled in agentAccess.setEnabled(enabled) }
+                ))
+                Text(agentAccess.state.detail)
+                    .font(.caption)
+                    .foregroundStyle(agentAccess.state.kind == .degraded ? .orange : .secondary)
+                    .accessibilityLabel(agentAccess.state.accessibilitySummary)
+                Text("Client setup below and Agent Access are separate: installing a client entry never turns access on.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                AgentIntegrationsView(manager: agentIntegrations)
             }
 
             Section("Detailed evidence roots") {
@@ -64,7 +84,7 @@ struct MonitoringSettingsView: View {
         }
         .formStyle(.grouped)
         .padding()
-        .frame(width: 560, height: 620)
+        .frame(width: 620, height: 760)
         .accessibilityLabel("Disk Steward monitoring settings")
         .sheet(item: $folderSelection) { purpose in
             FolderSelectionSheet(

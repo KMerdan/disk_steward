@@ -21,6 +21,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let lifecycle: MonitoringLifecycleController
     private let launchAtLogin: LaunchAtLoginController
     private let agentAccess: MCPAccessController
+    private let agentIntegrations: AgentIntegrationManager
     private var settingsWindow: NSWindow?
     private var aboutWindow: NSWindow?
 
@@ -94,6 +95,15 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 handler: backend
             )
         }
+        let integrationSupport = supportDirectory
+            ?? AgentAccessStateFile.defaultURL().deletingLastPathComponent()
+        let helperURL = Bundle.main.bundleURL
+            .appending(path: "Contents/Helpers", directoryHint: .isDirectory)
+            .appending(path: "disk-witness-mcp")
+        agentIntegrations = AgentIntegrationManager.live(
+            helperURL: helperURL,
+            supportDirectory: integrationSupport
+        )
         super.init()
         configureStatusItem()
         configurePopover()
@@ -198,7 +208,13 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     @objc private func showSettings() {
         settingsWindow = present(
-            rootView: MonitoringSettingsView(settingsStore: settingsStore, lifecycle: lifecycle, launchAtLogin: launchAtLogin),
+            rootView: MonitoringSettingsView(
+                settingsStore: settingsStore,
+                lifecycle: lifecycle,
+                launchAtLogin: launchAtLogin,
+                agentAccess: agentAccess,
+                agentIntegrations: agentIntegrations
+            ),
             title: "Disk Steward Settings",
             existing: settingsWindow
         )
