@@ -1,0 +1,13 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-303",
+  "result": "pass",
+  "checks": [
+    {"id": "CHECK-303-01", "result": "passed", "evidence": ["A/B/C deletion oracle preserves A/C and records B historically", "partial or inaccessible coverage does not invent deletion", "identity-aware hard-link and path-reuse cases pass"]},
+    {"id": "CHECK-303-02", "result": "passed", "evidence": ["2,500 staged objects reconcile with a 2,048-row returned window", "keyset SQL iteration retains one current object at a time", "all four injected interruption checkpoints roll back atomically"]},
+    {"id": "CHECK-303-03", "result": "passed", "evidence": ["FSEvents gaps create durable invalidation rows", "repeated gaps coalesce", "restart retains dirty coverage", "only a complete reconciliation restores freshness"]},
+    {"id": "CHECK-303-04", "result": "passed", "evidence": ["schema migration reaches version 6", "swift test: 173 tests passed", "git diff --check: passed"]}
+  ],
+  "affected_claims": ["TASK-303", "OUTCOME-330"],
+  "recommended_action": "advance"
+}

@@ -1,0 +1,281 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T021358036754Z-A0E96029",
+  "at": "2026-09-16T02:13:58.036638Z",
+  "graph_version": 11,
+  "actor": "codex-root",
+  "type": "audit.pass",
+  "node": "TASK-302",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T02:13:28.587557Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-302",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "docs/tasks/evidence/TASK-302/agent-result.json",
+        "docs/tasks/evidence/TASK-302/traversal-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-302/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-302/traversal-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter ConvergentScanGeneration",
+          "result": "passed (7 tests)"
+        },
+        {
+          "command": "swift test --filter DirectoryMetadataScanner",
+          "result": "passed (7 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (169 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-302-01",
+          "result": "passed",
+          "reference": "testBoundedSelectorKeepsOnlyFirstBatchAcrossOneHundredThousandNames and testHighFanoutSliceUsesOneStreamingPassAndRetainsOnlyItsBudget"
+        },
+        {
+          "criterion": "AC-302-02",
+          "result": "passed",
+          "reference": "testDirectoryChangeBeforeResumeResetsCursorAndDoesNotSkipEarlierName, restart persistence tests, invalid-cursor test, and fair-root test"
+        }
+      ],
+      "discovered_risks": [
+        "A directory larger than one slice is streamed once per slice to preserve a portable durable cursor; retained memory remains bounded but total enumeration work is proportional to directory size times slice count.",
+        "Filesystem mutation after a directory has fully completed belongs to the next evidence generation/FSEvents recovery path; a portable filesystem snapshot is not available.",
+        "Generation completion and evidence reconciliation still materialize staged metadata in memory and are addressed by TASK-303."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T02:13:58.036486Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-302",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "docs/tasks/evidence/TASK-302/agent-result.json",
+        "docs/tasks/evidence/TASK-302/traversal-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-302/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-302/traversal-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter ConvergentScanGeneration",
+          "result": "passed (7 tests)"
+        },
+        {
+          "command": "swift test --filter DirectoryMetadataScanner",
+          "result": "passed (7 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (169 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-302-01",
+          "result": "passed",
+          "reference": "testBoundedSelectorKeepsOnlyFirstBatchAcrossOneHundredThousandNames and testHighFanoutSliceUsesOneStreamingPassAndRetainsOnlyItsBudget"
+        },
+        {
+          "criterion": "AC-302-02",
+          "result": "passed",
+          "reference": "testDirectoryChangeBeforeResumeResetsCursorAndDoesNotSkipEarlierName, restart persistence tests, invalid-cursor test, and fair-root test"
+        }
+      ],
+      "discovered_risks": [
+        "A directory larger than one slice is streamed once per slice to preserve a portable durable cursor; retained memory remains bounded but total enumeration work is proportional to directory size times slice count.",
+        "Filesystem mutation after a directory has fully completed belongs to the next evidence generation/FSEvents recovery path; a portable filesystem snapshot is not available.",
+        "Generation completion and evidence reconciliation still materialize staged metadata in memory and are addressed by TASK-303."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-302",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-302-01",
+          "result": "passed",
+          "evidence": [
+            "100,000 synthetic names retain exactly 512",
+            "2,000 real children use one directory pass for one 64-entry slice",
+            "no contentsOfDirectory call remains in scanSlice"
+          ]
+        },
+        {
+          "id": "CHECK-302-02",
+          "result": "passed",
+          "evidence": [
+            "directory signatures reset a stale lexical cursor",
+            "insert-before-cursor test converges to A/B/C",
+            "changes during enumeration yield without false completion"
+          ]
+        },
+        {
+          "id": "CHECK-302-03",
+          "result": "passed",
+          "evidence": [
+            "legacy generation JSON decodes",
+            "store restart resumes the same generation",
+            "invalid cursors abandon rather than invent deletion"
+          ]
+        },
+        {
+          "id": "CHECK-302-04",
+          "result": "passed",
+          "evidence": [
+            "multiple roots receive work under one bounded slice",
+            "swift test: 169 tests passed",
+            "git diff --check: passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-302",
+        "OUTCOME-320"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-302",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-302-01",
+          "result": "passed",
+          "evidence": [
+            "100,000 synthetic names retain exactly 512",
+            "2,000 real children use one directory pass for one 64-entry slice",
+            "no contentsOfDirectory call remains in scanSlice"
+          ]
+        },
+        {
+          "id": "CHECK-302-02",
+          "result": "passed",
+          "evidence": [
+            "directory signatures reset a stale lexical cursor",
+            "insert-before-cursor test converges to A/B/C",
+            "changes during enumeration yield without false completion"
+          ]
+        },
+        {
+          "id": "CHECK-302-03",
+          "result": "passed",
+          "evidence": [
+            "legacy generation JSON decodes",
+            "store restart resumes the same generation",
+            "invalid cursors abandon rather than invent deletion"
+          ]
+        },
+        {
+          "id": "CHECK-302-04",
+          "result": "passed",
+          "evidence": [
+            "multiple roots receive work under one bounded slice",
+            "swift test: 169 tests passed",
+            "git diff --check: passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-302",
+        "OUTCOME-320"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 1,
+  "context_id": "CTX-ED0CEED839367F84BE8F76E1AA4E4C1D",
+  "previous_event_id": "EVENT-20260916T021328587816Z-50380F25",
+  "previous_event_sha256": "4ebea1e516c820ff05b1494c1c55abe40e9e2d55df6774ea6da9d8cd84dacb6f"
+}

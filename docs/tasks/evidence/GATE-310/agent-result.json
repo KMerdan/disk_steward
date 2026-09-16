@@ -1,0 +1,20 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-310",
+  "outcome": "implemented",
+  "changed_files": ["docs/tasks/evidence/GATE-310/agent-result.json"],
+  "change_effect": "evidence-only",
+  "changes": [{"path": "docs/tasks/evidence/GATE-310/agent-result.json", "class": "evidence"}],
+  "checks": [
+    {"command": "swift test --filter MonitoringLifecycleTests", "result": "passed (7 tests)"},
+    {"command": "swift test", "result": "passed (164 tests)"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-G310-01", "result": "passed", "reference": "Monitoring lifecycle containment suite, full regression suite, and docs/tasks/evidence/TASK-301/containment-verification.json"}
+  ],
+  "discovered_risks": [
+    "High-fanout traversal remains slow under the temporary ceiling and is the explicit next increment."
+  ],
+  "suggested_graph_changes": []
+}

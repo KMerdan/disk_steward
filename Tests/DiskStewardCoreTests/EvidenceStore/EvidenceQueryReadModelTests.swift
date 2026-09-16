@@ -70,6 +70,28 @@ final class EvidenceQueryReadModelTests: XCTestCase, @unchecked Sendable {
         XCTAssertGreaterThanOrEqual(growth.aggregate.growthBytes, 128)
     }
 
+    func testPaginationCursorExpiresWhenEvidenceRevisionChanges() async throws {
+        let fixture = try QueryFixture()
+        defer { fixture.cleanup() }
+        let now = Date(timeIntervalSince1970: 2_100_000_100)
+        let store = try EvidenceStore(url: fixture.databaseURL, dateSource: { now })
+        let first = FileMetadata(objectID: "first", rootPath: "/fixture", path: "/fixture/first", logicalBytes: 1, allocatedBytes: 1, modifiedAt: now)
+        let second = FileMetadata(objectID: "second", rootPath: "/fixture", path: "/fixture/second", logicalBytes: 2, allocatedBytes: 2, modifiedAt: now)
+        try await observe(store, id: "revision-1", at: now, entries: [first.path: first, second.path: second])
+
+        let page = try await store.queryCurrentConsumers(limit: 1)
+        let cursor = try XCTUnwrap(page.nextCursor)
+        let changed = FileMetadata(objectID: "second", rootPath: "/fixture", path: "/fixture/second", logicalBytes: 3, allocatedBytes: 3, modifiedAt: now.addingTimeInterval(1))
+        try await observe(store, id: "revision-2", at: now.addingTimeInterval(1), entries: [first.path: first, changed.path: changed])
+
+        do {
+            _ = try await store.queryCurrentConsumers(cursor: cursor, limit: 1)
+            XCTFail("Expected a revision-pinned cursor to expire")
+        } catch EvidenceStoreError.cursorExpired {
+            // Expected: callers must restart and receive an internally consistent page set.
+        }
+    }
+
     private func observe(_ store: EvidenceStore, id: String, at date: Date, entries: [String: FileMetadata]) async throws {
         let snapshot = StorageSnapshot(
             snapshotID: "snapshot-\(id)",

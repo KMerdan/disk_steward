@@ -1,2829 +1,1196 @@
 {
   "schema_version": 1,
-  "plan_id": "PLAN-DISK-STEWARD-002",
-  "title": "Polished and Direct-Distribution-Ready Disk Steward",
-  "revision": 15,
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "title": "Bounded and Crash-Resilient Disk Steward",
+  "revision": 2,
   "intent": {
-    "id": "INTENT-002",
-    "statement": "A macOS user can install and launch Disk Steward as a polished native menu-bar application, understand why it exists through a research-grounded 30-second product story, inspect its MIT-licensed public source, discover a truthful Homebrew distribution path, and receive a verifiably signed and notarized direct-distribution artifact without weakening the existing monitoring, evidence, privacy, or MCP behavior.",
+    "id": "INTENT-003",
+    "statement": "Disk Steward continuously monitors realistic developer folders without exhausting host memory or growing its evidence indefinitely, survives interrupted work, and reports current, historical, incomplete, and unavailable evidence honestly through the app, exports, and read-only MCP.",
     "success_evidence": [
       {
-        "id": "REQ-101",
-        "description": "A stable Xcode project builds and archives a real Disk Steward .app with permanent product identity, a visible menu-bar item, bundled resources, and the read-only MCP helper included in the product."
+        "id": "REQ-301",
+        "description": "Scanner failure, hang, memory pressure, and restart do not freeze or silently remove the menu-bar application, create restart loops, or present stale evidence as current."
       },
       {
-        "id": "REQ-102",
-        "description": "The menu-bar dashboard presents capacity, growth, monitoring health, recency, and the evidence action in a compact Apple-like hierarchy that can be understood at a glance."
+        "id": "REQ-302",
+        "description": "Large and high-fanout roots complete through bounded resumable work whose peak memory does not grow with total file count and whose pause/restart behavior does not permanently skip entries."
       },
       {
-        "id": "REQ-103",
-        "description": "The status board remains clear and operable in light and dark appearance and in active, paused, degraded, no-baseline, and error states, with meaningful accessibility labels and keyboard behavior."
+        "id": "REQ-303",
+        "description": "Current state and history correctly distinguish create, modify, truncate, rename, replace, delete, path reuse, scope change, permission loss, incomplete traversal, dropped events, and restart."
       },
       {
-        "id": "REQ-104",
-        "description": "Existing whole-volume monitoring, watched-root evidence, export, read-only MCP, bounded retention, privacy exclusions, attribution honesty, and unprivileged fallback behavior continue to pass regression checks."
+        "id": "REQ-304",
+        "description": "SQLite, WAL, queues, temporary output, logs, exports, UI queries, and MCP queries have explicit operational bounds, backpressure, pagination, and visible loss or capacity evidence."
       },
       {
-        "id": "REQ-105",
-        "description": "The release workflow produces a Developer ID-signed, hardened-runtime, notarized, stapled direct-distribution artifact when the required Apple credential is available, and otherwise fails closed with an exact human action instead of claiming release readiness."
-      },
-      {
-        "id": "REQ-106",
-        "description": "Reproducible checks verify build, archive contents, nested-code signatures, entitlements, Gatekeeper assessment, launch behavior, tests, and absence of committed credentials or secrets."
-      },
-      {
-        "id": "REQ-107",
-        "description": "The user can turn local MCP agent access on or off from the app; off stops and removes the private IPC endpoint, refuses agent queries with honest guidance, persists across launches, and does not pause monitoring or delete evidence."
-      },
-      {
-        "id": "REQ-108",
-        "description": "Evidence follows a visible bounded lifecycle: recent exact detail becomes longer-lived summaries, snapshots are downsampled, anomalies have a finite detail window, database pressure produces explicit loss records, manual exports remain user-owned, and humans and agents can inspect the actual retained time ranges and storage usage."
-      },
-      {
-        "id": "REQ-109",
-        "description": "A persistent evidence chain distinguishes current presence from historical activity and correctly reconciles baseline, create, modify, truncate, rename, replace, delete, scope change, restart, partial scan, and path reuse; cleanup and task-impact queries never treat deleted, unknown, or out-of-scope objects as current consumers."
-      },
-      {
-        "id": "REQ-110",
-        "description": "The exact bundle created by the human-facing Export Current Evidence action gives a human or local agent enough bounded, integrity-verifiable current-state, growth, provenance, scope, coverage, lifecycle, and limitation evidence to select the next investigation without re-digging the application database."
-      },
-      {
-        "id": "REQ-111",
-        "description": "A user can add watched or excluded folders without depending on the crash-prone macOS open/save panel service, and a successful evidence export opens the completed evidence directory in Finder."
-      },
-      {
-        "id": "REQ-112",
-        "description": "A public MIT-licensed GitHub repository under KMerdan presents Disk Steward with an accurate modern README, real product screenshots, reproducible development instructions, explicit privacy and MCP boundaries, and honest release and Homebrew availability without publishing secrets or private runtime evidence."
-      },
-      {
-        "id": "REQ-113",
-        "description": "A polished, exactly 30-second promotional video uses real product visuals and a research-grounded transcript to explain the user problem, Disk Steward's evidence-first solution, and its non-destructive boundary without unsupported quantitative claims."
-      },
-      {
-        "id": "REQ-114",
-        "description": "A public Homebrew tap under KMerdan contains a maintainable Disk Steward cask manifest and activation instructions; before a notarized immutable release asset exists, the cask is explicitly disabled rather than distributing or implying trust in an unnotarized binary."
+        "id": "REQ-305",
+        "description": "Existing stores migrate recoverably and the exact signed release candidate passes deterministic scale, correctness, interruption, install, and accelerated lifecycle-soak evidence before release promotion; distribution stays blocked until Apple notarization, stapling, Gatekeeper, and final installed launch are proven."
       }
     ],
     "constraints": [
-      "Keep the product native Swift, AppKit, and SwiftUI on macOS 13 or newer, and preserve the existing Swift package as the reusable implementation boundary.",
-      "Use Apple Developer Team G3P6TU385Y with proposed identifiers com.marudankiji.disksteward, com.marudankiji.disksteward.endpoint, and group.com.marudankiji.disksteward; validate availability before registration.",
-      "Target direct distribution outside the Mac App Store with Developer ID, hardened runtime, secure timestamping, notarization, and stapling.",
-      "The standard app must build, launch, monitor, export, and serve read-only MCP without the restricted Endpoint Security entitlement; keep the optional system extension as a separately gated product path.",
-      "Do not store Apple credentials, private keys, account passwords, notarization profiles, or other secrets in the repository.",
-      "The user owns the final Xcode Signing & Capabilities selection and Organizer archive, distribution, and notarization interaction; automation must remain credential-free and inspectable.",
-      "Use system typography, semantic colors, materials, symbols, spacing, and native controls; avoid ornamental chrome that competes with storage health.",
-      "Treat MCP availability as a local privacy boundary: fresh installs default agent access off, the setting is explicit and persistent, disabling it closes the Unix socket promptly, and monitoring plus human evidence export remain independent.",
-      "Keep the evidence database bounded by both time and bytes; compaction may reduce precision but must never silently erase the fact that coverage was reduced.",
-      "Never automatically delete a human-created evidence export; report app-owned export count and size and leave deletion to an explicit user action.",
-      "Model paths as time-bounded bindings to file objects when stable filesystem identity is available; never equate path reuse with the same object without evidence.",
-      "Absence proves deletion only within a complete observation of an unchanged scope; failed, partial, capped, excluded, or changed-scope observations must produce unknown or out-of-scope state and coverage evidence instead.",
-      "Distinguish whole-volume capacity scope from file-detail monitored roots in every UI, export, and agent response; never use whole-volume capacity to imply whole-disk file coverage.",
-      "A scan entry or time cap must bound one work slice rather than permanently pinning the same root to partial coverage; progress must be durable and complete reconciliation must occur only after a full root generation finishes."
+      "Preserve native Swift, macOS 13 compatibility, SQLite evidence, user-selected roots, read-only MCP, and non-destructive product behavior.",
+      "Do not read file contents or follow symlinks by default for storage measurement.",
+      "Never infer deletion from failed, partial, changed-scope, inaccessible, or capacity-limited coverage.",
+      "Do not silently raise resource ceilings, silently discard evidence, or delete user-owned exports.",
+      "Preserve the completed PLAN-DISK-STEWARD-002 history and unrelated product behavior."
     ],
     "non_goals": [
-      "Submitting Disk Steward to the Mac App Store.",
-      "Automatically creating, revoking, exporting, or installing Apple signing certificates or private keys.",
-      "Making Endpoint Security approval or system-extension activation a prerequisite for the normal menu-bar app.",
-      "Adding cleanup, deletion, cache-purging, or other destructive disk tools.",
-      "Redesigning unrelated settings or evidence formats unless required for consistency with the new status board and bundle.",
-      "Adding cloud accounts, telemetry, an externally reachable service, or credential storage."
+      "Add cleanup or deletion tools.",
+      "Turn Disk Steward into semantic search or import Bipbox's scanner.",
+      "Require Endpoint Security, cloud services, or a new privileged entitlement.",
+      "Redesign unrelated application surfaces or promotional assets."
     ],
     "assumptions": [
       {
-        "id": "ASM-101",
-        "statement": "The proposed bundle identifiers and App Group are available to Apple Developer Team G3P6TU385Y.",
+        "id": "ASM-301",
+        "statement": "An unprivileged helper can access security-scoped watched roots through the current bookmark model.",
         "confidence": "medium",
-        "validation_node": "RESEARCH-201"
+        "validation_node": "TASK-301"
       },
       {
-        "id": "ASM-102",
-        "statement": "The paid team can obtain or grant access to a Developer ID Application certificate for final direct distribution.",
-        "confidence": "medium",
-        "validation_node": "RESEARCH-201"
-      },
-      {
-        "id": "ASM-103",
-        "statement": "The existing Swift package implementation and 105 passing tests can be reused by an Xcode application target without changing evidence semantics.",
-        "confidence": "high",
-        "validation_node": "GATE-290"
+        "id": "ASM-302",
+        "statement": "The initial 150 MiB resident-memory and 512 MiB live-database targets are feasible for supported representative workloads.",
+        "confidence": "low",
+        "validation_node": "TASK-302"
       }
     ]
   },
   "evidence": [
     {
-      "id": "EV-101",
-      "claim": "The repository currently has a Swift package executable but no Xcode project or canonical application bundle target.",
-      "source": "Repository inspection: Package.swift and absence of *.xcodeproj",
+      "id": "EVID-301",
+      "claim": "The incident report attributes system freeze to Disk Steward reaching tens of gigabytes of memory.",
+      "source": "User-provided incident report in the initiating Codex task",
       "confidence": "high",
-      "freshness": "Observed 2026-09-13",
+      "freshness": "Reported 2026-09-16",
       "supports": [
-        "CONTRACT-201",
-        "TASK-210"
+        "TASK-301",
+        "GATE-310"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-102",
-      "claim": "The current status popover gives explanatory copy and controls similar visual weight, weakening at-a-glance hierarchy in the user-provided screenshot.",
-      "source": "User screenshot and Sources/DiskStewardApp/StatusBoardView.swift inspection",
+      "id": "EVID-302",
+      "claim": "DirectoryMetadataScanner repeatedly lists and sorts the current directory while advancing one child at a time.",
+      "source": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift scanSlice",
       "confidence": "high",
-      "freshness": "Observed 2026-09-13",
+      "freshness": "Observed at commit 1116a87",
       "supports": [
-        "CONTRACT-201",
-        "TASK-220",
-        "GATE-290"
+        "TASK-302"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-103",
-      "claim": "The implemented monitoring, evidence, export, MCP, fallback, and privacy paths previously passed 105 automated tests.",
-      "source": "Completed PLAN-DISK-STEWARD-001 evidence and swift test output",
+      "id": "EVID-303",
+      "claim": "Evidence reconciliation constructs whole-generation collections and retention performs full VACUUM operations.",
+      "source": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
       "confidence": "high",
-      "freshness": "Verified in the immediately preceding implementation cycle",
+      "freshness": "Observed at commit 1116a87",
       "supports": [
-        "TASK-210",
-        "TASK-220",
-        "GATE-290",
-        "GATE-390"
+        "TASK-303",
+        "TASK-304"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-104",
-      "claim": "Signing configuration contains placeholder team data and inconsistent dev.disksteward, group.dev.disksteward.shared, and group.com.disksteward.shared identifiers.",
-      "source": "Config/Signing/*.xcconfig and Config/Entitlements/*.entitlements inspection",
+      "id": "EVID-304",
+      "claim": "A resource budget contract exists, but no production caller was found in Sources during inspection.",
+      "source": "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift and repository search",
       "confidence": "high",
-      "freshness": "Observed 2026-09-13",
+      "freshness": "Observed 2026-09-16",
       "supports": [
-        "CONTRACT-201",
-        "RESEARCH-201",
-        "TASK-310",
-        "RISK-320"
+        "TASK-301",
+        "TASK-304"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-105",
-      "claim": "The machine has an Apple Distribution identity for Team G3P6TU385Y and Apple Development identities for a different team, but no verified Developer ID Application identity was observed.",
-      "source": "security find-identity -v -p codesigning output supplied and inspected during this session",
+      "id": "EVID-305",
+      "claim": "FSEvents reports coalesced and dropped history with MustScanSubDirs and requires snapshot reconciliation.",
+      "source": "Apple File System Events Programming Guide",
       "confidence": "high",
-      "freshness": "Observed 2026-09-13",
+      "freshness": "Authoritative documentation reviewed 2026-09-16",
       "supports": [
-        "RESEARCH-201",
-        "TASK-310",
-        "GATE-390"
+        "TASK-303"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-106",
-      "claim": "Apple direct distribution requires Developer ID signing and notarization, with hardened runtime expected for notarized macOS software.",
-      "source": "Apple Developer Documentation: Distributing outside the Mac App Store and Notarizing macOS software",
+      "id": "EVID-306",
+      "claim": "Bipbox offers useful source lifecycle boundaries but also materializes full candidate and index collections.",
+      "source": "/Users/merdankiji/localGit/bipbox at commit 4d1b521",
       "confidence": "high",
-      "freshness": "Checked 2026-09-13",
+      "freshness": "Inspected 2026-09-16",
       "supports": [
-        "CONTRACT-201",
-        "TASK-310",
-        "RISK-320",
-        "GATE-390"
+        "TASK-301",
+        "TASK-303"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-107",
-      "claim": "Apple guidance treats a popover as a focused surface for a small amount of related information and favors clear hierarchy, grouping, alignment, native controls, and concise labels.",
-      "source": "Apple Human Interface Guidelines: Popovers, Layout, Buttons, and Design principles",
+      "id": "EVID-307",
+      "claim": "The exact 1.1.0 release-candidate archive is universal, validly Developer ID signed with hardened runtime and secure timestamp, and passes an isolated accessory-app launch smoke.",
+      "source": "docs/tasks/evidence/REPLAN-20260916-release-promotion/trigger-evidence.json",
       "confidence": "high",
-      "freshness": "Checked 2026-09-13",
+      "freshness": "Observed against /private/tmp/DiskSteward-1.1.0-rc4.xcarchive on 2026-09-16",
       "supports": [
-        "CONTRACT-201",
-        "TASK-220",
-        "GATE-290"
+        "TASK-305",
+        "GATE-350"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-108",
-      "claim": "A temporary ad hoc application wrapper launched the existing executable and displayed the menu-bar popover, proving that the implementation can run in an application bundle while also demonstrating the need for a canonical bundle product.",
-      "source": "Session launch and visual inspection of /tmp/DiskStewardDev.app",
+      "id": "EVID-308",
+      "claim": "The production verifier accepts the candidate's identity, nested signatures, entitlements, architectures, runtime, and timestamp, then rejects distribution because no notarization ticket is stapled.",
+      "source": "docs/tasks/evidence/REPLAN-20260916-release-promotion/trigger-evidence.json",
       "confidence": "high",
-      "freshness": "Observed 2026-09-13",
+      "freshness": "Observed 2026-09-16",
       "supports": [
-        "TASK-210",
-        "GATE-290"
+        "TASK-305",
+        "GATE-350"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-109",
-      "claim": "The application currently starts its private Unix-socket evidence server unconditionally during StatusItemController initialization and stops it only when the controller is deinitialized.",
-      "source": "Sources/DiskStewardApp/StatusItemController.swift and Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift inspection",
+      "id": "EVID-309",
+      "claim": "Deterministic stress covers a 100,000-event storm and 864 five-minute lifecycle cycles representing 72 hours, including a denser first 24 hours and six-hour retention boundaries.",
+      "source": "Tests/PerformanceTests/PerformanceTests.swift",
       "confidence": "high",
-      "freshness": "Observed 2026-09-13",
+      "freshness": "Passed 2026-09-16",
       "supports": [
-        "CONTRACT-201",
-        "TASK-230",
-        "GATE-290",
-        "GATE-390"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-110",
-      "claim": "The implemented default database lifecycle appends samples and events, runs retention on the first successful sample and then at most every six hours, converts eligible raw detail older than 7 days to hourly rows, converts hourly rows older than 30 days to daily rows, deletes daily rows older than 365 days, and enforces a 512 MiB ceiling through batch eviction and VACUUM.",
-      "source": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift, Sources/DiskStewardApp/Settings/MonitoringSettings.swift, and Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-201",
-        "CONTRACT-240",
-        "TASK-243",
-        "GATE-290",
-        "GATE-390"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-111",
-      "claim": "Stored snapshots currently have no age-based compaction, unreviewed anomalies have no usable review transition and can remain until forced eviction, forced cap eviction prioritizes whole tables rather than a documented global evidence policy, and manual exports have no inventory or lifecycle UI.",
-      "source": "EvidenceStore retention and eviction code, is_reviewed usage search, StatusBoardViewModel export path, and MonitoringSettingsView inspection",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-201",
-        "CONTRACT-240",
-        "TASK-243",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-112",
-      "claim": "The current local store occupies about 276 KiB with 14 snapshots and no raw events, while the user-owned export folder contains one approximately 12 KiB export.",
-      "source": "Read-only du, file metadata, and sqlite3 queries against the current Disk Steward application-support and export directories",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "TASK-243",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-113",
-      "claim": "Current storage events form historical deltas but there is no persistent current-file projection, so find_cleanup_candidates can return an old positive event after that path was deleted and get_provenance cannot authoritatively report present versus deleted state.",
-      "source": "EvidenceStore schema plus AppEvidenceQueryBackend find_cleanup_candidates and get_provenance implementations",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-240",
-        "TASK-241",
-        "TASK-244",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-114",
-      "claim": "Current reconciliation uses path-keyed in-memory metadata snapshots; missing entries become delete events even when a root is unavailable or a scan is capped, scope changes can appear as mass create or delete, restart loses the comparison baseline, and rename hints are discarded before reconciliation.",
-      "source": "DirectoryMetadataScanner, PersistentMonitoringProbe, MonitoringLifecycleController, and TargetedFSEventsCollector integration inspection",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-240",
-        "TASK-241",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-115",
-      "claim": "Provenance types exist but the running app does not connect FSEvents hints or privileged observations to persisted events; exported records synthesize method from confidence while actor and session fields are empty, and agent-session registrations are in memory only.",
-      "source": "ProvenanceEngine usage search, PersistentMonitoringProbe, EvidenceBundleExporter, AppEvidenceQueryBackend, and AgentSessionRegistry inspection",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-240",
-        "TASK-242",
-        "TASK-244",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-116",
-      "claim": "Several MCP queries export an arbitrary bounded event set before applying path or cleanup filters, default to basename shaping before provenance matching, and cannot query ended sessions, so filtering, truncation, identity, and historical task-impact semantics are not reliable at scale.",
-      "source": "AppEvidenceQueryBackend broadRange, inlineBundle, get_provenance, find_cleanup_candidates, and get_task_impact inspection",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-240",
-        "TASK-244",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-117",
-      "claim": "The running app creates AgentSessionRegistry inside AppEvidenceQueryBackend, so durable session restoration and historical task-impact integration require this file to consume the shared EvidenceStore-backed session repository.",
-      "source": "Repository inspection: Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift init(databaseURL:)",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13 while implementing TASK-242",
-      "supports": [
-        "TASK-242",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-118",
-      "claim": "The exact bundle created by the running app's Export Current Evidence menu action contains only a 391-byte brief, a 423-byte capacity snapshot, and a manifest, with no current-state, event, provenance, session, coverage, lifecycle, or rollup payload.",
-      "source": "User-supplied export disk-steward-38741853-6471-4166-8ebf-5393ec3711db and docs/tasks/evidence/REPLAN-20260913-actionable-export/trigger-evidence.json",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13 from the current running Debug app",
-      "supports": [
-        "CONTRACT-250",
-        "TASK-251",
-        "GATE-290"
-      ],
-      "contradicts": [
-        "EV-103"
-      ]
-    },
-    {
-      "id": "EV-119",
-      "claim": "The menu action calls the legacy SnapshotExporter even though EvidenceBundleExporter already produces current-state, events, provenance, sessions, coverage, lifecycle, rollups, snapshots, and integrity payloads.",
-      "source": "Sources/DiskStewardApp/StatusItemController.swift, Sources/DiskStewardApp/StatusBoardViewModel.swift, and Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift inspection",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-250",
-        "TASK-251",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-120",
-      "claim": "The live evidence database contains 99,958 present file objects and about 10.97 GB of watched-root evidence omitted from the menu export, while all seven detailed observations remain partial at the entry cap and no change events have been established.",
-      "source": "Read-only sqlite3 inspection of ~/Library/Application Support/Disk Steward/evidence.sqlite",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "CONTRACT-250",
-        "TASK-250",
-        "TASK-251",
-        "GATE-290"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-121",
-      "claim": "Selecting a non-default watched folder repeatedly terminates macOS openAndSavePanelService before Disk Steward receives the selected URL; the reports show an Apple AppKit/Metal NSInvalidArgumentException, while the app currently blocks synchronously in NSOpenPanel.runModal().",
-      "source": "User reproduction and ~/Library/Logs/DiagnosticReports/com.apple.appkit.xpc.openAndSavePanelService-2026-09-13-155937.ips; Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13 on macOS 15.6.1",
-      "supports": [
-        "TASK-252",
-        "GATE-290",
-        "GATE-390"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-122",
-      "claim": "The successful durable export callback currently asks Finder to reveal the bundle in its parent rather than opening the completed evidence directory itself.",
-      "source": "Sources/DiskStewardApp/StatusItemController.swift and StatusBoardViewModel.swift inspection",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "TASK-252",
-        "GATE-290",
-        "GATE-390"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-123",
-      "claim": "The local repository has no configured Git remote, GitHub CLI is authenticated as KMerdan with repository scope, and the user explicitly requested a new public repository, commit, and push.",
-      "source": "git remote -v, gh auth status, and user request observed 2026-09-13",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "TASK-253",
-        "GATE-390"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-124",
-      "claim": "Real light and dark Disk Steward status-board captures already exist, while the current README is a skeletal internal development note that does not explain the product or accurately frame public distribution maturity.",
-      "source": "docs/tasks/evidence/TASK-220/status-board-light.png, status-board-dark.png, and README.md inspection",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "TASK-253"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-125",
-      "claim": "Official OpenAI and Anthropic documentation describe coding agents operating against local folders, repositories, terminals, tools, and resumable local sessions; the product story may therefore describe local work products while treating unobserved disk-growth frequency as a user problem rather than a universal statistic.",
-      "source": "OpenAI Codex Work and use-case documentation; Anthropic Claude Code setup, CLI, and data-usage documentation; accessed 2026-09-13",
-      "confidence": "high",
-      "freshness": "Accessed 2026-09-13",
-      "supports": [
-        "TASK-260"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-126",
-      "claim": "Apple requires Developer ID signing, hardened runtime, notarization, and testing of the distributed artifact, while Homebrew casks require declarative metadata and taps use a homebrew-prefixed repository with casks under Casks; an unavailable pre-release cask should be explicitly disabled.",
-      "source": "Apple Developer ID, notarization, and packaging documentation; Homebrew Cask Cookbook, tap, adding-software, and disable documentation; accessed 2026-09-13",
-      "confidence": "high",
-      "freshness": "Accessed 2026-09-13",
-      "supports": [
-        "TASK-321",
-        "GATE-390"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-127",
-      "claim": "KMerdan/disk_steward has no GitHub release assets and KMerdan/homebrew-disk-steward does not yet exist; a valid local Developer ID Application identity is present, but no exact notarized release artifact has been verified, so Homebrew publication must remain fail-closed.",
-      "source": "gh release list, gh repo view, security find-identity, and release-gate inspection on 2026-09-13",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "TASK-321",
-        "GATE-390"
-      ],
-      "contradicts": []
-    },
-    {
-      "id": "EV-128",
-      "claim": "The Xcode-exported app is Developer ID signed, notarized, stapled, Gatekeeper accepted, and universal, but the single-file disk-witness-mcp helper has code-signing Identifier=disk-witness-mcp while its application-identifier entitlement is G3P6TU385Y.com.marudankiji.disksteward.mcp; the release verifier correctly blocked publication because the helper lacks the planned embedded reverse-DNS identity.",
-      "source": "Scripts/Distribution/verify-release, codesign -dvvv, codesign entitlement inspection, xcrun stapler validate, and spctl assessment of /Users/merdankiji/localGit/disk_steward/Disk Steward.app on 2026-09-13",
-      "confidence": "high",
-      "freshness": "Observed 2026-09-13",
-      "supports": [
-        "TASK-310",
-        "GATE-390"
+        "TASK-305",
+        "GATE-350"
       ],
       "contradicts": []
     }
   ],
   "decisions": [
     {
-      "id": "DECISION-101",
-      "question": "How should the work become demonstrable before release signing is complete?",
-      "choice": "Deliver a canonical launchable Xcode app and redesigned dashboard as the first increment, then add the direct-distribution pipeline as a cumulative second increment.",
+      "id": "DEC-301",
+      "question": "What repair path protects the host while preserving trustworthy evidence?",
+      "choice": "Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments.",
       "alternatives": [
-        "Treat UI, packaging, and notarization as one all-or-nothing release increment",
-        "Polish only the SwiftPM executable without adding an Xcode application product"
+        "Only reduce the scan entry limit",
+        "Only add autorelease pools and cancellation",
+        "Periodically restart the application",
+        "Copy Bipbox's indexing scanner",
+        "Exclude large build and cache folders"
       ],
-      "rationale": "The first increment is independently useful and reviewable in Xcode, while Apple credential availability remains an external release dependency.",
+      "rationale": "The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact.",
       "evidence": [
-        "EV-101",
-        "EV-102",
-        "EV-105",
-        "EV-108"
+        "EVID-301",
+        "EVID-302",
+        "EVID-303",
+        "EVID-304",
+        "EVID-305",
+        "EVID-306"
       ]
     },
     {
-      "id": "DECISION-102",
-      "question": "Which distribution channel and identity should define the release contract?",
-      "choice": "Use direct distribution outside the Mac App Store under Team G3P6TU385Y with the proposed com.marudankiji.disksteward product identity.",
+      "id": "DEC-302",
+      "question": "How should engineering completion be separated from external Apple release promotion?",
+      "choice": "Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof.",
       "alternatives": [
-        "Mac App Store distribution",
-        "Keep temporary dev.disksteward identifiers",
-        "Ship unsigned or ad hoc signed builds"
+        "Wait 72 wall-clock hours inside the implementation task",
+        "Upload to Apple's notarization service without explicit release authorization",
+        "Bypass the release gate for a signed but unstapled candidate"
       ],
-      "rationale": "It matches the user's requested distributable desktop utility and Apple's Developer ID and notarization path; permanent identifiers also remove current configuration inconsistency.",
+      "rationale": "A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication.",
       "evidence": [
-        "EV-104",
-        "EV-105",
-        "EV-106"
-      ]
-    },
-    {
-      "id": "DECISION-103",
-      "question": "Should Endpoint Security be embedded in the default release target now?",
-      "choice": "Keep the standard app complete without Endpoint Security and retain the optional extension as a separately gated target until Apple grants the restricted entitlement.",
-      "alternatives": [
-        "Block the application build on the extension",
-        "Remove the existing extension implementation"
-      ],
-      "rationale": "This preserves the product's proven fallback while avoiding a distribution blocker and retaining the future exact-provenance path.",
-      "evidence": [
-        "EV-103",
-        "EV-106"
-      ]
-    },
-    {
-      "id": "DECISION-104",
-      "question": "What should dominate the status-board hierarchy?",
-      "choice": "Lead with current free-space health and a concise growth assessment, then show monitoring state and recency, with evidence export as the single clear action.",
-      "alternatives": [
-        "Keep all current labels and controls equally prominent",
-        "Show raw file records directly in the popover",
-        "Use a custom ornamental dashboard"
-      ],
-      "rationale": "This aligns the small popover with the user's immediate decision while detailed evidence remains available through export and MCP.",
-      "evidence": [
-        "EV-102",
-        "EV-107"
-      ]
-    },
-    {
-      "id": "DECISION-105",
-      "question": "What should an MCP on or off control govern?",
-      "choice": "Use one persistent Agent Access state, default off on fresh installs, that starts or stops the private local IPC service; show the state with a native toggle while keeping monitoring and manual evidence export independent.",
-      "alternatives": [
-        "Only hide MCP UI while leaving the socket active",
-        "Edit Codex and Claude configuration files whenever the switch changes",
-        "Tie MCP availability to the monitoring pause control"
-      ],
-      "rationale": "A privacy control must enforce service availability rather than merely change presentation, and it should not mutate external client configuration or interrupt the app's core evidence collection.",
-      "evidence": [
-        "EV-103",
-        "EV-109"
-      ]
-    },
-    {
-      "id": "DECISION-106",
-      "question": "How should evidence remain useful without becoming another disk consumer?",
-      "choice": "Use a visible rolling lifecycle: 7 days of raw detail, 30 days of hourly path and capacity summaries, 365 days of daily summaries, finite anomaly detail, deterministic oldest-first pressure compaction, and a 512 MiB default hard ceiling; preserve manual exports as user-owned files and expose lifecycle status through UI and a read-only MCP tool.",
-      "alternatives": [
-        "Keep all detailed evidence indefinitely",
-        "Replace the database with only the newest sample",
-        "Silently delete all app-created exports",
-        "Rely only on a byte ceiling without time windows or coverage reporting"
-      ],
-      "rationale": "The tiers preserve recent forensic detail and long-term growth trends, while explicit coverage and pressure records prevent an agent from mistaking compacted history for complete history.",
-      "evidence": [
-        "EV-103",
-        "EV-110",
-        "EV-111",
-        "EV-112"
-      ]
-    },
-    {
-      "id": "DECISION-107",
-      "question": "How should Disk Steward distinguish files that exist now from files that only existed historically?",
-      "choice": "Persist immutable observation runs and state observations, reconcile them through stable file objects and time-bounded path bindings, atomically maintain a current-file projection, and attach provenance, session context, rollups, retention, exports, and coverage gaps as separate linked records.",
-      "alternatives": [
-        "Infer current existence by summing historical path deltas",
-        "Check file existence only when returning a query",
-        "Treat each path as one permanent object",
-        "Store only periodic full snapshots without an event chain"
-      ],
-      "rationale": "An event chain supplies history, the materialized projection answers current state, stable identity handles rename and path reuse, and explicit observation coverage prevents unavailable roots or capped scans from fabricating deletions.",
-      "evidence": [
-        "EV-113",
-        "EV-114",
-        "EV-115",
-        "EV-116",
-        "EV-117"
-      ]
-    },
-    {
-      "id": "DECISION-108",
-      "question": "How should the verified native-app increment recover after the real menu export proved non-actionable and capped scans never converged?",
-      "choice": "Repair the existing native-app increment with one shared evidence-usefulness contract, then run two bounded branches: durable scan-generation convergence and authoritative human-triggered export; require the current-candidate gate to inspect an actual menu-created bundle from a populated database.",
-      "alternatives": [
-        "Rename the three-file capacity snapshot and leave it as the primary evidence export",
-        "Only wire the rich exporter while accepting permanently partial repeated scans",
-        "Move the repair behind the externally blocked Developer ID distribution gate"
-      ],
-      "rationale": "The current database proves detailed state exists but the user path omits it, while repeated entry-cap scans cannot yet establish change history. Both defects invalidate the first actor-visible increment and can be repaired independently without changing the final intent or weakening privacy, retention, or distribution controls.",
-      "evidence": [
-        "EV-118",
-        "EV-119",
-        "EV-120"
+        "EVID-307",
+        "EVID-308",
+        "EVID-309"
       ]
     }
   ],
   "nodes": [
     {
-      "id": "INTENT-002",
+      "id": "INTENT-003",
       "kind": "intent",
-      "title": "Polished distributable Disk Steward",
-      "summary": "Disk Steward is a native, legible, explainable, openly discoverable, and verifiably distributable menu-bar product without regression of its evidence mission.",
+      "title": "Bounded and crash-resilient Disk Steward",
+      "summary": "The installed product monitors developer storage continuously without endangering the host or misrepresenting evidence.",
       "level": 0,
-      "wave": 10,
-      "workstream": "intent",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-105",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110",
-        "REQ-111",
-        "REQ-112",
-        "REQ-113",
-        "REQ-114"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-INTENT-201",
-          "description": "The final distribution audit passes the complete inherited application journey, including enforced MCP off and on states, convergent watched-root coverage, and an actual menu-created actionable evidence bundle, and validates a signed, notarized, stapled artifact or truthfully reports the exact missing Apple credential step."
-        },
-        {
-          "id": "AC-INTENT-202",
-          "description": "The public source repository renders the real product clearly, carries an MIT license, documents safe local development and agent integration, and makes no unsupported claim that a notarized binary or Homebrew package is already available."
-        },
-        {
-          "id": "AC-INTENT-203",
-          "description": "The public project includes an exactly 30-second research-grounded promotional video with a timecoded transcript, and a public Homebrew tap whose disabled or installable state truthfully matches notarized release availability."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-INTENT-201",
-          "type": "release-evidence",
-          "description": "Verified Xcode application, status-board UX, MCP privacy control, bounded evidence lifecycle, regression, archive, signature, notarization, Gatekeeper, launch, and secret-safety results."
-        },
-        {
-          "id": "EVREQ-INTENT-202",
-          "type": "public-repository-evidence",
-          "description": "Public repository URL and visibility, rendered README assets, detected MIT license, clean pushed main commit, and bounded credential and generated-artifact safety scan."
-        },
-        {
-          "id": "EVREQ-INTENT-203",
-          "type": "promotion-and-package-evidence",
-          "description": "Rendered media inspection, exact-duration metadata, transcript and source review, Homebrew cask validation, public tap metadata, and proof that package availability fails closed until a notarized release asset exists."
-        }
-      ],
-      "agent": {
-        "required_context": [],
-        "allowed_write_scope": [],
-        "commands": [],
-        "deliverables": [],
-        "non_goals": []
-      }
-    },
-    {
-      "id": "OUTCOME-220",
-      "kind": "outcome",
-      "title": "Direct-distribution-ready application",
-      "summary": "The polished application has an honest MIT-licensed public product surface, a concise evidence-grounded product story, a truthful Homebrew discovery path, and an inspectable Apple direct-distribution workflow.",
-      "level": 1,
-      "wave": 10,
-      "workstream": "distribution",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-104",
-        "REQ-105",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110",
-        "REQ-111",
-        "REQ-112",
-        "REQ-113",
-        "REQ-114"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-O220-01",
-          "description": "The archive and export workflow preserves the verified app journey and produces an inspectable direct-distribution artifact without storing credentials."
-        },
-        {
-          "id": "AC-O220-02",
-          "description": "The public project surface accurately presents the current product, source-development path, privacy and MCP boundaries, and pre-release distribution status under the MIT license."
-        },
-        {
-          "id": "AC-O220-03",
-          "description": "A 30-second product video and timecoded transcript clearly connect AI-created local disk growth to Disk Steward's bounded evidence and read-only agent handoff using real product visuals and sourced, supportable claims."
-        },
-        {
-          "id": "AC-O220-04",
-          "description": "A public Homebrew tap contains a valid cask and operational release checklist; its availability state cannot permit installation until the referenced immutable artifact is Developer ID signed, notarized, stapled, and checksum-pinned."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-O220-01",
-          "type": "increment-audit",
-          "description": "Archive, signing, entitlements, nested-code, notarization, stapling, Gatekeeper, launch, and inherited regression evidence."
-        },
-        {
-          "id": "EVREQ-O220-02",
-          "type": "public-repository-audit",
-          "description": "Public GitHub repository metadata, README screenshot rendering, MIT license detection, pushed commit identity, and public-safety scan."
-        },
-        {
-          "id": "EVREQ-O220-03",
-          "type": "promotion-audit",
-          "description": "Exact 30-second rendered MP4, visual keyframes, timecoded transcript, source ledger, and accessibility-readable captions."
-        },
-        {
-          "id": "EVREQ-O220-04",
-          "type": "homebrew-publication-audit",
-          "description": "Cask style and audit results, public tap URL and commit, release-state guard, and documented activation procedure."
-        }
-      ],
-      "agent": {
-        "required_context": [],
-        "allowed_write_scope": [],
-        "commands": [],
-        "deliverables": [],
-        "non_goals": []
-      }
-    },
-    {
-      "id": "OUTCOME-210",
-      "kind": "outcome",
-      "title": "Polished native Xcode application",
-      "summary": "A canonical application bundle launches from Xcode, presents a concise accessible status board, converges bounded watched-root scans, and exports decision-useful evidence through the actual human-facing action.",
-      "level": 2,
-      "wave": 7,
-      "workstream": "application",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110",
-        "REQ-111"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-O210-01",
-          "description": "A user launches the real .app, reads capacity and growth state, controls local agent access, adds a non-default watched root without invoking the open/save panel service, observes exact file-detail scope and scan coverage, and creates an integrity-verifiable evidence bundle whose brief and machine payload identify current consumers, available change history, provenance, gaps, lifecycle, and limitations before the completed directory opens in Finder."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-O210-01",
-          "type": "increment-audit",
-          "description": "Xcode build and launch, bundle inspection, visual and accessibility checks, enforced MCP off and on tests, multi-slice scan convergence, actual menu-created export inspection against populated state, evidence lifecycle, MCP parity, and full Swift regression results."
-        }
-      ],
-      "agent": {
-        "required_context": [],
-        "allowed_write_scope": [],
-        "commands": [],
-        "deliverables": [],
-        "non_goals": []
-      }
-    },
-    {
-      "id": "CONTRACT-201",
-      "kind": "contract",
-      "title": "Lock product, bundle, and status-board contracts",
-      "summary": "Define permanent identity, target boundaries, embedded-helper rules, signing modes, and the compact dashboard information hierarchy before implementation diverges.",
-      "level": 3,
-      "wave": 0,
-      "workstream": "application",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-105",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-201-01",
-          "description": "The contract names the team and bundle identifiers, development and release signing expectations, standard-versus-optional extension boundary, MCP bundle location and invocation, enforceable Agent Access state semantics and default, evidence time tiers and pressure behavior, export ownership, dashboard hierarchy, state matrix, accessibility behavior, and release ownership."
-        },
-        {
-          "id": "AC-201-02",
-          "description": "All placeholder and inconsistent identifiers are mapped to one canonical identity without registering irreversible Apple resources automatically."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-201-01",
-          "type": "contract-review",
-          "description": "Reviewed architecture and design contracts cross-referenced to current source, Apple requirements, and product scenarios."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Package.swift",
-          "Sources/DiskStewardApp",
-          "Config/Signing",
-          "Config/Entitlements",
-          "Integrations",
-          "Apple direct-distribution and HIG guidance"
-        ],
-        "allowed_write_scope": [
-          "docs/architecture/distribution.md",
-          "docs/design/status-board.md",
-          "Config/Signing/**",
-          "Config/Entitlements/**",
-          "docs/tasks/evidence/CONTRACT-201/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/CONTRACT-201/**"
-        ],
-        "commands": [
-          "swift test"
-        ],
-        "deliverables": [
-          "Product identity and target contract",
-          "Status-board design contract",
-          "Consistent signing and entitlement configuration"
-        ],
-        "non_goals": [
-          "Registering identifiers in the Apple Developer portal",
-          "Implementing the UI",
-          "Creating signing credentials"
-        ]
-      }
-    },
-    {
-      "id": "RESEARCH-201",
-      "kind": "research",
-      "title": "Verify paid-team direct-distribution readiness",
-      "summary": "Establish which development and Developer ID identities, identifier registrations, profiles, and restricted entitlements are actually available and record exact gaps without exposing secrets.",
-      "level": 2,
-      "wave": 0,
-      "workstream": "distribution",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-105",
-        "REQ-106"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-202-01",
-          "description": "A dated readiness record distinguishes Team G3P6TU385Y development signing, Developer ID Application signing, App ID and App Group availability, notarization access, and optional Endpoint Security entitlement status."
-        },
-        {
-          "id": "AC-202-02",
-          "description": "Every unavailable item has one exact user-owned Xcode or Apple Developer action and is never represented as complete."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-202-01",
-          "type": "environment-analysis",
-          "description": "Sanitized certificate inventory, build-setting inspection, identifier checks, and Apple documentation references with no private material."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Config/Signing",
-          "Config/Entitlements",
-          "security find-identity output",
-          "Apple Developer direct-distribution requirements"
-        ],
-        "allowed_write_scope": [
-          "docs/release/signing-readiness.md",
-          "docs/tasks/evidence/RESEARCH-201/**"
-        ],
-        "effect": "evidence-only",
-        "evidence_outputs": [
-          "docs/release/signing-readiness.md",
-          "docs/tasks/evidence/RESEARCH-201/**"
-        ],
-        "commands": [
-          "security find-identity -v -p codesigning",
-          "xcodebuild -version"
-        ],
-        "deliverables": [
-          "Sanitized signing-readiness record",
-          "Exact external action list"
-        ],
-        "non_goals": [
-          "Creating or exporting certificates",
-          "Storing secrets",
-          "Claiming unavailable credentials"
-        ]
-      }
-    },
-    {
-      "id": "TASK-210",
-      "kind": "implementation",
-      "title": "Create the canonical Xcode application bundle",
-      "summary": "Add a maintainable Xcode application product that reuses the package sources, launches as a menu-bar-only app, bundles its icon and MCP helper, and separates the optional system extension.",
-      "level": 3,
-      "wave": 1,
-      "workstream": "application",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-104",
-        "REQ-106"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-210-01",
-          "description": "The shared Disk Steward scheme builds and launches a real LSUIElement application bundle from Xcode using the permanent product identity and without requiring Endpoint Security approval."
-        },
-        {
-          "id": "AC-210-02",
-          "description": "The product contains versioned metadata, a complete app icon, required privacy descriptions, and a bundled executable read-only MCP helper whose installed path is discoverable and smoke-tested."
-        },
-        {
-          "id": "AC-210-03",
-          "description": "Debug builds use automatic development signing when available and remain buildable in an explicit unsigned CI mode."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-210-01",
-          "type": "build-and-launch-test",
-          "description": "xcodebuild output, bundle-content listing, Info.plist checks, launched menu-bar evidence, and MCP helper smoke transcript."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-201 deliverables",
-          "Package.swift",
-          "Sources",
-          "Integrations",
-          "Extensions",
-          "Config"
-        ],
-        "allowed_write_scope": [
-          "DiskSteward.xcodeproj/**",
-          "DiskSteward.xcworkspace/**",
-          "Config/Packaging/**",
-          "Resources/App/**",
-          "Scripts/Development/**",
-          "README.md",
-          ".gitignore",
-          "docs/tasks/evidence/TASK-210/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-210/**"
-        ],
-        "commands": [
-          "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build",
-          "swift test"
-        ],
-        "deliverables": [
-          "Canonical Xcode project and shared scheme",
-          "Disk Steward app bundle configuration",
-          "App icon and metadata",
-          "Bundled MCP helper phase and smoke check"
-        ],
-        "non_goals": [
-          "Activating the optional Endpoint Security extension",
-          "Notarizing a release",
-          "Changing evidence semantics"
-        ]
-      }
-    },
-    {
-      "id": "TASK-230",
-      "kind": "implementation",
-      "title": "Add enforceable MCP Agent Access control",
-      "summary": "Introduce one persistent native on or off control that governs the private evidence IPC service and makes disabled access explicit without affecting monitoring or stored evidence.",
-      "level": 3,
-      "wave": 1,
-      "workstream": "privacy",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-103",
-        "REQ-104",
-        "REQ-106",
-        "REQ-107"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-230-01",
-          "description": "A fresh install defaults Agent Access off; the user can enable or disable it with a native toggle, and the choice persists across app relaunches."
-        },
-        {
-          "id": "AC-230-02",
-          "description": "Enabling Agent Access starts the owner-only Unix socket and permits the existing read-only MCP queries; disabling it closes active service availability, removes the socket, and causes the helper to return clear disabled-by-user guidance."
-        },
-        {
-          "id": "AC-230-03",
-          "description": "Changing Agent Access never pauses monitoring, deletes or rewrites evidence, modifies Codex or Claude configuration, expands MCP beyond read-only tools, or opens a network listener."
-        },
-        {
-          "id": "AC-230-04",
-          "description": "The control exposes on, off, starting, and degraded states without relying on color alone and remains synchronized anywhere its status is presented."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-230-01",
-          "type": "privacy-boundary-test",
-          "description": "Fresh-install default, persistence, service start and stop, socket removal, disabled helper response, active query, monitoring independence, and accessibility state results."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-201 deliverables",
-          "Sources/DiskStewardApp/StatusItemController.swift",
-          "Sources/DiskStewardApp/Settings",
-          "Sources/DiskStewardCore/IPC",
-          "Sources/DiskStewardMCP",
-          "Existing MCP tests"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/StatusItemController.swift",
-          "Sources/DiskStewardApp/StatusBoardView.swift",
-          "Sources/DiskStewardApp/Settings/**",
-          "Sources/DiskStewardApp/MCPAccess/**",
-          "Sources/DiskStewardCore/IPC/**",
-          "Sources/DiskStewardMCP/**",
-          "Tests/DiskStewardAppTests/MCPAccess/**",
-          "Tests/DiskStewardMCPTests/**",
-          "Tests/ContractTests/MCP/**",
-          "docs/tasks/evidence/TASK-230/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-230/**"
-        ],
-        "commands": [
-          "swift test",
-          "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build"
-        ],
-        "deliverables": [
-          "Persistent Agent Access setting",
-          "IPC lifecycle controller",
-          "Native MCP access toggle and status",
-          "Disabled-state helper guidance",
-          "Privacy-boundary tests"
-        ],
-        "non_goals": [
-          "Editing external Codex or Claude configuration on toggle",
-          "Pausing monitoring",
-          "Deleting evidence",
-          "Adding write-capable MCP tools or TCP access"
-        ]
-      }
-    },
-    {
-      "id": "CONTRACT-240",
-      "kind": "contract",
-      "title": "Define the evidence identity, reconciliation, query, and lifecycle contract",
-      "summary": "Specify one auditable model for what exists now, what changed historically, how strongly an actor is known, which intervals are covered, and how every evidence object is retained or retired.",
-      "level": 3,
-      "wave": 1,
-      "workstream": "evidence-contract",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-106",
-        "REQ-108",
-        "REQ-109"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-240-01",
-          "description": "The contract defines ScopeVersion, ObservationRun, FileObject, PathBinding, FileStateObservation, CurrentFileState, ChangeEvent, ProvenanceClaim, AgentSession, CoverageGap, RollupBucket, RetentionRun, ExportRecord, and MCPAccessState with stable identifiers, timestamps, relationships, terminal states, and retention rules."
-        },
-        {
-          "id": "AC-240-02",
-          "description": "It separates immutable historical evidence from an atomically updated current-state projection, treats a first complete scan as baseline rather than creation, and defines create, modify, truncate, rename, replace, delete, path reuse, scope change, restart reconciliation, and out-of-scope transitions."
-        },
-        {
-          "id": "AC-240-03",
-          "description": "Absence proves deletion only after a complete observation of the same root and scope; unavailable, failed, permission-denied, depth-capped, entry-capped, or otherwise partial observations preserve prior state as unknown or stale and create a CoverageGap instead of deletion."
-        },
-        {
-          "id": "AC-240-04",
-          "description": "Every answer declares observation time, possible occurrence interval, scope and coverage, identity strength, provenance method and confidence, retained precision, truncation and pagination state, and known APFS reclaimability limitations."
-        },
-        {
-          "id": "AC-240-05",
-          "description": "The contract specifies atomic transaction boundaries, crash recovery, schema migration and replay invariants so compaction, restart, duplicate delivery, or partial failure cannot resurrect deleted objects or leave history inconsistent with current state."
-        },
-        {
-          "id": "AC-240-06",
-          "description": "The A/B/C fixture is normative: a complete baseline records A, B, and C as present; a later complete scan missing B records B deleted and current state A and C; the same missing observation under partial coverage records B unknown, not deleted."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-240-01",
-          "type": "evidence-contract-review",
-          "description": "Versioned schemas, state-transition tables, transaction invariants, lifecycle matrix, MCP result semantics, privacy rules, and adversarial scenario fixtures reviewed against the existing implementation."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-201 deliverables",
-          "EvidenceStore schema and queries",
-          "DirectoryMetadataScanner and PersistentMonitoringProbe",
-          "FSEvents and Endpoint Security integrations",
-          "ProvenanceEngine and AgentSessionRegistry",
-          "EvidenceBundleExporter",
-          "AppEvidenceQueryBackend and MCPToolCatalog",
-          "/tmp/disk-steward-evidence-chain-design.md"
-        ],
-        "allowed_write_scope": [
-          "Schemas/Evidence/**",
-          "Schemas/MCP/**",
-          "Fixtures/Contracts/Evidence/**",
-          "docs/architecture/evidence-object-lifecycle.md",
-          "docs/architecture/evidence-contract.md",
-          "docs/architecture/mcp.md",
-          "docs/operations/privacy-and-retention.md",
-          "docs/tasks/evidence/CONTRACT-240/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/CONTRACT-240/**"
-        ],
-        "commands": [
-          "swift test",
-          "Scripts/Contracts/validate.sh"
-        ],
-        "deliverables": [
-          "Evidence object and state-transition contract",
-          "Atomic reconciliation and recovery contract",
-          "MCP query semantics",
-          "Retention and export lifecycle matrix",
-          "Adversarial fixtures including A/B/C deletion"
-        ],
-        "non_goals": [
-          "Implementing the schema",
-          "Claiming exact event time from periodic scans",
-          "Claiming an actor without direct or bounded attribution evidence",
-          "Adding destructive MCP operations"
-        ]
-      }
-    },
-    {
-      "id": "TASK-241",
-      "kind": "implementation",
-      "title": "Persist observations and reconcile current file state safely",
-      "summary": "Implement the durable identity and reconciliation core that can answer what is present now without confusing missing coverage, scope changes, renames, replacements, or restarts with deletion.",
-      "level": 3,
-      "wave": 2,
-      "workstream": "evidence-state",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-104",
-        "REQ-106",
-        "REQ-108",
-        "REQ-109"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-241-01",
-          "description": "Database migrations persist scope versions, observation runs and per-root completeness, stable file identity when available, temporal path bindings, state observations, current state, change events, and coverage gaps without discarding existing evidence."
-        },
-        {
-          "id": "AC-241-02",
-          "description": "One transaction commits an observation, its derived events, path-binding changes, current-state changes, and coverage result; retries are idempotent and recovery cannot expose half-applied observations."
-        },
-        {
-          "id": "AC-241-03",
-          "description": "Complete same-scope observations reconcile baseline, create, modify, truncate, rename, replace, delete, and path reuse, while partial or unavailable roots produce unknown or stale state and scope removal produces out-of-scope state."
-        },
-        {
-          "id": "AC-241-04",
-          "description": "Restart loads the last committed state and records offline or unreconciled coverage intervals; it never treats the first post-restart scan as proof that all intervening changes occurred at startup."
-        },
-        {
-          "id": "AC-241-05",
-          "description": "The normative A/B/C scenario returns only A and C as current after a complete deletion scan, retains B as a tombstoned historical object, and never emits B deleted after a partial scan."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-241-01",
-          "type": "state-reconciliation-test",
-          "description": "Migration, transaction-failure, retry, restart, complete and partial coverage, scope change, A/B/C deletion, rename, replace, path reuse, hard-link or clone disclosure, and current-projection consistency fixtures."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-240 deliverables",
-          "Sources/DiskStewardCore/EvidenceStore",
-          "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
-          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
-          "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
-          "Existing migrations and tests"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardCore/EvidenceStore/**",
-          "Sources/DiskStewardCore/Monitoring/**",
-          "Sources/DiskStewardApp/Lifecycle/**",
-          "Schemas/Evidence/**",
-          "Fixtures/Contracts/Evidence/**",
-          "Tests/DiskStewardCoreTests/EvidenceStore/**",
-          "Tests/DiskStewardCoreTests/Monitoring/**",
-          "Tests/DiskStewardAppTests/EvidenceState/**",
-          "docs/tasks/evidence/TASK-241/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-241/**"
-        ],
-        "commands": [
-          "swift test"
-        ],
-        "deliverables": [
-          "Versioned evidence-state schema and migration",
-          "Atomic observation reconciler",
-          "Materialized current-file projection",
-          "Coverage-gap and restart handling",
-          "State-machine test suite"
-        ],
-        "non_goals": [
-          "Guessing exact deletion time",
-          "Treating path as permanent identity",
-          "Deleting user files",
-          "Silently discarding partial-scan evidence"
-        ]
-      }
-    },
-    {
-      "id": "TASK-242",
-      "kind": "implementation",
-      "title": "Persist provenance and agent-session evidence",
-      "summary": "Connect filesystem and optional privileged observations to durable, confidence-labeled provenance claims and retained agent-session context without overstating who changed a file.",
-      "level": 3,
-      "wave": 3,
-      "workstream": "evidence-provenance",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-104",
-        "REQ-106",
-        "REQ-108",
-        "REQ-109"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-242-01",
-          "description": "FSEvents hints retain event identifiers, flags and rename or gap signals and are linked to observation runs; Endpoint Security observations, when available, remain a distinct stronger source rather than being synthesized from confidence."
-        },
-        {
-          "id": "AC-242-02",
-          "description": "Provenance claims persist method, actor when observed, process ancestry when observed, session link when supported, confidence, basis, time interval, contradictions, and supersession; unknown remains an explicit valid result."
-        },
-        {
-          "id": "AC-242-03",
-          "description": "Agent sessions persist start, heartbeat, end or expiry, workspace and task context across app restart, and historical task-impact queries can use ended retained sessions while clearly labeling temporal or workspace inference."
-        },
-        {
-          "id": "AC-242-04",
-          "description": "Rename, delete, path reuse, overlapping sessions, missing privileged access, dropped FSEvents and offline intervals preserve an ordered and uncertainty-aware chain without assigning unsupported authorship."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-242-01",
-          "type": "provenance-chain-test",
-          "description": "Fixtures for exact privileged events, FSEvents-only inference, unknown actor, rename and path reuse, session restart and expiry, overlapping sessions, dropped events, and export field fidelity."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-240 deliverables",
-          "TASK-241 persisted state",
-          "TargetedFSEventsCollector",
-          "Endpoint Security bridge",
-          "ProvenanceEngine",
-          "AgentSessionRegistry",
-          "EvidenceBundleExporter",
-          "AppEvidenceQueryBackend session construction"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardCore/Monitoring/**",
-          "Sources/DiskStewardCore/Provenance/**",
-          "Sources/DiskStewardCore/Sessions/**",
-          "Sources/DiskStewardCore/EvidenceStore/**",
-          "Sources/DiskStewardCore/Export/**",
-          "Sources/DiskStewardEndpointExtension/**",
-          "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
-          "Schemas/Evidence/**",
-          "Tests/DiskStewardCoreTests/Provenance/**",
-          "Tests/DiskStewardCoreTests/Sessions/**",
-          "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
-          "Tests/DiskStewardAppTests/Provenance/**",
-          "Tests/DiskStewardAppTests/IPC/**",
-          "docs/tasks/evidence/TASK-242/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-242/**"
-        ],
-        "commands": [
-          "swift test"
-        ],
-        "deliverables": [
-          "Durable provenance claims",
-          "Retained agent-session lifecycle",
-          "FSEvents hint linkage",
-          "Optional Endpoint Security evidence bridge",
-          "Attribution-honesty tests"
-        ],
-        "non_goals": [
-          "Requiring Endpoint Security for the standard app",
-          "Equating an active session with an observed writer",
-          "Fabricating exact actors or occurrence times"
-        ]
-      }
-    },
-    {
-      "id": "TASK-243",
-      "kind": "implementation",
-      "title": "Implement bounded retention, coverage, and export lifecycle",
-      "summary": "Keep current truth durable while compacting historical precision predictably, recording coverage loss, and separating temporary exports from user-owned evidence bundles.",
-      "level": 3,
-      "wave": 3,
-      "workstream": "evidence-retention",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-106",
-        "REQ-108",
-        "REQ-109"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-243-01",
-          "description": "The default lifecycle keeps 7 days of raw event, state and provenance detail, at most 30 days of anomaly detail, 30 days of hourly summaries, and 365 days of daily summaries, with deterministic snapshot downsampling."
-        },
-        {
-          "id": "AC-243-02",
-          "description": "Current in-scope state remains available independently of historical-detail retention, tombstones remain only as long as required by the declared history window, and compaction cannot recreate a deleted object or erase an active object."
-        },
-        {
-          "id": "AC-243-03",
-          "description": "Retention runs at startup, at least every six hours while active, and near the 512 MiB default ceiling; pressure first compacts eligible detail, then evicts globally oldest history while persisting a RetentionRun and CoverageGap for forced loss."
-        },
-        {
-          "id": "AC-243-04",
-          "description": "MCP inline export temporaries are destroyed after each response; manual exports remain user-owned and are never automatically deleted, while ExportRecords report bounded inventory, hash, time range, precision, path-detail policy, and creation status."
-        },
-        {
-          "id": "AC-243-05",
-          "description": "Lifecycle status reports requested versus actually retained intervals, oldest and newest timestamps and counts per tier, database bytes versus cap, last compaction, forced evictions, current-state size, export inventory, and known gaps."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-243-01",
-          "type": "lifecycle-and-pressure-test",
-          "description": "Boundary fixtures for every tier and snapshot rule, current-state survival, tombstone expiry, near-cap and over-cap behavior, persisted loss diagnostics, restart scheduling, and manual versus temporary exports."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-240 deliverables",
-          "TASK-241 persisted state",
-          "EvidenceStore retention implementation",
-          "EvidenceBundleExporter",
-          "Monitoring settings",
-          "Current lifecycle tests"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardCore/EvidenceStore/**",
-          "Sources/DiskStewardCore/Export/**",
-          "Sources/DiskStewardApp/Lifecycle/**",
-          "Sources/DiskStewardApp/Settings/**",
-          "Schemas/retention-policy-v1.schema.json",
-          "Schemas/Evidence/**",
-          "Tests/DiskStewardCoreTests/EvidenceStore/**",
-          "Tests/DiskStewardCoreTests/Export/**",
-          "Tests/DiskStewardAppTests/EvidenceLifecycle/**",
-          "docs/operations/privacy-and-retention.md",
-          "docs/tasks/evidence/TASK-243/**",
-          "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
-          "Tests/DiskStewardAppTests/IPC/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-243/**"
-        ],
-        "commands": [
-          "swift test"
-        ],
-        "deliverables": [
-          "Bounded retention policy",
-          "Snapshot and anomaly compaction",
-          "Retention and coverage records",
-          "Export record and inventory lifecycle",
-          "Boundary and pressure test suite"
-        ],
-        "non_goals": [
-          "Automatically deleting manual exports",
-          "Evicting live current-state truth before compactable history",
-          "Claiming compacted history remains exact"
-        ]
-      }
-    },
-    {
-      "id": "TASK-244",
-      "kind": "implementation",
-      "title": "Rebuild MCP queries on authoritative read models",
-      "summary": "Expose current state, ordered evidence chains, lifecycle coverage, and task impact directly from indexed read models so bounded exports no longer distort query truth.",
-      "level": 3,
-      "wave": 4,
-      "workstream": "evidence-query",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-244-01",
-          "description": "Read-only tools provide live and persisted storage times, evidence lifecycle, paginated current consumers, growth, shrink and churn, ordered provenance, active and ended agent-session impact, revalidated cleanup candidates, and a complete bounded export."
-        },
-        {
-          "id": "AC-244-02",
-          "description": "Queries filter and order inside the evidence store before applying limits, match canonical identity before privacy path shaping, and report matched, returned, truncated, next cursor, requested versus retained interval, precision and coverage gaps."
-        },
-        {
-          "id": "AC-244-03",
-          "description": "find_cleanup_candidates reads only revalidated present current state and excludes deleted, unknown, stale, inaccessible, out-of-scope and path-reused objects; get_task_impact distinguishes historical bytes from surviving current bytes."
-        },
-        {
-          "id": "AC-244-04",
-          "description": "get_provenance returns the current object state followed by its ordered observation, change, provenance, session and coverage chain, preserving unknown actor and time intervals rather than synthesizing method or occurrence time."
-        },
-        {
-          "id": "AC-244-05",
-          "description": "list_active_writers is replaced by or retained only as a compatibility alias for list_active_agent_sessions, whose result explicitly does not claim observed writer identity."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-244-01",
-          "type": "mcp-read-model-test",
-          "description": "Large-dataset filter-before-limit, duplicate basename, cursor stability, truncation, deleted and partial-state exclusion, ended-session impact, surviving bytes, retained-window gaps, privacy shaping, disabled Agent Access, and export parity fixtures."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-240 deliverables",
-          "TASK-230 Agent Access behavior",
-          "TASK-241 current state",
-          "TASK-242 provenance and sessions",
-          "TASK-243 lifecycle status",
-          "AppEvidenceQueryBackend",
-          "MCPToolCatalog",
-          "MCP schemas and tests"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardCore/EvidenceStore/**",
-          "Sources/DiskStewardCore/Export/**",
-          "Sources/DiskStewardApp/IPC/**",
-          "Sources/DiskStewardMCP/**",
-          "Schemas/MCP/**",
-          "Schemas/export-manifest-v1.schema.json",
-          "Fixtures/MCP/**",
-          "Tests/DiskStewardAppTests/MCP/**",
-          "Tests/DiskStewardCoreTests/Export/**",
-          "Tests/DiskStewardMCPTests/**",
-          "Tests/ContractTests/MCP/**",
-          "Tests/IncrementTests/MCP/**",
-          "Tests/IncrementTests/Final/**",
-          "docs/architecture/mcp.md",
-          "docs/tasks/evidence/TASK-244/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-244/**"
-        ],
-        "commands": [
-          "swift test"
-        ],
-        "deliverables": [
-          "Authoritative MCP read models",
-          "Current-consumer and lifecycle tools",
-          "Corrected growth, provenance, task-impact and cleanup semantics",
-          "Cursor pagination and coverage metadata",
-          "MCP contract tests"
-        ],
-        "non_goals": [
-          "Write-capable or cleanup MCP tools",
-          "Opening a network listener",
-          "Editing external client configuration",
-          "Treating registered sessions as observed writers"
-        ]
-      }
-    },
-    {
-      "id": "TASK-220",
-      "kind": "implementation",
-      "title": "Redesign the menu-bar status board",
-      "summary": "Replace the flat information stack with a compact native hierarchy centered on free-space health, recent growth, monitoring state, and one evidence action.",
-      "level": 3,
       "wave": 5,
-      "workstream": "experience",
+      "workstream": "reliability",
       "selection": "primary",
       "source_requirements": [
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109"
+        "REQ-301",
+        "REQ-302",
+        "REQ-303",
+        "REQ-304",
+        "REQ-305"
       ],
       "acceptance_criteria": [
         {
-          "id": "AC-220-01",
-          "description": "The popover uses system materials, typography, semantic color, symbols, spacing, and controls to make capacity health and growth assessment the first readable layer without crowding."
-        },
-        {
-          "id": "AC-220-02",
-          "description": "Active, paused, degraded, no-baseline, and error states have concise non-conflicting copy, deterministic actions, appropriate focus order, and VoiceOver labels that do not rely on color alone."
-        },
-        {
-          "id": "AC-220-03",
-          "description": "Light and dark appearance previews and representative narrow-content checks reveal no clipping, ambiguous units, or inaccessible contrast."
-        },
-        {
-          "id": "AC-220-04",
-          "description": "Agent Access appears as a concise native privacy control with clear current state and does not visually compete with capacity health or conflate access with monitoring status."
-        },
-        {
-          "id": "AC-220-05",
-          "description": "The board shows last evidence freshness and database usage versus its cap concisely, with full retained-window and export-inventory detail available in Settings rather than crowding the popover."
+          "id": "AC-INTENT-301",
+          "description": "The exact signed release candidate passes every cumulative increment gate, recoverable migration, isolated launch, and deterministic 72-hour-equivalent lifecycle soak; the release gate rejects it until external promotion proofs are present."
         }
       ],
       "required_evidence": [
         {
-          "id": "EVREQ-220-01",
-          "type": "visual-and-accessibility-test",
-          "description": "State-matrix unit tests, accessibility inspection, light and dark screenshots, launch smoke evidence, and export-action verification."
+          "id": "EV-INTENT-301",
+          "type": "release-verification",
+          "description": "Signed-candidate build, migration, scale, correctness, interruption, isolated launch, accelerated soak, and fail-closed release-promotion evidence."
         }
       ],
       "agent": {
         "required_context": [
-          "CONTRACT-201 deliverables",
-          "TASK-230 Agent Access contract and state",
-          "TASK-243 lifecycle diagnostics",
-          "TASK-244 query and current-state diagnostics",
-          "Sources/DiskStewardApp/StatusBoardView.swift",
-          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
-          "Tests/DiskStewardAppTests",
-          "Apple HIG"
+          "All increment gate evidence"
         ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/StatusItemController.swift",
-          "Sources/DiskStewardApp/StatusBoardView.swift",
-          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
-          "Sources/DiskStewardApp/StatusBoard/**",
-          "Tests/DiskStewardAppTests/StatusBoard/**",
-          "docs/tasks/evidence/TASK-220/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-220/**"
-        ],
-        "commands": [
-          "swift test",
-          "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build"
-        ],
+        "allowed_write_scope": [],
+        "commands": [],
         "deliverables": [
-          "Redesigned SwiftUI status board",
-          "Integrated Agent Access control",
-          "Concise evidence freshness and capacity status",
-          "Explicit presentation state model",
-          "State and accessibility tests",
-          "Light and dark visual evidence"
+          "Verified installed product"
         ],
         "non_goals": [
-          "Displaying raw file logs in the popover",
-          "Changing the evidence schema",
-          "Adding destructive actions"
+          "No implementation at the intent node"
         ]
       }
     },
     {
-      "id": "CONTRACT-250",
-      "kind": "contract",
-      "title": "Define actionable export and convergent coverage contracts",
-      "summary": "Lock the distinction between volume capacity and file-detail scope, the minimum human and agent evidence bundle, bounded privacy behavior, and the lifecycle of a capped multi-slice scan generation.",
-      "level": 3,
-      "wave": 5,
-      "workstream": "evidence-usefulness",
+      "id": "OUTCOME-310",
+      "kind": "outcome",
+      "title": "The app fails safely",
+      "summary": "A scanner failure cannot take down the menu-bar experience or silently present stale evidence as current.",
+      "level": 5,
+      "wave": 1,
+      "workstream": "containment",
       "selection": "primary",
       "source_requirements": [
-        "REQ-104",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-C250-01",
-          "description": "The contract names volume-capacity scope, configured file-detail roots, exclusions, completed versus partial scan generations, open gaps, retained precision, and state-as-of times separately so none can imply broader coverage."
-        },
-        {
-          "id": "AC-C250-02",
-          "description": "A human-triggered evidence bundle has one consistent database view and includes an actionable brief plus machine-readable summary, current state, changes or rollups, provenance, agent sessions, coverage, lifecycle, snapshots, manifest, and integrity data without file contents or environment values."
-        },
-        {
-          "id": "AC-C250-03",
-          "description": "The brief leads with monitored scope, coverage confidence, largest current consumers, recent growth or its absence, cleanup-review leads, evidence age, limitations, and an explicit inspection order; exact records remain bounded by retained database policy and may be compressed."
-        },
-        {
-          "id": "AC-C250-04",
-          "description": "A capped scan slice cannot reconcile absence or deletion; durable generation progress survives restart, and only completion of every included root can atomically advance current state and change history for that generation."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-C250-01",
-          "type": "evidence-usefulness-contract-test",
-          "description": "Schema fixtures distinguish scope and coverage, reject missing bundle roles and false no-limitations claims, and model multi-slice completion, restart, scope change, and abandoned generation behavior."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-201 and CONTRACT-240 deliverables",
-          "User-supplied ineffective export",
-          "EvidenceBundleExporter and SnapshotExporter",
-          "DirectoryMetadataScanner, EvidenceStore, and PersistentMonitoringProbe",
-          "docs/tasks/evidence/REPLAN-20260913-actionable-export/trigger-evidence.json"
-        ],
-        "allowed_write_scope": [
-          "docs/architecture/evidence-export.md",
-          "docs/architecture/evidence-object-lifecycle.md",
-          "Schemas/Evidence/**",
-          "Schemas/export-manifest-v1.schema.json",
-          "Fixtures/Contracts/Evidence/**",
-          "Tests/ContractTests/Evidence/**",
-          "docs/tasks/evidence/CONTRACT-250/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/CONTRACT-250/**"
-        ],
-        "commands": [
-          "swift test --filter ContractTests"
-        ],
-        "deliverables": [
-          "Actionable export contract",
-          "Scope and coverage vocabulary",
-          "Capped scan-generation state machine",
-          "Contract fixtures and tests"
-        ],
-        "non_goals": [
-          "Implementing the exporter or scan walker",
-          "Reading file contents",
-          "Claiming whole-disk file visibility"
-        ]
-      }
-    },
-    {
-      "id": "TASK-250",
-      "kind": "implementation",
-      "title": "Make capped watched-root scans converge safely",
-      "summary": "Replace repeated first-page partial scans with durable bounded scan generations that eventually cover each configured root, preserve uncertainty between slices, and reconcile changes only when a generation completes.",
-      "level": 3,
-      "wave": 6,
-      "workstream": "evidence-coverage",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-104",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-250-01",
-          "description": "Each capped work slice persists a generation identifier, root cursor or equivalent deterministic frontier, observed object staging, counts, timestamps, limitations, and restart-safe progress without mutating authoritative current state from incomplete absence."
-        },
-        {
-          "id": "AC-250-02",
-          "description": "Repeated bounded runs over a root larger than the per-slice cap eventually finish one complete generation, atomically reconcile the full object set, close the entry-cap gap, and permit subsequent complete generations to produce create, modify, rename, truncate, replace, and delete evidence."
-        },
-        {
-          "id": "AC-250-03",
-          "description": "Restart resumes valid progress; a scope-version change or invalid cursor abandons the old generation with explicit coverage evidence and starts a new generation without fabricating deletion."
-        },
-        {
-          "id": "AC-250-04",
-          "description": "Status and query models disclose configured roots, exclusions, current generation progress, last complete generation time, and whether current state is stale, partial, or complete."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-250-01",
-          "type": "convergent-scan-test",
-          "description": "A small-cap fixture requires multiple slices, survives restart, changes scope safely, completes with no duplicates, then proves a second generation detects A/B/C deletion only after full coverage."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-250 deliverables",
-          "TASK-241 reconciler and current-state projection",
-          "DirectoryMetadataScanner",
-          "EvidenceStore migrations",
-          "PersistentMonitoringProbe and monitoring lifecycle"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardCore/Monitoring/**",
-          "Sources/DiskStewardCore/EvidenceStore/**",
-          "Sources/DiskStewardApp/Lifecycle/**",
-          "Sources/DiskStewardApp/Settings/**",
-          "Tests/DiskStewardCoreTests/Monitoring/**",
-          "Tests/DiskStewardCoreTests/EvidenceStore/**",
-          "Tests/DiskStewardAppTests/EvidenceState/**",
-          "docs/tasks/evidence/TASK-250/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-250/**"
-        ],
-        "commands": [
-          "swift test --filter 'MonitoringTests|EvidenceObjectLifecycleTests'",
-          "swift test"
-        ],
-        "deliverables": [
-          "Durable scan-generation persistence",
-          "Bounded resumable traversal",
-          "Atomic complete-generation reconciliation",
-          "Coverage-progress diagnostics",
-          "Restart and multi-slice tests"
-        ],
-        "non_goals": [
-          "Scanning file contents",
-          "Treating one capped slice as complete",
-          "Automatically adding roots without user configuration or permission"
-        ]
-      }
-    },
-    {
-      "id": "TASK-251",
-      "kind": "implementation",
-      "title": "Ship authoritative human-triggered evidence bundles",
-      "summary": "Route the menu and status-board evidence action through the durable EvidenceStore exporter and make its brief and payload immediately useful to a human or local coding agent.",
-      "level": 3,
-      "wave": 6,
-      "workstream": "evidence-export",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-102",
-        "REQ-104",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-251-01",
-          "description": "Export Current Evidence asynchronously exports one consistent EvidenceStore view rather than SnapshotExporter output, records manual ownership, reports success or failure in the UI, and reveals the completed bundle in Finder."
-        },
-        {
-          "id": "AC-251-02",
-          "description": "The bundle includes every CONTRACT-250 role with valid hashes and a brief that identifies exact monitored roots, whole-volume versus file-detail scope, coverage gaps, data age, top current directory and file consumers, available growth evidence, cleanup-review leads, and limitations."
-        },
-        {
-          "id": "AC-251-03",
-          "description": "Exact file-level records remain machine-readable and bounded, privacy shaping and secret redaction apply consistently, no file contents or environment values are exported, and absent provenance or growth is stated rather than synthesized."
-        },
-        {
-          "id": "AC-251-04",
-          "description": "A regression drives the actual menu/view-model export path against a populated database and rejects the legacy three-file capacity-only bundle, a false whole-volume detail claim, or a manifest that omits open coverage limitations."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-251-01",
-          "type": "real-export-journey-test",
-          "description": "Seeded and live-database exports verify required files and hashes, decision-useful brief content, top consumers, exact record availability, honest partial coverage, asynchronous UI behavior, Finder reveal, and manual export inventory."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-250 deliverables",
-          "TASK-243 export lifecycle",
-          "TASK-244 authoritative read models",
-          "StatusItemController and StatusBoardViewModel",
-          "EvidenceBundleExporter and SnapshotExporter",
-          "User-supplied ineffective export"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/StatusItemController.swift",
-          "Sources/DiskStewardApp/StatusBoardView.swift",
-          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
-          "Sources/DiskStewardApp/Export/**",
-          "Sources/DiskStewardCore/Export/**",
-          "Tests/DiskStewardAppTests/StatusBoard/**",
-          "Tests/DiskStewardAppTests/Export/**",
-          "Tests/DiskStewardCoreTests/Export/**",
-          "Tests/IncrementTests/Application/**",
-          "docs/tasks/evidence/TASK-251/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-251/**"
-        ],
-        "commands": [
-          "swift test --filter 'EvidenceBundleExporterTests|StatusBoardPresentationTests'",
-          "swift test",
-          "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build"
-        ],
-        "deliverables": [
-          "Menu-to-EvidenceStore export wiring",
-          "Decision-focused Codex brief",
-          "Bounded exact current-state payload",
-          "Scope and coverage disclosure",
-          "End-to-end export journey tests"
-        ],
-        "non_goals": [
-          "Deleting exported bundles",
-          "Adding write-capable MCP tools",
-          "Reading or exporting file contents"
-        ]
-      }
-    },
-    {
-      "id": "TASK-252",
-      "kind": "implementation",
-      "title": "Harden folder selection and export handoff",
-      "summary": "Remove the crash-prone open/save panel dependency from monitored-root configuration and make the completed evidence directory open automatically after export.",
-      "level": 3,
-      "wave": 6,
-      "workstream": "experience",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-102",
-        "REQ-104",
-        "REQ-110",
-        "REQ-111"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-252-01",
-          "description": "Watched and excluded roots are chosen through an in-app native folder browser that does not instantiate NSOpenPanel or the crashing openAndSavePanelService, accepts an arbitrary readable directory, persists the standardized path exactly once, and supports cancel without mutation."
-        },
-        {
-          "id": "AC-252-02",
-          "description": "A successful Export Current Evidence action opens the completed evidence directory itself in Finder after all bundle files are committed; cancellation, unavailable storage, or export failure does not open Finder."
-        },
-        {
-          "id": "AC-252-03",
-          "description": "Focused tests cover folder navigation and commit semantics, watched-root persistence, export success/failure handoff, and the product remains buildable on macOS 13 or newer."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-252-01",
-          "type": "interaction-regression-test",
-          "description": "Automated folder-selection and export-completion tests plus a launched-app rehearsal showing a non-default watched root added without an open/save service crash and the completed export directory opened in Finder."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "TASK-220 settings surface",
-          "TASK-251 export path",
-          "MonitoringSettingsView and MonitoringSettingsStore",
-          "StatusItemController and StatusBoardViewModel",
-          "EV-121 openAndSavePanelService crash report"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/MonitoringUI/**",
-          "Sources/DiskStewardApp/StatusItemController.swift",
-          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
-          "Tests/DiskStewardAppTests/Settings/**",
-          "Tests/DiskStewardAppTests/Export/**",
-          "Tests/IncrementTests/Application/**",
-          "docs/tasks/evidence/TASK-252/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-252/**"
-        ],
-        "commands": [
-          "swift test --filter 'MonitoringSettingsTests|StatusBoardEvidenceExportTests'",
-          "swift test",
-          "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build"
-        ],
-        "deliverables": [
-          "In-app native folder browser",
-          "Watched and excluded root commit flow",
-          "Completed evidence-directory Finder handoff",
-          "Interaction regression tests"
-        ],
-        "non_goals": [
-          "Deleting user files or evidence exports",
-          "Changing evidence contents or MCP semantics",
-          "Depending on the macOS open/save panel service"
-        ]
-      }
-    },
-    {
-      "id": "GATE-290",
-      "kind": "audit",
-      "title": "Audit the polished native application increment",
-      "summary": "Verify the canonical bundle, redesigned dashboard, embedded MCP helper, convergent watched-root evidence, and the actual menu-created actionable bundle as one launchable product.",
-      "level": 3,
-      "wave": 7,
-      "workstream": "audit",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110",
-        "REQ-111"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-290-01",
-          "description": "A clean Xcode build launches the real app, exposes the menu item and redesigned popover, creates the complete CONTRACT-250 bundle through the actual menu action from a populated EvidenceStore, verifies every declared role and hash, and serves a read-only MCP query from its bundled helper."
-        },
-        {
-          "id": "AC-290-02",
-          "description": "Representative capacity, growth, active, paused, degraded, no-baseline, and error states pass visual, accessibility, and interaction inspection in light and dark appearance."
-        },
-        {
-          "id": "AC-290-03",
-          "description": "All inherited Swift tests and privacy, fallback, retention, export, and MCP scenarios pass with no newly introduced destructive or network surface."
-        },
-        {
-          "id": "AC-290-04",
-          "description": "The fresh-install Agent Access default is off; enabling permits read-only MCP, disabling promptly refuses it, and both transitions leave monitoring and evidence intact."
-        },
-        {
-          "id": "AC-290-05",
-          "description": "Time-tier boundaries, snapshot downsampling, finite anomaly detail, pressure eviction, coverage-loss reporting, lifecycle UI, manual export ownership, and get_evidence_lifecycle compose without exceeding the configured database limit; capped roots expose durable multi-slice progress and eventually close their entry-cap gap."
-        },
-        {
-          "id": "AC-290-06",
-          "description": "The complete evidence-chain matrix passes: multi-slice full-root convergence, A/B/C complete deletion versus partial uncertainty, restart gap, scope change, rename, replace, path reuse, current-only cleanup candidates, ended-session impact, ordered provenance, filter-before-limit pagination, and current-state survival through compaction."
-        },
-        {
-          "id": "AC-290-07",
-          "description": "The launched settings flow adds a non-default watched folder without using or crashing the open/save panel service, persists it once, and a completed Export Current Evidence action opens the exported evidence directory itself in Finder."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-290-01",
-          "type": "increment-audit",
-          "description": "Build and launch transcript, app-bundle inspection, UI screenshots and accessibility notes, a retained actual menu-produced bundle from populated state, its integrity verification and usefulness checklist, multi-slice convergence results, MCP parity, full regression output, and changed-surface inspection."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "CONTRACT-201 evidence",
-          "CONTRACT-240 evidence",
-          "TASK-210 evidence",
-          "TASK-230 evidence",
-          "TASK-241 evidence",
-          "TASK-242 evidence",
-          "TASK-243 evidence",
-          "TASK-244 evidence",
-          "TASK-220 evidence",
-          "CONTRACT-250 evidence",
-          "TASK-250 evidence",
-          "TASK-251 evidence",
-          "Completed PLAN-DISK-STEWARD-001 dossier"
-        ],
-        "allowed_write_scope": [
-          "Tests/IncrementTests/Application/**",
-          "docs/tasks/evidence/GATE-290/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/GATE-290/**"
-        ],
-        "commands": [
-          "swift test",
-          "xcodebuild -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug build"
-        ],
-        "deliverables": [
-          "Polished application increment audit",
-          "Launch and visual evidence",
-          "Regression and surface-inspection result"
-        ],
-        "non_goals": [
-          "Changing product requirements to make a failure pass",
-          "Release notarization",
-          "Product implementation outside audit fixtures"
-        ]
-      }
-    },
-    {
-      "id": "TASK-310",
-      "kind": "implementation",
-      "title": "Build the credential-free release and notarization handoff",
-      "summary": "Provide inspectable archive, export, verification, and Xcode Organizer instructions that use Developer ID correctly while leaving account-backed final actions to the user.",
-      "level": 2,
-      "wave": 8,
-      "workstream": "distribution",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-101",
-        "REQ-104",
-        "REQ-105",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109"
+        "REQ-301"
       ],
       "acceptance_criteria": [
         {
           "id": "AC-310-01",
-          "description": "A release scheme archives the app with hardened runtime and production entitlements, and documented Xcode Organizer steps guide Developer ID distribution and notarization without embedding account credentials."
-        },
-        {
-          "id": "AC-310-02",
-          "description": "Release scripts accept an archive or exported artifact, verify expected identity class, the single-file MCP helper code-signing identity and application-identifier entitlement, entitlements, timestamp, notarization and staple status, and Gatekeeper acceptance, and reject ad hoc or Apple Distribution-only output for direct release."
-        },
-        {
-          "id": "AC-310-03",
-          "description": "When Developer ID access is missing, the workflow stops with the precise Xcode or account-holder action and leaves a usable development build intact."
+          "description": "Injected scanner failure and interrupted work preserve app responsiveness, retained evidence access, visible degradation, and restart-loop suppression."
         }
       ],
       "required_evidence": [
         {
-          "id": "EVREQ-310-01",
-          "type": "release-workflow-test",
-          "description": "Archive logs, expected-failure fixtures, signed-artifact inspection when available, and a successful human handoff rehearsal."
+          "id": "EV-310-01",
+          "type": "runtime-test",
+          "description": "Deterministic containment and recovery test evidence."
         }
       ],
       "agent": {
         "required_context": [
-          "RESEARCH-201 readiness record",
-          "DiskSteward.xcodeproj",
-          "Config/Signing",
-          "Config/Entitlements",
-          "Scripts/Distribution",
-          "Exported notarized app showing the single-file MCP helper identifier mismatch",
-          "Current exported and notarized application bundle evidence"
+          "TASK-301 result",
+          "GATE-310 audit"
         ],
-        "allowed_write_scope": [
-          "Config/Packaging/project.yml",
-          "Config/Signing/**",
-          "DiskSteward.xcodeproj/project.pbxproj",
-          "DiskSteward.xcodeproj/xcshareddata/xcschemes/**",
-          "Config/ExportOptions/**",
-          "Scripts/Distribution/**",
-          "docs/release/**",
-          "docs/tasks/evidence/TASK-310/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-310/**"
-        ],
-        "commands": [
-          "xcodebuild archive",
-          "codesign --verify --deep --strict --verbose=2",
-          "spctl --assess --type execute --verbose=4",
-          "xcrun stapler validate"
-        ],
+        "allowed_write_scope": [],
+        "commands": [],
         "deliverables": [
-          "Release archive configuration",
-          "Credential-free release verification scripts",
-          "Xcode Organizer and notarization handoff",
-          "Missing-credential diagnostics"
+          "Safe failure behavior"
         ],
         "non_goals": [
-          "Saving notarization credentials",
-          "Automatically manipulating certificates",
-          "Requiring Endpoint Security for the standard release"
+          "No implementation at outcome node"
         ]
       }
     },
     {
-      "id": "RISK-320",
-      "kind": "risk-control",
-      "title": "Enforce distributable-artifact integrity and secret safety",
-      "summary": "Turn common macOS release failure modes into deterministic checks so an incomplete or incorrectly signed artifact cannot be mistaken for the distributable product.",
-      "level": 2,
-      "wave": 9,
-      "workstream": "distribution",
+      "id": "TASK-301",
+      "kind": "implementation",
+      "title": "Add containment, diagnostics, and safe startup",
+      "summary": "Create bounded failure diagnostics, durable incomplete-work state, single-flight monitoring, and production resource/circuit-breaker enforcement while proving the helper boundary feasibility.",
+      "level": 6,
+      "wave": 1,
+      "workstream": "containment",
       "selection": "primary",
       "source_requirements": [
-        "REQ-104",
-        "REQ-105",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109"
+        "REQ-301"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-301-01",
+          "description": "Monitoring work is single-flight and abnormal interruption becomes explicit stale/degraded state rather than an automatic dangerous restart."
+        },
+        {
+          "id": "AC-301-02",
+          "description": "Resource measurements activate backpressure and a circuit breaker before an uncontrolled scan can continue."
+        },
+        {
+          "id": "AC-301-03",
+          "description": "A bounded fixture harness captures work, memory, CPU, database, WAL, and queue evidence without scanning the user's live roots."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-301-01",
+          "type": "tests-and-traces",
+          "description": "Focused containment tests and bounded diagnostic output."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/Lifecycle",
+          "Sources/DiskStewardCore/ResourceControl",
+          "monitoring tests",
+          "incident evidence"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Sources/DiskStewardCore/ResourceControl/**",
+          "Sources/DiskStewardCore/Monitoring/**",
+          "Tests/**",
+          "docs/tasks/evidence/TASK-301/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/TASK-301/**"
+        ],
+        "commands": [
+          "swift test --filter Resource",
+          "swift test --filter Monitoring"
+        ],
+        "deliverables": [
+          "Safe-start and resource enforcement",
+          "Bounded diagnostic harness",
+          "Tests and evidence"
+        ],
+        "non_goals": [
+          "No migration or release"
+        ]
+      }
+    },
+    {
+      "id": "GATE-310",
+      "kind": "audit",
+      "title": "Audit safe failure increment",
+      "summary": "Independently verify constructability, app responsiveness, degradation honesty, and recovery under injected failure.",
+      "level": 6,
+      "wave": 1,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-301"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-G310-01",
+          "description": "The current candidate builds and the containment scenario succeeds without restart loops or false freshness."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-G310-01",
+          "type": "audit-result",
+          "description": "Reproducible containment audit."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "TASK-301 result"
+        ],
+        "allowed_write_scope": [
+          "docs/tasks/evidence/GATE-310/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/tasks/evidence/GATE-310/**"
+        ],
+        "commands": [
+          "swift test"
+        ],
+        "deliverables": [
+          "Audit result"
+        ],
+        "non_goals": [
+          "Do not modify source"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-320",
+      "kind": "outcome",
+      "title": "Large roots complete within resource limits",
+      "summary": "Watched roots make fair durable progress and complete without memory scaling with total entries.",
+      "level": 4,
+      "wave": 2,
+      "workstream": "scanner",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-302"
       ],
       "acceptance_criteria": [
         {
           "id": "AC-320-01",
-          "description": "Automated fixtures fail for wrong bundle identifiers, placeholder team values, missing hardened runtime, overbroad entitlements, unsigned or incorrectly signed nested code, absent notarization or staple evidence, and committed credential patterns."
-        },
-        {
-          "id": "AC-320-02",
-          "description": "The verification path checks the actual exported artifact and does not treat a successful compile, archive, or shallow codesign command as distribution success."
+          "description": "High-fanout and deep fixtures complete through bounded batches and resume correctly after interruption."
         }
       ],
       "required_evidence": [
         {
-          "id": "EVREQ-320-01",
-          "type": "negative-and-security-test",
-          "description": "Passing valid fixtures, rejecting invalid fixtures, repository secret scan, entitlement diff, and actual artifact inspection transcript."
+          "id": "EV-320-01",
+          "type": "scale-test",
+          "description": "Resource curves and traversal correctness across increasing fixture sizes."
         }
       ],
       "agent": {
         "required_context": [
-          "TASK-310 release workflow",
-          "Config/Signing",
-          "Config/Entitlements",
-          "Apple code signing and notarization requirements"
+          "OUTCOME-310"
         ],
-        "allowed_write_scope": [
-          "Tests/Distribution/**",
-          "Tests/IncrementTests/Distribution/**",
-          "docs/tasks/evidence/RISK-320/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/RISK-320/**"
-        ],
-        "commands": [
-          "swift test",
-          "Scripts/Distribution/verify"
-        ],
+        "allowed_write_scope": [],
+        "commands": [],
         "deliverables": [
-          "Distribution negative-test suite",
-          "Secret and entitlement safety checks",
-          "Artifact-integrity evidence"
+          "Bounded complete traversal"
         ],
         "non_goals": [
-          "Weakening checks for locally available identities",
-          "Scanning user files outside the repository",
-          "Changing application features"
+          "No implementation at outcome node"
         ]
       }
     },
     {
-      "id": "GATE-390",
-      "kind": "audit",
-      "title": "Audit the direct-distribution release",
-      "summary": "Verify the exact exported application, public product story, Homebrew release posture, and polished app journey before declaring it safe to share outside Xcode.",
-      "level": 2,
-      "wave": 10,
-      "workstream": "audit",
+      "id": "TASK-302",
+      "kind": "implementation",
+      "title": "Replace repeated listings with bounded resumable traversal",
+      "summary": "Implement one-listing-per-directory bounded slices, durable resumable progress, fair scheduling, idempotent replay, and high-fanout scale tests.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "scanner",
       "selection": "primary",
       "source_requirements": [
-        "REQ-101",
-        "REQ-102",
-        "REQ-103",
-        "REQ-104",
-        "REQ-105",
-        "REQ-106",
-        "REQ-107",
-        "REQ-108",
-        "REQ-109",
-        "REQ-110",
-        "REQ-111",
-        "REQ-112",
-        "REQ-113",
-        "REQ-114"
+        "REQ-302"
       ],
       "acceptance_criteria": [
         {
-          "id": "AC-390-01",
-          "description": "The exact exported artifact has the canonical identifiers, Developer ID Application signatures for all executable code, hardened runtime, least-privilege production entitlements, successful notarization and stapling, and Gatekeeper acceptance."
+          "id": "AC-302-01",
+          "description": "A 100,000-child directory does not trigger 100,000 full directory listings or retain all entry metadata across slices."
         },
         {
-          "id": "AC-390-02",
-          "description": "The exported app launches on the target Mac, exposes the status board, preserves the fresh-install MCP-off default, successfully toggles read-only Agent Access on and off, adds a non-default watched folder without invoking the open/save panel service, completes or honestly advances a capped watched-root generation, creates and verifies an actionable bundle through the actual menu action, opens the completed export directory in Finder, reruns the inherited evidence-chain matrix including A/B/C deletion and partial-scan uncertainty, and keeps the full regression suite green."
-        },
-        {
-          "id": "AC-390-03",
-          "description": "If user-owned Apple credentials or approval are unavailable, the gate records a blocked release with exact remediation and does not mark OUTCOME-220 or INTENT-002 verified."
-        },
-        {
-          "id": "AC-390-04",
-          "description": "The public KMerdan repository is reachable, identifies the MIT license, renders real product screenshots, points developers to reproducible checks, distinguishes available source development from planned notarized and Homebrew distribution, and contains no committed credentials, private keys, provisioning profiles, runtime databases, or build products."
-        },
-        {
-          "id": "AC-390-05",
-          "description": "The published promo is exactly 30 seconds, legible at 1920x1080, captioned, supported by its source transcript, and uses real Disk Steward product imagery."
-        },
-        {
-          "id": "AC-390-06",
-          "description": "The public Homebrew tap validates and remains explicitly disabled while no notarized immutable release asset exists; activation requires a real version, checksum, release URL, and release verification evidence."
+          "id": "AC-302-02",
+          "description": "Cancellation, pause, restart, and concurrent filesystem changes converge without permanent skips or false completeness."
         }
       ],
       "required_evidence": [
         {
-          "id": "EVREQ-390-01",
-          "type": "final-release-audit",
-          "description": "Artifact hash and contents, codesign and entitlement output, notarization and staple result, Gatekeeper result, launch and product-journey transcript, actual menu-created evidence bundle and integrity result, complete tests, and secret-safety result."
-        },
-        {
-          "id": "EVREQ-390-02",
-          "type": "public-promotion-and-tap-audit",
-          "description": "Published video and transcript URLs, exact media duration, visual inspection evidence, public tap state, cask validation output, and truthful installability result."
+          "id": "EV-302-01",
+          "type": "benchmark-and-tests",
+          "description": "Traversal count, memory curve, restart matrix, and correctness oracle."
         }
       ],
       "agent": {
         "required_context": [
-          "GATE-290 verified increment",
-          "RESEARCH-201 readiness record",
-          "TASK-310 evidence",
-          "RISK-320 evidence",
-          "Exact exported release artifact",
-          "TASK-253 public-repository evidence",
-          "TASK-260 promotional evidence",
-          "TASK-321 Homebrew tap evidence"
+          "DirectoryMetadataScanner",
+          "MetadataScanGeneration",
+          "ConvergentScanGenerationTests",
+          "Gate 310 evidence"
         ],
         "allowed_write_scope": [
-          "docs/tasks/evidence/GATE-390/**"
+          "Sources/DiskStewardCore/Monitoring/**",
+          "Sources/DiskStewardCore/EvidenceStore/**",
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Tests/**",
+          "docs/tasks/evidence/TASK-302/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/TASK-302/**"
+        ],
+        "commands": [
+          "swift test --filter ConvergentScanGeneration",
+          "swift test --filter DirectoryMetadataScanner"
+        ],
+        "deliverables": [
+          "Bounded traversal",
+          "Durable progress",
+          "Scale tests"
+        ],
+        "non_goals": [
+          "No evidence migration"
+        ]
+      }
+    },
+    {
+      "id": "GATE-320",
+      "kind": "audit",
+      "title": "Audit bounded traversal increment",
+      "summary": "Verify high-fanout completion, memory plateau, prompt pause, restart convergence, and inherited safe failure.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-301",
+        "REQ-302"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-G320-01",
+          "description": "Scale tests establish bounded memory and exact traversal while Gate 310 scenarios continue to pass."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-G320-01",
+          "type": "audit-result",
+          "description": "Reproducible bounded-traversal audit."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "TASK-302 result",
+          "GATE-310 evidence"
+        ],
+        "allowed_write_scope": [
+          "docs/tasks/evidence/GATE-320/**"
         ],
         "effect": "evidence-only",
         "evidence_outputs": [
-          "docs/tasks/evidence/GATE-390/**"
+          "docs/tasks/evidence/GATE-320/**"
         ],
         "commands": [
-          "Scripts/Distribution/verify",
-          "swift test",
-          "spctl --assess --type execute --verbose=4",
-          "xcrun stapler validate",
-          "gh repo view KMerdan/disk_steward --json url,visibility,licenseInfo,defaultBranchRef",
-          "git status --short --branch",
-          "ffprobe or afinfo exact-duration inspection",
-          "brew style --cask",
-          "brew audit --cask"
+          "swift test"
         ],
         "deliverables": [
-          "Final distribution audit",
-          "Artifact identity and integrity record",
-          "Inherited product-journey result",
-          "Truthful pass or blocked release disposition"
+          "Audit result"
         ],
         "non_goals": [
-          "Editing product code during the audit",
-          "Claiming notarization without Apple evidence",
-          "Changing acceptance criteria"
+          "Do not modify source"
         ]
       }
     },
     {
-      "id": "TASK-253",
-      "kind": "implementation",
-      "title": "Publish the open-source project surface",
-      "summary": "Create an accurate modern README with real screenshots, apply the MIT license, harden public-repository exclusions, and publish the current source under KMerdan without overstating release maturity.",
-      "level": 2,
-      "wave": 9,
-      "workstream": "distribution",
+      "id": "OUTCOME-330",
+      "kind": "outcome",
+      "title": "Evidence stays correct through change and interruption",
+      "summary": "Current presence, history, identity, scope, and coverage remain honest across lifecycle changes and event loss.",
+      "level": 3,
+      "wave": 3,
+      "workstream": "evidence",
       "selection": "primary",
       "source_requirements": [
-        "REQ-101",
-        "REQ-104",
-        "REQ-106",
-        "REQ-112"
+        "REQ-303"
       ],
       "acceptance_criteria": [
         {
-          "id": "AC-253-01",
-          "description": "README.md uses real light and dark product screenshots and explains value, capabilities, evidence architecture, MCP integration, privacy, local development, verification, project structure, and current distribution maturity in a concise GitHub-native presentation."
-        },
-        {
-          "id": "AC-253-02",
-          "description": "The repository contains the standard MIT license with a correct 2026 copyright notice, and GitHub recognizes the license."
-        },
-        {
-          "id": "AC-253-03",
-          "description": "KMerdan/disk_steward is public with main pushed cleanly, useful repository metadata and topics, and no committed secrets, credential material, provisioning profiles, runtime databases, evidence exports, or build artifacts."
+          "id": "AC-330-01",
+          "description": "The deterministic lifecycle oracle accepts no false current consumer, false deletion, path-reuse identity, or false completeness."
         }
       ],
       "required_evidence": [
         {
-          "id": "EVREQ-253-01",
-          "type": "public-repository-audit",
-          "description": "Local documentation and asset inspection, complete test and diff checks, bounded secret and generated-artifact scan, public GitHub repository metadata, license detection, and pushed commit identity."
+          "id": "EV-330-01",
+          "type": "correctness-matrix",
+          "description": "Lifecycle, coverage, event-loss, and interruption results."
         }
       ],
       "agent": {
         "required_context": [
-          "Current product capabilities and UI evidence",
-          "Current direct-distribution and Homebrew maturity",
-          "Authenticated GitHub account and repository state"
+          "OUTCOME-320"
         ],
-        "allowed_write_scope": [
-          "README.md",
-          "LICENSE",
-          ".gitignore",
-          "docs/images/**",
-          "docs/tasks/evidence/TASK-253/**",
-          ".pyramid/**"
-        ],
-        "commands": [
-          "swift test",
-          "git diff --check",
-          "git status --short --branch",
-          "gh repo view KMerdan/disk_steward --json url,visibility,licenseInfo,defaultBranchRef"
-        ],
+        "allowed_write_scope": [],
+        "commands": [],
         "deliverables": [
-          "Modern README",
-          "Real screenshot assets",
-          "MIT LICENSE",
-          "Public-repository safety evidence",
-          "Public KMerdan/disk_steward repository"
+          "Correct evidence lifecycle"
         ],
         "non_goals": [
-          "Publishing an unnotarized binary",
-          "Claiming a Homebrew cask already exists",
-          "Committing Apple credentials or private runtime evidence",
-          "Changing application behavior"
+          "No implementation at outcome node"
         ]
       }
     },
     {
-      "id": "TASK-260",
+      "id": "TASK-303",
       "kind": "implementation",
-      "title": "Produce the research-grounded 30-second product story",
-      "summary": "Research supportable claims, write a timecoded transcript, build a polished Remotion composition from real product imagery, render exactly 30 seconds, and publish the source and media.",
-      "level": 2,
-      "wave": 9,
-      "workstream": "product-story",
+      "title": "Make reconciliation and event recovery bounded and authoritative",
+      "summary": "Move generation reconciliation into indexed SQL batches, separate current state from change history, and make FSEvents a durable invalidation source with explicit coverage semantics.",
+      "level": 4,
+      "wave": 3,
+      "workstream": "evidence",
       "selection": "primary",
       "source_requirements": [
-        "REQ-101",
-        "REQ-104",
-        "REQ-110",
-        "REQ-112",
-        "REQ-113"
+        "REQ-303"
       ],
       "acceptance_criteria": [
         {
-          "id": "AC-260-01",
-          "description": "The voiceover and timecoded transcript explain invisible AI-workflow disk growth, the cost and uncertainty of repeated cleanup analysis, and Disk Steward's evidence-first non-destructive response using only attributable or clearly framed product claims."
+          "id": "AC-303-01",
+          "description": "A/B/C followed by deletion of B yields A and C current, B historical, and no deletion when coverage is partial or inaccessible."
         },
         {
-          "id": "AC-260-02",
-          "description": "The final H.264 MP4 is exactly 900 frames at 30 fps, 1920x1080, has synchronized voiceover and readable burned-in captions, and visually uses actual Disk Steward screenshots or product assets."
+          "id": "AC-303-02",
+          "description": "Reconciliation and event replay use bounded SQL operations and are idempotent across every tested interruption boundary."
         },
         {
-          "id": "AC-260-03",
-          "description": "The Remotion source is reproducible, the rendered file and poster are publication-sized, and README links viewers to the 30-second story and full research transcript."
+          "id": "AC-303-03",
+          "description": "Dropped or coalesced events create durable dirty coverage requiring reconciliation before freshness is restored."
         }
       ],
       "required_evidence": [
         {
-          "id": "EVREQ-260-01",
-          "type": "research-and-media-audit",
-          "description": "Primary-source ledger, transcript review, build output, exact duration and codec metadata, keyframe inspection, file size, and README link verification."
+          "id": "EV-303-01",
+          "type": "correctness-tests",
+          "description": "Lifecycle oracle and transaction interruption matrix."
         }
       ],
       "agent": {
         "required_context": [
-          "Current README and real status-board screenshots",
-          "Disk Steward evidence and MCP architecture",
-          "Official OpenAI and Anthropic local-agent documentation",
-          "Apple direct-distribution documentation"
+          "EvidenceStore",
+          "TargetedFSEventsCollector",
+          "convergent scan tests",
+          "Gate 320 evidence"
         ],
         "allowed_write_scope": [
-          "promo/**",
-          "docs/media/**",
-          "docs/research/**",
-          "README.md",
-          ".gitignore",
-          "docs/tasks/evidence/TASK-260/**",
-          ".pyramid/**"
+          "Sources/DiskStewardCore/EvidenceStore/**",
+          "Sources/DiskStewardCore/Monitoring/**",
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Tests/**",
+          "docs/tasks/evidence/TASK-303/**"
         ],
         "effect": "mixed",
         "evidence_outputs": [
-          "docs/tasks/evidence/TASK-260/**"
+          "docs/tasks/evidence/TASK-303/**"
         ],
         "commands": [
-          "npm install",
-          "npm run typecheck",
-          "npm run render",
-          "afinfo docs/media/disk-steward-promo-30s.mp4",
-          "git diff --check"
+          "swift test --filter Evidence",
+          "swift test --filter FSEvent",
+          "swift test --filter ConvergentScanGeneration"
         ],
         "deliverables": [
-          "Exactly 30-second promotional MP4",
-          "Video poster",
-          "Reproducible Remotion source",
-          "Timecoded transcript and research notes",
-          "README video presentation"
+          "Bounded reconciliation",
+          "Durable invalidation recovery",
+          "Lifecycle oracle"
         ],
         "non_goals": [
-          "Claiming unsupported telemetry or industry-wide statistics",
-          "Showing destructive automatic cleanup",
-          "Using third-party copyrighted music or footage",
-          "Publishing user runtime evidence"
+          "No migration or release"
         ]
       }
     },
     {
-      "id": "TASK-321",
-      "kind": "implementation",
-      "title": "Publish a fail-closed Homebrew tap",
-      "summary": "Create and validate a maintainable Homebrew cask, document the release activation contract, and upload a public KMerdan tap whose availability truthfully follows notarized artifact readiness.",
-      "level": 2,
-      "wave": 9,
-      "workstream": "distribution",
+      "id": "GATE-330",
+      "kind": "audit",
+      "title": "Audit evidence correctness increment",
+      "summary": "Verify lifecycle truth, idempotent recovery, coverage honesty, and inherited containment and scale guarantees.",
+      "level": 4,
+      "wave": 3,
+      "workstream": "assurance",
       "selection": "primary",
       "source_requirements": [
-        "REQ-105",
-        "REQ-106",
-        "REQ-112",
-        "REQ-114"
+        "REQ-301",
+        "REQ-302",
+        "REQ-303"
       ],
       "acceptance_criteria": [
         {
-          "id": "AC-321-01",
-          "description": "Packaging/Homebrew/Casks/disk-steward.rb declares name, description, homepage, supported macOS version, app artifact, and conservative zap paths in Homebrew's expected layout."
-        },
-        {
-          "id": "AC-321-02",
-          "description": "Until a notarized immutable release asset exists, the cask is disabled with a clear reason; activation instructions require replacing latest/no-check placeholders with an exact version, immutable GitHub asset URL, and SHA-256 before removing the guard."
-        },
-        {
-          "id": "AC-321-03",
-          "description": "KMerdan/homebrew-disk-steward is public with the cask at Casks/disk-steward.rb, explanatory README, clean pushed commit, and recorded brew validation output."
+          "id": "AC-G330-01",
+          "description": "The complete lifecycle oracle and inherited gates pass against the current candidate."
         }
       ],
       "required_evidence": [
         {
-          "id": "EVREQ-321-01",
-          "type": "homebrew-publication-audit",
-          "description": "Manifest inspection, style/audit transcript, release-asset absence or notarization evidence, public tap metadata, and pushed commit identity."
+          "id": "EV-G330-01",
+          "type": "audit-result",
+          "description": "Reproducible correctness audit."
         }
       ],
       "agent": {
         "required_context": [
-          "Apple notarization and direct-distribution requirements",
-          "Homebrew Cask Cookbook and tap conventions",
-          "Current GitHub release state",
-          "Existing release workflow and current fail-closed release status"
+          "TASK-303 result",
+          "prior gate evidence"
         ],
         "allowed_write_scope": [
-          "Packaging/Homebrew/**",
-          "README.md",
-          "docs/tasks/evidence/TASK-321/**",
-          ".pyramid/**"
+          "docs/tasks/evidence/GATE-330/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/tasks/evidence/GATE-330/**"
+        ],
+        "commands": [
+          "swift test"
+        ],
+        "deliverables": [
+          "Audit result"
+        ],
+        "non_goals": [
+          "Do not modify source"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-340",
+      "kind": "outcome",
+      "title": "All evidence consumers remain bounded",
+      "summary": "Live storage, WAL, queues, logs, UI, exports, and MCP apply explicit backpressure and disclose capacity or precision loss.",
+      "level": 2,
+      "wave": 4,
+      "workstream": "storage",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-304"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-340-01",
+          "description": "High churn and concurrent export/MCP workloads stabilize within configured operational budgets or enter visible controlled degradation."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-340-01",
+          "type": "resource-soak",
+          "description": "Storage, WAL, memory, query, pagination, export, and backpressure evidence."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "OUTCOME-330"
+        ],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [
+          "Bounded evidence system"
+        ],
+        "non_goals": [
+          "No implementation at outcome node"
+        ]
+      }
+    },
+    {
+      "id": "TASK-304",
+      "kind": "implementation",
+      "title": "Bound retention, storage admission, export, UI, and MCP",
+      "summary": "Enforce an all-file live-storage budget, change-only history, bounded retention/checkpoint work, revision-pinned pagination, and streaming exports with visible capacity gaps.",
+      "level": 3,
+      "wave": 4,
+      "workstream": "storage",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-304"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-304-01",
+          "description": "Unchanged scans do not generate file-count times scan-count history, and database/WAL/log/temp usage reaches controlled behavior under churn."
+        },
+        {
+          "id": "AC-304-02",
+          "description": "UI, export, and MCP share bounded revision-consistent query services and surface coverage, truncation, cursor expiry, and capacity limits."
+        },
+        {
+          "id": "AC-304-03",
+          "description": "Large exports stream without whole-bundle memory growth and completed manual exports remain user-owned."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-304-01",
+          "type": "stress-and-contract-tests",
+          "description": "Database/WAL accounting, churn, pagination, export, MCP, and retention evidence."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "EvidenceStore retention",
+          "EvidenceBundleExporter",
+          "AppEvidenceQueryBackend",
+          "MCPServer",
+          "Gate 330 evidence"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/EvidenceStore/**",
+          "Sources/DiskStewardCore/Export/**",
+          "Sources/DiskStewardCore/IPC/**",
+          "Sources/DiskStewardApp/IPC/**",
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Sources/DiskStewardMCP/**",
+          "Tests/**",
+          "docs/tasks/evidence/TASK-304/**"
         ],
         "effect": "mixed",
         "evidence_outputs": [
-          "docs/tasks/evidence/TASK-321/**"
+          "docs/tasks/evidence/TASK-304/**"
         ],
         "commands": [
-          "brew style --cask",
-          "brew audit --cask",
-          "gh repo view KMerdan/homebrew-disk-steward",
-          "git diff --check"
+          "swift test --filter Retention",
+          "swift test --filter Export",
+          "swift test --filter MCP"
         ],
         "deliverables": [
-          "Canonical Homebrew cask manifest",
-          "Release activation checklist",
-          "Public KMerdan Homebrew tap",
-          "Validation and publication evidence"
+          "Storage admission and retention",
+          "Bounded shared queries",
+          "Streaming export",
+          "Stress tests"
         ],
         "non_goals": [
-          "Uploading an unnotarized application",
-          "Using sha256 :no_check for an enabled cask",
-          "Claiming brew installation is available before the release gate passes",
-          "Embedding Apple credentials"
+          "No destructive cleanup"
+        ]
+      }
+    },
+    {
+      "id": "GATE-340",
+      "kind": "audit",
+      "title": "Audit bounded evidence-system increment",
+      "summary": "Verify resource stabilization, honest controlled degradation, shared revision truth, and all inherited behavior.",
+      "level": 3,
+      "wave": 4,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-301",
+        "REQ-302",
+        "REQ-303",
+        "REQ-304"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-G340-01",
+          "description": "The stress workload and all inherited scenarios pass without unbounded app-owned state or false completeness."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-G340-01",
+          "type": "audit-result",
+          "description": "Reproducible bounded-system audit."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "TASK-304 result",
+          "prior gate evidence"
+        ],
+        "allowed_write_scope": [
+          "docs/tasks/evidence/GATE-340/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/tasks/evidence/GATE-340/**"
+        ],
+        "commands": [
+          "swift test"
+        ],
+        "deliverables": [
+          "Audit result"
+        ],
+        "non_goals": [
+          "Do not modify source"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-350",
+      "kind": "outcome",
+      "title": "A verified safe upgrade candidate is ready for release promotion",
+      "summary": "The signed replacement migrates recoverably, preserves explainable evidence, passes candidate-level workloads, and cannot be distributed until external Apple trust proofs succeed.",
+      "level": 1,
+      "wave": 5,
+      "workstream": "release",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-305"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-350-01",
+          "description": "A recoverable migration and exact signed candidate pass fresh-install, legacy-upgrade, scale, interruption, an accelerated 24-hour high-churn workload, and at least 864 scheduled cycles representing 72 hours; the same artifact remains blocked from distribution until notarization, stapling, Gatekeeper, and installed launch proof."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-350-01",
+          "type": "candidate-verification",
+          "description": "Migration, accelerated lifecycle soak, signature, architecture, isolated launch, and fail-closed release-promotion evidence."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "OUTCOME-340"
+        ],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [
+          "Verified safe upgrade"
+        ],
+        "non_goals": [
+          "No implementation at outcome node"
+        ]
+      }
+    },
+    {
+      "id": "TASK-305",
+      "kind": "integration",
+      "title": "Migrate, stress, package, and verify the release candidate",
+      "summary": "Implement versioned recoverable migration, validate rollback and legacy semantics, run the complete deterministic workload matrix, and produce exact signed-candidate plus fail-closed promotion evidence.",
+      "level": 2,
+      "wave": 5,
+      "workstream": "release",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-305"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-305-01",
+          "description": "Migration uses a consistent source, preflights space, switches atomically after validation, and recovers from each injected interruption."
+        },
+        {
+          "id": "AC-305-02",
+          "description": "The exact candidate passes fresh install, legacy upgrade, scale, correctness, sleep/wake, login, export, MCP, a 100,000-event storm, and an accelerated 72-hour-equivalent 864-cycle soak on both packaged architectures."
+        },
+        {
+          "id": "AC-305-03",
+          "description": "Distribution remains blocked unless signature, hardened runtime, notarization, stapling, Gatekeeper, and installed launch are proven."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-305-01",
+          "type": "release-candidate-evidence",
+          "description": "Migration matrix, workload traces, artifact hashes, universal architecture and Developer ID signature records, isolated launch proof, and a release-gate rejection until notarization, stapling, and Gatekeeper are present."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Schema versions",
+          "Packaging",
+          "release scripts",
+          "all prior gates"
+        ],
+        "allowed_write_scope": [
+          "Sources/**",
+          "Tests/**",
+          "Scripts/**",
+          "Packaging/**",
+          "Config/**",
+          "DiskSteward.xcodeproj/**",
+          "README.md",
+          "docs/tasks/evidence/TASK-305/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/TASK-305/**"
+        ],
+        "commands": [
+          "swift test",
+          "Scripts/Distribution/archive-release --release <absolute-output.xcarchive>",
+          "Scripts/Distribution/verify-release <absolute-app-or-xcarchive-path>"
+        ],
+        "deliverables": [
+          "Recoverable migration",
+          "Soak results",
+          "Exact release candidate evidence"
+        ],
+        "non_goals": [
+          "Do not publish without explicit release authorization"
+        ]
+      }
+    },
+    {
+      "id": "GATE-350",
+      "kind": "audit",
+      "title": "Audit safe upgrade and final intent",
+      "summary": "Independently verify migration, deterministic exact-candidate behavior, fail-closed distribution trust, and every inherited increment before intent closure.",
+      "level": 2,
+      "wave": 5,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-301",
+        "REQ-302",
+        "REQ-303",
+        "REQ-304",
+        "REQ-305"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-G350-01",
+          "description": "All final and inherited engineering scenarios pass against the exact signed candidate with reproducible evidence, and the unchanged promotion gate demonstrably rejects release without notarization, stapling, Gatekeeper, and installed launch proof."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EV-G350-01",
+          "type": "final-audit",
+          "description": "Independent final engineering-candidate audit plus explicit external release-promotion blockers."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "TASK-305 result",
+          "all prior gate evidence"
+        ],
+        "allowed_write_scope": [
+          "docs/tasks/evidence/GATE-350/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/tasks/evidence/GATE-350/**"
+        ],
+        "commands": [
+          "swift test",
+          "Scripts/Distribution/verify-release <absolute-app-or-xcarchive-path>"
+        ],
+        "deliverables": [
+          "Final audit result"
+        ],
+        "non_goals": [
+          "Do not modify source"
         ]
       }
     }
   ],
   "edges": [
     {
-      "from": "OUTCOME-220",
-      "to": "INTENT-002",
+      "from": "OUTCOME-310",
+      "to": "OUTCOME-320",
       "type": "contributes-to"
     },
     {
-      "from": "OUTCOME-210",
-      "to": "OUTCOME-220",
+      "from": "OUTCOME-320",
+      "to": "OUTCOME-330",
       "type": "contributes-to"
     },
     {
-      "from": "CONTRACT-201",
-      "to": "OUTCOME-210",
+      "from": "OUTCOME-330",
+      "to": "OUTCOME-340",
       "type": "contributes-to"
     },
     {
-      "from": "TASK-210",
-      "to": "OUTCOME-210",
+      "from": "OUTCOME-340",
+      "to": "OUTCOME-350",
       "type": "contributes-to"
     },
     {
-      "from": "TASK-230",
-      "to": "OUTCOME-210",
+      "from": "OUTCOME-350",
+      "to": "INTENT-003",
       "type": "contributes-to"
     },
     {
-      "from": "CONTRACT-240",
-      "to": "OUTCOME-210",
+      "from": "TASK-301",
+      "to": "OUTCOME-310",
       "type": "contributes-to"
     },
     {
-      "from": "TASK-241",
-      "to": "OUTCOME-210",
+      "from": "GATE-310",
+      "to": "OUTCOME-310",
       "type": "contributes-to"
     },
     {
-      "from": "TASK-242",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-243",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-244",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-220",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "CONTRACT-250",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-250",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-251",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-252",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "GATE-290",
-      "to": "OUTCOME-210",
-      "type": "contributes-to"
-    },
-    {
-      "from": "RESEARCH-201",
-      "to": "OUTCOME-220",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-310",
-      "to": "OUTCOME-220",
-      "type": "contributes-to"
-    },
-    {
-      "from": "RISK-320",
-      "to": "OUTCOME-220",
-      "type": "contributes-to"
-    },
-    {
-      "from": "GATE-390",
-      "to": "OUTCOME-220",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-210",
-      "to": "CONTRACT-201",
-      "type": "contract-requires"
-    },
-    {
-      "from": "TASK-230",
-      "to": "CONTRACT-201",
-      "type": "contract-requires"
-    },
-    {
-      "from": "CONTRACT-240",
-      "to": "CONTRACT-201",
-      "type": "contract-requires"
-    },
-    {
-      "from": "TASK-241",
-      "to": "CONTRACT-240",
-      "type": "contract-requires"
-    },
-    {
-      "from": "TASK-242",
-      "to": "TASK-241",
-      "type": "requires"
-    },
-    {
-      "from": "TASK-243",
-      "to": "TASK-241",
-      "type": "requires"
-    },
-    {
-      "from": "TASK-244",
-      "to": "TASK-242",
-      "type": "requires"
-    },
-    {
-      "from": "TASK-244",
-      "to": "TASK-243",
-      "type": "requires"
-    },
-    {
-      "from": "TASK-244",
-      "to": "TASK-230",
-      "type": "requires"
-    },
-    {
-      "from": "TASK-220",
-      "to": "CONTRACT-201",
-      "type": "contract-requires"
-    },
-    {
-      "from": "TASK-220",
-      "to": "TASK-230",
-      "type": "requires"
-    },
-    {
-      "from": "TASK-220",
-      "to": "TASK-244",
-      "type": "requires"
-    },
-    {
-      "from": "TASK-250",
-      "to": "CONTRACT-250",
-      "type": "contract-requires"
-    },
-    {
-      "from": "TASK-251",
-      "to": "CONTRACT-250",
-      "type": "contract-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "CONTRACT-201",
-      "type": "validation-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "CONTRACT-240",
-      "type": "validation-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-210",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-230",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-241",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-242",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-243",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-244",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-220",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "CONTRACT-250",
-      "type": "validation-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-250",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-251",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-290",
-      "to": "TASK-252",
-      "type": "integration-requires"
-    },
-    {
-      "from": "OUTCOME-210",
-      "to": "GATE-290",
+      "from": "OUTCOME-310",
+      "to": "GATE-310",
       "type": "validated-by"
     },
     {
-      "from": "TASK-310",
-      "to": "RESEARCH-201",
+      "from": "GATE-310",
+      "to": "TASK-301",
       "type": "requires"
     },
     {
-      "from": "RISK-320",
-      "to": "TASK-310",
+      "from": "TASK-302",
+      "to": "OUTCOME-320",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-320",
+      "to": "OUTCOME-320",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-302",
+      "to": "OUTCOME-310",
       "type": "requires"
     },
     {
-      "from": "GATE-390",
-      "to": "OUTCOME-210",
-      "type": "validation-requires"
-    },
-    {
-      "from": "GATE-390",
-      "to": "RESEARCH-201",
-      "type": "validation-requires"
-    },
-    {
-      "from": "GATE-390",
-      "to": "TASK-310",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-390",
-      "to": "RISK-320",
-      "type": "integration-requires"
-    },
-    {
-      "from": "OUTCOME-220",
-      "to": "GATE-390",
+      "from": "OUTCOME-320",
+      "to": "GATE-320",
       "type": "validated-by"
     },
     {
-      "from": "INTENT-002",
-      "to": "OUTCOME-220",
+      "from": "GATE-320",
+      "to": "TASK-302",
+      "type": "requires"
+    },
+    {
+      "from": "GATE-320",
+      "to": "OUTCOME-310",
       "type": "validation-requires"
     },
     {
-      "from": "TASK-253",
-      "to": "OUTCOME-220",
+      "from": "TASK-303",
+      "to": "OUTCOME-330",
       "type": "contributes-to"
     },
     {
-      "from": "GATE-390",
-      "to": "TASK-253",
-      "type": "integration-requires"
-    },
-    {
-      "from": "TASK-260",
-      "to": "OUTCOME-220",
+      "from": "GATE-330",
+      "to": "OUTCOME-330",
       "type": "contributes-to"
     },
     {
-      "from": "TASK-321",
-      "to": "OUTCOME-220",
+      "from": "TASK-303",
+      "to": "OUTCOME-320",
+      "type": "requires"
+    },
+    {
+      "from": "OUTCOME-330",
+      "to": "GATE-330",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-330",
+      "to": "TASK-303",
+      "type": "requires"
+    },
+    {
+      "from": "GATE-330",
+      "to": "OUTCOME-320",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-304",
+      "to": "OUTCOME-340",
       "type": "contributes-to"
     },
     {
-      "from": "GATE-390",
-      "to": "TASK-260",
-      "type": "integration-requires"
+      "from": "GATE-340",
+      "to": "OUTCOME-340",
+      "type": "contributes-to"
     },
     {
-      "from": "GATE-390",
-      "to": "TASK-321",
-      "type": "integration-requires"
+      "from": "TASK-304",
+      "to": "OUTCOME-330",
+      "type": "requires"
+    },
+    {
+      "from": "OUTCOME-340",
+      "to": "GATE-340",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-340",
+      "to": "TASK-304",
+      "type": "requires"
+    },
+    {
+      "from": "GATE-340",
+      "to": "OUTCOME-330",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-305",
+      "to": "OUTCOME-350",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-350",
+      "to": "OUTCOME-350",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-305",
+      "to": "OUTCOME-340",
+      "type": "requires"
+    },
+    {
+      "from": "OUTCOME-350",
+      "to": "GATE-350",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-350",
+      "to": "TASK-305",
+      "type": "requires"
+    },
+    {
+      "from": "GATE-350",
+      "to": "OUTCOME-340",
+      "type": "validation-requires"
     }
   ]
 }

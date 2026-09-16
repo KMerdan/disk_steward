@@ -1,0 +1,34 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-302",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+    "docs/tasks/evidence/TASK-302/agent-result.json",
+    "docs/tasks/evidence/TASK-302/traversal-verification.json"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift", "class": "source"},
+    {"path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift", "class": "source"},
+    {"path": "docs/tasks/evidence/TASK-302/agent-result.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/TASK-302/traversal-verification.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test --filter ConvergentScanGeneration", "result": "passed (7 tests)"},
+    {"command": "swift test --filter DirectoryMetadataScanner", "result": "passed (7 tests)"},
+    {"command": "swift test", "result": "passed (169 tests)"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-302-01", "result": "passed", "reference": "testBoundedSelectorKeepsOnlyFirstBatchAcrossOneHundredThousandNames and testHighFanoutSliceUsesOneStreamingPassAndRetainsOnlyItsBudget"},
+    {"criterion": "AC-302-02", "result": "passed", "reference": "testDirectoryChangeBeforeResumeResetsCursorAndDoesNotSkipEarlierName, restart persistence tests, invalid-cursor test, and fair-root test"}
+  ],
+  "discovered_risks": [
+    "A directory larger than one slice is streamed once per slice to preserve a portable durable cursor; retained memory remains bounded but total enumeration work is proportional to directory size times slice count.",
+    "Filesystem mutation after a directory has fully completed belongs to the next evidence generation/FSEvents recovery path; a portable filesystem snapshot is not available.",
+    "Generation completion and evidence reconciliation still materialize staged metadata in memory and are addressed by TASK-303."
+  ],
+  "suggested_graph_changes": []
+}

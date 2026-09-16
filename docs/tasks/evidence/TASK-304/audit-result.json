@@ -1,0 +1,14 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-304",
+  "result": "pass",
+  "checks": [
+    {"id": "CHECK-304-01", "result": "passed", "evidence": ["two unchanged complete generations retain one detailed state row", "storage admission rejects an oversized batch before writing", "DB/WAL/SHM bytes are separately observable"]},
+    {"id": "CHECK-304-02", "result": "passed", "evidence": ["retention processes 10,050 expired rows as 10,000 plus 50", "capacity eviction has a 64-batch ceiling", "compaction performs at most one VACUUM per run"]},
+    {"id": "CHECK-304-03", "result": "passed", "evidence": ["cursor mutation produces explicit cursorExpired", "query pages cap at 500", "export-related table caps and limitations are explicit"]},
+    {"id": "CHECK-304-04", "result": "passed", "evidence": ["10,000 events stream through 64 KiB zlib chunks", "payloads are written and hashed independently", "manual export ownership remains user-controlled"]},
+    {"id": "CHECK-304-05", "result": "passed", "evidence": ["Retention, Export, and MCP focused suites pass", "full 179-test suite passes", "git diff --check passes"]}
+  ],
+  "affected_claims": ["TASK-304", "OUTCOME-340"],
+  "recommended_action": "advance"
+}

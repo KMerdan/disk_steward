@@ -89,6 +89,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private func storageSummary() async throws -> JSONValue {
         let snapshot = try VolumeSnapshotService().capture()
         let lifecycle = try await store.lifecycleStatus(try .init())
+        let diagnostics = try await store.diagnostics()
         let latestObservation = try await store.latestObservationAt()
         let volumes = snapshot.volumes.map { volume in
             JSONValue.object([
@@ -107,6 +108,10 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "current_allocated_bytes": .integer(lifecycle.currentStateAllocatedBytes),
             "database_bytes": .integer(lifecycle.databaseBytes),
             "database_cap_bytes": .integer(lifecycle.databaseCapBytes),
+            "database_file_bytes": .integer(diagnostics.databaseFileBytes),
+            "wal_bytes": .integer(diagnostics.walBytes),
+            "shared_memory_bytes": .integer(diagnostics.sharedMemoryBytes),
+            "storage_admission": .string(lifecycle.databaseBytes < lifecycle.databaseCapBytes ? "available" : "retention-required"),
             "coverage": .string(coverage(observationGaps: lifecycle.observationGaps)),
             "freshness": .string("live-volume-plus-persisted-current-state"),
             "limitations": .array((snapshot.limitations + ["Detailed current state covers configured roots; whole-volume capacity does not imply whole-volume file attribution."]).map(JSONValue.string)),

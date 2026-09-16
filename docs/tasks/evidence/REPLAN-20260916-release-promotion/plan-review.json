@@ -1,0 +1,87 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-REPLAN-20260916-RELEASE-PROMOTION",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-003",
+    "revision": 1,
+    "sha256": "c43c92766e27f46d46f4c8069f309656a832b343e7cc517b59df90ecd2bbd2d4"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-003",
+    "revision": 2,
+    "sha256": "2b1deccfc39c98f4aae8b47a68f74e371e81dfd21f2139e9c2bb75b0b2a46f08"
+  },
+  "facts": [
+    {
+      "id": "FACT-REPLAN-301",
+      "claim": "The exact 1.1.0 candidate is universal, Developer ID signed with hardened runtime and timestamp, and passes an isolated accessory-app launch smoke.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": ["EVID-307", "docs/tasks/evidence/REPLAN-20260916-release-promotion/trigger-evidence.json"],
+      "supports": ["TASK-305", "GATE-350"],
+      "freshness": "Observed from rc4 on 2026-09-16."
+    },
+    {
+      "id": "FACT-REPLAN-302",
+      "claim": "The production verifier passes local identity controls and then rejects the candidate because no Apple notarization ticket is stapled.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": ["EVID-308", "Scripts/Distribution/verify-release"],
+      "supports": ["TASK-305", "GATE-350"],
+      "freshness": "Observed against rc4 on 2026-09-16."
+    },
+    {
+      "id": "FACT-REPLAN-303",
+      "claim": "A deterministic 864-cycle lifecycle workload models 72 hours with a denser first 24 hours, while a separate 100,000-event storm exercises overload behavior.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": ["EVID-309", "Tests/PerformanceTests/PerformanceTests.swift"],
+      "supports": ["TASK-305", "GATE-350"],
+      "freshness": "PerformanceTests passed on 2026-09-16."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-REPLAN-301",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": ["TASK-305", "GATE-350", "OUTCOME-350", "INTENT-003"],
+      "claim": "The final rung conflated reproducible engineering completion with external Apple release promotion and literal wall-clock waiting, despite its explicit no-publication boundary.",
+      "evidence": ["EVID-307", "EVID-308", "EVID-309"],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Qualified the final rung as a verified signed upgrade candidate, made the accelerated workload exact, and retained notarization, stapling, Gatekeeper, and installed launch as mandatory fail-closed promotion controls.",
+      "rationale": "The change preserves every safety control and makes completion reproducible without claiming an unauthorized external release operation."
+    }
+  ],
+  "coverage": [
+    {"requirement": "REQ-301", "before_nodes": ["INTENT-003", "OUTCOME-310", "TASK-301", "GATE-310", "GATE-320", "GATE-330", "GATE-340", "GATE-350"], "after_nodes": ["INTENT-003", "OUTCOME-310", "TASK-301", "GATE-310", "GATE-320", "GATE-330", "GATE-340", "GATE-350"], "status": "preserved"},
+    {"requirement": "REQ-302", "before_nodes": ["INTENT-003", "OUTCOME-320", "TASK-302", "GATE-320", "GATE-330", "GATE-340", "GATE-350"], "after_nodes": ["INTENT-003", "OUTCOME-320", "TASK-302", "GATE-320", "GATE-330", "GATE-340", "GATE-350"], "status": "preserved"},
+    {"requirement": "REQ-303", "before_nodes": ["INTENT-003", "OUTCOME-330", "TASK-303", "GATE-330", "GATE-340", "GATE-350"], "after_nodes": ["INTENT-003", "OUTCOME-330", "TASK-303", "GATE-330", "GATE-340", "GATE-350"], "status": "preserved"},
+    {"requirement": "REQ-304", "before_nodes": ["INTENT-003", "OUTCOME-340", "TASK-304", "GATE-340", "GATE-350"], "after_nodes": ["INTENT-003", "OUTCOME-340", "TASK-304", "GATE-340", "GATE-350"], "status": "preserved"},
+    {"requirement": "REQ-305", "before_nodes": ["INTENT-003", "OUTCOME-350", "TASK-305", "GATE-350"], "after_nodes": ["INTENT-003", "OUTCOME-350", "TASK-305", "GATE-350"], "status": "strengthened"}
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "strengthened",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "strengthened",
+    "audit_closure": "strengthened",
+    "execution_safety": "strengthened"
+  },
+  "metrics": {
+    "before": {"nodes": 16, "executable_nodes": 10, "edges": 33, "hard_dependencies": 13, "audit_gates": 5},
+    "after": {"nodes": 16, "executable_nodes": 10, "edges": 33, "hard_dependencies": 13, "audit_gates": 5}
+  },
+  "summary": "The candidate preserves the bounded-and-crash-resilient intent, all four verified increments, the final task, and every release safety control. It removes an ambiguous coupling between code completion and unauthorized external promotion: deterministic accelerated soak is now reproducible engineering evidence, while the production verifier remains the non-bypassable notarization, stapling, Gatekeeper, and launch boundary.",
+  "limitations": [
+    "The replan does not notarize or publish the candidate.",
+    "Calendar-time field observation remains useful after release promotion but is not substituted for the deterministic failure-injection, 100,000-event, and 864-cycle engineering tests.",
+    "The exact rc4 archive is stored in /private/tmp and must be rebuilt from the same source if that temporary artifact is removed."
+  ]
+}

@@ -28,6 +28,10 @@ else
 fi
 
 cd "$repository"
+/usr/bin/env xcodegen generate \
+  --spec "$repository/Config/Packaging/project.yml" \
+  --project-root "$repository" \
+  --project "$repository"
 /usr/bin/xcodebuild \
   -quiet \
   -project DiskSteward.xcodeproj \
@@ -37,6 +41,11 @@ cd "$repository"
   -archivePath "$archive_path" \
   "${signing_arguments[@]}" \
   archive
+
+if [[ "$mode" == "--release" ]]; then
+  "$repository/Scripts/Distribution/finalize-archive-signatures" \
+    "$archive_path/Products/Applications/Disk Steward.app"
+fi
 
 print "Archive created: $archive_path"
 if [[ "$mode" == "--unsigned-rehearsal" ]]; then

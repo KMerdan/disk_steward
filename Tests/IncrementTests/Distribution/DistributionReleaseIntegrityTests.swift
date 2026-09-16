@@ -31,9 +31,12 @@ final class DistributionReleaseIntegrityTests: XCTestCase {
             "runtime",
             "com.apple.security.application-groups",
             "no additional entitlement keys or group values",
-            "codesign --verify --deep --strict",
+            "codesign --verify --deep --strict --all-architectures",
+            "lipo -archs",
             "xcrun stapler validate",
             "spctl --assess --type execute",
+            "--ui-smoke",
+            "DISK_STEWARD_SUPPORT_DIRECTORY",
         ]
         for control in requiredControls {
             XCTAssertTrue(verifier.contains(control), "Missing production release control: \(control)")

@@ -211,6 +211,37 @@ final class EvidenceBundleExporterTests: XCTestCase, @unchecked Sendable {
         await store.close()
     }
 
+    func testLargeEventPayloadUsesStreamingCompressionAndRemainsVerifiable() async throws {
+        let fixture = try Fixture()
+        let store = try EvidenceStore(url: fixture.databaseURL)
+        let eventCount = 10_000
+        try await store.insert((0 ..< eventCount).map { index in
+            Self.event(
+                id: "streamed-\(index)",
+                at: Self.base.addingTimeInterval(Double(index)),
+                path: "/tmp/streamed/\(String(repeating: "segment-", count: 8))\(index)"
+            )
+        })
+
+        let result = try await EvidenceBundleExporter(
+            identifierSource: { "streamed-large" },
+            dateSource: { Self.base.addingTimeInterval(Double(eventCount + 1)) }
+        ).export(
+            store: store,
+            options: .init(
+                from: Self.base,
+                through: Self.base.addingTimeInterval(Double(eventCount)),
+                maximumEvents: eventCount
+            ),
+            to: fixture.exports
+        )
+
+        XCTAssertEqual(try decodedEventObjects(in: result.bundleURL).count, eventCount)
+        XCTAssertFalse(result.manifest.limitations.contains { $0.contains("Raw event detail was truncated") })
+        try verifyHashes(result)
+        await store.close()
+    }
+
     func testConcurrentWritesProduceOneInternallyConsistentBackupView() async throws {
         let fixture = try Fixture()
         let store = try EvidenceStore(url: fixture.databaseURL)

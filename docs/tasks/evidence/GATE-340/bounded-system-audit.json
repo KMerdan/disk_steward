@@ -1,0 +1,34 @@
+{
+  "schema": "disk-steward-bounded-system-audit-v1",
+  "gate": "GATE-340",
+  "result": "passed",
+  "inherited_evidence": [
+    "TASK-301 live RSS/CPU/storage/backpressure circuit breaker and single-flight lifecycle",
+    "TASK-302 streaming traversal with bounded frontier and fair multi-root progress",
+    "TASK-303 atomic staged reconciliation, durable invalidations, and honest coverage gaps",
+    "TASK-304 change-only history, all-file storage admission, bounded retention, revision cursors, and streaming export"
+  ],
+  "resource_bounds": {
+    "directory_slice_entries": 512,
+    "inline_reconciliation_objects": 2500,
+    "query_page_rows": 500,
+    "retention_batch_rows": 10000,
+    "capacity_eviction_batch_rows": 1000,
+    "capacity_eviction_maximum_batches": 64,
+    "default_store_cap_bytes": 536870912,
+    "export_compression_chunk_bytes": 65536
+  },
+  "honesty_controls": [
+    "event loss opens a durable coverage gap",
+    "partial scans never invent deletion",
+    "cursor mutation expires the read instead of mixing revisions",
+    "capacity and truncation limitations are surfaced to UI, export, and MCP",
+    "manual exports remain user-owned"
+  ],
+  "verification": {
+    "command": "swift test",
+    "tests": 179,
+    "failures": 0,
+    "duration_seconds": 10.849
+  }
+}

@@ -33,12 +33,20 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         var supportDirectory: URL?
         var evidenceDatabaseURL: URL?
         do {
-            let support = try FileManager.default.url(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: true
-            ).appending(path: "Disk Steward", directoryHint: .isDirectory)
+            let support: URL
+            if let override = ProcessInfo.processInfo.environment["DISK_STEWARD_SUPPORT_DIRECTORY"],
+               !override.isEmpty
+            {
+                support = URL(fileURLWithPath: override, isDirectory: true).standardizedFileURL
+                try FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
+            } else {
+                support = try FileManager.default.url(
+                    for: .applicationSupportDirectory,
+                    in: .userDomainMask,
+                    appropriateFor: nil,
+                    create: true
+                ).appending(path: "Disk Steward", directoryHint: .isDirectory)
+            }
             supportDirectory = support
             let databaseURL = support.appending(path: "evidence.sqlite")
             evidenceDatabaseURL = databaseURL
@@ -114,6 +122,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             "agent_access": agentAccess.state.kind.rawValue,
             "ipc_service": agentAccess.state.kind == .on ? "active" : agentAccess.state.kind.rawValue,
         ]
+    }
+
+    func systemWillSleep() {
+        lifecycle.prepareForSystemSleep()
+    }
+
+    func systemDidWake() {
+        lifecycle.resumeAfterSystemWake()
     }
 
     private func configureStatusItem() {

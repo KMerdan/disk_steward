@@ -1,0 +1,60 @@
+{
+  "schema": "disk-steward-final-candidate-audit-v1",
+  "gate": "GATE-350",
+  "result": "engineering-candidate-passed-release-promotion-blocked",
+  "candidate": {
+    "path": "/private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+    "version": "1.1.0",
+    "build": "2",
+    "architectures": ["x86_64", "arm64"],
+    "developer_id": "Developer ID Application: Marudan Kiji (G3P6TU385Y)",
+    "app_executable_sha256": "bf2fe68d2d7cf4c7ab11bd8c2b6cc1ee5c413dda970088e33d7aae282cdb8f32",
+    "mcp_executable_sha256": "95ae0fc9a9e97b0ca6ad793515eadaee184f3d960a80f89c7fc8d86fbeaf943d",
+    "isolated_launch": "passed"
+  },
+  "inherited_gates": {
+    "GATE-310": "passed: live budgets, bounded slices, single-flight lifecycle and circuit breaker",
+    "GATE-320": "passed: streaming traversal, durable cursors and fair multi-root progress",
+    "GATE-330": "passed: atomic reconciliation, durable invalidation and interruption recovery",
+    "GATE-340": "passed: bounded retention, queries, provenance and streaming export"
+  },
+  "final_checks": [
+    {
+      "command": "swift test",
+      "result": "passed",
+      "tests": 184,
+      "failures": 0,
+      "duration_seconds": 11.418
+    },
+    {
+      "command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+      "result": "expected rejection",
+      "exit_code": 68,
+      "first_unsatisfied_control": "notarization-staple"
+    },
+    {
+      "scenario": "accelerated lifecycle soak",
+      "result": "passed",
+      "scheduled_cycles": 864,
+      "represented_hours": 72,
+      "high_churn_hours": 24
+    },
+    {
+      "scenario": "event overload",
+      "result": "passed",
+      "events": 100000
+    },
+    {
+      "scenario": "recoverable migration",
+      "result": "passed",
+      "injected_interruption_points": 4
+    }
+  ],
+  "release_boundary": {
+    "notarized": false,
+    "stapled": false,
+    "gatekeeper_verified": false,
+    "published": false,
+    "interpretation": "The engineering implementation is complete, but this exact artifact cannot be promoted until Apple notarization, stapling, Gatekeeper acceptance, and final installed launch are proven."
+  }
+}

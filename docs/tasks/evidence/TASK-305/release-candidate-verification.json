@@ -1,0 +1,80 @@
+{
+  "schema": "disk-steward-release-candidate-verification-v1",
+  "task": "TASK-305",
+  "result": "engineering-candidate-passed-release-promotion-blocked",
+  "migration": {
+    "source": "SQLite online backup from a WAL-checkpointed source",
+    "preflight": "requires max(64 MiB, three times live SQLite files plus 16 MiB)",
+    "switch": "validated shadow database replaces the primary with atomic rename and directory fsync",
+    "interruption_points": [
+      "after-consistent-copy",
+      "after-shadow-validation",
+      "before-atomic-switch",
+      "after-atomic-switch"
+    ],
+    "recovery_result": "all interruption points preserve legacy-event, integrity ok, schema 6, and remove migration shadow",
+    "insufficient_space_result": "original schema and evidence remain unchanged"
+  },
+  "workload_matrix": {
+    "fresh_store": "passed",
+    "legacy_upgrade": "passed",
+    "large_high_fanout_roots": "passed",
+    "atomic_reconciliation": "passed",
+    "system_sleep_wake": "passed without changing user pause preference",
+    "launch_at_login": "passed",
+    "streaming_export_events": 10000,
+    "mcp": "passed",
+    "event_storm": 100000,
+    "accelerated_soak_cycles": 864,
+    "accelerated_soak_cycle_minutes": 5,
+    "accelerated_soak_hours": 72,
+    "accelerated_high_churn_hours": 24,
+    "retention_boundary_hours": 6,
+    "result": "passed"
+  },
+  "candidate": {
+    "path": "/private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+    "version": "1.1.0",
+    "build": "2",
+    "category": "public.app-category.utilities",
+    "architectures": ["x86_64", "arm64"],
+    "app_executable_sha256": "bf2fe68d2d7cf4c7ab11bd8c2b6cc1ee5c413dda970088e33d7aae282cdb8f32",
+    "mcp_executable_sha256": "95ae0fc9a9e97b0ca6ad793515eadaee184f3d960a80f89c7fc8d86fbeaf943d",
+    "identity": "Developer ID Application: Marudan Kiji (G3P6TU385Y)",
+    "team_id": "G3P6TU385Y",
+    "hardened_runtime": true,
+    "secure_timestamp": "2026-09-16T12:19:54+09:00",
+    "nested_signature_all_architectures": "passed",
+    "isolated_launch_smoke": {
+      "status": "launched",
+      "activation_policy": "accessory",
+      "agent_access": "off",
+      "ipc_service": "off",
+      "left_click_surface": "status-board",
+      "right_click_surface": "utility-menu",
+      "snapshot_available": true
+    }
+  },
+  "release_promotion": {
+    "verifier": "Scripts/Distribution/verify-release",
+    "local_identity_controls": "passed",
+    "status": "blocked",
+    "first_unsatisfied_control": "notarization-staple",
+    "message": "Release rejected: no valid notarization ticket is stapled.",
+    "notarization_uploaded": false,
+    "published": false,
+    "safety_interpretation": "Distribution cannot proceed until the exact promoted artifact proves notarization, stapling, Gatekeeper acceptance, and the verifier's launch smoke."
+  },
+  "checks": [
+    "swift test --filter EvidenceStoreTests: 12 passed",
+    "swift test --filter MonitoringLifecycleTests: 8 passed",
+    "swift test --filter DistributionReleaseIntegrityTests: 5 passed",
+    "swift test --filter PerformanceTests: 5 passed",
+    "swift test: 184 passed",
+    "Scripts/Distribution/archive-release --release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive: passed",
+    "Scripts/Distribution/verify --release: passed",
+    "Scripts/Distribution/release-preflight: passed",
+    "Scripts/Distribution/verify-release rc4: correctly blocked at notarization staple",
+    "git diff --check: passed"
+  ]
+}

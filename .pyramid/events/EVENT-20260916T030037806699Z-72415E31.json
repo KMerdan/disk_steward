@@ -1,0 +1,407 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T030037806699Z-72415E31",
+  "at": "2026-09-16T03:00:37.806595Z",
+  "graph_version": 25,
+  "actor": "codex-root",
+  "type": "audit.pass",
+  "node": "TASK-304",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T03:00:25.881995Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-304",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "docs/tasks/evidence/TASK-304/agent-result.json",
+        "docs/tasks/evidence/TASK-304/bounded-consumers-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/bounded-consumers-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Retention",
+          "result": "passed (9 tests)"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed (26 tests)"
+        },
+        {
+          "command": "swift test --filter MCP",
+          "result": "passed (23 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (179 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-304-01",
+          "result": "passed",
+          "reference": "unchanged-generation history test, DB/WAL/SHM accounting, pre-write storage admission, 10,050-row bounded retention continuation, and bounded capacity eviction"
+        },
+        {
+          "criterion": "AC-304-02",
+          "result": "passed",
+          "reference": "shared EvidenceStore page limits, revision-pinned cursor expiry, bounded provenance state, explicit truncation/cap limitations, and MCP storage breakdown"
+        },
+        {
+          "criterion": "AC-304-03",
+          "result": "passed",
+          "reference": "10,000-event chunk-streamed zlib export, per-payload writes and incremental hashes, integrity verification, and manual export ownership tests"
+        }
+      ],
+      "discovered_risks": [
+        "Existing databases still use a bounded single VACUUM when compaction is required; migration and failure-injection coverage for that operation belongs to TASK-305.",
+        "Raw event export memory is capped at 100,000 records and related tables at 25,000 records; event serialization/compression is streamed, while each non-event JSON payload is bounded and encoded independently.",
+        "The configured admission cap is process configuration rather than a new persisted schema field; release defaults remain 512 MiB."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T03:00:37.806438Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-304",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+        "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "docs/tasks/evidence/TASK-304/agent-result.json",
+        "docs/tasks/evidence/TASK-304/bounded-consumers-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-304/bounded-consumers-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Retention",
+          "result": "passed (9 tests)"
+        },
+        {
+          "command": "swift test --filter Export",
+          "result": "passed (26 tests)"
+        },
+        {
+          "command": "swift test --filter MCP",
+          "result": "passed (23 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (179 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-304-01",
+          "result": "passed",
+          "reference": "unchanged-generation history test, DB/WAL/SHM accounting, pre-write storage admission, 10,050-row bounded retention continuation, and bounded capacity eviction"
+        },
+        {
+          "criterion": "AC-304-02",
+          "result": "passed",
+          "reference": "shared EvidenceStore page limits, revision-pinned cursor expiry, bounded provenance state, explicit truncation/cap limitations, and MCP storage breakdown"
+        },
+        {
+          "criterion": "AC-304-03",
+          "result": "passed",
+          "reference": "10,000-event chunk-streamed zlib export, per-payload writes and incremental hashes, integrity verification, and manual export ownership tests"
+        }
+      ],
+      "discovered_risks": [
+        "Existing databases still use a bounded single VACUUM when compaction is required; migration and failure-injection coverage for that operation belongs to TASK-305.",
+        "Raw event export memory is capped at 100,000 records and related tables at 25,000 records; event serialization/compression is streamed, while each non-event JSON payload is bounded and encoded independently.",
+        "The configured admission cap is process configuration rather than a new persisted schema field; release defaults remain 512 MiB."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-304",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-304-01",
+          "result": "passed",
+          "evidence": [
+            "two unchanged complete generations retain one detailed state row",
+            "storage admission rejects an oversized batch before writing",
+            "DB/WAL/SHM bytes are separately observable"
+          ]
+        },
+        {
+          "id": "CHECK-304-02",
+          "result": "passed",
+          "evidence": [
+            "retention processes 10,050 expired rows as 10,000 plus 50",
+            "capacity eviction has a 64-batch ceiling",
+            "compaction performs at most one VACUUM per run"
+          ]
+        },
+        {
+          "id": "CHECK-304-03",
+          "result": "passed",
+          "evidence": [
+            "cursor mutation produces explicit cursorExpired",
+            "query pages cap at 500",
+            "export-related table caps and limitations are explicit"
+          ]
+        },
+        {
+          "id": "CHECK-304-04",
+          "result": "passed",
+          "evidence": [
+            "10,000 events stream through 64 KiB zlib chunks",
+            "payloads are written and hashed independently",
+            "manual export ownership remains user-controlled"
+          ]
+        },
+        {
+          "id": "CHECK-304-05",
+          "result": "passed",
+          "evidence": [
+            "Retention, Export, and MCP focused suites pass",
+            "full 179-test suite passes",
+            "git diff --check passes"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-304",
+        "OUTCOME-340"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-304",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-304-01",
+          "result": "passed",
+          "evidence": [
+            "two unchanged complete generations retain one detailed state row",
+            "storage admission rejects an oversized batch before writing",
+            "DB/WAL/SHM bytes are separately observable"
+          ]
+        },
+        {
+          "id": "CHECK-304-02",
+          "result": "passed",
+          "evidence": [
+            "retention processes 10,050 expired rows as 10,000 plus 50",
+            "capacity eviction has a 64-batch ceiling",
+            "compaction performs at most one VACUUM per run"
+          ]
+        },
+        {
+          "id": "CHECK-304-03",
+          "result": "passed",
+          "evidence": [
+            "cursor mutation produces explicit cursorExpired",
+            "query pages cap at 500",
+            "export-related table caps and limitations are explicit"
+          ]
+        },
+        {
+          "id": "CHECK-304-04",
+          "result": "passed",
+          "evidence": [
+            "10,000 events stream through 64 KiB zlib chunks",
+            "payloads are written and hashed independently",
+            "manual export ownership remains user-controlled"
+          ]
+        },
+        {
+          "id": "CHECK-304-05",
+          "result": "passed",
+          "evidence": [
+            "Retention, Export, and MCP focused suites pass",
+            "full 179-test suite passes",
+            "git diff --check passes"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-304",
+        "OUTCOME-340"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 1,
+  "context_id": "CTX-2FE427F5D59C21C79AC3CA3D8153480A",
+  "previous_event_id": "EVENT-20260916T030025883170Z-BE875E3E",
+  "previous_event_sha256": "76938559d2f95dc0f900d945af503193cb37fb12c987117fbd8a1509b3a3e388"
+}

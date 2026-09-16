@@ -1,0 +1,48 @@
+{
+  "schema": "disk-steward-bounded-consumers-verification-v1",
+  "task": "TASK-304",
+  "result": "passed",
+  "storage": {
+    "accounted_files": ["database", "write-ahead-log", "shared-memory"],
+    "default_cap_bytes": 536870912,
+    "admission": "estimated writes are rejected before the all-file cap is crossed",
+    "forced_eviction_batch_rows": 1000,
+    "maximum_forced_eviction_batches_per_run": 64,
+    "vacuum_count_per_retention_run": 1
+  },
+  "history": {
+    "unchanged_complete_generations": 2,
+    "current_file_count": 1,
+    "detailed_state_history_rows": 1,
+    "second_generation_event_count": 0
+  },
+  "retention": {
+    "fixture_expired_rows": 10050,
+    "first_run_rows": 10000,
+    "second_run_rows": 50,
+    "continuation_disclosed": true,
+    "snapshot_downsampling": "bounded SQL deletion; no whole-table Swift array"
+  },
+  "queries": {
+    "maximum_page_rows": 500,
+    "revision_pinned_cursors": true,
+    "mutation_expires_cursor": true,
+    "provenance_current_state": "bounded by at most 100 matched object identities"
+  },
+  "export": {
+    "event_fixture_rows": 10000,
+    "compression_chunk_bytes": 65536,
+    "maximum_raw_events": 100000,
+    "maximum_related_rows_per_table": 25000,
+    "payload_write_strategy": "one payload at a time with incremental file hashing",
+    "manual_export_ownership_preserved": true,
+    "integrity_verified": true
+  },
+  "checks": [
+    "swift test --filter Retention: 9 tests passed",
+    "swift test --filter Export: 26 tests passed",
+    "swift test --filter MCP: 23 tests passed",
+    "swift test: 179 tests passed",
+    "git diff --check: passed"
+  ]
+}

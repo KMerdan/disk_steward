@@ -1,0 +1,247 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T023501525907Z-C8F09239",
+  "at": "2026-09-16T02:35:01.525800Z",
+  "graph_version": 17,
+  "actor": "codex-root",
+  "type": "task.implemented",
+  "node": "TASK-303",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "codex-root",
+    "lease_expires_at": "2026-09-16T04:17:31.689550Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T02:17:31.689675Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T02:35:01.525653Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-303",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "Tests/DiskStewardCoreTests/Provenance/DurableProvenanceLifecycleTests.swift",
+        "docs/tasks/evidence/TASK-303/agent-result.json",
+        "docs/tasks/evidence/TASK-303/reconciliation-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Provenance/DurableProvenanceLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-303/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-303/reconciliation-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Evidence",
+          "result": "passed (57 tests)"
+        },
+        {
+          "command": "swift test --filter FSEvent",
+          "result": "passed (3 tests)"
+        },
+        {
+          "command": "swift test --filter ConvergentScanGeneration",
+          "result": "passed (11 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (173 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-303-01",
+          "result": "passed",
+          "reference": "EvidenceObjectLifecycleTests plus the complete/partial generation lifecycle oracle"
+        },
+        {
+          "criterion": "AC-303-02",
+          "result": "passed",
+          "reference": "2,500-object bounded reconciliation and four injected transaction interruption checkpoints"
+        },
+        {
+          "criterion": "AC-303-03",
+          "result": "passed",
+          "reference": "persistent FSEvents invalidation, restart recovery, coalescing, and complete-scan resolution tests"
+        }
+      ],
+      "discovered_risks": [
+        "Generic manual recordObservation callers still provide an in-memory file array; the production convergent scan path now reconciles directly from bounded SQL staging.",
+        "Resolved invalidation and export history retention is owned by TASK-304.",
+        "Exporter, UI, MCP, and retention read paths remain the next potentially unbounded consumers and are owned by TASK-304."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": null,
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-303",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+        "Tests/DiskStewardCoreTests/Provenance/DurableProvenanceLifecycleTests.swift",
+        "docs/tasks/evidence/TASK-303/agent-result.json",
+        "docs/tasks/evidence/TASK-303/reconciliation-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Provenance/DurableProvenanceLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-303/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-303/reconciliation-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Evidence",
+          "result": "passed (57 tests)"
+        },
+        {
+          "command": "swift test --filter FSEvent",
+          "result": "passed (3 tests)"
+        },
+        {
+          "command": "swift test --filter ConvergentScanGeneration",
+          "result": "passed (11 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (173 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-303-01",
+          "result": "passed",
+          "reference": "EvidenceObjectLifecycleTests plus the complete/partial generation lifecycle oracle"
+        },
+        {
+          "criterion": "AC-303-02",
+          "result": "passed",
+          "reference": "2,500-object bounded reconciliation and four injected transaction interruption checkpoints"
+        },
+        {
+          "criterion": "AC-303-03",
+          "result": "passed",
+          "reference": "persistent FSEvents invalidation, restart recovery, coalescing, and complete-scan resolution tests"
+        }
+      ],
+      "discovered_risks": [
+        "Generic manual recordObservation callers still provide an in-memory file array; the production convergent scan path now reconciles directly from bounded SQL staging.",
+        "Resolved invalidation and export history retention is owned by TASK-304.",
+        "Exporter, UI, MCP, and retention read paths remain the next potentially unbounded consumers and are owned by TASK-304."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 1,
+  "context_id": "CTX-FAAB8AA603DF703C1B470771D119D9EA",
+  "previous_event_id": "EVENT-20260916T021731689804Z-E4B2C29B",
+  "previous_event_sha256": "14995cc17b3637c94d3d6832827a33ebacb3731e9f8b5a4b605319e46c67adbe"
+}

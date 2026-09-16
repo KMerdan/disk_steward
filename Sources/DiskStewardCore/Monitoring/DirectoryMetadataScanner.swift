@@ -82,11 +82,20 @@ public struct MetadataScanDirectoryCursor: Codable, Equatable, Sendable {
     public let directoryPath: String
     public let depth: Int
     public let afterName: String?
+    /// Signature of the directory when `afterName` was produced. A mismatch
+    /// resets the lexical cursor so names inserted before it are not skipped.
+    public let directorySignature: String?
 
-    public init(directoryPath: String, depth: Int, afterName: String? = nil) {
+    public init(
+        directoryPath: String,
+        depth: Int,
+        afterName: String? = nil,
+        directorySignature: String? = nil
+    ) {
         self.directoryPath = directoryPath
         self.depth = max(0, depth)
         self.afterName = afterName
+        self.directorySignature = directorySignature
     }
 }
 
@@ -128,6 +137,8 @@ public struct MetadataScanGeneration: Codable, Equatable, Sendable {
     public let updatedAt: Date
     public let completedAt: Date?
     public let limitations: [String]
+    /// Optional so generations persisted by older releases remain decodable.
+    public let schedulerCursor: Int?
 
     public init(
         generationID: String,
@@ -141,7 +152,8 @@ public struct MetadataScanGeneration: Codable, Equatable, Sendable {
         startedAt: Date,
         updatedAt: Date,
         completedAt: Date? = nil,
-        limitations: [String] = []
+        limitations: [String] = [],
+        schedulerCursor: Int? = 0
     ) {
         self.generationID = generationID
         self.scopeVersionID = scopeVersionID
@@ -155,6 +167,7 @@ public struct MetadataScanGeneration: Codable, Equatable, Sendable {
         self.updatedAt = updatedAt
         self.completedAt = completedAt
         self.limitations = Array(Set(limitations)).sorted()
+        self.schedulerCursor = schedulerCursor.map { max(0, $0) }
     }
 
     public var completedRootCount: Int {
@@ -162,13 +175,38 @@ public struct MetadataScanGeneration: Codable, Equatable, Sendable {
     }
 }
 
+public struct MetadataScanDiagnostics: Equatable, Sendable {
+    public let directoryEnumerationPasses: Int
+    public let directoryEntriesInspected: Int
+    public let peakRetainedDirectoryNames: Int
+    public let directoryChangeRestarts: Int
+
+    public init(
+        directoryEnumerationPasses: Int = 0,
+        directoryEntriesInspected: Int = 0,
+        peakRetainedDirectoryNames: Int = 0,
+        directoryChangeRestarts: Int = 0
+    ) {
+        self.directoryEnumerationPasses = max(0, directoryEnumerationPasses)
+        self.directoryEntriesInspected = max(0, directoryEntriesInspected)
+        self.peakRetainedDirectoryNames = max(0, peakRetainedDirectoryNames)
+        self.directoryChangeRestarts = max(0, directoryChangeRestarts)
+    }
+}
+
 public struct MetadataScanSlice: Equatable, Sendable {
     public let generation: MetadataScanGeneration
     public let entries: [FileMetadata]
+    public let diagnostics: MetadataScanDiagnostics
 
-    public init(generation: MetadataScanGeneration, entries: [FileMetadata]) {
+    public init(
+        generation: MetadataScanGeneration,
+        entries: [FileMetadata],
+        diagnostics: MetadataScanDiagnostics = .init()
+    ) {
         self.generation = generation
         self.entries = entries.sorted { $0.path < $1.path }
+        self.diagnostics = diagnostics
     }
 }
 
@@ -279,8 +317,21 @@ public struct DirectoryMetadataScanner: Sendable {
         var entries: [FileMetadata] = []
         var remaining = max(1, policy.maximumEntries)
         var generationLimitations = generation.limitations
+        var diagnostics = MetadataScanDiagnostics()
+        var nextSchedulerCursor = generation.schedulerCursor ?? 0
 
-        for rootIndex in roots.indices where remaining > 0 {
+        let activeRootIndices = roots.indices.filter {
+            roots[$0].status == .pending || roots[$0].status == .active
+        }
+        let scheduledRootIndices: [Int]
+        if activeRootIndices.isEmpty {
+            scheduledRootIndices = []
+        } else {
+            let start = nextSchedulerCursor % activeRootIndices.count
+            scheduledRootIndices = Array(activeRootIndices[start...]) + Array(activeRootIndices[..<start])
+        }
+
+        for (scheduledOffset, rootIndex) in scheduledRootIndices.enumerated() where remaining > 0 {
             var root = roots[rootIndex]
             guard root.status == .pending || root.status == .active else { continue }
             if root.status == .pending {
@@ -295,18 +346,38 @@ public struct DirectoryMetadataScanner: Sendable {
                 root = Self.copy(root, status: .active)
             }
 
-            while remaining > 0, root.status == .active {
+            let rootsStillToVisit = max(1, scheduledRootIndices.count - scheduledOffset)
+            var rootBudget = max(1, (remaining + rootsStillToVisit - 1) / rootsStillToVisit)
+            while remaining > 0, rootBudget > 0, root.status == .active {
                 guard var cursor = root.frontier.first else {
                     root = Self.copy(root, status: .completed, frontier: [])
                     break
                 }
-                let children: [URL]
+
+                let signatureBefore = Self.directorySignature(atPath: cursor.directoryPath)
+                if cursor.afterName != nil,
+                   let previousSignature = cursor.directorySignature,
+                   previousSignature != signatureBefore
+                {
+                    cursor = .init(
+                        directoryPath: cursor.directoryPath,
+                        depth: cursor.depth,
+                        directorySignature: signatureBefore
+                    )
+                    var frontier = root.frontier
+                    frontier[0] = cursor
+                    root = Self.copy(root, frontier: frontier)
+                    diagnostics = diagnostics.addingDirectoryChangeRestart()
+                }
+
+                let batch: BoundedDirectoryBatch
                 do {
-                    children = try manager.contentsOfDirectory(
-                        at: URL(fileURLWithPath: cursor.directoryPath, isDirectory: true),
-                        includingPropertiesForKeys: Array(Self.keys),
-                        options: []
-                    ).sorted { $0.lastPathComponent < $1.lastPathComponent }
+                    batch = try Self.boundedDirectoryBatch(
+                        atPath: cursor.directoryPath,
+                        afterName: cursor.afterName,
+                        limit: min(remaining, rootBudget)
+                    )
+                    diagnostics = diagnostics.adding(batch)
                 } catch {
                     let limitation = "Scan cursor became invalid at \(cursor.directoryPath): \(error.localizedDescription)"
                     root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
@@ -314,58 +385,94 @@ public struct DirectoryMetadataScanner: Sendable {
                     break
                 }
 
-                guard let child = children.first(where: { candidate in
-                    cursor.afterName.map { candidate.lastPathComponent > $0 } ?? true
-                }) else {
+                let signatureAfter = Self.directorySignature(atPath: cursor.directoryPath)
+                guard signatureBefore == signatureAfter else {
+                    var frontier = root.frontier
+                    frontier[0] = .init(
+                        directoryPath: cursor.directoryPath,
+                        depth: cursor.depth,
+                        directorySignature: signatureAfter
+                    )
+                    root = Self.copy(root, frontier: frontier)
+                    diagnostics = diagnostics.addingDirectoryChangeRestart()
+                    // Remain partial and yield instead of spinning on a hot directory.
+                    remaining = 0
+                    break
+                }
+
+                guard !batch.names.isEmpty else {
                     root = Self.copy(root, frontier: Array(root.frontier.dropFirst()))
                     continue
                 }
 
-                cursor = .init(directoryPath: cursor.directoryPath, depth: cursor.depth, afterName: child.lastPathComponent)
+                cursor = .init(
+                    directoryPath: cursor.directoryPath,
+                    depth: cursor.depth,
+                    afterName: batch.names.last,
+                    directorySignature: signatureAfter
+                )
                 var frontier = root.frontier
                 frontier[0] = cursor
-                root = Self.copy(root, frontier: frontier, processedEntryCount: root.processedEntryCount + 1)
-                remaining -= 1
+                root = Self.copy(
+                    root,
+                    frontier: frontier,
+                    processedEntryCount: root.processedEntryCount + batch.names.count
+                )
+                remaining -= batch.names.count
+                rootBudget -= batch.names.count
 
-                if policy.exclusionReason(for: child.path) != nil { continue }
-                do {
-                    let values = try child.resourceValues(forKeys: Self.keys)
-                    if values.isSymbolicLink == true { continue }
-                    if values.isDirectory == true {
-                        let childDepth = cursor.depth + 1
-                        if childDepth > policy.maximumDepth {
-                            let limitation = "Configured depth limit prevented complete coverage below \(child.path)."
-                            root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
-                            generationLimitations.append(limitation)
-                        } else {
-                            root = Self.copy(
-                                root,
-                                frontier: root.frontier + [.init(directoryPath: child.standardizedFileURL.path, depth: childDepth)]
-                            )
+                for childName in batch.names {
+                    let child = URL(fileURLWithPath: cursor.directoryPath, isDirectory: true)
+                        .appendingPathComponent(childName)
+                    if policy.exclusionReason(for: child.path) != nil { continue }
+                    do {
+                        let values = try child.resourceValues(forKeys: Self.keys)
+                        if values.isSymbolicLink == true { continue }
+                        if values.isDirectory == true {
+                            let childDepth = cursor.depth + 1
+                            if childDepth > policy.maximumDepth {
+                                let limitation = "Configured depth limit prevented complete coverage below \(child.path)."
+                                root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
+                                generationLimitations.append(limitation)
+                            } else {
+                                root = Self.copy(
+                                    root,
+                                    frontier: root.frontier + [.init(directoryPath: child.standardizedFileURL.path, depth: childDepth)]
+                                )
+                            }
+                            continue
                         }
-                        continue
+                        guard values.isRegularFile == true else { continue }
+                        let path = child.standardizedFileURL.path
+                        let identity = Self.identity(for: path)
+                        entries.append(FileMetadata(
+                            objectID: identity.id,
+                            identityMethod: identity.method,
+                            rootPath: root.rootPath,
+                            path: path,
+                            logicalBytes: Int64(values.fileSize ?? 0),
+                            allocatedBytes: Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0),
+                            modifiedAt: values.contentModificationDate,
+                            linkCount: identity.linkCount
+                        ))
+                        root = Self.copy(root, observedFileCount: root.observedFileCount + 1)
+                    } catch {
+                        let limitation = "Metadata unavailable for \(child.path): \(error.localizedDescription)"
+                        root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
+                        generationLimitations.append(limitation)
                     }
-                    guard values.isRegularFile == true else { continue }
-                    let path = child.standardizedFileURL.path
-                    let identity = Self.identity(for: path)
-                    entries.append(FileMetadata(
-                        objectID: identity.id,
-                        identityMethod: identity.method,
-                        rootPath: root.rootPath,
-                        path: path,
-                        logicalBytes: Int64(values.fileSize ?? 0),
-                        allocatedBytes: Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0),
-                        modifiedAt: values.contentModificationDate,
-                        linkCount: identity.linkCount
-                    ))
-                    root = Self.copy(root, observedFileCount: root.observedFileCount + 1)
-                } catch {
-                    let limitation = "Metadata unavailable for \(child.path): \(error.localizedDescription)"
-                    root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
-                    generationLimitations.append(limitation)
+                }
+
+                if !batch.hasMore {
+                    root = Self.copy(root, frontier: Array(root.frontier.dropFirst()))
                 }
             }
             roots[rootIndex] = root
+            if !activeRootIndices.isEmpty,
+               let position = activeRootIndices.firstIndex(of: rootIndex)
+            {
+                nextSchedulerCursor = (position + 1) % activeRootIndices.count
+            }
         }
 
         let status: MetadataScanGenerationStatus
@@ -392,9 +499,10 @@ public struct DirectoryMetadataScanner: Sendable {
             startedAt: generation.startedAt,
             updatedAt: date,
             completedAt: completedAt,
-            limitations: generationLimitations
+            limitations: generationLimitations,
+            schedulerCursor: nextSchedulerCursor
         )
-        return MetadataScanSlice(generation: updated, entries: entries)
+        return MetadataScanSlice(generation: updated, entries: entries, diagnostics: diagnostics)
     }
 
     public func scan(policy: MonitoringPolicy, at date: Date = Date()) -> MetadataSnapshot {
@@ -569,6 +677,59 @@ public struct DirectoryMetadataScanner: Sendable {
         return String(hash, radix: 16)
     }
 
+    private static func directorySignature(atPath path: String) -> String? {
+        var information = stat()
+        guard lstat(path, &information) == 0 else { return nil }
+        return [
+            String(information.st_dev),
+            String(information.st_ino),
+            String(information.st_mtimespec.tv_sec),
+            String(information.st_mtimespec.tv_nsec),
+            String(information.st_ctimespec.tv_sec),
+            String(information.st_ctimespec.tv_nsec),
+        ].joined(separator: ":")
+    }
+
+    /// Streams one immediate directory pass and retains only the smallest
+    /// `limit` names after the durable lexical cursor.
+    private static func boundedDirectoryBatch(
+        atPath directoryPath: String,
+        afterName: String?,
+        limit: Int
+    ) throws -> BoundedDirectoryBatch {
+        guard let directory = opendir(directoryPath) else {
+            throw POSIXDirectoryError(path: directoryPath, code: errno)
+        }
+        defer { closedir(directory) }
+
+        var heap = BoundedMaxNameHeap(capacity: max(1, limit))
+        var eligibleCount = 0
+        var inspectedCount = 0
+        errno = 0
+        while let entry = readdir(directory) {
+            let name = withUnsafePointer(to: &entry.pointee.d_name) { pointer in
+                pointer.withMemoryRebound(to: CChar.self, capacity: Int(MAXNAMLEN) + 1) {
+                    String(cString: $0)
+                }
+            }
+            if name == "." || name == ".." { continue }
+            inspectedCount += 1
+            if let afterName, name <= afterName { continue }
+            eligibleCount += 1
+            heap.insert(name)
+        }
+        if errno != 0 {
+            throw POSIXDirectoryError(path: directoryPath, code: errno)
+        }
+        let names = heap.sortedValues()
+        return BoundedDirectoryBatch(
+            names: names,
+            hasMore: eligibleCount > names.count,
+            inspectedCount: inspectedCount,
+            retainedCount: names.count
+        )
+    }
+
     private static func copy(
         _ root: MetadataScanRootProgress,
         status: MetadataScanRootStatus? = nil,
@@ -605,7 +766,92 @@ public struct DirectoryMetadataScanner: Sendable {
             startedAt: generation.startedAt,
             updatedAt: updatedAt,
             completedAt: updatedAt,
-            limitations: limitations
+            limitations: limitations,
+            schedulerCursor: generation.schedulerCursor
+        )
+    }
+}
+
+private struct BoundedDirectoryBatch {
+    let names: [String]
+    let hasMore: Bool
+    let inspectedCount: Int
+    let retainedCount: Int
+}
+
+private struct POSIXDirectoryError: LocalizedError {
+    let path: String
+    let code: Int32
+
+    var errorDescription: String? {
+        "Unable to enumerate \(path): \(String(cString: strerror(code)))"
+    }
+}
+
+struct BoundedMaxNameHeap {
+    private(set) var values: [String] = []
+    let capacity: Int
+
+    mutating func insert(_ value: String) {
+        guard capacity > 0 else { return }
+        if values.count < capacity {
+            values.append(value)
+            siftUp(from: values.count - 1)
+        } else if let maximum = values.first, value < maximum {
+            values[0] = value
+            siftDown(from: 0)
+        }
+    }
+
+    func sortedValues() -> [String] {
+        values.sorted()
+    }
+
+    var retainedCount: Int { values.count }
+
+    private mutating func siftUp(from initialIndex: Int) {
+        var index = initialIndex
+        while index > 0 {
+            let parent = (index - 1) / 2
+            guard values[parent] < values[index] else { break }
+            values.swapAt(parent, index)
+            index = parent
+        }
+    }
+
+    private mutating func siftDown(from initialIndex: Int) {
+        var index = initialIndex
+        while true {
+            let left = index * 2 + 1
+            guard left < values.count else { return }
+            let right = left + 1
+            var largest = left
+            if right < values.count, values[left] < values[right] {
+                largest = right
+            }
+            guard values[index] < values[largest] else { return }
+            values.swapAt(index, largest)
+            index = largest
+        }
+    }
+}
+
+private extension MetadataScanDiagnostics {
+    func adding(_ batch: BoundedDirectoryBatch) -> MetadataScanDiagnostics {
+        .init(
+            directoryEnumerationPasses: directoryEnumerationPasses + 1,
+            directoryEntriesInspected: directoryEntriesInspected + batch.inspectedCount,
+            peakRetainedDirectoryNames: max(peakRetainedDirectoryNames, batch.retainedCount),
+            directoryChangeRestarts: directoryChangeRestarts
+        )
+    }
+
+    func addingDirectoryChangeRestart() -> MetadataScanDiagnostics {
+        .init(
+            directoryEnumerationPasses: directoryEnumerationPasses,
+            directoryEntriesInspected: directoryEntriesInspected,
+            peakRetainedDirectoryNames: peakRetainedDirectoryNames,
+            directoryChangeRestarts: directoryChangeRestarts + 1
         )
     }
 }

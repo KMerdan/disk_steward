@@ -1,0 +1,22 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-330",
+  "outcome": "implemented",
+  "changed_files": ["docs/tasks/evidence/GATE-330/agent-result.json"],
+  "change_effect": "evidence-only",
+  "changes": [{"path": "docs/tasks/evidence/GATE-330/agent-result.json", "class": "evidence"}],
+  "checks": [
+    {"command": "swift test", "result": "passed (173 tests)"},
+    {"command": "swift test --filter Evidence", "result": "passed (57 tests)"},
+    {"command": "swift test --filter FSEvent", "result": "passed (3 tests)"},
+    {"command": "swift test --filter ConvergentScanGeneration", "result": "passed (11 tests)"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-G330-01", "result": "passed", "reference": "TASK-303 reconciliation verification plus inherited GATE-310 containment and GATE-320 traversal evidence"}
+  ],
+  "discovered_risks": [
+    "Exporter, MCP, UI, retention, and storage admission paths are the remaining unbounded evidence consumers and are explicitly owned by TASK-304."
+  ],
+  "suggested_graph_changes": []
+}

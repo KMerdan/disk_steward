@@ -9,7 +9,7 @@ final class EvidenceStoreTests: XCTestCase, @unchecked Sendable {
 
         let diagnostics = try await store.diagnostics()
 
-        XCTAssertEqual(diagnostics.schemaVersion, 5)
+        XCTAssertEqual(diagnostics.schemaVersion, 6)
         XCTAssertEqual(diagnostics.journalMode.lowercased(), "wal")
         XCTAssertEqual(diagnostics.integrity, "ok")
         await store.close()
@@ -196,6 +196,124 @@ final class EvidenceStoreTests: XCTestCase, @unchecked Sendable {
         )
     }
 
+    func testStorageAdmissionRejectsAWriteBeforeItCanRunPastTheAllFileBudget() async throws {
+        let fixture = try Fixture()
+        let store = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: 1 * 1_024 * 1_024)
+        let oversizedBatch = (0 ..< 3_000).map { index in
+            Self.event(id: "admission-\(index)", secondsAgo: index)
+        }
+
+        do {
+            try await store.insert(oversizedBatch)
+            XCTFail("Expected storage admission to reject the oversized batch")
+        } catch let EvidenceStoreError.storageCapacityExceeded(currentBytes, capBytes) {
+            XCTAssertLessThan(currentBytes, capBytes)
+            XCTAssertEqual(capBytes, 1 * 1_024 * 1_024)
+        }
+        let retainedEventCount = try await store.eventCount()
+        XCTAssertEqual(retainedEventCount, 0)
+        await store.close()
+    }
+
+    func testLegacyUpgradeUsesAValidatedAtomicShadowAndPreservesEvidence() async throws {
+        let fixture = try Fixture()
+        try await seedLegacyFixture(fixture)
+        let checkpoints = LockedStrings()
+
+        let upgraded = try EvidenceStore(
+            url: fixture.databaseURL,
+            migrationCheckpoint: { checkpoints.append($0) },
+            availableCapacitySource: { _ in Int64.max }
+        )
+
+        let diagnostics = try await upgraded.diagnostics()
+        let containsLegacyEvent = try await upgraded.containsEvent(id: "legacy-event")
+        let integrity = try await upgraded.integrityCheck()
+        XCTAssertEqual(diagnostics.schemaVersion, 6)
+        XCTAssertTrue(containsLegacyEvent)
+        XCTAssertEqual(integrity, "ok")
+        XCTAssertEqual(checkpoints.values, [
+            "after-consistent-copy",
+            "after-shadow-validation",
+            "before-atomic-switch",
+            "after-atomic-switch",
+        ])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.migrationURL.path))
+        await upgraded.close()
+    }
+
+    func testEveryMigrationInterruptionRecoversWithoutLosingTheLegacyDatabase() async throws {
+        for interruption in [
+            "after-consistent-copy",
+            "after-shadow-validation",
+            "before-atomic-switch",
+            "after-atomic-switch",
+        ] {
+            let fixture = try Fixture()
+            try await seedLegacyFixture(fixture)
+
+            XCTAssertThrowsError(
+                try EvidenceStore(
+                    url: fixture.databaseURL,
+                    migrationCheckpoint: { checkpoint in
+                        if checkpoint == interruption {
+                            throw InjectedMigrationFailure.interrupted(checkpoint)
+                        }
+                    },
+                    availableCapacitySource: { _ in Int64.max }
+                )
+            ) { error in
+                XCTAssertEqual(error as? InjectedMigrationFailure, .interrupted(interruption))
+            }
+
+            let recovered = try EvidenceStore(
+                url: fixture.databaseURL,
+                availableCapacitySource: { _ in Int64.max }
+            )
+            let containsLegacyEvent = try await recovered.containsEvent(id: "legacy-event")
+            let integrity = try await recovered.integrityCheck()
+            let diagnostics = try await recovered.diagnostics()
+            XCTAssertTrue(containsLegacyEvent, interruption)
+            XCTAssertEqual(integrity, "ok", interruption)
+            XCTAssertEqual(diagnostics.schemaVersion, 6, interruption)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.migrationURL.path), interruption)
+            await recovered.close()
+        }
+    }
+
+    func testMigrationPreflightLeavesTheLegacyDatabaseUntouchedWhenCapacityIsInsufficient() async throws {
+        let fixture = try Fixture()
+        try await seedLegacyFixture(fixture)
+
+        XCTAssertThrowsError(
+            try EvidenceStore(
+                url: fixture.databaseURL,
+                availableCapacitySource: { _ in 1 }
+            )
+        ) { error in
+            guard case let EvidenceStoreError.migrationInsufficientSpace(required, available) = error else {
+                return XCTFail("Expected migrationInsufficientSpace, got \(error)")
+            }
+            XCTAssertGreaterThan(required, available)
+            XCTAssertEqual(available, 1)
+        }
+
+        let unchanged = try SQLiteConnection(url: fixture.databaseURL)
+        XCTAssertEqual(try unchanged.scalarInt("PRAGMA user_version"), 5)
+        XCTAssertEqual(try unchanged.scalarInt("SELECT COUNT(*) FROM events WHERE event_id = 'legacy-event'"), 1)
+        unchanged.close()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.migrationURL.path))
+    }
+
+    private func seedLegacyFixture(_ fixture: Fixture) async throws {
+        let current = try EvidenceStore(url: fixture.databaseURL)
+        try await current.insert(Self.event(id: "legacy-event", secondsAgo: 0))
+        await current.close()
+        let connection = try SQLiteConnection(url: fixture.databaseURL)
+        try connection.execute("PRAGMA user_version=5")
+        connection.close()
+    }
+
     private static let now = Date(timeIntervalSince1970: 2_000_000_000)
 
     private static func event(
@@ -222,6 +340,7 @@ private final class Fixture {
     let directory: URL
     let databaseURL: URL
     let backupURL: URL
+    var migrationURL: URL { databaseURL.appendingPathExtension("migration") }
 
     init() throws {
         directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
@@ -232,5 +351,22 @@ private final class Fixture {
 
     deinit {
         try? FileManager.default.removeItem(at: directory)
+    }
+}
+
+private enum InjectedMigrationFailure: Error, Equatable {
+    case interrupted(String)
+}
+
+private final class LockedStrings: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage: [String] = []
+
+    var values: [String] {
+        lock.withLock { storage }
+    }
+
+    func append(_ value: String) {
+        lock.withLock { storage.append(value) }
     }
 }

@@ -32,6 +32,17 @@ if [[ ! -x "$helper" ]]; then
   exit 67
 fi
 
+verify_universal_binary() {
+  local target="$1"
+  local label="$2"
+  local architectures
+  architectures=$(/usr/bin/lipo -archs "$target" 2>/dev/null || true)
+  if [[ " $architectures " != *" x86_64 "* || " $architectures " != *" arm64 "* ]]; then
+    print -u2 "Release rejected: ${label} must contain both x86_64 and arm64; found '${architectures:-none}'."
+    exit 67
+  fi
+}
+
 app_bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null || true)
 if [[ "$app_bundle_id" != "com.marudankiji.disksteward" ]]; then
   print -u2 "Release rejected: application bundle identifier is '${app_bundle_id:-missing}', expected 'com.marudankiji.disksteward'."
@@ -44,7 +55,7 @@ verify_signature() {
   local expected_identifier="$3"
   local details
   local identifier_found=false
-  if ! /usr/bin/codesign --verify --deep --strict --verbose=2 "$target" >/dev/null 2>&1; then
+  if ! /usr/bin/codesign --verify --deep --strict --all-architectures --verbose=2 "$target" >/dev/null 2>&1; then
     print -u2 "Release rejected: ${label} signature is missing, ad hoc, damaged, or incomplete."
     exit 67
   fi
@@ -79,6 +90,8 @@ verify_signature() {
 
 verify_signature "$helper" "MCP helper" "com.marudankiji.disksteward.mcp"
 verify_signature "$app" "application" "com.marudankiji.disksteward"
+verify_universal_binary "$app/Contents/MacOS/Disk Steward" "application"
+verify_universal_binary "$helper" "MCP helper"
 
 helper_entitlements=$(/usr/bin/codesign -d --entitlements :- "$helper" 2>/dev/null | /usr/bin/plutil -convert xml1 -o - -)
 helper_entitlement_key_count=0
@@ -142,4 +155,17 @@ if ! /usr/sbin/spctl --assess --type execute --verbose=4 "$app" >/dev/null 2>&1;
   exit 69
 fi
 
-print "Release verification passed: Developer ID identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, notarization staple, and Gatekeeper acceptance are valid."
+smoke_directory=$(/usr/bin/mktemp -d "${TMPDIR:-/tmp}/disk-steward-release-smoke.XXXXXX")
+trap '/bin/rm -rf "$smoke_directory"' EXIT
+smoke_output=$(DISK_STEWARD_SUPPORT_DIRECTORY="$smoke_directory" "$app/Contents/MacOS/Disk Steward" --ui-smoke 2>&1) || {
+  print -u2 "Release rejected: installed application launch smoke failed."
+  print -u2 "$smoke_output"
+  exit 70
+}
+if [[ "$smoke_output" != *'"status":"launched"'* || "$smoke_output" != *'"activation_policy":"accessory"'* ]]; then
+  print -u2 "Release rejected: launch smoke did not prove an accessory menu-bar application."
+  print -u2 "$smoke_output"
+  exit 70
+fi
+
+print "Release verification passed: universal architectures, Developer ID identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, notarization staple, Gatekeeper acceptance, and installed launch are valid."

@@ -1,0 +1,32 @@
+{
+  "schema": "disk-steward-release-promotion-trigger-v1",
+  "observed_at": "2026-09-16T03:25:00Z",
+  "candidate": {
+    "path": "/private/tmp/DiskSteward-1.1.0-rc4.xcarchive",
+    "version": "1.1.0",
+    "build": "2",
+    "architectures": ["x86_64", "arm64"],
+    "app_sha256": "bf2fe68d2d7cf4c7ab11bd8c2b6cc1ee5c413dda970088e33d7aae282cdb8f32",
+    "mcp_sha256": "95ae0fc9a9e97b0ca6ad793515eadaee184f3d960a80f89c7fc8d86fbeaf943d",
+    "signature": "Developer ID Application: Marudan Kiji (G3P6TU385Y)",
+    "hardened_runtime": true,
+    "secure_timestamp": true,
+    "isolated_launch_smoke": "passed"
+  },
+  "release_gate": {
+    "signature_and_entitlement_checks": "passed",
+    "result": "blocked",
+    "first_unsatisfied_control": "notarization-staple",
+    "interpretation": "The candidate is an engineering artifact, not a distributable release. The verifier correctly prevents promotion."
+  },
+  "deterministic_soak": {
+    "scheduled_cycles": 864,
+    "cycle_minutes": 5,
+    "represented_hours": 72,
+    "high_churn_hours": 24,
+    "retention_interval_hours": 6,
+    "event_storm_count": 100000,
+    "result": "passed"
+  },
+  "authorization_boundary": "TASK-305 forbids publication without explicit release authorization; no notarization upload or publication was performed."
+}

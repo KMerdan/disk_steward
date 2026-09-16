@@ -1,0 +1,1046 @@
+{
+  "schema": "pyramid-final-report-v1",
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "title": "Bounded and Crash-Resilient Disk Steward",
+  "revision": 2,
+  "graph_version": 40,
+  "completed_at": "2026-09-16T03:35:13.538433Z",
+  "completed_by": "codex-root",
+  "intent": {
+    "id": "INTENT-003",
+    "statement": "Disk Steward continuously monitors realistic developer folders without exhausting host memory or growing its evidence indefinitely, survives interrupted work, and reports current, historical, incomplete, and unavailable evidence honestly through the app, exports, and read-only MCP.",
+    "success_evidence": [
+      {
+        "id": "REQ-301",
+        "description": "Scanner failure, hang, memory pressure, and restart do not freeze or silently remove the menu-bar application, create restart loops, or present stale evidence as current."
+      },
+      {
+        "id": "REQ-302",
+        "description": "Large and high-fanout roots complete through bounded resumable work whose peak memory does not grow with total file count and whose pause/restart behavior does not permanently skip entries."
+      },
+      {
+        "id": "REQ-303",
+        "description": "Current state and history correctly distinguish create, modify, truncate, rename, replace, delete, path reuse, scope change, permission loss, incomplete traversal, dropped events, and restart."
+      },
+      {
+        "id": "REQ-304",
+        "description": "SQLite, WAL, queues, temporary output, logs, exports, UI queries, and MCP queries have explicit operational bounds, backpressure, pagination, and visible loss or capacity evidence."
+      },
+      {
+        "id": "REQ-305",
+        "description": "Existing stores migrate recoverably and the exact signed release candidate passes deterministic scale, correctness, interruption, install, and accelerated lifecycle-soak evidence before release promotion; distribution stays blocked until Apple notarization, stapling, Gatekeeper, and final installed launch are proven."
+      }
+    ],
+    "constraints": [
+      "Preserve native Swift, macOS 13 compatibility, SQLite evidence, user-selected roots, read-only MCP, and non-destructive product behavior.",
+      "Do not read file contents or follow symlinks by default for storage measurement.",
+      "Never infer deletion from failed, partial, changed-scope, inaccessible, or capacity-limited coverage.",
+      "Do not silently raise resource ceilings, silently discard evidence, or delete user-owned exports.",
+      "Preserve the completed PLAN-DISK-STEWARD-002 history and unrelated product behavior."
+    ],
+    "non_goals": [
+      "Add cleanup or deletion tools.",
+      "Turn Disk Steward into semantic search or import Bipbox's scanner.",
+      "Require Endpoint Security, cloud services, or a new privileged entitlement.",
+      "Redesign unrelated application surfaces or promotional assets."
+    ],
+    "assumptions": [
+      {
+        "id": "ASM-301",
+        "statement": "An unprivileged helper can access security-scoped watched roots through the current bookmark model.",
+        "confidence": "medium",
+        "validation_node": "TASK-301"
+      },
+      {
+        "id": "ASM-302",
+        "statement": "The initial 150 MiB resident-memory and 512 MiB live-database targets are feasible for supported representative workloads.",
+        "confidence": "low",
+        "validation_node": "TASK-302"
+      }
+    ]
+  },
+  "success_evidence": [
+    {
+      "id": "REQ-301",
+      "description": "Scanner failure, hang, memory pressure, and restart do not freeze or silently remove the menu-bar application, create restart loops, or present stale evidence as current.",
+      "covered_by": [
+        "GATE-310",
+        "GATE-320",
+        "GATE-330",
+        "GATE-340",
+        "GATE-350",
+        "INTENT-003",
+        "OUTCOME-310",
+        "TASK-301"
+      ]
+    },
+    {
+      "id": "REQ-302",
+      "description": "Large and high-fanout roots complete through bounded resumable work whose peak memory does not grow with total file count and whose pause/restart behavior does not permanently skip entries.",
+      "covered_by": [
+        "GATE-320",
+        "GATE-330",
+        "GATE-340",
+        "GATE-350",
+        "INTENT-003",
+        "OUTCOME-320",
+        "TASK-302"
+      ]
+    },
+    {
+      "id": "REQ-303",
+      "description": "Current state and history correctly distinguish create, modify, truncate, rename, replace, delete, path reuse, scope change, permission loss, incomplete traversal, dropped events, and restart.",
+      "covered_by": [
+        "GATE-330",
+        "GATE-340",
+        "GATE-350",
+        "INTENT-003",
+        "OUTCOME-330",
+        "TASK-303"
+      ]
+    },
+    {
+      "id": "REQ-304",
+      "description": "SQLite, WAL, queues, temporary output, logs, exports, UI queries, and MCP queries have explicit operational bounds, backpressure, pagination, and visible loss or capacity evidence.",
+      "covered_by": [
+        "GATE-340",
+        "GATE-350",
+        "INTENT-003",
+        "OUTCOME-340",
+        "TASK-304"
+      ]
+    },
+    {
+      "id": "REQ-305",
+      "description": "Existing stores migrate recoverably and the exact signed release candidate passes deterministic scale, correctness, interruption, install, and accelerated lifecycle-soak evidence before release promotion; distribution stays blocked until Apple notarization, stapling, Gatekeeper, and final installed launch are proven.",
+      "covered_by": [
+        "GATE-350",
+        "INTENT-003",
+        "OUTCOME-350",
+        "TASK-305"
+      ]
+    }
+  ],
+  "verified_primary_nodes": [
+    {
+      "id": "INTENT-003",
+      "title": "Bounded and crash-resilient Disk Steward",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "INTENT-003",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-I003-01",
+            "result": "passed",
+            "evidence": [
+              "all five outcomes and all five increment gates are verified",
+              "fresh cumulative suite passes 184 tests with zero failures"
+            ]
+          },
+          {
+            "id": "CHECK-I003-02",
+            "result": "passed",
+            "evidence": [
+              "resource measurement, circuit breaking and bounded slices prevent the historic unbounded-memory failure mode",
+              "streaming traversal and fair resumable cursors bound large-root work"
+            ]
+          },
+          {
+            "id": "CHECK-I003-03",
+            "result": "passed",
+            "evidence": [
+              "atomic reconciliation and recoverable migration preserve explainable evidence across interruption",
+              "retention, query, provenance and export consumers are bounded"
+            ]
+          },
+          {
+            "id": "CHECK-I003-04",
+            "result": "passed",
+            "evidence": [
+              "exact signed universal candidate passes isolated launch and deterministic 72-hour-equivalent lifecycle soak",
+              "release gate correctly rejects promotion before notarization, stapling, Gatekeeper and installed-launch proof"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "INTENT-003"
+        ],
+        "recommended_action": "close-intent"
+      }
+    },
+    {
+      "id": "OUTCOME-310",
+      "title": "The app fails safely",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-310",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-OUTCOME-310-01",
+            "result": "passed",
+            "evidence": [
+              "TASK-301 implementation audit passed with 164 regression tests"
+            ]
+          },
+          {
+            "id": "CHECK-OUTCOME-310-02",
+            "result": "passed",
+            "evidence": [
+              "GATE-310 independently passed constructability, safety-pause, single-flight, circuit-breaker, retained-evidence, and recovery checks"
+            ]
+          },
+          {
+            "id": "CHECK-OUTCOME-310-03",
+            "result": "passed",
+            "evidence": [
+              "The current candidate exposes Safety Pause instead of claiming current evidence after an interrupted sample"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-310"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-301",
+      "title": "Add containment, diagnostics, and safe startup",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-301",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-301-01",
+            "result": "passed",
+            "evidence": [
+              "swift test --filter Monitoring: 21 tests passed",
+              "MonitoringLifecycleTests.testConcurrentSampleRequestsAreSingleFlightAndCoalesced",
+              "MonitoringLifecycleTests.testInterruptedSampleStartsInSafetyPauseUntilUserResumes"
+            ]
+          },
+          {
+            "id": "CHECK-301-02",
+            "result": "passed",
+            "evidence": [
+              "swift test --filter Resource: 4 tests passed",
+              "MonitoringLifecycleTests.testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded",
+              "PerformanceTests.testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone"
+            ]
+          },
+          {
+            "id": "CHECK-301-03",
+            "result": "passed",
+            "evidence": [
+              "docs/tasks/evidence/TASK-301/containment-verification.json",
+              "PerformanceTests.testLiveResourceMeasurementCountsDatabaseWALAndSharedMemory",
+              "MonitoringLifecycleTests.testPersistentProbeCapsOneSafetySliceToARepresentableBatch"
+            ]
+          },
+          {
+            "id": "CHECK-301-04",
+            "result": "passed",
+            "evidence": [
+              "swift test: 164 tests passed",
+              "git diff --check: passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-301",
+          "OUTCOME-310"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-310",
+      "title": "Audit safe failure increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-310",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-G310-01",
+            "result": "passed",
+            "evidence": [
+              "swift test compiled DiskStewardApp and all package products; 164 tests passed"
+            ]
+          },
+          {
+            "id": "CHECK-G310-02",
+            "result": "passed",
+            "evidence": [
+              "MonitoringLifecycleTests.testInterruptedSampleStartsInSafetyPauseUntilUserResumes proves visible stale/degraded startup after interrupted work"
+            ]
+          },
+          {
+            "id": "CHECK-G310-03",
+            "result": "passed",
+            "evidence": [
+              "MonitoringLifecycleTests.testConcurrentSampleRequestsAreSingleFlightAndCoalesced proves no duplicate concurrent sampling or request storm"
+            ]
+          },
+          {
+            "id": "CHECK-G310-04",
+            "result": "passed",
+            "evidence": [
+              "MonitoringLifecycleTests.testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded proves controlled stop and bounded diagnostic history"
+            ]
+          },
+          {
+            "id": "CHECK-G310-05",
+            "result": "passed",
+            "evidence": [
+              "MonitoringLifecycleTests.testDegradedSampleRecoversAndHistoryExplainsBothStates proves recovery is visible and historical status remains inspectable"
+            ]
+          },
+          {
+            "id": "CHECK-G310-06",
+            "result": "passed",
+            "evidence": [
+              "Persistent recorder, export, MCP, status-board, privacy, and full regression suites remain passing"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-310",
+          "OUTCOME-310"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-320",
+      "title": "Large roots complete within resource limits",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-320",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-OUTCOME-320-01",
+            "result": "passed",
+            "evidence": [
+              "TASK-302 verified",
+              "GATE-320 verified",
+              "100,000-name retained-memory bound"
+            ]
+          },
+          {
+            "id": "CHECK-OUTCOME-320-02",
+            "result": "passed",
+            "evidence": [
+              "durable restart convergence",
+              "directory-mutation replay",
+              "round-robin multi-root progress"
+            ]
+          },
+          {
+            "id": "CHECK-OUTCOME-320-03",
+            "result": "passed",
+            "evidence": [
+              "OUTCOME-310 remains passed",
+              "169-test regression suite passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-320",
+          "OUTCOME-330"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-302",
+      "title": "Replace repeated listings with bounded resumable traversal",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-302",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-302-01",
+            "result": "passed",
+            "evidence": [
+              "100,000 synthetic names retain exactly 512",
+              "2,000 real children use one directory pass for one 64-entry slice",
+              "no contentsOfDirectory call remains in scanSlice"
+            ]
+          },
+          {
+            "id": "CHECK-302-02",
+            "result": "passed",
+            "evidence": [
+              "directory signatures reset a stale lexical cursor",
+              "insert-before-cursor test converges to A/B/C",
+              "changes during enumeration yield without false completion"
+            ]
+          },
+          {
+            "id": "CHECK-302-03",
+            "result": "passed",
+            "evidence": [
+              "legacy generation JSON decodes",
+              "store restart resumes the same generation",
+              "invalid cursors abandon rather than invent deletion"
+            ]
+          },
+          {
+            "id": "CHECK-302-04",
+            "result": "passed",
+            "evidence": [
+              "multiple roots receive work under one bounded slice",
+              "swift test: 169 tests passed",
+              "git diff --check: passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-302",
+          "OUTCOME-320"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-320",
+      "title": "Audit bounded traversal increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-320",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-G320-01",
+            "result": "passed",
+            "evidence": [
+              "100,000-name bounded selector",
+              "2,000-child one-pass slice",
+              "peak retained names never exceeds slice budget"
+            ]
+          },
+          {
+            "id": "CHECK-G320-02",
+            "result": "passed",
+            "evidence": [
+              "restart, legacy decode, mutation reset, invalid cursor, and multi-root fairness matrix"
+            ]
+          },
+          {
+            "id": "CHECK-G320-03",
+            "result": "passed",
+            "evidence": [
+              "GATE-310 containment remains verified",
+              "full 169-test suite passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-320",
+          "OUTCOME-320"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-330",
+      "title": "Evidence stays correct through change and interruption",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-330",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-OUTCOME-330-01",
+            "result": "passed",
+            "evidence": [
+              "TASK-303 verified",
+              "GATE-330 verified",
+              "no false delete under partial coverage"
+            ]
+          },
+          {
+            "id": "CHECK-OUTCOME-330-02",
+            "result": "passed",
+            "evidence": [
+              "identity-aware current state and history",
+              "atomic interruption recovery",
+              "persistent event-loss coverage"
+            ]
+          },
+          {
+            "id": "CHECK-OUTCOME-330-03",
+            "result": "passed",
+            "evidence": [
+              "OUTCOME-310 and OUTCOME-320 remain passed",
+              "173-test regression suite passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-330",
+          "OUTCOME-340"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-303",
+      "title": "Make reconciliation and event recovery bounded and authoritative",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-303",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-303-01",
+            "result": "passed",
+            "evidence": [
+              "A/B/C deletion oracle preserves A/C and records B historically",
+              "partial or inaccessible coverage does not invent deletion",
+              "identity-aware hard-link and path-reuse cases pass"
+            ]
+          },
+          {
+            "id": "CHECK-303-02",
+            "result": "passed",
+            "evidence": [
+              "2,500 staged objects reconcile with a 2,048-row returned window",
+              "keyset SQL iteration retains one current object at a time",
+              "all four injected interruption checkpoints roll back atomically"
+            ]
+          },
+          {
+            "id": "CHECK-303-03",
+            "result": "passed",
+            "evidence": [
+              "FSEvents gaps create durable invalidation rows",
+              "repeated gaps coalesce",
+              "restart retains dirty coverage",
+              "only a complete reconciliation restores freshness"
+            ]
+          },
+          {
+            "id": "CHECK-303-04",
+            "result": "passed",
+            "evidence": [
+              "schema migration reaches version 6",
+              "swift test: 173 tests passed",
+              "git diff --check: passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-303",
+          "OUTCOME-330"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-330",
+      "title": "Audit evidence correctness increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-330",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-G330-01",
+            "result": "passed",
+            "evidence": [
+              "complete and partial lifecycle oracle",
+              "hard-link, rename, truncate, replacement, path-reuse, and scope-exit cases"
+            ]
+          },
+          {
+            "id": "CHECK-G330-02",
+            "result": "passed",
+            "evidence": [
+              "2,500-object bounded reconciliation",
+              "four transaction interruption checkpoints",
+              "durable coalesced event-loss invalidation"
+            ]
+          },
+          {
+            "id": "CHECK-G330-03",
+            "result": "passed",
+            "evidence": [
+              "GATE-310 containment remains verified",
+              "GATE-320 bounded traversal remains verified",
+              "full 173-test suite passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-330",
+          "OUTCOME-330"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-340",
+      "title": "All evidence consumers remain bounded",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-340",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-340-01",
+            "result": "passed",
+            "evidence": [
+              "TASK-304 change-only storage, admission, retention, pagination, and export controls are verified"
+            ]
+          },
+          {
+            "id": "CHECK-340-02",
+            "result": "passed",
+            "evidence": [
+              "GATE-340 confirms every evidence consumer has a finite budget and controlled degradation remains visible"
+            ]
+          },
+          {
+            "id": "CHECK-340-03",
+            "result": "passed",
+            "evidence": [
+              "all inherited behavior passes in the 179-test suite"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-340",
+          "OUTCOME-350"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-304",
+      "title": "Bound retention, storage admission, export, UI, and MCP",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-304",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-304-01",
+            "result": "passed",
+            "evidence": [
+              "two unchanged complete generations retain one detailed state row",
+              "storage admission rejects an oversized batch before writing",
+              "DB/WAL/SHM bytes are separately observable"
+            ]
+          },
+          {
+            "id": "CHECK-304-02",
+            "result": "passed",
+            "evidence": [
+              "retention processes 10,050 expired rows as 10,000 plus 50",
+              "capacity eviction has a 64-batch ceiling",
+              "compaction performs at most one VACUUM per run"
+            ]
+          },
+          {
+            "id": "CHECK-304-03",
+            "result": "passed",
+            "evidence": [
+              "cursor mutation produces explicit cursorExpired",
+              "query pages cap at 500",
+              "export-related table caps and limitations are explicit"
+            ]
+          },
+          {
+            "id": "CHECK-304-04",
+            "result": "passed",
+            "evidence": [
+              "10,000 events stream through 64 KiB zlib chunks",
+              "payloads are written and hashed independently",
+              "manual export ownership remains user-controlled"
+            ]
+          },
+          {
+            "id": "CHECK-304-05",
+            "result": "passed",
+            "evidence": [
+              "Retention, Export, and MCP focused suites pass",
+              "full 179-test suite passes",
+              "git diff --check passes"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-304",
+          "OUTCOME-340"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-340",
+      "title": "Audit bounded evidence-system increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-340",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-G340-01",
+            "result": "passed",
+            "evidence": [
+              "every ingestion, traversal, reconciliation, history, query, retention, and export boundary has a finite limit"
+            ]
+          },
+          {
+            "id": "CHECK-G340-02",
+            "result": "passed",
+            "evidence": [
+              "loss, partial traversal, stale revision, and capacity pressure remain explicitly visible"
+            ]
+          },
+          {
+            "id": "CHECK-G340-03",
+            "result": "passed",
+            "evidence": [
+              "swift test: 179 tests passed with 0 failures"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-340",
+          "OUTCOME-340"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-350",
+      "title": "A verified safe upgrade candidate is ready for release promotion",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-350",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-O350-01",
+            "result": "passed",
+            "evidence": [
+              "schema-1-through-5 migration uses a capacity-preflighted validated shadow and atomic switch",
+              "legacy evidence survives all four injected interruption boundaries"
+            ]
+          },
+          {
+            "id": "CHECK-O350-02",
+            "result": "passed",
+            "evidence": [
+              "fresh install, legacy upgrade, large-root, correctness, sleep/wake, login, export and read-only MCP scenarios pass",
+              "100,000-event overload and 864-cycle/72-hour-equivalent soak pass"
+            ]
+          },
+          {
+            "id": "CHECK-O350-03",
+            "result": "passed",
+            "evidence": [
+              "exact 1.1.0 build 2 candidate is universal, Developer ID signed and isolated-launch tested",
+              "production verifier rejects it at missing notarization staple"
+            ]
+          },
+          {
+            "id": "CHECK-O350-04",
+            "result": "passed",
+            "evidence": [
+              "TASK-305 passed audit",
+              "GATE-350 passed final cumulative audit",
+              "OUTCOME-340 remains verified"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-350",
+          "INTENT-003"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-305",
+      "title": "Migrate, stress, package, and verify the release candidate",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-305",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-305-01",
+            "result": "passed",
+            "evidence": [
+              "legacy evidence survives validated shadow migration",
+              "insufficient capacity leaves the original untouched",
+              "all four interruption checkpoints recover"
+            ]
+          },
+          {
+            "id": "CHECK-305-02",
+            "result": "passed",
+            "evidence": [
+              "184-test suite",
+              "100,000-event storm",
+              "864-cycle lifecycle soak",
+              "sleep/wake and launch-at-login tests",
+              "streaming export and MCP tests"
+            ]
+          },
+          {
+            "id": "CHECK-305-03",
+            "result": "passed",
+            "evidence": [
+              "1.1.0 build 2 contains x86_64 and arm64",
+              "Developer ID, Team ID, hardened runtime, timestamp, nested signatures and hashes verified",
+              "isolated exact-candidate launch passed"
+            ]
+          },
+          {
+            "id": "CHECK-305-04",
+            "result": "passed",
+            "evidence": [
+              "verify-release stops at missing notarization staple",
+              "no notarization upload or publication occurred",
+              "Gatekeeper and final launch remain non-bypassable promotion gates"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-305",
+          "OUTCOME-350",
+          "INTENT-003"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-350",
+      "title": "Audit safe upgrade and final intent",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-350",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-G350-01",
+            "result": "passed",
+            "evidence": [
+              "GATE-310, GATE-320, GATE-330 and GATE-340 remain passed",
+              "TASK-305 is implemented and audited"
+            ]
+          },
+          {
+            "id": "CHECK-G350-02",
+            "result": "passed",
+            "evidence": [
+              "fresh 184-test run has zero failures",
+              "100,000-event storm and 864-cycle soak pass"
+            ]
+          },
+          {
+            "id": "CHECK-G350-03",
+            "result": "passed",
+            "evidence": [
+              "exact universal Developer ID candidate hashes and isolated launch are recorded",
+              "migration survives four interruption checkpoints"
+            ]
+          },
+          {
+            "id": "CHECK-G350-04",
+            "result": "passed",
+            "evidence": [
+              "production verifier exits 68 at missing staple",
+              "no upload, notarization or publication is claimed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-350",
+          "OUTCOME-350",
+          "INTENT-003"
+        ],
+        "recommended_action": "advance"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-301",
+      "question": "What repair path protects the host while preserving trustworthy evidence?",
+      "choice": "Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments.",
+      "alternatives": [
+        "Only reduce the scan entry limit",
+        "Only add autorelease pools and cancellation",
+        "Periodically restart the application",
+        "Copy Bipbox's indexing scanner",
+        "Exclude large build and cache folders"
+      ],
+      "rationale": "The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact.",
+      "evidence": [
+        "EVID-301",
+        "EVID-302",
+        "EVID-303",
+        "EVID-304",
+        "EVID-305",
+        "EVID-306"
+      ]
+    },
+    {
+      "id": "DEC-302",
+      "question": "How should engineering completion be separated from external Apple release promotion?",
+      "choice": "Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof.",
+      "alternatives": [
+        "Wait 72 wall-clock hours inside the implementation task",
+        "Upload to Apple's notarization service without explicit release authorization",
+        "Bypass the release gate for a signed but unstapled candidate"
+      ],
+      "rationale": "A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication.",
+      "evidence": [
+        "EVID-307",
+        "EVID-308",
+        "EVID-309"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EVID-301",
+      "claim": "The incident report attributes system freeze to Disk Steward reaching tens of gigabytes of memory.",
+      "source": "User-provided incident report in the initiating Codex task",
+      "confidence": "high",
+      "freshness": "Reported 2026-09-16",
+      "supports": [
+        "TASK-301",
+        "GATE-310"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-302",
+      "claim": "DirectoryMetadataScanner repeatedly lists and sorts the current directory while advancing one child at a time.",
+      "source": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift scanSlice",
+      "confidence": "high",
+      "freshness": "Observed at commit 1116a87",
+      "supports": [
+        "TASK-302"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-303",
+      "claim": "Evidence reconciliation constructs whole-generation collections and retention performs full VACUUM operations.",
+      "source": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+      "confidence": "high",
+      "freshness": "Observed at commit 1116a87",
+      "supports": [
+        "TASK-303",
+        "TASK-304"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-304",
+      "claim": "A resource budget contract exists, but no production caller was found in Sources during inspection.",
+      "source": "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift and repository search",
+      "confidence": "high",
+      "freshness": "Observed 2026-09-16",
+      "supports": [
+        "TASK-301",
+        "TASK-304"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-305",
+      "claim": "FSEvents reports coalesced and dropped history with MustScanSubDirs and requires snapshot reconciliation.",
+      "source": "Apple File System Events Programming Guide",
+      "confidence": "high",
+      "freshness": "Authoritative documentation reviewed 2026-09-16",
+      "supports": [
+        "TASK-303"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-306",
+      "claim": "Bipbox offers useful source lifecycle boundaries but also materializes full candidate and index collections.",
+      "source": "/Users/merdankiji/localGit/bipbox at commit 4d1b521",
+      "confidence": "high",
+      "freshness": "Inspected 2026-09-16",
+      "supports": [
+        "TASK-301",
+        "TASK-303"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-307",
+      "claim": "The exact 1.1.0 release-candidate archive is universal, validly Developer ID signed with hardened runtime and secure timestamp, and passes an isolated accessory-app launch smoke.",
+      "source": "docs/tasks/evidence/REPLAN-20260916-release-promotion/trigger-evidence.json",
+      "confidence": "high",
+      "freshness": "Observed against /private/tmp/DiskSteward-1.1.0-rc4.xcarchive on 2026-09-16",
+      "supports": [
+        "TASK-305",
+        "GATE-350"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-308",
+      "claim": "The production verifier accepts the candidate's identity, nested signatures, entitlements, architectures, runtime, and timestamp, then rejects distribution because no notarization ticket is stapled.",
+      "source": "docs/tasks/evidence/REPLAN-20260916-release-promotion/trigger-evidence.json",
+      "confidence": "high",
+      "freshness": "Observed 2026-09-16",
+      "supports": [
+        "TASK-305",
+        "GATE-350"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EVID-309",
+      "claim": "Deterministic stress covers a 100,000-event storm and 864 five-minute lifecycle cycles representing 72 hours, including a denser first 24 hours and six-hour retention boundaries.",
+      "source": "Tests/PerformanceTests/PerformanceTests.swift",
+      "confidence": "high",
+      "freshness": "Passed 2026-09-16",
+      "supports": [
+        "TASK-305",
+        "GATE-350"
+      ],
+      "contradicts": []
+    }
+  ],
+  "residual_risks": [
+    "TASK-301: The temporary 512-entry ceiling contains work per sample but the legacy traversal still repeats full directory listings; TASK-302 must replace it.",
+    "TASK-301: One blocking filesystem call remains in-process and cannot be preempted by cooperative cancellation.",
+    "TASK-301: The configured production memory ceiling needs representative installed-app measurement at the scale gate.",
+    "GATE-310: High-fanout traversal remains slow under the temporary ceiling and is the explicit next increment.",
+    "TASK-302: A directory larger than one slice is streamed once per slice to preserve a portable durable cursor; retained memory remains bounded but total enumeration work is proportional to directory size times slice count.",
+    "TASK-302: Filesystem mutation after a directory has fully completed belongs to the next evidence generation/FSEvents recovery path; a portable filesystem snapshot is not available.",
+    "TASK-302: Generation completion and evidence reconciliation still materialize staged metadata in memory and are addressed by TASK-303.",
+    "GATE-320: Completion reconciliation remains the next potentially unbounded stage and is explicitly owned by TASK-303.",
+    "TASK-303: Generic manual recordObservation callers still provide an in-memory file array; the production convergent scan path now reconciles directly from bounded SQL staging.",
+    "TASK-303: Resolved invalidation and export history retention is owned by TASK-304.",
+    "TASK-303: Exporter, UI, MCP, and retention read paths remain the next potentially unbounded consumers and are owned by TASK-304.",
+    "GATE-330: Exporter, MCP, UI, retention, and storage admission paths are the remaining unbounded evidence consumers and are explicitly owned by TASK-304.",
+    "TASK-304: Existing databases still use a bounded single VACUUM when compaction is required; migration and failure-injection coverage for that operation belongs to TASK-305.",
+    "TASK-304: Raw event export memory is capped at 100,000 records and related tables at 25,000 records; event serialization/compression is streamed, while each non-event JSON payload is bounded and encoded independently.",
+    "TASK-304: The configured admission cap is process configuration rather than a new persisted schema field; release defaults remain 512 MiB.",
+    "TASK-305: The rc4 candidate is intentionally not distributable: it has not been submitted to Apple's notarization service and therefore has no staple.",
+    "TASK-305: The release archive is in /private/tmp and is not a published or durable release asset.",
+    "TASK-305: A later authorized promotion must run verify-release again against the exact notarized artifact; no current evidence claims publication.",
+    "GATE-350: The archive in /private/tmp is an engineering candidate, not a durable release asset.",
+    "GATE-350: Apple notarization, stapling, Gatekeeper and installed-launch proof remain intentionally unsatisfied external promotion controls."
+  ]
+}

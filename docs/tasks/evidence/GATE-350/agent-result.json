@@ -1,0 +1,27 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-350",
+  "outcome": "implemented",
+  "changed_files": [
+    "docs/tasks/evidence/GATE-350/agent-result.json",
+    "docs/tasks/evidence/GATE-350/final-candidate-audit.json"
+  ],
+  "change_effect": "evidence-only",
+  "changes": [
+    {"path": "docs/tasks/evidence/GATE-350/agent-result.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/GATE-350/final-candidate-audit.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test", "result": "passed (184 tests, 0 failures)"},
+    {"command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive", "result": "correctly rejected at missing notarization staple with exit 68"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-G350-01", "result": "passed", "reference": "all inherited gates and final candidate workloads pass; the unchanged promotion gate rejects the exact candidate before release"}
+  ],
+  "discovered_risks": [
+    "The archive in /private/tmp is an engineering candidate, not a durable release asset.",
+    "Apple notarization, stapling, Gatekeeper and installed-launch proof remain intentionally unsatisfied external promotion controls."
+  ],
+  "suggested_graph_changes": []
+}

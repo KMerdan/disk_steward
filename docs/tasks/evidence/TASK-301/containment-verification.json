@@ -1,0 +1,38 @@
+{
+  "schema": "disk-steward-containment-verification-v1",
+  "task": "TASK-301",
+  "candidate_commit": "working-tree-after-1116a87",
+  "verified_at": "2026-09-16T01:57:00Z",
+  "incident_control": {
+    "single_flight": "MonitoringLifecycleController admits one sample and coalesces overlapping requests into one follow-up.",
+    "unclean_exit": "A persisted in-progress marker causes the next launch to enter Safety Pause with retained evidence described as potentially stale.",
+    "circuit_breaker": "Resident memory, SQLite main/WAL/SHM bytes, and event backpressure are evaluated before traversal, after a scan slice, and after persistence/retention.",
+    "temporary_slice_ceiling": 512,
+    "retention_interlock": "Retention does not run while a scan generation is partial. This prevents deletion of an active generation's referenced scope row."
+  },
+  "bounded_diagnostics": {
+    "history_capacity": 120,
+    "fields": ["cpu_percent", "resident_bytes", "database_family_bytes", "pending_events", "received_events", "dropped_events", "under_load"],
+    "filesystem_scope": "Process and database-family metadata only; the diagnostic sampler never traverses watched roots."
+  },
+  "helper_feasibility": {
+    "result": "feasible-with-packaging-work",
+    "evidence": [
+      "Config/Packaging/project.yml sets ENABLE_APP_SANDBOX=NO for the direct-distribution app.",
+      "The existing disk-witness-mcp tool demonstrates a bundled, separately signed hardened-runtime helper pattern.",
+      "Watched roots are currently persisted as normalized paths, not security-scoped bookmark blobs."
+    ],
+    "decision": "Keep the safety controls effective in-process now. Introduce a dedicated scanner helper only together with bounded traversal and explicit lifecycle/IPC supervision; do not claim isolation in this increment."
+  },
+  "checks": [
+    {"command": "swift test --filter Resource", "result": "passed", "tests": 4},
+    {"command": "swift test --filter Monitoring", "result": "passed", "tests": 21},
+    {"command": "swift test", "result": "passed", "tests": 164},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "limitations": [
+    "The legacy traversal algorithm still repeats directory listings; the 512-entry ceiling is containment, not the final scanner fix.",
+    "Resource sampling cannot preempt one blocking kernel filesystem call. Process isolation and traversal replacement remain required by TASK-302.",
+    "The 150 MiB production target is enforced, but its feasibility across representative installed workloads is not established until the scale gate."
+  ]
+}

@@ -72,13 +72,29 @@ public struct EvidenceBundleExporter: Sendable {
             if view.snapshots.isEmpty { limitations.append("No storage snapshots were retained inside the requested period.") }
             limitations.append("Creator process and agent session fields are null unless a recorded attribution source established them.")
 
-            let exportedEvents = view.events.map {
-                exportEvent($0, claim: view.provenance[$0.eventID], pathDetail: options.pathDetail)
-            }
             let lineEncoder = Self.lineEncoder()
-            let eventLines = try exportedEvents.map { String(decoding: try lineEncoder.encode($0), as: UTF8.self) }
-                .joined(separator: "\n") + (exportedEvents.isEmpty ? "" : "\n")
-            let compressedEvents = try ZlibCodec.compress(Data(eventLines.utf8))
+            let rawEventsURL = FileManager.default.temporaryDirectory
+                .appending(path: "disk-steward-events-\(UUID().uuidString.lowercased()).jsonl")
+            FileManager.default.createFile(atPath: rawEventsURL.path, contents: nil)
+            let rawEventsHandle = try FileHandle(forWritingTo: rawEventsURL)
+            var notableEvents: [ExportedEvidenceEvent] = []
+            defer {
+                try? rawEventsHandle.close()
+                try? FileManager.default.removeItem(at: rawEventsURL)
+            }
+            for event in view.events {
+                let exported = exportEvent(event, claim: view.provenance[event.eventID], pathDetail: options.pathDetail)
+                try rawEventsHandle.write(contentsOf: lineEncoder.encode(exported))
+                try rawEventsHandle.write(contentsOf: Data([0x0a]))
+                notableEvents.append(exported)
+                notableEvents.sort { lhs, rhs in
+                    let leftMagnitude = abs(lhs.size.allocatedDelta)
+                    let rightMagnitude = abs(rhs.size.allocatedDelta)
+                    return leftMagnitude == rightMagnitude ? lhs.path < rhs.path : leftMagnitude > rightMagnitude
+                }
+                if notableEvents.count > 10 { notableEvents.removeLast(notableEvents.count - 10) }
+            }
+            try rawEventsHandle.close()
             let categories = Dictionary(grouping: view.events, by: \.consumerCategory).map { name, events in
                 EvidenceBundleSummary.Category(
                     name: name,
@@ -126,8 +142,8 @@ public struct EvidenceBundleExporter: Sendable {
                 scanRootCount: view.scope.activeGeneration?.rootPaths.count ?? 0,
                 scanProcessedEntryCount: view.scope.activeGeneration?.processedEntryCount ?? 0,
                 scanStagedFileCount: view.scope.activeGeneration?.stagedFileCount ?? 0,
-                currentStateCount: view.currentState.filter { $0.presence == .present }.count,
-                currentStateAllocatedBytes: view.currentState.filter { $0.presence == .present }.reduce(0) { $0 + $1.allocatedBytes },
+                currentStateCount: view.currentStateCount,
+                currentStateAllocatedBytes: view.currentStateAllocatedBytes,
                 growthAssessment: growthAssessment,
                 rawEventCount: view.events.count,
                 snapshotCount: view.snapshots.count,
@@ -140,60 +156,102 @@ public struct EvidenceBundleExporter: Sendable {
                 cleanupReviewLeads: consumers.cleanupLeads,
                 limitations: limitations
             )
-            let rollups = EvidenceBundleRollups(
-                schema: "evidence-rollups-v1",
-                hourly: view.hourly.map { rollupRow($0, pathDetail: options.pathDetail) },
-                daily: view.daily.map { rollupRow($0, pathDetail: options.pathDetail) }
-            )
-            let currentState = currentStatePayload(view.currentState, pathDetail: options.pathDetail)
-            let provenance = provenancePayload(view.provenanceChain, pathDetail: options.pathDetail)
-            let sessions = sessionPayload(view.sessions, pathDetail: options.pathDetail)
-            let coverage = coveragePayload(
-                scope: view.scope,
-                observation: view.coverageGaps,
-                retention: view.retentionGaps,
-                pathDetail: options.pathDetail
-            )
-            let lifecycle = lifecyclePayload(
-                currentState: view.currentState,
-                events: view.events,
-                hourly: view.hourly,
-                daily: view.daily,
-                snapshots: view.snapshots,
-                retentionGaps: view.retentionGaps,
-                retentionPolicy: view.retentionPolicy,
-                options: options
-            )
-            let payloads: [(path: String, role: String, data: Data)] = [
-                ("codex-brief.md", "codex-brief", Data((brief(summary: summary, events: exportedEvents, generatedAt: createdAt) + "\n").utf8)),
-                ("summary.json", "summary", try encoder.encode(summary)),
-                ("rollups.json", "summary", try encoder.encode(rollups)),
-                ("events.jsonl.zlib", "events", compressedEvents),
-                ("snapshots.json", "snapshot", try encoder.encode(EvidenceBundleSnapshots(schema: "storage-snapshots-v1", snapshots: view.snapshots))),
-                ("current-state.json", "current-state", try encoder.encode(currentState)),
-                ("provenance.json", "provenance", try encoder.encode(provenance)),
-                ("sessions.json", "agent-sessions", try encoder.encode(sessions)),
-                ("coverage.json", "coverage", try encoder.encode(coverage)),
-                ("lifecycle.json", "lifecycle", try encoder.encode(lifecycle)),
-            ]
-            for payload in payloads {
-                try payload.data.write(to: bundleURL.appending(path: payload.path), options: .atomic)
+            var integrityEntries: [EvidenceBundleIntegrity.Entry] = []
+            var manifestEntries: [EvidenceBundleManifest.FileEntry] = []
+            var payloadBytes = 0
+            func recordPayload(path: String, role: String, data: Data) throws {
+                let url = bundleURL.appending(path: path)
+                try data.write(to: url, options: .atomic)
+                let digest = SHA256Digest.hex(for: data)
+                integrityEntries.append(.init(path: path, sha256: digest, bytes: data.count))
+                manifestEntries.append(.init(path: path, role: role, sha256: digest, bytes: data.count))
+                payloadBytes += data.count
             }
+            func recordFilePayload(path: String, role: String, source: URL) throws {
+                let attributes = try FileManager.default.attributesOfItem(atPath: source.path)
+                let bytes = (attributes[.size] as? NSNumber)?.intValue ?? 0
+                let digest = try SHA256Digest.hex(forFileAt: source)
+                integrityEntries.append(.init(path: path, sha256: digest, bytes: bytes))
+                manifestEntries.append(.init(path: path, role: role, sha256: digest, bytes: bytes))
+                payloadBytes += bytes
+            }
+
+            try recordPayload(
+                path: "codex-brief.md",
+                role: "codex-brief",
+                data: Data((brief(summary: summary, events: notableEvents, generatedAt: createdAt) + "\n").utf8)
+            )
+            try recordPayload(path: "summary.json", role: "summary", data: try encoder.encode(summary))
+            try recordPayload(
+                path: "rollups.json",
+                role: "summary",
+                data: try encoder.encode(EvidenceBundleRollups(
+                    schema: "evidence-rollups-v1",
+                    hourly: view.hourly.map { rollupRow($0, pathDetail: options.pathDetail) },
+                    daily: view.daily.map { rollupRow($0, pathDetail: options.pathDetail) }
+                ))
+            )
+            let compressedEventsURL = bundleURL.appending(path: "events.jsonl.zlib")
+            try ZlibCodec.compressFile(at: rawEventsURL, to: compressedEventsURL)
+            try recordFilePayload(path: "events.jsonl.zlib", role: "events", source: compressedEventsURL)
+            try recordPayload(
+                path: "snapshots.json",
+                role: "snapshot",
+                data: try encoder.encode(EvidenceBundleSnapshots(schema: "storage-snapshots-v1", snapshots: view.snapshots))
+            )
+            try recordPayload(
+                path: "current-state.json",
+                role: "current-state",
+                data: try encoder.encode(currentStatePayload(view.currentState, pathDetail: options.pathDetail))
+            )
+            try recordPayload(
+                path: "provenance.json",
+                role: "provenance",
+                data: try encoder.encode(provenancePayload(view.provenanceChain, pathDetail: options.pathDetail))
+            )
+            try recordPayload(
+                path: "sessions.json",
+                role: "agent-sessions",
+                data: try encoder.encode(sessionPayload(view.sessions, pathDetail: options.pathDetail))
+            )
+            try recordPayload(
+                path: "coverage.json",
+                role: "coverage",
+                data: try encoder.encode(coveragePayload(
+                    scope: view.scope,
+                    observation: view.coverageGaps,
+                    retention: view.retentionGaps,
+                    pathDetail: options.pathDetail
+                ))
+            )
+            try recordPayload(
+                path: "lifecycle.json",
+                role: "lifecycle",
+                data: try encoder.encode(lifecyclePayload(
+                    currentState: view.currentState,
+                    events: view.events,
+                    hourly: view.hourly,
+                    daily: view.daily,
+                    snapshots: view.snapshots,
+                    retentionGaps: view.retentionGaps,
+                    retentionPolicy: view.retentionPolicy,
+                    options: options
+                ))
+            )
             let integrity = EvidenceBundleIntegrity(
                 schema: "integrity-v1",
                 algorithm: "sha256",
-                files: payloads.map { .init(path: $0.path, sha256: SHA256Digest.hex(for: $0.data), bytes: $0.data.count) }
+                files: integrityEntries
             )
             let integrityData = try encoder.encode(integrity)
-            try integrityData.write(to: bundleURL.appending(path: "integrity.json"), options: .atomic)
-            let allPayloads = payloads + [("integrity.json", "integrity", integrityData)]
+            try recordPayload(path: "integrity.json", role: "integrity", data: integrityData)
             let manifest = EvidenceBundleManifest(
                 schema: "export-manifest-v1",
                 bundleID: bundleID,
                 createdAt: Self.timestamp(createdAt),
                 producer: .init(name: ProductIdentity.diskSteward.evidenceProducer, version: productVersion, evidenceSchemaVersion: 1),
                 requestedRange: range,
-                files: allPayloads.map { .init(path: $0.path, role: $0.role, sha256: SHA256Digest.hex(for: $0.data), bytes: $0.data.count) },
+                files: manifestEntries,
                 limitations: limitations,
                 privacy: .init(containsFileContents: false, containsEnvironment: false, pathDetail: options.pathDetail)
             )
@@ -218,7 +276,7 @@ public struct EvidenceBundleExporter: Sendable {
                 precision: precision.isEmpty ? "none" : precision,
                 pathDetail: options.pathDetail,
                 path: recordPath,
-                bytes: Int64(allPayloads.reduce(manifestData.count) { $0 + $1.data.count }),
+                bytes: Int64(payloadBytes + manifestData.count),
                 manifestSHA256: SHA256Digest.hex(for: manifestData),
                 createdAt: createdAt,
                 updatedAt: dateSource(),
@@ -787,6 +845,7 @@ private struct ExportScopeSnapshot {
 }
 
 private struct ConsistentEvidenceView {
+    private static let maximumRelatedRows = 25_000
     let databaseURL: URL
 
     func read(options: EvidenceBundleExportOptions) throws -> (
@@ -796,6 +855,8 @@ private struct ConsistentEvidenceView {
         daily: [EvidenceSummary],
         provenance: [String: ProvenanceClaim],
         currentState: [CurrentFileStateRecord],
+        currentStateCount: Int,
+        currentStateAllocatedBytes: Int64,
         provenanceChain: [ProvenanceClaim],
         sessions: [AgentSessionRegistration],
         coverageGaps: [EvidenceCoverageGap],
@@ -812,6 +873,7 @@ private struct ConsistentEvidenceView {
         let daily = try readSummaries(connection, table: "daily_summaries", bucketSeconds: 86_400, options: options)
         let provenance = try readCurrentProvenance(connection, options: options)
         let currentState = try readCurrentState(connection)
+        let currentStateAggregate = try readCurrentStateAggregate(connection)
         let provenanceChain = try readProvenanceChain(connection, options: options)
         let sessions = try readSessions(connection, options: options)
         let coverageGaps = try readCoverageGaps(connection, options: options)
@@ -825,12 +887,22 @@ private struct ConsistentEvidenceView {
         if !hourly.isEmpty || !daily.isEmpty {
             limitations.append("Rollup rows represent complete hour or day buckets and may overlap an exact requested-range boundary.")
         }
+        if [snapshots.count, hourly.count, daily.count, provenance.count, currentState.count,
+            provenanceChain.count, sessions.count, coverageGaps.count, retentionGaps.count]
+            .contains(Self.maximumRelatedRows)
+        {
+            limitations.append("One or more related evidence tables reached the 25,000-row export cap; the bundle is explicitly truncated to preserve bounded memory.")
+        }
         if let active = scope.activeGeneration {
             limitations.append(
                 "File-detail scan generation \(active.generationID) is still active; current state remains as of the preceding complete observation and absence is not reconciled."
             )
         }
-        return (events.values, snapshots, hourly, daily, provenance, currentState, provenanceChain, sessions, coverageGaps, retentionGaps, retentionPolicy, scope, limitations)
+        return (
+            events.values, snapshots, hourly, daily, provenance, currentState,
+            currentStateAggregate.count, currentStateAggregate.allocatedBytes,
+            provenanceChain, sessions, coverageGaps, retentionGaps, retentionPolicy, scope, limitations
+        )
     }
 
     private func readScope(
@@ -904,8 +976,9 @@ private struct ConsistentEvidenceView {
 
     private func readCurrentState(_ connection: SQLiteConnection) throws -> [CurrentFileStateRecord] {
         try connection.withStatement(
-            "SELECT object_id, identity_method, path, root_path, scope_version_id, logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable FROM current_file_state ORDER BY allocated_bytes DESC, path, object_id"
+            "SELECT object_id, identity_method, path, root_path, scope_version_id, logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable FROM current_file_state ORDER BY allocated_bytes DESC, path, object_id LIMIT ?"
         ) { statement in
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 1, in: statement)
             var values: [CurrentFileStateRecord] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 guard let objectID = text(statement, 0),
@@ -937,12 +1010,22 @@ private struct ConsistentEvidenceView {
         }
     }
 
+    private func readCurrentStateAggregate(_ connection: SQLiteConnection) throws -> (count: Int, allocatedBytes: Int64) {
+        try connection.withStatement(
+            "SELECT COUNT(*), COALESCE(SUM(allocated_bytes), 0) FROM current_file_state WHERE presence = 'present'"
+        ) { statement in
+            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+            return (Int(sqlite3_column_int64(statement, 0)), sqlite3_column_int64(statement, 1))
+        }
+    }
+
     private func readProvenanceChain(_ connection: SQLiteConnection, options: EvidenceBundleExportOptions) throws -> [ProvenanceClaim] {
         try connection.withStatement(
-            "SELECT payload, superseded_by_claim_id FROM provenance_claims WHERE occurred_end >= ? AND occurred_start <= ? ORDER BY occurred_start, occurred_end, detected_at, claim_id"
+            "SELECT payload, superseded_by_claim_id FROM provenance_claims WHERE occurred_end >= ? AND occurred_start <= ? ORDER BY occurred_start, occurred_end, detected_at, claim_id LIMIT ?"
         ) { statement in
             try connection.bind(options.from.timeIntervalSince1970, at: 1, in: statement)
             try connection.bind(options.through.timeIntervalSince1970, at: 2, in: statement)
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 3, in: statement)
             var values: [ProvenanceClaim] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 var claim = try JSONDecoder().decode(ProvenanceClaim.self, from: try blob(statement, 0, connection: connection))
@@ -973,10 +1056,11 @@ private struct ConsistentEvidenceView {
 
     private func readSessions(_ connection: SQLiteConnection, options: EvidenceBundleExportOptions) throws -> [AgentSessionRegistration] {
         try connection.withStatement(
-            "SELECT payload FROM agent_sessions WHERE registered_at <= ? AND COALESCE(ended_at, expires_at) >= ? ORDER BY registered_at, registration_id"
+            "SELECT payload FROM agent_sessions WHERE registered_at <= ? AND COALESCE(ended_at, expires_at) >= ? ORDER BY registered_at, registration_id LIMIT ?"
         ) { statement in
             try connection.bind(options.through.timeIntervalSince1970, at: 1, in: statement)
             try connection.bind(options.from.timeIntervalSince1970, at: 2, in: statement)
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 3, in: statement)
             var values: [AgentSessionRegistration] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 values.append(try JSONDecoder().decode(AgentSessionRegistration.self, from: try blob(statement, 0, connection: connection)))
@@ -987,10 +1071,11 @@ private struct ConsistentEvidenceView {
 
     private func readCoverageGaps(_ connection: SQLiteConnection, options: EvidenceBundleExportOptions) throws -> [EvidenceCoverageGap] {
         try connection.withStatement(
-            "SELECT gap_id, observation_id, root_path, reason, started_at, ended_at FROM coverage_gaps WHERE started_at <= ? AND (ended_at IS NULL OR ended_at >= ?) ORDER BY started_at, gap_id"
+            "SELECT gap_id, observation_id, root_path, reason, started_at, ended_at FROM coverage_gaps WHERE started_at <= ? AND (ended_at IS NULL OR ended_at >= ?) ORDER BY started_at, gap_id LIMIT ?"
         ) { statement in
             try connection.bind(options.through.timeIntervalSince1970, at: 1, in: statement)
             try connection.bind(options.from.timeIntervalSince1970, at: 2, in: statement)
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 3, in: statement)
             var values: [EvidenceCoverageGap] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 guard let gapID = text(statement, 0), let observationID = text(statement, 1),
@@ -1011,9 +1096,10 @@ private struct ConsistentEvidenceView {
 
     private func readRetentionGaps(_ connection: SQLiteConnection, options: EvidenceBundleExportOptions) throws -> [RetentionCoverageGap] {
         try connection.withStatement(
-            "SELECT gap_id, retention_run_id, reason, affected_precision, started_at, rows_removed FROM retention_coverage_gaps WHERE started_at <= ? ORDER BY started_at, gap_id"
+            "SELECT gap_id, retention_run_id, reason, affected_precision, started_at, rows_removed FROM retention_coverage_gaps WHERE started_at <= ? ORDER BY started_at, gap_id LIMIT ?"
         ) { statement in
             try connection.bind(options.through.timeIntervalSince1970, at: 1, in: statement)
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 2, in: statement)
             var values: [RetentionCoverageGap] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 guard let gapID = text(statement, 0), let runID = text(statement, 1),
@@ -1067,10 +1153,11 @@ private struct ConsistentEvidenceView {
         options: EvidenceBundleExportOptions
     ) throws -> [String: ProvenanceClaim] {
         try connection.withStatement(
-            "SELECT event_id, payload FROM provenance_claims WHERE superseded_by_claim_id IS NULL AND occurred_end >= ? AND occurred_start <= ? ORDER BY detected_at, claim_id"
+            "SELECT event_id, payload FROM provenance_claims WHERE superseded_by_claim_id IS NULL AND occurred_end >= ? AND occurred_start <= ? ORDER BY detected_at, claim_id LIMIT ?"
         ) { statement in
             try connection.bind(options.from.timeIntervalSince1970, at: 1, in: statement)
             try connection.bind(options.through.timeIntervalSince1970, at: 2, in: statement)
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 3, in: statement)
             var values: [String: ProvenanceClaim] = [:]
             while sqlite3_step(statement) == SQLITE_ROW {
                 guard let eventID = sqlite3_column_text(statement, 0) else { throw connection.lastError(SQLITE_CORRUPT) }
@@ -1132,10 +1219,11 @@ private struct ConsistentEvidenceView {
 
     private func readSnapshots(_ connection: SQLiteConnection, options: EvidenceBundleExportOptions) throws -> [StorageSnapshot] {
         try connection.withStatement(
-            "SELECT payload FROM snapshots WHERE observed_at >= ? AND observed_at <= ? ORDER BY observed_at, snapshot_id"
+            "SELECT payload FROM snapshots WHERE observed_at >= ? AND observed_at <= ? ORDER BY observed_at, snapshot_id LIMIT ?"
         ) { statement in
             try connection.bind(options.from.timeIntervalSince1970, at: 1, in: statement)
             try connection.bind(options.through.timeIntervalSince1970, at: 2, in: statement)
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 3, in: statement)
             var snapshots: [StorageSnapshot] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 let byteCount = Int(sqlite3_column_bytes(statement, 0))
@@ -1156,10 +1244,11 @@ private struct ConsistentEvidenceView {
     ) throws -> [EvidenceSummary] {
         let firstBucket = floor(options.from.timeIntervalSince1970 / bucketSeconds) * bucketSeconds
         return try connection.withStatement(
-            "SELECT bucket_start, path, operation, event_count, logical_delta, allocated_delta FROM \(table) WHERE bucket_start >= ? AND bucket_start <= ? ORDER BY bucket_start, path, operation"
+            "SELECT bucket_start, path, operation, event_count, logical_delta, allocated_delta FROM \(table) WHERE bucket_start >= ? AND bucket_start <= ? ORDER BY bucket_start, path, operation LIMIT ?"
         ) { statement in
             try connection.bind(firstBucket, at: 1, in: statement)
             try connection.bind(options.through.timeIntervalSince1970, at: 2, in: statement)
+            try connection.bind(Int64(Self.maximumRelatedRows), at: 3, in: statement)
             var rows: [EvidenceSummary] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 guard let path = sqlite3_column_text(statement, 1),

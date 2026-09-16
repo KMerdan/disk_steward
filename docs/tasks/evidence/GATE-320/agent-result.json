@@ -1,0 +1,21 @@
+{
+  "schema": "agent-result-v1",
+  "task": "GATE-320",
+  "outcome": "implemented",
+  "changed_files": ["docs/tasks/evidence/GATE-320/agent-result.json"],
+  "change_effect": "evidence-only",
+  "changes": [{"path": "docs/tasks/evidence/GATE-320/agent-result.json", "class": "evidence"}],
+  "checks": [
+    {"command": "swift test --filter DirectoryMetadataScanner", "result": "passed (7 tests)"},
+    {"command": "swift test --filter MonitoringLifecycleTests", "result": "passed (7 tests as part of full suite)"},
+    {"command": "swift test", "result": "passed (169 tests)"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-G320-01", "result": "passed", "reference": "TASK-302 traversal verification plus inherited GATE-310 containment evidence"}
+  ],
+  "discovered_risks": [
+    "Completion reconciliation remains the next potentially unbounded stage and is explicitly owned by TASK-303."
+  ],
+  "suggested_graph_changes": []
+}

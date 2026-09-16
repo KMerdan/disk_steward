@@ -17,7 +17,10 @@ final class PersistentRecorderIncrementTests: XCTestCase {
         let settingsStore = MonitoringSettingsStore(persistence: EphemeralSettingsPersistence())
         settingsStore.update { $0 = settings }
         let notifications = GateNotificationDelivery()
-        let probe = try PersistentMonitoringProbe(databaseURL: fixture.database)
+        let probe = try PersistentMonitoringProbe(
+            databaseURL: fixture.database,
+            resourceBudget: ResourceBudget(maximumResidentBytes: 2 * 1_024 * 1_024 * 1_024)
+        )
         let lifecycle = MonitoringLifecycleController(
             settingsStore: settingsStore,
             probe: probe,
@@ -65,7 +68,10 @@ final class PersistentRecorderIncrementTests: XCTestCase {
         XCTAssertTrue(brief.contains("No file contents or environment variables"))
         await reader.close()
 
-        let restartedProbe = try PersistentMonitoringProbe(databaseURL: fixture.database)
+        let restartedProbe = try PersistentMonitoringProbe(
+            databaseURL: fixture.database,
+            resourceBudget: ResourceBudget(maximumResidentBytes: 2 * 1_024 * 1_024 * 1_024)
+        )
         _ = try await restartedProbe.sample(settings: settings)
         let recovered = try EvidenceStore(url: fixture.database)
         let diagnostics = try await recovered.diagnostics()

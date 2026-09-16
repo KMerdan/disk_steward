@@ -1,0 +1,13 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-302",
+  "result": "pass",
+  "checks": [
+    {"id": "CHECK-302-01", "result": "passed", "evidence": ["100,000 synthetic names retain exactly 512", "2,000 real children use one directory pass for one 64-entry slice", "no contentsOfDirectory call remains in scanSlice"]},
+    {"id": "CHECK-302-02", "result": "passed", "evidence": ["directory signatures reset a stale lexical cursor", "insert-before-cursor test converges to A/B/C", "changes during enumeration yield without false completion"]},
+    {"id": "CHECK-302-03", "result": "passed", "evidence": ["legacy generation JSON decodes", "store restart resumes the same generation", "invalid cursors abandon rather than invent deletion"]},
+    {"id": "CHECK-302-04", "result": "passed", "evidence": ["multiple roots receive work under one bounded slice", "swift test: 169 tests passed", "git diff --check: passed"]}
+  ],
+  "affected_claims": ["TASK-302", "OUTCOME-320"],
+  "recommended_action": "advance"
+}

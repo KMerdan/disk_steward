@@ -1,0 +1,13 @@
+{
+  "schema": "audit-result-v1",
+  "target": "TASK-301",
+  "result": "pass",
+  "checks": [
+    {"id": "CHECK-301-01", "result": "passed", "evidence": ["swift test --filter Monitoring: 21 tests passed", "MonitoringLifecycleTests.testConcurrentSampleRequestsAreSingleFlightAndCoalesced", "MonitoringLifecycleTests.testInterruptedSampleStartsInSafetyPauseUntilUserResumes"]},
+    {"id": "CHECK-301-02", "result": "passed", "evidence": ["swift test --filter Resource: 4 tests passed", "MonitoringLifecycleTests.testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded", "PerformanceTests.testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone"]},
+    {"id": "CHECK-301-03", "result": "passed", "evidence": ["docs/tasks/evidence/TASK-301/containment-verification.json", "PerformanceTests.testLiveResourceMeasurementCountsDatabaseWALAndSharedMemory", "MonitoringLifecycleTests.testPersistentProbeCapsOneSafetySliceToARepresentableBatch"]},
+    {"id": "CHECK-301-04", "result": "passed", "evidence": ["swift test: 164 tests passed", "git diff --check: passed"]}
+  ],
+  "affected_claims": ["TASK-301", "OUTCOME-310"],
+  "recommended_action": "advance"
+}

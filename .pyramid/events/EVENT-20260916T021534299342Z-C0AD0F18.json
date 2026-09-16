@@ -1,0 +1,213 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T021534299342Z-C0AD0F18",
+  "at": "2026-09-16T02:15:34.299232Z",
+  "graph_version": 14,
+  "actor": "codex-root",
+  "type": "audit.pass",
+  "node": "GATE-320",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T02:15:16.943032Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-320",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-320/agent-result.json"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-320/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DirectoryMetadataScanner",
+          "result": "passed (7 tests)"
+        },
+        {
+          "command": "swift test --filter MonitoringLifecycleTests",
+          "result": "passed (7 tests as part of full suite)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (169 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-G320-01",
+          "result": "passed",
+          "reference": "TASK-302 traversal verification plus inherited GATE-310 containment evidence"
+        }
+      ],
+      "discovered_risks": [
+        "Completion reconciliation remains the next potentially unbounded stage and is explicitly owned by TASK-303."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T02:15:34.299086Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-320",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/tasks/evidence/GATE-320/agent-result.json"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/tasks/evidence/GATE-320/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter DirectoryMetadataScanner",
+          "result": "passed (7 tests)"
+        },
+        {
+          "command": "swift test --filter MonitoringLifecycleTests",
+          "result": "passed (7 tests as part of full suite)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (169 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-G320-01",
+          "result": "passed",
+          "reference": "TASK-302 traversal verification plus inherited GATE-310 containment evidence"
+        }
+      ],
+      "discovered_risks": [
+        "Completion reconciliation remains the next potentially unbounded stage and is explicitly owned by TASK-303."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-G320-01",
+          "result": "passed",
+          "evidence": [
+            "100,000-name bounded selector",
+            "2,000-child one-pass slice",
+            "peak retained names never exceeds slice budget"
+          ]
+        },
+        {
+          "id": "CHECK-G320-02",
+          "result": "passed",
+          "evidence": [
+            "restart, legacy decode, mutation reset, invalid cursor, and multi-root fairness matrix"
+          ]
+        },
+        {
+          "id": "CHECK-G320-03",
+          "result": "passed",
+          "evidence": [
+            "GATE-310 containment remains verified",
+            "full 169-test suite passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-320",
+        "OUTCOME-320"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-320",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-G320-01",
+          "result": "passed",
+          "evidence": [
+            "100,000-name bounded selector",
+            "2,000-child one-pass slice",
+            "peak retained names never exceeds slice budget"
+          ]
+        },
+        {
+          "id": "CHECK-G320-02",
+          "result": "passed",
+          "evidence": [
+            "restart, legacy decode, mutation reset, invalid cursor, and multi-root fairness matrix"
+          ]
+        },
+        {
+          "id": "CHECK-G320-03",
+          "result": "passed",
+          "evidence": [
+            "GATE-310 containment remains verified",
+            "full 169-test suite passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-320",
+        "OUTCOME-320"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 1,
+  "context_id": "CTX-14BAB64197C6A2C280821E0232050292",
+  "previous_event_id": "EVENT-20260916T021516943256Z-05F0955D",
+  "previous_event_sha256": "65ba9810645de5c47ae68086196fb97b3bd06ceea316a6d9b0eb5ca2a4f9289d"
+}

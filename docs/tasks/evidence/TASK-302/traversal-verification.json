@@ -1,0 +1,58 @@
+{
+  "schema": "disk-steward-traversal-verification-v1",
+  "task": "TASK-302",
+  "result": "passed",
+  "implementation": {
+    "enumeration": "POSIX opendir/readdir streaming pass",
+    "ordering": "bounded max-heap retaining only the next lexical batch",
+    "durable_progress": [
+      "lexical afterName cursor",
+      "directory device/inode/mtime/ctime signature",
+      "round-robin root scheduler cursor"
+    ],
+    "mutation_policy": "A signature change resets afterName and idempotently replays staged rows; a change during enumeration yields a partial generation without claiming completion."
+  },
+  "scale_evidence": {
+    "synthetic_child_count": 100000,
+    "maximum_retained_names": 512,
+    "expected_first_name": "entry-000000",
+    "expected_last_name": "entry-000511",
+    "filesystem_child_count": 2000,
+    "slice_budget": 64,
+    "directory_enumeration_passes": 1,
+    "peak_retained_names": 64
+  },
+  "restart_matrix": [
+    {
+      "case": "process/store restart between slices",
+      "result": "passed",
+      "test": "testSmallSlicesResumeReconcileOnlyWhenCompleteAndDeleteBAfterFullSecondGeneration"
+    },
+    {
+      "case": "legacy persisted generation without new optional fields",
+      "result": "passed",
+      "test": "testLegacyPersistedGenerationDecodesWithoutNewCursorFields"
+    },
+    {
+      "case": "name inserted before persisted lexical cursor",
+      "result": "passed",
+      "test": "testDirectoryChangeBeforeResumeResetsCursorAndDoesNotSkipEarlierName"
+    },
+    {
+      "case": "invalid nested cursor",
+      "result": "passed",
+      "test": "testInvalidCursorAndScopeChangeAbandonStagingWithoutInventingDeletion"
+    },
+    {
+      "case": "multiple roots under one global budget",
+      "result": "passed",
+      "test": "testMultipleRootsReceiveWorkInTheSameBoundedSlice"
+    }
+  ],
+  "checks": [
+    "swift test --filter ConvergentScanGeneration: 7 tests passed",
+    "swift test --filter DirectoryMetadataScanner: 7 tests passed",
+    "swift test: 169 tests passed",
+    "git diff --check: passed"
+  ]
+}

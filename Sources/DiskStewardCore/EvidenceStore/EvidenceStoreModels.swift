@@ -127,6 +127,27 @@ public struct ObservationCommitResult: Equatable, Sendable {
     public let events: [EvidenceStoreEvent]
     public let currentFiles: [CurrentFileStateRecord]
     public let coverageGaps: [EvidenceCoverageGap]
+    public let persistedEventCount: Int
+    public let currentFileCount: Int
+    public let resultWindowTruncated: Bool
+
+    public init(
+        observationID: String,
+        events: [EvidenceStoreEvent],
+        currentFiles: [CurrentFileStateRecord],
+        coverageGaps: [EvidenceCoverageGap],
+        persistedEventCount: Int? = nil,
+        currentFileCount: Int? = nil,
+        resultWindowTruncated: Bool = false
+    ) {
+        self.observationID = observationID
+        self.events = events
+        self.currentFiles = currentFiles
+        self.coverageGaps = coverageGaps
+        self.persistedEventCount = max(0, persistedEventCount ?? events.count)
+        self.currentFileCount = max(0, currentFileCount ?? currentFiles.count)
+        self.resultWindowTruncated = resultWindowTruncated
+    }
 }
 
 public struct PersistedFSEventHint: Codable, Equatable, Sendable {
@@ -206,8 +227,12 @@ public struct EvidenceStoreDiagnostics: Equatable, Sendable {
     public let hourlySummaryCount: Int
     public let dailySummaryCount: Int
     public let storageBytes: Int64
+    public let databaseFileBytes: Int64
+    public let walBytes: Int64
+    public let sharedMemoryBytes: Int64
     public let observationCount: Int
     public let currentFileCount: Int
+    public let fileStateObservationCount: Int
     public let coverageGapCount: Int
     public let retentionRunCount: Int
     public let exportRecordCount: Int
@@ -235,6 +260,11 @@ public enum EvidenceStoreError: Error, Equatable, LocalizedError {
     case invalidObservation(String)
     case invalidRetentionPolicy
     case backupDestinationExists
+    case cursorExpired
+    case storageCapacityExceeded(currentBytes: Int64, capBytes: Int64)
+    case migrationCapacityUnavailable
+    case migrationInsufficientSpace(requiredBytes: Int64, availableBytes: Int64)
+    case migrationSwitchFailed(code: Int32)
     case closed
 
     public var errorDescription: String? {
@@ -244,6 +274,11 @@ public enum EvidenceStoreError: Error, Equatable, LocalizedError {
         case let .invalidObservation(reason): return "Invalid evidence observation: \(reason)"
         case .invalidRetentionPolicy: return "Retention policy violates the bounded version 1 contract."
         case .backupDestinationExists: return "Backup destination already exists."
+        case .cursorExpired: return "The evidence query cursor expired because the underlying revision changed. Restart the query from the first page."
+        case let .storageCapacityExceeded(currentBytes, capBytes): return "Evidence storage is at capacity (\(currentBytes) bytes used, \(capBytes) byte cap). Retention must complete before more evidence is admitted."
+        case .migrationCapacityUnavailable: return "The evidence database upgrade was not started because available disk capacity could not be measured."
+        case let .migrationInsufficientSpace(requiredBytes, availableBytes): return "The evidence database upgrade needs \(requiredBytes) bytes of temporary capacity, but only \(availableBytes) bytes are available. The original database was not changed."
+        case let .migrationSwitchFailed(code): return "The validated evidence database could not be switched into place (POSIX error \(code)). The original database was not changed."
         case .closed: return "The evidence store is closed."
         }
     }

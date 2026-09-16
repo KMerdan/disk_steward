@@ -40,6 +40,10 @@ final class DurableProvenanceLifecycleTests: XCTestCase, @unchecked Sendable {
         store = nil
 
         let reopened = try EvidenceStore(url: fixture.databaseURL)
+        let hasPendingReconciliation = try await reopened.hasPendingReconciliation()
+        let pendingReconciliationCount = try await reopened.pendingReconciliationCount()
+        XCTAssertTrue(hasPendingReconciliation)
+        XCTAssertEqual(pendingReconciliationCount, 1)
         let hints = try await reopened.fseventHints(observationID: "observation-fsevent")
         XCTAssertEqual(hints.count, 1)
         XCTAssertEqual(hints[0].hint.eventID, 4_294_967_400)

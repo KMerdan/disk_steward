@@ -1,0 +1,65 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-305",
+  "outcome": "implemented",
+  "changed_files": [
+    "Config/Packaging/DiskSteward-Info.plist",
+    "Config/Packaging/project.yml",
+    "DiskSteward.xcodeproj/project.pbxproj",
+    "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+    "Scripts/Distribution/archive-release",
+    "Scripts/Distribution/finalize-archive-signatures",
+    "Scripts/Distribution/verify-release",
+    "Sources/DiskStewardApp/ApplicationDelegate.swift",
+    "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+    "Sources/DiskStewardApp/StatusItemController.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+    "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+    "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+    "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+    "Tests/PerformanceTests/PerformanceTests.swift",
+    "docs/tasks/evidence/TASK-305/agent-result.json",
+    "docs/tasks/evidence/TASK-305/release-candidate-verification.json"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {"path": "Config/Packaging/DiskSteward-Info.plist", "class": "configuration"},
+    {"path": "Config/Packaging/project.yml", "class": "configuration"},
+    {"path": "DiskSteward.xcodeproj/project.pbxproj", "class": "configuration"},
+    {"path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme", "class": "configuration"},
+    {"path": "Scripts/Distribution/archive-release", "class": "source"},
+    {"path": "Scripts/Distribution/finalize-archive-signatures", "class": "source"},
+    {"path": "Scripts/Distribution/verify-release", "class": "source"},
+    {"path": "Sources/DiskStewardApp/ApplicationDelegate.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift", "class": "source"},
+    {"path": "Sources/DiskStewardApp/StatusItemController.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift", "class": "source"},
+    {"path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift", "class": "source"},
+    {"path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift", "class": "source"},
+    {"path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift", "class": "source"},
+    {"path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift", "class": "source"},
+    {"path": "Tests/PerformanceTests/PerformanceTests.swift", "class": "source"},
+    {"path": "docs/tasks/evidence/TASK-305/agent-result.json", "class": "evidence"},
+    {"path": "docs/tasks/evidence/TASK-305/release-candidate-verification.json", "class": "evidence"}
+  ],
+  "checks": [
+    {"command": "swift test", "result": "passed (184 tests, 0 failures)"},
+    {"command": "swift test --filter PerformanceTests", "result": "passed (5 tests, including 100,000 events and 864-cycle soak)"},
+    {"command": "Scripts/Distribution/archive-release --release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive", "result": "passed"},
+    {"command": "Scripts/Distribution/verify-release /private/tmp/DiskSteward-1.1.0-rc4.xcarchive", "result": "correctly rejected at missing notarization staple after all local signature controls passed"},
+    {"command": "isolated candidate --ui-smoke", "result": "passed"},
+    {"command": "git diff --check", "result": "passed"}
+  ],
+  "acceptance_evidence": [
+    {"criterion": "AC-305-01", "result": "passed", "reference": "consistent SQLite backup, explicit capacity preflight, validated atomic switch, idempotent schema-6 backfill, and recovery tests at four injected interruption points"},
+    {"criterion": "AC-305-02", "result": "passed", "reference": "184-test workload matrix, 100,000-event overload test, 864-cycle/72-hour-equivalent soak, x86_64+arm64 candidate, and exact candidate launch smoke"},
+    {"criterion": "AC-305-03", "result": "passed", "reference": "production verifier accepts Developer ID/hardened runtime/timestamp/entitlements then blocks the unstapled candidate before Gatekeeper or release"}
+  ],
+  "discovered_risks": [
+    "The rc4 candidate is intentionally not distributable: it has not been submitted to Apple's notarization service and therefore has no staple.",
+    "The release archive is in /private/tmp and is not a published or durable release asset.",
+    "A later authorized promotion must run verify-release again against the exact notarized artifact; no current evidence claims publication."
+  ],
+  "suggested_graph_changes": []
+}

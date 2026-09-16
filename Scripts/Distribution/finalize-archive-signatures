@@ -41,16 +41,7 @@ app_entitlements="$temporary_directory/app-entitlements.plist"
   --entitlements "$helper_entitlements" \
   "$helper"
 
-# codesign can change the two signature slots by different amounts. Recreate
-# the fat container so its architecture offsets match the newly signed slices.
-/usr/bin/lipo "$helper" -thin x86_64 -output "$temporary_directory/helper-x86_64"
-/usr/bin/lipo "$helper" -thin arm64 -output "$temporary_directory/helper-arm64"
-/usr/bin/lipo -create \
-  "$temporary_directory/helper-x86_64" \
-  "$temporary_directory/helper-arm64" \
-  -output "$temporary_directory/helper-universal"
-/usr/bin/install -m 755 "$temporary_directory/helper-universal" "$helper"
-/usr/bin/codesign --verify --strict --verbose=2 "$helper"
+/usr/bin/codesign --verify --strict --all-architectures --verbose=2 "$helper"
 
 /usr/bin/codesign \
   --force \
@@ -61,5 +52,5 @@ app_entitlements="$temporary_directory/app-entitlements.plist"
   --entitlements "$app_entitlements" \
   "$app"
 
-/usr/bin/codesign --verify --deep --strict --verbose=2 "$app"
+/usr/bin/codesign --verify --deep --strict --all-architectures --verbose=2 "$app"
 print "Finalized archive signatures: $app"

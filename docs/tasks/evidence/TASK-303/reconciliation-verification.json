@@ -1,0 +1,47 @@
+{
+  "schema": "disk-steward-reconciliation-verification-v1",
+  "task": "TASK-303",
+  "result": "passed",
+  "bounded_reconciliation": {
+    "staged_object_count": 2500,
+    "sql_iteration": "keyset-ordered one-object-at-a-time",
+    "maximum_inline_result_rows": 2048,
+    "persisted_event_count": 2500,
+    "current_file_count": 2500,
+    "result_window_truncated": true
+  },
+  "lifecycle_oracle": [
+    {
+      "case": "complete A/B/C followed by complete A/C",
+      "result": "A and C current; B historical delete"
+    },
+    {
+      "case": "partial A/C observation",
+      "result": "B remains unknown and is not reported deleted"
+    },
+    {
+      "case": "hard links, rename, replacement, truncate, and scope exit",
+      "result": "identity-aware distinct lifecycle events remain correct"
+    }
+  ],
+  "interruption_matrix": [
+    {"checkpoint": "after-observation", "result": "rolled back; restart converged"},
+    {"checkpoint": "after-present-objects", "result": "rolled back; restart converged"},
+    {"checkpoint": "after-missing-objects", "result": "rolled back; restart converged"},
+    {"checkpoint": "before-finalize", "result": "rolled back; restart converged"}
+  ],
+  "event_loss": {
+    "direct_fsevents_gap_persisted": true,
+    "survives_restart": true,
+    "repeated_gaps_coalesced": true,
+    "cleared_only_by_complete_reconciliation": true,
+    "historical_gap_retained": true
+  },
+  "checks": [
+    "swift test --filter Evidence: 57 tests passed",
+    "swift test --filter FSEvent: 3 tests passed",
+    "swift test --filter ConvergentScanGeneration: 11 tests passed",
+    "swift test: 173 tests passed",
+    "git diff --check: passed"
+  ]
+}

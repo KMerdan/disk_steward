@@ -119,6 +119,51 @@ final class EvidenceRetentionLifecycleTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(diagnostics.exportRecordCount, 512)
     }
 
+    func testUnchangedObservationsDoNotMultiplyDetailedStateHistory() async throws {
+        let fixture = try RetentionFixture()
+        defer { fixture.cleanup() }
+        let store = try EvidenceStore(url: fixture.databaseURL, dateSource: { self.now })
+        let unchanged = file("A", path: "/fixture/a.bin", at: now)
+
+        try await observe(store, id: "unchanged-1", at: now, files: [unchanged], coverage: .complete)
+        try await observe(store, id: "unchanged-2", at: now.addingTimeInterval(60), files: [unchanged], coverage: .complete)
+
+        let diagnostics = try await store.diagnostics()
+        XCTAssertEqual(diagnostics.observationCount, 2)
+        XCTAssertEqual(diagnostics.currentFileCount, 1)
+        XCTAssertEqual(diagnostics.fileStateObservationCount, 1)
+    }
+
+    func testRetentionProcessesOldHistoryInBoundedRestartableBatches() async throws {
+        let fixture = try RetentionFixture()
+        defer { fixture.cleanup() }
+        let store = try EvidenceStore(url: fixture.databaseURL, dateSource: { self.now })
+        let expiredCount = 10_050
+        try await store.insert((0 ..< expiredCount).map { index in
+            EvidenceStoreEvent(
+                eventID: "expired-\(index)",
+                observedAt: now.addingTimeInterval(-8 * 86_400),
+                operation: .modify,
+                path: "/fixture/expired-\(index)",
+                logicalDelta: 1,
+                allocatedDelta: 1,
+                consumerCategory: "test",
+                confidence: .inferred
+            )
+        })
+
+        let first = try await store.applyRetention(try .init(), trigger: .scheduled)
+        XCTAssertEqual(first.aggregatedRawEvents, 10_000)
+        XCTAssertTrue(first.limitations.contains { $0.contains("bounded 10,000-row batch") })
+        let afterFirst = try await store.eventCount()
+        XCTAssertEqual(afterFirst, 50)
+
+        let second = try await store.applyRetention(try .init(), trigger: .scheduled)
+        XCTAssertEqual(second.aggregatedRawEvents, 50)
+        let afterSecond = try await store.eventCount()
+        XCTAssertEqual(afterSecond, 0)
+    }
+
     private func event(_ id: String, daysAgo: Int, anomaly: Bool = false) -> EvidenceStoreEvent {
         .init(
             eventID: id,

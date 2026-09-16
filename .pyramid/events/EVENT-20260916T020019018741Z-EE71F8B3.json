@@ -1,0 +1,329 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T020019018741Z-EE71F8B3",
+  "at": "2026-09-16T02:00:19.018634Z",
+  "graph_version": 4,
+  "actor": "codex-auditor",
+  "type": "audit.pass",
+  "node": "TASK-301",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T01:59:01.134294Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-301",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+        "Tests/PerformanceTests/PerformanceTests.swift",
+        "docs/tasks/evidence/TASK-301/agent-result.json",
+        "docs/tasks/evidence/TASK-301/containment-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/PerformanceTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-301/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-301/containment-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Resource",
+          "result": "passed (4 tests)"
+        },
+        {
+          "command": "swift test --filter Monitoring",
+          "result": "passed (21 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (164 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-301-01",
+          "result": "passed",
+          "reference": "MonitoringLifecycleTests.testConcurrentSampleRequestsAreSingleFlightAndCoalesced and testInterruptedSampleStartsInSafetyPauseUntilUserResumes"
+        },
+        {
+          "criterion": "AC-301-02",
+          "result": "passed",
+          "reference": "MonitoringLifecycleTests.testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded and PerformanceTests.testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone"
+        },
+        {
+          "criterion": "AC-301-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-301/containment-verification.json and LiveResourceMeasurementSource tests"
+        }
+      ],
+      "discovered_risks": [
+        "The temporary 512-entry ceiling contains work per sample but the legacy traversal still repeats full directory listings; TASK-302 must replace it.",
+        "One blocking filesystem call remains in-process and cannot be preempted by cooperative cancellation.",
+        "The configured production memory ceiling needs representative installed-app measurement at the scale gate."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T02:00:19.018467Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-301",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+        "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+        "Tests/PerformanceTests/PerformanceTests.swift",
+        "docs/tasks/evidence/TASK-301/agent-result.json",
+        "docs/tasks/evidence/TASK-301/containment-verification.json"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/PerformanceTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-301/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-301/containment-verification.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --filter Resource",
+          "result": "passed (4 tests)"
+        },
+        {
+          "command": "swift test --filter Monitoring",
+          "result": "passed (21 tests)"
+        },
+        {
+          "command": "swift test",
+          "result": "passed (164 tests)"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-301-01",
+          "result": "passed",
+          "reference": "MonitoringLifecycleTests.testConcurrentSampleRequestsAreSingleFlightAndCoalesced and testInterruptedSampleStartsInSafetyPauseUntilUserResumes"
+        },
+        {
+          "criterion": "AC-301-02",
+          "result": "passed",
+          "reference": "MonitoringLifecycleTests.testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded and PerformanceTests.testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone"
+        },
+        {
+          "criterion": "AC-301-03",
+          "result": "passed",
+          "reference": "docs/tasks/evidence/TASK-301/containment-verification.json and LiveResourceMeasurementSource tests"
+        }
+      ],
+      "discovered_risks": [
+        "The temporary 512-entry ceiling contains work per sample but the legacy traversal still repeats full directory listings; TASK-302 must replace it.",
+        "One blocking filesystem call remains in-process and cannot be preempted by cooperative cancellation.",
+        "The configured production memory ceiling needs representative installed-app measurement at the scale gate."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-301",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-301-01",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter Monitoring: 21 tests passed",
+            "MonitoringLifecycleTests.testConcurrentSampleRequestsAreSingleFlightAndCoalesced",
+            "MonitoringLifecycleTests.testInterruptedSampleStartsInSafetyPauseUntilUserResumes"
+          ]
+        },
+        {
+          "id": "CHECK-301-02",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter Resource: 4 tests passed",
+            "MonitoringLifecycleTests.testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded",
+            "PerformanceTests.testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone"
+          ]
+        },
+        {
+          "id": "CHECK-301-03",
+          "result": "passed",
+          "evidence": [
+            "docs/tasks/evidence/TASK-301/containment-verification.json",
+            "PerformanceTests.testLiveResourceMeasurementCountsDatabaseWALAndSharedMemory",
+            "MonitoringLifecycleTests.testPersistentProbeCapsOneSafetySliceToARepresentableBatch"
+          ]
+        },
+        {
+          "id": "CHECK-301-04",
+          "result": "passed",
+          "evidence": [
+            "swift test: 164 tests passed",
+            "git diff --check: passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-301",
+        "OUTCOME-310"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-301",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-301-01",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter Monitoring: 21 tests passed",
+            "MonitoringLifecycleTests.testConcurrentSampleRequestsAreSingleFlightAndCoalesced",
+            "MonitoringLifecycleTests.testInterruptedSampleStartsInSafetyPauseUntilUserResumes"
+          ]
+        },
+        {
+          "id": "CHECK-301-02",
+          "result": "passed",
+          "evidence": [
+            "swift test --filter Resource: 4 tests passed",
+            "MonitoringLifecycleTests.testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded",
+            "PerformanceTests.testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone"
+          ]
+        },
+        {
+          "id": "CHECK-301-03",
+          "result": "passed",
+          "evidence": [
+            "docs/tasks/evidence/TASK-301/containment-verification.json",
+            "PerformanceTests.testLiveResourceMeasurementCountsDatabaseWALAndSharedMemory",
+            "MonitoringLifecycleTests.testPersistentProbeCapsOneSafetySliceToARepresentableBatch"
+          ]
+        },
+        {
+          "id": "CHECK-301-04",
+          "result": "passed",
+          "evidence": [
+            "swift test: 164 tests passed",
+            "git diff --check: passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-301",
+        "OUTCOME-310"
+      ],
+      "recommended_action": "advance"
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-003",
+  "plan_revision": 1,
+  "context_id": "CTX-13931349B7582273BA75F21B4A2F11A8",
+  "previous_event_id": "EVENT-20260916T015901134665Z-9D609E20",
+  "previous_event_sha256": "60640287e3b0b5883a52e994a5f8fde23dcd18253d0d913ac292340c331b67f4"
+}
