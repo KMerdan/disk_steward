@@ -20,6 +20,26 @@ struct SettingsView: View {
 }
 
 struct AboutView: View {
+    let versionDescription: String
+
+    init(infoDictionary: [String: Any]? = Bundle.main.infoDictionary) {
+        func nonEmpty(_ value: String?) -> String? {
+            guard let value = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !value.isEmpty else { return nil }
+            return value
+        }
+
+        let version = nonEmpty(infoDictionary?["CFBundleShortVersionString"] as? String)
+        let rawBuild = infoDictionary?["CFBundleVersion"]
+        let build = nonEmpty((rawBuild as? String) ?? (rawBuild as? Int).map { String($0) })
+        switch (version, build) {
+        case let (version?, build?): versionDescription = "Version \(version) (\(build))"
+        case let (version?, nil): versionDescription = "Version \(version)"
+        case let (nil, build?): versionDescription = "Build \(build)"
+        case (nil, nil): versionDescription = "Development build"
+        }
+    }
+
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "externaldrive.fill.badge.checkmark")
@@ -27,7 +47,7 @@ struct AboutView: View {
                 .foregroundStyle(.blue)
             Text("Disk Steward")
                 .font(.title2.bold())
-            Text("Version 0.1.0")
+            Text(versionDescription)
                 .foregroundStyle(.secondary)
             Text("Storage evidence for humans and local coding agents.")
                 .multilineTextAlignment(.center)

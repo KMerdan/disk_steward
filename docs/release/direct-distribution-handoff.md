@@ -59,6 +59,41 @@ Developer ID identity is unavailable.
 If upload authorization is denied, the Account Holder must grant the Apple ID
 or App Store Connect API key access. Do not add the credential to this repo.
 
+### Command-line Xcode upload
+
+For manual signing, export options must select the application profile, even
+when the archive already contains it. The checked-in
+`Config/ExportOptions/DeveloperID.plist` maps `com.marudankiji.disksteward` to
+`Disk Steward Developer ID Distribution`. Install the matching Developer ID
+profile, including `group.com.marudankiji.disksteward`, before exporting.
+The standalone MCP helper does not receive a provisioning-profile mapping.
+
+Create upload options from this template rather than recreating the signing
+dictionary. Run these commands from the repository, using the intended archive:
+
+```sh
+upload_work=$(/usr/bin/mktemp -d /private/tmp/disk-steward-upload.XXXXXX)
+cp Config/ExportOptions/DeveloperID.plist "$upload_work/options.plist"
+/usr/bin/plutil -replace destination -string upload "$upload_work/options.plist"
+/usr/bin/xcodebuild -exportArchive \
+  -archivePath /absolute/path/DiskSteward.xcarchive \
+  -exportOptionsPlist "$upload_work/options.plist" \
+  -exportPath "$upload_work/export"
+```
+
+This uploads for notarization using Xcode's account workflow; it does not publish
+a GitHub release, update Homebrew, or install the app. Preserve the output and
+submission ID, then check the notarization result before exporting and verifying.
+An App Groups profile error at `exportArchive` is a local signing-selection
+failure, not a rejection or delay from Apple's notary service.
+
+The alternative `notarytool` workflow needs separately configured authentication.
+Being signed into Xcode does not create a named `notarytool` Keychain profile.
+Check that profile with `notarytool history --keychain-profile <profile-name>`
+before submitting; never put passwords or private keys in a release script.
+In zsh scripts, use `notary_status` for the result: `status` is a read-only shell
+parameter. Keep notarization retries separate from publishing or installation.
+
 ## 5. Verify the exported app
 
 ```sh
