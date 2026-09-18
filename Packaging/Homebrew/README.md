@@ -1,6 +1,6 @@
 # Homebrew publication
 
-The canonical cask is [`Casks/disk-steward.rb`](Casks/disk-steward.rb). It resolves the immutable, notarized Disk Steward 1.2.0 release archive and pins its SHA-256 digest.
+The canonical cask is [`Casks/disk-steward.rb`](Casks/disk-steward.rb). It resolves the immutable, notarized Disk Steward 1.2.1 release archive and pins its SHA-256 digest.
 
 ## Current behavior
 

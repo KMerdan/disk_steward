@@ -170,6 +170,7 @@ public final class UnixSocketEvidenceServer: @unchecked Sendable {
     private let timeoutSeconds: TimeInterval
     private let startupCheckpoint: @Sendable (SocketStartupCheckpoint) throws -> Void
     private let beforeAccept: @Sendable (Int32) -> Void
+    private let legacyEndpointInspector: LegacyEndpointInspector
     private let queue = DispatchQueue(label: "DiskSteward.IPC.Accept", qos: .utility)
     private let watchdogQueue = DispatchQueue(label: "DiskSteward.IPC.Deadlines", qos: .utility)
     // Poll waits must not occupy Swift's cooperative workers used by monitoring.
@@ -193,6 +194,7 @@ public final class UnixSocketEvidenceServer: @unchecked Sendable {
          maximumRequestBytes: Int = 1 * 1_024 * 1_024, maximumConnections: Int = 4,
          timeoutSeconds: TimeInterval = 10,
          beforeAccept: @escaping @Sendable (Int32) -> Void = { _ in },
+         legacyEndpointInspector: LegacyEndpointInspector = .system,
          startupCheckpoint: @escaping @Sendable (SocketStartupCheckpoint) throws -> Void) {
         self.socketPath = socketPath
         self.handler = handler
@@ -201,6 +203,7 @@ public final class UnixSocketEvidenceServer: @unchecked Sendable {
         self.timeoutSeconds = min(60, max(0.05, timeoutSeconds))
         self.startupCheckpoint = startupCheckpoint
         self.beforeAccept = beforeAccept
+        self.legacyEndpointInspector = legacyEndpointInspector
     }
 
     deinit { stop() }
@@ -527,9 +530,12 @@ public final class UnixSocketEvidenceServer: @unchecked Sendable {
             throw DiskStewardIPCError.insecureSocket("an unowned or non-socket entry occupies the socket path")
         }
         // Acquiring the lease proves the prior cooperative owner has exited.
-        // Unknown/legacy endpoints are never probed or replaced: a probe closing
-        // early could itself trigger SIGPIPE in an older running app.
-        guard let previous = lease.previousEndpoint(), EndpointIdentity(socketPath) == previous else {
+        // Unknown/legacy endpoints are never probed: a probe closing early
+        // could itself trigger SIGPIPE in an older running app. A legacy
+        // endpoint is replaced only when the process table shows nobody holds
+        // it and no other Disk Steward app runs (1.1 left its socket behind).
+        let ownedByPreviousLease = lease.previousEndpoint().map { EndpointIdentity(socketPath) == $0 } ?? false
+        guard ownedByPreviousLease || legacyEndpointInspector.isStale(socketPath) else {
             throw DiskStewardIPCError.remote(code: "endpoint_ownership_unknown", message: "An existing endpoint is not owned by this instance. Quit the previous Disk Steward app or toggle its Agent Access off before retrying.", retryable: false)
         }
         guard unlink(socketPath) == 0 else { throw DiskStewardIPCError.connectionFailed(errno) }

@@ -201,3 +201,25 @@ verification after further changes; temporary reports may not persist.
   `KMerdan/homebrew-disk-steward` points at the v1.2.0 GitHub release asset.
 - For the next release, bump `CFBundleVersion` and follow the repeatable
   workflow; poll `xcodebuild -exportNotarizedApp` instead of resubmitting.
+
+## 1.2.1 release record (2026-09-18)
+
+Two upgrade regressions reported from the installed 1.2.0 app:
+
+- **Agent Access "existing endpoint is not owned by this instance"**: 1.1.x
+  never removed `disk-steward.sock` on quit and never wrote the lease record,
+  so 1.2.0 refused the leftover forever. `LegacyEndpointInspector` (Core IPC)
+  now treats an unowned socket as stale only when the process table shows no
+  process holds an AF_UNIX socket bound to that path and no other
+  `Disk Steward.app` process runs. It never connects to the socket; an
+  unreadable table fails closed.
+- **"Evidence-database budget exceeded" circuit breaker**: the in-sample
+  budget checks in `PersistentMonitoringProbe` judged the database on raw file
+  size (free pages plus a transiently growing WAL). A store near its cap
+  (the live one was 503 MiB against 512 MiB, 482 MiB live) tripped mid-sample.
+  All in-sample checks now use store accounting, as the pre-sample check did.
+
+Evidence: focused suites 74 tests green; mutation reds revert each fix and fail
+exactly the new test; full verifier `/private/tmp/disk-steward-check.byToyo`
+(input `ab220436864e…`) 559 tests, 0 failures. 1.2.1 (6) notarized on the
+second poll; zip SHA-256 `494348588a2b6207898f53aae3a015ee607db601130275557080cc6a1d0d6812`.

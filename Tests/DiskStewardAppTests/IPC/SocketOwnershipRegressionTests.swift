@@ -93,6 +93,57 @@ final class SocketOwnershipRegressionTests: XCTestCase {
         withExtendedLifetime(released) {}
     }
 
+    // Disk Steward 1.1 never removed its socket on quit and never wrote a lease
+    // record. Upgrading must recover that leftover without probing it.
+    func testLeftoverLegacySocketWithoutAnyHolderIsRecoveredOnUpgrade() throws {
+        let root = try fixtureRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let path = root.appending(path: "s").path
+        Darwin.close(try rawListener(path)) // a legacy app that exited without unlinking
+        XCTAssertEqual(ProcessSocketTable.pids(boundTo: path), [], "nobody holds the leftover socket")
+        let inspector = LegacyEndpointInspector(listeners: ProcessSocketTable.pids(boundTo:), otherApplicationRunning: { false })
+        let server = UnixSocketEvidenceServer(socketPath: path, handler: Echo(), legacyEndpointInspector: inspector, startupCheckpoint: { _ in })
+        try server.start()
+        defer { server.stop() }
+        let value = try UnixSocketDiskStewardIPCClient(socketPath: path).call(tool: "echo", arguments: [:], isCancelled: { false })
+        XCTAssertEqual(value, .string("alive"))
+    }
+
+    func testLegacySocketIsPreservedWhileAnotherAppRunsOrTheProcessTableIsUnreadable() throws {
+        let cases: [(String, LegacyEndpointInspector)] = [
+            ("another Disk Steward app is running", LegacyEndpointInspector(listeners: { _ in [] }, otherApplicationRunning: { true })),
+            ("the process table cannot be read", LegacyEndpointInspector(listeners: { _ in nil }, otherApplicationRunning: { false })),
+            ("a process holds the socket", LegacyEndpointInspector(listeners: { _ in [4242] }, otherApplicationRunning: { false })),
+        ]
+        for (label, inspector) in cases {
+            let root = try fixtureRoot()
+            defer { try? FileManager.default.removeItem(at: root) }
+            let path = root.appending(path: "s").path
+            Darwin.close(try rawListener(path))
+            let before = try identity(path)
+            let server = UnixSocketEvidenceServer(socketPath: path, handler: Echo(), legacyEndpointInspector: inspector, startupCheckpoint: { _ in })
+            XCTAssertThrowsError(try server.start(), label) { error in
+                guard case DiskStewardIPCError.remote(let code, _, _) = error else { return XCTFail("\(label): \(error)") }
+                XCTAssertEqual(code, "endpoint_ownership_unknown", label)
+            }
+            server.stop()
+            XCTAssertEqual(try identity(path), before, label)
+        }
+    }
+
+    func testProcessTableFindsALiveListenerWithoutConnecting() throws {
+        let root = try fixtureRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let path = root.appending(path: "s").path
+        let listener = try rawListener(path)
+        XCTAssertEqual(ProcessSocketTable.pids(boundTo: path), [getpid()])
+        XCTAssertFalse(LegacyEndpointInspector(listeners: ProcessSocketTable.pids(boundTo:), otherApplicationRunning: { false }).isStale(path))
+        XCTAssertEqual(Darwin.accept(listener, nil, nil), -1, "the scan never connects")
+        XCTAssertEqual(errno, EWOULDBLOCK)
+        Darwin.close(listener)
+        XCTAssertEqual(ProcessSocketTable.pids(boundTo: path), [])
+    }
+
     func testFailedStartPreservesRegularAndSymlinkOccupantsAndCanRetry() throws {
         for isLink in [false, true] {
             let root = try fixtureRoot()

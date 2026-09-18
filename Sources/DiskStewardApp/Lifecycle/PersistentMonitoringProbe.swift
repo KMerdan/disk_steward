@@ -270,7 +270,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         let slice = autoreleasepool {
             metadataScanner.scanSlice(policy: policy, generation: generation, at: now)
         }
-        try enforceResourceBudget(settings: settings, underLoad: true)
+        try await enforceResourceBudget(settings: settings, underLoad: true)
         try Task.checkCancellation()
         let sampleEventGap = durableEventGap
         var scanCommit: ScanGenerationCommitResult
@@ -313,7 +313,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
               continuationSlices < Self.maximumContinuationSlices,
               ProcessInfo.processInfo.systemUptime < continuationDeadline {
             try Task.checkCancellation()
-            try enforceResourceBudget(settings: settings, underLoad: true)
+            try await enforceResourceBudget(settings: settings, underLoad: true)
             try await persistPendingChanges()
             let permit = try inbox.publicationPermit()
             let before = scanCommit.generation
@@ -388,7 +388,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         try Task.checkCancellation()
         let evidenceLifecycle = try await store.lifecycleStatus(retentionPolicy, at: now)
         try Task.checkCancellation()
-        try enforceResourceBudget(settings: settings, underLoad: false)
+        try await enforceResourceBudget(settings: settings, underLoad: false)
         return MonitoringObservation(
             observedAt: now,
             snapshot: snapshot,
@@ -578,8 +578,23 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         )
     }
 
-    private func enforceResourceBudget(settings: MonitoringSettings, underLoad: Bool) throws {
-        try enforce(resourceMeasurement(underLoad: underLoad), settings: settings)
+    /// Process limits come from the live measurement; the database dimension is
+    /// judged on the store's own accounting (live pages, log and shared memory),
+    /// exactly as before sampling. The raw file size also counts reusable free
+    /// pages and a write-ahead log that grows transiently during every commit,
+    /// so a store sitting near its cap would otherwise trip the breaker in the
+    /// middle of each sample even though retention and admission keep it
+    /// bounded. Storage pressure is admission's job, not the breaker's.
+    private func enforceResourceBudget(settings: MonitoringSettings, underLoad: Bool) async throws {
+        let measurement = resourceMeasurement(underLoad: underLoad)
+        try enforceNonDatabaseBudget(measurement, settings: settings)
+        let accounting = try await store.storageAccounting()
+        guard accounting.admission == .available else { return }
+        try enforce(ResourceMeasurement(
+            cpuPercent: measurement.cpuPercent, residentBytes: measurement.residentBytes,
+            databaseBytes: accounting.committedBytes, pendingEvents: measurement.pendingEvents,
+            receivedEvents: measurement.receivedEvents, droppedEvents: measurement.droppedEvents, underLoad: measurement.underLoad
+        ), settings: settings)
     }
 
     private func resourceMeasurement(underLoad: Bool) -> ResourceMeasurement {

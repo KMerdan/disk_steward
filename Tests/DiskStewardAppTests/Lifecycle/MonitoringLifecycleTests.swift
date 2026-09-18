@@ -504,6 +504,41 @@ final class MonitoringLifecycleTests: XCTestCase {
         await reader.close()
     }
 
+    // 1.2.0 regression: a store near its cap has a file larger than its live
+    // data (reusable free pages, a write-ahead log that grows during commits).
+    // Judging the database by raw file size mid-sample stopped monitoring.
+    func testDatabaseNearItsCapIsJudgedOnStoreAccountingThroughoutTheSample() async throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
+        let watched = directory.appending(path: "watched", directoryHint: .isDirectory)
+        let database = directory.appending(path: "store/evidence.sqlite")
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        for index in 0 ..< 40 {
+            FileManager.default.createFile(atPath: watched.appending(path: "item-\(index)").path, contents: Data())
+        }
+        var settings = MonitoringSettings.defaults
+        settings.watchedRoots = [watched.path]
+        settings.excludedRoots = []
+        settings.maxDatabaseMiB = 512
+        let probe = try PersistentMonitoringProbe(
+            databaseURL: database,
+            resourceBudget: ResourceBudget(maximumResidentBytes: 2 * 1_024 * 1_024 * 1_024),
+            resourceMeasurementSource: { _, underLoad in
+                // The raw file family is always over the cap; live data is tiny.
+                ResourceMeasurement(cpuPercent: 0, residentBytes: 0, databaseBytes: 520 * 1_024 * 1_024,
+                                    pendingEvents: 0, receivedEvents: 0, droppedEvents: 0, underLoad: underLoad)
+            }
+        )
+
+        let observation = try await probe.sample(settings: settings)
+
+        XCTAssertNotNil(observation.evidenceLifecycle)
+        let reader = try EvidenceStore(url: database)
+        let diagnostics = try await reader.diagnostics()
+        XCTAssertEqual(diagnostics.observationCount, 1)
+        await reader.close()
+    }
+
     func testConfiguredDatabaseLimitIsTheMonitoringSourceOfTruth() async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
         let watched = directory.appending(path: "watched", directoryHint: .isDirectory)
