@@ -57,6 +57,7 @@ final class MCPAccessController: ObservableObject {
     private let settingsStore: AgentAccessSettingsStore
     private let serverFactory: ServerFactory
     private var server: (any MCPAccessServing)?
+    private var serviceStarted = false
 
     var isEnabled: Bool { settingsStore.isEnabled }
 
@@ -78,7 +79,7 @@ final class MCPAccessController: ObservableObject {
             }
         } else {
             server?.stop()
-            server = nil
+            serviceStarted = false
             do {
                 try settingsStore.setEnabled(false)
                 state = .off
@@ -90,17 +91,27 @@ final class MCPAccessController: ObservableObject {
     }
 
     private func startService() {
+        guard !serviceStarted else { return }
         state = .starting
         do {
-            let candidate = try serverFactory()
-            try candidate.start()
+            // Reuse the service so cancelled-but-not-yet-finished requests remain
+            // inside the same concurrency budget across rapid Off/On toggles.
+            let candidate = try server ?? serverFactory()
             server = candidate
+            try candidate.start()
+            serviceStarted = true
             state = .on
         } catch {
             server?.stop()
-            server = nil
+            serviceStarted = false
             settingsStore.record(error)
             state = .degraded(error.localizedDescription)
         }
+    }
+
+    func shutdown() {
+        server?.stop()
+        serviceStarted = false
+        server = nil
     }
 }

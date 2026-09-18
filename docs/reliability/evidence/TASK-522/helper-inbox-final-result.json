@@ -1,0 +1,69 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-INBOX-FINAL",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-4C98A07F39E013F9ACF3E7D64B0F2F8A",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:51cf05199dfc307788edae3052319853e44592d608fbdb8e64bb46dbf9d324a0",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Minimal delta resolves both reproduced recovery-marker defects. The real persistence gate now covers stale acknowledgement after an equal-time newer receipt, and the controller test exercises a production permit issued before store admission. One claimed partial-failure schedule remains unproven because the failing root sorts first. No new production defect found in the bounded delta.",
+  "findings": [
+    {
+      "claim": "The new test does not exercise its claimed second-root failure. MonitoringChangeInbox sorts roots, but 'other' precedes the fixture's 'watched', so fail_second_receipt aborts the first root of the retry. partialCount == 2 already follows from the prior A-only completion; it cannot demonstrate an earlier write succeeding in that failing multi-root attempt.",
+      "confidence": "high",
+      "evidence": [
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "recommendation": "Use deterministically ordered roots and prove an earlier root newly persisted in the same failing attempt, such as adding a third previously undurable root before the failing root. Assert its durable contribution before retry, retained cumulative revision and blocked permit, then successful retry. Keep the equal-time newer-receipt assertions."
+    }
+  ],
+  "evidence": [
+    "E1 /private/tmp/disk-steward-522-inbox-final.H8j2Er/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:210-223,409-419 resume preserves live/pending ownership; work completion cannot acknowledge an unconfirmed prior interruption.",
+    "E2 /private/tmp/disk-steward-522-inbox-final.H8j2Er/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:278-329 tests preseeded crash marker through successful shutdown/reconstruction and explicit resume while persistence is gated, including eventual marker clearing.",
+    "E3 /private/tmp/disk-steward-522-inbox-final.H8j2Er/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:332-373 equal-time B arrives while actual A persistence is blocked; stale completion retains both roots, but trigger targets 'other'.",
+    "E4 /private/tmp/disk-steward-522-inbox-final.H8j2Er/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:426-435 fixture root is sibling 'watched', which sorts after 'other'.",
+    "E5 /private/tmp/disk-steward-522-inbox-final.H8j2Er/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift:148-153,310-325 receipt roots are sorted and persisted sequentially, then acknowledged once.",
+    "E6 /private/tmp/disk-steward-522-inbox-final.H8j2Er/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:57-108,405-423,447-454 bounded before-volume gate reuses the actual collector/controller/probe/store route, asserting stale publication leaves baseline and observation count unchanged before recovery.",
+    "E7 /private/tmp/disk-steward-522-inbox-final.H8j2Er/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift:232-255 permit is obtained before the injected volume source and passed to recordScanSlice; /private/tmp/disk-steward-522-inbox-final.H8j2Er/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:40,509-525 captured before-invalidation checkpoint is inside the transaction and defaults to a no-op."
+  ],
+  "checks": [
+    {
+      "command": "Diff every scoped source/test group against /private/tmp/disk-steward-522-inbox-review.uxMyD4 and inspect changed boundaries.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "Only controller ownership guards, EvidenceStore checkpoint, and MonitoringReceiptTests changed. Other scoped core sources/tests and lifecycle files are unchanged."
+    },
+    {
+      "command": "Trace marker ownership, actual persistence checkpoint, sorted-root iteration and before-admission permit route.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E7; both prior ownership defects resolve statically. One test-proof mismatch remains."
+    },
+    {
+      "command": "Execute tests, builds or native APIs.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Prohibited. Coordinator reports 52 focused passes and a full suite in progress; neither independently executed here."
+    }
+  ],
+  "stale_if": [
+    "Scoped source, test, guard or snapshot identity changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw candidate-bound static review requires coordinator freshness and finding reconciliation; not task or product acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "No exhaustive concurrency or native OS proof. This review is limited to the specified corrective delta.",
+    "The equal-time stale-acknowledgement race is now exercised, but the asserted same-attempt partial multi-root persistence schedule is not."
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-REVIEWED",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:6d22b93e54a486fa1c0c551cc0cda0c9d5188c01bf649bfc2e458385af632eb3",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Narrow static delta review confirms the prior direct-pause/completed-loop path and post-commit cancellation bookkeeping are corrected. Revised deadline, bounded-wait and cleanup controls address the specific test gaps. One supported incoming-settings restart gap remains.",
+  "findings": [
+    {
+      "claim": "The new incoming-pause branch cancels and clears loopTask, but an incoming paused=false update only restarts the collector. A running loop followed by direct settings true then false updates now loses periodic sampling indefinitely unless resume/start is separately called. Previously a quick true/false toggle while the loop slept left that timer alive. The new regression uses lifecycle.resume(), so it does not cover direct unpause.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E3"
+      ],
+      "recommendation": "Queue one epoch-checked restart after @Published commits the incoming false value. Preserve recovery-confirmation, sleep and terminal guards; obsolete callbacks must not restart monitoring. Test a false/true/false settings round trip without lifecycle.resume during periodic sleep, require another probe call, and cover an intervening pause/sleep/shutdown before the queued restart executes."
+    }
+  ],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:111-125,137-162,180-191 (incoming pause cancels ownership; false does not call start; UUID-fenced cleanup).",
+    "E2: /private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift:121-171 (accepted-commit bookkeeping before cancellation; returned-generation limitations; subsequent phase checks).",
+    "E3: /private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:39-61 (direct pause followed by explicit lifecycle.resume).",
+    "E4: /private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift:8-36,120-146 (same-instance first/later committed-cancellation baseline regression and deterministic hooks).",
+    "E5: /private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:8-35,102-131,551-620,641-661 (nonpositive/deadline-race tests; early-expiry assertion; bounded throwing waits; clock cancellation; probe release)."
+  ],
+  "checks": [
+    {
+      "command": "Read-only diffs against immutable 942a5d8 candidate plus focused numbered source/test inspection.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E1-E5. ApplicationDelegate and StatusItemController have no delta. No tests/builds/native/database actions executed."
+    }
+  ],
+  "stale_if": [
+    "Parent guard or candidate snapshot changes.",
+    "Relevant lifecycle or probe/test deltas change."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw narrow source review requires coordinator reconciliation; not task acceptance or independent test evidence.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Ordinary hint durability, callback generations and notification send-boundary fencing remain explicitly excluded/open.",
+    "Coordinator confirmed direct incoming unpause is supported; the remaining finding requires reproduction and correction.",
+    "Coordinator-reported test outcomes were not independently executed."
+  ]
+}

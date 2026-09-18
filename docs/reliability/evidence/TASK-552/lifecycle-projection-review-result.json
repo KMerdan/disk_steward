@@ -1,0 +1,60 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-LIFECYCLE-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-B8E1C2F9F0B506B7FC5D3E59FF469274",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b1ea72b2fdfa9f501daea648376874c16f5ebf9f7e3eef5960e358385f21c155",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "One actionable coverage regression found in explain_growth. The inspected lifecycle-summary path otherwise avoids decoding private traversal progress, disables export-inventory refresh, and leaves unprojected historical counters unknown. Static review only.",
+  "findings": [
+    {
+      "claim": "[P2] explain_growth can now report complete coverage while an overlapping scan generation is incomplete. Switching to lifecycleSummary removes the synthetic active-root gaps formerly supplied by lifecycleStatus, but explainGrowth still calculates coverage solely from status.observationGaps. With an active pending generation and no persisted gaps, the lifecycle endpoint reports partial through detailCoverage while explain_growth incorrectly reports complete.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds-ci-xrt3hymg/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:260-273",
+        "/private/tmp/ds-ci-xrt3hymg/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2176-2177,2248-2262"
+      ],
+      "recommendation": "Merge active-generation coverage from the bounded scalar projection into explain_growth, preserving requested-window overlap semantics without reading private progress. Add real-IPC regressions for a window overlapping an active incomplete generation and a disjoint historical window."
+    }
+  ],
+  "evidence": [
+    "/private/tmp/ds-ci-xrt3hymg/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2145-2230 performs preflight and projected reads within one snapshot and never selects scan_generations.progress.",
+    "/private/tmp/ds-ci-xrt3hymg/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2273 disables inventory refresh for the public summary; schema13 at lines 4230-4246 adds derived counters without decoding or backfilling historical progress and uses cascading generation ownership.",
+    "/private/tmp/ds-ci-xrt3hymg/project/Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift covers migration interruption, unknown historical counters, pre-decode refusal, transactional rollback, projection deletion, and WAL read-snapshot behavior.",
+    "/private/tmp/ds-ci-xrt3hymg/project/Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift covers private-checkpoint isolation, typed budget refusal, empty coverage, and non-refreshing export inventory; it does not cover explain_growth coverage during an active generation."
+  ],
+  "checks": [
+    {
+      "command": "Read-only scoped diff against /private/tmp/ds-ci-dwume6kj/project and line-numbered source/test inspection",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed the assigned lifecycle-projection delta review; finding is established by static call-path comparison."
+    },
+    {
+      "command": "Tests, builds, database access, and runtime reproduction",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Excluded by the helper job; coordinator activity is not independent helper runtime evidence."
+    }
+  ],
+  "stale_if": [
+    "Relevant scoped source or tests change after this snapshot.",
+    "The parent task guard or accepted candidate hash differs from this job."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-review result awaiting coordinator reconciliation; it does not accept a subsequent corrected candidate.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "No runtime checks were performed.",
+    "Broader pre-existing privacy, all-tools, and scale issues were outside this delta review."
+  ]
+}

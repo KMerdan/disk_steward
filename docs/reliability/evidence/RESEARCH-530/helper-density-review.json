@@ -1,0 +1,17 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-RESEARCH-530-DENSITY-REVIEW",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-36010BDAEE6F9609CECF3FD2ABF17C5C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:ac0b0e61d2139d2ab9060f7354df15d84d5d674824e7fecfb557f56c7239118f", "immutable": true},
+  "read_scope": ["docs/reliability/benchmarks/probe_dictionary_layout.py", "docs/reliability/benchmarks/test_dictionary_layout.py", "docs/reliability/benchmarks/resume_scale.py"],
+  "purpose": "Static read-only review of the isolated six-table dictionary density probe for fidelity and safety. No tests, database opens or native service calls; do not approve a production layout from it.",
+  "questions": ["Does reconstruction actually preserve all selected row values and what material comparison caveats remain?", "Are source access, generated output ownership and bounded resource claims accurate for a coordinator-owned completed 10k synthetic fixture?"],
+  "acceptance_criteria": ["AC-RESEARCH-530-01"],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "candidate-acceptance",
+  "result_budget": {"max_findings": 4, "max_evidence_items": 6, "max_output_chars": 5500}
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "research-retained-fixtures-v1",
+  "task": "RESEARCH-530",
+  "reason": "Historical retention record. Both original million-file roots were recovered, archived and removed; see currentLifecycle below.",
+  "candidateSHA256": "7d822143a20fc3dd6f8a9a1619152b43d2e89824cfe29a40573b6632dd2f5947",
+  "collection": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million",
+  "confirmedTerminalSession": 92298,
+  "roots": [
+    {
+      "variant": "stream",
+      "root": "/private/tmp/disk-steward-530-scale.6ta67eag",
+      "ownerToken": "d9870317-12d0-404d-bf8a-8715432efe49",
+      "visibleFiles": 1000000,
+      "visibleGeneration": 1,
+      "preparingGeneration": 2
+    },
+    {
+      "variant": "spool",
+      "root": "/private/tmp/disk-steward-530-scale._lazj4u6",
+      "ownerToken": "8e446c06-be16-4c05-b5b7-02517048d761",
+      "visibleFiles": 1000000,
+      "visibleGeneration": 1,
+      "preparingGeneration": 2
+    }
+  ],
+  "currentLifecycle": {
+    "originalRoots": "removed-after-verified-recovery",
+    "recoveryCollection": "docs/reliability/evidence/RESEARCH-530/recovery-runs",
+    "cleanupRecord": "docs/reliability/evidence/RESEARCH-530/recovery-runs/cleanup.json",
+    "terminalRecoverySession": 61019,
+    "terminalCleanupSession": 93296,
+    "retainedForSizing": [
+      {"root": "/private/tmp/disk-steward-530-scale.hlbli48j", "ownerToken": "5d4d19ee-7074-4646-bd4d-b92e4e6f4bde", "collection": "docs/reliability/evidence/RESEARCH-530/product-space-run", "terminalSession": 13810},
+      {"root": "/private/tmp/disk-steward-530-layout.5122brhn", "evidence": "docs/reliability/evidence/RESEARCH-530/dictionary-final-plain.json", "terminalSession": 45492, "ownership": "Created exclusively by tempfile.mkdtemp in the recorded probe; validate exact contents and canonical path before reuse or removal."},
+      {"root": "/private/tmp/disk-steward-530-layout.cua9ml60", "evidence": "docs/reliability/evidence/RESEARCH-530/dictionary-final-encoded.json", "terminalSession": 45492, "ownership": "Created exclusively by tempfile.mkdtemp in the recorded probe; validate exact contents and canonical path before reuse or removal."}
+    ]
+  },
+  "originalContinuationConstraints": [
+    "Revalidate root realpath, token, archived baseline hashes and current SQLite generation state before use.",
+    "Use a dedicated supervised resume mode with fresh phase/log names; the existing fresh-run harness rejects existing databases.",
+    "Do not overwrite original baseline logs, manifests or collected evidence.",
+    "Keep the same RSS, database-family, free-space and output limits; distinguish this compact schema from product evidence.",
+    "Collect terminal resume evidence and then remove only these generated roots through exact-target ownership checks."
+  ]
+}

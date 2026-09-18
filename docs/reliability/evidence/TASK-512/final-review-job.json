@@ -1,0 +1,39 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-512-FINAL",
+  "parent_task": "TASK-512",
+  "task_guard": "GUARD-TASK-BF46DF8FCF15EE588C207379CFEE0318",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9546220c27852fa5ce07726087db12e855e6b9818afacc2e063ad723595ba2b2",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-512-final.YakDXv/Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+    "/private/tmp/disk-steward-512-final.YakDXv/Tests/DiskStewardAppTests/IPC/SocketOwnershipRegressionTests.swift",
+    "/private/tmp/disk-steward-512-final.YakDXv/Sources/DiskStewardApp/main.swift"
+  ],
+  "purpose": "Review frozen lease/journal/staged publication and listener lifetime candidate before acceptance.",
+  "questions": [
+    "Recheck final frozen ownership code and tests, including private-ancestor long-path staging fallback and distinct crash-checkpoint fallback exit. Confirm earlier concerns addressed or identify scoped defects. No runtime checks required."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-512-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 6,
+    "max_output_chars": 4500
+  }
+}

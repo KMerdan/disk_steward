@@ -32,6 +32,8 @@ public struct EvidenceStoreEvent: Codable, Equatable, Sendable {
     public let confidence: Confidence
     public let isAnomaly: Bool
     public let isReviewed: Bool
+    /// Nil means no verified timing was retained (including legacy/manual events).
+    public internal(set) var timing: EvidenceEventTiming?
 
     public init(
         eventID: String,
@@ -55,6 +57,30 @@ public struct EvidenceStoreEvent: Codable, Equatable, Sendable {
         self.confidence = confidence
         self.isAnomaly = isAnomaly
         self.isReviewed = isReviewed
+        self.timing = nil
+    }
+
+    func withTiming(_ timing: EvidenceEventTiming?) -> Self {
+        var copy = self
+        copy.timing = timing
+        return copy
+    }
+}
+
+/// Bounds on a change, not a file's creation date. A first sighting has no
+/// supported lower bound; detection is when the observation was published.
+public struct EvidenceEventTiming: Codable, Equatable, Sendable {
+    public let occurredStart: Date?
+    public let occurredEnd: Date
+    public let detectedAt: Date
+
+    enum CodingKeys: String, CodingKey { case occurredStart, occurredEnd, detectedAt }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(occurredStart, forKey: .occurredStart)
+        try container.encode(occurredEnd, forKey: .occurredEnd)
+        try container.encode(detectedAt, forKey: .detectedAt)
     }
 }
 
@@ -262,6 +288,10 @@ public enum EvidenceStoreError: Error, Equatable, LocalizedError {
     case backupDestinationExists
     case cursorExpired
     case storageCapacityExceeded(currentBytes: Int64, capBytes: Int64)
+    /// Work was refused for a reason other than the cap itself: the next
+    /// publication's reserve, a reader-pinned write-ahead log, or the volume's
+    /// free space. The accounting explains exactly which.
+    case storageHeadroomUnavailable(reason: String, demandBytes: Int64, accounting: EvidenceStorageAccounting)
     case migrationCapacityUnavailable
     case migrationInsufficientSpace(requiredBytes: Int64, availableBytes: Int64)
     case migrationSwitchFailed(code: Int32)
@@ -272,6 +302,7 @@ public enum EvidenceStoreError: Error, Equatable, LocalizedError {
         case let .sqlite(code, message): return "SQLite error \(code): \(message)"
         case let .invalidEvent(reason): return "Invalid evidence event: \(reason)"
         case let .invalidObservation(reason): return "Invalid evidence observation: \(reason)"
+        case let .storageHeadroomUnavailable(reason, demandBytes, accounting): return "Evidence store headroom unavailable (\(reason)): \(accounting.committedBytes) committed + \(demandBytes) demanded of \(accounting.capBytes) cap; admission \(accounting.admission.rawValue)."
         case .invalidRetentionPolicy: return "Retention policy violates the bounded version 1 contract."
         case .backupDestinationExists: return "Backup destination already exists."
         case .cursorExpired: return "The evidence query cursor expired because the underlying revision changed. Restart the query from the first page."

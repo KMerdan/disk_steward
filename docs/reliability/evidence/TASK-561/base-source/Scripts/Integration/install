@@ -1,0 +1,98 @@
+#!/bin/zsh
+set -euo pipefail
+
+client=""
+config_root=""
+connector=""
+dry_run=0
+
+usage() {
+  print -u2 "usage: install --client codex|claude --config-root ABSOLUTE_PATH --connector ABSOLUTE_EXECUTABLE [--dry-run]"
+  exit 64
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --client) (( $# >= 2 )) || usage; client="$2"; shift 2 ;;
+    --config-root) (( $# >= 2 )) || usage; config_root="$2"; shift 2 ;;
+    --connector) (( $# >= 2 )) || usage; connector="$2"; shift 2 ;;
+    --dry-run) dry_run=1; shift ;;
+    *) usage ;;
+  esac
+done
+
+[[ "$client" == "codex" || "$client" == "claude" ]] || usage
+[[ "$config_root" == /* && "$connector" == /* ]] || usage
+[[ "$config_root" != *$'\n'* && "$connector" != *$'\n'* ]] || usage
+
+if (( dry_run )); then
+  print "Would install the read-only Disk Steward connector for $client."
+  print "Configuration root: $config_root"
+  print "Connector: $connector"
+  print "Only the disk_steward MCP entry and Disk Steward-owned plugin files would change."
+  exit 0
+fi
+
+[[ -x "$connector" ]] || { print -u2 "Connector is not executable: $connector"; exit 66; }
+
+script_dir=${0:A:h}
+repo_root=${script_dir:h:h}
+timestamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+backup_root="$config_root/.disk-steward-backups/$timestamp"
+mkdir -p "$config_root" "$backup_root"
+chmod 700 "$config_root" "$config_root/.disk-steward-backups" "$backup_root"
+
+if [[ "$client" == "codex" ]]; then
+  config_file="$config_root/config.toml"
+  if [[ -f "$config_file" ]]; then
+    begins=$(grep -c '^# BEGIN DISK STEWARD MANAGED v1$' "$config_file" || true)
+    ends=$(grep -c '^# END DISK STEWARD MANAGED v1$' "$config_file" || true)
+    if (( begins != ends || begins > 1 )); then
+      print -u2 "Refusing to edit $config_file because its Disk Steward managed markers are malformed."
+      exit 65
+    fi
+  fi
+  plugin_source="$repo_root/Integrations/Codex/disk-steward"
+  plugin_parent="$config_root/plugins"
+  plugin_target="$plugin_parent/disk-steward"
+  mkdir -p "$plugin_parent"
+  if [[ -e "$plugin_target" ]]; then
+    mv "$plugin_target" "$backup_root/disk-steward-plugin"
+  fi
+  cp -R "$plugin_source" "$plugin_target"
+  /usr/bin/swift "$script_dir/json-config.swift" set "$plugin_target/.mcp.json" "$connector"
+
+  if [[ -f "$config_file" ]]; then cp -p "$config_file" "$backup_root/config.toml"; fi
+  temporary=$(mktemp "$config_root/.config.toml.disk-steward.XXXXXX")
+  if [[ -f "$config_file" ]]; then
+    awk '
+      $0 == "# BEGIN DISK STEWARD MANAGED v1" { managed=1; next }
+      $0 == "# END DISK STEWARD MANAGED v1" { managed=0; next }
+      !managed { print }
+    ' "$config_file" > "$temporary"
+  fi
+  escaped=${connector//\\/\\\\}
+  escaped=${escaped//\"/\\\"}
+  {
+    print ""
+    print "# BEGIN DISK STEWARD MANAGED v1"
+    print "[mcp_servers.disk_steward]"
+    print "command = \"$escaped\""
+    print "args = []"
+    print "enabled = true"
+    print "startup_timeout_sec = 10"
+    print "tool_timeout_sec = 60"
+    print 'enabled_tools = ["get_storage_summary", "explain_growth", "get_provenance", "list_active_writers", "get_task_impact", "find_cleanup_candidates", "export_evidence"]'
+    print 'default_tools_approval_mode = "auto"'
+    print "# END DISK STEWARD MANAGED v1"
+  } >> "$temporary"
+  chmod 600 "$temporary"
+  mv "$temporary" "$config_file"
+else
+  config_file="$config_root/.mcp.json"
+  if [[ -f "$config_file" ]]; then cp -p "$config_file" "$backup_root/.mcp.json"; fi
+  /usr/bin/swift "$script_dir/json-config.swift" set "$config_file" "$connector"
+fi
+
+print "Installed Disk Steward for $client in $config_root"
+print "Backup: $backup_root"

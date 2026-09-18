@@ -1,0 +1,1397 @@
+{
+ "schema": "agent-result-v1",
+ "task": "RESEARCH-530",
+ "outcome": "implemented",
+ "changed_files": [
+  "Tests/PerformanceTests/BoundedTraversalPrototype.swift",
+  "Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift",
+  "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+  "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+  "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+  "docs/reliability/benchmarks/.gitignore",
+  "docs/reliability/benchmarks/README.md",
+  "docs/reliability/benchmarks/cleanup_scale.py",
+  "docs/reliability/benchmarks/collect_scale.py",
+  "docs/reliability/benchmarks/probe_dictionary_layout.py",
+  "docs/reliability/benchmarks/probe_layout_queries.py",
+  "docs/reliability/benchmarks/resume_scale.py",
+  "docs/reliability/benchmarks/supervise_scale.py",
+  "docs/reliability/benchmarks/test_collect_scale.py",
+  "docs/reliability/benchmarks/test_dictionary_layout.py",
+  "docs/reliability/benchmarks/test_layout_queries.py",
+  "docs/reliability/benchmarks/test_resume_scale.py",
+  "docs/reliability/benchmarks/test_supervise_scale.py",
+  "docs/reliability/evidence/RESEARCH-530/agent-result.json",
+  "docs/reliability/evidence/RESEARCH-530/benchmark-progress.md",
+  "docs/reliability/evidence/RESEARCH-530/build-and-opt-in-skip.log",
+  "docs/reliability/evidence/RESEARCH-530/density-matched-source/probe_dictionary_layout.py",
+  "docs/reliability/evidence/RESEARCH-530/density-matched-source/resume_scale.py",
+  "docs/reliability/evidence/RESEARCH-530/density-matched-source/test_dictionary_layout.py",
+  "docs/reliability/evidence/RESEARCH-530/design-candidate.md",
+  "docs/reliability/evidence/RESEARCH-530/dictionary-density-probe.json",
+  "docs/reliability/evidence/RESEARCH-530/dictionary-final-encoded.json",
+  "docs/reliability/evidence/RESEARCH-530/dictionary-final-plain.json",
+  "docs/reliability/evidence/RESEARCH-530/dictionary-intermediate-encoded.json",
+  "docs/reliability/evidence/RESEARCH-530/dictionary-intermediate-plain.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-density-delta-result.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-density-delta.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-density-review.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-preflight-result.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-preflight.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-prototype-review.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-prototype-v2-result.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-prototype-v2.json",
+  "docs/reliability/evidence/RESEARCH-530/helper-recovery-review.json",
+  "docs/reliability/evidence/RESEARCH-530/layout-query-final-v2.json",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/cleanup.json",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/record.json",
+  "docs/reliability/evidence/RESEARCH-530/measured-harness.swift",
+  "docs/reliability/evidence/RESEARCH-530/measured-supervisor.py",
+  "docs/reliability/evidence/RESEARCH-530/normal-performance-tests.log",
+  "docs/reliability/evidence/RESEARCH-530/ownership-check-red.log",
+  "docs/reliability/evidence/RESEARCH-530/ownership-check-red/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/ownership-check-red/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/ownership-check-red/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/ownership-check-red/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/cleanup.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/record.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/record.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/resume-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/resume.log",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/resume-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/resume.log",
+  "docs/reliability/evidence/RESEARCH-530/product-space-run/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/record.json",
+  "docs/reliability/evidence/RESEARCH-530/progress-inventory.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-progress.md",
+  "docs/reliability/evidence/RESEARCH-530/prototype-retry-green.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-retry-red-tests.swift",
+  "docs/reliability/evidence/RESEARCH-530/prototype-retry-red.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-review-reconciliation.md",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/cleanup.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v1.swift",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-performance-tests.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/cleanup.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-source/BoundedTraversalPrototype.swift",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-source/BoundedTraversalPrototypeTests.swift",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-source/BoundedTraversalScaleTests.swift",
+  "docs/reliability/evidence/RESEARCH-530/prototype-v2-supervisor-tests.log",
+  "docs/reliability/evidence/RESEARCH-530/query-and-decision.md",
+  "docs/reliability/evidence/RESEARCH-530/query-final-source/probe_layout_queries.py",
+  "docs/reliability/evidence/RESEARCH-530/query-final-source/test_collect_scale.py",
+  "docs/reliability/evidence/RESEARCH-530/query-final-source/test_dictionary_layout.py",
+  "docs/reliability/evidence/RESEARCH-530/query-final-source/test_layout_queries.py",
+  "docs/reliability/evidence/RESEARCH-530/query-harness-final-green.log",
+  "docs/reliability/evidence/RESEARCH-530/query-harness-green.log",
+  "docs/reliability/evidence/RESEARCH-530/query-migration-baseline-green.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-and-space-progress.md",
+  "docs/reliability/evidence/RESEARCH-530/recovery-density-final-green.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-density-guards-green.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/BoundedTraversalResumeTests.swift",
+  "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/collect_scale.py",
+  "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/probe_dictionary_layout.py",
+  "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/resume_scale.py",
+  "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/test_collect_scale.py",
+  "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/test_dictionary_layout.py",
+  "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/test_resume_scale.py",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/cleanup.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/record.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/recovery-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/recovery.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/resume-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/resume.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/record.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/recovery-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/recovery.log",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/resume-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/resume.log",
+  "docs/reliability/evidence/RESEARCH-530/research-handoff-draft.json",
+  "docs/reliability/evidence/RESEARCH-530/resume-and-space-guards-green.log",
+  "docs/reliability/evidence/RESEARCH-530/resume-checkpoint-green.log",
+  "docs/reliability/evidence/RESEARCH-530/resume-guards-red.log",
+  "docs/reliability/evidence/RESEARCH-530/resume-guards-sandbox-denied.log",
+  "docs/reliability/evidence/RESEARCH-530/retained-fixtures.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/cleanup.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/record.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/record.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/summary.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/record.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/record.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/record.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/baseline-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/baseline.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/fixture-supervision.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/fixture.json",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/fixture.log",
+  "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/record.json",
+  "docs/reliability/evidence/RESEARCH-530/supervisor-tests.log"
+ ],
+ "changed_assets": [
+  "ASSET-SCANNER",
+  "ASSET-STORE",
+  "ASSET-RESOURCE"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Tests/PerformanceTests/BoundedTraversalPrototype.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/.gitignore",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/README.md",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/cleanup_scale.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/collect_scale.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/probe_dictionary_layout.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/probe_layout_queries.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/resume_scale.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/supervise_scale.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/test_collect_scale.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/test_dictionary_layout.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/test_layout_queries.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/test_resume_scale.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/benchmarks/test_supervise_scale.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/agent-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/benchmark-progress.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/build-and-opt-in-skip.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/density-matched-source/probe_dictionary_layout.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/density-matched-source/resume_scale.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/density-matched-source/test_dictionary_layout.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/design-candidate.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/dictionary-density-probe.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/dictionary-final-encoded.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/dictionary-final-plain.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/dictionary-intermediate-encoded.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/dictionary-intermediate-plain.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-density-delta-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-density-delta.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-density-review.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-preflight-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-preflight.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-prototype-review.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-prototype-v2-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-prototype-v2.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/helper-recovery-review.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/layout-query-final-v2.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/cleanup.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/matched-baseline/wide-100k-baseline/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/measured-harness.swift",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/measured-supervisor.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/normal-performance-tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/ownership-check-red.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/ownership-check-red/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/ownership-check-red/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/ownership-check-red/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/ownership-check-red/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/cleanup.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-100k-baseline/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pilot-runs/wide-10k-baseline/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/resume-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-spool-run/wide-1m-spool/resume.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/resume-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/pinned-stream-run/wide-1m-stream/resume.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/product-space-run/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/product-space-run/wide-10k-product-space/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/progress-inventory.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-progress.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-retry-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-retry-red-tests.swift",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-retry-red.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-review-reconciliation.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/cleanup.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/fanout-100k-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-10k-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1-runs/wide-1m-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v1.swift",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-million/wide-1m-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-performance-tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/cleanup.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/deep-100k-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/fanout-100k-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-runs/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-source/BoundedTraversalPrototype.swift",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-source/BoundedTraversalPrototypeTests.swift",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-source/BoundedTraversalScaleTests.swift",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/prototype-v2-supervisor-tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-and-decision.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-final-source/probe_layout_queries.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-final-source/test_collect_scale.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-final-source/test_dictionary_layout.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-final-source/test_layout_queries.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-harness-final-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-harness-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/query-migration-baseline-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-and-space-progress.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-density-final-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-density-guards-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/BoundedTraversalResumeTests.swift",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/collect_scale.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/probe_dictionary_layout.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/resume_scale.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/test_collect_scale.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/test_dictionary_layout.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-fixed-source/test_resume_scale.py",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/cleanup.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/recovery-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/recovery.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/resume-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-spool/resume.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/recovery-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/recovery.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/resume-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/recovery-runs/wide-1m-stream/resume.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/research-handoff-draft.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/resume-and-space-guards-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/resume-checkpoint-green.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/resume-guards-red.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/resume-guards-sandbox-denied.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/retained-fixtures.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/cleanup.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/deep-100k-index/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/fanout-100k-baseline/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-100k-index/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-baseline/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-10k-index/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/baseline-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/baseline.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/fixture-supervision.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/fixture.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/fixture.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/runs-v1/wide-1m-baseline/record.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/RESEARCH-530/supervisor-tests.log",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 -W error::ResourceWarning -m unittest test_resume_scale test_supervise_scale test_collect_scale test_dictionary_layout test_layout_queries",
+   "result": "passed",
+   "notes": "28 tests, 0 failures, 0.660s; query-harness-final-green.log. Scoped host permission only for owned child RSS sampling."
+  },
+  {
+   "command": "probe_layout_queries.py --plain dictionary-final-plain.json --encoded dictionary-final-encoded.json",
+   "result": "passed",
+   "notes": "layout-query-final-v2.json; all seven selected expressions return identical ordered rows; typed count matches. This is not complete MCP/product equivalence."
+  },
+  {
+   "command": "Credential-free disposable swift test -c release --skip-build --filter EvidenceStoreTests.test(LegacyUpgradeUsesAValidatedAtomicShadowAndPreservesEvidence|EveryMigrationInterruptionRecoversWithoutLosingTheLegacyDatabase|MigrationPreflightLeavesTheLegacyDatabaseUntouchedWhenCapacityIsInsufficient)",
+   "result": "passed",
+   "notes": "3 tests, 0 failures, 0.145s. Canonical/disposable migration files match. Product/test hash ef6dbd7dd9a88b3527b1409de5c705e3acfe10a287dd2ad441b577494e2f15f3; no new layout/downgrade proof."
+  },
+  {
+   "command": "Full product-equivalent compact layout, long-running pinned publication, large conversion/downgrade, overnight app",
+   "result": "not-run",
+   "notes": "Must not infer these from the prototypes or selected query checks."
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-RESEARCH-530-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/RESEARCH-530/query-and-decision.md (explicit implementation-block branch: time, re-enumerated entries, frontier bytes, RSS and WAL recorded for wide/deep/fanout 10k/100k/1M workloads; smallest evidenced component direction chosen; production storage change explicitly blocked pending the four-part validation matrix)"
+  }
+ ],
+ "discovered_risks": [
+  "Pinned readers can exhaust WAL headroom despite bounded write batches.",
+  "Generic dictionary numeric order is not lexical path order; selected expressions omit category/root/time filters and full MCP revision semantics.",
+  "Existing shadow migration proves tiny forward recovery, not old-binary rollback or bounded large conversion.",
+  "All broad production audits and the complete reliability goal remain incomplete.",
+  "The recorded component direction (streaming enumeration, indexed durable frontier, bounded hidden preparation, fenced publication, bounded reclamation) is a research recommendation; TASK-531/532 must prove it on the product schema before FIND-SCALE can be resolved."
+ ],
+ "suggested_graph_changes": []
+}

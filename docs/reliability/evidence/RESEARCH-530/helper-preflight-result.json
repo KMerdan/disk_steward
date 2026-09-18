@@ -1,0 +1,124 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-RESEARCH-530-PREFLIGHT",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-DEA8C1BE5033E463A291ACA228F5AB1C",
+  "kind": "reconnaissance",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b3b546fb1c09a77825ab564ef449fc748e216a36f03bbfe5871e85d0c8c54d21",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Production entrypoints/counters support a no-product-edit baseline. Full-directory rereads and full-generation JSON are separate costs. Two bounded prototype directions are advisory, not measured or approved.",
+  "findings": [
+    {
+      "claim": "Benchmark beginOrResumeScanGeneration -> scanSlice -> recordScanSlice, continuing from commit.generation until commit.observation exists. Scanner completion excludes required validation/publication. PerformanceTests lacks this path.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E3",
+        "E5",
+        "E10"
+      ],
+      "recommendation": "Use synthetic roots/DB and fixed inputs. Time scanner and store separately, including nil-observation validation calls and final inclusive publication. Verify durable output, not only inline results capped at 2048. Include initial and unchanged/rescan generations."
+    },
+    {
+      "claim": "Diagnostics expose enumeration passes, inspected entries, peak retained names and change restarts. A static flat D-name directory with budget B inspects roughly D*ceil(D/B) names; processedEntryCount hides rereads. readdir is not cancellation-aware.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2"
+      ],
+      "recommendation": "Sum passes/inspections/restarts, maximize retained names; report work per distinct entry, slice latency distribution and total time. B bounds processed work/heap, not I/O or time. Use external process/time supervision."
+    },
+    {
+      "claim": "No scoped API directly reports cumulative frontier rewrites or pure stage/COMMIT time. progress length gives persisted occupancy. diagnostics() gives DB/WAL/SHM sizes but also runs quick_check/counts. PerformanceTests demonstrates LiveResourceMeasurementSource.measure RSS/CPU/DB bytes.",
+      "confidence": "high",
+      "evidence": [
+        "E4",
+        "E7",
+        "E10"
+      ],
+      "recommendation": "Record frontier count and synthetic-DB length(progress); current bytes are not cumulative writes. A separate instrumented run can sum NEW.progress lengths per write. Use monotonic call timing/existing reconciliationCheckpoint markers; label final time inclusive. Sample peak RSS/WAL through long calls and before close; keep quick_check/count diagnostics outside timed loops."
+    },
+    {
+      "claim": "Generation reads decode full progress; writes re-encode all roots/frontiers. The scanner copies/appends frontier arrays. Each staging call counts distinct paths; validation can rewrite progress again. Enumeration-only changes leave these costs.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "recommendation": "Use indexed generation/root work rows, bounded dequeue and cursor/child deltas committed with staged metadata, invalidations and scheduler state. Do not rematerialize/serialize the whole queue at the adapter boundary. Measure queue and aggregate-count costs separately."
+    },
+    {
+      "claim": "Two minimal enumeration candidates pair with incremental frontier rows: bounded process-local directory streams, or disk-backed names keyed by root/directory/pass. Handles/opaque offsets alone cannot prove durable restart correctness.",
+      "confidence": "medium",
+      "evidence": [
+        "E1",
+        "E2",
+        "E5",
+        "E6",
+        "E8"
+      ],
+      "recommendation": "A: cap handles, consume successive batches; loss/eviction/restart invalidates unfinished pass/subtree work. B: stream names into bounded DB chunks, page them, charge spool/WAL cost and invalidate on signature change. Both preserve owner-root membership, signature checks, sample times, dirty-token rejection, reopen revalidation and guarded atomic publication."
+    },
+    {
+      "claim": "Flat-file throughput can hide skipped coverage, frontier growth and unfair scheduling. Scope identity includes entry/depth budgets; overlap, exclusions and investigation expiry change required work.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E5",
+        "E6",
+        "E8",
+        "E9",
+        "E11"
+      ],
+      "recommendation": "Fresh matched DB per B. Cover wide files, empty-directory fanout, branching trees, depth-limit/beyond-limit chains, skewed roots with B<root count, exclusions/symlinks and overlapping roots/hard links with one failed root. Mutate before lexical cursor and after completed passes; replace/delete subtrees; inject same/earlier-time dirty receipt before submitting an old slice. Reopen after staging and during validation; fault publication checkpoints. Assert healthy-root progress, rejected stale publication, no false absence, complete state/events and atomic rollback. Charge recovery work and report capacity failures, not false speedups."
+    }
+  ],
+  "evidence": [
+    "E1 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift:201-217,338-608 scan mechanics/counters.",
+    "E2 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift:783-834,945-960 full reread/heap.",
+    "E3 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:152-364 production generation route.",
+    "E4 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:4085-4123 full progress serialization.",
+    "E5 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:31-35,367-463 proof validation/restarts.",
+    "E6 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:540-720,941,1030,4144-4163 publication/checkpoints/result cap.",
+    "E7 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1898-1925 diagnostics.",
+    "E8 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:4183-4250 dirty resets/token.",
+    "E9 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift:22-119 policy/scope.",
+    "E10 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Tests/PerformanceTests/PerformanceTests.swift:7-159 performance tests; 112-129 live resource entrypoint.",
+    "E11 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift:74-128 guarded commit/rollback."
+  ],
+  "checks": [
+    {
+      "command": "Read only scoped files; trace scan/stage/validation/publication and metrics.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E11; static inspection only."
+    },
+    {
+      "command": "Run tests/benchmarks/native APIs or perform writes.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Prohibited by preflight; no runtime measurements or writes performed."
+    }
+  ],
+  "stale_if": [
+    "Scoped implementation, benchmark contract, snapshot or guard changes."
+  ],
+  "evidence_use": "advisory",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Preflight reconnaissance awaits coordinator reconciliation before benchmark/design decisions.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Alternatives are unimplemented/unmeasured; not design approval.",
+    "Resource implementation is outside scope; its entrypoint is evidenced by the test only.",
+    "Match cache/durability/admission settings and validation work; quantify instrumentation overhead."
+  ]
+}

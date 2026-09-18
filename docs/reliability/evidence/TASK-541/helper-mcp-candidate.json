@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:6640fb5d1dcd391123d42af2b50b29ac2dcd675580b67f3f98c2d852019b38ad",
+    "immutable": true
+  },
+  "acceptance_criteria": [
+    "AC-TASK-541-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 6,
+    "max_evidence_items": 8,
+    "max_output_chars": 6500
+  },
+  "helper_id": "HELPER-TASK-541-MCP-CANDIDATE",
+  "read_scope": [
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Sources/DiskStewardMCP/**",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Tests/DiskStewardMCPTests/**",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift"
+  ],
+  "purpose": "Independent static review of request admission, cancellation and bounded stdio; main runs full isolated suite.",
+  "questions": [
+    "Identify actionable correctness/race/bound failures in final MCPServer and main; scrutinize cancellation/ID reuse, byte/current-frame accounting, nonreading parent, EOF draining and output failure termination.",
+    "Do the frozen admission/budget/real subprocess tests cover the declared behavior? Distinguish source defects from missing proof; no work on socket/SQLite (other reviewer owns)."
+  ]
+}

@@ -1,0 +1,46 @@
+{
+ "schema": "agent-result-v1",
+ "task": "GATE-579",
+ "outcome": "implemented",
+ "changed_files": [
+  "docs/reliability/evidence/GATE-579/agent-result.json",
+  "docs/reliability/evidence/GATE-579/rung-7-scenarios.md"
+ ],
+ "changed_assets": [
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "evidence-only",
+ "changes": [
+  {
+   "path": "docs/reliability/evidence/GATE-579/agent-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-579/rung-7-scenarios.md",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "env -i ... Scripts/Testing/verify_candidate.py --output /private/tmp/ds562-candidate-2 --xcodegen /opt/homebrew/bin/xcodegen",
+   "result": "passed",
+   "notes": "final candidate 5ecd49a317171e493451894bcc082cd8d4516d2922c29564107baace9d21dd68: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 547 tests, 5 opt-in skips, 0 failures (docs/reliability/evidence/TASK-562/candidate-2/)."
+  },
+  {
+   "command": "/private/tmp/task552-run.py '<every earlier rung's scoped suites>'",
+   "result": "passed",
+   "notes": "423 tests across 60 suites, 0 failures, on the same final input (docs/reliability/evidence/audits/scoped-all-rungs-final-green/)."
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-GATE-579-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/GATE-579/rung-7-scenarios.md; docs/reliability/evidence/TASK-562/candidate-2/candidate.json; docs/reliability/evidence/audits/scoped-all-rungs-final-green/tests.log"
+  }
+ ],
+ "discovered_risks": [
+  "FIND-OVERNIGHT resolved under the R13 criterion (bounded real-time soak evidence of at least one hour, the scale matrix and the rollback rehearsal; an overnight run is not a release requirement for this open-source project)."
+ ],
+ "suggested_graph_changes": []
+}

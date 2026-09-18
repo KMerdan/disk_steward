@@ -1,0 +1,40 @@
+{
+ "schema": "helper-result-v1",
+ "helper_id": "HELPER-TASK-562-VERIFY-01",
+ "parent_task": "TASK-562",
+ "task_guard": "GUARD-TASK-44233EF787EA9CBD00688B2ED878E6EC",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:019559cfa4a8b6647b707e8e155782f978de6aded1159383e8984506ed68d736", "immutable": false},
+ "status": "completed",
+ "reviewer": "feature-dev:code-reviewer subagent (claude-sonnet-5), read-only; no build or test run in the worktree",
+ "summary": "Read-only review of the TASK-562 delta and the current versions of every file in the job's read scope, plus the app-side session handler and IPC client to check claims the delta makes about them. One P1 defect: the helper's self-check extracted evidence freshness from JSON keys (observed_at, storage.observed_at, snapshot.observed_at) that the real get_storage_summary response never contains (it publishes live_volume_observed_at and persisted_state_as_of), so against the real app the evidence age was always nil, 'stale' could never be produced, and every connected verification was reported as verified. The end-to-end fixture in SessionContractTests had been shaped to the wrong extractor (a top-level observed_at), which is exactly the vacuous-fixture risk the job asked about. No path was found that yields 'verified' without the configured command printing an identity-matching report, no environment or symlink redirection, no implicit session registration, and the session pid contract and doctor default socket were confirmed.",
+ "findings": [
+  {"id": "F1", "severity": "P1", "confidence": 92, "location": "Sources/DiskStewardMCP/main.swift SelfCheckReport.evidence(from:); consumed by HelperSelfCheck.evaluate in Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+   "claim": "Evidence-staleness classification was dead code in production: the extractor looked for keys the real storage summary never contains, so a connected helper was always verified regardless of how old the evidence was.",
+   "scenario": "AppEvidenceQueryBackend.storageSummary() returns live_volume_observed_at and persisted_state_as_of; the extractor read observed_at (top level, under storage, under snapshot). All lookups were nil, so evidence.ageSeconds was nil, HelperSelfCheck.evaluate never took the age branch, and Monitoring paused for days still verified with 'Evidence age was not reported'. SessionContractTests' RecordingHandler returned a top-level observed_at, matching the wrong extractor rather than the real backend.",
+   "suggested_fix": "Read persisted_state_as_of (the newest persisted observation) and feed the literal producer shape through the extractor in a test.",
+   "disposition": "fixed", "disposition_evidence": "StorageSummaryContract (Sources/DiskStewardCore/IPC/StorageSummaryContract.swift) now names the wire keys once; AppEvidenceQueryBackend.storageSummary() publishes with those constants and SelfCheckReport.evidence(from:) reads StorageSummaryContract.persistedStateAsOf only, reporting persisted:false when it is null. A connected app without persisted evidence is now `stale` with 'no evidence has been persisted yet' (HelperSelfCheck.evaluate, AgentVerification.stale(at:evidenceAge: TimeInterval?)), never verified. SessionContractTests' RecordingHandler returns the exact producer shape (schema storage-summary-v1, live_volume_observed_at, persisted_state_as_of) and adds a persisted_state_as_of: null phase asserting persisted:false and no age; HelperVerificationTests adds the connected-without-evidence case; EvidenceQueryScopeIPCIntegrationTests already pins persisted_state_as_of on the real backend. Non-vacuity: freshness-mutation-red/ (helper reading observed_at again) fails testHelperSelfCheckReportsItsIdentityAndNeverRegistersASession."}
+ ],
+ "observations": [
+  {"location": "Scripts/Integration/doctor", "note": "The --socket override was not forwarded to the connector's --self-check (pre-existing; only the default path string changed in this delta), so a diagnostic against a non-default socket still self-checked the default one.", "disposition": "fixed: doctor now runs the self-check with DISK_STEWARD_SOCKET_PATH set to its socket_path."},
+  {"location": "HelperSelfCheck.command(for:)", "note": "Only --self-check is appended; configured.arguments are not replayed. Harmless today because every path that reaches the self-check already required configured == receipt.definition and owned entries carry empty args.", "disposition": "accepted as documented; owned entries never carry args, and the identity gate runs before the spawn."},
+  {"location": "PrivateIntegrationFile.executableIdentity (lstat) vs SelfCheckReport.executableIdentity (stat)", "note": "Asymmetric symlink handling; not exploitable because the app-side lstat check fails closed on a symlinked configured path before any process is spawned.", "disposition": "accepted; behaviour is fail-closed and documented as a freshness identity, not a signature."},
+  {"location": "configuredIdentity == receipt.helperIdentity checks", "note": "Inherent TOCTOU between stat and exec by path for a same-privilege local writer; the code documents the identity as a freshness identity, not a signature guarantee.", "disposition": "accepted; no privilege boundary is crossed and the limitation is documented."},
+  {"location": "Scripts/Integration/session vs AppEvidenceQueryBackend.registerSession", "note": "Script-side ancestry walk and app-side peer-ancestry validation are mutually consistent; both reject a non-ancestor and the script's own pid.", "disposition": "confirmed."},
+  {"location": "Sources/DiskStewardMCP", "note": "No code path calls sessions/register, heartbeat or end; initialize and --self-check only call get_storage_summary.", "disposition": "confirmed."}
+ ],
+ "checks": [
+  {"question": "Can verified be reached without the configured command printing an identity-matching self-check report?", "answer": "No. Both adapter families re-read the configured command, require its identity to equal the receipt before spawning, run exactly that path with --self-check and require a schema- and identity-matching trailing report; exit code is never inspected.", "confidence": 85},
+  {"question": "Can the self-check be redirected by inherited environment or a symlink/moved helper?", "answer": "No for the paths reviewed: inheritsEnvironment false with an explicit PATH/HOME-only environment; a moved helper fails the identity gate; a symlink fails the lstat identity. Residual same-privilege TOCTOU noted.", "confidence": 80},
+  {"question": "Is the stale/app-off/access-off/insecure-socket classification accurate?", "answer": "app-off/access-off/insecure-socket/error map to failed, never verified. Stale was non-functional against the real app (F1, fixed).", "confidence": 90},
+  {"question": "Does the session --process-pid contract hold and is anything registered implicitly?", "answer": "Yes: own pid, dead pid and non-ancestor are rejected with 64/65/69 semantics before any IPC; nothing registers implicitly.", "confidence": 85},
+  {"question": "Is the doctor default socket fix correct?", "answer": "Yes; matches UnixSocketDiskStewardIPCClient.defaultSocketPath(). The --socket forwarding gap was fixed alongside.", "confidence": 90},
+  {"question": "Could the new fixtures pass vacuously?", "answer": "Identity assertions were not vacuous (they use the production identity function); the freshness fixture was (F1), and is now bound to the producer shape through StorageSummaryContract.", "confidence": 88}
+ ],
+ "limitations": [
+  "Static review only; F1 was verified by inspecting the exact producer and consumer keys, then reproduced by the freshness mutation after the fix.",
+  "Review snapshot 019559cf predates the fix; the fixed candidate is bound by helper-verification-source-manifest.json (input 5ecd49a3...) and the second full verifier run.",
+  "AppEvidenceQueryBackend.swift and DiskStewardIPCClient.swift were read to check claims but not diffed against a base."
+ ]
+}

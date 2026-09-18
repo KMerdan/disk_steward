@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-542-CANDIDATE",
+  "parent_task": "TASK-542",
+  "task_guard": "GUARD-TASK-4D4819EF38EE7EAB7E01B019D071C4C8",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b18dbd37759a729129fe29da64cab53864edb35e4598df8247647a64d4f1a49b",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-542-candidate.Gzo6ix/Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+    "/private/tmp/disk-steward-542-candidate.Gzo6ix/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+    "/private/tmp/disk-steward-542-candidate.Gzo6ix/Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift"
+  ],
+  "purpose": "Independently review the frozen TASK-542 owned command lifecycle and acceptance coverage.",
+  "questions": [
+    "Find actionable PID/group reuse, spawn/cancellation/deadline races, EOF/data loss, resource or continuation/accounting defects in the runner (first ~360 lines).",
+    "Review conservative process-group enumeration, TERM/KILL then reap, exceptional retained-owner watchdog behavior. Distinguish process groups from adversarial containment. Are synthetic tests strong enough for AC542 and safe themselves?",
+    "Static review only; no commands that spawn processes, tests/builds, edits or canonical queries. Source inputs are frozen while coordinator runs isolated suites; report line references and scoped limits."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-542-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 7,
+    "max_output_chars": 6000
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-551-DELTA-02",
+  "parent_task": "TASK-551",
+  "task_guard": "GUARD-TASK-5949B7E354B76E38193DB506FCE19E85",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:eb0a20f7ab3cc6661d8cd282d933eecbfb3c6e128953582b80b2cf18a148dc74",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardCore/Export/EvidenceBundle/**",
+    "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "/private/tmp/ds-ci-31o2fa6r/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/**",
+    "/private/tmp/ds-ci-31o2fa6r/project/Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift"
+  ],
+  "purpose": "Review the narrow ownership repair after the earlier static finding.",
+  "questions": [
+    "Does destroyTemporaryPayload now preserve a replaced parent or bundle, and does the backend use it before marking destruction?",
+    "Do the new ownership result and system-temp scratch changes introduce a concrete lifecycle regression?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-551-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 3,
+    "max_evidence_items": 8,
+    "max_output_chars": 6000
+  }
+}

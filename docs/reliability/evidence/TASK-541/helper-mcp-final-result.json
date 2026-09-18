@@ -1,0 +1,44 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-541-MCP-FINAL",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:ffeeab56ed4b2774bafb69bdb05c62274484aa2ac9faeaa13fee54fa8c9024fd",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "No actionable remaining new defects found within the requested static-review scope. The final snapshot resolves the payload/newline mismatch, checks active evidence-ID collisions before control responses, adds independent eight-frame coverage and a gated terminal-cancellation test, and routes self-check stdout/stderr through bounded writers with SIGPIPE ignored beforehand. Request-token ownership, cancellation suppression, current-frame accounting and finite normal-mode EOF/output-failure handling remain coherent.",
+  "findings": [],
+  "evidence": [
+    "E1 /private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardMCP/main.swift:49-51,75-120 accepts 4 MiB JSON plus LF and counts the complete current frame against byte/count limits until written.",
+    "E2 /private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardMCP/MCPServer.swift:76-106,113-138,216-227 checks control-ID collisions, retains locked four-request admission, performs identity-checked cleanup and claims terminal output atomically.",
+    "E3 /private/tmp/disk-steward-541-final.Qw8C8y/Tests/DiskStewardMCPTests/StdioBudgetTests.swift:7-51 explicitly covers the independent ninth-frame rejection, exact 4 MiB payload plus LF, byte overflow and over-limit frames.",
+    "E4 /private/tmp/disk-steward-541-final.Qw8C8y/Tests/DiskStewardMCPTests/MCPAdmissionTests.swift:7-53 covers collisions with all four control methods, cancellation after serialization before terminal claim, completion followed by late cancellation, and ID reuse.",
+    "E5 /private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardMCP/main.swift:11-28,138-181 uses bounded self-check stdout/stderr, installs SIGPIPE handling first, and retains finite EOF draining and failure-aware input polling.",
+    "E6 /private/tmp/disk-steward-541-final.Qw8C8y/Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift:10-97 includes self-check with unread output and retains real-process blocked-output cancellation, EOF cancellation, closed stdout, oversized-input recovery and capacity recovery cases."
+  ],
+  "checks": [
+    {
+      "command": "nl -ba /private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardMCP/main.swift",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Read-only static inspection of the final main, MCPServer, admission/budget tests and transport lifecycle tests; prior review corrections reconciled against this snapshot."
+    }
+  ],
+  "stale_if": [
+    "Reviewed source or tests change, or the candidate content hash differs."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw candidate static review pending coordinator reconciliation; no independent runtime validation was performed.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Builds and tests were not run by this helper. The coordinator-reported 289 tests, one skipped and zero failures are separate runtime evidence."
+  ]
+}

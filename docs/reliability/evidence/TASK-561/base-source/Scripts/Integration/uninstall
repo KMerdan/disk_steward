@@ -1,0 +1,68 @@
+#!/bin/zsh
+set -euo pipefail
+
+client=""
+config_root=""
+dry_run=0
+
+usage() {
+  print -u2 "usage: uninstall --client codex|claude --config-root ABSOLUTE_PATH [--dry-run]"
+  exit 64
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --client) (( $# >= 2 )) || usage; client="$2"; shift 2 ;;
+    --config-root) (( $# >= 2 )) || usage; config_root="$2"; shift 2 ;;
+    --dry-run) dry_run=1; shift ;;
+    *) usage ;;
+  esac
+done
+
+[[ "$client" == "codex" || "$client" == "claude" ]] || usage
+[[ "$config_root" == /* && "$config_root" != *$'\n'* ]] || usage
+
+if (( dry_run )); then
+  print "Would remove only the disk_steward MCP entry for $client from $config_root."
+  print "Disk Steward evidence and unrelated client settings would remain untouched."
+  exit 0
+fi
+
+[[ -d "$config_root" ]] || { print "Nothing installed at $config_root"; exit 0; }
+script_dir=${0:A:h}
+timestamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+backup_root="$config_root/.disk-steward-backups/uninstalled-$timestamp"
+mkdir -p "$backup_root"
+chmod 700 "$config_root/.disk-steward-backups" "$backup_root"
+
+if [[ "$client" == "codex" ]]; then
+  config_file="$config_root/config.toml"
+  if [[ -f "$config_file" ]]; then
+    begins=$(grep -c '^# BEGIN DISK STEWARD MANAGED v1$' "$config_file" || true)
+    ends=$(grep -c '^# END DISK STEWARD MANAGED v1$' "$config_file" || true)
+    if (( begins != ends || begins > 1 )); then
+      print -u2 "Refusing to edit $config_file because its Disk Steward managed markers are malformed."
+      exit 65
+    fi
+    cp -p "$config_file" "$backup_root/config.toml"
+    temporary=$(mktemp "$config_root/.config.toml.disk-steward.XXXXXX")
+    awk '
+      $0 == "# BEGIN DISK STEWARD MANAGED v1" { managed=1; next }
+      $0 == "# END DISK STEWARD MANAGED v1" { managed=0; next }
+      !managed { print }
+    ' "$config_file" > "$temporary"
+    chmod 600 "$temporary"
+    mv "$temporary" "$config_file"
+  fi
+  plugin_target="$config_root/plugins/disk-steward"
+  if [[ -e "$plugin_target" ]]; then mv "$plugin_target" "$backup_root/disk-steward-plugin"; fi
+else
+  config_file="$config_root/.mcp.json"
+  if [[ -f "$config_file" ]]; then
+    cp -p "$config_file" "$backup_root/.mcp.json"
+    /usr/bin/swift "$script_dir/json-config.swift" remove "$config_file"
+  fi
+fi
+
+print "Uninstalled Disk Steward from $client."
+print "Recoverable backup: $backup_root"

@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/provenance-claim-v3.schema.json",
+  "title": "provenance-claim-v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "claim_id",
+    "event_id",
+    "path",
+    "confidence",
+    "method",
+    "detected_at",
+    "timing_basis",
+    "support",
+    "limitations",
+    "contradictions",
+    "supersedes_claim_id",
+    "superseded_by_claim_id",
+    "occurred_interval",
+    "actor",
+    "session"
+  ],
+  "properties": {
+    "schema": {
+      "const": "provenance-claim-v3"
+    },
+    "claim_id": {
+      "type": "string"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "confidence": {
+      "enum": [
+        "exact",
+        "tool-linked",
+        "inferred",
+        "unknown"
+      ]
+    },
+    "method": {
+      "type": "string"
+    },
+    "detected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timing_basis": {
+      "enum": [
+        "observation-bounds",
+        "legacy-unverified"
+      ]
+    },
+    "support": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "identifier",
+          "supports"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "endpoint-security",
+              "fsevents",
+              "metadata-snapshot",
+              "process-ancestry",
+              "agent-session",
+              "historical-record"
+            ]
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "supports": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supersedes_claim_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "superseded_by_claim_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "occurred_interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "through"
+      ],
+      "properties": {
+        "from": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "through": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "actor": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pid",
+            "start_time",
+            "executable",
+            "relationship"
+          ],
+          "properties": {
+            "pid": {
+              "type": "integer"
+            },
+            "start_time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "executable": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "relationship": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "session": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "registration_id",
+            "session_id",
+            "client",
+            "relationship"
+          ],
+          "properties": {
+            "registration_id": {
+              "type": "string"
+            },
+            "session_id": {
+              "type": "string"
+            },
+            "client": {
+              "type": "string"
+            },
+            "relationship": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

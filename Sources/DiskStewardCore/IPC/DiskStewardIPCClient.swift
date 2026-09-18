@@ -39,15 +39,18 @@ public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
     public let socketPath: String
     public let maximumResponseBytes: Int
     public let accessStateURL: URL?
+    public let timeoutSeconds: TimeInterval
 
     public init(
         socketPath: String,
         maximumResponseBytes: Int = 4 * 1_024 * 1_024,
-        accessStateURL: URL? = nil
+        accessStateURL: URL? = nil,
+        timeoutSeconds: TimeInterval = 10
     ) {
         self.socketPath = socketPath
         self.maximumResponseBytes = min(max(1_024, maximumResponseBytes), 4 * 1_024 * 1_024)
         self.accessStateURL = accessStateURL
+        self.timeoutSeconds = min(60, max(0.05, timeoutSeconds))
     }
 
     public static func defaultSocketPath() -> String {
@@ -78,6 +81,8 @@ public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
         let descriptor = Darwin.socket(AF_UNIX, SOCK_STREAM, 0)
         guard descriptor >= 0 else { throw DiskStewardIPCError.connectionFailed(errno) }
         defer { Darwin.close(descriptor) }
+        try BoundedSocketIO.configure(descriptor)
+        let deadline = ProcessInfo.processInfo.systemUptime + timeoutSeconds
 
         var address = sockaddr_un()
         address.sun_family = sa_family_t(AF_UNIX)
@@ -96,7 +101,15 @@ public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
                 Darwin.connect(descriptor, $0, addressLength)
             }
         }
-        guard connected == 0 else { throw DiskStewardIPCError.connectionFailed(errno) }
+        if connected != 0 {
+            guard errno == EINPROGRESS || errno == EAGAIN else { throw DiskStewardIPCError.connectionFailed(errno) }
+            try BoundedSocketIO.wait(descriptor, events: Int16(POLLOUT), deadline: deadline, isCancelled: isCancelled)
+            var failure: Int32 = 0
+            var length = socklen_t(MemoryLayout<Int32>.size)
+            guard getsockopt(descriptor, SOL_SOCKET, SO_ERROR, &failure, &length) == 0, failure == 0 else {
+                throw DiskStewardIPCError.connectionFailed(failure)
+            }
+        }
 
         let requestID = UUID().uuidString.lowercased()
         let envelope = JSONValue.object([
@@ -111,8 +124,9 @@ public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
         ])
         var encoded = try JSONEncoder.diskSteward.encode(envelope)
         encoded.append(0x0A)
-        try writeAll(encoded, to: descriptor, isCancelled: isCancelled)
-        let responseData = try readLine(from: descriptor, isCancelled: isCancelled)
+        guard encoded.count <= 1_024 * 1_024 else { throw DiskStewardIPCError.responseTooLarge }
+        try BoundedSocketIO.write(encoded, to: descriptor, deadline: deadline, isCancelled: isCancelled)
+        let responseData = try BoundedSocketIO.readLine(from: descriptor, maximumBytes: maximumResponseBytes, deadline: deadline, isCancelled: isCancelled)
         let response = try JSONDecoder().decode(JSONValue.self, from: responseData)
         guard let object = response.objectValue,
               object["schema"] == .string("ipc-response-v1"),
@@ -151,35 +165,70 @@ public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
         }
     }
 
-    private func writeAll(
+}
+
+enum BoundedSocketIO {
+    static func configure(_ descriptor: Int32) throws {
+        var enabled: Int32 = 1
+        guard setsockopt(descriptor, SOL_SOCKET, SO_NOSIGPIPE, &enabled, socklen_t(MemoryLayout<Int32>.size)) == 0,
+              fcntl(descriptor, F_SETFL, fcntl(descriptor, F_GETFL) | O_NONBLOCK) == 0,
+              fcntl(descriptor, F_SETFD, FD_CLOEXEC) == 0 else { throw DiskStewardIPCError.connectionFailed(errno) }
+    }
+
+    static func wait(_ descriptor: Int32, events: Int16, deadline: TimeInterval, isCancelled: () -> Bool) throws {
+        while true {
+            if isCancelled() { throw DiskStewardIPCError.cancelled }
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining > 0 else { throw DiskStewardIPCError.remote(code: "deadline_exceeded", message: "The local evidence request timed out.", retryable: true) }
+            var item = pollfd(fd: descriptor, events: events, revents: 0)
+            let result = poll(&item, 1, Int32(min(100, max(1, remaining * 1_000))))
+            if result > 0 {
+                guard item.revents & Int16(POLLNVAL) == 0 else { throw DiskStewardIPCError.connectionFailed(EBADF) }
+                return // read/write reports EOF and other socket errors.
+            }
+            if result < 0, errno != EINTR { throw DiskStewardIPCError.connectionFailed(errno) }
+        }
+    }
+
+    static func write(
         _ data: Data,
         to descriptor: Int32,
-        isCancelled: @Sendable () -> Bool
+        deadline: TimeInterval,
+        isCancelled: () -> Bool
     ) throws {
         try data.withUnsafeBytes { rawBuffer in
             guard let base = rawBuffer.baseAddress else { return }
             var sent = 0
             while sent < rawBuffer.count {
-                if isCancelled() { throw DiskStewardIPCError.cancelled }
+                try wait(descriptor, events: Int16(POLLOUT), deadline: deadline, isCancelled: isCancelled)
                 let count = Darwin.write(descriptor, base.advanced(by: sent), rawBuffer.count - sent)
+                if count < 0, errno == EINTR || errno == EAGAIN { continue }
                 guard count > 0 else { throw DiskStewardIPCError.connectionFailed(errno) }
                 sent += count
             }
         }
     }
 
-    private func readLine(
+    static func readLine(
         from descriptor: Int32,
-        isCancelled: @Sendable () -> Bool
+        maximumBytes: Int,
+        deadline: TimeInterval,
+        isCancelled: () -> Bool
     ) throws -> Data {
         var data = Data()
-        var byte: UInt8 = 0
-        while data.count <= maximumResponseBytes {
-            if isCancelled() { throw DiskStewardIPCError.cancelled }
-            let count = Darwin.read(descriptor, &byte, 1)
+        var buffer = [UInt8](repeating: 0, count: 4_096)
+        while data.count <= maximumBytes {
+            try wait(descriptor, events: Int16(POLLIN), deadline: deadline, isCancelled: isCancelled)
+            let count = Darwin.read(descriptor, &buffer, min(buffer.count, maximumBytes - data.count + 1))
+            if count < 0, errno == EINTR || errno == EAGAIN { continue }
             guard count > 0 else { throw DiskStewardIPCError.malformedResponse }
-            if byte == 0x0A { return data }
-            data.append(byte)
+            let chunk = buffer.prefix(count)
+            if let newline = chunk.firstIndex(of: 0x0A) {
+                data.append(contentsOf: chunk.prefix(newline))
+                guard data.count <= maximumBytes else { throw DiskStewardIPCError.responseTooLarge }
+                return data
+            }
+            data.append(contentsOf: chunk)
         }
         throw DiskStewardIPCError.responseTooLarge
     }

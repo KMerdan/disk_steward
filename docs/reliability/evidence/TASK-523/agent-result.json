@@ -1,0 +1,188 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-523",
+  "outcome": "implemented",
+  "changed_files": [
+    "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+    "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift",
+    "Sources/DiskStewardCore/EndpointBridge/BoundedEndpointEventBuffer.swift",
+    "Sources/DiskStewardCore/EndpointBridge/EndpointEventNormalizer.swift",
+    "Sources/DiskStewardCore/EndpointBridge/PrivilegedEventModels.swift",
+    "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift",
+    "Tests/DiskStewardEndpointTests/EndpointDeliveryRegressionTests.swift",
+    "docs/reliability/evidence/TASK-523/EndpointOrderingReproductionTests.swift.evidence",
+    "docs/reliability/evidence/TASK-523/endpoint-red.log",
+    "docs/reliability/evidence/TASK-523/endpoint-repeat-1.log",
+    "docs/reliability/evidence/TASK-523/endpoint-repeat-2.log",
+    "docs/reliability/evidence/TASK-523/endpoint-repeat-3.log",
+    "docs/reliability/evidence/TASK-523/endpoint-repeat-4.log",
+    "docs/reliability/evidence/TASK-523/endpoint-repeat-5.log",
+    "docs/reliability/evidence/TASK-523/full-tests.log",
+    "docs/reliability/evidence/TASK-523/helper-accepted-result.json",
+    "docs/reliability/evidence/TASK-523/helper-accepted.json",
+    "docs/reliability/evidence/TASK-523/helper-candidate-result.json",
+    "docs/reliability/evidence/TASK-523/helper-candidate.json",
+    "docs/reliability/evidence/TASK-523/helper-preflight-result.json",
+    "docs/reliability/evidence/TASK-523/helper-preflight.json",
+    "docs/reliability/evidence/TASK-523/helper-reconciliation.json",
+    "docs/reliability/evidence/TASK-523/negative-observer.swift.txt",
+    "docs/reliability/evidence/TASK-523/scope-review.md",
+    "docs/reliability/evidence/TASK-523/verification.json",
+    "docs/reliability/evidence/TASK-523/agent-result.json"
+  ],
+  "changed_assets": [
+    "ASSET-ATTRIBUTION"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/EndpointBridge/BoundedEndpointEventBuffer.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/EndpointBridge/EndpointEventNormalizer.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/EndpointBridge/PrivilegedEventModels.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardEndpointTests/EndpointDeliveryRegressionTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/EndpointOrderingReproductionTests.swift.evidence",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/endpoint-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/endpoint-repeat-1.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/endpoint-repeat-2.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/endpoint-repeat-3.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/endpoint-repeat-4.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/endpoint-repeat-5.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/helper-accepted-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/helper-accepted.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/helper-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/helper-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/helper-preflight-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/helper-preflight.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/helper-reconciliation.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/negative-observer.swift.txt",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/scope-review.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/verification.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-523/agent-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "Old observer with before/after delivery barriers: EndpointOrderingReproductionTests",
+      "result": "passed",
+      "detail": "Expected-failure oracle reproduced false unknown confidence deterministically: one test, one expected failure. Retained source instrumentation, test fixture and endpoint-red.log; no green-old-product claim."
+    },
+    {
+      "command": "Accepted frozen candidate: env -u DISK_STEWARD_NATIVE_CLIENT_TESTS -u DISK_STEWARD_PACKAGED_HELPER -u DISK_STEWARD_GATE_EVIDENCE -u DISK_STEWARD_CAPTURE_DIR swift test --disable-sandbox",
+      "result": "passed",
+      "detail": "315 tests, one native-client opt-in skipped, zero failures. Accepted e408ff149419ace16c04932147f8f635852ed011c8a8182d9126e27cf36220e8."
+    },
+    {
+      "command": "Five accepted-candidate repetitions: swift test --disable-sandbox --skip-build --filter DiskStewardEndpointTests",
+      "result": "passed",
+      "detail": "17 endpoint tests each, zero failures; includes 13 new deterministic boundedness, ordering, auth and lifecycle regressions."
+    },
+    {
+      "command": "Independent frozen-candidate static review and re-review after coalescing timestamp correction",
+      "result": "passed",
+      "detail": "One nondeterministic test oracle fixed. Final snapshot identity/scope/envelope/budget reconciliation complete; helper tests not executed or claimed."
+    },
+    {
+      "command": "Canonical/accepted input hashes including Extensions; narrow old/new source comparison; git diff --check; result schemas",
+      "result": "passed",
+      "detail": "Exactly five implementation and two test files differ within TASK523 scope; no other product input changed by this task."
+    },
+    {
+      "command": "Native EndpointSecurity, real app/evidence/config, macOS13/Intel, scale/overnight/migration/release",
+      "result": "not-run"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-TASK-523-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-523/scope-review.md; verification.json; endpoint-red.log; full-tests.log; endpoint-repeat-1.log through endpoint-repeat-5.log; helper-reconciliation.json"
+    }
+  ],
+  "discovered_risks": [
+    "Native EndpointSecurity callback concurrency/order and entitlement behavior remain outside fixture proof. Concurrent callbacks are ordered by synchronous lock admission, with genuine source discontinuities reported rather than sorted.",
+    "Payload-byte estimates are not process RSS measurements; raw ingress and normalized output have separate bounded owners.",
+    "Synchronous runtime start/stop methods must return; actor serialization cannot preempt a blocking native call.",
+    "Scoped implementation does not verify OUTCOME510/GATE529 or replace remaining product, scale, overnight, migration or native-client acceptance."
+  ],
+  "suggested_graph_changes": []
+}

@@ -1,0 +1,219 @@
+{
+  "candidateSHA256": "0678ce3e7a3290c419ade1acf14fbf03f3af14e0eb78539f907df86df07c1926",
+  "collectedAt": "2026-09-17T09:39:54.422510+00:00",
+  "limits": [
+    "Single runs, warm/uncontrolled OS caches; not latency distributions.",
+    "Sampled RSS/WAL peaks are lower bounds, not exact high-water marks.",
+    "Supervision may stop after atomic publication; inspect durable state separately.",
+    "Prototype index only changes disposable databases; no product migration selected."
+  ],
+  "runs": [
+    {
+      "artifactSHA256": {
+        "baseline-supervision.json": "374dec10d604cc6d82be510732e846ba37f8ba69e107c8720f0f206e771b7160",
+        "baseline.log": "b2c50ad1f48139955b57a5a20f8b74b266db3a176a2bc22a1cf1c79a6776729b",
+        "fixture-supervision.json": "c8f3b6e8e2ca1bab2f18e3e4c0a4f6307f4a5c1eef7c9521ce0b6de5bec7ab0c",
+        "fixture.json": "5e6721f0fa89c456400e1d2b7cf5152ae2762ea7ed5bbf1f128c68a1832b73b6",
+        "fixture.log": "0e916230453741edb0608e35986225d2899a1fc388bf37053d3168599f6ff5fa",
+        "resume-supervision.json": "8aebf306bf17c20e3bf391151a7c2f20d6b7da6edfb42e523e25c3c6c741d593",
+        "resume.log": "0e793f9bcbc8f3bf9cc5fc62af417ac8c22e50c262fc679215becc90a763ae46"
+      },
+      "fixture": {
+        "complete": true,
+        "count": 1000000,
+        "directories": 1,
+        "files": 1000000,
+        "shape": "wide"
+      },
+      "label": "wide-1m-stream",
+      "lastMeasurement": {
+        "batches": 94,
+        "checkpointSeconds": 0,
+        "directoryEntriesInspected": 48128,
+        "elapsedSeconds": 3.254070083319675,
+        "enumerationPasses": 1,
+        "error": "capacity",
+        "expectedFiles": 1000000,
+        "familyBytesAfterCheckpoint": 0,
+        "familyBytesBeforeCheckpoint": 0,
+        "kind": "result",
+        "maxBatchSeconds": 0.10574574998463504,
+        "maximumQueueVMSteps": 31,
+        "oldVisibleGeneration": 1,
+        "peakInProcessRSSBytes": 29458432,
+        "peakRetainedNames": 512,
+        "peakSampledDatabaseFamilyBytes": 534212208,
+        "peakSampledWALBytes": 360640112,
+        "pinnedReader": true,
+        "processedEntries": 48128,
+        "productEquivalent": false,
+        "publicationSeconds": 0,
+        "published": false,
+        "restartedDirectories": 1,
+        "resumedGeneration": 2,
+        "schema": "disk-steward-scale-resume-v1",
+        "status": "error",
+        "variant": "stream"
+      },
+      "phase": "resume",
+      "postRunDatabase": {
+        "queries": {
+          "generations": {
+            "rows": [
+              [
+                1,
+                "stream",
+                "published"
+              ],
+              [
+                2,
+                "stream",
+                "preparing"
+              ]
+            ],
+            "sql": "SELECT id,mode,status FROM generations ORDER BY id"
+          },
+          "integrity": {
+            "rows": [
+              [
+                "ok"
+              ]
+            ],
+            "sql": "PRAGMA quick_check"
+          },
+          "physicalDirectoryCount": {
+            "rows": [
+              [
+                2
+              ]
+            ],
+            "sql": "SELECT COUNT(*) FROM directories"
+          },
+          "physicalEntries": {
+            "rows": [
+              [
+                1821760
+              ]
+            ],
+            "sql": "SELECT COUNT(*) FROM entries"
+          },
+          "queuePlan": {
+            "rows": [
+              [
+                6,
+                0,
+                61,
+                "SEARCH d USING INDEX directories_open (generation=?)"
+              ],
+              [
+                11,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN"
+              ]
+            ],
+            "sql": "EXPLAIN QUERY PLAN SELECT d.id,d.path,d.depth,d.phase,d.signature,d.epoch,d.offset FROM directories d INDEXED BY directories_open LEFT JOIN directories p ON d.parent=p.id WHERE d.generation=1 AND d.phase<3 AND (d.parent IS NULL OR d.owner_epoch=p.epoch) ORDER BY d.id LIMIT 1"
+          },
+          "scratchNames": {
+            "rows": [
+              [
+                0
+              ]
+            ],
+            "sql": "SELECT COUNT(*) FROM names"
+          },
+          "validationQueuePlan": {
+            "rows": [
+              [
+                6,
+                0,
+                61,
+                "SEARCH d USING INDEX directories_unvalidated (generation=?)"
+              ],
+              [
+                11,
+                0,
+                45,
+                "SEARCH p USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN"
+              ]
+            ],
+            "sql": "EXPLAIN QUERY PLAN SELECT d.id,d.path,d.depth,d.phase,d.signature,d.epoch,d.offset FROM directories d INDEXED BY directories_unvalidated LEFT JOIN directories p ON d.parent=p.id WHERE d.generation=1 AND d.phase<4 AND (d.parent IS NULL OR d.owner_epoch=p.epoch) ORDER BY d.id LIMIT 1"
+          },
+          "visibleDirectoryPhases": {
+            "rows": [
+              [
+                4,
+                1
+              ]
+            ],
+            "sql": "SELECT d.phase,COUNT(*) FROM directories d JOIN visible v ON d.generation=v.generation GROUP BY d.phase ORDER BY d.phase"
+          },
+          "visibleFiles": {
+            "rows": [
+              [
+                1000000
+              ]
+            ],
+            "sql": "SELECT COUNT(*) FROM entries e JOIN visible v ON e.generation=v.generation JOIN directories d ON e.directory=d.id AND e.epoch=d.epoch WHERE d.parent IS NULL OR EXISTS(SELECT 1 FROM directories p WHERE p.id=d.parent AND p.epoch=d.owner_epoch)"
+          }
+        },
+        "readerSQLiteVersion": "3.53.4"
+      },
+      "result": {
+        "batches": 94,
+        "checkpointSeconds": 0,
+        "directoryEntriesInspected": 48128,
+        "elapsedSeconds": 3.254070083319675,
+        "enumerationPasses": 1,
+        "error": "capacity",
+        "expectedFiles": 1000000,
+        "familyBytesAfterCheckpoint": 0,
+        "familyBytesBeforeCheckpoint": 0,
+        "kind": "result",
+        "maxBatchSeconds": 0.10574574998463504,
+        "maximumQueueVMSteps": 31,
+        "oldVisibleGeneration": 1,
+        "peakInProcessRSSBytes": 29458432,
+        "peakRetainedNames": 512,
+        "peakSampledDatabaseFamilyBytes": 534212208,
+        "peakSampledWALBytes": 360640112,
+        "pinnedReader": true,
+        "processedEntries": 48128,
+        "productEquivalent": false,
+        "publicationSeconds": 0,
+        "published": false,
+        "restartedDirectories": 1,
+        "resumedGeneration": 2,
+        "schema": "disk-steward-scale-resume-v1",
+        "status": "error",
+        "variant": "stream"
+      },
+      "root": "/private/tmp/disk-steward-530-scale.6ta67eag",
+      "supervision": {
+        "command": [
+          "/usr/bin/nice",
+          "-n",
+          "10",
+          "/usr/bin/xcrun",
+          "xctest",
+          "-XCTest",
+          "PerformanceTests.BoundedTraversalResumeTests/testOptInResumeWithPinnedReader",
+          "/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/.build/arm64-apple-macosx/release/DiskStewardPackageTests.xctest"
+        ],
+        "exitCode": 1,
+        "peakProcessGroupRSSBytes": 114835456,
+        "peakSampledDatabaseFamilyBytes": 534212208,
+        "peakSampledWALBytes": 360640112,
+        "phase": "resume",
+        "pollIntervalSeconds": 0.1,
+        "reason": "exited",
+        "root": "/private/tmp/disk-steward-530-scale.6ta67eag",
+        "rssStopBytes": 268435456,
+        "schema": "disk-steward-scale-supervisor-v1",
+        "seconds": 3.630176582984859,
+        "timeoutSeconds": 135.0
+      }
+    }
+  ],
+  "schema": "disk-steward-scale-collection-v1"
+}

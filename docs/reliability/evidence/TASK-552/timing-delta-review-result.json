@@ -1,0 +1,54 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-TIMING-02",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-A8DE5156DDA36184F5DE026E73D6D2D5",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:93015d674fd03a81ff74d58df563922996ac3ec8057c0009e38c9245744058c5",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The prior legacy-timing finding is addressed in the inspected delta. Schema 11 preserves stored dates while withdrawing preview-v10 timing assertions. Lower-bound selection requires verified current-state or path-binding timestamps; fresh positive observations establish verification, while restored prior state preserves its existing flag. No concrete new or unresolved defect was found within this narrow review.",
+  "findings": [],
+  "evidence": [
+    "/private/tmp/ds-ci-cf8br7my/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:4031 — migration initializes current-state and path-binding verification flags to 0 and resets preview timing_version assertions without rewriting the original timestamps.",
+    "/private/tmp/ds-ci-cf8br7my/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2857 — lower-bound lookup uses the immutable prior-current snapshot and requires timing_verified=1, so the current observation's upsert cannot retroactively verify its predecessor.",
+    "/private/tmp/ds-ci-cf8br7my/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2870 — the noncanonical-alias fallback independently filters path bindings by timing_verified=1.",
+    "/private/tmp/ds-ci-cf8br7my/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2719 — fresh positive current-state upserts establish verification; newly opened path bindings do likewise at line 2762.",
+    "/private/tmp/ds-ci-cf8br7my/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:4342 — restorePriorCurrent copies timing_verified from the prior row instead of promoting restored unknown or out-of-scope state.",
+    "/private/tmp/ds-ci-cf8br7my/project/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift:6 — regression source covers v5/v6 first post-upgrade changes, a later verified lower bound, reopen, and decoded export.",
+    "/private/tmp/ds-ci-cf8br7my/project/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift:49 — regression source covers an unverified legacy alias despite a fresh canonical sample.",
+    "/private/tmp/ds-ci-cf8br7my/project/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift:81 — preview-v10 regression checks assertion withdrawal, timestamp preservation, verification reset, and foreign-key integrity."
+  ],
+  "checks": [
+    {
+      "command": "Read-only comparison against /private/tmp/ds-ci-6quvo487/project and static tracing of migration, fresh-positive writes, lower-bound selection, restore paths, and permitted regression source.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "The three added regressions target the reported transition and related cases. Existing migration assertions were retained with expected schema-version updates."
+    },
+    {
+      "command": "Compilation, migration execution, and runtime regression tests",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Execution was prohibited. Coordinator-reported reproduction and suite results were not treated as this helper's runtime validation."
+    }
+  ],
+  "stale_if": [
+    "Reviewed sources differ from snapshot sha256:93015d674fd03a81ff74d58df563922996ac3ec8057c0009e38c9245744058c5.",
+    "The helper identity, parent task, or task guard changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Advisory static delta review pending coordinator reconciliation; not runtime validation or whole TASK-552 acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Restore-path verification is supported by static tracing; the three new regressions do not directly exercise restoration of an unverified prior row.",
+    "This review is limited to the legacy-timing correction and does not assess the remaining TASK-552 work."
+  ]
+}

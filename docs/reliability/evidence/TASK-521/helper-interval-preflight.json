@@ -1,0 +1,43 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-INTERVAL-PREFLIGHT",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-DF3C078CCDB9D39E4D2718BCC19B95FB",
+  "kind": "review",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9c16bd2d2abcaf56683ac4a3d5084c0505d0e7a608cc05b2cce8dcb5e81803e5",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Sources/DiskStewardCore/Provenance/**",
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Tests/DiskStewardCoreTests/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Schemas/Evidence/**"
+  ],
+  "purpose": "Trace internal change-event occurrence bounds to consumers and identify a minimal truthful representation of unknown lower bounds before interval-contract implementation.",
+  "questions": [
+    "insertChangeEvent sets occurred_start to event.observedAt when no prior object observation exists. Does any consumer interpret these internal columns as actual occurrence? Trace only the pertinent readers/writers, distinguishing provenance_claims from change_events.",
+    "What minimal compatible core-store migration and test contract represents unknown creation/change start without inventing exact occurrence or weakening actual prior/absence bounds? Note historical limitations. Schema9 remains unreleased; no user DB migration is authorized.",
+    "Identify any specific interval inversion or semantic problem with rename plus growth using independently sampled path evidence. Do not review unrelated legacy reconciliation or propose broad rewrites."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-521-01"
+  ],
+  "execution_isolation": "none",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "load-bearing-decision",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 7,
+    "max_output_chars": 6000
+  }
+}

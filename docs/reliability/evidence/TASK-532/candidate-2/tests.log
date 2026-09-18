@@ -1,0 +1,1530 @@
+[0/1] Planning build
+Building for debugging...
+[0/14] Write sources
+[0/18] /private/tmp/ds-ci-8q_0m5aa/project/.build/arm64-apple-macosx/debug/DiskStewardPackageTests.derived/runner.swift
+[1/19] Write sources
+[12/19] Write swift-version--58304C5D6DBC2206.txt
+[14/21] Compiling SafetyTests SafetyTests.swift
+[15/21] Emitting module SafetyTests
+[16/23] Compiling PerformanceTests BoundedTraversalPrototype.swift
+[17/23] Compiling PerformanceTests BoundedTraversalPrototypeTests.swift
+[18/23] Compiling PerformanceTests BoundedTraversalResumeTests.swift
+[19/23] Emitting module PerformanceTests
+[20/26] Emitting module IntegrationInstallTests
+[21/26] Compiling IntegrationInstallTests IntegrationInstallTests.swift
+[22/27] Compiling PerformanceTests BoundedTraversalScaleTests.swift
+[23/27] Compiling PerformanceTests PerformanceTests.swift
+[24/27] Compiling PerformanceTests ScaleBenchmarkTests.swift
+[25/32] Compiling IntegrationInstallTests MCPTransportLifecycleTests.swift
+[26/34] Emitting module IncrementTests
+[27/37] Compiling FoundationTests ProductIdentityTests.swift
+[28/37] Emitting module FoundationTests
+[29/40] Compiling DiskStewardMCPTests DiskStewardMCPTests.swift
+[30/40] Compiling DiskStewardMCPTests MCPAdmissionTests.swift
+[31/40] Emitting module DiskStewardMCPTests
+[32/41] Compiling IncrementTests ScanContinuationIncrementTests.swift
+[33/41] Compiling IncrementTests StorageRecoveryIncrementTests.swift
+[34/41] Compiling IncrementTests SnapshotIncrementTests.swift
+[35/41] Compiling DiskStewardMCPTests StdioBudgetTests.swift
+[38/43] Compiling IncrementTests AgentQueryableEvidenceIncrementTests.swift
+[39/43] Compiling IncrementTests PersistentRecorderIncrementTests.swift
+[40/59] Compiling DiskStewardEndpointTests DiskStewardEndpointTests.swift
+[41/59] Emitting module DiskStewardEndpointTests
+[42/60] Emitting module DiskStewardCoreTests
+[43/74] Compiling DiskStewardEndpointTests EndpointDeliveryRegressionTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardEndpointTests/EndpointDeliveryRegressionTests.swift:242:18: warning: weak variable 'reference' was never mutated; consider changing to 'let' constant [#WeakMutability]
+240 |         let fixture = DeliveryFixture(), runtime = RetainedCallbackRuntime()
+241 |         var observer: EndpointSecurityObserver? = fixture.observer(runtime)
+242 |         weak var reference = observer
+    |                  `- warning: weak variable 'reference' was never mutated; consider changing to 'let' constant [#WeakMutability]
+243 |         for cycle in 0 ..< 30 {
+244 |             await observer!.start()
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[44/91] Emitting module DiskStewardAppTests
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardAppTests/IPC/EvidenceCardinalityIPCIntegrationTests.swift:81:56: warning: no calls to throwing functions occur within 'try' expression
+ 79 |         let ceiling = 1_024 * 1_024
+ 80 |         let encoder = JSONEncoder()
+ 81 |         func bytes(_ value: JSONValue) throws -> Int { try encoder.encode(value).count }
+    |                                                        `- warning: no calls to throwing functions occur within 'try' expression
+ 82 | 
+ 83 |         // Provenance: the row budget is clamped before the read and the page is bounded.
+[45/107] Compiling DiskStewardAppTests AgentIntegrationContractTests.swift
+[46/107] Compiling DiskStewardAppTests AgentIntegrationHardeningTests.swift
+[47/107] Compiling DiskStewardAppTests AgentIntegrationsPresentationTests.swift
+[48/107] Compiling DiskStewardAppTests CodexAndClaudeCodeAdapterTests.swift
+[49/107] Compiling DiskStewardAppTests CommandRunnerRegressionTests.swift
+[50/107] Compiling DiskStewardAppTests NativeClientLifecycleTests.swift
+[51/107] Compiling DiskStewardAppTests RemainingClientsAdapterTests.swift
+[52/107] Compiling DiskStewardAppTests DiskStewardAppTests.swift
+[53/107] Compiling DiskStewardAppTests RetentionScheduleTests.swift
+[54/107] Compiling DiskStewardAppTests StatusBoardEvidenceExportTests.swift
+[55/107] Compiling DiskStewardAppTests AppEvidenceIPCIntegrationTests.swift
+[56/107] Compiling DiskStewardAppTests BackendIsolationTests.swift
+[57/107] Compiling DiskStewardAppTests EventTimingIPCIntegrationTests.swift
+[58/107] Compiling DiskStewardAppTests EvidenceCardinalityIPCIntegrationTests.swift
+[59/107] Compiling DiskStewardAppTests EvidenceQueryPrivacyIPCIntegrationTests.swift
+[75/107] Compiling DiskStewardAppTests EvidenceQueryScopeIPCIntegrationTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[77/107] Compiling DiskStewardAppTests InlineExportSafetyTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[78/107] Compiling DiskStewardAppTests LifecycleProjectionIPCIntegrationTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[79/107] Compiling DiskStewardAppTests RequestCancellationTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[80/107] Compiling DiskStewardAppTests SocketOwnershipRegressionTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[81/107] Compiling DiskStewardAppTests TaskImpactTimingIPCIntegrationTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[82/107] Compiling DiskStewardAppTests VerificationIsolationTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[83/107] Compiling DiskStewardAppTests LaunchAtLoginControllerTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[84/107] Compiling DiskStewardAppTests MonitoringLifecycleTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[85/107] Compiling DiskStewardAppTests MonitoringProbeCancellationTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[86/107] Compiling DiskStewardAppTests MonitoringReceiptTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[87/107] Compiling DiskStewardAppTests NotificationDeliveryTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[88/107] Compiling DiskStewardAppTests AuthoritativeMCPReadModelTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[89/107] Compiling DiskStewardAppTests MCPAccessTests.swift
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[103/111] Compiling DiskStewardAppTests ThresholdNotificationPolicyTests.swift
+[104/111] Compiling DiskStewardAppTests MonitoringSettingsTests.swift
+[105/111] Compiling DiskStewardAppTests StatusBoardPresentationTests.swift
+[106/111] Compiling ContractTests ContractTests.swift
+[107/111] Compiling ContractTests EndpointSecurityContractTests.swift
+[108/111] Compiling ContractTests EvidenceUsefulnessContractTests.swift
+[109/111] Emitting module ContractTests
+[110/113] Compiling ContractTests JSONSchemaContractValidator.swift
+[111/113] Compiling ContractTests MCPContractTests.swift
+[112/115] Compiling DiskStewardPackageTests runner.swift
+[113/115] Emitting module DiskStewardPackageTests
+[113/115] Write Objects.LinkFileList
+[114/115] Linking DiskStewardPackageTests
+Build complete! (14.06s)
+Test Suite 'All tests' started at 2026-09-18 13:35:07.958.
+Test Suite 'DiskStewardPackageTests.xctest' started at 2026-09-18 13:35:07.958.
+Test Suite 'AgentIntegrationContractTests' started at 2026-09-18 13:35:07.958.
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testDetectionChecksOnlyDeclaredExecutableAndApplicationCandidates]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testDetectionChecksOnlyDeclaredExecutableAndApplicationCandidates]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testOwnershipNeverTreatsAnUnreceiptedOrChangedDefinitionAsOwned]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testOwnershipNeverTreatsAnUnreceiptedOrChangedDefinitionAsOwned]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testProcessFailureMappingPreservesExitCodeAndActionableOutput]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testProcessFailureMappingPreservesExitCodeAndActionableOutput]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testReceiptStoreIsIdempotentAndPersistsOnlyOneReceiptPerClient]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testReceiptStoreIsIdempotentAndPersistsOnlyOneReceiptPerClient]' passed (0.004 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testSelectionEligibilityIsExplicit]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testSelectionEligibilityIsExplicit]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testStateDerivationKeepsPresenceConfigurationApprovalAndVerificationDistinct]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationContractTests testStateDerivationKeepsPresenceConfigurationApprovalAndVerificationDistinct]' passed (0.001 seconds).
+Test Suite 'AgentIntegrationContractTests' passed at 2026-09-18 13:35:07.964.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.005 (0.005) seconds
+Test Suite 'AgentIntegrationHardeningTests' started at 2026-09-18 13:35:07.964.
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testConfigurationAndReceiptSymlinksFailClosed]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testConfigurationAndReceiptSymlinksFailClosed]' passed (0.004 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testJSONReceiptFailureRestoresExactDocumentForAllMutations]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testJSONReceiptFailureRestoresExactDocumentForAllMutations]' passed (0.011 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testMissingPackagedHelperNeverReportsSuccessfulSetup]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testMissingPackagedHelperNeverReportsSuccessfulSetup]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testMovedPackagedHelperBecomesBrokenAndRepairUpdatesOnlyOwnedEntry]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testMovedPackagedHelperBecomesBrokenAndRepairUpdatesOnlyOwnedEntry]' passed (0.004 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testReplacingHelperAtSamePathRequiresRepairBeforeVerification]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testReplacingHelperAtSamePathRequiresRepairBeforeVerification]' passed (0.005 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testUserModificationAfterReceiptCreatesConflictAndBlocksRemoval]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationHardeningTests testUserModificationAfterReceiptCreatesConflictAndBlocksRemoval]' passed (0.003 seconds).
+Test Suite 'AgentIntegrationHardeningTests' passed at 2026-09-18 13:35:07.992.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.028 (0.029) seconds
+Test Suite 'AgentIntegrationsPresentationTests' started at 2026-09-18 13:35:07.992.
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testDetectedClientsAreSelectableAndAbsentClientsAreNotPreselected]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testDetectedClientsAreSelectableAndAbsentClientsAreNotPreselected]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testMultiSelectReportsPartialResultsWithoutRollingBackSuccess]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testMultiSelectReportsPartialResultsWithoutRollingBackSuccess]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testRepairAndRemoveAreForwardedToTheSelectedClientOnly]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testRepairAndRemoveAreForwardedToTheSelectedClientOnly]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testSetupSelectionDoesNotMutateAgentAccessState]' started.
+Test Case '-[DiskStewardAppTests.AgentIntegrationsPresentationTests testSetupSelectionDoesNotMutateAgentAccessState]' passed (0.000 seconds).
+Test Suite 'AgentIntegrationsPresentationTests' passed at 2026-09-18 13:35:07.993.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'AgentQueryableEvidenceIncrementTests' started at 2026-09-18 13:35:07.993.
+Test Case '-[IncrementTests.AgentQueryableEvidenceIncrementTests testAgentQueryableEvidenceIncrementComposesWithHumanJourneyAndFailsClosed]' started.
+Test Case '-[IncrementTests.AgentQueryableEvidenceIncrementTests testAgentQueryableEvidenceIncrementComposesWithHumanJourneyAndFailsClosed]' passed (0.423 seconds).
+Test Suite 'AgentQueryableEvidenceIncrementTests' passed at 2026-09-18 13:35:08.416.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.423 (0.423) seconds
+Test Suite 'AgentSessionRegistryTests' started at 2026-09-18 13:35:08.416.
+Test Case '-[DiskStewardCoreTests.AgentSessionRegistryTests testAuthenticatedRegistrationEndsAndExpiresWithoutPersistingSecret]' started.
+Test Case '-[DiskStewardCoreTests.AgentSessionRegistryTests testAuthenticatedRegistrationEndsAndExpiresWithoutPersistingSecret]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.AgentSessionRegistryTests testPIDReuseIsASeparateIdentityAndLocalInspectorFindsCurrentProcess]' started.
+Test Case '-[DiskStewardCoreTests.AgentSessionRegistryTests testPIDReuseIsASeparateIdentityAndLocalInspectorFindsCurrentProcess]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.AgentSessionRegistryTests testSpoofedStaleDuplicateAndCrossTaskRegistrationsFailClosed]' started.
+Test Case '-[DiskStewardCoreTests.AgentSessionRegistryTests testSpoofedStaleDuplicateAndCrossTaskRegistrationsFailClosed]' passed (0.000 seconds).
+Test Suite 'AgentSessionRegistryTests' passed at 2026-09-18 13:35:08.417.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'AppEvidenceIPCIntegrationTests' started at 2026-09-18 13:35:08.417.
+Test Case '-[DiskStewardAppTests.AppEvidenceIPCIntegrationTests testEndedSessionHeartbeatAndHistoricalImpactSurviveBackendRestart]' started.
+Test Case '-[DiskStewardAppTests.AppEvidenceIPCIntegrationTests testEndedSessionHeartbeatAndHistoricalImpactSurviveBackendRestart]' passed (0.039 seconds).
+Test Case '-[DiskStewardAppTests.AppEvidenceIPCIntegrationTests testPrivateUnixSocketServesRealSummarySessionAndExportQueries]' started.
+Test Case '-[DiskStewardAppTests.AppEvidenceIPCIntegrationTests testPrivateUnixSocketServesRealSummarySessionAndExportQueries]' passed (0.074 seconds).
+Test Case '-[DiskStewardAppTests.AppEvidenceIPCIntegrationTests testServerRemovesOwnedSocketAndClientReportsUnavailableAfterStop]' started.
+Test Case '-[DiskStewardAppTests.AppEvidenceIPCIntegrationTests testServerRemovesOwnedSocketAndClientReportsUnavailableAfterStop]' passed (0.011 seconds).
+Test Suite 'AppEvidenceIPCIntegrationTests' passed at 2026-09-18 13:35:08.541.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.123 (0.124) seconds
+Test Suite 'AuthoritativeMCPReadModelTests' started at 2026-09-18 13:35:08.541.
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testCleanupCandidateIsWithdrawnIfFileGainsHardLinkAfterObservation]' started.
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testCleanupCandidateIsWithdrawnIfFileGainsHardLinkAfterObservation]' passed (0.019 seconds).
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testCleanupCandidateMustStillBeTheSameLiveFileAndLifecycleIsQueryable]' started.
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testCleanupCandidateMustStillBeTheSameLiveFileAndLifecycleIsQueryable]' passed (0.025 seconds).
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testCursorIsOpaqueAndBoundToItsQuery]' started.
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testCursorIsOpaqueAndBoundToItsQuery]' passed (0.031 seconds).
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testTaskImpactSeparatesSurvivingBytesAndPartialCoverageExcludesCleanup]' started.
+Test Case '-[DiskStewardAppTests.AuthoritativeMCPReadModelTests testTaskImpactSeparatesSurvivingBytesAndPartialCoverageExcludesCleanup]' passed (0.057 seconds).
+Test Suite 'AuthoritativeMCPReadModelTests' passed at 2026-09-18 13:35:08.672.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.131 (0.132) seconds
+Test Suite 'BackendIsolationTests' started at 2026-09-18 13:35:08.672.
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testBackendInitializationNeverSweepsAnotherInstancesTemporaryExports]' started.
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testBackendInitializationNeverSweepsAnotherInstancesTemporaryExports]' passed (0.009 seconds).
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testFailedBackendInitializationNeverSweepsAnotherInstancesTemporaryExports]' started.
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testFailedBackendInitializationNeverSweepsAnotherInstancesTemporaryExports]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testOverlappingInlineExportsUseSeparateWorkspacesAndCleanTheirPayloads]' started.
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testOverlappingInlineExportsUseSeparateWorkspacesAndCleanTheirPayloads]' passed (0.022 seconds).
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testRequestCleanupPreservesSiblingAndReplacementDirectories]' started.
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testRequestCleanupPreservesSiblingAndReplacementDirectories]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testWorkspaceRefusesSymlinkOrNonprivateParentBeforeCreatingChildren]' started.
+Test Case '-[DiskStewardAppTests.BackendIsolationTests testWorkspaceRefusesSymlinkOrNonprivateParentBeforeCreatingChildren]' passed (0.000 seconds).
+Test Suite 'BackendIsolationTests' passed at 2026-09-18 13:35:08.706.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.034 (0.034) seconds
+Test Suite 'BoundedFrontierTests' started at 2026-09-18 13:35:08.706.
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testHighFanoutSpillsDiscoveryIntoDurableRowsAndKeepsTheWindowBounded]' started.
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testHighFanoutSpillsDiscoveryIntoDurableRowsAndKeepsTheWindowBounded]' passed (0.347 seconds).
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testLegacyOversizedFrontierIsSpilledIntoDurableRowsOnResume]' started.
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testLegacyOversizedFrontierIsSpilledIntoDurableRowsOnResume]' passed (0.021 seconds).
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testLostStreamRestartsOnlyTheUnfinishedPassWithoutStaleMembership]' started.
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testLostStreamRestartsOnlyTheUnfinishedPassWithoutStaleMembership]' passed (0.175 seconds).
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testStreamRegistryDeliversEachNameOnceAcrossBoundedReads]' started.
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testStreamRegistryDeliversEachNameOnceAcrossBoundedReads]' passed (0.329 seconds).
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testStreamRegistryEvictsTheLeastRecentlyUsedStreamBeyondItsBound]' started.
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testStreamRegistryEvictsTheLeastRecentlyUsedStreamBeyondItsBound]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testWideDirectoryStreamsOnceAcrossSlicesWithoutRereading]' started.
+Test Case '-[DiskStewardCoreTests.BoundedFrontierTests testWideDirectoryStreamsOnceAcrossSlicesWithoutRereading]' passed (0.901 seconds).
+Test Suite 'BoundedFrontierTests' passed at 2026-09-18 13:35:10.482.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 1.775 (1.775) seconds
+Test Suite 'BoundedTraversalPrototypeTests' started at 2026-09-18 13:35:10.482.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testBothModesPublishCompleteMetadataWithoutFollowingSymlinks]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testBothModesPublishCompleteMetadataWithoutFollowingSymlinks]' passed (0.043 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testCancellationAfterReadingRequiresReopenAndReplaysAllNames]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testCancellationAfterReadingRequiresReopenAndReplaysAllNames]' passed (0.039 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testChangedDirectoryCannotPublishAndOldVisibleGenerationSurvives]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testChangedDirectoryCannotPublishAndOldVisibleGenerationSurvives]' passed (0.021 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testCompletedDirectoryIsRevalidatedAfterClose]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testCompletedDirectoryIsRevalidatedAfterClose]' passed (0.011 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testCompletedNameSpoolResumesMetadataWithoutReenumeration]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testCompletedNameSpoolResumesMetadataWithoutReenumeration]' passed (0.014 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testFailedBeginCanRetryWithoutLosingOldVisibleEvidence]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testFailedBeginCanRetryWithoutLosingOldVisibleEvidence]' passed (0.022 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testFailedEnumerationBatchCannotContinueWithAnAdvancedNativeCursor]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testFailedEnumerationBatchCannotContinueWithAnAdvancedNativeCursor]' passed (0.026 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testFailedSpoolMetadataTransactionReplaysItsDurablePage]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testFailedSpoolMetadataTransactionReplaysItsDurablePage]' passed (0.019 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testPointerSwitchRollsBackAndReceiptCannotBeReboundToOldPreparedEvidence]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testPointerSwitchRollsBackAndReceiptCannotBeReboundToOldPreparedEvidence]' passed (0.013 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testQueueLookupUsesOrderedIndexWithoutWholeFrontierSort]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testQueueLookupUsesOrderedIndexWithoutWholeFrontierSort]' passed (0.021 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testSameCountRenameAndHardLinkIdentityAreNotLostByCountOracle]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testSameCountRenameAndHardLinkIdentityAreNotLostByCountOracle]' passed (0.031 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testStreamLossInvalidatesOnlyUnfinishedPassRowsWithoutTrustingCookie]' started.
+Test Case '-[PerformanceTests.BoundedTraversalPrototypeTests testStreamLossInvalidatesOnlyUnfinishedPassRowsWithoutTrustingCookie]' passed (0.013 seconds).
+Test Suite 'BoundedTraversalPrototypeTests' passed at 2026-09-18 13:35:10.757.
+	 Executed 12 tests, with 0 failures (0 unexpected) in 0.274 (0.275) seconds
+Test Suite 'BoundedTraversalResumeTests' started at 2026-09-18 13:35:10.757.
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testFailedCheckpointPreservesOnlyMeasuredValues]' started.
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testFailedCheckpointPreservesOnlyMeasuredValues]' passed (0.000 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testOptInResumeWithControlledReader]' started.
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/PerformanceTests/BoundedTraversalResumeTests.swift:12: -[PerformanceTests.BoundedTraversalResumeTests testOptInResumeWithControlledReader] : Test skipped - Requires the dedicated collected-fixture resume supervisor
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testOptInResumeWithControlledReader]' skipped (0.000 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testStopsBeforeCheckpointReportUnmeasuredNotZero]' started.
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testStopsBeforeCheckpointReportUnmeasuredNotZero]' passed (0.000 seconds).
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testSuccessfulCheckpointReportsMeasuredValues]' started.
+Test Case '-[PerformanceTests.BoundedTraversalResumeTests testSuccessfulCheckpointReportsMeasuredValues]' passed (0.000 seconds).
+Test Suite 'BoundedTraversalResumeTests' passed at 2026-09-18 13:35:10.757.
+	 Executed 4 tests, with 1 test skipped and 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'BoundedTraversalScaleTests' started at 2026-09-18 13:35:10.757.
+Test Case '-[PerformanceTests.BoundedTraversalScaleTests testOptInBoundedPrototype]' started.
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/PerformanceTests/BoundedTraversalScaleTests.swift:10: -[PerformanceTests.BoundedTraversalScaleTests testOptInBoundedPrototype] : Test skipped - Requires explicit scale supervisor
+Test Case '-[PerformanceTests.BoundedTraversalScaleTests testOptInBoundedPrototype]' skipped (0.000 seconds).
+Test Suite 'BoundedTraversalScaleTests' passed at 2026-09-18 13:35:10.758.
+	 Executed 1 test, with 1 test skipped and 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'CodexAndClaudeCodeAdapterTests' started at 2026-09-18 13:35:10.758.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testClaudeCodeUsesUserScopeForAddAndRemove]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testClaudeCodeUsesUserScopeForAddAndRemove]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testClaudeParserAcceptsEmptyEnvironmentButRejectsNonUserScopeAndUnknownFields]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testClaudeParserAcceptsEmptyEnvironmentButRejectsNonUserScopeAndUnknownFields]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testClientCommandFailureIsReportedWithoutFalseReceipt]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testClientCommandFailureIsReportedWithoutFalseReceipt]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testCodexUsesOfficialLifecycleAndRepeatedSetupIsIdempotent]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testCodexUsesOfficialLifecycleAndRepeatedSetupIsIdempotent]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testConflictFailsClosedWithoutAddRemoveOrReceiptMutation]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testConflictFailsClosedWithoutAddRemoveOrReceiptMutation]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testFailedMutationDoesNotRollBackOverConcurrentUserChange]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testFailedMutationDoesNotRollBackOverConcurrentUserChange]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testFailedRepairRestoresPreviousOwnedDefinition]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testFailedRepairRestoresPreviousOwnedDefinition]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testMissingHelperIsActionableAndDoesNotInvokeClientMutation]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testMissingHelperIsActionableAndDoesNotInvokeClientMutation]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testReceiptFailureRollsBackSetupRepairAndRemoval]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testReceiptFailureRollsBackSetupRepairAndRemoval]' passed (0.008 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testRepairReplacesOnlyReceiptedOwnedDefinition]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testRepairReplacesOnlyReceiptedOwnedDefinition]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testVerificationRejectsConfigurationChangedDuringHelperCheck]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testVerificationRejectsConfigurationChangedDuringHelperCheck]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testVerificationRunsBundledHelperSelfCheckAndUpdatesReceipt]' started.
+Test Case '-[DiskStewardAppTests.CodexAndClaudeCodeAdapterTests testVerificationRunsBundledHelperSelfCheckAndUpdatesReceipt]' passed (0.002 seconds).
+Test Suite 'CodexAndClaudeCodeAdapterTests' passed at 2026-09-18 13:35:10.779.
+	 Executed 12 tests, with 0 failures (0 unexpected) in 0.021 (0.022) seconds
+Test Suite 'CommandRunnerRegressionTests' started at 2026-09-18 13:35:10.779.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testCancellationAtBothSpawnBoundariesHasOneCompletionAndReapsOwnedLeader]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testCancellationAtBothSpawnBoundariesHasOneCompletionAndReapsOwnedLeader]' passed (0.092 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testCancellationStopsTermIgnoringChildAndItsDescendantBeforeReturning]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testCancellationStopsTermIgnoringChildAndItsDescendantBeforeReturning]' passed (0.222 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testDrainsMoreThanPipeCapacityWithoutDeadlock]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testDrainsMoreThanPipeCapacityWithoutDeadlock]' passed (0.031 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testDrainsOneMiBFromEachPipeAndPreservesFastExitStatus]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testDrainsOneMiBFromEachPipeAndPreservesFastExitStatus]' passed (0.044 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testEnvironmentWorkingDirectoryStdinAndDelayedOutputArePreserved]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testEnvironmentWorkingDirectoryStdinAndDelayedOutputArePreserved]' passed (0.077 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testFourOwnedCommandsAreCountedUntilCleanupAndRefuseAFifth]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testFourOwnedCommandsAreCountedUntilCleanupAndRefuseAFifth]' passed (0.816 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testHugeOutputAndNeverExitStopAndReapTheOwnedProcessGroup]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testHugeOutputAndNeverExitStopAndReapTheOwnedProcessGroup]' passed (0.369 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testParentExitAlsoStopsDescendantWithClosedOutputPipes]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testParentExitAlsoStopsDescendantWithClosedOutputPipes]' passed (0.254 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testParentExitDoesNotLeaveAnInheritedPipeChildAlive]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testParentExitDoesNotLeaveAnInheritedPipeChildAlive]' passed (0.045 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testRepeatedSuccessAndSpawnFailuresDoNotLeakDescriptorsOrZombies]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testRepeatedSuccessAndSpawnFailuresDoNotLeakDescriptorsOrZombies]' passed (0.347 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testSpawnDelayIsIncludedInOverallDeadlineAndDoesNotLaunchAfterExpiry]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testSpawnDelayIsIncludedInOverallDeadlineAndDoesNotLaunchAfterExpiry]' passed (0.848 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testSpawnFailureAndAlreadyCancelledCallRecover]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testSpawnFailureAndAlreadyCancelledCallRecover]' passed (0.021 seconds).
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testTimeoutAndOutputLimitsAreEnforced]' started.
+Test Case '-[DiskStewardAppTests.CommandRunnerRegressionTests testTimeoutAndOutputLimitsAreEnforced]' passed (0.113 seconds).
+Test Suite 'CommandRunnerRegressionTests' passed at 2026-09-18 13:35:14.058.
+	 Executed 13 tests, with 0 failures (0 unexpected) in 3.278 (3.278) seconds
+Test Suite 'ContractTests' started at 2026-09-18 13:35:14.058.
+Test Case '-[ContractTests.ContractTests testEverySchemaIsClosedAndVersioned]' started.
+Test Case '-[ContractTests.ContractTests testEverySchemaIsClosedAndVersioned]' passed (0.001 seconds).
+Test Case '-[ContractTests.ContractTests testEvidenceRejectsFileContents]' started.
+Test Case '-[ContractTests.ContractTests testEvidenceRejectsFileContents]' passed (0.000 seconds).
+Test Case '-[ContractTests.ContractTests testEvidenceRequiresConfidence]' started.
+Test Case '-[ContractTests.ContractTests testEvidenceRequiresConfidence]' passed (0.000 seconds).
+Test Case '-[ContractTests.ContractTests testExportManifestRequiresLimitationsAndValidHashes]' started.
+Test Case '-[ContractTests.ContractTests testExportManifestRequiresLimitationsAndValidHashes]' passed (0.001 seconds).
+Test Case '-[ContractTests.ContractTests testPrivacyContractHardDisablesContentsAndEnvironment]' started.
+Test Case '-[ContractTests.ContractTests testPrivacyContractHardDisablesContentsAndEnvironment]' passed (0.000 seconds).
+Test Case '-[ContractTests.ContractTests testRetentionPolicyIsBounded]' started.
+Test Case '-[ContractTests.ContractTests testRetentionPolicyIsBounded]' passed (0.000 seconds).
+Test Case '-[ContractTests.ContractTests testValidEvidenceEvent]' started.
+Test Case '-[ContractTests.ContractTests testValidEvidenceEvent]' passed (0.000 seconds).
+Test Suite 'ContractTests' passed at 2026-09-18 13:35:14.061.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
+Test Suite 'DirectoryMetadataScannerConvergentScanGenerationTests' started at 2026-09-18 13:35:14.061.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testAbsenceTimeComesFromCoveringPassNotLaterPublication]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testAbsenceTimeComesFromCoveringPassNotLaterPublication]' passed (0.237 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testAllFailedRootsPublishUncertaintyAndRecoverWithoutFalseDeletion]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testAllFailedRootsPublishUncertaintyAndRecoverWithoutFalseDeletion]' passed (0.846 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testAncestorDirtySignalResolvesOnlyWhenAllIntersectingRootsComplete]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testAncestorDirtySignalResolvesOnlyWhenAllIntersectingRootsComplete]' passed (0.087 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testCompletedGenerationReconcilesLargeStateWithBoundedInlineResult]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testCompletedGenerationReconcilesLargeStateWithBoundedInlineResult]' passed (0.854 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testCompletedGenerationsDoNotRetainTransientDirectoryProofs]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testCompletedGenerationsDoNotRetainTransientDirectoryProofs]' passed (0.975 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testCompletedNestedDirectoryIsRevalidatedWhileAnotherDirectoryIsStillScanning]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testCompletedNestedDirectoryIsRevalidatedWhileAnotherDirectoryIsStillScanning]' passed (0.104 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testDeletedQueuedDirectoryIsRescannedAndScopeChangeAbandonsOnlyUnpublishedWork]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testDeletedQueuedDirectoryIsRescannedAndScopeChangeAbandonsOnlyUnpublishedWork]' passed (0.069 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testDirectoryChangeBeforeResumeResetsCursorAndDoesNotSkipEarlierName]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testDirectoryChangeBeforeResumeResetsCursorAndDoesNotSkipEarlierName]' passed (0.016 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testDirtySignalDuringValidationFencesInflightSliceAndSurvivesRestart]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testDirtySignalDuringValidationFencesInflightSliceAndSurvivesRestart]' passed (0.209 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testEmptyDirectoryPassOutputIsBoundedBySliceBudget]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testEmptyDirectoryPassOutputIsBoundedBySliceBudget]' passed (0.007 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testEventGapPersistsAcrossRestartUntilCompleteReconciliation]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testEventGapPersistsAcrossRestartUntilCompleteReconciliation]' passed (0.037 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testFailedAncestorDoesNotEraseSuccessfulDescendantContribution]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testFailedAncestorDoesNotEraseSuccessfulDescendantContribution]' passed (0.053 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testFinalDirectoryBatchIsRevalidatedBeforePublishingStagedMembership]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testFinalDirectoryBatchIsRevalidatedBeforePublishingStagedMembership]' passed (0.048 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testFreshOverlappingPassCannotInheritSupersededMembership]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testFreshOverlappingPassCannotInheritSupersededMembership]' passed (0.103 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testGenerationScopeReentryUsesFreshBaselineWithoutPhantomChanges]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testGenerationScopeReentryUsesFreshBaselineWithoutPhantomChanges]' passed (0.394 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testHealthyHardLinkDoesNotCloseBindingInFailedRoot]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testHealthyHardLinkDoesNotCloseBindingInFailedRoot]' passed (0.230 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testHighFanoutSliceUsesOneStreamingPassAndRetainsOnlyItsBudget]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testHighFanoutSliceUsesOneStreamingPassAndRetainsOnlyItsBudget]' passed (0.219 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testInterruptedPublicationDoesNotReplayCompletedStagingWithoutRevalidation]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testInterruptedPublicationDoesNotReplayCompletedStagingWithoutRevalidation]' passed (0.064 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testLegacyCursorWithoutSignatureRestartsRatherThanSkippingEarlierNames]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testLegacyCursorWithoutSignatureRestartsRatherThanSkippingEarlierNames]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testLegacyPersistedGenerationDecodesWithoutNewCursorFields]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testLegacyPersistedGenerationDecodesWithoutNewCursorFields]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testLegacyUnpublishedGenerationIsAbandonedWithoutChangingCommittedTruth]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testLegacyUnpublishedGenerationIsAbandonedWithoutChangingCommittedTruth]' passed (0.060 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testMissingHealthyHardLinkDoesNotDeleteObjectWithFailedRootBinding]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testMissingHealthyHardLinkDoesNotDeleteObjectWithFailedRootBinding]' passed (0.224 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testMoveAndGrowthRetainBothIdentityAndByteChange]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testMoveAndGrowthRetainBothIdentityAndByteChange]' passed (0.064 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testMultipleRootsReceiveWorkInTheSameBoundedSlice]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testMultipleRootsReceiveWorkInTheSameBoundedSlice]' passed (0.004 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testNewestHardLinkSampleWinsOverPreferredPathAcrossSlicesAndRestart]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testNewestHardLinkSampleWinsOverPreferredPathAcrossSlicesAndRestart]' passed (0.110 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testOneOldHardLinkedObjectReplacedByTwoObjectsIsDebitedOnlyOnce]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testOneOldHardLinkedObjectReplacedByTwoObjectsIsDebitedOnlyOnce]' passed (0.156 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testOverlappingRootsSharePhysicalDirectoryProofWithoutLosingCoverage]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testOverlappingRootsSharePhysicalDirectoryProofWithoutLosingCoverage]' passed (0.062 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testPartialGenerationDoesNotResolveGlobalDirtyCoverage]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testPartialGenerationDoesNotResolveGlobalDirtyCoverage]' passed (0.035 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testPassValidationRestartsFromTheBeginningAfterDatabaseReopen]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testPassValidationRestartsFromTheBeginningAfterDatabaseReopen]' passed (0.101 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReconciliationIsAtomicAcrossEveryInjectedInterruptionBoundary]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReconciliationIsAtomicAcrossEveryInjectedInterruptionBoundary]' passed (0.375 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRenameAndGrowthRetainDistinctPositiveAndAbsenceBounds]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRenameAndGrowthRetainDistinctPositiveAndAbsenceBounds]' passed (0.076 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRenameOverExistingObjectAccountsForDisplacedBytes]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRenameOverExistingObjectAccountsForDisplacedBytes]' passed (0.142 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRepeatedEventGapsCoalesceUntilReconciliationAndCanReopen]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRepeatedEventGapsCoalesceUntilReconciliationAndCanReopen]' passed (0.036 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReplacingHealthyHardLinkDoesNotDeleteObjectWithFailedRootBinding]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReplacingHealthyHardLinkDoesNotDeleteObjectWithFailedRootBinding]' passed (0.242 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReplacingOneHardLinkPreservesOtherHealthyPathInBothObjectOrders]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReplacingOneHardLinkPreservesOtherHealthyPathInBothObjectOrders]' passed (0.295 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReplayedFSEventGapDoesNotResetProgressOrReopenResolvedGap]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testReplayedFSEventGapDoesNotResetProgressOrReopenResolvedGap]' passed (0.082 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRestartedDirectoryDoesNotPublishDeletedStagedFile]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRestartedDirectoryDoesNotPublishDeletedStagedFile]' passed (0.048 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRootSpecificDirtySignalPreservesIndependentStagingAndFencesEqualTimestampSlice]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testRootSpecificDirtySignalPreservesIndependentStagingAndFencesEqualTimestampSlice]' passed (0.055 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSampleTimesSurviveDelayedPublicationAcrossEvidenceTables]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSampleTimesSurviveDelayedPublicationAcrossEvidenceTables]' passed (0.048 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSmallSlicesResumeReconcileOnlyWhenCompleteAndDeleteBAfterFullSecondGeneration]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSmallSlicesResumeReconcileOnlyWhenCompleteAndDeleteBAfterFullSecondGeneration]' passed (0.067 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSurvivingHardLinkRebaseAndGrowthDoesNotLoseByteChange]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSurvivingHardLinkRebaseAndGrowthDoesNotLoseByteChange]' passed (0.078 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSwappedObjectPathsPublishAtomicallyWithoutUniquePathCollision]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testSwappedObjectPathsPublishAtomicallyWithoutUniquePathCollision]' passed (0.078 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testTwoOldObjectsReplacedByOneHardLinkedObjectAreBothDebited]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testTwoOldObjectsReplacedByOneHardLinkedObjectAreBothDebited]' passed (0.172 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testUnavailableRootDoesNotBlockHealthyRootOrProveDeletion]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testUnavailableRootDoesNotBlockHealthyRootOrProveDeletion]' passed (0.086 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testUnchangedCompletedGenerationsDoNotMultiplyFileHistory]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testUnchangedCompletedGenerationsDoNotMultiplyFileHistory]' passed (0.065 seconds).
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testUnsignalledMutationAfterValidationRetainsOriginalSampleTimeAndNextScanCorrectsIt]' started.
+Test Case '-[DiskStewardCoreTests.DirectoryMetadataScannerConvergentScanGenerationTests testUnsignalledMutationAfterValidationRetainsOriginalSampleTimeAndNextScanCorrectsIt]' passed (0.124 seconds).
+Test Suite 'DirectoryMetadataScannerConvergentScanGenerationTests' passed at 2026-09-18 13:35:21.503.
+	 Executed 46 tests, with 0 failures (0 unexpected) in 7.440 (7.442) seconds
+Test Suite 'DiskStewardAppTests' started at 2026-09-18 13:35:21.503.
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testApplicationUsesAccessoryPolicyWithoutDockPresence]' started.
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testApplicationUsesAccessoryPolicyWithoutDockPresence]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testClickRoutesAreDistinct]' started.
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testClickRoutesAreDistinct]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testRequiredUtilityMenuLabelsRemainStable]' started.
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testRequiredUtilityMenuLabelsRemainStable]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testViewModelShowsRealSnapshotValuesAndExports]' started.
+Test Case '-[DiskStewardAppTests.DiskStewardAppTests testViewModelShowsRealSnapshotValuesAndExports]' passed (0.001 seconds).
+Test Suite 'DiskStewardAppTests' passed at 2026-09-18 13:35:21.504.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'DiskStewardEndpointTests' started at 2026-09-18 13:35:21.504.
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testBridgeRejectsSpoofedPeerAndDetectsSequenceLoss]' started.
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testBridgeRejectsSpoofedPeerAndDetectsSequenceLoss]' passed (0.000 seconds).
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testDenialCrashAndMissingEntitlementKeepFallbackVisible]' started.
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testDenialCrashAndMissingEntitlementKeepFallbackVisible]' passed (0.008 seconds).
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testFixtureRuntimeFiltersNormalizesAndDeliversWithoutAuthorizationEvents]' started.
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testFixtureRuntimeFiltersNormalizesAndDeliversWithoutAuthorizationEvents]' passed (0.001 seconds).
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testWritesCoalesceWithinBoundsAndOverloadSignalsFallback]' started.
+Test Case '-[DiskStewardEndpointTests.DiskStewardEndpointTests testWritesCoalesceWithinBoundsAndOverloadSignalsFallback]' passed (0.000 seconds).
+Test Suite 'DiskStewardEndpointTests' passed at 2026-09-18 13:35:21.514.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.010 (0.010) seconds
+Test Suite 'DiskStewardMCPTests' started at 2026-09-18 13:35:21.514.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testInitializationAndToolDiscoveryExposeOnlyReadOnlyCatalog]' started.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testInitializationAndToolDiscoveryExposeOnlyReadOnlyCatalog]' passed (0.002 seconds).
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testMalformedInputAndUnknownToolsAreProtocolErrors]' started.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testMalformedInputAndUnknownToolsAreProtocolErrors]' passed (0.001 seconds).
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testResourcesForwardThroughProtectedIPC]' started.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testResourcesForwardThroughProtectedIPC]' passed (0.001 seconds).
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testResponseLimitFailsClosedAndExportPreservesInlineParity]' started.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testResponseLimitFailsClosedAndExportPreservesInlineParity]' passed (0.001 seconds).
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testToolCallReturnsStructuredAndTextContentWithSanitization]' started.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testToolCallReturnsStructuredAndTextContentWithSanitization]' passed (0.000 seconds).
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testUnavailableAppAndInsecureSocketReturnActionableErrors]' started.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testUnavailableAppAndInsecureSocketReturnActionableErrors]' passed (0.001 seconds).
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testUnknownCancellationDoesNotPoisonLaterRequest]' started.
+Test Case '-[DiskStewardMCPTests.DiskStewardMCPTests testUnknownCancellationDoesNotPoisonLaterRequest]' passed (0.000 seconds).
+Test Suite 'DiskStewardMCPTests' passed at 2026-09-18 13:35:21.522.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.007 (0.007) seconds
+Test Suite 'DistributionReleaseIntegrityTests' started at 2026-09-18 13:35:21.522.
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testActualVerifierRejectsMissingHelperWrongBundleAndUnsignedArtifact]' started.
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testActualVerifierRejectsMissingHelperWrongBundleAndUnsignedArtifact]' passed (0.431 seconds).
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testProductionVerifierContainsEveryFailClosedArtifactGate]' started.
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testProductionVerifierContainsEveryFailClosedArtifactGate]' passed (0.001 seconds).
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testReleasePolicyAcceptsOnlyCompleteDeveloperIDFixture]' started.
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testReleasePolicyAcceptsOnlyCompleteDeveloperIDFixture]' passed (0.000 seconds).
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testRepositoryReleaseSurfacesContainNoCredentialMaterial]' started.
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testRepositoryReleaseSurfacesContainNoCredentialMaterial]' passed (0.027 seconds).
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testStandardAndOptionalEntitlementsRemainSeparated]' started.
+Test Case '-[IncrementTests.DistributionReleaseIntegrityTests testStandardAndOptionalEntitlementsRemainSeparated]' passed (0.000 seconds).
+Test Suite 'DistributionReleaseIntegrityTests' passed at 2026-09-18 13:35:21.981.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.460 (0.460) seconds
+Test Suite 'DurableProvenanceLifecycleTests' started at 2026-09-18 13:35:21.981.
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testClaimsPersistIntervalsContradictionsAncestryUnknownAndSupersession]' started.
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testClaimsPersistIntervalsContradictionsAncestryUnknownAndSupersession]' passed (0.051 seconds).
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testEvidenceBundleExportsPersistedActorSessionMethodAndSupportWithoutSynthesis]' started.
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testEvidenceBundleExportsPersistedActorSessionMethodAndSupportWithoutSynthesis]' passed (0.048 seconds).
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testFSEventFlagsAndEndpointEvidenceRemainDistinctAndLinkedAfterRestart]' started.
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testFSEventFlagsAndEndpointEvidenceRemainDistinctAndLinkedAfterRestart]' passed (0.038 seconds).
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testOverlappingSessionsGapsDeleteAndPathReuseNeverInventAuthorship]' started.
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testOverlappingSessionsGapsDeleteAndPathReuseNeverInventAuthorship]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testSessionHeartbeatEndExpiryAndHistoricalContextSurviveRegistryRestart]' started.
+Test Case '-[DiskStewardCoreTests.DurableProvenanceLifecycleTests testSessionHeartbeatEndExpiryAndHistoricalContextSurviveRegistryRestart]' passed (0.053 seconds).
+Test Suite 'DurableProvenanceLifecycleTests' passed at 2026-09-18 13:35:22.171.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.190 (0.190) seconds
+Test Suite 'EndpointDeliveryRegressionTests' started at 2026-09-18 13:35:22.171.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testByteBudgetIncludesOldInFlightReservationAcrossRestart]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testByteBudgetIncludesOldInFlightReservationAcrossRestart]' passed (0.000 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testChallengeLengthMismatchCannotAuthenticateThroughByteTruncation]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testChallengeLengthMismatchCannotAuthenticateThroughByteTruncation]' passed (0.000 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testDelayedFirstDeliveryPreservesOrderIncludingExcludedMiddle]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testDelayedFirstDeliveryPreservesOrderIncludingExcludedMiddle]' passed (0.002 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testEveryVariableFieldCountsTowardByteLimit]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testEveryVariableFieldCountsTowardByteLimit]' passed (0.001 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testGapOnExcludedOrInvalidEventRemainsVisibleAndWrapDoesNotTrap]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testGapOnExcludedOrInvalidEventRemainsVisibleAndWrapDoesNotTrap]' passed (0.000 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testMalformedSizeAndCoalescedArithmeticOverflowBecomeGapsNotTraps]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testMalformedSizeAndCoalescedArithmeticOverflowBecomeGapsNotTraps]' passed (0.000 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testManagedBridgeRejectsSpoofAndRevokedEpochWithoutStateMutation]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testManagedBridgeRejectsSpoofAndRevokedEpochWithoutStateMutation]' passed (0.000 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testNormalizedBufferRejectsOversizedCoalescedReplacement]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testNormalizedBufferRejectsOversizedCoalescedReplacement]' passed (0.000 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testOldActivationCannotResumeAfterStopOrReplaceNewSession]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testOldActivationCannotResumeAfterStopOrReplaceNewSession]' passed (0.003 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testOverflowIsBoundedIncludingInFlightAndReportsLossWithoutAnotherEvent]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testOverflowIsBoundedIncludingInFlightAndReportsLossWithoutAnotherEvent]' passed (0.189 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testRepeatedRestartDrainsAndDeinitRevokesRetainedHandler]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testRepeatedRestartDrainsAndDeinitRevokesRetainedHandler]' passed (0.037 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testStopAndCrashFenceHeldDeliveriesAndRetainedCallbacks]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testStopAndCrashFenceHeldDeliveriesAndRetainedCallbacks]' passed (0.006 seconds).
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testSynchronousStartupCallbacksPublishOnlyAfterSuccessfulStart]' started.
+Test Case '-[DiskStewardEndpointTests.EndpointDeliveryRegressionTests testSynchronousStartupCallbacksPublishOnlyAfterSuccessfulStart]' passed (0.004 seconds).
+Test Suite 'EndpointDeliveryRegressionTests' passed at 2026-09-18 13:35:22.414.
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.242 (0.242) seconds
+Test Suite 'EndpointSecurityContractTests' started at 2026-09-18 13:35:22.414.
+Test Case '-[ContractTests.EndpointSecurityContractTests testDenialLossOverloadAndUnavailableStatesKeepFallbackActive]' started.
+Test Case '-[ContractTests.EndpointSecurityContractTests testDenialLossOverloadAndUnavailableStatesKeepFallbackActive]' passed (0.001 seconds).
+Test Case '-[ContractTests.EndpointSecurityContractTests testExactCreateRenameAndCoalescedCloseRequireCompleteLinkage]' started.
+Test Case '-[ContractTests.EndpointSecurityContractTests testExactCreateRenameAndCoalescedCloseRequireCompleteLinkage]' passed (0.001 seconds).
+Test Case '-[ContractTests.EndpointSecurityContractTests testIncompleteOrGappedEventCannotClaimExact]' started.
+Test Case '-[ContractTests.EndpointSecurityContractTests testIncompleteOrGappedEventCannotClaimExact]' passed (0.000 seconds).
+Test Case '-[ContractTests.EndpointSecurityContractTests testPIDReuseUsesPIDAndStartTimeIdentity]' started.
+Test Case '-[ContractTests.EndpointSecurityContractTests testPIDReuseUsesPIDAndStartTimeIdentity]' passed (0.000 seconds).
+Test Case '-[ContractTests.EndpointSecurityContractTests testPrivacyFilteringIsDeterministicAndContentsAreUnrepresentable]' started.
+Test Case '-[ContractTests.EndpointSecurityContractTests testPrivacyFilteringIsDeterministicAndContentsAreUnrepresentable]' passed (0.000 seconds).
+Test Suite 'EndpointSecurityContractTests' passed at 2026-09-18 13:35:22.416.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'EventTimingIPCIntegrationTests' started at 2026-09-18 13:35:22.416.
+Test Case '-[DiskStewardAppTests.EventTimingIPCIntegrationTests testMeasuredStoreClaimsPreserveUnknownBoundsThroughRealIPCAndWindowExport]' started.
+Test Case '-[DiskStewardAppTests.EventTimingIPCIntegrationTests testMeasuredStoreClaimsPreserveUnknownBoundsThroughRealIPCAndWindowExport]' passed (0.082 seconds).
+Test Case '-[DiskStewardAppTests.EventTimingIPCIntegrationTests testMetadataOnlyTimingReachesRealIPCAndDecodedExportWithoutWriterClaims]' started.
+Test Case '-[DiskStewardAppTests.EventTimingIPCIntegrationTests testMetadataOnlyTimingReachesRealIPCAndDecodedExportWithoutWriterClaims]' passed (0.077 seconds).
+Test Suite 'EventTimingIPCIntegrationTests' passed at 2026-09-18 13:35:22.575.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.159 (0.159) seconds
+Test Suite 'EvidenceBundleExporterTests' started at 2026-09-18 13:35:22.575.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testActionableBundleDisclosesRootsPartialCoverageCurrentConsumersAndUnavailableGrowth]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testActionableBundleDisclosesRootsPartialCoverageCurrentConsumersAndUnavailableGrowth]' passed (0.029 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testConcurrentWritesProduceOneInternallyConsistentBackupView]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testConcurrentWritesProduceOneInternallyConsistentBackupView]' passed (1.226 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testExportDuringActiveGenerationDisclosesProgressAndKeepsPriorStateStale]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testExportDuringActiveGenerationDisclosesProgressAndKeepsPriorStateStale]' passed (0.034 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testGoldenBundleIsDeterministicSchemaValidAndIntegrityVerifiable]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testGoldenBundleIsDeterministicSchemaValidAndIntegrityVerifiable]' passed (0.033 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testInvalidRangeAndExistingDestinationFailClosed]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testInvalidRangeAndExistingDestinationFailClosed]' passed (0.018 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testLargeEventPayloadUsesStreamingCompressionAndRemainsVerifiable]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testLargeEventPayloadUsesStreamingCompressionAndRemainsVerifiable]' passed (1.837 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testManualExportInventoryRetainsOwnershipHashRangePrecisionAndMissingState]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testManualExportInventoryRetainsOwnershipHashRangePrecisionAndMissingState]' passed (0.040 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testRequestedPeriodAndEventLimitAreExplicit]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testRequestedPeriodAndEventLimitAreExplicit]' passed (0.028 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testRetainedRollupsRemainExportableAfterRawEventsExpire]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testRetainedRollupsRemainExportableAfterRawEventsExpire]' passed (0.049 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testSecretLikePathFragmentsAreRedactedAndHashedModeIsOpaque]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceBundleExporterTests testSecretLikePathFragmentsAreRedactedAndHashedModeIsOpaque]' passed (0.038 seconds).
+Test Suite 'EvidenceBundleExporterTests' passed at 2026-09-18 13:35:25.908.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 3.332 (3.332) seconds
+Test Suite 'EvidenceCardinalityIPCIntegrationTests' started at 2026-09-18 13:35:25.908.
+Test Case '-[DiskStewardAppTests.EvidenceCardinalityIPCIntegrationTests testBoundedQueriesHonorBudgetsAndOccurrenceContractAtRepresentativeCardinality]' started.
+Test Case '-[DiskStewardAppTests.EvidenceCardinalityIPCIntegrationTests testBoundedQueriesHonorBudgetsAndOccurrenceContractAtRepresentativeCardinality]' passed (2.158 seconds).
+Test Suite 'EvidenceCardinalityIPCIntegrationTests' passed at 2026-09-18 13:35:28.066.
+	 Executed 1 test, with 0 failures (0 unexpected) in 2.158 (2.158) seconds
+Test Suite 'EvidenceEventTimingTests' started at 2026-09-18 13:35:28.066.
+Test Case '-[DiskStewardCoreTests.EvidenceEventTimingTests testLegacyEventPayloadDecodesWithoutInventingTiming]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceEventTimingTests testLegacyEventPayloadDecodesWithoutInventingTiming]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceEventTimingTests testStandaloneInsertCannotSilentlyDropSuppliedTiming]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceEventTimingTests testStandaloneInsertCannotSilentlyDropSuppliedTiming]' passed (0.019 seconds).
+Test Suite 'EvidenceEventTimingTests' passed at 2026-09-18 13:35:28.085.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.019 (0.019) seconds
+Test Suite 'EvidenceObjectLifecycleTests' started at 2026-09-18 13:35:28.085.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testCompleteABCObservationRecordsDeletionAndReplayIsIdempotent]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testCompleteABCObservationRecordsDeletionAndReplayIsIdempotent]' passed (0.026 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testContradictorySampleChronologyCannotOverwriteCurrentTruth]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testContradictorySampleChronologyCannotOverwriteCurrentTruth]' passed (0.047 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testDuplicateRootCoverageIsRejectedWithoutWritingAnObservation]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testDuplicateRootCoverageIsRejectedWithoutWritingAnObservation]' passed (0.009 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testFirstObservationHasUnknownOccurrenceStartAndMeasuredUpperBound]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testFirstObservationHasUnknownOccurrenceStartAndMeasuredUpperBound]' passed (0.040 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testHardLinkedPathsRemainOnePhysicalObjectAndNeverCrashReconciliation]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testHardLinkedPathsRemainOnePhysicalObjectAndNeverCrashReconciliation]' passed (0.038 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyCompleteSnapshotCannotResolveDurableDirtyEvidence]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyCompleteSnapshotCannotResolveDurableDirtyEvidence]' passed (0.024 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyExplicitSampleTimeIsNotReplacedWithSnapshotTime]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyExplicitSampleTimeIsNotReplacedWithSnapshotTime]' passed (0.017 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyMixedRootsPublishesHealthyChangesAndRetainsFailedRootUncertainty]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyMixedRootsPublishesHealthyChangesAndRetainsFailedRootUncertainty]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyMovePlusGrowthRecordsBothChanges]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyMovePlusGrowthRecordsBothChanges]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyMultiObjectReplacementAccountsEachPhysicalObjectOnce]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyMultiObjectReplacementAccountsEachPhysicalObjectOnce]' passed (0.046 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyNewestAliasSampleWinsWithoutInventingRename]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyNewestAliasSampleWinsWithoutInventingRename]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyPartialCoverageCannotCloseAnExistingEventGap]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyPartialCoverageCannotCloseAnExistingEventGap]' passed (0.028 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyPartialReplacementKeepsUnobservedAliasUnknown]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyPartialReplacementKeepsUnobservedAliasUnknown]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyPathSwapDoesNotDependOnCurrentRowUpdateOrder]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyPathSwapDoesNotDependOnCurrentRowUpdateOrder]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyReplacementOfNoncanonicalAliasPreservesSurvivingObjectAndBinding]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyReplacementOfNoncanonicalAliasPreservesSurvivingObjectAndBinding]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyResultPreservesFullArrayContractAboveGenerationInlineLimit]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyResultPreservesFullArrayContractAboveGenerationInlineLimit]' passed (0.252 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyRollbackAtEveryBoundaryPreservesPriorStateAndActiveGeneration]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyRollbackAtEveryBoundaryPreservesPriorStateAndActiveGeneration]' passed (0.149 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyScopeMoveDoesNotInferRenameAndScopeExitDoesNotRepeat]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testLegacyScopeMoveDoesNotInferRenameAndScopeExitDoesNotRepeat]' passed (0.030 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testMeasuredTimingSurvivesInlinePublicationReopenAndAllEventReaders]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testMeasuredTimingSurvivesInlinePublicationReopenAndAllEventReaders]' passed (0.032 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testModifyTruncateRenameAndReplacementHaveDistinctIdentityAwareEvents]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testModifyTruncateRenameAndReplacementHaveDistinctIdentityAwareEvents]' passed (0.045 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testObservationTransactionRollsBackOnScopeMismatch]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testObservationTransactionRollsBackOnScopeMismatch]' passed (0.009 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testPartialABCObservationKeepsBUnknownUntilCompleteRecovery]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testPartialABCObservationKeepsBUnknownUntilCompleteRecovery]' passed (0.032 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testReplacementOfAliasUsesItsBindingEvidenceNotAnotherAliasSampleTime]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testReplacementOfAliasUsesItsBindingEvidenceNotAnotherAliasSampleTime]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testRestartRecordsOfflineIntervalAndStillReconcilesCompleteDeletion]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testRestartRecordsOfflineIntervalAndStillReconcilesCompleteDeletion]' passed (0.027 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testScopeChangeEmitsEnterAndExitWithoutClaimingDeletion]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testScopeChangeEmitsEnterAndExitWithoutClaimingDeletion]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testScopeReentryDoesNotInventReplacementGrowthOrDelayedDeletion]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceObjectLifecycleTests testScopeReentryDoesNotInventReplacementGrowthOrDelayedDeletion]' passed (0.124 seconds).
+Test Suite 'EvidenceObjectLifecycleTests' passed at 2026-09-18 13:35:29.246.
+	 Executed 26 tests, with 0 failures (0 unexpected) in 1.160 (1.161) seconds
+Test Suite 'EvidenceQueryPrivacyIPCIntegrationTests' started at 2026-09-18 13:35:29.246.
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testAllTenToolsAndBothResourcesThroughIPCDoNotExposeSessionPaths]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testAllTenToolsAndBothResourcesThroughIPCDoNotExposeSessionPaths]' passed (0.176 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testProvenanceCursorExpiresWhenPathBindingsChangeItsQueryBranch]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testProvenanceCursorExpiresWhenPathBindingsChangeItsQueryBranch]' passed (0.037 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testProvenanceLinkedSessionWithholdsTaskContextOutsideFullDetail]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testProvenanceLinkedSessionWithholdsTaskContextOutsideFullDetail]' passed (0.061 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testProvenancePagesShareOneRowBudgetWithoutLosingStatesOrEvents]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryPrivacyIPCIntegrationTests testProvenancePagesShareOneRowBudgetWithoutLosingStatesOrEvents]' passed (0.059 seconds).
+Test Suite 'EvidenceQueryPrivacyIPCIntegrationTests' passed at 2026-09-18 13:35:29.579.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.333 (0.333) seconds
+Test Suite 'EvidenceQueryReadModelTests' started at 2026-09-18 13:35:29.579.
+Test Case '-[DiskStewardCoreTests.EvidenceQueryReadModelTests testCurrentConsumerFilteringHappensBeforeLimitAndCursorIsStable]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceQueryReadModelTests testCurrentConsumerFilteringHappensBeforeLimitAndCursorIsStable]' passed (0.083 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceQueryReadModelTests testDuplicateBasenamesRemainSeparateObjectsAndGrowthIncludesRollups]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceQueryReadModelTests testDuplicateBasenamesRemainSeparateObjectsAndGrowthIncludesRollups]' passed (0.050 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceQueryReadModelTests testPaginationCursorExpiresWhenEvidenceRevisionChanges]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceQueryReadModelTests testPaginationCursorExpiresWhenEvidenceRevisionChanges]' passed (0.027 seconds).
+Test Suite 'EvidenceQueryReadModelTests' passed at 2026-09-18 13:35:29.739.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.160 (0.160) seconds
+Test Suite 'EvidenceQueryScopeIPCIntegrationTests' started at 2026-09-18 13:35:29.739.
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testActiveSessionCursorExpiresWhenSessionMembershipChanges]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testActiveSessionCursorExpiresWhenSessionMembershipChanges]' passed (0.034 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testChangingRootsAndExclusionsIsImmediatelyVisibleWithoutRescan]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testChangingRootsAndExclusionsIsImmediatelyVisibleWithoutRescan]' passed (0.158 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testEmptyStoreReportsMissingEvidenceExplicitlyAcrossAllToolsAndResources]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testEmptyStoreReportsMissingEvidenceExplicitlyAcrossAllToolsAndResources]' passed (0.072 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testExclusionAddedInTheSettingsStoreIsVisibleOnTheNextQuery]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testExclusionAddedInTheSettingsStoreIsVisibleOnTheNextQuery]' passed (0.038 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testProvenanceIdentityBoundIsReportedHonestly]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testProvenanceIdentityBoundIsReportedHonestly]' passed (0.126 seconds).
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testResponseByteCeilingClampsRowsBeforeReadAndRejectsOversizedResponses]' started.
+Test Case '-[DiskStewardAppTests.EvidenceQueryScopeIPCIntegrationTests testResponseByteCeilingClampsRowsBeforeReadAndRejectsOversizedResponses]' passed (0.054 seconds).
+Test Suite 'EvidenceQueryScopeIPCIntegrationTests' passed at 2026-09-18 13:35:30.221.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.482 (0.482) seconds
+Test Suite 'EvidenceRetentionLifecycleTests' started at 2026-09-18 13:35:30.221.
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testCapacityRecoveryEvictsLegacyDetailedHistoryWithoutBreakingCurrentTruth]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testCapacityRecoveryEvictsLegacyDetailedHistoryWithoutBreakingCurrentTruth]' passed (0.311 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testCurrentPresentStateSurvivesWhileExpiredUnknownTombstoneIsRemoved]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testCurrentPresentStateSurvivesWhileExpiredUnknownTombstoneIsRemoved]' passed (0.051 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testDefaultTierBoundariesAndSnapshotDownsamplingAreDeterministic]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testDefaultTierBoundariesAndSnapshotDownsamplingAreDeterministic]' passed (0.110 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testInterruptedExportsRecoverAsFailedAndInventoryRemainsBounded]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testInterruptedExportsRecoverAsFailedAndInventoryRemainsBounded]' passed (0.141 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testRetentionProcessesOldHistoryInBoundedRestartableBatches]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testRetentionProcessesOldHistoryInBoundedRestartableBatches]' passed (0.174 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testUnchangedObservationsDoNotMultiplyDetailedStateHistory]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceRetentionLifecycleTests testUnchangedObservationsDoNotMultiplyDetailedStateHistory]' passed (0.026 seconds).
+Test Suite 'EvidenceRetentionLifecycleTests' passed at 2026-09-18 13:35:31.035.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.814 (0.814) seconds
+Test Suite 'EvidenceStoreTests' started at 2026-09-18 13:35:31.035.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testBackupIsConsistentAndReadable]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testBackupIsConsistentAndReadable]' passed (0.026 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testConcurrentReadsAndWritesPreserveEveryCommittedEvent]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testConcurrentReadsAndWritesPreserveEveryCommittedEvent]' passed (1.280 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testCorruptionIsDetectedOnOpen]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testCorruptionIsDetectedOnOpen]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testDatabaseCeilingForcesBoundedEvictionAndCompaction]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testDatabaseCeilingForcesBoundedEvictionAndCompaction]' passed (0.474 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testEveryMigrationInterruptionRecoversWithoutLosingTheLegacyDatabase]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testEveryMigrationInterruptionRecoversWithoutLosingTheLegacyDatabase]' passed (0.111 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testInvalidBatchRollsBackAndReopenRecoversCommittedEvidence]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testInvalidBatchRollsBackAndReopenRecoversCommittedEvidence]' passed (0.025 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testLegacyUpgradeUsesAValidatedAtomicShadowAndPreservesEvidence]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testLegacyUpgradeUsesAValidatedAtomicShadowAndPreservesEvidence]' passed (0.025 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testMigrationEnablesWALAndIntegrityChecks]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testMigrationEnablesWALAndIntegrityChecks]' passed (0.012 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testMigrationPreflightLeavesTheLegacyDatabaseUntouchedWhenCapacityIsInsufficient]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testMigrationPreflightLeavesTheLegacyDatabaseUntouchedWhenCapacityIsInsufficient]' passed (0.014 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testRetentionAggregatesRawEventsAndBoundsHistory]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testRetentionAggregatesRawEventsAndBoundsHistory]' passed (0.038 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testRetentionContractRejectsUnboundedValues]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testRetentionContractRejectsUnboundedValues]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testStorageAdmissionRejectsAWriteBeforeItCanRunPastTheAllFileBudget]' started.
+Test Case '-[DiskStewardCoreTests.EvidenceStoreTests testStorageAdmissionRejectsAWriteBeforeItCanRunPastTheAllFileBudget]' passed (0.017 seconds).
+Test Suite 'EvidenceStoreTests' passed at 2026-09-18 13:35:33.059.
+	 Executed 12 tests, with 0 failures (0 unexpected) in 2.023 (2.024) seconds
+Test Suite 'EvidenceUsefulnessContractTests' started at 2026-09-18 13:35:33.059.
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testActionableExportFixtureIsClosedCompleteAndHonest]' started.
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testActionableExportFixtureIsClosedCompleteAndHonest]' passed (0.001 seconds).
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testCapacityOnlyBundleFailsRequiredRoleContract]' started.
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testCapacityOnlyBundleFailsRequiredRoleContract]' passed (0.000 seconds).
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testMultiSliceGenerationReconcilesOnlyAtCompletion]' started.
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testMultiSliceGenerationReconcilesOnlyAtCompletion]' passed (0.000 seconds).
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testOpenCoverageGapCannotClaimCompleteOrNoMeasuredChange]' started.
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testOpenCoverageGapCannotClaimCompleteOrNoMeasuredChange]' passed (0.000 seconds).
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testRestartResumesSameGenerationAndFrontier]' started.
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testRestartResumesSameGenerationAndFrontier]' passed (0.000 seconds).
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testScopeChangeAbandonsOldGenerationWithoutPromotingIt]' started.
+Test Case '-[ContractTests.EvidenceUsefulnessContractTests testScopeChangeAbandonsOldGenerationWithoutPromotingIt]' passed (0.000 seconds).
+Test Suite 'EvidenceUsefulnessContractTests' passed at 2026-09-18 13:35:33.062.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'ExplanationTests' started at 2026-09-18 13:35:33.062.
+Test Case '-[DiskStewardCoreTests.ExplanationTests testEventGapWeakensEveryDetailedCauseAndIsExplicit]' started.
+Test Case '-[DiskStewardCoreTests.ExplanationTests testEventGapWeakensEveryDetailedCauseAndIsExplicit]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ExplanationTests testExplanationSeparatesDetailedAndUnexplainedGrowth]' started.
+Test Case '-[DiskStewardCoreTests.ExplanationTests testExplanationSeparatesDetailedAndUnexplainedGrowth]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ExplanationTests testObservedDetailCannotCreateNegativeUnexplainedGrowth]' started.
+Test Case '-[DiskStewardCoreTests.ExplanationTests testObservedDetailCannotCreateNegativeUnexplainedGrowth]' passed (0.000 seconds).
+Test Suite 'ExplanationTests' passed at 2026-09-18 13:35:33.062.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'ExportSafetyRegressionTests' started at 2026-09-18 13:35:33.062.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCancellationAtPublicationCleansPayloadAndFinalizesFailureRecord]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCancellationAtPublicationCleansPayloadAndFinalizesFailureRecord]' passed (0.028 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCancelledCodecDoesNotReturnSuccess]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCancelledCodecDoesNotReturnSuccess]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCodecExactBuffersRandomDataAndOutputCaps]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCodecExactBuffersRandomDataAndOutputCaps]' passed (0.073 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCompressionDoesNotOverwriteExistingDestination]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCompressionDoesNotOverwriteExistingDestination]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCorruptSerializedSnapshotThrowsAndRemovesWorkspace]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCorruptSerializedSnapshotThrowsAndRemovesWorkspace]' passed (0.023 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testFileCodecCleansPartialOutputAfterCancellationAndBudgetFailure]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testFileCodecCleansPartialOutputAfterCancellationAndBudgetFailure]' passed (0.003 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testMemoryCodecProducesFinalizedEmptyStreamAndRejectsMissingStream]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testMemoryCodecProducesFinalizedEmptyStreamAndRejectsMissingStream]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testOverflowInStoredDeltasThrowsInsteadOfTrapping]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testOverflowInStoredDeltasThrowsInsteadOfTrapping]' passed (0.022 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testOwnedCleanupPreservesReplacementAndExistingDirectories]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testOwnedCleanupPreservesReplacementAndExistingDirectories]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testReadAndPayloadBudgetsFailWithoutLeavingScratchOrPartialBundle]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testReadAndPayloadBudgetsFailWithoutLeavingScratchOrPartialBundle]' passed (0.043 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testSingleOversizedSerializedRowIsRejectedBeforeDecoding]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testSingleOversizedSerializedRowIsRejectedBeforeDecoding]' passed (0.031 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testTemporaryResultCleanupPreservesReplacedParentAndBundle]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testTemporaryResultCleanupPreservesReplacedParentAndBundle]' passed (0.020 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testZeroOneManyRowsAndFractionalActualRange]' started.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testZeroOneManyRowsAndFractionalActualRange]' passed (0.142 seconds).
+Test Suite 'ExportSafetyRegressionTests' passed at 2026-09-18 13:35:33.451.
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.389 (0.389) seconds
+Test Suite 'FinalProductIncrementTests' started at 2026-09-18 13:35:33.451.
+Test Case '-[IncrementTests.FinalProductIncrementTests testCompleteProductJourneyPreservesEvidenceAndHonestFallback]' started.
+Test Case '-[IncrementTests.FinalProductIncrementTests testCompleteProductJourneyPreservesEvidenceAndHonestFallback]' passed (0.557 seconds).
+Test Case '-[IncrementTests.FinalProductIncrementTests testReleaseSmokeGateRejectsMissingOrUnsafeIsolationFields]' started.
+Test Case '-[IncrementTests.FinalProductIncrementTests testReleaseSmokeGateRejectsMissingOrUnsafeIsolationFields]' passed (1.068 seconds).
+Test Case '-[IncrementTests.FinalProductIncrementTests testSmokeStartupPreservesLiveFixtureEndpointAndAllSentinelState]' started.
+Test Case '-[IncrementTests.FinalProductIncrementTests testSmokeStartupPreservesLiveFixtureEndpointAndAllSentinelState]' passed (0.360 seconds).
+Test Suite 'FinalProductIncrementTests' passed at 2026-09-18 13:35:35.437.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 1.985 (1.986) seconds
+Test Suite 'HistoricalMigrationTests' started at 2026-09-18 13:35:35.437.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testActualHistoricalSchemasRecoverAtEveryAtomicMigrationCheckpoint]' started.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testActualHistoricalSchemasRecoverAtEveryAtomicMigrationCheckpoint]' passed (0.343 seconds).
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testActualHistoricalSchemasRemainIntactWhenMigrationHasNoHeadroom]' started.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testActualHistoricalSchemasRemainIntactWhenMigrationHasNoHeadroom]' passed (0.036 seconds).
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testActualV5AndV6BackfillAcrossBatchBoundaryWithoutReplayingUnprovenMembership]' started.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testActualV5AndV6BackfillAcrossBatchBoundaryWithoutReplayingUnprovenMembership]' passed (0.264 seconds).
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testFirstNewChangeAfterUpgradeDoesNotPromoteLegacyCurrentTimeToMeasuredLowerBound]' started.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testFirstNewChangeAfterUpgradeDoesNotPromoteLegacyCurrentTimeToMeasuredLowerBound]' passed (0.115 seconds).
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testHistoricalOccurrenceBoundsMigrateWithoutInventingLowerEvidence]' started.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testHistoricalOccurrenceBoundsMigrateWithoutInventingLowerEvidence]' passed (0.084 seconds).
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testLegacyAliasBindingCannotSupplyMeasuredLowerBoundAfterFreshCanonicalSample]' started.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testLegacyAliasBindingCannotSupplyMeasuredLowerBoundAfterFreshCanonicalSample]' passed (0.042 seconds).
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testPreviewV10WithdrawsUnsupportedTimingWithoutErasingLegacyDates]' started.
+Test Case '-[DiskStewardCoreTests.HistoricalMigrationTests testPreviewV10WithdrawsUnsupportedTimingWithoutErasingLegacyDates]' passed (0.051 seconds).
+Test Suite 'HistoricalMigrationTests' passed at 2026-09-18 13:35:36.375.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.937 (0.938) seconds
+Test Suite 'InlineExportSafetyTests' started at 2026-09-18 13:35:36.375.
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testCleanupPreservesReplacementBundleInsideUnchangedWorkspace]' started.
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testCleanupPreservesReplacementBundleInsideUnchangedWorkspace]' passed (0.019 seconds).
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testCorruptInlineEvidenceReturnsTypedErrorAndNoPartialExport]' started.
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testCorruptInlineEvidenceReturnsTypedErrorAndNoPartialExport]' passed (0.021 seconds).
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testInlineZeroOneManyRowsAcceptFractionalBoundsAndDestroyTemporaryExports]' started.
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testInlineZeroOneManyRowsAcceptFractionalBoundsAndDestroyTemporaryExports]' passed (0.145 seconds).
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testInventoryRetryUsesConfirmedRemovalAndDoesNotDeleteLaterReplacement]' started.
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testInventoryRetryUsesConfirmedRemovalAndDoesNotDeleteLaterReplacement]' passed (0.020 seconds).
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testOversizedInlineExportReturnsTypedFailureAndCleansScratch]' started.
+Test Case '-[DiskStewardAppTests.InlineExportSafetyTests testOversizedInlineExportReturnsTypedFailureAndCleansScratch]' passed (0.136 seconds).
+Test Suite 'InlineExportSafetyTests' passed at 2026-09-18 13:35:36.715.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.340 (0.341) seconds
+Test Suite 'IntegrationInstallTests' started at 2026-09-18 13:35:36.715.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testClaudeInstallUpgradeAndUninstallMergeOnlyOwnedServer]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testClaudeInstallUpgradeAndUninstallMergeOnlyOwnedServer]' passed (1.626 seconds).
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testCodexInstallerFailsClosedOnMalformedManagedMarkers]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testCodexInstallerFailsClosedOnMalformedManagedMarkers]' passed (0.072 seconds).
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testCodexInstallUpgradeAndUninstallPreserveUnrelatedConfigurationAndEvidence]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testCodexInstallUpgradeAndUninstallPreserveUnrelatedConfigurationAndEvidence]' passed (0.643 seconds).
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testHelperSelfCheckRequiresLiveEvidenceService]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testHelperSelfCheckRequiresLiveEvidenceService]' passed (0.145 seconds).
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testInstallAndUninstallDryRunsAreMutationFree]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testInstallAndUninstallDryRunsAreMutationFree]' passed (0.287 seconds).
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testInstalledConnectorDiscoversToolsAndQueriesEvidenceOverPrivateSocket]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testInstalledConnectorDiscoversToolsAndQueriesEvidenceOverPrivateSocket]' passed (0.074 seconds).
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testPackagedHelperOverridesFailBeforeExecutionOutsideDisposableBuild]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testPackagedHelperOverridesFailBeforeExecutionOutsideDisposableBuild]' passed (0.001 seconds).
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testSessionAdapterRegistersFixtureAndDoctorExplainsUnavailableApp]' started.
+Test Case '-[IntegrationInstallTests.IntegrationInstallTests testSessionAdapterRegistersFixtureAndDoctorExplainsUnavailableApp]' passed (0.981 seconds).
+Test Suite 'IntegrationInstallTests' passed at 2026-09-18 13:35:40.544.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 3.828 (3.829) seconds
+Test Suite 'LaunchAtLoginControllerTests' started at 2026-09-18 13:35:40.544.
+Test Case '-[DiskStewardAppTests.LaunchAtLoginControllerTests testAdapterPreservesObservedStatusWhenRegistrationFails]' started.
+Test Case '-[DiskStewardAppTests.LaunchAtLoginControllerTests testAdapterPreservesObservedStatusWhenRegistrationFails]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.LaunchAtLoginControllerTests testAdapterRegistersAndUnregistersMainAppService]' started.
+Test Case '-[DiskStewardAppTests.LaunchAtLoginControllerTests testAdapterRegistersAndUnregistersMainAppService]' passed (0.000 seconds).
+Test Suite 'LaunchAtLoginControllerTests' passed at 2026-09-18 13:35:40.545.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'LifecycleProjectionIPCIntegrationTests' started at 2026-09-18 13:35:40.545.
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testActiveScanOnlyDowngradesOverlappingGrowthWindows]' started.
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testActiveScanOnlyDowngradesOverlappingGrowthWindows]' passed (0.075 seconds).
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testEmptyLifecycleDoesNotClaimCompleteCoverageOrRefreshUserExportInventory]' started.
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testEmptyLifecycleDoesNotClaimCompleteCoverageOrRefreshUserExportInventory]' passed (0.020 seconds).
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testLifecycleDoesNotDecodeThePrivateTraversalCheckpoint]' started.
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testLifecycleDoesNotDecodeThePrivateTraversalCheckpoint]' passed (0.068 seconds).
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testOversizedLifecycleMetadataReturnsTypedNonretryableErrorThroughIPC]' started.
+Test Case '-[DiskStewardAppTests.LifecycleProjectionIPCIntegrationTests testOversizedLifecycleMetadataReturnsTypedNonretryableErrorThroughIPC]' passed (0.040 seconds).
+Test Suite 'LifecycleProjectionIPCIntegrationTests' passed at 2026-09-18 13:35:40.748.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.203 (0.203) seconds
+Test Suite 'LifecycleProjectionTests' started at 2026-09-18 13:35:40.748.
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testProjectionAndPrivateProgressCommitOrRollbackTogether]' started.
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testProjectionAndPrivateProgressCommitOrRollbackTogether]' passed (0.043 seconds).
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testReadSnapshotDoesNotBlockWALWriterAndUnwindsOnFailure]' started.
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testReadSnapshotDoesNotBlockWALWriterAndUnwindsOnFailure]' passed (0.003 seconds).
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testSummaryProjectionSharesGenerationRetentionLifecycle]' started.
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testSummaryProjectionSharesGenerationRetentionLifecycle]' passed (0.420 seconds).
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testSummaryRefusesOversizedMetadataBeforeDecodeAndRollsBackReadSnapshot]' started.
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testSummaryRefusesOversizedMetadataBeforeDecodeAndRollsBackReadSnapshot]' passed (0.028 seconds).
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testV12MigrationPreservesPrivateCheckpointAndLeavesUnrecordedCountersUnknown]' started.
+Test Case '-[DiskStewardCoreTests.LifecycleProjectionTests testV12MigrationPreservesPrivateCheckpointAndLeavesUnrecordedCountersUnknown]' passed (0.106 seconds).
+Test Suite 'LifecycleProjectionTests' passed at 2026-09-18 13:35:41.349.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.601 (0.601) seconds
+Test Suite 'MCPAccessTests' started at 2026-09-18 13:35:41.349.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testEveryStateHasHumanReadableTextIndependentOfColor]' started.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testEveryStateHasHumanReadableTextIndependentOfColor]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MCPAccessTests testFreshInstallDefaultsOffWithoutStartingAService]' started.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testFreshInstallDefaultsOffWithoutStartingAService]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MCPAccessTests testRealPrivateSocketIsQueryableOnlyWhileEnabled]' started.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testRealPrivateSocketIsQueryableOnlyWhileEnabled]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.MCPAccessTests testRepeatedTogglesRetainOneServiceAndItsOutstandingWorkBudget]' started.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testRepeatedTogglesRetainOneServiceAndItsOutstandingWorkBudget]' passed (0.008 seconds).
+Test Case '-[DiskStewardAppTests.MCPAccessTests testStartupFailureIsExplicitlyDegradedAndDoesNotPretendAccessIsOn]' started.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testStartupFailureIsExplicitlyDegradedAndDoesNotPretendAccessIsOn]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MCPAccessTests testToggleLeavesEvidenceMonitoringAndExternalAgentConfigurationUntouched]' started.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testToggleLeavesEvidenceMonitoringAndExternalAgentConfigurationUntouched]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.MCPAccessTests testTogglePersistsAndOwnsServiceLifecycle]' started.
+Test Case '-[DiskStewardAppTests.MCPAccessTests testTogglePersistsAndOwnsServiceLifecycle]' passed (0.001 seconds).
+Test Suite 'MCPAccessTests' passed at 2026-09-18 13:35:41.362.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.012 (0.013) seconds
+Test Suite 'MCPAdmissionTests' started at 2026-09-18 13:35:41.362.
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testAdmissionBoundsDuplicateIDsAndCancelBeforeDispatch]' started.
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testAdmissionBoundsDuplicateIDsAndCancelBeforeDispatch]' passed (0.001 seconds).
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testCancellationCanWinAfterSerializationBeforeTerminalClaim]' started.
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testCancellationCanWinAfterSerializationBeforeTerminalClaim]' passed (0.008 seconds).
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testTransportFailureCancelsEveryAdmittedRequestAndClosesAdmission]' started.
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testTransportFailureCancelsEveryAdmittedRequestAndClosesAdmission]' passed (0.000 seconds).
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testUnknownCancellationDoesNotCancelFutureRequest]' started.
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testUnknownCancellationDoesNotCancelFutureRequest]' passed (0.000 seconds).
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testUnknownCancellationFloodCannotPreventActiveCancellation]' started.
+Test Case '-[DiskStewardMCPTests.MCPAdmissionTests testUnknownCancellationFloodCannotPreventActiveCancellation]' passed (0.033 seconds).
+Test Suite 'MCPAdmissionTests' passed at 2026-09-18 13:35:41.404.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.043 (0.043) seconds
+Test Suite 'MCPContractTests' started at 2026-09-18 13:35:41.404.
+Test Case '-[ContractTests.MCPContractTests testClientCompatibilityFixturesUseLocalStdioWithoutCredentials]' started.
+Test Case '-[ContractTests.MCPContractTests testClientCompatibilityFixturesUseLocalStdioWithoutCredentials]' passed (0.000 seconds).
+Test Case '-[ContractTests.MCPContractTests testMCPFixturesFollowLifecycleAndErrorSeparation]' started.
+Test Case '-[ContractTests.MCPContractTests testMCPFixturesFollowLifecycleAndErrorSeparation]' passed (0.000 seconds).
+Test Case '-[ContractTests.MCPContractTests testMCPInventoryIsBoundedLocalAndStrictlyReadOnly]' started.
+Test Case '-[ContractTests.MCPContractTests testMCPInventoryIsBoundedLocalAndStrictlyReadOnly]' passed (0.001 seconds).
+Test Case '-[ContractTests.MCPContractTests testSanitizedResponseCarriesConfidenceLimitationsAndNoSecrets]' started.
+Test Case '-[ContractTests.MCPContractTests testSanitizedResponseCarriesConfidenceLimitationsAndNoSecrets]' passed (0.000 seconds).
+Test Case '-[ContractTests.MCPContractTests testSessionLifecycleFixturesAreVersionedAndAuthenticated]' started.
+Test Case '-[ContractTests.MCPContractTests testSessionLifecycleFixturesAreVersionedAndAuthenticated]' passed (0.001 seconds).
+Test Case '-[ContractTests.MCPContractTests testSpoofedSessionFailsClosedAndRegistrationCannotClaimExact]' started.
+Test Case '-[ContractTests.MCPContractTests testSpoofedSessionFailsClosedAndRegistrationCannotClaimExact]' passed (0.000 seconds).
+Test Suite 'MCPContractTests' passed at 2026-09-18 13:35:41.407.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'MCPTransportLifecycleTests' started at 2026-09-18 13:35:41.407.
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testBlockedStdoutStillProcessesCancellationAndExitsWithoutMoreInput]' started.
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testBlockedStdoutStillProcessesCancellationAndExitsWithoutMoreInput]' passed (2.086 seconds).
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testClosedStdoutTerminatesNormallyInsteadOfSIGPIPE]' started.
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testClosedStdoutTerminatesNormallyInsteadOfSIGPIPE]' passed (0.114 seconds).
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testEOFHasFiniteGraceAndCancelsBackendWork]' started.
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testEOFHasFiniteGraceAndCancelsBackendWork]' passed (1.054 seconds).
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testFourCallsAreBoundedAndCancellationFreesCapacity]' started.
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testFourCallsAreBoundedAndCancellationFreesCapacity]' passed (1.183 seconds).
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testOversizedLineIsDiscardedAndNextFrameIsProcessed]' started.
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testOversizedLineIsDiscardedAndNextFrameIsProcessed]' passed (0.109 seconds).
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testSelfCheckAlsoExitsWhenItsOutputIsNotRead]' started.
+Test Case '-[IntegrationInstallTests.MCPTransportLifecycleTests testSelfCheckAlsoExitsWhenItsOutputIsNotRead]' passed (2.054 seconds).
+Test Suite 'MCPTransportLifecycleTests' passed at 2026-09-18 13:35:48.009.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 6.601 (6.602) seconds
+Test Suite 'MonitoringLifecycleTests' started at 2026-09-18 13:35:48.009.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testActiveSampleKeepsItsSafetyMarkerThroughPauseResumeAndQuit]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testActiveSampleKeepsItsSafetyMarkerThroughPauseResumeAndQuit]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testBusyFollowUpCannotRunDuringPauseOrSleep]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testBusyFollowUpCannotRunDuringPauseOrSleep]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testConcurrentSampleRequestsAreSingleFlightAndCoalesced]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testConcurrentSampleRequestsAreSingleFlightAndCoalesced]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testConfiguredDatabaseLimitIsTheMonitoringSourceOfTruth]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testConfiguredDatabaseLimitIsTheMonitoringSourceOfTruth]' passed (0.060 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testDatabasePressureRunsStartupRecoveryBeforeCircuitBreaker]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testDatabasePressureRunsStartupRecoveryBeforeCircuitBreaker]' passed (0.063 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testDegradedSampleRecoversAndHistoryExplainsBothStates]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testDegradedSampleRecoversAndHistoryExplainsBothStates]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testIncomingPauseSettingDoesNotLeaveCompletedLoopBlockingResume]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testIncomingPauseSettingDoesNotLeaveCompletedLoopBlockingResume]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testInterruptedSampleStartsInSafetyPauseUntilUserResumes]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testInterruptedSampleStartsInSafetyPauseUntilUserResumes]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testLateCompletionCannotUndoPauseSleepOrQuit]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testLateCompletionCannotUndoPauseSleepOrQuit]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testPauseAndResumePersistUserChoice]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testPauseAndResumePersistUserChoice]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testPersistentProbeCapsOneSafetySliceToARepresentableBatch]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testPersistentProbeCapsOneSafetySliceToARepresentableBatch]' passed (0.192 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testPersistentProbeStoresScheduledSnapshotAndDetailedDelta]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testPersistentProbeStoresScheduledSnapshotAndDetailedDelta]' passed (0.105 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testQueuedSettingsRestartUsesLatestIntentDuringPeriodicSleep]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testQueuedSettingsRestartUsesLatestIntentDuringPeriodicSleep]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testResourceCircuitBreakerStopsBeforeFilesystemTraversalAndHistoryIsBounded]' passed (0.013 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testResumeWaitsForOldSampleThenStartsFreshOwnedWork]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testResumeWaitsForOldSampleThenStartsFreshOwnedWork]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testSettingsPublisherUsesIncomingScopeAndDoesNotRestartPausedCollector]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testSettingsPublisherUsesIncomingScopeAndDoesNotRestartPausedCollector]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testShutdownDeadlinePreservesUnfinishedMarkerForNextLaunch]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testShutdownDeadlinePreservesUnfinishedMarkerForNextLaunch]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testShutdownDrainsBeforeDeadlineAndSharesOneWaiter]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testShutdownDrainsBeforeDeadlineAndSharesOneWaiter]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testShutdownIsTerminalForQueuedPowerAndUserCallbacks]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testShutdownIsTerminalForQueuedPowerAndUserCallbacks]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testStopCancelsTheOwnedSampleRegardlessOfItsCaller]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testStopCancelsTheOwnedSampleRegardlessOfItsCaller]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testSystemSleepSuspendsWithoutChangingUserChoiceAndWakeRefreshes]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testSystemSleepSuspendsWithoutChangingUserChoiceAndWakeRefreshes]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testZeroShutdownDeadlineAndCompletionRaceLeaveNoUnownedMarker]' started.
+Test Case '-[DiskStewardAppTests.MonitoringLifecycleTests testZeroShutdownDeadlineAndCompletionRaceLeaveNoUnownedMarker]' passed (0.001 seconds).
+Test Suite 'MonitoringLifecycleTests' passed at 2026-09-18 13:35:48.452.
+	 Executed 22 tests, with 0 failures (0 unexpected) in 0.442 (0.443) seconds
+Test Suite 'MonitoringProbeCancellationTests' started at 2026-09-18 13:35:48.452.
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testAlreadyCancelledSampleDoesNotStartResourceOrStoreWork]' started.
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testAlreadyCancelledSampleDoesNotStartResourceOrStoreWork]' passed (0.013 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testCancellationAfterTraversalDoesNotSubmitItsComputedSlice]' started.
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testCancellationAfterTraversalDoesNotSubmitItsComputedSlice]' passed (0.091 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testCommittedCancelledSampleStillAdvancesTheNextVolumeBaseline]' started.
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testCommittedCancelledSampleStillAdvancesTheNextVolumeBaseline]' passed (0.196 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testPartialAndFailedProbeResultsHaveHonestLifecyclePresentation]' started.
+Test Case '-[DiskStewardAppTests.MonitoringProbeCancellationTests testPartialAndFailedProbeResultsHaveHonestLifecyclePresentation]' passed (0.223 seconds).
+Test Suite 'MonitoringProbeCancellationTests' passed at 2026-09-18 13:35:48.976.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.524 (0.524) seconds
+Test Suite 'MonitoringReceiptTests' started at 2026-09-18 13:35:48.976.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxCoalescesBurstAndAcknowledgesOnlyCumulativeLatestReceipt]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxCoalescesBurstAndAcknowledgesOnlyCumulativeLatestReceipt]' passed (0.069 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxStreamIdentityAndOverflowRemainExplicitUncertainty]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxStreamIdentityAndOverflowRemainExplicitUncertainty]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testNewProbeInvalidatesStagingAfterUnpersistedReceiptAndStoreReopen]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testNewProbeInvalidatesStagingAfterUnpersistedReceiptAndStoreReopen]' passed (0.525 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testNewReceiptDuringActualPersistenceCannotBeClearedByOldCompletion]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testNewReceiptDuringActualPersistenceCannotBeClearedByOldCompletion]' passed (0.013 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryControllerReceiptBeforeStoreAdmissionRejectsStalePublication]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryControllerReceiptBeforeStoreAdmissionRejectsStalePublication]' passed (0.097 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryControllerReceiptDuringStorePreparationRejectsStalePublication]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryControllerReceiptDuringStorePreparationRejectsStalePublication]' passed (0.112 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryProbeReceiptPreservesIndependentRootProgress]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryProbeReceiptPreservesIndependentRootProgress]' passed (0.206 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPauseAndSleepPersistPendingReceiptsAndIgnoreOldCallbacksAfterResume]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPauseAndSleepPersistPendingReceiptsAndIgnoreOldCallbacksAfterResume]' passed (0.121 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPersistenceFailureFencesSamplingRetainsMarkerAndRetries]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPersistenceFailureFencesSamplingRetainsMarkerAndRetries]' passed (0.062 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testQuitWithUnpersistableReceiptReportsUndrainedAndKeepsSafetyMarker]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testQuitWithUnpersistableReceiptReportsUndrainedAndKeepsSafetyMarker]' passed (0.064 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testReceiptDrainDoesNotAcknowledgePreviousCrashWithoutUserResume]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testReceiptDrainDoesNotAcknowledgePreviousCrashWithoutUserResume]' passed (0.010 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testUserResumePreservesMarkerForReceiptPersistenceStillInFlight]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testUserResumePreservesMarkerForReceiptPersistenceStillInFlight]' passed (1.011 seconds).
+Test Suite 'MonitoringReceiptTests' passed at 2026-09-18 13:35:51.266.
+	 Executed 12 tests, with 0 failures (0 unexpected) in 2.289 (2.290) seconds
+Test Suite 'MonitoringSettingsTests' started at 2026-09-18 13:35:51.266.
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testChosenWatchedFolderIsStandardizedPersistedAndDeduplicated]' started.
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testChosenWatchedFolderIsStandardizedPersistedAndDeduplicated]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testFolderSelectionNavigatesDirectoriesAndRejectsInvalidPaths]' started.
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testFolderSelectionNavigatesDirectoriesAndRejectsInvalidPaths]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testInvestigationWindowCanStartAndEnd]' started.
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testInvestigationWindowCanStartAndEnd]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testSettingsNormalizeAndRoundTripEveryUserControl]' started.
+Test Case '-[DiskStewardAppTests.MonitoringSettingsTests testSettingsNormalizeAndRoundTripEveryUserControl]' passed (0.000 seconds).
+Test Suite 'MonitoringSettingsTests' passed at 2026-09-18 13:35:51.269.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
+Test Suite 'MonitoringTests' started at 2026-09-18 13:35:51.269.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsInterpreterFiltersExclusionsAndPreservesGapEvidence]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsInterpreterFiltersExclusionsAndPreservesGapEvidence]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsMalformedBatchCannotSilentlyLoseCoverage]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsMalformedBatchCannotSilentlyLoseCoverage]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsNativeAdapterPreservesBoundedEventsAndRejectsMalformedPaths]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsNativeAdapterPreservesBoundedEventsAndRejectsMalformedPaths]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOverflowBecomesOneGapInsteadOfRetainedHints]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOverflowBecomesOneGapInsteadOfRetainedHints]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOversizedPathBecomesGapWithoutRetainingPath]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOversizedPathBecomesGapWithoutRetainingPath]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsRejectsHugeCountBeforeAccessingAnyNativeEvent]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsRejectsHugeCountBeforeAccessingAnyNativeEvent]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testGrowthInsideAndOutsideWatchedRootBecomesDetailedAndUnexplained]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testGrowthInsideAndOutsideWatchedRootBecomesDetailedAndUnexplained]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerDerivesBoundedChangesWithoutReadingContents]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerDerivesBoundedChangesWithoutReadingContents]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerPreservesSharedIdentityAndLinkCountForHardLinks]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerPreservesSharedIdentityAndLinkCountForHardLinks]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerReportsUnavailableAndEntryLimit]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerReportsUnavailableAndEntryLimit]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsCollectorEmitsRescanHintForWatchedRoot]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsCollectorEmitsRescanHintForWatchedRoot]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsContextOwnsHandlerUntilStreamStops]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsContextOwnsHandlerUntilStreamStops]' passed (0.014 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testPolicyCombinesStableRegisteredAndActiveInvestigationRoots]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testPolicyCombinesStableRegisteredAndActiveInvestigationRoots]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWholeVolumeSamplerReturnsMountedVolumeMetrics]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWholeVolumeSamplerReturnsMountedVolumeMetrics]' passed (0.008 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWriteCoalescerMergesOnlyMatchingPathAndOperationInWindow]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWriteCoalescerMergesOnlyMatchingPathAndOperationInWindow]' passed (0.000 seconds).
+Test Suite 'MonitoringTests' passed at 2026-09-18 13:35:51.307.
+	 Executed 15 tests, with 0 failures (0 unexpected) in 0.037 (0.038) seconds
+Test Suite 'NativeClientLifecycleTests' started at 2026-09-18 13:35:51.307.
+Test Case '-[DiskStewardAppTests.NativeClientLifecycleTests testNativeClientsInIsolatedProfiles]' started.
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift:10: -[DiskStewardAppTests.NativeClientLifecycleTests testNativeClientsInIsolatedProfiles] : Test skipped - Set DISK_STEWARD_NATIVE_CLIENT_TESTS=1 for isolated installed-client acceptance
+Test Case '-[DiskStewardAppTests.NativeClientLifecycleTests testNativeClientsInIsolatedProfiles]' skipped (0.000 seconds).
+Test Suite 'NativeClientLifecycleTests' passed at 2026-09-18 13:35:51.307.
+	 Executed 1 test, with 1 test skipped and 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'NotificationDeliveryTests' started at 2026-09-18 13:35:51.307.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testAlreadyCancelledDeliveryDoesNotContactCenter]' started.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testAlreadyCancelledDeliveryDoesNotContactCenter]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testAuthorizedProvisionalAndNewlyGrantedDeliveryPreservePayload]' started.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testAuthorizedProvisionalAndNewlyGrantedDeliveryPreservePayload]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testDeniedRefusedAndFailedAuthorizationDoNotSubmit]' started.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testDeniedRefusedAndFailedAuthorizationDoNotSubmit]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testQuitDeadlineDoesNotClaimAnUnfinishedSubmissionDrained]' started.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testQuitDeadlineDoesNotClaimAnUnfinishedSubmissionDrained]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testStopDuringAuthorizationPreventsSubmission]' started.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testStopDuringAuthorizationPreventsSubmission]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testStopDuringSettingsReadPreventsPromptAndSubmission]' started.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testStopDuringSettingsReadPreventsPromptAndSubmission]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testSubmittedAlertCanCompleteButCancellationStopsTheNextAlert]' started.
+Test Case '-[DiskStewardAppTests.NotificationDeliveryTests testSubmittedAlertCanCompleteButCancellationStopsTheNextAlert]' passed (0.001 seconds).
+Test Suite 'NotificationDeliveryTests' passed at 2026-09-18 13:35:51.312.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.005 (0.006) seconds
+Test Suite 'PerformanceTests' started at 2026-09-18 13:35:51.312.
+Test Case '-[PerformanceTests.PerformanceTests testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone]' started.
+Test Case '-[PerformanceTests.PerformanceTests testCircuitBreakerStopsMemoryStorageAndBackpressureButNotCPUAlone]' passed (0.000 seconds).
+Test Case '-[PerformanceTests.PerformanceTests testLiveResourceMeasurementCountsDatabaseWALAndSharedMemory]' started.
+Test Case '-[PerformanceTests.PerformanceTests testLiveResourceMeasurementCountsDatabaseWALAndSharedMemory]' passed (0.003 seconds).
+Test Case '-[PerformanceTests.PerformanceTests testResourceHistoryAndDatabaseBudgetStayBounded]' started.
+Test Case '-[PerformanceTests.PerformanceTests testResourceHistoryAndDatabaseBudgetStayBounded]' passed (0.003 seconds).
+Test Case '-[PerformanceTests.PerformanceTests testSeventyTwoHourEquivalentEvidenceSoakStaysBounded]' started.
+Test Case '-[PerformanceTests.PerformanceTests testSeventyTwoHourEquivalentEvidenceSoakStaysBounded]' passed (10.858 seconds).
+Test Case '-[PerformanceTests.PerformanceTests testSustainedEventStormRemainsBoundedAndReportsEveryDrop]' started.
+Test Case '-[PerformanceTests.PerformanceTests testSustainedEventStormRemainsBoundedAndReportsEveryDrop]' passed (1.361 seconds).
+Test Suite 'PerformanceTests' passed at 2026-09-18 13:36:03.537.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 12.225 (12.225) seconds
+Test Suite 'PersistentRecorderIncrementTests' started at 2026-09-18 13:36:03.537.
+Test Case '-[IncrementTests.PersistentRecorderIncrementTests testMonitoredGrowthPersistsNotifiesExportsAndRecoversAfterRestart]' started.
+Test Case '-[IncrementTests.PersistentRecorderIncrementTests testMonitoredGrowthPersistsNotifiesExportsAndRecoversAfterRestart]' passed (0.184 seconds).
+Test Suite 'PersistentRecorderIncrementTests' passed at 2026-09-18 13:36:03.722.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.184 (0.184) seconds
+Test Suite 'ProductIdentityTests' started at 2026-09-18 13:36:03.722.
+Test Case '-[FoundationTests.ProductIdentityTests testStableEvidenceIdentity]' started.
+Test Case '-[FoundationTests.ProductIdentityTests testStableEvidenceIdentity]' passed (0.000 seconds).
+Test Suite 'ProductIdentityTests' passed at 2026-09-18 13:36:03.722.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'ProvenanceChronologyTests' started at 2026-09-18 13:36:03.722.
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testConstructorsPreserveContradictoryBoundsForValidation]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testConstructorsPreserveContradictoryBoundsForValidation]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testInvalidChronologyCannotProduceAnActorOrSessionClaim]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testInvalidChronologyCannotProduceAnActorOrSessionClaim]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testPartiallyOverlappingTaskPreventsSelectingTheFullIntervalTask]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testPartiallyOverlappingTaskPreventsSelectingTheFullIntervalTask]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testPrivilegedEvidenceOutsideTheOccurrenceIntervalCannotNameAnActor]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testPrivilegedEvidenceOutsideTheOccurrenceIntervalCannotNameAnActor]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testStoreRejectsInvalidChronologyWithoutPersistingAClaim]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testStoreRejectsInvalidChronologyWithoutPersistingAClaim]' passed (0.034 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testWorkspaceCorrelationRequiresTheWholeKnownInterval]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceChronologyTests testWorkspaceCorrelationRequiresTheWholeKnownInterval]' passed (0.000 seconds).
+Test Suite 'ProvenanceChronologyTests' passed at 2026-09-18 13:36:03.757.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.035 (0.035) seconds
+Test Suite 'ProvenanceEngineTests' started at 2026-09-18 13:36:03.757.
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testAmbiguousWorkspaceGapAndMismatchedPrivilegedEvidenceStayUnknown]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testAmbiguousWorkspaceGapAndMismatchedPrivilegedEvidenceStayUnknown]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testExactWriterLinksOnlyToCorrectAuthenticatedTaskByFullProcessIdentity]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testExactWriterLinksOnlyToCorrectAuthenticatedTaskByFullProcessIdentity]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testGapsHistoricalEvidenceAndIncompleteObserverCannotClaimExact]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testGapsHistoricalEvidenceAndIncompleteObserverCannotClaimExact]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testGoldenCreateGrowAndRenameHaveDirectCausalSupport]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testGoldenCreateGrowAndRenameHaveDirectCausalSupport]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testUIExportAndMCPReceiveIdenticalSupportAndFixturesAreInspectable]' started.
+Test Case '-[DiskStewardCoreTests.ProvenanceEngineTests testUIExportAndMCPReceiveIdenticalSupportAndFixturesAreInspectable]' passed (0.001 seconds).
+Test Suite 'ProvenanceEngineTests' passed at 2026-09-18 13:36:03.759.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'RemainingClientsAdapterTests' started at 2026-09-18 13:36:03.759.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testClaudeDesktopDirectSetupPreservesForeignKeysAndMakesBackup]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testClaudeDesktopDirectSetupPreservesForeignKeysAndMakesBackup]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testClientOwnedRepairRetainsPreviousOwnershipUntilApproval]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testClientOwnedRepairRetainsPreviousOwnershipUntilApproval]' passed (0.014 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testCursorSetupUsesClientOwnedInstallLinkAndBecomesApprovalPending]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testCursorSetupUsesClientOwnedInstallLinkAndBecomesApprovalPending]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testForeignEntryFailsClosedAndRemovalPreservesOtherEntries]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testForeignEntryFailsClosedAndRemovalPreservesOtherEntries]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testHandoffReceiptFailureDoesNotOpenClientPrompt]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testHandoffReceiptFailureDoesNotOpenClientPrompt]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testMalformedContainerAndModifiedEnvironmentAreNeverOverwritten]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testMalformedContainerAndModifiedEnvironmentAreNeverOverwritten]' passed (0.003 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testManualAdapterCopiesPortableConfigAndExplainsClientOwnedRemoval]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testManualAdapterCopiesPortableConfigAndExplainsClientOwnedRemoval]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testOwnedDirectEntryCanVerifyRepairAndRemoveWithoutTouchingForeignEntry]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testOwnedDirectEntryCanVerifyRepairAndRemoveWithoutTouchingForeignEntry]' passed (0.004 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testVerificationRejectsOldConfiguredHelperBeforeInvokingNewHelper]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testVerificationRejectsOldConfiguredHelperBeforeInvokingNewHelper]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testVSCodeInstallLinkCarriesAStdioDefinition]' started.
+Test Case '-[DiskStewardAppTests.RemainingClientsAdapterTests testVSCodeInstallLinkCarriesAStdioDefinition]' passed (0.001 seconds).
+Test Suite 'RemainingClientsAdapterTests' passed at 2026-09-18 13:36:03.786.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.027 (0.027) seconds
+Test Suite 'RequestCancellationTests' started at 2026-09-18 13:36:03.786.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testConstrainedExecutorProcessFixture]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testConstrainedExecutorProcessFixture]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDeadlineCancelsActualHandlerWork]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDeadlineCancelsActualHandlerWork]' passed (0.219 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDisconnectCancelsActualHandlerWork]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDisconnectCancelsActualHandlerWork]' passed (0.121 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDisconnectWithUnreadTrailingBytesStillCancelsWork]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDisconnectWithUnreadTrailingBytesStillCancelsWork]' passed (0.046 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testRevokedUncooperativeWorkStaysCountedAcrossRestarts]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testRevokedUncooperativeWorkStaysCountedAcrossRestarts]' passed (0.038 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testSlowPeersDoNotStarveEvidenceStoreOnConstrainedExecutor]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testSlowPeersDoNotStarveEvidenceStoreOnConstrainedExecutor]' passed (0.679 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testStopCancelsActualHandlerWorkAndRestartCanServe]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testStopCancelsActualHandlerWorkAndRestartCanServe]' passed (0.030 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testWriteHalfCloseStillAllowsResponse]' started.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testWriteHalfCloseStillAllowsResponse]' passed (0.107 seconds).
+Test Suite 'RequestCancellationTests' passed at 2026-09-18 13:36:05.026.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 1.240 (1.240) seconds
+Test Suite 'RetentionScheduleTests' started at 2026-09-18 13:36:05.026.
+Test Case '-[DiskStewardAppTests.RetentionScheduleTests testStartupSixHourAndPressureSchedulingBoundaries]' started.
+Test Case '-[DiskStewardAppTests.RetentionScheduleTests testStartupSixHourAndPressureSchedulingBoundaries]' passed (0.000 seconds).
+Test Suite 'RetentionScheduleTests' passed at 2026-09-18 13:36:05.027.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'SQLiteCancellationTests' started at 2026-09-18 13:36:05.027.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationBetweenBackupPagesRollsBackAndReleasesDestination]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationBetweenBackupPagesRollsBackAndReleasesDestination]' passed (0.013 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationInterruptsLockWaitWithoutWaitingFiveSeconds]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationInterruptsLockWaitWithoutWaitingFiveSeconds]' passed (0.057 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testSocketDeadlineInterruptsSQLiteInsideActorAndThenRecovers]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testSocketDeadlineInterruptsSQLiteInsideActorAndThenRecovers]' passed (0.210 seconds).
+Test Suite 'SQLiteCancellationTests' passed at 2026-09-18 13:36:05.310.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.283 (0.283) seconds
+Test Suite 'SafetyTests' started at 2026-09-18 13:36:05.310.
+Test Case '-[SafetyTests.SafetyTests testBudgetEvaluatorMakesOverloadAndLossVisible]' started.
+Test Case '-[SafetyTests.SafetyTests testBudgetEvaluatorMakesOverloadAndLossVisible]' passed (0.000 seconds).
+Test Case '-[SafetyTests.SafetyTests testExcludedRootsAndPathDetailAreDeterministic]' started.
+Test Case '-[SafetyTests.SafetyTests testExcludedRootsAndPathDetailAreDeterministic]' passed (0.000 seconds).
+Test Case '-[SafetyTests.SafetyTests testPermissionRefusalKeepsFallbackVisibleAndAvailable]' started.
+Test Case '-[SafetyTests.SafetyTests testPermissionRefusalKeepsFallbackVisibleAndAvailable]' passed (0.000 seconds).
+Test Case '-[SafetyTests.SafetyTests testSensitiveValuesNeverAppearInFilteredMetadata]' started.
+Test Case '-[SafetyTests.SafetyTests testSensitiveValuesNeverAppearInFilteredMetadata]' passed (0.011 seconds).
+Test Case '-[SafetyTests.SafetyTests testUninstallPreservesEvidenceUnlessUserExplicitlyChoosesExportThenDelete]' started.
+Test Case '-[SafetyTests.SafetyTests testUninstallPreservesEvidenceUnlessUserExplicitlyChoosesExportThenDelete]' passed (0.000 seconds).
+Test Suite 'SafetyTests' passed at 2026-09-18 13:36:05.322.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.012 (0.012) seconds
+Test Suite 'ScaleBenchmarkTests' started at 2026-09-18 13:36:05.322.
+Test Case '-[PerformanceTests.ScaleBenchmarkTests testOptInProductionScan]' started.
+/private/tmp/ds-ci-8q_0m5aa/project/Tests/PerformanceTests/ScaleBenchmarkTests.swift:13: -[PerformanceTests.ScaleBenchmarkTests testOptInProductionScan] : Test skipped - Run only through docs/reliability/benchmarks/supervise_scale.py
+Test Case '-[PerformanceTests.ScaleBenchmarkTests testOptInProductionScan]' skipped (0.000 seconds).
+Test Suite 'ScaleBenchmarkTests' passed at 2026-09-18 13:36:05.322.
+	 Executed 1 test, with 1 test skipped and 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'ScanContinuationIncrementTests' started at 2026-09-18 13:36:05.322.
+Test Case '-[IncrementTests.ScanContinuationIncrementTests testContinuationBudgetOfZeroKeepsOneSliceAndReportsContinuation]' started.
+Test Case '-[IncrementTests.ScanContinuationIncrementTests testContinuationBudgetOfZeroKeepsOneSliceAndReportsContinuation]' passed (0.250 seconds).
+Test Case '-[IncrementTests.ScanContinuationIncrementTests testOneSampleConvergesAThousandsOfEntriesTreeWithoutSchedulerRoundTrips]' started.
+Test Case '-[IncrementTests.ScanContinuationIncrementTests testOneSampleConvergesAThousandsOfEntriesTreeWithoutSchedulerRoundTrips]' passed (0.997 seconds).
+Test Suite 'ScanContinuationIncrementTests' passed at 2026-09-18 13:36:06.570.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 1.247 (1.248) seconds
+Test Suite 'ScanPublicationFenceTests' started at 2026-09-18 13:36:06.570.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testCancellationInsideGuardedCommitPreservesErrorAndConnectionRecovery]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testCancellationInsideGuardedCommitPreservesErrorAndConnectionRecovery]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testGuardedCommitDoesNotWaitForAConflictingSQLiteReader]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testGuardedCommitDoesNotWaitForAConflictingSQLiteReader]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testPendingAndNewerReceiptsCannotBeAcknowledgedByAnOlderCompletion]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testPendingAndNewerReceiptsCannotBeAcknowledgedByAnOlderCompletion]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptAfterPublicationDoesNotRetroactivelyUndoTheCommittedObservation]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptAfterPublicationDoesNotRetroactivelyUndoTheCommittedObservation]' passed (0.037 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptBeforeStoreAdmissionRejectsWithoutStartingStaging]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptBeforeStoreAdmissionRejectsWithoutStartingStaging]' passed (0.020 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptDuringPreparedPublicationRollsBackCurrentStateAndRecovers]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptDuringPreparedPublicationRollsBackCurrentStateAndRecovers]' passed (0.216 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testSupersededCommitRollsBackAndLeavesConnectionReusable]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testSupersededCommitRollsBackAndLeavesConnectionReusable]' passed (0.002 seconds).
+Test Suite 'ScanPublicationFenceTests' passed at 2026-09-18 13:36:06.848.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.278 (0.278) seconds
+Test Suite 'SnapshotExporterTests' started at 2026-09-18 13:36:06.848.
+Test Case '-[DiskStewardCoreTests.SnapshotExporterTests testExportIsDeterministicSchemaValidAndIntegrityChecked]' started.
+Test Case '-[DiskStewardCoreTests.SnapshotExporterTests testExportIsDeterministicSchemaValidAndIntegrityChecked]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.SnapshotExporterTests testLiveCurrentDataVolumeCanBeExported]' started.
+Test Case '-[DiskStewardCoreTests.SnapshotExporterTests testLiveCurrentDataVolumeCanBeExported]' passed (0.008 seconds).
+Test Case '-[DiskStewardCoreTests.SnapshotExporterTests testUnsafeBundleIdentifierCannotEscapeDestination]' started.
+Test Case '-[DiskStewardCoreTests.SnapshotExporterTests testUnsafeBundleIdentifierCannotEscapeDestination]' passed (0.000 seconds).
+Test Suite 'SnapshotExporterTests' passed at 2026-09-18 13:36:06.858.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.010 (0.010) seconds
+Test Suite 'SnapshotIncrementTests' started at 2026-09-18 13:36:06.858.
+Test Case '-[IncrementTests.SnapshotIncrementTests testLiveSnapshotRendersAndDeterministicExportIsInspectable]' started.
+Test Case '-[IncrementTests.SnapshotIncrementTests testLiveSnapshotRendersAndDeterministicExportIsInspectable]' passed (0.008 seconds).
+Test Suite 'SnapshotIncrementTests' passed at 2026-09-18 13:36:06.866.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.008 (0.008) seconds
+Test Suite 'SocketOwnershipRegressionTests' started at 2026-09-18 13:36:06.866.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testAbruptProcessDeathReleasesLeaseAndRecoversRecordedSocket]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testAbruptProcessDeathReleasesLeaseAndRecoversRecordedSocket]' passed (0.035 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testCrashOwnerProcessFixture]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testCrashOwnerProcessFixture]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testCrashRecoveryPreservesReplacedStagingDirectoryAndRegularFile]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testCrashRecoveryPreservesReplacedStagingDirectoryAndRegularFile]' passed (0.069 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testEveryStartupCrashBoundaryRecoversIncludingTornJournal]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testEveryStartupCrashBoundaryRecoversIncludingTornJournal]' passed (0.339 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testFailedStartPreservesRegularAndSymlinkOccupantsAndCanRetry]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testFailedStartPreservesRegularAndSymlinkOccupantsAndCanRetry]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testLeaseCanBeReacquiredAfterNormalStop]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testLeaseCanBeReacquiredAfterNormalStop]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testLeaseRefusesSymlinkAndNonPrivateLock]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testLeaseRefusesSymlinkAndNonPrivateLock]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testNearCapacityPublicSocketPathStillConnectsAndRestarts]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testNearCapacityPublicSocketPathStillConnectsAndRestarts]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testPersistentLeaseInodeIsReusedAndHardLinksAreRejected]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testPersistentLeaseInodeIsReusedAndHardLinksAreRejected]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testPublicationRefusesAnOccupantCreatedAfterTheInitialCheck]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testPublicationRefusesAnOccupantCreatedAfterTheInitialCheck]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testRapidRestartKeepsFirstRequestResponsive]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testRapidRestartKeepsFirstRequestResponsive]' passed (0.021 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testSecondServerCannotReplaceLiveEndpointOrRemoveItOnFailedStart]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testSecondServerCannotReplaceLiveEndpointOrRemoveItOnFailedStart]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testSocketReadDeadlineCapAndDisconnectedWrite]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testSocketReadDeadlineCapAndDisconnectedWrite]' passed (0.051 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testStopDoesNotCloseListenerUntilItsPendingHandlerDrains]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testStopDoesNotCloseListenerUntilItsPendingHandlerDrains]' passed (0.002 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testStopPreservesAReplacementSocketAndItsPendingConnections]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testStopPreservesAReplacementSocketAndItsPendingConnections]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testThrowingStartupCheckpointsCleanOnlyOwnedResources]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testThrowingStartupCheckpointsCleanOnlyOwnedResources]' passed (0.005 seconds).
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testUnknownListenerIsPreservedWithoutAnyProbeConnection]' started.
+Test Case '-[DiskStewardAppTests.SocketOwnershipRegressionTests testUnknownListenerIsPreservedWithoutAnyProbeConnection]' passed (0.000 seconds).
+Test Suite 'SocketOwnershipRegressionTests' passed at 2026-09-18 13:36:07.398.
+	 Executed 17 tests, with 0 failures (0 unexpected) in 0.532 (0.533) seconds
+Test Suite 'StatusBoardEvidenceExportTests' started at 2026-09-18 13:36:07.398.
+Test Case '-[DiskStewardAppTests.StatusBoardEvidenceExportTests testActualViewModelPathExportsDurableBundleRevealsItAndRecordsManualOwnership]' started.
+Test Case '-[DiskStewardAppTests.StatusBoardEvidenceExportTests testActualViewModelPathExportsDurableBundleRevealsItAndRecordsManualOwnership]' passed (0.037 seconds).
+Test Case '-[DiskStewardAppTests.StatusBoardEvidenceExportTests testUnavailableOrFailedDurableExporterReportsFailureAndResetsBusyState]' started.
+Test Case '-[DiskStewardAppTests.StatusBoardEvidenceExportTests testUnavailableOrFailedDurableExporterReportsFailureAndResetsBusyState]' passed (0.000 seconds).
+Test Suite 'StatusBoardEvidenceExportTests' passed at 2026-09-18 13:36:07.436.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.037 (0.038) seconds
+Test Suite 'StatusBoardPresentationTests' started at 2026-09-18 13:36:07.436.
+Test Case '-[DiskStewardAppTests.StatusBoardPresentationTests testCapacityHealthAndGrowthUseUnambiguousText]' started.
+Test Case '-[DiskStewardAppTests.StatusBoardPresentationTests testCapacityHealthAndGrowthUseUnambiguousText]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.StatusBoardPresentationTests testLightAndDarkStatusBoardRenderAtCompactWidth]' started.
+Test Case '-[DiskStewardAppTests.StatusBoardPresentationTests testLightAndDarkStatusBoardRenderAtCompactWidth]' passed (0.137 seconds).
+Test Case '-[DiskStewardAppTests.StatusBoardPresentationTests testStateMatrixHasDeterministicCopyActionsAndTextualAccessibility]' started.
+Test Case '-[DiskStewardAppTests.StatusBoardPresentationTests testStateMatrixHasDeterministicCopyActionsAndTextualAccessibility]' passed (0.000 seconds).
+Test Suite 'StatusBoardPresentationTests' passed at 2026-09-18 13:36:07.574.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.138 (0.138) seconds
+Test Suite 'StdioBudgetTests' started at 2026-09-18 13:36:07.574.
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testEightFrameLimitCountsTheStalledCurrentFrame]' started.
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testEightFrameLimitCountsTheStalledCurrentFrame]' passed (0.045 seconds).
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testExactFourMiBPayloadIsAcceptedWithItsFramingNewline]' started.
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testExactFourMiBPayloadIsAcceptedWithItsFramingNewline]' passed (0.091 seconds).
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testFrameLimitAppliesToEveryResponseIncludingControlMessages]' started.
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testFrameLimitAppliesToEveryResponseIncludingControlMessages]' passed (0.037 seconds).
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testNonReadingPipeCannotGrowResponseQueueBeyondBudget]' started.
+Test Case '-[DiskStewardMCPTests.StdioBudgetTests testNonReadingPipeCannotGrowResponseQueueBeyondBudget]' passed (0.058 seconds).
+Test Suite 'StdioBudgetTests' passed at 2026-09-18 13:36:07.805.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.231 (0.231) seconds
+Test Suite 'StorageHeadroomTests' started at 2026-09-18 13:36:07.805.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testAboveCapWithoutEvictableHistoryPreservesCurrentStateAndRefusesExplicitly]' started.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testAboveCapWithoutEvictableHistoryPreservesCurrentStateAndRefusesExplicitly]' passed (3.241 seconds).
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testDiskFullDuringStagingRollsBackAndTheGenerationResumesOnceSpaceReturns]' started.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testDiskFullDuringStagingRollsBackAndTheGenerationResumesOnceSpaceReturns]' passed (1.240 seconds).
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testInsufficientVolumeSpaceIsRefusedBeforeAnyWrite]' started.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testInsufficientVolumeSpaceIsRefusedBeforeAnyWrite]' passed (0.087 seconds).
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testInterruptedRetentionIsRecoveredOnReopenAsAnExplicitFailure]' started.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testInterruptedRetentionIsRecoveredOnReopenAsAnExplicitFailure]' passed (0.062 seconds).
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testOneRetentionRunTargetsTheRefusedDemandAndTheScanThenCompletes]' started.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testOneRetentionRunTargetsTheRefusedDemandAndTheScanThenCompletes]' passed (1.404 seconds).
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testReaderPinnedWriteAheadLogIsReportedAndReclaimedWhenTheReaderCloses]' started.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testReaderPinnedWriteAheadLogIsReportedAndReclaimedWhenTheReaderCloses]' passed (0.169 seconds).
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testStagingIsRefusedWhenThePublicationReserveWouldExceedTheCap]' started.
+Test Case '-[DiskStewardCoreTests.StorageHeadroomTests testStagingIsRefusedWhenThePublicationReserveWouldExceedTheCap]' passed (0.129 seconds).
+Test Suite 'StorageHeadroomTests' passed at 2026-09-18 13:36:14.138.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 6.332 (6.332) seconds
+Test Suite 'StorageRecoveryIncrementTests' started at 2026-09-18 13:36:14.138.
+Test Case '-[IncrementTests.StorageRecoveryIncrementTests testCapTooSmallForTheTreeYieldsExplicitNonProgressUntilTheCapIsRaised]' started.
+Test Case '-[IncrementTests.StorageRecoveryIncrementTests testCapTooSmallForTheTreeYieldsExplicitNonProgressUntilTheCapIsRaised]' passed (2.648 seconds).
+Test Suite 'StorageRecoveryIncrementTests' passed at 2026-09-18 13:36:16.786.
+	 Executed 1 test, with 0 failures (0 unexpected) in 2.648 (2.648) seconds
+Test Suite 'StorageSnapshotTests' started at 2026-09-18 13:36:16.786.
+Test Case '-[DiskStewardCoreTests.StorageSnapshotTests testCurrentDataVolumeLiveSmoke]' started.
+Test Case '-[DiskStewardCoreTests.StorageSnapshotTests testCurrentDataVolumeLiveSmoke]' passed (0.007 seconds).
+Test Case '-[DiskStewardCoreTests.StorageSnapshotTests testSnapshotFixtureIsDeterministicAndSchemaValid]' started.
+Test Case '-[DiskStewardCoreTests.StorageSnapshotTests testSnapshotFixtureIsDeterministicAndSchemaValid]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.StorageSnapshotTests testVolumeCapacityClampsInvalidFixtureValues]' started.
+Test Case '-[DiskStewardCoreTests.StorageSnapshotTests testVolumeCapacityClampsInvalidFixtureValues]' passed (0.000 seconds).
+Test Suite 'StorageSnapshotTests' passed at 2026-09-18 13:36:16.793.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.007 (0.007) seconds
+Test Suite 'TaskAttributionClaimTests' started at 2026-09-18 13:36:16.793.
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testKnownWriterWithoutTaskLinkCannotBeOverriddenByWorkspaceInference]' started.
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testKnownWriterWithoutTaskLinkCannotBeOverriddenByWorkspaceInference]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testPersistedUnknownMustNotBecomeUniqueWhenCompetingHistoryIsNoLongerRetained]' started.
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testPersistedUnknownMustNotBecomeUniqueWhenCompetingHistoryIsNoLongerRetained]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testRetainedClaimSurvivesTimeBaseRoundTripOfObservedAt]' started.
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testRetainedClaimSurvivesTimeBaseRoundTripOfObservedAt]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testRetainedInferenceIsRevalidatedButNotReassignedToAnotherTask]' started.
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testRetainedInferenceIsRevalidatedButNotReassignedToAnotherTask]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testRetainedUnknownLowerBoundDoesNotFallBackToEventLowerBound]' started.
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testRetainedUnknownLowerBoundDoesNotFallBackToEventLowerBound]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testVerifiedExplicitClaimBoundsRemainUsableWithoutEventTiming]' started.
+Test Case '-[DiskStewardCoreTests.TaskAttributionClaimTests testVerifiedExplicitClaimBoundsRemainUsableWithoutEventTiming]' passed (0.000 seconds).
+Test Suite 'TaskAttributionClaimTests' passed at 2026-09-18 13:36:16.794.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'TaskImpactCandidateTests' started at 2026-09-18 13:36:16.794.
+Test Case '-[DiskStewardCoreTests.TaskImpactCandidateTests testBudgetsRejectBeforeDecodingAndNeverReturnPartialCandidates]' started.
+Test Case '-[DiskStewardCoreTests.TaskImpactCandidateTests testBudgetsRejectBeforeDecodingAndNeverReturnPartialCandidates]' passed (0.037 seconds).
+Test Case '-[DiskStewardCoreTests.TaskImpactCandidateTests testNewestClaimIsSelectedBeforeOverlapSoOldBoundsAreNotResurrected]' started.
+Test Case '-[DiskStewardCoreTests.TaskImpactCandidateTests testNewestClaimIsSelectedBeforeOverlapSoOldBoundsAreNotResurrected]' passed (0.029 seconds).
+Test Suite 'TaskImpactCandidateTests' passed at 2026-09-18 13:36:16.860.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.066 (0.066) seconds
+Test Suite 'TaskImpactCorrelationTests' started at 2026-09-18 13:36:16.860.
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testDescendantWriterLinksOnlyToCorrectConcurrentTask]' started.
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testDescendantWriterLinksOnlyToCorrectConcurrentTask]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testExpiredSessionAndReusedPIDCannotClaimNewEvent]' started.
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testExpiredSessionAndReusedPIDCannotClaimNewEvent]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testOverlappingWorkspaceWithoutWriterStaysUnknownAndDoesNotLeakAcrossTasks]' started.
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testOverlappingWorkspaceWithoutWriterStaysUnknownAndDoesNotLeakAcrossTasks]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testUniqueWorkspaceDowngradesToInferredAndImpactSumsOnlyLinkedEvents]' started.
+Test Case '-[DiskStewardCoreTests.TaskImpactCorrelationTests testUniqueWorkspaceDowngradesToInferredAndImpactSumsOnlyLinkedEvents]' passed (0.000 seconds).
+Test Suite 'TaskImpactCorrelationTests' passed at 2026-09-18 13:36:16.861.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+Test Suite 'TaskImpactTimingIPCIntegrationTests' started at 2026-09-18 13:36:16.861.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testCompetingPartialSessionCannotBeHiddenBySelectingOnlyOneSession]' started.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testCompetingPartialSessionCannotBeHiddenBySelectingOnlyOneSession]' passed (0.058 seconds).
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testCorrectedCurrentClaimBoundsOverrideEarlierMetadataWindow]' started.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testCorrectedCurrentClaimBoundsOverrideEarlierMetadataWindow]' passed (0.054 seconds).
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testPartialTargetRegistrationDoesNotCoverEarlierPossibleOccurrence]' started.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testPartialTargetRegistrationDoesNotCoverEarlierPossibleOccurrence]' passed (0.044 seconds).
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testRetainedDirectProcessProofIsNotDiscardedWithUnknownLowerBound]' started.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testRetainedDirectProcessProofIsNotDiscardedWithUnknownLowerBound]' passed (0.062 seconds).
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testUnknownFirstSightingsAndUnverifiedRowsAreNotTaskCreationEvidence]' started.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testUnknownFirstSightingsAndUnverifiedRowsAreNotTaskCreationEvidence]' passed (0.047 seconds).
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testUnrelatedRootGapDoesNotDiscardHealthyRootAttribution]' started.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testUnrelatedRootGapDoesNotDiscardHealthyRootAttribution]' passed (0.047 seconds).
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testWindowUsesOccurrenceOverlapNotLaterDiscoveryOrPublication]' started.
+Test Case '-[DiskStewardAppTests.TaskImpactTimingIPCIntegrationTests testWindowUsesOccurrenceOverlapNotLaterDiscoveryOrPublication]' passed (0.051 seconds).
+Test Suite 'TaskImpactTimingIPCIntegrationTests' passed at 2026-09-18 13:36:17.222.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.361 (0.362) seconds
+Test Suite 'ThresholdNotificationPolicyTests' started at 2026-09-18 13:36:17.222.
+Test Case '-[DiskStewardAppTests.ThresholdNotificationPolicyTests testCapacityAndGrowthCrossingsHaveDistinctEvidenceMessages]' started.
+Test Case '-[DiskStewardAppTests.ThresholdNotificationPolicyTests testCapacityAndGrowthCrossingsHaveDistinctEvidenceMessages]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.ThresholdNotificationPolicyTests testNotificationFiresOnCrossingButNotEveryUnchangedSample]' started.
+Test Case '-[DiskStewardAppTests.ThresholdNotificationPolicyTests testNotificationFiresOnCrossingButNotEveryUnchangedSample]' passed (0.000 seconds).
+Test Suite 'ThresholdNotificationPolicyTests' passed at 2026-09-18 13:36:17.223.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'UnknownOccurrenceTests' started at 2026-09-18 13:36:17.223.
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testExportChoosesNewestClaimByDetectionNotByOccurrenceUpperBound]' started.
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testExportChoosesNewestClaimByDetectionNotByOccurrenceUpperBound]' passed (0.042 seconds).
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testLegacyClaimMigrationPreservesBytesAndSupersessionWithoutPromotingBounds]' started.
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testLegacyClaimMigrationPreservesBytesAndSupersessionWithoutPromotingBounds]' passed (0.053 seconds).
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testLegacyPresentationIsReadableAndReencodesAsExplicitlyUnverifiedV3]' started.
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testLegacyPresentationIsReadableAndReencodesAsExplicitlyUnverifiedV3]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testMeasuredBoundsAndPublicationTimeFlowIntoAttributionByDefault]' started.
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testMeasuredBoundsAndPublicationTimeFlowIntoAttributionByDefault]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testMissingLowerBoundDoesNotTurnDiscoveryIntoCreationOrTaskAttribution]' started.
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testMissingLowerBoundDoesNotTurnDiscoveryIntoCreationOrTaskAttribution]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testUnknownBoundsSurvivePersistenceReopenPresentationAndWindowExport]' started.
+Test Case '-[DiskStewardCoreTests.UnknownOccurrenceTests testUnknownBoundsSurvivePersistenceReopenPresentationAndWindowExport]' passed (0.050 seconds).
+Test Suite 'UnknownOccurrenceTests' passed at 2026-09-18 13:36:17.369.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.146 (0.146) seconds
+Test Suite 'VerificationIsolationTests' started at 2026-09-18 13:36:17.369.
+Test Case '-[DiskStewardAppTests.VerificationIsolationTests testArtifactOutputRequiresNewLeafUnderPrivateTemporaryParent]' started.
+Test Case '-[DiskStewardAppTests.VerificationIsolationTests testArtifactOutputRequiresNewLeafUnderPrivateTemporaryParent]' passed (0.001 seconds).
+Test Case '-[DiskStewardAppTests.VerificationIsolationTests testNormalStartupAndSmokeCannotMistakeSupportOverrideForIsolation]' started.
+Test Case '-[DiskStewardAppTests.VerificationIsolationTests testNormalStartupAndSmokeCannotMistakeSupportOverrideForIsolation]' passed (0.000 seconds).
+Test Suite 'VerificationIsolationTests' passed at 2026-09-18 13:36:17.371.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'ZlibRegressionTests' started at 2026-09-18 13:36:17.371.
+Test Case '-[DiskStewardCoreTests.ZlibRegressionTests testEmptyFinalizedStreamAndBoundedDecode]' started.
+Test Case '-[DiskStewardCoreTests.ZlibRegressionTests testEmptyFinalizedStreamAndBoundedDecode]' passed (0.001 seconds).
+Test Suite 'ZlibRegressionTests' passed at 2026-09-18 13:36:17.372.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'DiskStewardPackageTests.xctest' passed at 2026-09-18 13:36:17.372.
+	 Executed 522 tests, with 4 tests skipped and 0 failures (0 unexpected) in 69.389 (69.414) seconds
+Test Suite 'All tests' passed at 2026-09-18 13:36:17.372.
+	 Executed 522 tests, with 4 tests skipped and 0 failures (0 unexpected) in 69.389 (69.414) seconds
+◇ Test run started.
+↳ Testing Library Version: 1501
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

@@ -1,0 +1,61 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-NOTIFICATION",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-73A06B30BC3A88A3A574153DCB1FE549",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:5da2e407b89521627ba4c31cb7a742eab423cef60155b49c97d9a8b541bdb140",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "No actionable defect found in the bounded notification delta. MainActor lifecycle cancellation, post-authorization checks, and synchronous native submission close the inspected late-send window. Fixtures exercise the concrete adapter and distinguish submission from completion. This is static candidate validation only, not test execution or whole-task acceptance.",
+  "findings": [],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-522-notification-candidate.6FMZZT/Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift:20-47 (cancellation checks at entry, after authorization awaits and immediately before synchronous submission).",
+    "E2: /private/tmp/disk-steward-522-notification-candidate.6FMZZT/Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift:54-75 (MainActor center protocol; production submit directly calls callback-based center.add without an async hop).",
+    "E3: /private/tmp/disk-steward-522-notification-candidate.6FMZZT/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:113-118,190-204,221-234,347-359 (settings/pause/sleep/quit cancel the owned sample on MainActor).",
+    "E4: /private/tmp/disk-steward-522-notification-candidate.6FMZZT/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:251-312,367-390 (single owned task, marker lifetime, per-alert fence and bounded shutdown drain).",
+    "E5: /private/tmp/disk-steward-522-notification-candidate.6FMZZT/Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift:9-118 (settings/auth cancellation matrix; denied/refused/error; payload and unique IDs; already-submitted completion; unfinished-drain assertions).",
+    "E6: /private/tmp/disk-steward-522-notification-candidate.6FMZZT/Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift:122-256 (bounded checkpoint waits, teardown release, concrete adapter injection, two-threshold sample, request append before held completion).",
+    "E7: /private/tmp/disk-steward-522-notification-candidate.6FMZZT/Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift:13-35 (edge state advances during evaluation, independently of delivery outcome)."
+  ],
+  "checks": [
+    {
+      "command": "Read-only trace of lifecycle cancellation through concrete delivery and production submission adapter.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E4: the final cancellation check and submit call share MainActor with no intervening suspension. No counterexample found for a lifecycle stop accepted before submission."
+    },
+    {
+      "command": "Read-only adversarial fixture review and adapter diff against frozen 3039895 predecessor.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E5-E6: gates hold concrete-adapter dependencies, not a replacement delivery implementation; requests record submission before completion is held. Both capacity and growth thresholds are crossed, making suppression of a second alert meaningful."
+    },
+    {
+      "command": "Execute notification tests, native authorization/notification APIs or packaged application.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Explicitly prohibited; coordinator suite results and native behavior are not independently verified."
+    }
+  ],
+  "stale_if": [
+    "Parent guard or candidate hash changes.",
+    "Notification adapter, lifecycle cancellation ownership or fixture boundaries change."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw candidate validation awaits coordinator reconciliation and execution evidence; freshness remains pending.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Already-submitted requests cannot be recalled; the source contract concerns preventing new submission after a MainActor lifecycle stop.",
+    "Threshold rearming/retry behavior is not newly proven: evaluation advances edge state even when delivery is cancelled, denied or fails.",
+    "Native permission prompts, actual OS display/completion behavior and missing-callback recovery are not exercised by the fake center.",
+    "Ordinary-hint design and whole-task acceptance are outside this review."
+  ]
+}

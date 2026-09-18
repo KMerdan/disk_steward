@@ -1,0 +1,67 @@
+{
+ "schema": "disk-steward-checkpoint-source-delta-v1",
+ "baseInputSHA256": "f55627d8ff97069353588827e1d1530994723d34b46babda0fa31541dff84353",
+ "inputSHA256": "02fe77cd43a1b901285a042d07777a72daf25441fd0cabde6de5f6e7bc99a5ce",
+ "snapshot": "/private/tmp/ds552-check-7rxxdp5r",
+ "files": [
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+   "bytes": 318463,
+   "sha256": "2e3ba6ee6154b12e52d0a830778c4f028b0cbf7f109dec73bac3630192036e50",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": "cfac45a9dd4736b47e5dfdf2c773c52f6e1e56573b95b3af6f0dc0b61133dfd0"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+   "bytes": 6230,
+   "sha256": "743fbf9e7599c863492e9c887a9b2423fbb59a05b98f1cdaa14fb0217ca3f0de",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": "2d3d47751e73bcae7df3f8a5281cc7fc12c28b5c879d2602448115c77120e38b"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+   "bytes": 12157,
+   "sha256": "29bfb0b7496de87a6519aa1763ac15f4aab05419f6f29a2331a8e7d44fe5fa25",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": "202f5bc2df7d7adbcbe7273b57ec9aa4aaa43d49fc4bb639da9b5f597946c922"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+   "bytes": 11675,
+   "sha256": "127e2148b838de188b85716176b4f56076c88c48e5e1c5545770264b242f9165",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": "be8f8ac8da21b47abb0fb2253f46ca56fbe1bb3592e2c5bd99ac746cebc6f8f8"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+   "bytes": 50096,
+   "sha256": "fd6e5bd7f0368570ccec53a2c0e0a1566afc86c1dc01c5e9017facaf554ca3ec",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": "dfd78387ac6c9423a1885483f6fea05d681c852e6ad5f9ff895e32df57ae0840"
+  },
+  {
+   "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+   "bytes": 29945,
+   "sha256": "44dbcd51e61f90cb9cef02479814d63cf4de2267539cc33316e7e03dd87326d1",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": "1c2f845c8adf4e8f831aec0ce8d5bc8879efcb4e2c944084a2655442cba16600"
+  },
+  {
+   "path": "Tests/DiskStewardCoreTests/EvidenceStore/StorageHeadroomTests.swift",
+   "bytes": 21391,
+   "sha256": "c0e96d94c92ab16ddeb091023333c3fa7c925e0ed99a60a992f09feb020bc4c5",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": null
+  },
+  {
+   "path": "Tests/IncrementTests/Monitoring/StorageRecoveryIncrementTests.swift",
+   "bytes": 6781,
+   "sha256": "064b909f31158dc472b512d190c2057f5fbd83bf50641446634f798df6b0e39e",
+   "base": "TASK-531 candidate f55627d8 input (verified by manifest sha)",
+   "baseSHA256": null
+  }
+ ],
+ "deleted": [],
+ "reviewSnapshotInputSHA256": "dc291746a1e984873ddd66c0fc64a1564b9da8affa6c6d4d5d9507eaccacff7a",
+ "postReviewDelta": "1) storageAccounting reads the active generation through a scalar EXISTS query instead of decoding scan_generations.progress (candidate-red-1 -> projection-fix-green, input 50612d6a). 2) Review finding F1: the refused demand travels in storageHeadroomUnavailable(demandBytes:) and applyRetention(demandBytes:); pendingStorageDemandBytes is a monotonic max cleared only by retention or by admitting work at least that large. Observation 1: generic writes now include the next-slice reserve in their demand. Observation 3: dead `var bytes` removed (review-fix-green, input 02fe77cd)."
+}

@@ -1,0 +1,11 @@
+{
+  "task": "TASK-523",
+  "accepted_source": "/private/tmp/disk-steward-523-accepted.8oZqwJ",
+  "input_sha256": "e408ff149419ace16c04932147f8f635852ed011c8a8182d9126e27cf36220e8",
+  "hash_command": "rg --files --no-ignore -0 Package.swift Sources Tests Config Scripts DiskSteward.xcodeproj Integrations Schemas Fixtures Resources Extensions | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "environment": {"macOS": "15.6.1", "architecture": "arm64", "swift": "6.2.4", "cleared_variables": ["DISK_STEWARD_NATIVE_CLIENT_TESTS", "DISK_STEWARD_PACKAGED_HELPER", "DISK_STEWARD_GATE_EVIDENCE", "DISK_STEWARD_CAPTURE_DIR"]},
+  "full_suite": {"command": "env -u DISK_STEWARD_NATIVE_CLIENT_TESTS -u DISK_STEWARD_PACKAGED_HELPER -u DISK_STEWARD_GATE_EVIDENCE -u DISK_STEWARD_CAPTURE_DIR swift test --disable-sandbox", "tests": 315, "skipped": 1, "failures": 0, "finished_at": "2026-09-17T03:05:20.599Z", "evidence": "full-tests.log"},
+  "repeated_endpoint_suite": {"command": "env -u DISK_STEWARD_NATIVE_CLIENT_TESTS -u DISK_STEWARD_PACKAGED_HELPER -u DISK_STEWARD_GATE_EVIDENCE -u DISK_STEWARD_CAPTURE_DIR swift test --disable-sandbox --skip-build --filter DiskStewardEndpointTests", "repetitions": 5, "tests_each": 17, "failures": 0, "evidence": ["endpoint-repeat-1.log", "endpoint-repeat-2.log", "endpoint-repeat-3.log", "endpoint-repeat-4.log", "endpoint-repeat-5.log"]},
+  "negative_oracle": {"source": "/private/tmp/disk-steward-523-dev.evmIoa", "base_sha256": "a13e1f55a7beac07019ba371bfc1c5ef965c277ecd269d31da054cc839b1d024", "instrumentation": "negative-observer.swift.txt", "fixture": "EndpointOrderingReproductionTests.swift.evidence", "command": "env -u DISK_STEWARD_NATIVE_CLIENT_TESTS -u DISK_STEWARD_PACKAGED_HELPER -u DISK_STEWARD_GATE_EVIDENCE -u DISK_STEWARD_CAPTURE_DIR swift test --disable-sandbox --filter EndpointOrderingReproductionTests", "tests": 1, "expected_failures": 1, "evidence": "endpoint-red.log", "limitation": "Development directory later reused for repairs; reconstruct only in a new disposable copy using the retained old-base instrumentation and fixture."},
+  "not_exercised": ["Native EndpointSecurity extension/entitlements", "Real installed app or user evidence", "Native client opt-in suite", "macOS13/Intel", "Scale, overnight, migration or release acceptance"]
+}

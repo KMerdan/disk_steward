@@ -3,6 +3,19 @@ import Foundation
 import XCTest
 
 final class IntegrationInstallTests: XCTestCase {
+    func testHelperSelfCheckRequiresLiveEvidenceService() throws {
+        let root = temporaryRoot("ds-helper")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let socket = root.appendingPathComponent("evidence.sock")
+        let server = UnixSocketEvidenceServer(socketPath: socket.path, handler: FixtureEvidenceHandler())
+        try server.start()
+        let helper = try connectorURL()
+        let available = try run(helper.path, ["--self-check"], environment: ["DISK_STEWARD_SOCKET_PATH": socket.path])
+        XCTAssertEqual(available.status, 0, available.combined)
+        server.stop()
+        let unavailable = try run(helper.path, ["--self-check"], environment: ["DISK_STEWARD_SOCKET_PATH": socket.path])
+        XCTAssertNotEqual(unavailable.status, 0, "Helper protocol initialization alone is not app connectivity")
+    }
     func testInstallAndUninstallDryRunsAreMutationFree() throws {
         let root = temporaryRoot("ds-dry")
         defer { try? FileManager.default.removeItem(at: root) }
@@ -140,7 +153,7 @@ final class IntegrationInstallTests: XCTestCase {
         try server.start()
         defer { server.stop() }
 
-        let registration = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "fixture-task", "--workspace", root.path, "--lease-seconds", "600", "--socket", socket.path])
+        let registration = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "fixture-task", "--workspace", root.path, "--process-pid", String(ProcessInfo.processInfo.processIdentifier), "--lease-seconds", "600", "--socket", socket.path])
         XCTAssertEqual(registration.status, 0, registration.combined)
         let envelope = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(registration.stdout.utf8)) as? [String: Any])
         let result = try XCTUnwrap(envelope["result"] as? [String: Any])
@@ -177,11 +190,48 @@ final class IntegrationInstallTests: XCTestCase {
     private var session: URL { repositoryRoot.appendingPathComponent("Scripts/Integration/session") }
 
     private func connectorURL() throws -> URL {
+        if let packaged = ProcessInfo.processInfo.environment["DISK_STEWARD_PACKAGED_HELPER"] {
+            return try validatedPackagedHelper(packaged)
+        }
         let candidates = [
             repositoryRoot.appendingPathComponent(".build/debug/disk-witness-mcp"),
             repositoryRoot.appendingPathComponent(".build/arm64-apple-macosx/debug/disk-witness-mcp"),
         ]
         return try XCTUnwrap(candidates.first(where: { FileManager.default.isExecutableFile(atPath: $0.path) }), "Build disk-witness-mcp before running integration tests")
+    }
+
+    func testPackagedHelperOverridesFailBeforeExecutionOutsideDisposableBuild() throws {
+        let root = URL(fileURLWithPath: "/private/tmp/ds-helper-guard-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let helper = root.appending(path: "helper")
+        let sentinel = Data("not an executable program; must not run".utf8)
+        try sentinel.write(to: helper)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: helper.path)
+        let alias = root.appending(path: "alias")
+        try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: helper)
+        for invalid in ["/Applications/Disk Steward.app/Contents/Helpers/disk-witness-mcp", "/private/tmp/../../Applications/helper", "relative-helper", alias.path, root.path] {
+            XCTAssertThrowsError(try validatedPackagedHelper(invalid), invalid)
+        }
+        XCTAssertEqual(try validatedPackagedHelper(helper.path), helper)
+        XCTAssertEqual(try Data(contentsOf: helper), sentinel)
+    }
+
+    private func validatedPackagedHelper(_ path: String) throws -> URL {
+        let url = URL(fileURLWithPath: path)
+        let resolved = realpath(path, nil)
+        defer { if let resolved { free(resolved) } }
+        var metadata = stat()
+        guard path.hasPrefix("/private/tmp/"),
+              let resolved, String(cString: resolved) == path,
+              lstat(path, &metadata) == 0, metadata.st_mode & S_IFMT == S_IFREG,
+              FileManager.default.isExecutableFile(atPath: path) else {
+            // XCTest assertions alone do not stop the caller from executing.
+            throw NSError(domain: "DiskSteward.TestIsolation", code: 1, userInfo: [
+                NSLocalizedDescriptionKey: "Packaged helper must be a regular executable in a disposable /private/tmp build with no symlinks or traversal."
+            ])
+        }
+        return url
     }
 
     private func temporaryRoot(_ prefix: String) -> URL {

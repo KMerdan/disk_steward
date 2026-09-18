@@ -1,0 +1,43 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-RESEARCH-530-PROTOTYPE-REVIEW",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-BACAFCFA003B73489525B42E8C89C865",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9fa4f7934953e26266969709a2359413318f1def8e7a0aeb65849235e1f78293",
+    "immutable": true
+  },
+  "read_scope": [
+    "Tests/PerformanceTests/BoundedTraversalPrototype.swift",
+    "Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift",
+    "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+    "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift"
+  ],
+  "purpose": "Check correctness and measurement limitations of two bounded traversal / atomic pointer research prototypes; not product approval.",
+  "questions": [
+    "Can restart, pass epochs, durable spooling, validation or pointer publication expose incomplete/stale state beyond documented filesystem observation limits?",
+    "Are query/queue algorithms or measurements misleading about bounded work, total storage, cancellation, or semantic equivalence to the product?",
+    "Identify the smallest missing regression tests before interpreting scale results."
+  ],
+  "acceptance_criteria": [
+    "AC-RESEARCH-530-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 6,
+    "max_evidence_items": 12,
+    "max_output_chars": 7500
+  }
+}

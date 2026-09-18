@@ -41,13 +41,9 @@ final class SnapshotIncrementTests: XCTestCase {
         try inspectExport(exported)
 
         if let evidencePath = ProcessInfo.processInfo.environment["DISK_STEWARD_GATE_EVIDENCE"] {
-            let evidenceURL = URL(fileURLWithPath: evidencePath, isDirectory: true)
-            try FileManager.default.createDirectory(at: evidenceURL, withIntermediateDirectories: true)
+            let evidenceURL = try AppConfiguration.createVerificationArtifactDirectory(evidencePath)
             try render(model: model, to: evidenceURL.appending(path: "rendered-status-board.png"))
             let fixtureURL = evidenceURL.appending(path: "export-fixture", directoryHint: .isDirectory)
-            if FileManager.default.fileExists(atPath: fixtureURL.path) {
-                try FileManager.default.removeItem(at: fixtureURL)
-            }
             try FileManager.default.copyItem(at: exported.bundleURL, to: fixtureURL)
         }
     }

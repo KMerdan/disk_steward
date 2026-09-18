@@ -1,0 +1,77 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-541",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-541-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/GATE-519/candidate/candidate.json",
+    "docs/reliability/evidence/GATE-519/candidate/tests.log",
+    "Full fifteen-stage isolated verifier on the current integrated candidate (input 7f3ff4fa33b2...): 522 tests, 4 opt-in skips, 0 failures, packaged unsigned app smoke and helper protocol check included."
+   ]
+  },
+  {
+   "id": "CHECK-541-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/result.json",
+    "docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/tests.log",
+    "Independent isolated rerun by the auditor: RequestCancellationTests 8, SQLiteCancellationTests 6, MCPAccessTests 7, MCPAdmissionTests 5, MCPTransportLifecycleTests 6, StdioBudgetTests 4, DiskStewardMCPTests 7 (input c2e4ad38, 0 failures): slow, idle and non-reading clients and oversized input do not stall monitoring; deadline, disconnect and stop cancel actual handler and SQLite work; Off rejects further work on existing connections; revoked uncooperative work stays counted across restarts. Acceptance: Slow/idle/non-reading clients and oversized input do not stall monitoring or accumulate unbounded resources; actual concurrent cancellation releases work; Off rejects further work on existing connections; disposable-process SIGPIPE tests pass."
+   ]
+  },
+  {
+   "id": "CHECK-541-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-541/scope-review.md",
+    "docs/reliability/evidence/TASK-541/verification.json",
+    "docs/reliability/evidence/TASK-541/post-implementation-tests.log",
+    "docs/reliability/evidence/TASK-541/initial-cancellation-red.log",
+    "docs/reliability/evidence/TASK-541/helper-reconciliation.json",
+    "Task evidence re-read against the current source; candidate hashes, red-before-green history and helper reconciliations are archived, not self-reported."
+   ]
+  },
+  {
+   "id": "CHECK-541-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/assurance-rollback-and-inspections.json",
+    "docs/reliability/evidence/GATE-519/assurance-reaffirm.json",
+    "Assurance reviewed: impacts IMPACT-TASK-541-IPC, IMPACT-TASK-541-CLIENTS, IMPACT-TASK-541-QUERY, IMPACT-TASK-541-MCP, IMPACT-TASK-541-ACCESS, IMPACT-TASK-541-STORE confirmed; inspections INSPECT-TASK-541-1, INSPECT-TASK-541-3, INSPECT-TASK-541-2 performed and sufficient; findings on these assets: FIND-ISOLATION, FIND-OCCURRENCE, FIND-QUERY, FIND-ROLLBACK, FIND-SCALE, FIND-SERVICE (material ones resolved; FIND-DISTRIBUTION-DOC non-material; FIND-OVERNIGHT open only on RESOURCE/BUILD). Scope drift: ['DRIFT-B8F1DD903582', 'DRIFT-4B2EAE14FF9D']."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-541-IPC",
+   "IMPACT-TASK-541-CLIENTS",
+   "IMPACT-TASK-541-QUERY",
+   "IMPACT-TASK-541-MCP",
+   "IMPACT-TASK-541-ACCESS",
+   "IMPACT-TASK-541-STORE"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-541-1",
+   "INSPECT-TASK-541-3",
+   "INSPECT-TASK-541-2"
+  ],
+  "finding_ids": [
+   "FIND-ISOLATION",
+   "FIND-OCCURRENCE",
+   "FIND-QUERY",
+   "FIND-ROLLBACK",
+   "FIND-SCALE",
+   "FIND-SERVICE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Cooperative cancellation, not hard preemption; uncooperative work remains counted.",
+   "Disposable-process transport tests; no native client installation.",
+   "The auditor also implemented later tasks on the shared candidate; independence rests on isolated reruns, hashes and archived logs."
+  ]
+ }
+}

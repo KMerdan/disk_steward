@@ -1,0 +1,48 @@
+{
+  "schema": "disk-steward-helper-reconciliation-v1",
+  "task": "TASK-541",
+  "actor": "codex",
+  "taskGuard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "acceptedInputSHA256": "59a1e4eefad005610def6cc04dba836d3e04f98d53a9264c8546c1fb6fdab4f0",
+  "identityCheck": "Canonical and immutable accepted input hashes match; Extensions identical separately. Guard unchanged at acceptance.",
+  "slotLedger": {
+    "capacity": 4,
+    "coordinator": 1,
+    "graphTaskWorkers": 0,
+    "helpers": 2
+  },
+  "accepted": [
+    {
+      "job": "helper-mcp-accepted.json",
+      "result": "helper-mcp-accepted-result.json",
+      "freshness": "current",
+      "use": "Static review refresh; identical MCP scope supports prior helper-mcp-final-result.json conclusions. No runtime-test claim."
+    },
+    {
+      "job": "helper-backend-accepted.json",
+      "result": "helper-backend-accepted-result-v2.json",
+      "freshness": "current",
+      "use": "Static review of final bounded socket/SQLite/controller paths and constrained-executor regression. No runtime-test claim."
+    }
+  ],
+  "eligibility": "Both helpers have kind review, not validation: do not promote final_evidence_eligible to true. Coordinator runtime evidence is independently recorded in full-tests.log and targeted-tests.log.",
+  "rejectedOrSuperseded": [
+    {
+      "result": "helper-backend-accepted-result.json",
+      "reason": "4151 minified characters exceeded 4000 job budget; requested same-result concise resubmission v2."
+    },
+    {
+      "snapshot": "sha256:6640fb5d1dcd391123d42af2b50b29ac2dcd675580b67f3f98c2d852019b38ad",
+      "reason": "Superseded by review corrections; findings and dispositions summarized in scope-review.md."
+    },
+    {
+      "snapshot": "sha256:ffeeab56ed4b2774bafb69bdb05c62274484aa2ac9faeaa13fee54fa8c9024fd",
+      "reason": "Superseded by constrained-executor regression and dispatch bridge. MCP subtree unchanged, independently compared by refreshed helper."
+    }
+  ],
+  "contradictions": "No remaining conflicting actionable finding. Earlier no-defect review was not sufficient proof of scheduling acceptance; coordinator reproduced starvation and corrected it before acceptance.",
+  "limitations": [
+    "Cooperative cancellation and export/orphan limits remain as documented.",
+    "No helper ran builds/tests or changed files/assets."
+  ]
+}

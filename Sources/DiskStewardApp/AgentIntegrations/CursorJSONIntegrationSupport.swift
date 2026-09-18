@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import Darwin
 
 @MainActor
 protocol AgentIntegrationLinkOpening: AnyObject {
@@ -29,6 +30,10 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
     private let runner: any AgentCommandRunning
     private let linkOpener: any AgentIntegrationLinkOpening
     private let fileManager: FileManager
+    // Fault-injection seams for concurrent-edit and failure-at-every-step proofs.
+    var beforeCommit: () throws -> Void = {}
+    var beforeRestore: () throws -> Void = {}
+    private(set) var beforeCommitInvocations = 0
 
     init(
         descriptor: AgentClientDescriptor,
@@ -57,8 +62,14 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
     func inspect() async -> AgentIntegrationSnapshot {
         let presence: AgentClientPresence = .detected(location: configurationURL.path)
         do {
-            let receipt = try receiptStore.receipt(for: descriptor.id)
+            var receipt = try receiptStore.receipt(for: descriptor.id)
             let current = try readDefinition()
+            if let pending = receipt, pending.lastResult == "approval-pending", current == pending.definition {
+                let approved = AgentIntegrationReceipt(clientID: pending.clientID, serverName: pending.serverName,
+                    definition: pending.definition, installedAt: pending.installedAt, helperIdentity: pending.helperIdentity)
+                try receiptStore.upsert(approved)
+                receipt = approved
+            }
             if current == nil, let receipt, receipt.lastResult == "approval-pending" {
                 return .derive(descriptor: descriptor, presence: presence, inspection: .approvalPending(receipt: receipt))
             }
@@ -68,6 +79,8 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
             case let .owned(receipt):
                 let expected = AgentIntegrationDefinition(command: helperURL.path)
                 guard receipt.definition == expected,
+                      receipt.helperIdentity != nil,
+                      receipt.helperIdentity == PrivateIntegrationFile.executableIdentity(helperURL),
                       fileManager.isExecutableFile(atPath: helperURL.path)
                 else {
                     return .derive(
@@ -101,8 +114,12 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
 
     private func setup(action: AgentIntegrationAction) async -> AgentIntegrationOperationResult {
         let before = await inspect()
+        switch before.inspection {
+        case .malformed, .unavailable: return result(action, .failed, before.statusDetail, before)
+        default: break
+        }
         if before.state == .conflict {
-            return result(action, .failed, "Disk Steward will not overwrite an existing entry it does not own.", before)
+            return result(action, .failed, "Disk Steward will not overwrite an existing entry it does not own. " + (AgentIntegrationMutationError.notOwned(path: configurationURL.path).errorDescription ?? ""), before)
         }
         guard fileManager.isExecutableFile(atPath: helperURL.path) else {
             return result(action, .failed, "The bundled MCP helper is missing at \(helperURL.path). Reinstall Disk Steward.", before)
@@ -115,9 +132,14 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
         do {
             switch setupMode {
             case .direct:
-                try writeDefinition(definition)
-                let receipt = AgentIntegrationReceipt(clientID: descriptor.id, definition: definition)
-                try receiptStore.upsert(receipt)
+                let mutation = try writeDefinition(definition)
+                let receipt = AgentIntegrationReceipt(clientID: descriptor.id, definition: definition,
+                    helperIdentity: PrivateIntegrationFile.executableIdentity(helperURL), lastBackupPath: mutation.backup?.path)
+                do { try receiptStore.upsert(receipt) }
+                catch {
+                    try restore(mutation, after: error)
+                    throw error
+                }
                 let snapshot = AgentIntegrationSnapshot.derive(
                     descriptor: descriptor,
                     presence: before.presence,
@@ -125,15 +147,28 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
                 )
                 return result(action, .changed, "Configured \(descriptor.displayName). Restart it if it is already open.", snapshot)
             case let .clientHandoff(makeURL):
-                guard let url = makeURL(serverName, definition), linkOpener.open(url) else {
+                guard let url = makeURL(serverName, definition) else {
                     return result(action, .failed, "Could not open the \(descriptor.displayName) installation prompt.", before)
                 }
+                let prior = try receiptStore.receipt(for: descriptor.id)
+                let previous: AgentIntegrationReceipt?
+                if case let .owned(value) = before.inspection { previous = value } else { previous = nil }
                 let receipt = AgentIntegrationReceipt(
                     clientID: descriptor.id,
                     definition: definition,
+                    helperIdentity: PrivateIntegrationFile.executableIdentity(helperURL),
+                    previousDefinition: previous?.definition,
+                    previousHelperIdentity: previous?.helperIdentity,
                     lastResult: "approval-pending"
                 )
+                // Persist the recovery receipt before handing control to a
+                // different process; a disk-write failure must not open it.
                 try receiptStore.upsert(receipt)
+                guard linkOpener.open(url) else {
+                    if let prior { try receiptStore.upsert(prior) }
+                    else { try receiptStore.remove(clientID: descriptor.id) }
+                    return result(action, .failed, "Could not open the \(descriptor.displayName) installation prompt.", before)
+                }
                 let snapshot = AgentIntegrationSnapshot.derive(
                     descriptor: descriptor,
                     presence: before.presence,
@@ -154,35 +189,69 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
                 : "Set up \(descriptor.displayName) before testing it."
             return result(.verify, .failed, message, before)
         }
+        guard receipt.definition == AgentIntegrationDefinition(command: helperURL.path),
+              receipt.helperIdentity != nil,
+              receipt.helperIdentity == PrivateIntegrationFile.executableIdentity(helperURL),
+              fileManager.isExecutableFile(atPath: helperURL.path) else {
+            return result(.verify, .failed, "The configured helper differs from this build or is missing. Repair before verifying.", before)
+        }
         do {
-            let command = AgentCommand(executableURL: helperURL, arguments: ["--self-check"])
-            _ = try (await runner.run(command)).requireSuccess(command: command)
-            var verified = receipt
-            verified.lastVerifiedAt = Date()
-            verified.lastResult = "verified"
-            try receiptStore.upsert(verified)
-            let snapshot = AgentIntegrationSnapshot.derive(
-                descriptor: descriptor,
-                presence: before.presence,
-                inspection: .owned(receipt: verified),
-                verification: .passed(at: verified.lastVerifiedAt!)
-            )
-            return result(.verify, .unchanged, "Verified \(descriptor.displayName) and the bundled helper.", snapshot)
+            // The exact command the client will spawn is what gets executed:
+            // read it back from the client's file, require it to be this
+            // build's helper by identity, and run it with a clean environment.
+            guard let configured = try readDefinition(), configured == receipt.definition,
+                  let configuredIdentity = PrivateIntegrationFile.executableIdentity(URL(fileURLWithPath: configured.command)),
+                  configuredIdentity == receipt.helperIdentity else {
+                return result(.verify, .failed, "The command \(descriptor.displayName) would run is not this build's helper. Use Repair to update the entry.", await inspect())
+            }
+            let command = HelperSelfCheck.command(for: URL(fileURLWithPath: configured.command))
+            let outcome = HelperSelfCheck.evaluate(try await runner.run(command), expectedIdentity: configuredIdentity, configuredPath: configured.command)
+            guard try readDefinition() == receipt.definition,
+                  receipt.helperIdentity == PrivateIntegrationFile.executableIdentity(helperURL),
+                  AgentIntegrationOwnership.resolve(current: receipt.definition,
+                    receipt: try receiptStore.receipt(for: descriptor.id)) == .owned(receipt) else {
+                return result(.verify, .failed, "Configuration changed during verification. Rescan before retrying.", await inspect())
+            }
+            return try recordVerification(outcome, receipt: receipt, presence: before.presence)
         } catch {
             return result(.verify, .failed, error.localizedDescription, before)
+        }
+    }
+
+    private func recordVerification(_ outcome: HelperSelfCheck.Outcome, receipt: AgentIntegrationReceipt, presence: AgentClientPresence) throws -> AgentIntegrationOperationResult {
+        var updated = receipt
+        let now = Date()
+        switch outcome {
+        case let .verified(age):
+            updated.lastVerifiedAt = now; updated.lastResult = "verified"
+            try receiptStore.upsert(updated)
+            let freshness = age.map { "Evidence is \(HelperSelfCheck.describe(age: $0)) old." } ?? "Evidence age was not reported."
+            return result(.verify, .unchanged, "The configured helper connected to Disk Steward. \(freshness) Restart \(descriptor.displayName) to load this configuration.",
+                          .derive(descriptor: descriptor, presence: presence, inspection: .owned(receipt: updated), verification: .passed(at: now)))
+        case let .stale(age):
+            updated.lastVerifiedAt = now; updated.lastResult = "verified-stale"
+            try receiptStore.upsert(updated)
+            return result(.verify, .unchanged, "The configured helper connected, but \(HelperSelfCheck.describeStaleness(age: age)). Check that Monitoring is running before relying on answers.",
+                          .derive(descriptor: descriptor, presence: presence, inspection: .owned(receipt: updated), verification: .stale(at: now, evidenceAge: age)))
+        case let .failed(reason):
+            return result(.verify, .failed, reason, .derive(descriptor: descriptor, presence: presence, inspection: .owned(receipt: receipt), verification: .failed(reason: reason)))
         }
     }
 
     private func remove() async -> AgentIntegrationOperationResult {
         let before = await inspect()
         if before.state == .conflict {
-            return result(.remove, .failed, "Disk Steward will not remove an entry it does not own.", before)
+            return result(.remove, .failed, "Disk Steward will not remove an entry it does not own. " + (AgentIntegrationMutationError.notOwned(path: configurationURL.path).errorDescription ?? ""), before)
         }
         do {
             switch before.inspection {
             case .owned:
-                try removeDefinition()
-                try receiptStore.remove(clientID: descriptor.id)
+                let mutation = try removeDefinition()
+                do { try receiptStore.remove(clientID: descriptor.id) }
+                catch {
+                    try restore(mutation, after: error)
+                    throw error
+                }
                 let snapshot = AgentIntegrationSnapshot.derive(descriptor: descriptor, presence: before.presence, inspection: .missing)
                 return result(.remove, .changed, "Removed only Disk Steward's \(descriptor.displayName) entry.", snapshot)
             case .approvalPending, .missing:
@@ -198,52 +267,107 @@ class JSONClientIntegrationAdapter: AgentIntegrationAdapting {
     }
 
     private func readDocument() throws -> [String: Any] {
-        guard fileManager.fileExists(atPath: configurationURL.path) else { return [:] }
-        let data = try Data(contentsOf: configurationURL)
+        guard let data = try configurationBytes() else { return [:] }
+        return try parseDocument(data)
+    }
+
+    private func configurationBytes() throws -> Data? {
+        try PrivateIntegrationFile.read(configurationURL)
+    }
+
+    private func parseDocument(_ data: Data) throws -> [String: Any] {
         guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw CocoaError(.fileReadCorruptFile)
         }
+        guard object[rootKey] == nil || object[rootKey] is [String: Any] else { throw CocoaError(.fileReadCorruptFile) }
         return object
     }
 
     private func readDefinition() throws -> AgentIntegrationDefinition? {
         let document = try readDocument()
-        guard let servers = document[rootKey] as? [String: Any],
-              let entry = servers[serverName] as? [String: Any]
-        else { return nil }
-        guard let command = entry["command"] as? String else { throw CocoaError(.fileReadCorruptFile) }
-        let arguments = entry["args"] as? [String] ?? []
-        return AgentIntegrationDefinition(command: command, arguments: arguments)
+        return try definition(in: document)
     }
 
-    private func writeDefinition(_ definition: AgentIntegrationDefinition) throws {
-        var document = try readDocument()
+    private func definition(in document: [String: Any]) throws -> AgentIntegrationDefinition? {
+        guard let servers = document[rootKey] as? [String: Any], let raw = servers[serverName] else { return nil }
+        guard let entry = raw as? [String: Any], let definition = AgentIntegrationDefinition.parse(entry) else { throw CocoaError(.fileReadCorruptFile) }
+        return definition
+    }
+
+    private struct Mutation { let before: Data?; let after: Data; let backup: URL? }
+
+    private func writeDefinition(_ definition: AgentIntegrationDefinition) throws -> Mutation {
+        let before = try configurationBytes()
+        var document = try before.map(parseDocument) ?? [:]
+        let current = try self.definition(in: document)
+        if let current {
+            guard case .owned = AgentIntegrationOwnership.resolve(current: current,
+                receipt: try receiptStore.receipt(for: descriptor.id)) else { throw AgentIntegrationMutationError.notOwned(path: configurationURL.path) }
+        }
         var servers = document[rootKey] as? [String: Any] ?? [:]
         var entry: [String: Any] = ["command": definition.command, "args": definition.arguments]
         if rootKey == "servers" { entry["type"] = "stdio" }
         servers[serverName] = entry
         document[rootKey] = servers
-        try persist(document)
+        return try persist(document, replacing: before)
     }
 
-    private func removeDefinition() throws {
-        var document = try readDocument()
-        guard var servers = document[rootKey] as? [String: Any] else { return }
+    private func removeDefinition() throws -> Mutation {
+        let before = try configurationBytes()
+        var document = try before.map(parseDocument) ?? [:]
+        guard let current = try definition(in: document),
+              case .owned = AgentIntegrationOwnership.resolve(current: current, receipt: try receiptStore.receipt(for: descriptor.id)),
+              var servers = document[rootKey] as? [String: Any] else { throw AgentIntegrationMutationError.notOwned(path: configurationURL.path) }
         servers.removeValue(forKey: serverName)
         document[rootKey] = servers
-        try persist(document)
+        return try persist(document, replacing: before)
     }
 
-    private func persist(_ document: [String: Any]) throws {
-        try fileManager.createDirectory(at: configurationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
-        if fileManager.fileExists(atPath: configurationURL.path) {
-            let backup = configurationURL.appendingPathExtension("disk-steward-backup")
-            if fileManager.fileExists(atPath: backup.path) { try fileManager.removeItem(at: backup) }
-            try fileManager.copyItem(at: configurationURL, to: backup)
+    /// Backup first, then a check-and-swap commit: the new bytes are installed
+    /// only if the file still holds exactly the bytes that were read. A
+    /// concurrent writer keeps its file; every failure is typed with the
+    /// backup path and the recovery step.
+    private func persist(_ document: [String: Any], replacing before: Data?) throws -> Mutation {
+        do {
+            try fileManager.createDirectory(at: configurationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        } catch {
+            throw AgentIntegrationMutationError.commitFailed(path: configurationURL.path, backup: nil, reason: error.localizedDescription)
+        }
+        var backup: URL? = nil
+        if let before {
+            backup = try PrivateIntegrationFile.writeBackup(of: before, for: configurationURL)
         }
         let data = try JSONSerialization.data(withJSONObject: document, options: [.prettyPrinted, .sortedKeys])
-        try data.write(to: configurationURL, options: [.atomic])
-        try fileManager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: configurationURL.path)
+        beforeCommitInvocations += 1
+        try beforeCommit()
+        do {
+            try PrivateIntegrationFile.replace(data, at: configurationURL, expecting: before)
+        } catch AgentIntegrationMutationError.concurrentEdit {
+            throw AgentIntegrationMutationError.concurrentEdit(path: configurationURL.path, backup: backup?.path)
+        } catch let error as AgentIntegrationMutationError {
+            throw error // concurrentEditUndoFailed, backupFailed: already precise
+        } catch {
+            throw AgentIntegrationMutationError.commitFailed(path: configurationURL.path, backup: backup?.path, reason: error.localizedDescription)
+        }
+        return Mutation(before: before, after: data, backup: backup)
+    }
+
+    /// Puts the pre-mutation bytes back after a later step failed, again only
+    /// if nobody else has written since; otherwise the user is told where the
+    /// original bytes are.
+    private func restore(_ mutation: Mutation, after failure: Error) throws {
+        do {
+            try beforeRestore()
+            if let original = mutation.before {
+                try PrivateIntegrationFile.replace(original, at: configurationURL, expecting: mutation.after)
+            } else {
+                guard try configurationBytes() == mutation.after else { throw AgentIntegrationMutationError.concurrentEdit(path: configurationURL.path, backup: nil) }
+                try fileManager.removeItem(at: configurationURL)
+            }
+        } catch {
+            throw AgentIntegrationMutationError.restoreFailed(path: configurationURL.path, backup: mutation.backup?.path,
+                reason: "\(failure.localizedDescription); \(error.localizedDescription)")
+        }
     }
 
     private func result(

@@ -34,6 +34,10 @@ public struct FileMetadata: Codable, Equatable, Sendable {
     public let allocatedBytes: Int64
     public let modifiedAt: Date?
     public let linkCount: Int
+    /// Time this metadata was sampled, not file creation time or publication time.
+    public let observedAt: Date?
+    /// Producing immediate-directory pass; absent in legacy/non-generation scans.
+    public let directoryPassID: String?
 
     public init(
         objectID: String? = nil,
@@ -43,7 +47,9 @@ public struct FileMetadata: Codable, Equatable, Sendable {
         logicalBytes: Int64,
         allocatedBytes: Int64,
         modifiedAt: Date?,
-        linkCount: Int = 1
+        linkCount: Int = 1,
+        observedAt: Date? = nil,
+        directoryPassID: String? = nil
     ) {
         self.objectID = objectID ?? "path:\(Self.stablePathIdentifier(path))"
         self.identityMethod = identityMethod
@@ -53,6 +59,8 @@ public struct FileMetadata: Codable, Equatable, Sendable {
         self.allocatedBytes = max(0, allocatedBytes)
         self.modifiedAt = modifiedAt
         self.linkCount = max(1, linkCount)
+        self.observedAt = observedAt
+        self.directoryPassID = directoryPassID
     }
 
     private static func stablePathIdentifier(_ path: String) -> String {
@@ -85,27 +93,45 @@ public struct MetadataScanDirectoryCursor: Codable, Equatable, Sendable {
     /// Signature of the directory when `afterName` was produced. A mismatch
     /// resets the lexical cursor so names inserted before it are not skipped.
     public let directorySignature: String?
+    public let startedAt: Date?
+    public let passID: String?
+    /// Names the pass's in-process stream had served when this cursor was
+    /// produced. A stream that has served more was read by a slice the store
+    /// never committed; resuming from it would skip those names silently.
+    public let consumedNames: Int?
 
     public init(
         directoryPath: String,
         depth: Int,
         afterName: String? = nil,
-        directorySignature: String? = nil
+        directorySignature: String? = nil,
+        startedAt: Date? = nil,
+        passID: String? = nil,
+        consumedNames: Int? = nil
     ) {
         self.directoryPath = directoryPath
         self.depth = max(0, depth)
         self.afterName = afterName
         self.directorySignature = directorySignature
+        self.startedAt = startedAt
+        self.passID = passID
+        self.consumedNames = consumedNames.map { max(0, $0) }
     }
 }
 
 public struct MetadataScanRootProgress: Codable, Equatable, Sendable {
     public let rootPath: String
     public let status: MetadataScanRootStatus
+    /// The bounded in-memory working window of directories. Directories
+    /// discovered beyond the window live in the store's durable frontier rows
+    /// and are moved into the window after each slice commits.
     public let frontier: [MetadataScanDirectoryCursor]
     public let processedEntryCount: Int
     public let observedFileCount: Int
     public let limitations: [String]
+    /// Durable pending directories outside the window; nil for legacy
+    /// progress that never spilled, which the store treats as zero.
+    public let pendingDirectoryCount: Int?
 
     public init(
         rootPath: String,
@@ -113,7 +139,8 @@ public struct MetadataScanRootProgress: Codable, Equatable, Sendable {
         frontier: [MetadataScanDirectoryCursor]? = nil,
         processedEntryCount: Int = 0,
         observedFileCount: Int = 0,
-        limitations: [String] = []
+        limitations: [String] = [],
+        pendingDirectoryCount: Int? = nil
     ) {
         self.rootPath = URL(fileURLWithPath: rootPath).standardizedFileURL.path
         self.status = status
@@ -121,6 +148,21 @@ public struct MetadataScanRootProgress: Codable, Equatable, Sendable {
         self.processedEntryCount = max(0, processedEntryCount)
         self.observedFileCount = max(0, observedFileCount)
         self.limitations = Array(Set(limitations)).sorted()
+        self.pendingDirectoryCount = pendingDirectoryCount.map { max(0, $0) }
+    }
+}
+
+/// A directory discovered by a slice that did not fit the root's window. The
+/// store appends it to the durable frontier in the same slice transaction.
+public struct MetadataScanDiscoveredDirectory: Codable, Equatable, Sendable {
+    public let rootPath: String
+    public let directoryPath: String
+    public let depth: Int
+
+    public init(rootPath: String, directoryPath: String, depth: Int) {
+        self.rootPath = rootPath
+        self.directoryPath = directoryPath
+        self.depth = max(0, depth)
     }
 }
 
@@ -139,6 +181,11 @@ public struct MetadataScanGeneration: Codable, Equatable, Sendable {
     public let limitations: [String]
     /// Optional so generations persisted by older releases remain decodable.
     public let schedulerCursor: Int?
+    /// Missing on legacy staging, which cannot establish directory-pass membership.
+    public let passProvenanceVersion: Int?
+    /// Receipt-order fence for dirty evidence. A late slice from an older
+    /// revision must not overwrite a root reset, even if wall time repeats.
+    public let reconciliationToken: String?
 
     public init(
         generationID: String,
@@ -153,7 +200,9 @@ public struct MetadataScanGeneration: Codable, Equatable, Sendable {
         updatedAt: Date,
         completedAt: Date? = nil,
         limitations: [String] = [],
-        schedulerCursor: Int? = 0
+        schedulerCursor: Int? = 0,
+        passProvenanceVersion: Int? = 2,
+        reconciliationToken: String? = UUID().uuidString.lowercased()
     ) {
         self.generationID = generationID
         self.scopeVersionID = scopeVersionID
@@ -168,6 +217,8 @@ public struct MetadataScanGeneration: Codable, Equatable, Sendable {
         self.completedAt = completedAt
         self.limitations = Array(Set(limitations)).sorted()
         self.schedulerCursor = schedulerCursor.map { max(0, $0) }
+        self.passProvenanceVersion = passProvenanceVersion
+        self.reconciliationToken = reconciliationToken
     }
 
     public var completedRootCount: Int {
@@ -194,19 +245,46 @@ public struct MetadataScanDiagnostics: Equatable, Sendable {
     }
 }
 
+/// One completed immediate-directory membership pass. The store retains these
+/// independently of the frontier and revalidates them before publication.
+public struct MetadataScanDirectoryPass: Codable, Equatable, Sendable {
+    public let passID: String
+    public let rootPath: String
+    public let directoryPath: String
+    public let depth: Int
+    public let signature: String
+    public let startedAt: Date
+    public let completedAt: Date
+}
+
+public struct MetadataScanDirectoryInvalidation: Equatable, Sendable {
+    public let rootPath: String
+    public let directoryPath: String
+}
+
 public struct MetadataScanSlice: Equatable, Sendable {
     public let generation: MetadataScanGeneration
     public let entries: [FileMetadata]
     public let diagnostics: MetadataScanDiagnostics
+    public let invalidatedDirectoryPasses: [MetadataScanDirectoryInvalidation]
+    public var invalidatedDirectories: [String] { invalidatedDirectoryPasses.map(\.directoryPath) }
+    public let directoryPasses: [MetadataScanDirectoryPass]
+    public let discoveredDirectories: [MetadataScanDiscoveredDirectory]
 
     public init(
         generation: MetadataScanGeneration,
         entries: [FileMetadata],
-        diagnostics: MetadataScanDiagnostics = .init()
+        diagnostics: MetadataScanDiagnostics = .init(),
+        invalidatedDirectoryPasses: [MetadataScanDirectoryInvalidation] = [],
+        directoryPasses: [MetadataScanDirectoryPass] = [],
+        discoveredDirectories: [MetadataScanDiscoveredDirectory] = []
     ) {
         self.generation = generation
         self.entries = entries.sorted { $0.path < $1.path }
         self.diagnostics = diagnostics
+        self.invalidatedDirectoryPasses = invalidatedDirectoryPasses
+        self.directoryPasses = directoryPasses
+        self.discoveredDirectories = discoveredDirectories
     }
 }
 
@@ -283,7 +361,18 @@ public struct DirectoryMetadataScanner: Sendable {
         .fileAllocatedSizeKey, .totalFileAllocatedSizeKey, .contentModificationDateKey,
     ]
 
-    public init() {}
+    /// Directories a root keeps in memory and in its persisted progress. The
+    /// remainder of the frontier lives in indexed durable rows.
+    public static let frontierWindowSize = 64
+
+    private let streams: DirectoryStreamRegistry
+
+    /// Streams default to the process-wide registry so any scanner instance
+    /// in this process can continue a pass another instance began. A fresh
+    /// registry models a new process: unfinished passes restart.
+    public init(streams: DirectoryStreamRegistry = .shared) {
+        self.streams = streams
+    }
 
     /// Advances one durable generation by at most `maximumEntries` filesystem
     /// entries. The caller persists the returned frontier and staged metadata;
@@ -318,6 +407,9 @@ public struct DirectoryMetadataScanner: Sendable {
         var remaining = max(1, policy.maximumEntries)
         var generationLimitations = generation.limitations
         var diagnostics = MetadataScanDiagnostics()
+        var invalidatedDirectories: [MetadataScanDirectoryInvalidation] = []
+        var directoryPasses: [MetadataScanDirectoryPass] = []
+        var discovered: [MetadataScanDiscoveredDirectory] = []
         var nextSchedulerCursor = generation.schedulerCursor ?? 0
 
         let activeRootIndices = roots.indices.filter {
@@ -350,35 +442,71 @@ public struct DirectoryMetadataScanner: Sendable {
             var rootBudget = max(1, (remaining + rootsStillToVisit - 1) / rootsStillToVisit)
             while remaining > 0, rootBudget > 0, root.status == .active {
                 guard var cursor = root.frontier.first else {
+                    if (root.pendingDirectoryCount ?? 0) > 0 {
+                        // Durable frontier rows remain; the store moves them into
+                        // the window when this slice commits.
+                        break
+                    }
                     root = Self.copy(root, status: .completed, frontier: [])
                     break
                 }
 
-                let signatureBefore = Self.directorySignature(atPath: cursor.directoryPath)
-                if cursor.afterName != nil,
-                   let previousSignature = cursor.directorySignature,
-                   previousSignature != signatureBefore
-                {
+                guard let signatureBefore = Self.directorySignature(atPath: cursor.directoryPath) else {
+                    let limitation = "Directory identity unavailable at \(cursor.directoryPath); absence cannot be established."
+                    root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
+                    generationLimitations.append(limitation)
+                    break
+                }
+                // An unfinished pass restarts when its directory changed since it
+                // began, when its in-process stream no longer exists (new
+                // process, evicted stream), or when it is a legacy lexical
+                // cursor: no native position is ever persisted or trusted.
+                let streamLost = cursor.passID.map { !streams.contains(passID: $0) } ?? false
+                // A stream ahead of its committed cursor served names to a slice
+                // the store refused or failed; it is the in-process form of a
+                // lost stream and restarts the pass the same way.
+                let streamDesynced: Bool = {
+                    guard let passID = cursor.passID, let expected = cursor.consumedNames,
+                          let consumed = streams.consumed(passID: passID) else { return false }
+                    return consumed != expected
+                }()
+                let signatureChanged = cursor.directorySignature != nil && cursor.directorySignature != signatureBefore
+                let legacyCursor = cursor.passID == nil && cursor.afterName != nil
+                if streamLost || streamDesynced || signatureChanged || legacyCursor {
+                    if let passID = cursor.passID { streams.close(passID: passID) }
                     cursor = .init(
                         directoryPath: cursor.directoryPath,
                         depth: cursor.depth,
-                        directorySignature: signatureBefore
+                        directorySignature: signatureBefore,
+                        startedAt: date
                     )
-                    var frontier = root.frontier
+                    let prefix = cursor.directoryPath == "/" ? "/" : cursor.directoryPath + "/"
+                    invalidatedDirectories.append(.init(rootPath: root.rootPath, directoryPath: cursor.directoryPath))
+                    entries.removeAll { $0.rootPath == root.rootPath && $0.path.hasPrefix(prefix) }
+                    directoryPasses.removeAll { $0.rootPath == root.rootPath && ($0.directoryPath == cursor.directoryPath || $0.directoryPath.hasPrefix(prefix)) }
+                    discovered.removeAll { $0.rootPath == root.rootPath && $0.directoryPath.hasPrefix(prefix) }
+                    var frontier = root.frontier.filter { $0.directoryPath == cursor.directoryPath || !$0.directoryPath.hasPrefix(prefix) }
                     frontier[0] = cursor
                     root = Self.copy(root, frontier: frontier)
                     diagnostics = diagnostics.addingDirectoryChangeRestart()
                 }
 
-                let batch: BoundedDirectoryBatch
+                let passID = cursor.passID ?? UUID().uuidString.lowercased()
+                if cursor.passID == nil {
+                    cursor = .init(directoryPath: cursor.directoryPath, depth: cursor.depth,
+                                   directorySignature: signatureBefore, startedAt: date,
+                                   passID: passID)
+                    var frontier = root.frontier
+                    frontier[0] = cursor
+                    root = Self.copy(root, frontier: frontier)
+                }
+
+                let batch: DirectoryStreamBatch
                 do {
-                    batch = try Self.boundedDirectoryBatch(
-                        atPath: cursor.directoryPath,
-                        afterName: cursor.afterName,
-                        limit: min(remaining, rootBudget)
-                    )
+                    batch = try streams.read(passID: passID, directoryPath: cursor.directoryPath, limit: min(remaining, rootBudget))
                     diagnostics = diagnostics.adding(batch)
                 } catch {
+                    streams.close(passID: passID)
                     let limitation = "Scan cursor became invalid at \(cursor.directoryPath): \(error.localizedDescription)"
                     root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
                     generationLimitations.append(limitation)
@@ -387,11 +515,18 @@ public struct DirectoryMetadataScanner: Sendable {
 
                 let signatureAfter = Self.directorySignature(atPath: cursor.directoryPath)
                 guard signatureBefore == signatureAfter else {
-                    var frontier = root.frontier
+                    streams.close(passID: passID)
+                    let prefix = cursor.directoryPath == "/" ? "/" : cursor.directoryPath + "/"
+                    invalidatedDirectories.append(.init(rootPath: root.rootPath, directoryPath: cursor.directoryPath))
+                    entries.removeAll { $0.rootPath == root.rootPath && $0.path.hasPrefix(prefix) }
+                    directoryPasses.removeAll { $0.rootPath == root.rootPath && ($0.directoryPath == cursor.directoryPath || $0.directoryPath.hasPrefix(prefix)) }
+                    discovered.removeAll { $0.rootPath == root.rootPath && $0.directoryPath.hasPrefix(prefix) }
+                    var frontier = root.frontier.filter { $0.directoryPath == cursor.directoryPath || !$0.directoryPath.hasPrefix(prefix) }
                     frontier[0] = .init(
                         directoryPath: cursor.directoryPath,
                         depth: cursor.depth,
-                        directorySignature: signatureAfter
+                        directorySignature: signatureAfter,
+                        startedAt: date
                     )
                     root = Self.copy(root, frontier: frontier)
                     diagnostics = diagnostics.addingDirectoryChangeRestart()
@@ -401,15 +536,24 @@ public struct DirectoryMetadataScanner: Sendable {
                 }
 
                 guard !batch.names.isEmpty else {
+                    streams.close(passID: passID)
+                    directoryPasses.append(.init(passID: passID, rootPath: root.rootPath, directoryPath: cursor.directoryPath,
+                                                 depth: cursor.depth, signature: signatureBefore,
+                                                 startedAt: cursor.startedAt ?? date, completedAt: date))
                     root = Self.copy(root, frontier: Array(root.frontier.dropFirst()))
+                    // Empty directories are work too: bound pass metadata per slice.
+                    remaining -= 1
+                    rootBudget -= 1
                     continue
                 }
 
                 cursor = .init(
                     directoryPath: cursor.directoryPath,
                     depth: cursor.depth,
-                    afterName: batch.names.last,
-                    directorySignature: signatureAfter
+                    directorySignature: signatureAfter,
+                    startedAt: cursor.startedAt ?? date,
+                    passID: cursor.passID,
+                    consumedNames: streams.consumed(passID: passID)
                 )
                 var frontier = root.frontier
                 frontier[0] = cursor
@@ -434,11 +578,15 @@ public struct DirectoryMetadataScanner: Sendable {
                                 let limitation = "Configured depth limit prevented complete coverage below \(child.path)."
                                 root = Self.copy(root, status: .failed, limitations: root.limitations + [limitation])
                                 generationLimitations.append(limitation)
-                            } else {
+                            } else if root.frontier.count < Self.frontierWindowSize {
                                 root = Self.copy(
                                     root,
                                     frontier: root.frontier + [.init(directoryPath: child.standardizedFileURL.path, depth: childDepth)]
                                 )
+                            } else {
+                                // Beyond the window the frontier is durable rows,
+                                // never a growing in-memory array.
+                                discovered.append(.init(rootPath: root.rootPath, directoryPath: child.standardizedFileURL.path, depth: childDepth))
                             }
                             continue
                         }
@@ -453,7 +601,9 @@ public struct DirectoryMetadataScanner: Sendable {
                             logicalBytes: Int64(values.fileSize ?? 0),
                             allocatedBytes: Int64(values.totalFileAllocatedSize ?? values.fileAllocatedSize ?? 0),
                             modifiedAt: values.contentModificationDate,
-                            linkCount: identity.linkCount
+                            linkCount: identity.linkCount,
+                            observedAt: date,
+                            directoryPassID: cursor.passID
                         ))
                         root = Self.copy(root, observedFileCount: root.observedFileCount + 1)
                     } catch {
@@ -463,7 +613,27 @@ public struct DirectoryMetadataScanner: Sendable {
                     }
                 }
 
-                if !batch.hasMore {
+                // Membership may change while the batch's child metadata is read.
+                // No part of that superseded pass may survive in staging.
+                if Self.directorySignature(atPath: cursor.directoryPath) != signatureBefore {
+                    streams.close(passID: passID)
+                    let prefix = cursor.directoryPath == "/" ? "/" : cursor.directoryPath + "/"
+                    invalidatedDirectories.append(.init(rootPath: root.rootPath, directoryPath: cursor.directoryPath))
+                    entries.removeAll { $0.rootPath == root.rootPath && $0.path.hasPrefix(prefix) }
+                    directoryPasses.removeAll { $0.rootPath == root.rootPath && ($0.directoryPath == cursor.directoryPath || $0.directoryPath.hasPrefix(prefix)) }
+                    discovered.removeAll { $0.rootPath == root.rootPath && $0.directoryPath.hasPrefix(prefix) }
+                    var restarted = root.frontier.filter { $0.directoryPath == cursor.directoryPath || !$0.directoryPath.hasPrefix(prefix) }
+                    restarted[0] = .init(directoryPath: cursor.directoryPath, depth: cursor.depth)
+                    root = Self.copy(root, frontier: restarted)
+                    diagnostics = diagnostics.addingDirectoryChangeRestart()
+                    remaining = 0
+                    break
+                }
+                if batch.exhausted, root.status != .failed {
+                    streams.close(passID: passID)
+                    directoryPasses.append(.init(passID: passID, rootPath: root.rootPath, directoryPath: cursor.directoryPath,
+                                                 depth: cursor.depth, signature: signatureBefore,
+                                                 startedAt: cursor.startedAt ?? date, completedAt: date))
                     root = Self.copy(root, frontier: Array(root.frontier.dropFirst()))
                 }
             }
@@ -477,10 +647,10 @@ public struct DirectoryMetadataScanner: Sendable {
 
         let status: MetadataScanGenerationStatus
         let completedAt: Date?
-        if roots.contains(where: { $0.status == .failed }) {
-            status = .abandoned
-            completedAt = date
-        } else if roots.allSatisfy({ $0.status == .completed }) {
+        // A finished attempt with failed roots must publish failed coverage,
+        // including when every root failed. Abandonment is reserved for an
+        // invalidated generation/scope, not a substitute for uncertainty.
+        if roots.allSatisfy({ $0.status == .completed || $0.status == .failed }) {
             status = .completed
             completedAt = date
         } else {
@@ -500,9 +670,13 @@ public struct DirectoryMetadataScanner: Sendable {
             updatedAt: date,
             completedAt: completedAt,
             limitations: generationLimitations,
-            schedulerCursor: nextSchedulerCursor
+            schedulerCursor: nextSchedulerCursor,
+            passProvenanceVersion: generation.passProvenanceVersion,
+            reconciliationToken: generation.reconciliationToken
         )
-        return MetadataScanSlice(generation: updated, entries: entries, diagnostics: diagnostics)
+        return MetadataScanSlice(generation: updated, entries: entries, diagnostics: diagnostics,
+                                 invalidatedDirectoryPasses: invalidatedDirectories, directoryPasses: directoryPasses,
+                                 discoveredDirectories: discovered)
     }
 
     public func scan(policy: MonitoringPolicy, at date: Date = Date()) -> MetadataSnapshot {
@@ -677,9 +851,10 @@ public struct DirectoryMetadataScanner: Sendable {
         return String(hash, radix: 16)
     }
 
-    private static func directorySignature(atPath path: String) -> String? {
+    static func directorySignature(atPath path: String) -> String? {
         var information = stat()
-        guard lstat(path, &information) == 0 else { return nil }
+        guard lstat(path, &information) == 0,
+              information.st_mode & S_IFMT == S_IFDIR else { return nil }
         return [
             String(information.st_dev),
             String(information.st_ino),
@@ -688,46 +863,6 @@ public struct DirectoryMetadataScanner: Sendable {
             String(information.st_ctimespec.tv_sec),
             String(information.st_ctimespec.tv_nsec),
         ].joined(separator: ":")
-    }
-
-    /// Streams one immediate directory pass and retains only the smallest
-    /// `limit` names after the durable lexical cursor.
-    private static func boundedDirectoryBatch(
-        atPath directoryPath: String,
-        afterName: String?,
-        limit: Int
-    ) throws -> BoundedDirectoryBatch {
-        guard let directory = opendir(directoryPath) else {
-            throw POSIXDirectoryError(path: directoryPath, code: errno)
-        }
-        defer { closedir(directory) }
-
-        var heap = BoundedMaxNameHeap(capacity: max(1, limit))
-        var eligibleCount = 0
-        var inspectedCount = 0
-        errno = 0
-        while let entry = readdir(directory) {
-            let name = withUnsafePointer(to: &entry.pointee.d_name) { pointer in
-                pointer.withMemoryRebound(to: CChar.self, capacity: Int(MAXNAMLEN) + 1) {
-                    String(cString: $0)
-                }
-            }
-            if name == "." || name == ".." { continue }
-            inspectedCount += 1
-            if let afterName, name <= afterName { continue }
-            eligibleCount += 1
-            heap.insert(name)
-        }
-        if errno != 0 {
-            throw POSIXDirectoryError(path: directoryPath, code: errno)
-        }
-        let names = heap.sortedValues()
-        return BoundedDirectoryBatch(
-            names: names,
-            hasMore: eligibleCount > names.count,
-            inspectedCount: inspectedCount,
-            retainedCount: names.count
-        )
     }
 
     private static func copy(
@@ -744,7 +879,8 @@ public struct DirectoryMetadataScanner: Sendable {
             frontier: frontier ?? root.frontier,
             processedEntryCount: processedEntryCount ?? root.processedEntryCount,
             observedFileCount: observedFileCount ?? root.observedFileCount,
-            limitations: limitations ?? root.limitations
+            limitations: limitations ?? root.limitations,
+            pendingDirectoryCount: root.pendingDirectoryCount
         )
     }
 
@@ -767,16 +903,11 @@ public struct DirectoryMetadataScanner: Sendable {
             updatedAt: updatedAt,
             completedAt: updatedAt,
             limitations: limitations,
-            schedulerCursor: generation.schedulerCursor
+            schedulerCursor: generation.schedulerCursor,
+            passProvenanceVersion: generation.passProvenanceVersion,
+            reconciliationToken: generation.reconciliationToken
         )
     }
-}
-
-private struct BoundedDirectoryBatch {
-    let names: [String]
-    let hasMore: Bool
-    let inspectedCount: Int
-    let retainedCount: Int
 }
 
 private struct POSIXDirectoryError: LocalizedError {
@@ -788,60 +919,151 @@ private struct POSIXDirectoryError: LocalizedError {
     }
 }
 
-struct BoundedMaxNameHeap {
-    private(set) var values: [String] = []
-    let capacity: Int
+/// One bounded read from an open directory stream: at most `limit` names in
+/// native order. `exhausted` is known only when the stream reports its end.
+public struct DirectoryStreamBatch: Equatable, Sendable {
+    public let names: [String]
+    public let exhausted: Bool
+    public let opened: Bool
+}
 
-    mutating func insert(_ value: String) {
-        guard capacity > 0 else { return }
-        if values.count < capacity {
-            values.append(value)
-            siftUp(from: values.count - 1)
-        } else if let maximum = values.first, value < maximum {
-            values[0] = value
-            siftDown(from: 0)
-        }
+/// Open directory streams keyed by scan pass. A stream never outlives the
+/// process and no native position is persisted: losing a stream restarts its
+/// unfinished pass under a new identifier. Only the head directory of each
+/// active root streams at a time, and the registry evicts the least recently
+/// used stream beyond `maximumOpenStreams` so descriptors stay bounded.
+///
+/// A directory that fits one retained read (`sortedNameLimit` names) is served
+/// in lexical order from that single read; a larger directory streams in
+/// native order and never retains more than one batch of names.
+public final class DirectoryStreamRegistry: @unchecked Sendable {
+    public static let shared = DirectoryStreamRegistry()
+    public static let maximumOpenStreams = 64
+    public static let sortedNameLimit = 512
+
+    private struct Entry {
+        let handle: UnsafeMutablePointer<DIR>
+        let directoryPath: String
+        var buffer: [String]
+        var bufferOffset: Int
+        var streamExhausted: Bool
+        var lastUsed: UInt64
+        /// Names served so far; the scanner persists it in the cursor.
+        var consumed: Int
     }
 
-    func sortedValues() -> [String] {
-        values.sorted()
-    }
+    private let lock = NSLock()
+    private var entries: [String: Entry] = [:]
+    private var tick: UInt64 = 0
 
-    var retainedCount: Int { values.count }
+    public init() {}
 
-    private mutating func siftUp(from initialIndex: Int) {
-        var index = initialIndex
-        while index > 0 {
-            let parent = (index - 1) / 2
-            guard values[parent] < values[index] else { break }
-            values.swapAt(parent, index)
-            index = parent
-        }
-    }
+    deinit { closeAll() }
 
-    private mutating func siftDown(from initialIndex: Int) {
-        var index = initialIndex
-        while true {
-            let left = index * 2 + 1
-            guard left < values.count else { return }
-            let right = left + 1
-            var largest = left
-            if right < values.count, values[left] < values[right] {
-                largest = right
+    public var openStreamCount: Int { lock.withLock { entries.count } }
+
+    func contains(passID: String) -> Bool { lock.withLock { entries[passID] != nil } }
+
+    /// Names the pass's stream has served, or nil when no stream is open.
+    func consumed(passID: String) -> Int? { lock.withLock { entries[passID]?.consumed } }
+
+    func read(passID: String, directoryPath: String, limit: Int) throws -> DirectoryStreamBatch {
+        try lock.withLock {
+            tick &+= 1
+            var opened = false
+            if entries[passID] == nil {
+                if entries.count >= Self.maximumOpenStreams,
+                   let oldest = entries.min(by: { $0.value.lastUsed < $1.value.lastUsed })?.key {
+                    closedir(entries[oldest]!.handle)
+                    entries.removeValue(forKey: oldest)
+                }
+                guard let handle = opendir(directoryPath) else {
+                    throw POSIXDirectoryError(path: directoryPath, code: errno)
+                }
+                var entry = Entry(handle: handle, directoryPath: directoryPath, buffer: [], bufferOffset: 0, streamExhausted: false, lastUsed: tick, consumed: 0)
+                // One bounded look-ahead read decides the mode: a directory that
+                // ends within the limit is sorted once; anything larger streams.
+                do {
+                    entry.buffer = try Self.readNames(from: handle, path: directoryPath, limit: Self.sortedNameLimit + 1, exhausted: &entry.streamExhausted)
+                } catch {
+                    closedir(handle)
+                    throw error
+                }
+                if entry.streamExhausted { entry.buffer.sort() }
+                entries[passID] = entry
+                opened = true
             }
-            guard values[index] < values[largest] else { return }
-            values.swapAt(index, largest)
-            index = largest
+            guard var entry = entries[passID], entry.directoryPath == directoryPath else {
+                throw POSIXDirectoryError(path: directoryPath, code: EINVAL)
+            }
+            entry.lastUsed = tick
+            let wanted = max(1, limit)
+            var names: [String] = []
+            let available = entry.buffer.count - entry.bufferOffset
+            if available > 0 {
+                let take = min(wanted, available)
+                names = Array(entry.buffer[entry.bufferOffset ..< entry.bufferOffset + take])
+                entry.bufferOffset += take
+                if entry.bufferOffset == entry.buffer.count { entry.buffer = []; entry.bufferOffset = 0 }
+            }
+            if names.count < wanted, !entry.streamExhausted {
+                do {
+                    let more = try Self.readNames(from: entry.handle, path: directoryPath, limit: wanted - names.count, exhausted: &entry.streamExhausted)
+                    names += more
+                } catch {
+                    closedir(entry.handle)
+                    entries.removeValue(forKey: passID)
+                    throw error
+                }
+            }
+            let exhausted = entry.streamExhausted && entry.buffer.isEmpty
+            entry.consumed += names.count
+            entries[passID] = entry
+            return DirectoryStreamBatch(names: names, exhausted: exhausted, opened: opened)
+        }
+    }
+
+    private static func readNames(from handle: UnsafeMutablePointer<DIR>, path: String, limit: Int, exhausted: inout Bool) throws -> [String] {
+        var names: [String] = []
+        errno = 0
+        while names.count < limit {
+            guard let record = readdir(handle) else {
+                if errno != 0 { throw POSIXDirectoryError(path: path, code: errno) }
+                exhausted = true
+                break
+            }
+            let name = withUnsafePointer(to: &record.pointee.d_name) { pointer in
+                pointer.withMemoryRebound(to: CChar.self, capacity: Int(MAXNAMLEN) + 1) {
+                    String(cString: $0)
+                }
+            }
+            if name == "." || name == ".." { continue }
+            names.append(name)
+        }
+        return names
+    }
+
+    func close(passID: String) {
+        lock.withLock {
+            guard let entry = entries.removeValue(forKey: passID) else { return }
+            closedir(entry.handle)
+        }
+    }
+
+    public func closeAll() {
+        lock.withLock {
+            for entry in entries.values { closedir(entry.handle) }
+            entries.removeAll()
         }
     }
 }
 
 private extension MetadataScanDiagnostics {
-    func adding(_ batch: BoundedDirectoryBatch) -> MetadataScanDiagnostics {
+    func adding(_ batch: DirectoryStreamBatch) -> MetadataScanDiagnostics {
         .init(
-            directoryEnumerationPasses: directoryEnumerationPasses + 1,
-            directoryEntriesInspected: directoryEntriesInspected + batch.inspectedCount,
-            peakRetainedDirectoryNames: max(peakRetainedDirectoryNames, batch.retainedCount),
+            directoryEnumerationPasses: directoryEnumerationPasses + (batch.opened ? 1 : 0),
+            directoryEntriesInspected: directoryEntriesInspected + batch.names.count,
+            peakRetainedDirectoryNames: max(peakRetainedDirectoryNames, batch.names.count),
             directoryChangeRestarts: directoryChangeRestarts
         )
     }

@@ -1,0 +1,25 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-PASS-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-3ED6D927EF9784D42284DD07C7A9561A",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:7f728d0e9bbb7de7588545b7f7a941905d7d198d8fa66c30fec99487e4310f5e", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-521-pass-candidate.DHnXpb/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "/private/tmp/disk-steward-521-pass-candidate.DHnXpb/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-pass-candidate.DHnXpb/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+    "/private/tmp/disk-steward-521-pass-candidate.DHnXpb/Tests/DiskStewardCoreTests/EvidenceStore/**"
+  ],
+  "purpose": "Review the intermediate directory-pass repair before continuing TASK-521. This is not a completed task or final acceptance candidate.",
+  "questions": [
+    "Check the new persisted directory-pass validation, restart and legacy progress handling for false presence/absence, unbounded retained state or restart loops, especially overlapping roots and mutations while bounded validation advances. Identify actionable cases with a deterministic reproduction sequence.",
+    "Check schema-v7 integration and test oracles. Genuine v5/v6 migration fixtures, precise timestamp propagation, and three already-red mixed-root hard-link tests remain explicitly pending: do not restate those known missing pieces unless this patch introduces a distinct new hazard."
+  ],
+  "acceptance_criteria": ["AC-TASK-521-01"],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "candidate-acceptance",
+  "result_budget": {"max_findings": 4, "max_evidence_items": 6, "max_output_chars": 5000}
+}

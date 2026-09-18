@@ -1,0 +1,46 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-INBOX-01",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-4C98A07F39E013F9ACF3E7D64B0F2F8A",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:2a6e7b6e5be251a946163c0e210beef2c03afacf7e1c84727154ba24f8216125",
+    "immutable": true
+  },
+  "read_scope": [
+    "Sources/DiskStewardApp/Lifecycle/**",
+    "Tests/DiskStewardAppTests/Lifecycle/**",
+    "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+    "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift"
+  ],
+  "purpose": "Review bounded app receipt inbox integration for current-state truth and lifecycle safety.",
+  "questions": [
+    "Does callback receipt admission synchronously prevent stale final COMMIT throughout actor reentry, cumulative invalidation, and persistence failures?",
+    "Can wake ownership, stream identity, pause/sleep/quit or safety-marker lifetimes lose pending work or amplify unbounded tasks?",
+    "Do the new integration tests prove the actual route, and what concrete missing regression could reveal a defect?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01",
+    "AC-TASK-522-02"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 12,
+    "max_output_chars": 8000
+  }
+}

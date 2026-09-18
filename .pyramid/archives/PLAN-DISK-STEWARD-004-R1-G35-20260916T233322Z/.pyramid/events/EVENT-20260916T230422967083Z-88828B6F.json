@@ -1,0 +1,285 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T230422967083Z-88828B6F",
+  "at": "2026-09-16T23:04:22.967022Z",
+  "graph_version": 28,
+  "actor": "codex",
+  "type": "task.taken",
+  "node": "TASK-502",
+  "before": {
+    "execution": "needs-rework",
+    "verification": "failed",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "September 16 review reproduced false helper verification and unsafe ownership/removal after user configuration changes. September 17 local correctness repairs pass 227 tests, but packaged/native-client and exhaustive recovery assurance remain unverified; preserve prior completion as historical and reopen its stale proof. Broader scanner repair work is recorded separately in docs/reliability/repair-log.md.",
+    "updated_at": "2026-09-16T20:24:43.412271Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-502",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+        "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+        "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+        "docs/tasks/evidence/TASK-502/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-502/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --disable-sandbox",
+          "result": "passed",
+          "tests": 213
+        },
+        {
+          "command": "Scripts/Development/build_xcode_project",
+          "result": "passed"
+        },
+        {
+          "command": "nested helper self-check and deep signature verification",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-502-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+        },
+        {
+          "criterion": "AC-502-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+        },
+        {
+          "criterion": "AC-502-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift"
+        }
+      ],
+      "discovered_risks": [
+        "A distributable artifact still requires the existing Developer ID, notarization, and universal-architecture release workflow; this intent intentionally did not publish one."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-502",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-502-01",
+          "result": "passed",
+          "evidence": [
+            "Moved and missing helper fixture states are broken and repairable",
+            "Built app contains executable signed helper at canonical relative path"
+          ]
+        },
+        {
+          "id": "CHECK-502-02",
+          "result": "passed",
+          "evidence": [
+            "User-modified receipted entry becomes conflict and removal is refused",
+            "Foreign configuration preservation tests pass"
+          ]
+        },
+        {
+          "id": "CHECK-502-03",
+          "result": "passed",
+          "evidence": [
+            "Mixed multi-client partial results and idempotency tests pass",
+            "Full suite: 213 tests passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-502"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-16T20:24:43.412271Z",
+      "actor": "codex",
+      "reason": "September 16 review reproduced false helper verification and unsafe ownership/removal after user configuration changes. September 17 local correctness repairs pass 227 tests, but packaged/native-client and exhaustive recovery assurance remain unverified; preserve prior completion as historical and reopen its stale proof. Broader scanner repair work is recorded separately in docs/reliability/repair-log.md.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/reliability/repair-status.json"
+    }
+  },
+  "after": {
+    "execution": "working",
+    "verification": "failed",
+    "health": "clear",
+    "owner": "codex",
+    "lease_expires_at": "2026-09-17T01:04:22.966936Z",
+    "work_origin": "needs-rework",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-16T23:04:22.966996Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-502",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+        "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+        "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+        "docs/tasks/evidence/TASK-502/agent-result.json"
+      ],
+      "changed_assets": [],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/tasks/evidence/TASK-502/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "swift test --disable-sandbox",
+          "result": "passed",
+          "tests": 213
+        },
+        {
+          "command": "Scripts/Development/build_xcode_project",
+          "result": "passed"
+        },
+        {
+          "command": "nested helper self-check and deep signature verification",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-502-01",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+        },
+        {
+          "criterion": "AC-502-02",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+        },
+        {
+          "criterion": "AC-502-03",
+          "result": "passed",
+          "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift"
+        }
+      ],
+      "discovered_risks": [
+        "A distributable artifact still requires the existing Developer ID, notarization, and universal-architecture release workflow; this intent intentionally did not publish one."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-502",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-502-01",
+          "result": "passed",
+          "evidence": [
+            "Moved and missing helper fixture states are broken and repairable",
+            "Built app contains executable signed helper at canonical relative path"
+          ]
+        },
+        {
+          "id": "CHECK-502-02",
+          "result": "passed",
+          "evidence": [
+            "User-modified receipted entry becomes conflict and removal is refused",
+            "Foreign configuration preservation tests pass"
+          ]
+        },
+        {
+          "id": "CHECK-502-03",
+          "result": "passed",
+          "evidence": [
+            "Mixed multi-client partial results and idempotency tests pass",
+            "Full suite: 213 tests passed"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-502"
+      ],
+      "recommended_action": "advance"
+    },
+    "last_reopen": {
+      "at": "2026-09-16T20:24:43.412271Z",
+      "actor": "codex",
+      "reason": "September 16 review reproduced false helper verification and unsafe ownership/removal after user configuration changes. September 17 local correctness repairs pass 227 tests, but packaged/native-client and exhaustive recovery assurance remain unverified; preserve prior completion as historical and reopen its stale proof. Broader scanner repair work is recorded separately in docs/reliability/repair-log.md.",
+      "evidence": "/Users/merdankiji/localGit/disk_steward/docs/reliability/repair-status.json"
+    }
+  },
+  "payload": {
+    "lease_minutes": 120
+  },
+  "plan_id": "PLAN-DISK-STEWARD-004",
+  "plan_revision": 1,
+  "context_id": "CTX-3DFF0BD53BE1891601AE0ECF05108016",
+  "previous_event_id": "EVENT-20260916T202443412515Z-99B9F06D",
+  "previous_event_sha256": "cd9fd101639cc204520a0330e04f405669fe88ddda6aa1d316cd9efeaf2ce432"
+}

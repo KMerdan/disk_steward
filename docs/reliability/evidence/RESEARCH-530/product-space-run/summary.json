@@ -1,0 +1,749 @@
+{
+  "candidateSHA256": "afb496260788b1da4599ec14be591d9bc46418b5a16f5d7b814c007de7904e92",
+  "collectedAt": "2026-09-17T09:54:57.448084+00:00",
+  "limits": [
+    "Single runs, warm/uncontrolled OS caches; not latency distributions.",
+    "Sampled RSS/WAL peaks are lower bounds, not exact high-water marks.",
+    "Supervision may stop after atomic publication; inspect durable state separately.",
+    "Prototype index only changes disposable databases; no product migration selected."
+  ],
+  "runs": [
+    {
+      "artifactSHA256": {
+        "baseline-supervision.json": "1826eaa37f80f81f2d57916bcdfde6e894a0bc89cfd96531548b7dab137ba308",
+        "baseline.log": "d9e4c1235429f2985da128d0b3cc0e9d7e5cc47ee20c2a5bae38753060686833",
+        "fixture-supervision.json": "d7c3fc52932a106c9ab4546db8130f83f4c88519fabd14bc4609723d194f888f",
+        "fixture.json": "76792c97546817b29afe95fb4815f62d6f6bcae08f4e7b131df5760c14b92965",
+        "fixture.log": "e7a35d82bb85faa152e0afeba9861abf6905aefcb2b34b7d630fff16ad270969"
+      },
+      "fixture": {
+        "complete": true,
+        "count": 10000,
+        "directories": 1,
+        "files": 10000,
+        "shape": "wide"
+      },
+      "label": "wide-10k-product-space",
+      "lastMeasurement": {
+        "attemptedProcessedEntries": 10000,
+        "directoryChangeRestarts": 0,
+        "directoryEntriesInspected": 200000,
+        "directoryEnumerationPasses": 20,
+        "elapsedSeconds": 1.8106918333214708,
+        "entriesReenumeratedQuiescentFixture": 190000,
+        "error": "",
+        "expectedFiles": 10000,
+        "finalStoreCallSecondsInclusive": 1.1419434166746214,
+        "kind": "result",
+        "maxScanSliceSeconds": 0.02392016665544361,
+        "maxStoreCallSeconds": 1.1419434166746214,
+        "peakFrontierCursors": 1,
+        "peakInProcessRSSBytes": 36454400,
+        "peakPersistedFrontierJSONBytes": 269,
+        "peakPersistedProgressBytes": 887,
+        "peakRetainedNames": 512,
+        "peakSampledDatabaseFamilyBytes": 66591600,
+        "peakSampledWALBytes": 33545072,
+        "processedEntries": 10000,
+        "publicationCheckpointsUptime": {
+          "after-missing-objects": 188935.68878304167,
+          "after-observation": 188934.61083670834,
+          "after-present-objects": 188935.68876066667,
+          "before-finalize": 188935.68884179168
+        },
+        "sampledPersistedProgressBytesSum": 17504,
+        "scanSeconds": 0.42672420837334357,
+        "schema": "disk-steward-scale-baseline-v1",
+        "slices": 20,
+        "stagedFiles": 10000,
+        "status": "completed",
+        "storeSeconds": 1.3596027501043864,
+        "variant": "path-index"
+      },
+      "phase": "baseline",
+      "postRunDatabase": {
+        "postRunFamilyBytes": {
+          "evidence.sqlite": 32980992,
+          "evidence.sqlite-shm": 32768,
+          "evidence.sqlite-wal": 0
+        },
+        "queries": {
+          "currentFiles": {
+            "rows": [
+              [
+                10000
+              ]
+            ],
+            "sql": "SELECT COUNT(*) FROM current_file_state WHERE presence='present'"
+          },
+          "freePages": {
+            "rows": [
+              [
+                3073
+              ]
+            ],
+            "sql": "PRAGMA freelist_count"
+          },
+          "generations": {
+            "rows": [
+              [
+                "completed",
+                10000,
+                10000
+              ]
+            ],
+            "sql": "SELECT status,processed_entry_count,staged_file_count FROM scan_generations"
+          },
+          "integrity": {
+            "rows": [
+              [
+                "ok"
+              ]
+            ],
+            "sql": "PRAGMA quick_check"
+          },
+          "observations": {
+            "rows": [
+              [
+                1
+              ]
+            ],
+            "sql": "SELECT COUNT(*) FROM observation_runs"
+          },
+          "openPathCountPlan": {
+            "rows": [
+              [
+                4,
+                0,
+                62,
+                "SEARCH path_bindings USING INDEX research_path_bindings_open_object_path (object_id=?)"
+              ]
+            ],
+            "sql": "EXPLAIN QUERY PLAN SELECT COUNT(*) FROM path_bindings WHERE object_id='fixture' AND valid_through IS NULL"
+          },
+          "openPathPagePlan": {
+            "rows": [
+              [
+                5,
+                0,
+                50,
+                "SEARCH path_bindings USING INDEX research_path_bindings_open_object_path (object_id=? AND path>?)"
+              ]
+            ],
+            "sql": "EXPLAIN QUERY PLAN SELECT path FROM path_bindings WHERE object_id='fixture' AND valid_through IS NULL AND path>'' ORDER BY path LIMIT 1"
+          },
+          "pageCount": {
+            "rows": [
+              [
+                8052
+              ]
+            ],
+            "sql": "PRAGMA page_count"
+          },
+          "pageSize": {
+            "rows": [
+              [
+                4096
+              ]
+            ],
+            "sql": "PRAGMA page_size"
+          },
+          "stagedFiles": {
+            "rows": [
+              [
+                0
+              ]
+            ],
+            "sql": "SELECT COUNT(*) FROM scan_generation_entries"
+          },
+          "tableAndIndexPages": {
+            "rows": [
+              [
+                "change_events",
+                670,
+                2744320,
+                2579372,
+                94383
+              ],
+              [
+                "current_file_state",
+                628,
+                2572288,
+                2480000,
+                22394
+              ],
+              [
+                "file_state_observations",
+                559,
+                2289664,
+                2210000,
+                10874
+              ],
+              [
+                "events",
+                478,
+                1957888,
+                1839372,
+                51013
+              ],
+              [
+                "path_bindings",
+                359,
+                1470464,
+                1399371,
+                5492
+              ],
+              [
+                "research_path_bindings_open_object_path",
+                258,
+                1056768,
+                889872,
+                133804
+              ],
+              [
+                "sqlite_autoindex_file_state_observations_1",
+                240,
+                983040,
+                809872,
+                140292
+              ],
+              [
+                "sqlite_autoindex_events_1",
+                234,
+                958464,
+                819244,
+                106416
+              ],
+              [
+                "sqlite_autoindex_change_events_1",
+                234,
+                958464,
+                819244,
+                106416
+              ],
+              [
+                "path_bindings_path_time",
+                219,
+                897024,
+                749872,
+                114528
+              ],
+              [
+                "events_path_time",
+                214,
+                876544,
+                739872,
+                104108
+              ],
+              [
+                "sqlite_autoindex_current_file_state_2",
+                190,
+                778240,
+                649872,
+                96092
+              ],
+              [
+                "file_objects",
+                168,
+                688128,
+                630000,
+                5581
+              ],
+              [
+                "change_events_object_time",
+                113,
+                462848,
+                369872,
+                61624
+              ],
+              [
+                "sqlite_autoindex_file_objects_1",
+                87,
+                356352,
+                279872,
+                45440
+              ],
+              [
+                "sqlite_autoindex_current_file_state_1",
+                87,
+                356352,
+                279872,
+                45440
+              ],
+              [
+                "sqlite_autoindex_path_bindings_1",
+                86,
+                352256,
+                289243,
+                31985
+              ],
+              [
+                "current_file_state_presence_bytes",
+                48,
+                196608,
+                139872,
+                26164
+              ],
+              [
+                "events_observed_at",
+                45,
+                184320,
+                129872,
+                23912
+              ],
+              [
+                "sqlite_schema",
+                6,
+                24576,
+                14958,
+                9105
+              ],
+              [
+                "snapshots",
+                3,
+                12288,
+                6180,
+                5973
+              ],
+              [
+                "sqlite_autoindex_snapshots_1",
+                1,
+                4096,
+                229,
+                3799
+              ],
+              [
+                "sqlite_autoindex_scope_versions_1",
+                1,
+                4096,
+                25,
+                4060
+              ],
+              [
+                "sqlite_autoindex_scan_generations_1",
+                1,
+                4096,
+                55,
+                4030
+              ],
+              [
+                "sqlite_autoindex_scan_generation_entries_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_scan_directory_passes_2",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_scan_directory_passes_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_retention_runs_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_retention_coverage_gaps_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_reconciliation_invalidations_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_provenance_claims_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_observation_runs_1",
+                1,
+                4096,
+                55,
+                4030
+              ],
+              [
+                "sqlite_autoindex_observation_roots_1",
+                1,
+                4096,
+                100,
+                3985
+              ],
+              [
+                "sqlite_autoindex_hourly_summaries_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_fsevent_hints_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_export_records_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_endpoint_observations_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_daily_summaries_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_coverage_gaps_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "sqlite_autoindex_agent_sessions_1",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "snapshots_observed_at",
+                1,
+                4096,
+                239,
+                3789
+              ],
+              [
+                "scope_versions",
+                1,
+                4096,
+                93,
+                3991
+              ],
+              [
+                "scan_generations_status_updated",
+                1,
+                4096,
+                21,
+                4064
+              ],
+              [
+                "scan_generations",
+                1,
+                4096,
+                783,
+                3300
+              ],
+              [
+                "scan_generation_entries_pass",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "scan_generation_entries_object_path",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "scan_generation_entries",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "scan_directory_passes_validation",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "scan_directory_passes",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "retention_runs_started_at",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "retention_runs",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "retention_coverage_gaps_started_at",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "retention_coverage_gaps",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "reconciliation_invalidations_state_time",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "reconciliation_invalidations",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "provenance_claims_session",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "provenance_claims_event_time",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "provenance_claims",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "observation_runs_completed_at",
+                1,
+                4096,
+                11,
+                4074
+              ],
+              [
+                "observation_runs",
+                1,
+                4096,
+                115,
+                3969
+              ],
+              [
+                "observation_roots",
+                1,
+                4096,
+                111,
+                3973
+              ],
+              [
+                "hourly_summaries",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "fsevent_hints_observation_event",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "fsevent_hints",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "export_records_updated_at",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "export_records",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "endpoint_observations_event",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "endpoint_observations",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "daily_summaries",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "coverage_gaps_time",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "coverage_gaps",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "agent_sessions_session_time",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "agent_sessions_lifecycle_expiry",
+                1,
+                4096,
+                0,
+                4088
+              ],
+              [
+                "agent_sessions",
+                1,
+                4096,
+                0,
+                4088
+              ]
+            ],
+            "sql": "SELECT name,COUNT(*) AS pages,SUM(pgsize) AS bytes,SUM(payload) AS payloadBytes,SUM(unused) AS unusedBytes FROM dbstat GROUP BY name ORDER BY bytes DESC LIMIT 128"
+          }
+        },
+        "readerSQLiteVersion": "3.53.4"
+      },
+      "result": {
+        "attemptedProcessedEntries": 10000,
+        "directoryChangeRestarts": 0,
+        "directoryEntriesInspected": 200000,
+        "directoryEnumerationPasses": 20,
+        "elapsedSeconds": 1.8106918333214708,
+        "entriesReenumeratedQuiescentFixture": 190000,
+        "error": "",
+        "expectedFiles": 10000,
+        "finalStoreCallSecondsInclusive": 1.1419434166746214,
+        "kind": "result",
+        "maxScanSliceSeconds": 0.02392016665544361,
+        "maxStoreCallSeconds": 1.1419434166746214,
+        "peakFrontierCursors": 1,
+        "peakInProcessRSSBytes": 36454400,
+        "peakPersistedFrontierJSONBytes": 269,
+        "peakPersistedProgressBytes": 887,
+        "peakRetainedNames": 512,
+        "peakSampledDatabaseFamilyBytes": 66591600,
+        "peakSampledWALBytes": 33545072,
+        "processedEntries": 10000,
+        "publicationCheckpointsUptime": {
+          "after-missing-objects": 188935.68878304167,
+          "after-observation": 188934.61083670834,
+          "after-present-objects": 188935.68876066667,
+          "before-finalize": 188935.68884179168
+        },
+        "sampledPersistedProgressBytesSum": 17504,
+        "scanSeconds": 0.42672420837334357,
+        "schema": "disk-steward-scale-baseline-v1",
+        "slices": 20,
+        "stagedFiles": 10000,
+        "status": "completed",
+        "storeSeconds": 1.3596027501043864,
+        "variant": "path-index"
+      },
+      "root": "/private/tmp/disk-steward-530-scale.hlbli48j",
+      "supervision": {
+        "command": [
+          "/usr/bin/nice",
+          "-n",
+          "10",
+          "/usr/bin/xcrun",
+          "xctest",
+          "-XCTest",
+          "PerformanceTests.ScaleBenchmarkTests/testOptInProductionScan",
+          "/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/.build/arm64-apple-macosx/release/DiskStewardPackageTests.xctest"
+        ],
+        "exitCode": 0,
+        "peakProcessGroupRSSBytes": 46252032,
+        "peakSampledDatabaseFamilyBytes": 66591600,
+        "peakSampledWALBytes": 33545072,
+        "phase": "baseline",
+        "pollIntervalSeconds": 0.1,
+        "reason": "exited",
+        "root": "/private/tmp/disk-steward-530-scale.hlbli48j",
+        "rssStopBytes": 268435456,
+        "schema": "disk-steward-scale-supervisor-v1",
+        "seconds": 1.9926066249900032,
+        "timeoutSeconds": 60.0
+      }
+    }
+  ],
+  "schema": "disk-steward-scale-collection-v1"
+}

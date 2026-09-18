@@ -1,0 +1,44 @@
+{
+  "schema": "helper-job-v1",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:6640fb5d1dcd391123d42af2b50b29ac2dcd675580b67f3f98c2d852019b38ad",
+    "immutable": true
+  },
+  "acceptance_criteria": [
+    "AC-TASK-541-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 6,
+    "max_evidence_items": 8,
+    "max_output_chars": 6500
+  },
+  "helper_id": "HELPER-TASK-541-BACKEND-CANDIDATE",
+  "read_scope": [
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Sources/DiskStewardCore/IPC/**",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Sources/DiskStewardApp/IPC/**",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Sources/DiskStewardApp/MCPAccess/**",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift",
+    "/private/tmp/disk-steward-541-candidate.cBOn03/Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+  ],
+  "purpose": "Independent static review of socket task lifetime, cancellation-to-SQLite, rollback and restart capacity; main executes tests.",
+  "questions": [
+    "Find actionable new defects in watchdog/descriptor ownership, stop/restart epoch capacity and cancellation propagation, SQLite progress/busy hooks, transaction rollback and backup stepping.",
+    "Check what acceptance evidence really proves. TASK551 separately owns bounded export materialization/orphan recovery; do not falsely claim that scope complete. No MCPServer/stdin/stdout review (other helper owns)."
+  ]
+}

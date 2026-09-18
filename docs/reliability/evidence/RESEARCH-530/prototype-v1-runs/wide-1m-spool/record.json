@@ -1,0 +1,186 @@
+{
+  "artifactSHA256": {
+    "baseline-supervision.json": "39fc1e6b17cee5914afaa8dbb8189fe60286c60b944c40abe350a235136efd79",
+    "baseline.log": "ee03312bf968a95f0b8a3a93bcf8a818c2b8ec48904a9c7df47fe554fca59d21",
+    "fixture-supervision.json": "b66ad88338a758ed5ba73e51d857efe5f22e318959639665eae5a7906e183726",
+    "fixture.json": "5e6721f0fa89c456400e1d2b7cf5152ae2762ea7ed5bbf1f128c68a1832b73b6",
+    "fixture.log": "0e916230453741edb0608e35986225d2899a1fc388bf37053d3168599f6ff5fa"
+  },
+  "fixture": {
+    "complete": true,
+    "count": 1000000,
+    "directories": 1,
+    "files": 1000000,
+    "shape": "wide"
+  },
+  "label": "wide-1m-spool",
+  "lastMeasurement": {
+    "batches": 7234,
+    "directoryEntriesInspected": 2000000,
+    "elapsedSeconds": 120.01123549998738,
+    "enumerationPasses": 2,
+    "error": "",
+    "expectedFilesPerGeneration": 1000000,
+    "kind": "result",
+    "maxBatchSeconds": 0.08223454165272415,
+    "peakInProcessRSSBytes": 26804224,
+    "peakPendingDirectoryPayloadBytes": 110,
+    "peakPendingDirectoryRows": 1,
+    "peakRetainedNames": 512,
+    "peakSampledDatabaseFamilyBytes": 201250568,
+    "peakSampledWALBytes": 8948672,
+    "processedEntries": 1703424,
+    "productEquivalent": false,
+    "publicationSeconds": 0.00011500000255182385,
+    "publishedGenerations": 1,
+    "requestedGenerations": 2,
+    "schema": "disk-steward-scale-prototype-v1",
+    "scratchReclamationSeconds": 0.9711170833616052,
+    "spoolRowsWritten": 2000000,
+    "status": "time-limit",
+    "variant": "spool"
+  },
+  "postRunDatabase": {
+    "queries": {
+      "generations": {
+        "rows": [
+          [
+            1,
+            "spool",
+            "published"
+          ],
+          [
+            2,
+            "spool",
+            "preparing"
+          ]
+        ],
+        "sql": "SELECT id,mode,status FROM generations ORDER BY id"
+      },
+      "integrity": {
+        "rows": [
+          [
+            "ok"
+          ]
+        ],
+        "sql": "PRAGMA quick_check"
+      },
+      "physicalDirectoryCount": {
+        "rows": [
+          [
+            2
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM directories"
+      },
+      "physicalEntries": {
+        "rows": [
+          [
+            1703424
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM entries"
+      },
+      "queuePlan": {
+        "rows": [
+          [
+            6,
+            0,
+            50,
+            "SEARCH d USING INDEX directories_queue (generation=? AND phase<?)"
+          ],
+          [
+            12,
+            0,
+            45,
+            "SEARCH p USING INTEGER PRIMARY KEY (rowid=?) LEFT-JOIN"
+          ],
+          [
+            34,
+            0,
+            0,
+            "USE TEMP B-TREE FOR ORDER BY"
+          ]
+        ],
+        "sql": "EXPLAIN QUERY PLAN SELECT d.id FROM directories d LEFT JOIN directories p ON d.parent=p.id WHERE d.generation=1 AND d.phase<3 AND (d.parent IS NULL OR d.owner_epoch=p.epoch) ORDER BY d.id LIMIT 1"
+      },
+      "scratchNames": {
+        "rows": [
+          [
+            1000000
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM names"
+      },
+      "visibleDirectoryPhases": {
+        "rows": [
+          [
+            4,
+            1
+          ]
+        ],
+        "sql": "SELECT d.phase,COUNT(*) FROM directories d JOIN visible v ON d.generation=v.generation GROUP BY d.phase ORDER BY d.phase"
+      },
+      "visibleFiles": {
+        "rows": [
+          [
+            1000000
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM entries e JOIN visible v ON e.generation=v.generation JOIN directories d ON e.directory=d.id AND e.epoch=d.epoch WHERE d.parent IS NULL OR EXISTS(SELECT 1 FROM directories p WHERE p.id=d.parent AND p.epoch=d.owner_epoch)"
+      }
+    },
+    "readerSQLiteVersion": "3.53.4"
+  },
+  "result": {
+    "batches": 7234,
+    "directoryEntriesInspected": 2000000,
+    "elapsedSeconds": 120.01123549998738,
+    "enumerationPasses": 2,
+    "error": "",
+    "expectedFilesPerGeneration": 1000000,
+    "kind": "result",
+    "maxBatchSeconds": 0.08223454165272415,
+    "peakInProcessRSSBytes": 26804224,
+    "peakPendingDirectoryPayloadBytes": 110,
+    "peakPendingDirectoryRows": 1,
+    "peakRetainedNames": 512,
+    "peakSampledDatabaseFamilyBytes": 201250568,
+    "peakSampledWALBytes": 8948672,
+    "processedEntries": 1703424,
+    "productEquivalent": false,
+    "publicationSeconds": 0.00011500000255182385,
+    "publishedGenerations": 1,
+    "requestedGenerations": 2,
+    "schema": "disk-steward-scale-prototype-v1",
+    "scratchReclamationSeconds": 0.9711170833616052,
+    "spoolRowsWritten": 2000000,
+    "status": "time-limit",
+    "variant": "spool"
+  },
+  "root": "/private/tmp/disk-steward-530-scale.3_pdbcti",
+  "supervision": {
+    "command": [
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/usr/bin/xcrun",
+      "xctest",
+      "-XCTest",
+      "PerformanceTests.BoundedTraversalScaleTests/testOptInBoundedPrototype",
+      "/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/.build/arm64-apple-macosx/release/DiskStewardPackageTests.xctest"
+    ],
+    "exitCode": 0,
+    "peakProcessGroupRSSBytes": 28409856,
+    "peakSampledDatabaseFamilyBytes": 201228408,
+    "peakSampledWALBytes": 8948672,
+    "phase": "baseline",
+    "pollIntervalSeconds": 0.1,
+    "reason": "exited",
+    "root": "/private/tmp/disk-steward-530-scale.3_pdbcti",
+    "rssStopBytes": 268435456,
+    "schema": "disk-steward-scale-supervisor-v1",
+    "seconds": 120.73637150001014,
+    "timeoutSeconds": 135.0
+  }
+}

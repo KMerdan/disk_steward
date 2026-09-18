@@ -1,0 +1,80 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-511",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-511-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-532/candidate/candidate.json",
+    "docs/reliability/evidence/TASK-532/candidate/tests.log",
+    "Full six-stage isolated verifier on the current integrated candidate (input 02fe77cd43a1b901285a042d07777a72daf25441fd0cabde6de5f6e7bc99a5ce): 522 tests, 4 skipped, 0 failures. The entitlements stage and the verification-isolation, backend-isolation and export-safety suites TASK-511 introduced are part of it."
+   ]
+  },
+  {
+   "id": "CHECK-511-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/audits/scoped-511-521-522-green/result.json",
+    "docs/reliability/evidence/audits/scoped-511-521-522-green/tests.log",
+    "Independent isolated rerun by the auditor (input 7f3ff4fa; product sources identical to 02fe77cd, the input differs only by the TASK-572 rehearsal script): VerificationIsolationTests 2, BackendIsolationTests 5, InlineExportSafetyTests 5, ExportSafetyRegressionTests 13, MonitoringSettingsTests 4, all passed. Sentinel settings, evidence, safety files and the endpoint survive; smoke mode without isolation fails safely or uses a private fixture; fixture backend initialization cannot sweep shared or foreign export directories; inherited artifact and helper overrides fail before out-of-bound writes (AC-TASK-511-01)."
+   ]
+  },
+  {
+   "id": "CHECK-511-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-511/post-implementation-inspection.md",
+    "docs/reliability/evidence/TASK-511/post-implementation-tests.log",
+    "docs/reliability/evidence/TASK-511/verification.json",
+    "Sources/DiskStewardApp/AppConfiguration.swift::validateLaunch",
+    "Sources/DiskStewardApp/AppConfiguration.swift::createVerificationArtifactDirectory",
+    "Task evidence is bound to its own candidate hash; the auditor re-read the post-implementation inspection and confirmed on the current source that a support-directory override outside --ui-smoke is refused before startup and that verification artifact directories must be new leaves under a private temporary parent."
+   ]
+  },
+  {
+   "id": "CHECK-511-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-532/assurance-findings-scale-service.json",
+    "docs/reliability/evidence/TASK-572/assurance-rollback-and-inspections.json",
+    "Assurance records reviewed: IMPACT-TASK-511-BOOT, -SETTINGS, -LIFECYCLE, -QUERY, -UI, -IPC, -CLIENTS, -CONTRACTS, -DISTRIBUTION (all confirmed); INSPECT-TASK-511-1, -2, -3 (performed, pass, sufficient, re-affirmed on 02fe77cd); FIND-ISOLATION resolved through INSPECT-TASK-511-1; FIND-SCALE, FIND-SERVICE and FIND-ROLLBACK resolved with TASK-531/532, TASK-541/542 and TASK-572 evidence respectively. Predicted scope matches the recorded changed files; no scope drift is recorded for TASK-511. Also reviewed on the task's assets: FIND-QUERY and FIND-OCCURRENCE (resolved through INSPECT-TASK-552-1 and INSPECT-TASK-552-OCCURRENCE) and FIND-DISTRIBUTION-DOC (open, non-material documentation finding on ASSET-DISTRIBUTION owned by TASK-571; it does not affect isolation or smoke startup)."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-511-BOOT",
+   "IMPACT-TASK-511-SETTINGS",
+   "IMPACT-TASK-511-LIFECYCLE",
+   "IMPACT-TASK-511-QUERY",
+   "IMPACT-TASK-511-UI",
+   "IMPACT-TASK-511-IPC",
+   "IMPACT-TASK-511-CLIENTS",
+   "IMPACT-TASK-511-CONTRACTS",
+   "IMPACT-TASK-511-DISTRIBUTION"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-511-1",
+   "INSPECT-TASK-511-2",
+   "INSPECT-TASK-511-3"
+  ],
+  "finding_ids": [
+   "FIND-ISOLATION",
+   "FIND-SCALE",
+   "FIND-SERVICE",
+   "FIND-ROLLBACK",
+   "FIND-QUERY",
+   "FIND-OCCURRENCE",
+   "FIND-DISTRIBUTION-DOC"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Isolation is proven for the smoke launch and fixture backends on this host; installed-app behavior against real user state is deliberately never exercised.",
+   "The auditor is the same actor that implemented later tasks on the shared candidate; independence rests on the isolated reruns and the archived task evidence rather than on a separate reviewer."
+  ]
+ }
+}

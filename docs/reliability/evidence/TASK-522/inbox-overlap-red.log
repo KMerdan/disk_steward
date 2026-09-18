@@ -1,0 +1,19 @@
+Building for debugging...
+[0/8] Write sources
+[2/8] Write swift-version--58304C5D6DBC2206.txt
+[4/10] Emitting module DiskStewardCore
+[5/10] Compiling DiskStewardCore EvidenceStore.swift
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:518:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+ 514 |         let connection = try requireConnection()
+ 515 |         let normalizedRoot = rootPath == "*" ? "*" : URL(fileURLWithPath: rootPath).standardizedFileURL.path
+ 516 |         try connection.transaction {
+     |                        `- note: access can happen concurrently
+ 517 |             try reconciliationCheckpoint("before-invalidation")
+ 518 |             try Self.upsertReconciliationInvalidation(
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+ 519 |                 rootPath: normalizedRoot,
+ 520 |                 reason: reason,
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+error: fatalError

@@ -1,0 +1,46 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-521-LEGACY-CLEAN",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-731A15271692D0AA63D88B1C83495EB2",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9c16bd2d2abcaf56683ac4a3d5084c0505d0e7a608cc05b2cce8dcb5e81803e5",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The four scoped immutable files confirm exactly the expected delta: one trailing space removed at EvidenceStore.swift:799; the lifecycle test file is unchanged. No behavior or test-oracle change was found. The preceding c253 narrow static review and its no-actionable-defect conclusion remain applicable to this delta; this is not broader candidate or task acceptance.",
+  "findings": [],
+  "evidence": [
+    "E1: diff -u between /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift and /private/tmp/disk-steward-521-legacy-clean.DusclS/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift returned one hunk: line 799 loses only the space after 'input: input,'.",
+    "E2: diff -u between /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift and /private/tmp/disk-steward-521-legacy-clean.DusclS/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift returned no output, exit 0."
+  ],
+  "checks": [
+    {
+      "command": "Read-only source and test diffs for the four scoped files",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Source diff exit 1 represents the expected one-space deletion; test diff exit 0 confirms identical test contents."
+    },
+    {
+      "command": "Tests/builds, database/native access and broader audit",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Excluded by the refresh job. Coordinator-reported suite results were not independently verified."
+    }
+  ],
+  "stale_if": [
+    "Assigned snapshot, scoped file contents, task guard or preceding review scope changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw bounded delta refresh requires coordinator reconciliation; no final evidence eligibility or acceptance authority.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Static comparison only; previous review limitations and exclusions remain unchanged."
+  ]
+}

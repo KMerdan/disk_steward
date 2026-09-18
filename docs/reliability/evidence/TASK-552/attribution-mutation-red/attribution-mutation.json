@@ -1,0 +1,9 @@
+{
+ "purpose": "Restore exact time-base equality in retained-claim revalidation and chronology validity; the round-trip regression must fail.",
+ "mutations": [
+  {"file": "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+   "replacements": [["                  abs(claim.event.observedAt.timeIntervalSince1970 - event.observedAt.timeIntervalSince1970) < Self.observedAtTolerance\n", "                  claim.event.observedAt.timeIntervalSince1970 == event.observedAt.timeIntervalSince1970\n"]]},
+  {"file": "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+   "replacements": [["            && end.timeIntervalSince(detected) <= tolerance && observed.timeIntervalSince(detected) <= tolerance\n", "            && end <= detected && observed <= detected\n"]]}
+ ]
+}

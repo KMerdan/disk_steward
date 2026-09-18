@@ -1,0 +1,63 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-TIMING-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-A8DE5156DDA36184F5DE026E73D6D2D5",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:d05f25660846825a185a7525b341d603ebcd8b1cfbb5b4cd48961d022e569f1e",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "One concrete legacy-timing defect remains: a new post-migration change can promote an unverified legacy current-state timestamp into a measured lower bound. Existing legacy change rows remain unverified, and the inspected readers, IPC DTO, and export share the new timing representation.",
+  "findings": [
+    {
+      "claim": "[P2] The first new change after migration can relabel a legacy completion timestamp as a measured occurrence lower bound. insertChangeEvent takes before.observedAt directly from legacy current_file_state, then unconditionally writes timing_version=1 and returns measured timing. Migration deliberately leaves historical file_state_observations.observed_at NULL because their sample time is unknown, but that distinction is not consulted here. A modification that occurred after the old sample but before its publication can therefore be excluded by the newly asserted lower bound. The same issue affects rename/delete comparisons and the legacy path-binding fallback.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2852 — occurredStart comes from before.observedAt; lines 2858–2864 substitute path_bindings.valid_from for a noncanonical alias, also without checking sample provenance.",
+        "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2876 — every newly inserted change is marked timing_version=1; line 2893 propagates that lower bound into the inline measured timing.",
+        "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:3969 — legacy sample times are deliberately left NULL, while HistoricalMigrationTests.swift:168 retains current_file_state.observed_at=1000 in the historical fixture."
+      ],
+      "recommendation": "Derive a non-null lower bound only from retained evidence that establishes its sample semantics, including the alias-binding case. Otherwise preserve an unknown lower bound while retaining the new measured upper and detection times. Extend a real v5/v6 migration fixture with a subsequent changed observation and verify the lower bound stays null through inline publication, reopen, readers, IPC, and decoded export; then verify a later comparison between verified new samples acquires the correct lower bound."
+    }
+  ],
+  "evidence": [
+    "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:4008 — v10 migration marks existing change rows version 0 and exposes timing through event_evidence only for version 1, preserving legacy stored dates without presenting them as measured.",
+    "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/EvidenceStore/EvidenceEventTiming+SQLite.swift:7 — shared reader preserves an unknown lower bound and rejects non-finite or inverted non-null timing.",
+    "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/EvidenceStore/EvidenceEventTimingPresentation.swift:12 — shared presentation distinguishes unverified and measured timing and explicitly encodes unknown fields as null.",
+    "/private/tmp/ds-ci-6quvo487/project/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift:6 — regression source covers baseline, rename, growth, and deletion across inline publication, reopen, and event readers.",
+    "/private/tmp/ds-ci-6quvo487/project/Tests/DiskStewardAppTests/IPC/EventTimingIPCIntegrationTests.swift:7 — regression source compares metadata-only get_provenance timing with decoded export, including unverified standalone events.",
+    "/private/tmp/ds-ci-6quvo487/project/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift:6 — migration regression inspects existing historical events but does not perform the first subsequent changed observation that exposes the finding."
+  ],
+  "checks": [
+    {
+      "command": "Read-only comparison of the permitted timing source delta against /private/tmp/ds552-check-1tyq6wh6/project, followed by static inspection of candidate migration, timing, IPC tests, and schemas.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed the bounded static review without tests, builds, file edits, live-state inspection beyond the job envelope, or Pyramid mutation."
+    },
+    {
+      "command": "Compilation, migration execution, and runtime regression tests",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Explicitly prohibited for this helper; the legacy transition finding follows from source and fixture tracing."
+    }
+  ],
+  "stale_if": [
+    "Reviewed sources differ from snapshot sha256:d05f25660846825a185a7525b341d603ebcd8b1cfbb5b4cd48961d022e569f1e.",
+    "The helper identity, parent task, or task guard changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Advisory review of the timing delta, pending coordinator reconciliation; not runtime validation or whole-task acceptance evidence.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Nullable ProvenanceClaim, task-impact attribution, policy, and all-tool budgets remain expressly unfinished and were not reported as new defects.",
+    "Migration and IPC behavior were inspected statically rather than executed."
+  ]
+}

@@ -1,0 +1,137 @@
+{
+ "schema": "agent-result-v1",
+ "task": "GATE-529",
+ "outcome": "implemented",
+ "changed_files": [
+  "docs/reliability/evidence/GATE-529/candidate/build.log",
+  "docs/reliability/evidence/GATE-529/candidate/candidate.json",
+  "docs/reliability/evidence/GATE-529/candidate/entitlements.log",
+  "docs/reliability/evidence/GATE-529/candidate/harness.log",
+  "docs/reliability/evidence/GATE-529/candidate/manifest.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-architecture-app.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-architecture-helper.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-build.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-generator.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-helper.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-project.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-smoke.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-system-temporary.log",
+  "docs/reliability/evidence/GATE-529/candidate/package-toolchain.log",
+  "docs/reliability/evidence/GATE-529/candidate/tests.log",
+  "docs/reliability/evidence/GATE-529/candidate/toolchain.log",
+  "docs/reliability/evidence/GATE-529/rung-2-scenarios.md",
+  "docs/reliability/evidence/GATE-529/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "evidence-only",
+ "changes": [
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/build.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/entitlements.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/harness.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/manifest.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-architecture-app.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-architecture-helper.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-build.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-generator.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-helper.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-project.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-smoke.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-system-temporary.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/package-toolchain.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/candidate/toolchain.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/rung-2-scenarios.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-529/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "env -i ... Scripts/Testing/verify_candidate.py --output /private/tmp/ds529-gate-2 --xcodegen /opt/homebrew/bin/xcodegen",
+   "result": "passed",
+   "notes": "input 09bd0c1a445d...: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; Executed 523 tests, with 5 tests skipped and 0 failures (0 unexpected) in 70.842 (70.870) seconds"
+  },
+  {
+   "command": "/private/tmp/task552-run.py (TASK-521/522 and TASK-523 scoped suites)",
+   "result": "passed",
+   "notes": "docs/reliability/evidence/audits/scoped-511-521-522-green/ (205 tests) and docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/ (180 tests), 0 failures."
+  },
+  {
+   "command": "pyramid audit TASK-521, TASK-522, TASK-523",
+   "result": "passed",
+   "notes": "All three validation-requires targets verified before the gate was exercised."
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-GATE-529-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/GATE-529/rung-2-scenarios.md; candidate/candidate.json"
+  },
+  {
+   "criterion": "AC-GATE-529-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/tests.log (EndpointDeliveryRegressionTests, DiskStewardEndpointTests); docs/reliability/evidence/TASK-523/endpoint-red.log; INSPECT-TASK-523-1"
+  }
+ ],
+ "discovered_risks": [
+  "Fixture endpoint adapter only; native EndpointSecurity activation is not exercised.",
+  "FIND-OVERNIGHT stays open on RESOURCE/BUILD until the TASK-572 soak completes."
+ ],
+ "suggested_graph_changes": []
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-CONTRACT-510-ISOLATION",
+  "parent_task": "CONTRACT-510",
+  "task_guard": "GUARD-TASK-60E106BC4FAC963D9C0735CB72C86DC4",
+  "kind": "reconnaissance",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:8c8c8aa07395c51f4e1e88bb0929e30cc772c180c72f9fd864b73d253b21a5d7",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-candidate.LsZIbw/Sources/DiskStewardApp/AppConfiguration.swift",
+    "/private/tmp/disk-steward-candidate.LsZIbw/Sources/DiskStewardApp/StatusItemController.swift",
+    "/private/tmp/disk-steward-candidate.LsZIbw/Sources/DiskStewardApp/IPC/**",
+    "/private/tmp/disk-steward-candidate.LsZIbw/Sources/DiskStewardApp/Settings/**",
+    "/private/tmp/disk-steward-candidate.LsZIbw/Sources/DiskStewardCore/IPC/**",
+    "/private/tmp/disk-steward-candidate.LsZIbw/Tests/**",
+    "/private/tmp/disk-steward-candidate.LsZIbw/Scripts/Distribution/verify-release"
+  ],
+  "purpose": "Map remaining production-state isolation hazards and missing sentinel acceptance checks for reliability foundation and first increment.",
+  "questions": [
+    "Which tests or constructors can still touch real settings, sockets, temporary exports, client profiles, or watched roots? Distinguish code-confirmed risks from guesses.",
+    "What bounded acceptance scenarios must TASK-511/512 add beyond current smoke and socket tests? Cite precise symbols and tests, no code changes."
+  ],
+  "acceptance_criteria": [
+    "AC-CONTRACT-510-01"
+  ],
+  "execution_isolation": "none",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "load-bearing-decision",
+  "result_budget": {
+    "max_findings": 6,
+    "max_evidence_items": 12,
+    "max_output_chars": 9000
+  }
+}

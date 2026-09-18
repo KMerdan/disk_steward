@@ -1,0 +1,1115 @@
+--- base/Scripts/Integration/doctor
++++ candidate/Scripts/Integration/doctor
+@@ -4,7 +4,7 @@
+ client=""
+ config_root=""
+ connector=""
+-socket_path="$HOME/Library/Application Support/DiskSteward/disk-steward.sock"
++socket_path="$HOME/Library/Application Support/Disk Steward/disk-steward.sock"
+ dry_run=0
+ 
+ usage() {
+@@ -45,7 +45,7 @@
+   (( failures += 1 ))
+ fi
+ 
+-if [[ -x "$connector" ]] && "$connector" --self-check >/dev/null 2>&1; then
++if [[ -x "$connector" ]] && DISK_STEWARD_SOCKET_PATH="$socket_path" "$connector" --self-check >/dev/null 2>&1; then
+   print "ok: connector self-check passed"
+ else
+   print -u2 "failed: connector is missing or its self-check failed at $connector"
+--- base/Scripts/Integration/session
++++ candidate/Scripts/Integration/session
+@@ -1,5 +1,15 @@
+ #!/usr/bin/env swift
+ 
++// Disk Steward session entry point (TASK-562 contract).
++//
++// A registration binds a task to one long-lived agent process, never to this
++// script: `register` requires --process-pid, checks that the process is alive
++// and is an ancestor of this script (so a wrapper shell cannot be named by
++// accident), and refuses this script's own interpreter. Heartbeats carry the
++// lease explicitly; `end` closes the registration. The app validates the
++// ancestry again from the socket's kernel peer credentials. Nothing here is
++// inferred from MCP traffic and no client hook is installed.
++
+ import Darwin
+ import Foundation
+ 
+@@ -8,7 +18,7 @@
+     var client = ""
+     var sessionID = ""
+     var registrationID = ""
+-    var processPID: Int32 = getppid()
++    var processPID: Int32 = 0
+     var workspaces: [String] = []
+     var socket = FileManager.default.homeDirectoryForCurrentUser
+         .appendingPathComponent("Library/Application Support/Disk Steward/disk-steward.sock").path
+@@ -26,8 +36,28 @@
+         case let .usage(message), let .invalid(message), let .system(message): message
+         }
+     }
++
++    var exitCode: Int32 {
++        switch self {
++        case .usage: 64
++        case .invalid: 65
++        case .system: 69
++        }
++    }
+ }
+ 
++let usage = """
++usage:
++  session register --client codex|claude|other-local --session-id ID --workspace PATH [--workspace PATH] --process-pid PID [--lease-seconds N] [--socket PATH] [--dry-run]
++  session heartbeat --registration-id UUID [--lease-seconds N] [--socket PATH] [--dry-run]
++  session end --registration-id UUID [--socket PATH] [--dry-run]
++
++--process-pid names the long-lived agent process the task belongs to (for a
++shell-driven agent, that agent's own PID, not $$ of a transient wrapper). It
++must be alive and an ancestor of this command; this script itself is never
++registered. Send heartbeats while the task is active and end it when done.
++"""
++
+ func parse() throws -> Options {
+     var options = Options()
+     var arguments = Array(CommandLine.arguments.dropFirst())
+@@ -58,33 +88,67 @@
+         guard ["codex", "claude", "other-local"].contains(options.client),
+               !options.sessionID.isEmpty, !options.workspaces.isEmpty
+         else { throw SessionError.usage(usage) }
++        guard options.processPID > 0 else {
++            throw SessionError.usage("register requires --process-pid: the long-lived agent process this task belongs to.\n\(usage)")
++        }
+         guard (60 ... 86_400).contains(options.leaseSeconds) else {
+             throw SessionError.invalid("lease must be between 60 and 86400 seconds")
+         }
++        try validateProcess(options.processPID)
+     case "end", "heartbeat":
+         guard UUID(uuidString: options.registrationID) != nil else {
+             throw SessionError.invalid("end/heartbeat requires a valid --registration-id")
+         }
++        guard (60 ... 86_400).contains(options.leaseSeconds) else {
++            throw SessionError.invalid("lease must be between 60 and 86400 seconds")
++        }
+     default: throw SessionError.usage(usage)
+     }
+     return options
+ }
+ 
+-let usage = """
+-usage:
+-  session register --client codex|claude --session-id ID --workspace PATH [--workspace PATH] [--lease-seconds N] [--socket PATH] [--dry-run]
+-  session end --registration-id UUID [--socket PATH] [--dry-run]
+-  session heartbeat --registration-id UUID [--socket PATH] [--dry-run]
++struct ProcessInfoRecord { let pid: Int32; let parent: Int32; let name: String }
+ 
+-Registration defaults to the calling shell's PID, not the short-lived session helper.
+-Use --process-pid PID to identify a longer-lived ancestor; the app validates ancestry.
+-Send heartbeats while the real task is active, and end it when that task finishes.
+-"""
++func processRecord(_ pid: Int32) -> ProcessInfoRecord? {
++    var info = kinfo_proc()
++    var size = MemoryLayout<kinfo_proc>.stride
++    var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, pid]
++    guard sysctl(&mib, UInt32(mib.count), &info, &size, nil, 0) == 0, size > 0, info.kp_proc.p_pid == pid else { return nil }
++    let name = withUnsafePointer(to: &info.kp_proc.p_comm) { pointer in
++        pointer.withMemoryRebound(to: CChar.self, capacity: Int(MAXCOMLEN) + 1) { String(cString: $0) }
++    }
++    return ProcessInfoRecord(pid: pid, parent: info.kp_eproc.e_ppid, name: name)
++}
+ 
++/// The named process must be alive, must not be this script, and must be an
++/// ancestor of this script: that is the only relationship the app can also
++/// prove from the socket's peer credentials.
++func validateProcess(_ pid: Int32) throws {
++    guard pid != getpid() else { throw SessionError.invalid("--process-pid must not be this session command itself; name the agent process it runs under.") }
++    guard kill(pid, 0) == 0 || errno == EPERM else { throw SessionError.invalid("process \(pid) is not running; a dead process cannot own a task registration.") }
++    var current = getpid()
++    var depth = 0
++    var chain: [String] = []
++    while depth < 64, let record = processRecord(current) {
++        chain.append("\(record.name)(\(record.pid))")
++        if record.parent == pid {
++            if let target = processRecord(pid), ["sh", "zsh", "bash", "dash", "fish", "env", "xargs", "swift", "swift-frontend"].contains(target.name) {
++                FileHandle.standardError.write(Data("disk-steward-session: warning: \(target.name)(\(pid)) looks like a transient wrapper; if it exits before the task ends, the registration will not attribute later writes. Prefer the agent's own PID.\n".utf8))
++            }
++            return
++        }
++        guard record.parent > 1 else { break }
++        current = record.parent
++        depth += 1
++    }
++    throw SessionError.invalid("process \(pid) is not an ancestor of this command (chain: \(chain.joined(separator: " <- "))); the app would reject the registration. Run the session command from within the agent process tree and pass that process's PID.")
++}
++
+ func request(for options: Options) -> [String: Any] {
+     let method: String
+     let payload: [String: Any]
+-    if options.operation == "register" {
++    switch options.operation {
++    case "register":
+         method = "sessions/register"
+         payload = [
+             "client": options.client,
+@@ -93,8 +157,11 @@
+             "lease_seconds": options.leaseSeconds,
+             "process_pid": options.processPID,
+         ]
+-    } else {
+-        method = options.operation == "heartbeat" ? "sessions/heartbeat" : "sessions/end"
++    case "heartbeat":
++        method = "sessions/heartbeat"
++        payload = ["registration_id": options.registrationID, "lease_seconds": options.leaseSeconds]
++    default:
++        method = "sessions/end"
+         payload = ["registration_id": options.registrationID]
+     }
+     return [
+@@ -108,7 +175,7 @@
+ func exchange(_ request: [String: Any], socketPath: String) throws -> Data {
+     var status = stat()
+     guard lstat(socketPath, &status) == 0 else {
+-        throw SessionError.system("Disk Steward is unavailable at \(socketPath). Open the app and verify Monitoring is enabled.")
++        throw SessionError.system("Disk Steward is unavailable at \(socketPath). Open the app and verify Monitoring and Agent Access are enabled.")
+     }
+     guard status.st_uid == getuid(), status.st_mode & S_IFMT == S_IFSOCK,
+           status.st_mode & 0o077 == 0
+@@ -170,7 +237,10 @@
+         }
+         print(String(decoding: response, as: UTF8.self))
+     }
++} catch let error as SessionError {
++    FileHandle.standardError.write(Data(("disk-steward-session: \(error)\n").utf8))
++    exit(error.exitCode)
+ } catch {
+     FileHandle.standardError.write(Data(("disk-steward-session: \(error)\n").utf8))
+-    exit(64)
++    exit(69)
+ }
+--- base/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift
+@@ -6,13 +6,97 @@
+     let arguments: [String]
+     let environment: [String: String]
+     let workingDirectoryURL: URL?
++    /// When false the child sees only `environment`: a verification must not
++    /// inherit a DISK_STEWARD_* override that points it at another socket.
++    let inheritsEnvironment: Bool
+ 
+-    init(executableURL: URL, arguments: [String], environment: [String: String] = [:], workingDirectoryURL: URL? = nil) {
++    init(executableURL: URL, arguments: [String], environment: [String: String] = [:], workingDirectoryURL: URL? = nil, inheritsEnvironment: Bool = true) {
+         self.executableURL = executableURL
+         self.arguments = arguments
+         self.environment = environment
+         self.workingDirectoryURL = workingDirectoryURL
++        self.inheritsEnvironment = inheritsEnvironment
++    }
++}
++
++/// The report `disk-witness-mcp --self-check` prints as its last stdout line.
++/// Verification trusts nothing else: the helper names its own executable
++/// identity, the socket it used and what it found there, so a different
++/// binary, an inherited override or a stale store cannot pass as "verified".
++struct HelperSelfCheckReport: Decodable, Equatable, Sendable {
++    struct Helper: Decodable, Equatable, Sendable { let path: String; let identity: String? }
++    struct Evidence: Decodable, Equatable, Sendable { let observedAt: String?; let ageSeconds: Double?; let persisted: Bool? }
++    let schema: String
++    let helper: Helper
++    let socket: String
++    let app: String
++    let evidence: Evidence?
++    let error: String?
++
++    static let schemaName = "disk-steward-self-check-v1"
++
++    static func parse(_ standardOutput: String) -> HelperSelfCheckReport? {
++        for line in standardOutput.split(separator: "\n").reversed() where line.contains(schemaName) {
++            guard let data = line.data(using: .utf8), let report = try? JSONDecoder().decode(HelperSelfCheckReport.self, from: data),
++                  report.schema == schemaName else { continue }
++            return report
++        }
++        return nil
++    }
++}
++
++enum HelperSelfCheck {
++    static let staleEvidenceThreshold: TimeInterval = 3_600
++
++    enum Outcome: Equatable, Sendable {
++        case verified(evidenceAge: TimeInterval?)
++        case stale(evidenceAge: TimeInterval?)
++        case failed(reason: String)
++    }
++
++    /// The command a verification runs: the exact configured executable with a
++    /// clean environment, so the helper resolves the same socket the client's
++    /// spawn would.
++    static func command(for configured: URL) -> AgentCommand {
++        AgentCommand(executableURL: configured, arguments: ["--self-check"],
++                     environment: ["PATH": "/usr/bin:/bin", "HOME": NSHomeDirectory()], inheritsEnvironment: false)
++    }
++
++    static func evaluate(_ result: AgentCommandResult, expectedIdentity: String?, configuredPath: String) -> Outcome {
++        guard let report = HelperSelfCheckReport.parse(result.standardOutput) else {
++            return .failed(reason: "The helper at \(configuredPath) did not identify itself (no self-check report, exit \(result.exitCode)). Verification does not trust an unidentified process; use Repair to reinstall the bundled helper.")
++        }
++        guard let expectedIdentity, report.helper.identity == expectedIdentity else {
++            return .failed(reason: "A different helper answered the self-check (\(report.helper.path)); the configured entry does not run this build's helper. Use Repair.")
++        }
++        switch report.app {
++        case "connected":
++            if let age = report.evidence?.ageSeconds {
++                return age > staleEvidenceThreshold ? .stale(evidenceAge: age) : .verified(evidenceAge: age)
++            }
++            // The app answered but holds no persisted observation: connectivity
++            // is proven, evidence freshness is not, and the state says so.
++            return .stale(evidenceAge: nil)
++        case "access-off":
++            return .failed(reason: "The helper reached the app's socket path, but Agent Access is off in Disk Steward. Turn it on, then test again.")
++        case "app-off":
++            return .failed(reason: "Disk Steward is not running or Monitoring is off: no socket at \(report.socket). Open the app, then test again.")
++        default:
++            return .failed(reason: "The helper could not reach Disk Steward: \(report.error ?? report.app).")
++        }
++    }
++
++    /// The clause a stale verification uses for what it found.
++    static func describeStaleness(age: TimeInterval?) -> String {
++        age.map { "the newest evidence is \(describe(age: $0)) old" } ?? "no evidence has been persisted yet"
+     }
++
++    static func describe(age: TimeInterval) -> String {
++        let minutes = Int(age / 60)
++        if minutes < 60 { return "\(max(1, minutes)) min" }
++        let hours = minutes / 60
++        return hours < 48 ? "\(hours) h" : "\(hours / 24) days"
++    }
+ }
+ 
+ struct AgentCommandResult: Equatable, Sendable {
+--- base/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift
+@@ -207,6 +207,10 @@
+ enum AgentVerification: Equatable, Sendable {
+     case notRun
+     case passed(at: Date)
++    /// The exact configured helper connected, but the evidence it returned is
++    /// older than `HelperSelfCheck.staleEvidenceThreshold`, or nothing has been
++    /// persisted yet (`evidenceAge == nil`).
++    case stale(at: Date, evidenceAge: TimeInterval?)
+     case failed(reason: String)
+ }
+ 
+@@ -216,6 +220,7 @@
+     case configured
+     case approvalPending
+     case verified
++    case stale
+     case broken
+     case conflict
+     case unavailable
+@@ -235,7 +240,7 @@
+         switch state {
+         case .available, .configured, .broken:
+             true
+-        case .notDetected, .approvalPending, .verified, .conflict, .unavailable:
++        case .notDetected, .approvalPending, .verified, .stale, .conflict, .unavailable:
+             false
+         }
+     }
+@@ -274,6 +279,9 @@
+         case let (_, .owned, .passed(at)):
+             state = .verified
+             detail = "Verified \(at.formatted(date: .abbreviated, time: .shortened))."
++        case let (_, .owned, .stale(at, age)):
++            state = .stale
++            detail = "Connected \(at.formatted(date: .abbreviated, time: .shortened)), but \(HelperSelfCheck.describeStaleness(age: age)). Monitoring may be paused or the app may have just started."
+         case (_, .owned, .notRun):
+             state = .configured
+             detail = "Configured; verification has not run yet."
+--- base/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift
+@@ -17,6 +17,7 @@
+         isSelectable = snapshot.canSelectForSetup
+         switch snapshot.state {
+         case .verified: symbolName = "checkmark.seal.fill"
++        case .stale: symbolName = "clock.badge.exclamationmark"
+         case .configured, .approvalPending: symbolName = "checkmark.circle.fill"
+         case .available: symbolName = "circle"
+         case .broken, .conflict, .unavailable: symbolName = "exclamationmark.triangle.fill"
+@@ -296,7 +297,7 @@
+         switch state {
+         case .verified, .configured: .green
+         case .available, .approvalPending: .blue
+-        case .broken, .conflict: .orange
++        case .stale, .broken, .conflict: .orange
+         case .notDetected, .unavailable: .secondary
+         }
+     }
+--- base/Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift
+@@ -275,7 +275,8 @@
+     }
+ 
+     private func spawn() throws -> pid_t {
+-        let environment = ProcessInfo.processInfo.environment.merging(command.environment) { _, new in new }
++        let inherited = command.inheritsEnvironment ? ProcessInfo.processInfo.environment : [:]
++        let environment = inherited.merging(command.environment) { _, new in new }
+         let values = [command.executableURL.path] + command.arguments
+         guard command.executableURL.isFileURL, values.allSatisfy({ !$0.contains("\0") }),
+               environment.allSatisfy({ !$0.key.contains("=") && !$0.key.contains("\0") && !$0.value.contains("\0") }) else { throw POSIXError(.EINVAL) }
+@@ -549,24 +550,36 @@
+             return result(.verify, .failed, "The configured helper differs from this build or is missing. Repair before verifying.", before)
+         }
+         do {
+-            let selfCheck = AgentCommand(executableURL: helperURL, arguments: ["--self-check"])
+-            _ = try (await runner.run(selfCheck)).requireSuccess(command: selfCheck)
++            // Execute exactly what the client reports it will run, by identity.
++            guard let configured = try await currentDefinition(), configured == receipt.definition,
++                  let configuredIdentity = PrivateIntegrationFile.executableIdentity(URL(fileURLWithPath: configured.command)),
++                  configuredIdentity == receipt.helperIdentity else {
++                return result(.verify, .failed, "The command \(descriptor.displayName) would run is not this build's helper. Use Repair to update the entry.", await inspect())
++            }
++            let selfCheck = HelperSelfCheck.command(for: URL(fileURLWithPath: configured.command))
++            let outcome = HelperSelfCheck.evaluate(try await runner.run(selfCheck), expectedIdentity: configuredIdentity, configuredPath: configured.command)
+             guard try await currentDefinition() == receipt.definition,
+                   receipt.helperIdentity == PrivateIntegrationFile.executableIdentity(helperURL),
+                   try receiptStore.receipt(for: descriptor.id) == receipt else {
+                 return result(.verify, .failed, "Configuration changed during verification. Rescan before retrying.", await inspect())
+             }
+-            var verified = receipt
+-            verified.lastVerifiedAt = Date()
+-            verified.lastResult = "verified"
+-            try receiptStore.upsert(verified)
+-            let snapshot = AgentIntegrationSnapshot.derive(
+-                descriptor: descriptor,
+-                presence: before.presence,
+-                inspection: .owned(receipt: verified),
+-                verification: .passed(at: verified.lastVerifiedAt!)
+-            )
+-            return result(.verify, .unchanged, "The configured helper connected to Disk Steward. Restart \(descriptor.displayName) to load this configuration; evidence freshness is reported separately.", snapshot)
++            var updated = receipt
++            let now = Date()
++            switch outcome {
++            case let .verified(age):
++                updated.lastVerifiedAt = now; updated.lastResult = "verified"
++                try receiptStore.upsert(updated)
++                let freshness = age.map { "Evidence is \(HelperSelfCheck.describe(age: $0)) old." } ?? "Evidence age was not reported."
++                return result(.verify, .unchanged, "The configured helper connected to Disk Steward. \(freshness) Restart \(descriptor.displayName) to load this configuration.",
++                              .derive(descriptor: descriptor, presence: before.presence, inspection: .owned(receipt: updated), verification: .passed(at: now)))
++            case let .stale(age):
++                updated.lastVerifiedAt = now; updated.lastResult = "verified-stale"
++                try receiptStore.upsert(updated)
++                return result(.verify, .unchanged, "The configured helper connected, but \(HelperSelfCheck.describeStaleness(age: age)). Check that Monitoring is running before relying on answers.",
++                              .derive(descriptor: descriptor, presence: before.presence, inspection: .owned(receipt: updated), verification: .stale(at: now, evidenceAge: age)))
++            case let .failed(reason):
++                return result(.verify, .failed, reason, .derive(descriptor: descriptor, presence: before.presence, inspection: .owned(receipt: receipt), verification: .failed(reason: reason)))
++            }
+         } catch {
+             let snapshot = AgentIntegrationSnapshot.derive(
+                 descriptor: descriptor,
+--- base/Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift
+@@ -196,30 +196,48 @@
+             return result(.verify, .failed, "The configured helper differs from this build or is missing. Repair before verifying.", before)
+         }
+         do {
+-            let command = AgentCommand(executableURL: helperURL, arguments: ["--self-check"])
+-            _ = try (await runner.run(command)).requireSuccess(command: command)
++            // The exact command the client will spawn is what gets executed:
++            // read it back from the client's file, require it to be this
++            // build's helper by identity, and run it with a clean environment.
++            guard let configured = try readDefinition(), configured == receipt.definition,
++                  let configuredIdentity = PrivateIntegrationFile.executableIdentity(URL(fileURLWithPath: configured.command)),
++                  configuredIdentity == receipt.helperIdentity else {
++                return result(.verify, .failed, "The command \(descriptor.displayName) would run is not this build's helper. Use Repair to update the entry.", await inspect())
++            }
++            let command = HelperSelfCheck.command(for: URL(fileURLWithPath: configured.command))
++            let outcome = HelperSelfCheck.evaluate(try await runner.run(command), expectedIdentity: configuredIdentity, configuredPath: configured.command)
+             guard try readDefinition() == receipt.definition,
+                   receipt.helperIdentity == PrivateIntegrationFile.executableIdentity(helperURL),
+                   AgentIntegrationOwnership.resolve(current: receipt.definition,
+                     receipt: try receiptStore.receipt(for: descriptor.id)) == .owned(receipt) else {
+                 return result(.verify, .failed, "Configuration changed during verification. Rescan before retrying.", await inspect())
+             }
+-            var verified = receipt
+-            verified.lastVerifiedAt = Date()
+-            verified.lastResult = "verified"
+-            try receiptStore.upsert(verified)
+-            let snapshot = AgentIntegrationSnapshot.derive(
+-                descriptor: descriptor,
+-                presence: before.presence,
+-                inspection: .owned(receipt: verified),
+-                verification: .passed(at: verified.lastVerifiedAt!)
+-            )
+-            return result(.verify, .unchanged, "The configured helper connected to Disk Steward. Restart \(descriptor.displayName) to load this configuration; evidence freshness is reported separately.", snapshot)
++            return try recordVerification(outcome, receipt: receipt, presence: before.presence)
+         } catch {
+             return result(.verify, .failed, error.localizedDescription, before)
+         }
+     }
+ 
++    private func recordVerification(_ outcome: HelperSelfCheck.Outcome, receipt: AgentIntegrationReceipt, presence: AgentClientPresence) throws -> AgentIntegrationOperationResult {
++        var updated = receipt
++        let now = Date()
++        switch outcome {
++        case let .verified(age):
++            updated.lastVerifiedAt = now; updated.lastResult = "verified"
++            try receiptStore.upsert(updated)
++            let freshness = age.map { "Evidence is \(HelperSelfCheck.describe(age: $0)) old." } ?? "Evidence age was not reported."
++            return result(.verify, .unchanged, "The configured helper connected to Disk Steward. \(freshness) Restart \(descriptor.displayName) to load this configuration.",
++                          .derive(descriptor: descriptor, presence: presence, inspection: .owned(receipt: updated), verification: .passed(at: now)))
++        case let .stale(age):
++            updated.lastVerifiedAt = now; updated.lastResult = "verified-stale"
++            try receiptStore.upsert(updated)
++            return result(.verify, .unchanged, "The configured helper connected, but \(HelperSelfCheck.describeStaleness(age: age)). Check that Monitoring is running before relying on answers.",
++                          .derive(descriptor: descriptor, presence: presence, inspection: .owned(receipt: updated), verification: .stale(at: now, evidenceAge: age)))
++        case let .failed(reason):
++            return result(.verify, .failed, reason, .derive(descriptor: descriptor, presence: presence, inspection: .owned(receipt: receipt), verification: .failed(reason: reason)))
++        }
++    }
++
+     private func remove() async -> AgentIntegrationOperationResult {
+         let before = await inspect()
+         if before.state == .conflict {
+--- base/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift
++++ candidate/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift
+@@ -247,9 +247,9 @@
+             ])
+         }
+         return .object([
+-            "schema": .string("storage-summary-v1"),
+-            "live_volume_observed_at": .string(snapshot.observedAt),
+-            "persisted_state_as_of": latestObservation.map { .string(timestamp($0)) } ?? .null,
++            "schema": .string(StorageSummaryContract.schema),
++            StorageSummaryContract.liveVolumeObservedAt: .string(snapshot.observedAt),
++            StorageSummaryContract.persistedStateAsOf: latestObservation.map { .string(timestamp($0)) } ?? .null,
+             "volumes": .array(volumes),
+             "current_consumer_count": .integer(Int64(lifecycle.currentStateCount)),
+             "current_allocated_bytes": .integer(lifecycle.currentStateAllocatedBytes),
+--- base/Sources/DiskStewardCore/IPC/StorageSummaryContract.swift
++++ candidate/Sources/DiskStewardCore/IPC/StorageSummaryContract.swift
+@@ -0,0 +1,14 @@
++import Foundation
++
++/// Wire names of the storage summary the app publishes over IPC and the
++/// helper's self-check reads back. Both sides use these constants, so the
++/// evidence-freshness field cannot be renamed on one side only.
++public enum StorageSummaryContract {
++    public static let schema = "storage-summary-v1"
++    /// When the live volume figures were sampled: the moment of the query,
++    /// which says nothing about how fresh the evidence is.
++    public static let liveVolumeObservedAt = "live_volume_observed_at"
++    /// The newest persisted observation, or null when nothing has been
++    /// observed yet. This is the freshness a verification reports.
++    public static let persistedStateAsOf = "persisted_state_as_of"
++}
+--- base/Sources/DiskStewardMCP/main.swift
++++ candidate/Sources/DiskStewardMCP/main.swift
+@@ -11,24 +11,82 @@
+ signal(SIGPIPE, SIG_IGN)
+ 
+ if CommandLine.arguments.contains("--self-check") {
++    // The self-check answers with a report the app can bind to this exact
++    // binary: the helper's own executable identity, the socket it resolved and
++    // what it found there. No session is registered and no task is inferred.
+     let output = StdioDispatcher(server: server)
+     let response = server.handle(line: #"{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"self-check","version":"1"}}}"#)
+     output.write(response)
+     guard response != nil else { exit(1) }
++    let identity = SelfCheckReport.executableIdentity()
++    var report = SelfCheckReport(helper: .init(path: identity.path, identity: identity.identity), socket: socketPath, app: "error", evidence: nil, error: nil)
++    var connected = false
+     do {
+         let result = try UnixSocketDiskStewardIPCClient(socketPath: socketPath, accessStateURL: stateURL)
+             .call(tool: "get_storage_summary", arguments: [:], isCancelled: { false })
+-        output.write(String(decoding: try JSONEncoder.diskSteward.encode(result), as: UTF8.self))
+-        exit(output.finish() ? 0 : 1)
++        let encoded = try JSONEncoder.diskSteward.encode(result)
++        output.write(String(decoding: encoded, as: UTF8.self))
++        report.app = "connected"
++        report.evidence = SelfCheckReport.evidence(from: encoded)
++        connected = true
++    } catch let error as DiskStewardIPCError {
++        switch error {
++        case .agentAccessDisabled: report.app = "access-off"
++        case .appUnavailable: report.app = "app-off"
++        case .insecureSocket: report.app = "insecure-socket"
++        default: report.app = "error"
++        }
++        report.error = error.localizedDescription
+     } catch {
++        report.error = error.localizedDescription
++    }
++    output.write(report.encoded())
++    if !connected {
+         let diagnostics = StdioDispatcher(server: server, output: STDERR_FILENO)
+-        diagnostics.write(error.localizedDescription)
++        diagnostics.write(report.error ?? report.app)
+         _ = diagnostics.finish()
+-        _ = output.finish()
+-        exit(1)
+     }
++    exit(output.finish() && connected ? 0 : 1)
+ }
+ 
++struct SelfCheckReport: Encodable {
++    struct Helper: Encodable { let path: String; let identity: String? }
++    struct Evidence: Encodable { let observedAt: String?; let ageSeconds: Double?; let persisted: Bool }
++    let schema = "disk-steward-self-check-v1"
++    let helper: Helper
++    let socket: String
++    var app: String
++    var evidence: Evidence?
++    var error: String?
++
++    static func executableIdentity() -> (path: String, identity: String?) {
++        let path = Bundle.main.executablePath ?? CommandLine.arguments[0]
++        var value = stat()
++        guard stat(path, &value) == 0, value.st_mode & S_IFMT == S_IFREG else { return (path, nil) }
++        return (path, "\(value.st_dev):\(value.st_ino):\(value.st_size):\(value.st_mtimespec.tv_sec):\(value.st_mtimespec.tv_nsec):\(value.st_ctimespec.tv_sec):\(value.st_ctimespec.tv_nsec)")
++    }
++
++    /// Freshness is the newest persisted observation the app reports under
++    /// `StorageSummaryContract.persistedStateAsOf`, never the moment the live
++    /// volume figures were sampled. A null value means nothing has been
++    /// persisted yet, and the report says so instead of claiming freshness.
++    static func evidence(from encoded: Data) -> Evidence? {
++        guard let object = try? JSONSerialization.jsonObject(with: encoded) as? [String: Any] else { return nil }
++        guard let text = object[StorageSummaryContract.persistedStateAsOf] as? String else {
++            return Evidence(observedAt: nil, ageSeconds: nil, persisted: false)
++        }
++        let parser = ISO8601DateFormatter()
++        parser.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
++        let date = parser.date(from: text) ?? ISO8601DateFormatter().date(from: text)
++        return Evidence(observedAt: text, ageSeconds: date.map { max(0, Date().timeIntervalSince($0)) }, persisted: true)
++    }
++
++    func encoded() -> String {
++        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
++        return (try? encoder.encode(self)).flatMap { String(data: $0, encoding: .utf8) } ?? "{\"schema\":\"disk-steward-self-check-v1\",\"app\":\"error\"}"
++    }
++}
++
+ // The input thread never writes stdout or waits for an evidence request. One
+ // writer owns framing; a failed partial frame terminates the entire transport.
+ final class StdioDispatcher: @unchecked Sendable {
+--- base/Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift
++++ candidate/Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift
+@@ -167,6 +167,6 @@
+ 
+ private actor HardeningRunner: AgentCommandRunning {
+     func run(_ command: AgentCommand) async throws -> AgentCommandResult {
+-        .init(exitCode: 0, standardOutput: "ok", standardError: "")
++        command.arguments == ["--self-check"] ? SelfCheckReportFixture.result(for: command) : .init(exitCode: 0, standardOutput: "ok", standardError: "")
+     }
+ }
+--- base/Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift
++++ candidate/Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift
+@@ -243,7 +243,7 @@
+         }
+         if command.arguments == ["--self-check"] {
+             if modifyDuringSelfCheck { currentDefinition = .init(command: "/tmp/user-changed") }
+-            return .init(exitCode: 0, standardOutput: "ok", standardError: "")
++            return SelfCheckReportFixture.result(for: command)
+         }
+         return .init(exitCode: 2, standardOutput: "", standardError: "unexpected command")
+     }
+--- base/Tests/DiskStewardAppTests/AgentIntegrations/HelperVerificationTests.swift
++++ candidate/Tests/DiskStewardAppTests/AgentIntegrations/HelperVerificationTests.swift
+@@ -0,0 +1,168 @@
++@testable import DiskStewardApp
++import Foundation
++import XCTest
++
++/// TASK-562: verification executes the exact command the client will run,
++/// binds the self-check to that binary's identity, and reports app-off,
++/// access-off and stale evidence for what they are. A different helper's
++/// exit-0 self-check can never make a moved or missing helper "verified".
++@MainActor
++final class HelperVerificationTests: XCTestCase {
++    func testExitZeroWithoutASelfCheckReportIsNotVerification() async throws {
++        let fixture = try VerificationFixture()
++        fixture.runner.script = { _ in .init(exitCode: 0, standardOutput: "ok", standardError: "") }
++        let adapter = fixture.adapter()
++        let setup = await adapter.perform(.setup)
++        XCTAssertEqual(setup.outcome, .changed)
++        let verify = await adapter.perform(.verify)
++        XCTAssertEqual(verify.outcome, .failed)
++        XCTAssertTrue(verify.message.contains("did not identify itself"), verify.message)
++        XCTAssertEqual(verify.snapshot.state, .broken)
++        XCTAssertNotEqual(try fixture.receipts.receipt(for: .claudeDesktop)?.lastResult, "verified")
++    }
++
++    func testADifferentHelperAnsweringTheSelfCheckIsRejected() async throws {
++        let fixture = try VerificationFixture()
++        let other = fixture.root.appending(path: "other-helper")
++        try Data("#!/bin/sh\n".utf8).write(to: other)
++        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: other.path)
++        let adapter = fixture.adapter()
++        _ = await adapter.perform(.setup)
++        fixture.runner.script = { _ in .init(exitCode: 0, standardOutput: SelfCheckReportFixture.report(for: other, app: "connected", ageSeconds: 5), standardError: "") }
++        let verify = await adapter.perform(.verify)
++        XCTAssertEqual(verify.outcome, .failed)
++        XCTAssertTrue(verify.message.contains("A different helper answered the self-check"), verify.message)
++        XCTAssertEqual(verify.snapshot.state, .broken)
++    }
++
++    func testVerificationRunsTheConfiguredCommandWithACleanEnvironment() async throws {
++        let fixture = try VerificationFixture()
++        let adapter = fixture.adapter()
++        _ = await adapter.perform(.setup)
++        fixture.runner.script = { command in .init(exitCode: 0, standardOutput: SelfCheckReportFixture.report(for: command.executableURL, app: "connected", ageSeconds: 30), standardError: "") }
++        let verify = await adapter.perform(.verify)
++        XCTAssertEqual(verify.outcome, .unchanged, verify.message)
++        XCTAssertEqual(verify.snapshot.state, .verified)
++        let command = try XCTUnwrap(fixture.runner.commands.last { $0.arguments == ["--self-check"] })
++        XCTAssertEqual(command.executableURL, fixture.helper, "the configured command, not an assumed path, is executed")
++        XCTAssertFalse(command.inheritsEnvironment, "an inherited DISK_STEWARD_* override must not redirect the self-check")
++        XCTAssertNil(command.environment["DISK_STEWARD_SOCKET_PATH"])
++        XCTAssertEqual(try fixture.receipts.receipt(for: .claudeDesktop)?.lastResult, "verified")
++        XCTAssertTrue(verify.message.contains("Evidence is 1 min old"), verify.message)
++    }
++
++    func testMovedHelperCannotBeVerifiedEvenWhenTheNewHelperAnswers() async throws {
++        let fixture = try VerificationFixture()
++        let adapter = fixture.adapter()
++        _ = await adapter.perform(.setup)
++        // The bundled helper moves (a new app build at a new path); the client
++        // still names the old path, which no longer exists.
++        let moved = fixture.root.appending(path: "Disk Steward 2.app/Contents/Helpers/disk-witness-mcp")
++        try FileManager.default.createDirectory(at: moved.deletingLastPathComponent(), withIntermediateDirectories: true)
++        try FileManager.default.moveItem(at: fixture.helper, to: moved)
++        fixture.runner.script = { _ in .init(exitCode: 0, standardOutput: SelfCheckReportFixture.report(for: moved, app: "connected", ageSeconds: 1), standardError: "") }
++        let verify = await adapter.perform(.verify)
++        XCTAssertEqual(verify.outcome, .failed)
++        XCTAssertEqual(verify.snapshot.state, .broken)
++        XCTAssertTrue(verify.message.contains("Repair"), verify.message)
++    }
++
++    func testAppOffAccessOffAndStaleEvidenceAreReportedAccurately() async throws {
++        for (app, age, expectedState, needle) in [("app-off", nil as Double?, AgentIntegrationStateKind.broken, "not running"),
++                                                   ("access-off", nil, .broken, "Agent Access is off"),
++                                                   ("connected", 2 * 3_600 + 1, .stale, "2 h old"),
++                                                   ("connected", nil, .stale, "no evidence has been persisted yet"),
++                                                   ("connected", 90, .verified, "1 min old")] {
++            let fixture = try VerificationFixture()
++            let adapter = fixture.adapter()
++            _ = await adapter.perform(.setup)
++            fixture.runner.script = { command in .init(exitCode: app == "connected" ? 0 : 1, standardOutput: SelfCheckReportFixture.report(for: command.executableURL, app: app, ageSeconds: age), standardError: "") }
++            let verify = await adapter.perform(.verify)
++            XCTAssertEqual(verify.snapshot.state, expectedState, "\(app) \(String(describing: age)): \(verify.message)")
++            XCTAssertTrue(verify.message.contains(needle), "\(app): \(verify.message)")
++            let receipt = try XCTUnwrap(try fixture.receipts.receipt(for: .claudeDesktop))
++            switch expectedState {
++            case .verified: XCTAssertEqual(receipt.lastResult, "verified")
++            case .stale: XCTAssertEqual(receipt.lastResult, "verified-stale")
++            default: XCTAssertEqual(receipt.lastResult, "configured", "a failed test never stamps a verification")
++            }
++        }
++    }
++
++    func testCLIClientVerifiesTheCommandTheClientReports() async throws {
++        let fixture = try VerificationFixture()
++        let cli = fixture.root.appending(path: "codex")
++        try Data("#!/bin/sh\n".utf8).write(to: cli)
++        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: cli.path)
++        // The fake client reports no entry until `mcp add` ran, then whatever
++        // command the test says the client would spawn.
++        let configured = MutableBox<String?>(nil)
++        fixture.runner.script = { command in
++            if command.arguments.first == "mcp" && command.arguments[1] == "get" {
++                guard let value = configured.value else { return .init(exitCode: 1, standardOutput: "", standardError: "MCP server not found") }
++                return .init(exitCode: 0, standardOutput: "{\"transport\":{\"type\":\"stdio\",\"command\":\"\(value)\",\"args\":[]}}", standardError: "")
++            }
++            if command.arguments.first == "mcp" && command.arguments[1] == "add" { configured.value = command.arguments.last; return .init(exitCode: 0, standardOutput: "Added", standardError: "") }
++            if command.arguments.first == "mcp" && command.arguments[1] == "remove" { configured.value = nil; return .init(exitCode: 0, standardOutput: "Removed", standardError: "") }
++            if command.arguments == ["--self-check"] {
++                return .init(exitCode: 0, standardOutput: SelfCheckReportFixture.report(for: command.executableURL, app: "connected", ageSeconds: 10), standardError: "")
++            }
++            return .init(exitCode: 0, standardOutput: "", standardError: "")
++        }
++        let adapter = CodexCLIIntegrationAdapter(executableURL: cli, helperURL: fixture.helper, receiptStore: fixture.receipts, runner: fixture.runner)
++        let setup = await adapter.perform(.setup)
++        XCTAssertEqual(setup.outcome, .changed, setup.message)
++        let verified = await adapter.perform(.verify)
++        XCTAssertEqual(verified.snapshot.state, .verified, verified.message)
++        // The client now reports another command for the entry: not this build's helper.
++        let impostor = fixture.root.appending(path: "impostor")
++        try Data("#!/bin/sh\n".utf8).write(to: impostor)
++        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: impostor.path)
++        configured.value = impostor.path
++        let rejected = await adapter.perform(.verify)
++        XCTAssertEqual(rejected.outcome, .failed, rejected.message)
++        XCTAssertFalse(fixture.runner.commands.contains { $0.executableURL == impostor }, "the impostor is never executed")
++    }
++}
++
++@MainActor
++private final class VerificationFixture {
++    let root: URL
++    let config: URL
++    let helper: URL
++    let receipts: AgentIntegrationReceiptStore
++    let runner = ScriptedRunner()
++
++    init() throws {
++        root = URL(fileURLWithPath: "/tmp/ds-verify-\(UUID().uuidString)", isDirectory: true)
++        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
++        config = root.appending(path: "claude_desktop_config.json")
++        helper = root.appending(path: "Disk Steward.app/Contents/Helpers/disk-witness-mcp")
++        try FileManager.default.createDirectory(at: helper.deletingLastPathComponent(), withIntermediateDirectories: true)
++        try Data("#!/bin/sh\n".utf8).write(to: helper)
++        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: helper.path)
++        receipts = AgentIntegrationReceiptStore(url: root.appending(path: "support/receipts.json"))
++        try JSONSerialization.data(withJSONObject: ["mcpServers": [:]]).write(to: config, options: .atomic)
++    }
++
++    deinit { try? FileManager.default.removeItem(at: root) }
++
++    func adapter() -> ClaudeDesktopIntegrationAdapter {
++        ClaudeDesktopIntegrationAdapter(configurationURL: config, helperURL: helper, receiptStore: receipts, runner: runner)
++    }
++
++}
++
++private final class MutableBox<T>: @unchecked Sendable {
++    var value: T
++    init(_ value: T) { self.value = value }
++}
++
++private actor ScriptedRunner: AgentCommandRunning {
++    nonisolated(unsafe) var script: @Sendable (AgentCommand) -> AgentCommandResult = { _ in .init(exitCode: 0, standardOutput: "", standardError: "") }
++    nonisolated(unsafe) var commands: [AgentCommand] = []
++    func run(_ command: AgentCommand) async throws -> AgentCommandResult {
++        commands.append(command)
++        return script(command)
++    }
++}
+--- base/Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift
++++ candidate/Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift
+@@ -257,6 +257,6 @@
+ 
+ private actor RemainingRunner: AgentCommandRunning {
+     func run(_ command: AgentCommand) async throws -> AgentCommandResult {
+-        .init(exitCode: 0, standardOutput: "ok", standardError: "")
++        command.arguments == ["--self-check"] ? SelfCheckReportFixture.result(for: command) : .init(exitCode: 0, standardOutput: "ok", standardError: "")
+     }
+ }
+--- base/Tests/DiskStewardAppTests/AgentIntegrations/SelfCheckReportFixture.swift
++++ candidate/Tests/DiskStewardAppTests/AgentIntegrations/SelfCheckReportFixture.swift
+@@ -0,0 +1,22 @@
++@testable import DiskStewardApp
++import Foundation
++
++/// The self-check report a fixture helper "prints": the exact shape
++/// `disk-witness-mcp --self-check` emits, bound to the identity of the
++/// executable the command named, so verification fixtures exercise the real
++/// identity check instead of a bare exit code.
++enum SelfCheckReportFixture {
++    static func report(for helper: URL, app: String = "connected", ageSeconds: Double? = 5, socket: String = "/tmp/ds.sock") -> String {
++        let identity = PrivateIntegrationFile.executableIdentity(helper).map { "\"\($0)\"" } ?? "null"
++        var evidence = "null"
++        if app == "connected" {
++            evidence = ageSeconds.map { "{\"observedAt\": \"2026-09-18T00:00:00Z\", \"ageSeconds\": \($0), \"persisted\": true}" }
++                ?? "{\"observedAt\": null, \"ageSeconds\": null, \"persisted\": false}"
++        }
++        return "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{}}\n{\"schema\":\"disk-steward-self-check-v1\",\"helper\":{\"path\":\"\(helper.path)\",\"identity\":\(identity)},\"socket\":\"\(socket)\",\"app\":\"\(app)\",\"evidence\":\(evidence),\"error\":null}\n"
++    }
++
++    static func result(for command: AgentCommand, app: String = "connected", ageSeconds: Double? = 5) -> AgentCommandResult {
++        .init(exitCode: app == "connected" ? 0 : 1, standardOutput: report(for: command.executableURL, app: app, ageSeconds: ageSeconds), standardError: "")
++    }
++}
+--- base/Tests/IntegrationInstallTests/IntegrationInstallTests.swift
++++ candidate/Tests/IntegrationInstallTests/IntegrationInstallTests.swift
+@@ -153,7 +153,7 @@
+         try server.start()
+         defer { server.stop() }
+ 
+-        let registration = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "fixture-task", "--workspace", root.path, "--lease-seconds", "600", "--socket", socket.path])
++        let registration = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "fixture-task", "--workspace", root.path, "--process-pid", String(ProcessInfo.processInfo.processIdentifier), "--lease-seconds", "600", "--socket", socket.path])
+         XCTAssertEqual(registration.status, 0, registration.combined)
+         let envelope = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(registration.stdout.utf8)) as? [String: Any])
+         let result = try XCTUnwrap(envelope["result"] as? [String: Any])
+--- base/Tests/IntegrationInstallTests/SessionContractTests.swift
++++ candidate/Tests/IntegrationInstallTests/SessionContractTests.swift
+@@ -0,0 +1,219 @@
++import DiskStewardCore
++import Foundation
++import XCTest
++
++/// TASK-562: the session entry point talks to the canonical socket, binds a
++/// registration to an explicit, alive, ancestor agent process (never to the
++/// short-lived script or a wrapper shell), carries the lease on heartbeats,
++/// and nothing infers a session from MCP initialize.
++final class SessionContractTests: XCTestCase {
++    func testRegisterRequiresAnExplicitLongLivedProcess() async throws {
++        let root = temporaryRoot("ds-session-contract")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let socket = root.appendingPathComponent("private/evidence.sock")
++        let handler = RecordingHandler()
++        let server = UnixSocketEvidenceServer(socketPath: socket.path, handler: handler)
++        try server.start()
++        defer { server.stop() }
++
++        // No --process-pid: usage error, nothing registered.
++        let missing = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "t", "--workspace", root.path, "--socket", socket.path])
++        XCTAssertEqual(missing.status, 64, missing.combined)
++        XCTAssertTrue(missing.stderr.contains("requires --process-pid"), missing.combined)
++
++        // The script's own pid can never be named; a dead pid is refused.
++        let dead = Process(); dead.executableURL = URL(fileURLWithPath: "/bin/sleep"); dead.arguments = ["0"]
++        try dead.run(); dead.waitUntilExit()
++        let deadResult = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "t", "--workspace", root.path, "--process-pid", String(dead.processIdentifier), "--socket", socket.path])
++        XCTAssertEqual(deadResult.status, 65, deadResult.combined)
++        XCTAssertTrue(deadResult.stderr.contains("is not running") || deadResult.stderr.contains("not an ancestor"), deadResult.combined)
++
++        // A process that is not an ancestor of the command is refused before any IPC.
++        let bystander = Process(); bystander.executableURL = URL(fileURLWithPath: "/bin/sleep"); bystander.arguments = ["30"]
++        try bystander.run()
++        defer { bystander.terminate() }
++        let unrelated = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "t", "--workspace", root.path, "--process-pid", String(bystander.processIdentifier), "--socket", socket.path])
++        XCTAssertEqual(unrelated.status, 65, unrelated.combined)
++        XCTAssertTrue(unrelated.stderr.contains("not an ancestor"), unrelated.combined)
++        let registrationsSoFar = await handler.recordedRegistrations()
++        XCTAssertTrue(registrationsSoFar.isEmpty, "refusals happen before any request reaches the app")
++
++        // The test process is the long-lived agent: registering through a
++        // transient wrapper shell still names the agent, not the wrapper.
++        let agentPID = ProcessInfo.processInfo.processIdentifier
++        let wrapped = try run("/bin/zsh", ["-c", "/usr/bin/swift \(shellQuote(session.path)) register --client codex --session-id wrapped-task --workspace \(shellQuote(root.path)) --process-pid \(agentPID) --lease-seconds 600 --socket \(shellQuote(socket.path))"])
++        XCTAssertEqual(wrapped.status, 0, wrapped.combined)
++        let registrations = await handler.recordedRegistrations()
++        XCTAssertEqual(registrations.count, 1)
++        XCTAssertEqual(registrations.first?["process_pid"], String(agentPID))
++        XCTAssertEqual(registrations.first?["session_id"], "wrapped-task")
++        XCTAssertNotEqual(registrations.first?["process_pid"], registrations.first?["peer_pid"], "the registering peer (the script) is not what gets registered")
++
++        // Heartbeats carry the lease explicitly; end closes the registration.
++        let heartbeat = try run("/usr/bin/swift", [session.path, "heartbeat", "--registration-id", "3f20eaaa-c6f7-4e25-8d3e-67c5ce70a773", "--lease-seconds", "900", "--socket", socket.path])
++        XCTAssertEqual(heartbeat.status, 0, heartbeat.combined)
++        let heartbeats = await handler.recordedHeartbeats()
++        XCTAssertEqual(heartbeats.first?["lease_seconds"], "900")
++        let ended = try run("/usr/bin/swift", [session.path, "end", "--registration-id", "3f20eaaa-c6f7-4e25-8d3e-67c5ce70a773", "--socket", socket.path])
++        XCTAssertEqual(ended.status, 0, ended.combined)
++        XCTAssertTrue(ended.stdout.contains("\"lifecycle\":\"ended\""))
++    }
++
++    func testDefaultSocketPathsAreCanonicalAcrossEntryPoints() throws {
++        let sessionDefault = try run("/usr/bin/swift", [session.path, "register", "--client", "codex", "--session-id", "t", "--workspace", "/tmp", "--process-pid", String(ProcessInfo.processInfo.processIdentifier), "--dry-run"])
++        XCTAssertEqual(sessionDefault.status, 0, sessionDefault.combined)
++        let doctorSource = try String(contentsOf: doctor, encoding: .utf8)
++        XCTAssertTrue(doctorSource.contains("Library/Application Support/Disk Steward/disk-steward.sock"), "doctor must default to the app's socket path")
++        XCTAssertFalse(doctorSource.contains("Support/DiskSteward/"), "the old misspelt default is gone")
++        let sessionSource = try String(contentsOf: session, encoding: .utf8)
++        XCTAssertTrue(sessionSource.contains("Library/Application Support/Disk Steward/disk-steward.sock"))
++        XCTAssertEqual(UnixSocketDiskStewardIPCClient.defaultSocketPath(), FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Disk Steward/disk-steward.sock").path)
++    }
++
++    func testHelperSelfCheckReportsItsIdentityAndNeverRegistersASession() async throws {
++        let root = temporaryRoot("ds-selfcheck")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let socket = root.appendingPathComponent("private/evidence.sock")
++        let handler = RecordingHandler()
++        let server = UnixSocketEvidenceServer(socketPath: socket.path, handler: handler)
++        try server.start()
++        defer { server.stop() }
++        let connector = try connectorURL()
++        let check = try run(connector.path, ["--self-check"], environment: ["DISK_STEWARD_SOCKET_PATH": socket.path])
++        XCTAssertEqual(check.status, 0, check.combined)
++        let reportLine = try XCTUnwrap(check.stdout.split(separator: "\n").last { $0.contains("disk-steward-self-check-v1") })
++        let report = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(reportLine.utf8)) as? [String: Any])
++        XCTAssertEqual(report["app"] as? String, "connected")
++        XCTAssertEqual(report["socket"] as? String, socket.path)
++        let helper = try XCTUnwrap(report["helper"] as? [String: Any])
++        XCTAssertEqual(URL(fileURLWithPath: try XCTUnwrap(helper["path"] as? String)).resolvingSymlinksInPath(), connector.resolvingSymlinksInPath())
++        XCTAssertNotNil(helper["identity"] as? String)
++        let evidence = try XCTUnwrap(report["evidence"] as? [String: Any])
++        XCTAssertEqual(evidence["observedAt"] as? String, "2026-09-13T00:00:00Z")
++        XCTAssertGreaterThan(evidence["ageSeconds"] as? Double ?? -1, 3_600, "the fixture's evidence is days old and must be reported as such")
++        let registered = await handler.recordedRegistrations()
++        XCTAssertTrue(registered.isEmpty, "initialize and the self-check never register a session")
++        let methods = await handler.recordedMethods()
++        XCTAssertEqual(methods.filter { $0.hasPrefix("sessions/") }.count, 0)
++
++        // An app that has persisted nothing yet says so instead of claiming fresh evidence.
++        await handler.setPersistedStateAsOf(.null)
++        let empty = try run(connector.path, ["--self-check"], environment: ["DISK_STEWARD_SOCKET_PATH": socket.path])
++        XCTAssertEqual(empty.status, 0, empty.combined)
++        let emptyLine = try XCTUnwrap(empty.stdout.split(separator: "\n").last { $0.contains("disk-steward-self-check-v1") })
++        let emptyReport = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(emptyLine.utf8)) as? [String: Any])
++        XCTAssertEqual(emptyReport["app"] as? String, "connected", empty.combined)
++        let emptyEvidence = try XCTUnwrap(emptyReport["evidence"] as? [String: Any])
++        XCTAssertEqual(emptyEvidence["persisted"] as? Bool, false, "\(emptyEvidence)")
++        XCTAssertNil(emptyEvidence["ageSeconds"] as? Double, "\(emptyEvidence)")
++
++        // Access off and app off are distinguished by the report, not guessed.
++        server.stop()
++        let offline = try run(connector.path, ["--self-check"], environment: ["DISK_STEWARD_SOCKET_PATH": socket.path])
++        XCTAssertNotEqual(offline.status, 0)
++        let offlineLine = try XCTUnwrap(offline.stdout.split(separator: "\n").last { $0.contains("disk-steward-self-check-v1") })
++        let offlineReport = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(offlineLine.utf8)) as? [String: Any])
++        XCTAssertEqual(offlineReport["app"] as? String, "app-off", offline.combined)
++        let stateURL = root.appendingPathComponent("agent-access.json")
++        try AgentAccessStateFile(url: stateURL).write(enabled: false)
++        let accessOff = try run(connector.path, ["--self-check"], environment: ["DISK_STEWARD_SOCKET_PATH": socket.path, "DISK_STEWARD_AGENT_ACCESS_STATE_PATH": stateURL.path])
++        let accessLine = try XCTUnwrap(accessOff.stdout.split(separator: "\n").last { $0.contains("disk-steward-self-check-v1") })
++        let accessReport = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(accessLine.utf8)) as? [String: Any])
++        XCTAssertEqual(accessReport["app"] as? String, "access-off", accessOff.combined)
++    }
++
++    // MARK: - helpers
++
++    private var repositoryRoot: URL {
++        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
++    }
++    private var session: URL { repositoryRoot.appendingPathComponent("Scripts/Integration/session") }
++    private var doctor: URL { repositoryRoot.appendingPathComponent("Scripts/Integration/doctor") }
++
++    private func connectorURL() throws -> URL {
++        let candidates = [repositoryRoot.appendingPathComponent(".build/debug/disk-witness-mcp"), repositoryRoot.appendingPathComponent(".build/arm64-apple-macosx/debug/disk-witness-mcp")]
++        return try XCTUnwrap(candidates.first(where: { FileManager.default.isExecutableFile(atPath: $0.path) }), "Build disk-witness-mcp before running integration tests")
++    }
++
++    private func temporaryRoot(_ prefix: String) -> URL {
++        URL(fileURLWithPath: "/tmp/\(prefix)-\(UUID().uuidString.prefix(8).lowercased())", isDirectory: true)
++    }
++
++    private func shellQuote(_ value: String) -> String { "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'" }
++
++    private func run(_ executable: String, _ arguments: [String], environment: [String: String] = [:]) throws -> ScriptOutput {
++        let process = Process()
++        process.executableURL = URL(fileURLWithPath: executable)
++        process.arguments = arguments
++        process.currentDirectoryURL = repositoryRoot
++        process.environment = ProcessInfo.processInfo.environment.merging(environment) { _, new in new }
++        let stdout = Pipe(), stderr = Pipe()
++        process.standardOutput = stdout
++        process.standardError = stderr
++        try process.run()
++        let out = stdout.fileHandleForReading.readDataToEndOfFile()
++        let err = stderr.fileHandleForReading.readDataToEndOfFile()
++        process.waitUntilExit()
++        return ScriptOutput(status: process.terminationStatus, stdout: String(decoding: out, as: UTF8.self), stderr: String(decoding: err, as: UTF8.self))
++    }
++}
++
++private struct ScriptOutput {
++    let status: Int32
++    let stdout: String
++    let stderr: String
++    var combined: String { stdout + stderr }
++}
++
++private actor RecordingHandler: DiskStewardIPCRequestHandling {
++    private var registrations: [[String: String]] = []
++    private var heartbeats: [[String: String]] = []
++    private var methods: [String] = []
++    private var persistedStateAsOf: JSONValue = .string("2026-09-13T00:00:00Z")
++
++    func setPersistedStateAsOf(_ value: JSONValue) { persistedStateAsOf = value }
++
++    func recordedRegistrations() -> [[String: String]] { registrations }
++    func recordedHeartbeats() -> [[String: String]] { heartbeats }
++    func recordedMethods() -> [String] { methods }
++
++    func handleIPC(method: String, payload: JSONValue, peer: IPCPeerIdentity) async throws -> JSONValue {
++        methods.append(method)
++        switch method {
++        case "tools/call":
++            // The exact shape AppEvidenceQueryBackend.storageSummary() publishes:
++            // freshness lives under persistedStateAsOf, not under the sampling time.
++            return .object(["schema": .string(StorageSummaryContract.schema),
++                            StorageSummaryContract.liveVolumeObservedAt: .string("2026-09-18T00:00:00Z"),
++                            StorageSummaryContract.persistedStateAsOf: persistedStateAsOf,
++                            "volumes": .array([]), "limitations": .array([.string("Fixture evidence only.")])])
++        case "sessions/register":
++            var record = plain(payload); record["peer_pid"] = String(peer.pid)
++            registrations.append(record)
++            return .object(["schema": .string("session-registration-result-v1"), "registration_id": .string("3f20eaaa-c6f7-4e25-8d3e-67c5ce70a773"),
++                            "session_id": payload.objectValue?["session_id"] ?? .null, "process_pid": payload.objectValue?["process_pid"] ?? .null,
++                            "confidence": .string("tool-linked"), "limitations": .array([])])
++        case "sessions/heartbeat":
++            heartbeats.append(plain(payload))
++            return .object(["schema": .string("session-heartbeat-result-v1"), "registration_id": payload.objectValue?["registration_id"] ?? .null, "lifecycle": .string("active")])
++        case "sessions/end":
++            return .object(["schema": .string("session-end-result-v1"), "registration_id": payload.objectValue?["registration_id"] ?? .null, "lifecycle": .string("ended")])
++        default:
++            throw DiskStewardIPCError.remote(code: "unsupported", message: "unsupported fixture request", retryable: false)
++        }
++    }
++
++    private func plain(_ value: JSONValue) -> [String: String] {
++        guard let object = value.objectValue else { return [:] }
++        var result: [String: String] = [:]
++        for (key, item) in object {
++            switch item {
++            case let .string(text): result[key] = text
++            case let .integer(number): result[key] = String(number)
++            case let .array(items): result[key] = items.compactMap { if case let .string(s) = $0 { return s } else { return nil } }.joined(separator: ",")
++            default: continue
++            }
++        }
++        return result
++    }
++}
+--- HEAD/docs/integrations/README.md (git HEAD; the TASK-561 revision is not archived)
++++ candidate/docs/integrations/README.md
+@@ -12,20 +12,42 @@
+ Scripts/Integration/install --client claude --config-root "$HOME/.claude" --connector "$PWD/.build/debug/disk-witness-mcp"
+ ```
+ 
+-The Codex installation adds a delimited block to `config.toml` and installs the `disk-steward` plugin package. Claude installation merges only `mcpServers.disk_steward` into `.mcp.json`. Upgrades first save dated copies under `.disk-steward-backups`; unrelated settings remain in place.
++The Codex installation adds a delimited block to `config.toml` and installs the `disk-steward` plugin package. Claude installation merges only `mcpServers.disk_steward` into `.mcp.json`; settings you added to that entry (`env`, `cwd`, unknown keys, your own `args`) are kept on upgrade and are never deleted by uninstall. Every install and uninstall first writes a backup directory with a manifest under `<config-root>/.disk-steward-backups/`; a failure part-way restores exactly what that attempt changed and says so; only the newest ten backups are kept.
+ 
+ Codex desktop, the Codex CLI, and the IDE extension use the same host configuration. Start a new Codex task after installing or upgrading so the plugin and MCP server are discovered. Claude Code project-scoped servers may require approval before first use.
+ 
++## Roll back a configuration change
++
++```sh
++Scripts/Integration/rollback --client codex --config-root "$HOME/.codex" --list
++Scripts/Integration/rollback --client codex --config-root "$HOME/.codex" --dry-run
++Scripts/Integration/rollback --client codex --config-root "$HOME/.codex" --backup 20260918T054341Z-11183
++```
++
++Rollback restores a backup only while the current files are still what that install or uninstall wrote; a file you edited since is refused unless you pass `--force`. The state before the rollback is saved into a `rollback-*` backup first, so a rollback can itself be rolled back.
++
++## Verify the configured helper
++
++In the app, **Test Connection** runs the exact command the client's configuration names, with a clean environment, and trusts only the self-check report that command prints: the helper's own executable identity must match the entry Disk Steward installed. A different or moved helper cannot pass as verified. The result distinguishes:
++
++- **Verified**: the configured helper reached the app and evidence is fresh (age is shown).
++- **Stale evidence**: the helper connected, but the newest persisted observation is older than an hour, or nothing has been persisted yet; check that Monitoring is running.
++- **Disk Steward is not running**: no socket at the app's path (open the app).
++- **Agent Access is off**: the socket path is absent and the access state says off (turn Agent Access on).
++
++From a shell, `disk-witness-mcp --self-check` prints the same report as its last line (`"schema": "disk-steward-self-check-v1"`).
++
+ ## Register task context
+ 
+-Registration is optional and temporary. It improves task-impact correlation but cannot prove individual file operations:
++Registration is optional and temporary. It improves task-impact correlation but cannot prove individual file operations. A registration belongs to one long-lived agent process, never to the session command itself:
+ 
+ ```sh
+-Scripts/Integration/session register --client codex --session-id TASK_ID --workspace "$PWD"
++Scripts/Integration/session register --client codex --session-id TASK_ID --workspace "$PWD" --process-pid AGENT_PID
++Scripts/Integration/session heartbeat --registration-id REGISTRATION_UUID --lease-seconds 900
+ Scripts/Integration/session end --registration-id REGISTRATION_UUID
+ ```
+ 
+-The adapter authenticates through the socket's kernel peer credentials. It persists no token or credential. A registration expires after two hours by default and is capped at 24 hours.
++`--process-pid` is required: pass the agent process's own PID (for a shell-driven agent, the agent's PID, not `$$` of a transient wrapper shell). The command checks that the process is alive and is one of its own ancestors, warns when it looks like a wrapper shell, and refuses its own interpreter; the app validates the same ancestry from the socket's kernel peer credentials. The adapter persists no token or credential. A registration expires after two hours by default (capped at 24 hours); heartbeats carry the lease explicitly. Nothing is registered automatically from MCP traffic: the helper's `initialize` and self-check never create a session.
+ 
+ ## Diagnose and remove
+ 
+@@ -35,7 +57,7 @@
+ Scripts/Integration/doctor --dry-run
+ ```
+ 
+-Run a concrete check by providing the same client, root, and connector plus an optional `--socket` override. An unavailable app produces recovery guidance and no fabricated evidence.
++Run a concrete check by providing the same client, root, and connector plus an optional `--socket` override. The default socket is the app's own, `~/Library/Application Support/Disk Steward/disk-steward.sock`. An unavailable app produces recovery guidance and no fabricated evidence.
+ 
+ Uninstall is reversible and does not delete evidence:
+ 

@@ -1,0 +1,352 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-ENDPOINT-ORDER-R5",
+  "stage": "candidate",
+  "outcome": "simplified",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 4,
+    "sha256": "02fef8759cf7391efa259ce780dcf91819d8f53153a4c7abca9888f8ac03bc34"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 5,
+    "sha256": "7b1a1d85ea11635914b97a722d38f2b6f3554138daabb446c90b5cc23622e3bd"
+  },
+  "facts": [
+    {
+      "id": "FACT-R5-1",
+      "claim": "The intermediate full suite observed endpoint confidence unknown rather than exact; later full/scoped passes do not establish its absence.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "docs/reliability/evidence/TASK-542/endpoint-order-failure.log:370",
+        "docs/reliability/evidence/TASK-542/full-tests.log"
+      ],
+      "supports": [
+        "TASK-523",
+        "GATE-529"
+      ],
+      "freshness": "2026-09-17 G25"
+    },
+    {
+      "id": "FACT-R5-2",
+      "claim": "Independent unstructured Tasks per runtime callback provide no explicit callback-to-actor ordering, admission cap, or stop epoch in EndpointSecurityObserver. This is a plausible cause of the observed false gap and requires deterministic reproduction.",
+      "classification": "assumption",
+      "verdict": "qualified",
+      "confidence": "medium",
+      "references": [
+        "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift:40",
+        "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift:26",
+        "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift:7"
+      ],
+      "supports": [
+        "TASK-523"
+      ],
+      "freshness": "Source inspected at G25; unchanged by TASK542"
+    },
+    {
+      "id": "FACT-R5-3",
+      "claim": "Existing scanner/app lifecycle tasks do not own the endpoint observer/bridge write scope. ASSET-ATTRIBUTION already includes these source/test paths. All seven requirements and seven cumulative gates remain required.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        ".pyramid/plan.json::TASK-521,TASK-522",
+        ".pyramid/baseline.json::ASSET-ATTRIBUTION",
+        ".pyramid/assurance.json::FIND-ENDPOINT-ORDER"
+      ],
+      "supports": [
+        "TASK-523",
+        "OUTCOME-520",
+        "GATE-529"
+      ],
+      "freshness": "R4 G25"
+    }
+  ],
+  "findings": [
+    {
+      "id": "REVIEW-R5-ENDPOINT",
+      "class": "under-decomposition",
+      "affected_nodes": [
+        "TASK-523",
+        "OUTCOME-520",
+        "GATE-529"
+      ],
+      "claim": "An observed evidence ordering failure lacks an executable owner and deterministic acceptance path within the existing graph.",
+      "evidence": [
+        "FACT-R5-1",
+        "FACT-R5-2",
+        "FACT-R5-3"
+      ],
+      "counterevidence": [
+        "FACT-R5-1"
+      ],
+      "disposition": "applied",
+      "change": "Add one bounded endpoint delivery/lifecycle task under existing OUTCOME520, attach CONTRACT510 and integration-only OUTCOME510 prerequisites, and require TASK523 evidence at the existing GATE529. No new gate or increment.",
+      "rationale": "Corrective refinement adds a justified boundary rather than optimizing task count. Retrying a flaky test would weaken evidence; mixing unrelated endpoint ownership into completed command-runner work would lose scope/provenance. All existing success evidence and work are preserved."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "strengthened",
+    "audit_closure": "strengthened",
+    "execution_safety": "preserved"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 31,
+      "executable_nodes": 23,
+      "edges": 93,
+      "hard_dependencies": 21,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    }
+  },
+  "summary": "Preserve the seven-rung reliability ladder and all prior implementation/history. Add a single existing-product defect repair and its evidence to the second rung. Backward trace: trustworthy evidence requires ordered/non-stale endpoint events; forward trace: the isolated fixture boundary and verified CONTRACT510 permit deterministic reproduction now. No active claims are disturbed; GATE529 has no prior pass to erase. Later gates already inherit OUTCOME520.",
+  "limitations": [
+    "The exact event-order race is inferred, not deterministically reproduced yet; TASK523 must first establish a disconfirmable regression.",
+    "All prior audits, material findings, scale, overnight, rollback and release controls remain required. This plan change does not mark them passed.",
+    "Runtime replan invalidates affected inspection frontiers; map TASK523 and GATE529 to ASSET-ATTRIBUTION via impact before audit."
+  ]
+}

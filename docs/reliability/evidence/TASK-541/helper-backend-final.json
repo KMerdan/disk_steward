@@ -1,0 +1,44 @@
+{
+  "schema": "helper-job-v1",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:ffeeab56ed4b2774bafb69bdb05c62274484aa2ac9faeaa13fee54fa8c9024fd",
+    "immutable": true
+  },
+  "acceptance_criteria": [
+    "AC-TASK-541-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 6,
+    "max_output_chars": 4500
+  },
+  "helper_id": "HELPER-TASK-541-BACKEND-FINAL",
+  "read_scope": [
+    "/private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardCore/IPC/**",
+    "/private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "/private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardApp/IPC/**",
+    "/private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardApp/MCPAccess/**",
+    "/private/tmp/disk-steward-541-final.Qw8C8y/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift",
+    "/private/tmp/disk-steward-541-final.Qw8C8y/Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift",
+    "/private/tmp/disk-steward-541-final.Qw8C8y/Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+  ],
+  "purpose": "Refresh backend static review after raw-peer detection fix and backup cancellation proof.",
+  "questions": [
+    "Verify write-side POLLOUT hangup logic corrects both prior half-close/unread-trailer cases; parent reports before/after actual Darwin fixture outcomes, no runtime claim needed from you.",
+    "Review backup checkpoint test for actual interrupted page-copy rollback and next-copy recovery; flag only actionable remaining TASK541 defects. Export materialization/orphan recovery remains TASK551, no scope laundering."
+  ]
+}

@@ -1,5 +1,15 @@
 #!/usr/bin/env swift
 
+// Disk Steward session entry point (TASK-562 contract).
+//
+// A registration binds a task to one long-lived agent process, never to this
+// script: `register` requires --process-pid, checks that the process is alive
+// and is an ancestor of this script (so a wrapper shell cannot be named by
+// accident), and refuses this script's own interpreter. Heartbeats carry the
+// lease explicitly; `end` closes the registration. The app validates the
+// ancestry again from the socket's kernel peer credentials. Nothing here is
+// inferred from MCP traffic and no client hook is installed.
+
 import Darwin
 import Foundation
 
@@ -8,9 +18,10 @@ struct Options {
     var client = ""
     var sessionID = ""
     var registrationID = ""
+    var processPID: Int32 = 0
     var workspaces: [String] = []
     var socket = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent("Library/Application Support/DiskSteward/disk-steward.sock").path
+        .appendingPathComponent("Library/Application Support/Disk Steward/disk-steward.sock").path
     var leaseSeconds = 7_200
     var dryRun = false
 }
@@ -25,7 +36,27 @@ enum SessionError: Error, CustomStringConvertible {
         case let .usage(message), let .invalid(message), let .system(message): message
         }
     }
+
+    var exitCode: Int32 {
+        switch self {
+        case .usage: 64
+        case .invalid: 65
+        case .system: 69
+        }
+    }
 }
+
+let usage = """
+usage:
+  session register --client codex|claude|other-local --session-id ID --workspace PATH [--workspace PATH] --process-pid PID [--lease-seconds N] [--socket PATH] [--dry-run]
+  session heartbeat --registration-id UUID [--lease-seconds N] [--socket PATH] [--dry-run]
+  session end --registration-id UUID [--socket PATH] [--dry-run]
+
+--process-pid names the long-lived agent process the task belongs to (for a
+shell-driven agent, that agent's own PID, not $$ of a transient wrapper). It
+must be alive and an ancestor of this command; this script itself is never
+registered. Send heartbeats while the task is active and end it when done.
+"""
 
 func parse() throws -> Options {
     var options = Options()
@@ -41,6 +72,9 @@ func parse() throws -> Options {
         case "--client": options.client = value
         case "--session-id": options.sessionID = value
         case "--registration-id": options.registrationID = value
+        case "--process-pid":
+            guard let pid = Int32(value), pid > 0 else { throw SessionError.invalid("process PID must be positive") }
+            options.processPID = pid
         case "--workspace": options.workspaces.append(URL(fileURLWithPath: value).standardizedFileURL.path)
         case "--socket": options.socket = value
         case "--lease-seconds":
@@ -54,37 +88,79 @@ func parse() throws -> Options {
         guard ["codex", "claude", "other-local"].contains(options.client),
               !options.sessionID.isEmpty, !options.workspaces.isEmpty
         else { throw SessionError.usage(usage) }
+        guard options.processPID > 0 else {
+            throw SessionError.usage("register requires --process-pid: the long-lived agent process this task belongs to.\n\(usage)")
+        }
         guard (60 ... 86_400).contains(options.leaseSeconds) else {
             throw SessionError.invalid("lease must be between 60 and 86400 seconds")
         }
-    case "end":
+        try validateProcess(options.processPID)
+    case "end", "heartbeat":
         guard UUID(uuidString: options.registrationID) != nil else {
-            throw SessionError.invalid("end requires a valid --registration-id")
+            throw SessionError.invalid("end/heartbeat requires a valid --registration-id")
+        }
+        guard (60 ... 86_400).contains(options.leaseSeconds) else {
+            throw SessionError.invalid("lease must be between 60 and 86400 seconds")
         }
     default: throw SessionError.usage(usage)
     }
     return options
 }
 
-let usage = """
-usage:
-  session register --client codex|claude --session-id ID --workspace PATH [--workspace PATH] [--lease-seconds N] [--socket PATH] [--dry-run]
-  session end --registration-id UUID [--socket PATH] [--dry-run]
-"""
+struct ProcessInfoRecord { let pid: Int32; let parent: Int32; let name: String }
+
+func processRecord(_ pid: Int32) -> ProcessInfoRecord? {
+    var info = kinfo_proc()
+    var size = MemoryLayout<kinfo_proc>.stride
+    var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, pid]
+    guard sysctl(&mib, UInt32(mib.count), &info, &size, nil, 0) == 0, size > 0, info.kp_proc.p_pid == pid else { return nil }
+    let name = withUnsafePointer(to: &info.kp_proc.p_comm) { pointer in
+        pointer.withMemoryRebound(to: CChar.self, capacity: Int(MAXCOMLEN) + 1) { String(cString: $0) }
+    }
+    return ProcessInfoRecord(pid: pid, parent: info.kp_eproc.e_ppid, name: name)
+}
+
+/// The named process must be alive, must not be this script, and must be an
+/// ancestor of this script: that is the only relationship the app can also
+/// prove from the socket's peer credentials.
+func validateProcess(_ pid: Int32) throws {
+    guard pid != getpid() else { throw SessionError.invalid("--process-pid must not be this session command itself; name the agent process it runs under.") }
+    guard kill(pid, 0) == 0 || errno == EPERM else { throw SessionError.invalid("process \(pid) is not running; a dead process cannot own a task registration.") }
+    var current = getpid()
+    var depth = 0
+    var chain: [String] = []
+    while depth < 64, let record = processRecord(current) {
+        chain.append("\(record.name)(\(record.pid))")
+        if record.parent == pid {
+            if let target = processRecord(pid), ["sh", "zsh", "bash", "dash", "fish", "env", "xargs", "swift", "swift-frontend"].contains(target.name) {
+                FileHandle.standardError.write(Data("disk-steward-session: warning: \(target.name)(\(pid)) looks like a transient wrapper; if it exits before the task ends, the registration will not attribute later writes. Prefer the agent's own PID.\n".utf8))
+            }
+            return
+        }
+        guard record.parent > 1 else { break }
+        current = record.parent
+        depth += 1
+    }
+    throw SessionError.invalid("process \(pid) is not an ancestor of this command (chain: \(chain.joined(separator: " <- "))); the app would reject the registration. Run the session command from within the agent process tree and pass that process's PID.")
+}
 
 func request(for options: Options) -> [String: Any] {
     let method: String
     let payload: [String: Any]
-    if options.operation == "register" {
+    switch options.operation {
+    case "register":
         method = "sessions/register"
         payload = [
             "client": options.client,
             "session_id": options.sessionID,
             "workspace_roots": options.workspaces,
             "lease_seconds": options.leaseSeconds,
-            "process_pid": getpid(),
+            "process_pid": options.processPID,
         ]
-    } else {
+    case "heartbeat":
+        method = "sessions/heartbeat"
+        payload = ["registration_id": options.registrationID, "lease_seconds": options.leaseSeconds]
+    default:
         method = "sessions/end"
         payload = ["registration_id": options.registrationID]
     }
@@ -99,7 +175,7 @@ func request(for options: Options) -> [String: Any] {
 func exchange(_ request: [String: Any], socketPath: String) throws -> Data {
     var status = stat()
     guard lstat(socketPath, &status) == 0 else {
-        throw SessionError.system("Disk Steward is unavailable at \(socketPath). Open the app and verify Monitoring is enabled.")
+        throw SessionError.system("Disk Steward is unavailable at \(socketPath). Open the app and verify Monitoring and Agent Access are enabled.")
     }
     guard status.st_uid == getuid(), status.st_mode & S_IFMT == S_IFSOCK,
           status.st_mode & 0o077 == 0
@@ -161,7 +237,10 @@ do {
         }
         print(String(decoding: response, as: UTF8.self))
     }
+} catch let error as SessionError {
+    FileHandle.standardError.write(Data(("disk-steward-session: \(error)\n").utf8))
+    exit(error.exitCode)
 } catch {
     FileHandle.standardError.write(Data(("disk-steward-session: \(error)\n").utf8))
-    exit(64)
+    exit(69)
 }

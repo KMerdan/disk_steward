@@ -1,0 +1,362 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260916T202443412515Z-99B9F06D",
+  "at": "2026-09-16T20:24:43.412438Z",
+  "graph_version": 27,
+  "actor": "codex",
+  "type": "task.reopened",
+  "node": "TASK-502",
+  "before": {
+    "node": {
+      "execution": "implemented",
+      "verification": "passed",
+      "health": "clear",
+      "owner": null,
+      "lease_expires_at": null,
+      "work_origin": null,
+      "active_handoff_id": null,
+      "paused_at": null,
+      "paused_by": null,
+      "pause_mode": null,
+      "resume_deadline": null,
+      "last_handoff": null,
+      "blocker": null,
+      "updated_at": "2026-09-16T09:42:52.148650Z",
+      "last_result": {
+        "schema": "agent-result-v1",
+        "task": "TASK-502",
+        "outcome": "implemented",
+        "changed_files": [
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+          "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+          "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+          "docs/tasks/evidence/TASK-502/agent-result.json"
+        ],
+        "changed_assets": [],
+        "change_effect": "mixed",
+        "changes": [
+          {
+            "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+            "class": "source"
+          },
+          {
+            "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+            "class": "source"
+          },
+          {
+            "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+            "class": "source"
+          },
+          {
+            "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+            "class": "source"
+          },
+          {
+            "path": "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/tasks/evidence/TASK-502/agent-result.json",
+            "class": "evidence"
+          }
+        ],
+        "checks": [
+          {
+            "command": "swift test --disable-sandbox",
+            "result": "passed",
+            "tests": 213
+          },
+          {
+            "command": "Scripts/Development/build_xcode_project",
+            "result": "passed"
+          },
+          {
+            "command": "nested helper self-check and deep signature verification",
+            "result": "passed"
+          }
+        ],
+        "acceptance_evidence": [
+          {
+            "criterion": "AC-502-01",
+            "result": "passed",
+            "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+          },
+          {
+            "criterion": "AC-502-02",
+            "result": "passed",
+            "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+          },
+          {
+            "criterion": "AC-502-03",
+            "result": "passed",
+            "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift"
+          }
+        ],
+        "discovered_risks": [
+          "A distributable artifact still requires the existing Developer ID, notarization, and universal-architecture release workflow; this intent intentionally did not publish one."
+        ],
+        "suggested_graph_changes": []
+      },
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-502",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-502-01",
+            "result": "passed",
+            "evidence": [
+              "Moved and missing helper fixture states are broken and repairable",
+              "Built app contains executable signed helper at canonical relative path"
+            ]
+          },
+          {
+            "id": "CHECK-502-02",
+            "result": "passed",
+            "evidence": [
+              "User-modified receipted entry becomes conflict and removal is refused",
+              "Foreign configuration preservation tests pass"
+            ]
+          },
+          {
+            "id": "CHECK-502-03",
+            "result": "passed",
+            "evidence": [
+              "Mixed multi-client partial results and idempotency tests pass",
+              "Full suite: 213 tests passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-502"
+        ],
+        "recommended_action": "advance"
+      },
+      "last_reopen": null
+    },
+    "lifecycle": {
+      "status": "completed",
+      "completed_at": "2026-09-16T09:45:38.525295Z",
+      "completed_by": "codex",
+      "completion_report": ".pyramid/reports/FINAL-PLAN-DISK-STEWARD-004-R1-G26.json",
+      "change_dossier": null,
+      "archived_at": null,
+      "archived_by": null,
+      "archived_from_status": null,
+      "archive_id": null,
+      "archive_path": null,
+      "restored_from": null
+    }
+  },
+  "after": {
+    "node": {
+      "execution": "needs-rework",
+      "verification": "failed",
+      "health": "at-risk",
+      "owner": null,
+      "lease_expires_at": null,
+      "work_origin": null,
+      "active_handoff_id": null,
+      "paused_at": null,
+      "paused_by": null,
+      "pause_mode": null,
+      "resume_deadline": null,
+      "last_handoff": null,
+      "blocker": "September 16 review reproduced false helper verification and unsafe ownership/removal after user configuration changes. September 17 local correctness repairs pass 227 tests, but packaged/native-client and exhaustive recovery assurance remain unverified; preserve prior completion as historical and reopen its stale proof. Broader scanner repair work is recorded separately in docs/reliability/repair-log.md.",
+      "updated_at": "2026-09-16T20:24:43.412271Z",
+      "last_result": {
+        "schema": "agent-result-v1",
+        "task": "TASK-502",
+        "outcome": "implemented",
+        "changed_files": [
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+          "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+          "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+          "docs/tasks/evidence/TASK-502/agent-result.json"
+        ],
+        "changed_assets": [],
+        "change_effect": "mixed",
+        "changes": [
+          {
+            "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+            "class": "source"
+          },
+          {
+            "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+            "class": "source"
+          },
+          {
+            "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+            "class": "source"
+          },
+          {
+            "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+            "class": "source"
+          },
+          {
+            "path": "docs/tasks/evidence/TASK-502/final-integration-verification.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/tasks/evidence/TASK-502/agent-result.json",
+            "class": "evidence"
+          }
+        ],
+        "checks": [
+          {
+            "command": "swift test --disable-sandbox",
+            "result": "passed",
+            "tests": 213
+          },
+          {
+            "command": "Scripts/Development/build_xcode_project",
+            "result": "passed"
+          },
+          {
+            "command": "nested helper self-check and deep signature verification",
+            "result": "passed"
+          }
+        ],
+        "acceptance_evidence": [
+          {
+            "criterion": "AC-502-01",
+            "result": "passed",
+            "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+          },
+          {
+            "criterion": "AC-502-02",
+            "result": "passed",
+            "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift"
+          },
+          {
+            "criterion": "AC-502-03",
+            "result": "passed",
+            "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift"
+          }
+        ],
+        "discovered_risks": [
+          "A distributable artifact still requires the existing Developer ID, notarization, and universal-architecture release workflow; this intent intentionally did not publish one."
+        ],
+        "suggested_graph_changes": []
+      },
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-502",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-502-01",
+            "result": "passed",
+            "evidence": [
+              "Moved and missing helper fixture states are broken and repairable",
+              "Built app contains executable signed helper at canonical relative path"
+            ]
+          },
+          {
+            "id": "CHECK-502-02",
+            "result": "passed",
+            "evidence": [
+              "User-modified receipted entry becomes conflict and removal is refused",
+              "Foreign configuration preservation tests pass"
+            ]
+          },
+          {
+            "id": "CHECK-502-03",
+            "result": "passed",
+            "evidence": [
+              "Mixed multi-client partial results and idempotency tests pass",
+              "Full suite: 213 tests passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-502"
+        ],
+        "recommended_action": "advance"
+      },
+      "last_reopen": {
+        "at": "2026-09-16T20:24:43.412271Z",
+        "actor": "codex",
+        "reason": "September 16 review reproduced false helper verification and unsafe ownership/removal after user configuration changes. September 17 local correctness repairs pass 227 tests, but packaged/native-client and exhaustive recovery assurance remain unverified; preserve prior completion as historical and reopen its stale proof. Broader scanner repair work is recorded separately in docs/reliability/repair-log.md.",
+        "evidence": "/Users/merdankiji/localGit/disk_steward/docs/reliability/repair-status.json"
+      }
+    },
+    "lifecycle": {
+      "status": "active",
+      "completed_at": null,
+      "completed_by": null,
+      "completion_report": null,
+      "change_dossier": null,
+      "archived_at": null,
+      "archived_by": null,
+      "archived_from_status": null,
+      "archive_id": null,
+      "archive_path": null,
+      "restored_from": null
+    }
+  },
+  "payload": {
+    "reason": "September 16 review reproduced false helper verification and unsafe ownership/removal after user configuration changes. September 17 local correctness repairs pass 227 tests, but packaged/native-client and exhaustive recovery assurance remain unverified; preserve prior completion as historical and reopen its stale proof. Broader scanner repair work is recorded separately in docs/reliability/repair-log.md.",
+    "evidence_path": "/Users/merdankiji/localGit/disk_steward/docs/reliability/repair-status.json",
+    "evidence": {
+      "schema": "disk-steward-reliability-repair-v1",
+      "recorded_date": "2026-09-17",
+      "baseline_commit": "cf313e4527a3bd30dae217d2c1ff68d7a7a87b60",
+      "status": "partial-implementation-not-release-ready",
+      "user_direction": "Proceed without Pyramid blocking implementation; reconcile history afterwards.",
+      "implementation_record": "docs/reliability/repair-log.md",
+      "reopens": {
+        "plan_id": "PLAN-DISK-STEWARD-004",
+        "node_id": "TASK-502",
+        "acceptance_criteria": [
+          "AC-502-01",
+          "AC-502-02",
+          "AC-502-03"
+        ],
+        "reason": "Review reproduced false helper verification and destructive ownership classification after a user adds configuration fields. Local fixes pass regression tests, but native client/profile, packaged-helper and exhaustive failure recovery assurance must be repeated. Prior passed verification is stale."
+      },
+      "checks": [
+        {
+          "command": "swift test --disable-sandbox",
+          "result": "passed",
+          "tests": 227,
+          "failures": 0,
+          "duration_seconds": 11.485
+        },
+        {
+          "command": "xcodebuild -quiet -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-repair-xcode-20260917 CODE_SIGNING_ALLOWED=NO build",
+          "result": "passed",
+          "scope": "unsigned-debug-compilation"
+        }
+      ],
+      "remaining": [
+        "Bounded persisted frontier and resumable reconciliation; 100k/1M convergence and overnight soak",
+        "Hot-root fairness/watchdog and independently scheduled volume sampling",
+        "Adversarial process-level IPC cancellation/revocation/burst matrix",
+        "Complete real-client/profile configuration ownership and rollback/race validation",
+        "Strong query revision and pre-materialization allocation bounds",
+        "Exact packaged helper/session lifecycle acceptance and immediate scope visibility"
+      ],
+      "installed": false,
+      "committed": false,
+      "published": false,
+      "new_intent_candidate_applied": false
+    },
+    "invalidated": [
+      "GATE-590",
+      "INTENT-004",
+      "OUTCOME-420"
+    ],
+    "stale_inspections": [],
+    "plan_reactivated": true
+  },
+  "plan_id": "PLAN-DISK-STEWARD-004",
+  "plan_revision": 1,
+  "context_id": "CTX-0EED92996CAB92DB7ECCD44E2953049A",
+  "previous_event_id": "EVENT-20260916T094538526317Z-CF65AAD2",
+  "previous_event_sha256": "c852c8182a81127973e073d641ca7e6c2895bd4216e1fc455ba46af938cb5a4a"
+}

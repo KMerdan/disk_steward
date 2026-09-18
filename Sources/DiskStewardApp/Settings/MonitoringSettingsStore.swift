@@ -19,7 +19,7 @@ final class EphemeralSettingsPersistence: SettingsPersisting {
 final class MonitoringSettingsStore: ObservableObject {
     @Published private(set) var settings: MonitoringSettings
 
-    private let persistence: SettingsPersisting
+    let persistence: SettingsPersisting
     private let key: String
 
     init(persistence: SettingsPersisting = UserDefaults.standard, key: String = "monitoring-settings-v1") {

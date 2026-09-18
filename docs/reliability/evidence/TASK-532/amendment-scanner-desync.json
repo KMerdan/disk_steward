@@ -1,0 +1,8 @@
+{
+  "schema": "pyramid-amendment-v1",
+  "task": "TASK-532",
+  "reason": "The storage refusal fixtures (docs/reliability/evidence/TASK-532/headroom-red-2/tests.log) reproduced a silent loss of directory names: when the store refuses or fails a slice, the in-process directory stream has already served those names, the durable cursor has not advanced, and the next slice continues from the stream's position. Explicit non-progress is only correct if the refused names are re-read, which requires the scanner's cursor to record how many names its stream had served.",
+  "boundary_review": "The change is confined to DirectoryMetadataScanner.swift: an optional consumedNames field on the persisted cursor, a per-pass consumed counter in DirectoryStreamRegistry, and one more reason (stream ahead of the cursor) for the existing unfinished-pass restart. The TASK-531 contract already promised that an unfinished pass restarts when its stream is lost; a stream that is ahead of its committed cursor is the same failure seen from inside one process. Acceptance, non-goals, dependencies, commands and authority of TASK-532 are unchanged; the mapped asset ASSET-SCANNER was reconciled through IMPACT-TASK-532-SCANNER at graph version 99.",
+  "add_write_paths": ["Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift"],
+  "add_context_paths": ["Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift"]
+}

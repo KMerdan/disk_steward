@@ -1,0 +1,9 @@
+{
+  "task": "TASK-523",
+  "guard": "GUARD-TASK-CBB365753CA4B6D2A0763DD23D3CA78C",
+  "slot_ledger": {"host_capacity": 4, "coordinator": 1, "graph_workers": 0, "maximum_concurrent_helpers": 1, "nested_agents": 0},
+  "preflight": {"result": "helper-preflight-result.json", "characters": 5855, "budget": 6500, "use": "advisory", "reconciliation": "Read before implementation design. Adopted synchronous FIFO admission, persistent consumer, retained in-flight ownership, durable loss state, authenticated epoch fencing, staged startup and deterministic barriers. Negative oracle is coordinator-executed evidence, not helper proof."},
+  "intermediate_review": {"result": "helper-candidate-result.json", "characters": 5971, "budget": 6000, "snapshot": "5d3963f0ec7966da582258322bc2ba7f96cb184b951cffad44336f4c6a39d931", "use": "superseded candidate static review", "reconciliation": "One test-oracle issue: independent Date() samples could exceed the coalescing window under scheduling delay. Corrected to a shared fixed timestamp."},
+  "accepted_review": {"result": "helper-accepted-result.json", "snapshot": "e408ff149419ace16c04932147f8f635852ed011c8a8182d9126e27cf36220e8", "use": "current coordinator-reconciled static review", "reconciliation": "Job/guard/snapshot/read scope/budgets match. Only the fixed timestamp delta remains between reviewed candidates; no source change invalidates prior implementation reasoning. Final source hash, 315-test suite and five 17-test endpoint repetitions independently checked by coordinator."},
+  "eligibility": "Raw review results stay pending/ineligible as required by helper schema. No helper claimed independent executed tests or parent-task verification. Coordinator alone owns acceptance and Pyramid mutations."
+}

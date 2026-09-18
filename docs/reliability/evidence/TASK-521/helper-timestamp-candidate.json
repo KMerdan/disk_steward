@@ -1,0 +1,28 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-TIMESTAMP-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-779C0B1C50E50BA52094C33F0D7F7453",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:6e27519fc76b2cf66daaf30817374870ec0acd65bc9a0402a126e42aa207b6bc", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-521-timestamp-candidate.7qNrAP/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-timestamp-candidate.7qNrAP/Sources/DiskStewardCore/Monitoring/**",
+    "/private/tmp/disk-steward-521-timestamp-candidate.7qNrAP/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+    "/private/tmp/disk-steward-521-timestamp-candidate.7qNrAP/Tests/DiskStewardCoreTests/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-binding-candidate.Xgo6wc/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "/private/tmp/disk-steward-521-binding-candidate.Xgo6wc/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift"
+  ],
+  "purpose": "Narrow review of actual sample/absence timing, schema9 nullable historical sample time and durable dirty-evidence token changes relative to previous frozen candidate. Not final TASK-521 acceptance.",
+  "questions": [
+    "Do object/binding/event times use actual samples and qualifying absence proof, with detection time distinct? Identify actionable regressions in these changes.",
+    "Does atomic dirty-root reset plus persisted token reject in-flight stale slices and preserve healthy staging, including restart/repeated signals/partial roots? Check resolution of dirty evidence and regression oracles.",
+    "Legacy recordObservation and ordinary app FSEvents routing remain separate unfinished work. Do not repeat those known gaps as new findings; limit to correctness of this candidate's changes."
+  ],
+  "acceptance_criteria": ["AC-TASK-521-01"],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "candidate-acceptance",
+  "result_budget": {"max_findings": 4, "max_evidence_items": 7, "max_output_chars": 5500}
+}

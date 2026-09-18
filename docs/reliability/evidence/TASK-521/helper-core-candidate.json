@@ -1,0 +1,44 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-CORE-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-DF3C078CCDB9D39E4D2718BCC19B95FB",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9688186dc6c2de154c66ec60982db1372551e2f26fdcf5b60f09bec4e285b238",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-521-interval-candidate.D7ovMy/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "/private/tmp/disk-steward-521-interval-candidate.D7ovMy/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-interval-candidate.D7ovMy/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+    "/private/tmp/disk-steward-521-interval-candidate.D7ovMy/Tests/DiskStewardCoreTests/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
+  ],
+  "purpose": "Final bounded core TASK-521 source acceptance review, including the interval/alias delta and composition with directory-pass, dirty-token and legacy reconciliation work. Not a runtime or whole-plan audit.",
+  "questions": [
+    "Review AC-TASK-521-01: producing-pass membership invalidation, restart/revalidation, per-root/overlap isolation, failed-root uncertainty, moves/replacements/hard links, dirty-token and gap replay, actual sample/absence timing and genuine historical migration. Identify only actionable correctness gaps in this implemented core boundary.",
+    "Inspect newest-alias selection, distinct rename/growth endpoints, NULL no-prior lower bound, binding-specific replacement bound and chronological rejection. Do tests establish the intended behavior rather than hide a regression?",
+    "Review unreleased schema9 migration rebuild, preserved foreign keys/index/cascade, atomic shadow recovery and historical uncertainty. Preview schema9 shapes have never been installed/adopted as user state; they are unsupported intermediate candidates. Public provenance/API bound propagation and ordinary app hint routing are explicitly later app/API tasks, not fixed by this core patch.",
+    "Do not review resource redesign/scale or other tasks already planned; note any integration condition that must be carried forward. Full isolated suite runs separately by coordinator."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-521-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 9,
+    "max_output_chars": 7000
+  }
+}

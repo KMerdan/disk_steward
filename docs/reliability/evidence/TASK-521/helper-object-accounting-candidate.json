@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-OBJECT-ACCOUNTING-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-8D6F2C95AF59DB49E61F216EE1A9094B",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:433ee44009001437b325841585165d78a29d812eeee5701dc3bec29b8d9447b7",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-521-object-accounting-candidate.3Z3837/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "/private/tmp/disk-steward-521-object-accounting-candidate.3Z3837/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-object-accounting-candidate.3Z3837/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift"
+  ],
+  "purpose": "Narrow rereview of object-level accounting corrections for the three prior findings; no final TASK-521 acceptance.",
+  "questions": [
+    "Do the new incoming/retired-object replacement events account exactly once for both replacement cardinalities and overwrite-by-rename, including logical and allocated bytes? Check traceability and new ordering hazards, not just totals.",
+    "Does separate rename plus modify/truncate evidence preserve path and size changes without duplicate state-observation rows or physical accounting? Check the added regression oracles.",
+    "Report only distinct actionable issues in these changes. Precise timestamp propagation and legacy recordObservation are still unfinished; real schema-v5/v6 migration tests have been added and run separately by the coordinator."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-521-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 6,
+    "max_output_chars": 5000
+  }
+}

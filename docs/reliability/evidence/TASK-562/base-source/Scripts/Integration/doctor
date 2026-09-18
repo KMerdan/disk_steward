@@ -1,0 +1,73 @@
+#!/bin/zsh
+set -u
+
+client=""
+config_root=""
+connector=""
+socket_path="$HOME/Library/Application Support/DiskSteward/disk-steward.sock"
+dry_run=0
+
+usage() {
+  print -u2 "usage: doctor [--client codex|claude --config-root ABSOLUTE_PATH --connector ABSOLUTE_EXECUTABLE] [--socket PATH] [--dry-run]"
+  exit 64
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --client) (( $# >= 2 )) || usage; client="$2"; shift 2 ;;
+    --config-root) (( $# >= 2 )) || usage; config_root="$2"; shift 2 ;;
+    --connector) (( $# >= 2 )) || usage; connector="$2"; shift 2 ;;
+    --socket) (( $# >= 2 )) || usage; socket_path="$2"; shift 2 ;;
+    --dry-run) dry_run=1; shift ;;
+    *) usage ;;
+  esac
+done
+
+if (( dry_run )); then
+  print "Disk Steward integration diagnostic plan"
+  print "1. Verify the selected client configuration contains one disk_steward MCP entry."
+  print "2. Run the connector's bounded --self-check."
+  print "3. Verify the current-user Unix socket is a private 0600 socket."
+  print "4. Query service status without scanning the disk or changing evidence."
+  exit 0
+fi
+
+[[ "$client" == "codex" || "$client" == "claude" ]] || usage
+[[ "$config_root" == /* && "$connector" == /* ]] || usage
+failures=0
+config_file="$config_root/config.toml"
+[[ "$client" == "claude" ]] && config_file="$config_root/.mcp.json"
+
+if [[ -f "$config_file" ]] && grep -q 'disk_steward' "$config_file"; then
+  print "ok: $client configuration discovers disk_steward"
+else
+  print -u2 "missing: disk_steward is not configured in $config_file"
+  (( failures += 1 ))
+fi
+
+if [[ -x "$connector" ]] && "$connector" --self-check >/dev/null 2>&1; then
+  print "ok: connector self-check passed"
+else
+  print -u2 "failed: connector is missing or its self-check failed at $connector"
+  (( failures += 1 ))
+fi
+
+if [[ -S "$socket_path" ]]; then
+  mode=$(stat -f '%Lp' "$socket_path" 2>/dev/null)
+  owner=$(stat -f '%u' "$socket_path" 2>/dev/null)
+  if [[ "$mode" == "600" && "$owner" == "$EUID" ]]; then
+    print "ok: private app socket is available"
+  else
+    print -u2 "unsafe: socket must be owned by uid $EUID with mode 600"
+    (( failures += 1 ))
+  fi
+else
+  print -u2 "unavailable: open Disk Steward and enable Monitoring; expected socket $socket_path"
+  (( failures += 1 ))
+fi
+
+if (( failures > 0 )); then
+  print -u2 "$failures integration check(s) require attention. No evidence or settings were changed."
+  exit 2
+fi
+print "Disk Steward integration is ready."

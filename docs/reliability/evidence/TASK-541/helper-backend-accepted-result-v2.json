@@ -1,0 +1,51 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-541-BACKEND-ACCEPTED",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:59a1e4eefad005610def6cc04dba836d3e04f98d53a9264c8546c1fb6fdab4f0",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Static refresh found no actionable defect in the dispatch/continuation correction. Socket poll waits suspend Swift tasks while preserving bounded accounting and descriptor ownership. The regression checks EvidenceStore progress with four slow peers still admitted. This supersedes earlier backend snapshot reviews.",
+  "findings": [],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-541-accepted.uaJBzS/Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift:175-178,310-317,378-380,439-451; each admitted connection sequentially awaits read/write operations on the dispatch queue. Cancelled connections retain slots, bounding outstanding I/O by maximumConnections.",
+    "E2: Same server:277-298,336-370,439-442; stop/watchdog mark cancellation and shut down worker fds without closing them. Each dispatch closure resumes its continuation exactly once with a result or error. The worker defer closes only after awaited I/O completion, preserving fd lifetime during cancellation.",
+    "E3: Frozen Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift:170-233 uses nonblocking sockets, shared revocation checks and absolute deadlines. Dispatch operations need not inherit Swift task cancellation. Frozen MCPAccessController.swift:71-109 retains one service/accounting registry across Off/On.",
+    "E4: Frozen Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift:7-76,222-225 runs separate strict-pool children for idle, partial and nonreading peers. Each admits four peers and requires an actual utility-priority EvidenceStore query to finish within one second while all four remain counted. Nonreaders receive a two-MiB response; child failure/timeout propagates.",
+    "E5: Frozen Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift:74-114,132-177 retains cancellation-aware hooks, protected rollback, incremental backup and deferred finish/close. Server:340-348 retains POLLOUT hangup detection instead of read-EOF or peek-based inference."
+  ],
+  "checks": [
+    {
+      "command": "Read frozen socket, bounded I/O, controller, SQLite cleanup and constrained-executor regression paths.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Static review of continuation, capacity and fd invariants; no mutations."
+    },
+    {
+      "command": "Run tests/builds or independently recompute aggregate hash",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited by assignment. Parent reports three modes failing before/passing after and 44 targeted tests passing; helper did not reproduce them."
+    }
+  ],
+  "stale_if": [
+    "Reviewed sources/tests, snapshot identity or task guard change."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Static-only candidate review awaits coordinator freshness reconciliation; runtime results remain separate coordinator evidence.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Socket waits no longer occupy cooperative workers, but arbitrary backend computation/filesystem operations are not hard-preempted. Uncooperative work remains counted until completion.",
+    "TASK551 retains bounded export materialization and orphan recovery. Backup rollback does not establish interrupted-destination removal.",
+    "Stdio/MCPServer behavior is outside this review."
+  ]
+}

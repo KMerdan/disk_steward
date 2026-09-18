@@ -1,0 +1,312 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-TASK-552-IMPACT-SCOPE",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 9,
+    "sha256": "5359ff55efe602503185cbbea72f953fb35e949f49c12587b158549b458d1226"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 10,
+    "sha256": "390f5dda67e9a6f1fc152e42272b7a3680888c03bd33234cae0539ae27da7bfc"
+  },
+  "facts": [
+    {
+      "id": "FACT-IMPACT-TEST",
+      "claim": "The increment test inserts an event without measured occurrence timing but expects inferred task attribution. Correcting AC02 necessarily changes this expectation; its file was omitted from TASK552 allowed scope.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift:37",
+        "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift:79"
+      ],
+      "supports": [
+        "TASK-552",
+        "GATE-559"
+      ],
+      "freshness": "Read current worktree 2026-09-17; source remains unchanged before scope approval."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-IMPACT-SCOPE",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "TASK-552"
+      ],
+      "claim": "The declared scope omits a necessary inherited end-to-end assertion for the existing unknown-occurrence contract.",
+      "evidence": [
+        "FACT-IMPACT-TEST"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add only Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift to TASK552 write scope.",
+      "rationale": "Preserve all topology, acceptance, evidence, gates and original requirements. Keep the protocol journey and verify honest unknown attribution; new realIPC measured-interval tests establish positive and competing-session cases. This is a required regression update, not a new feature."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "preserved",
+    "audit_closure": "preserved",
+    "execution_safety": "preserved"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    }
+  },
+  "summary": "Retain the selected cumulative repair ladder and every gate. One exact inherited-test scope correction supports occurrence attribution; no task is declared implemented or verified.",
+  "limitations": [
+    "This plan refinement is not a runtime proof or release approval. Existing assurance inspections remain stale or pending and require refresh before audit."
+  ]
+}

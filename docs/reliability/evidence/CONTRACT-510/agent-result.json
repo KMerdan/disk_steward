@@ -1,0 +1,92 @@
+{
+  "schema": "agent-result-v1",
+  "task": "CONTRACT-510",
+  "outcome": "implemented",
+  "changed_files": [
+    "docs/reliability/evidence/CONTRACT-510/baseline.json",
+    "docs/reliability/evidence/CONTRACT-510/assurance.json",
+    "docs/reliability/evidence/CONTRACT-510/safety-contract.md",
+    "docs/reliability/evidence/CONTRACT-510/isolation-helper-job.json",
+    "docs/reliability/evidence/CONTRACT-510/helper-reconciliation.json",
+    "docs/reliability/evidence/CONTRACT-510/plan-005-r2.json",
+    "docs/reliability/evidence/CONTRACT-510/plan-005-r2-review.json",
+    "docs/reliability/evidence/CONTRACT-510/verify-foundation.cjs",
+    "docs/reliability/evidence/CONTRACT-510/verification.json",
+    "docs/reliability/evidence/CONTRACT-510/agent-result.json"
+  ],
+  "changed_assets": [
+    "ASSET-ASSURANCE"
+  ],
+  "change_effect": "evidence-only",
+  "changes": [
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/baseline.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/assurance.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/safety-contract.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/isolation-helper-job.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/helper-reconciliation.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/plan-005-r2.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/plan-005-r2-review.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/verify-foundation.cjs",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/verification.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/CONTRACT-510/agent-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "pyramid assess --preview/--apply; impact --preview/--apply",
+      "result": "passed; current inventory and initial required inspections applied through installed runtime"
+    },
+    {
+      "command": "node docs/reliability/evidence/CONTRACT-510/verify-foundation.cjs <repo> <runtime>",
+      "result": "passed; 19 assets, 23 relations, 23 executable nodes covered, 39 changed product paths classified"
+    },
+    {
+      "command": "pyramid validate; history --doctor",
+      "result": "passed after transition; 11 records, 6 chronicles, no pending transaction"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-CONTRACT-510-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/CONTRACT-510/safety-contract.md; docs/reliability/evidence/CONTRACT-510/verification.json; canonical baseline/assurance"
+    }
+  ],
+  "discovered_risks": [
+    "Nine unresolved product findings remain explicitly open; final rollback and monitoring controls remain missing pending measured acceptance.",
+    "Shared temp export sweep and unsafe test overrides prohibit further full-suite execution until first isolation repair.",
+    "Source remains dirty and exact Git binding pending; no product runtime pass claimed by foundation."
+  ],
+  "suggested_graph_changes": [
+    "TASK-511 scope clarified through PLAN-005 revision2 replan without changing graph topology or requirements."
+  ]
+}

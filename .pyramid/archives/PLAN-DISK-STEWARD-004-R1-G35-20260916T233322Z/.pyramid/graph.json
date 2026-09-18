@@ -1,0 +1,2586 @@
+{
+  "schema": "pyramid-graph-v1",
+  "generated_at": "2026-09-16T23:33:22.675826Z",
+  "graph_version": 35,
+  "context": {
+    "id": "CTX-64403308E8B02F1EA811B997EB6F5CAF",
+    "plan_id": "PLAN-DISK-STEWARD-004",
+    "plan_revision": 1,
+    "graph_version": 35
+  },
+  "plan_id": "PLAN-DISK-STEWARD-004",
+  "title": "Safe Multi-Client MCP Setup",
+  "revision": 1,
+  "intent": {
+    "id": "INTENT-004",
+    "statement": "Disk Steward users can discover supported local AI clients, explicitly select one or more, and safely set up, verify, repair, or remove the read-only Disk Steward MCP integration without manually editing configuration files or confusing client setup with Agent Access.",
+    "success_evidence": [
+      {
+        "id": "REQ-401",
+        "description": "Settings detects supported installed clients through bounded known signals and lets the user select one or several targets without treating unknown software as supported."
+      },
+      {
+        "id": "REQ-402",
+        "description": "Setup, verification, repair, and removal are idempotent, preserve unrelated client configuration, refuse conflicting ownership, and provide recoverable evidence for every mutation."
+      },
+      {
+        "id": "REQ-403",
+        "description": "The UI distinguishes detection, configuration, client approval, verification, broken configuration, and Agent Access state with accessible text and per-client outcomes."
+      },
+      {
+        "id": "REQ-404",
+        "description": "Codex, Claude Code, Cursor, Visual Studio Code, and Claude Desktop receive an honest supported setup path, while other MCP clients receive a copyable manual configuration rather than guessed mutation."
+      },
+      {
+        "id": "REQ-405",
+        "description": "The signed application bundle exposes a stable read-only helper path, and automated tests prove install, upgrade, conflict, verification, removal, and unrelated-setting preservation behavior."
+      }
+    ],
+    "constraints": [
+      "Preserve native Swift, macOS 13 compatibility, Homebrew and Developer ID distribution, and the bundled disk-witness-mcp helper.",
+      "Use official client commands or client-owned installation flows when available; direct configuration editing is a bounded fallback only.",
+      "Never require administrator privileges, store client credentials, enable Agent Access implicitly, or add write/delete MCP tools.",
+      "Preserve unrelated client configuration and the completed crash-recovery intent and evidence.",
+      "Keep detection bounded to known bundle identifiers, executables, and configuration locations; do not search the whole disk."
+    ],
+    "non_goals": [
+      "Build a general MCP marketplace or gateway.",
+      "Configure unrecognized clients automatically.",
+      "Add remote MCP hosting, OAuth brokerage, or credential management.",
+      "Redesign monitoring, evidence retention, or cleanup behavior.",
+      "Grant agents destructive disk operations."
+    ],
+    "assumptions": [
+      {
+        "id": "ASM-401",
+        "statement": "The distributed non-sandboxed app can invoke installed client CLIs and update user-owned configuration without additional entitlements.",
+        "confidence": "medium",
+        "validation_node": "CONTRACT-401"
+      },
+      {
+        "id": "ASM-402",
+        "statement": "A helper path inside an app installed at a stable Applications location remains valid across normal Homebrew and in-place application updates.",
+        "confidence": "medium",
+        "validation_node": "TASK-502"
+      }
+    ]
+  },
+  "lifecycle": {
+    "status": "archived",
+    "completed_at": "2026-09-16T23:22:27.302063Z",
+    "completed_by": "codex",
+    "completion_report": ".pyramid/reports/FINAL-PLAN-DISK-STEWARD-004-R1-G34.json",
+    "change_dossier": null,
+    "archived_at": "2026-09-16T23:33:22.650506Z",
+    "archived_by": "codex",
+    "archived_from_status": "completed",
+    "archive_id": "PLAN-DISK-STEWARD-004-R1-G35-20260916T233322Z",
+    "archive_path": "/Users/merdankiji/localGit/disk_steward/.pyramid/archives/PLAN-DISK-STEWARD-004-R1-G35-20260916T233322Z",
+    "restored_from": null
+  },
+  "summary": {
+    "primary_nodes": 10,
+    "verified_primary_nodes": 10,
+    "closure_ready": true,
+    "availability": {
+      "verified": 10
+    }
+  },
+  "nodes": [
+    {
+      "id": "INTENT-004",
+      "kind": "intent",
+      "title": "Safe multi-client MCP onboarding",
+      "summary": "Users can manage Disk Steward's read-only MCP connection across supported local AI clients from one honest, reversible settings experience.",
+      "level": 0,
+      "wave": 5,
+      "workstream": "intent",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-403",
+        "REQ-404",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-INTENT-401",
+          "description": "All supported-client lifecycle, safety, state-honesty, packaging, and regression evidence passes against the built app."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-INTENT-401",
+          "type": "end-to-end-test",
+          "description": "A built application detects representative clients and completes setup, verification, repair, and removal without unrelated mutation."
+        }
+      ],
+      "agent": {
+        "required_context": [],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [],
+        "non_goals": []
+      },
+      "state": {
+        "execution": "planned",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T23:22:12.125306Z",
+        "last_result": null,
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "INTENT-004",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "AC-INTENT-401",
+              "result": "passed",
+              "evidence": [
+                "docs/tasks/evidence/GATE-590/repair-20260917-audit.json",
+                "docs/tasks/evidence/OUTCOME-420/repair-20260917-audit.json",
+                "docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "INTENT-004"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "INTENT-004"
+      ],
+      "parents": [],
+      "children": [
+        "OUTCOME-420"
+      ],
+      "dependencies": [
+        {
+          "id": "OUTCOME-420",
+          "type": "validation-requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [],
+      "source_path": "docs/tasks/nodes/INTENT-004-safe-multi-client-mcp-onboarding.md"
+    },
+    {
+      "id": "OUTCOME-420",
+      "kind": "outcome",
+      "title": "All supported clients have an honest onboarding path",
+      "summary": "The built app extends the verified Codex and Claude Code flow to Cursor, VS Code, Claude Desktop, and manual configuration with per-client lifecycle state.",
+      "level": 1,
+      "wave": 4,
+      "workstream": "integrations",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-403",
+        "REQ-404",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-420-01",
+          "description": "Every named client is detected through bounded signals and receives either a verified adapter or an explicit client-owned/manual handoff."
+        },
+        {
+          "id": "AC-420-02",
+          "description": "Codex and Claude Code inherited setup, repair, removal, and Agent Access separation still pass against the final candidate."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-420-01",
+          "type": "integration-test",
+          "description": "Cross-client lifecycle matrix and final packaged-app verification."
+        }
+      ],
+      "agent": {
+        "required_context": [],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [],
+        "non_goals": []
+      },
+      "state": {
+        "execution": "planned",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T23:22:11.738205Z",
+        "last_result": null,
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "OUTCOME-420",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "AC-420-01",
+              "result": "passed",
+              "evidence": [
+                "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift",
+                "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+                "docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+              ]
+            },
+            {
+              "id": "AC-420-02",
+              "result": "passed",
+              "evidence": [
+                "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log",
+                "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "OUTCOME-420"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "INTENT-004"
+      ],
+      "children": [
+        "OUTCOME-410",
+        "TASK-501",
+        "TASK-502",
+        "GATE-590"
+      ],
+      "dependencies": [],
+      "audit_gates": [
+        "GATE-590"
+      ],
+      "evidence": [],
+      "source_path": "docs/tasks/nodes/OUTCOME-420-all-supported-clients-have-an-honest-onboarding-path.md"
+    },
+    {
+      "id": "OUTCOME-410",
+      "kind": "outcome",
+      "title": "Codex and Claude Code setup works from Settings",
+      "summary": "A user can open Settings, detect Codex and Claude Code, select either or both, set them up, verify their state, repair stale paths, and remove only Disk Steward-owned configuration.",
+      "level": 2,
+      "wave": 2,
+      "workstream": "integrations",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-403",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-410-01",
+          "description": "The built app completes an end-to-end Codex and Claude Code setup scenario with explicit selection and independently reported results."
+        },
+        {
+          "id": "AC-410-02",
+          "description": "Unrelated settings survive setup and removal, conflicts fail closed, and Agent Access remains independently controlled."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-410-01",
+          "type": "runnable-increment",
+          "description": "Swift tests plus a launched settings scenario using fixture client CLIs and configuration roots."
+        }
+      ],
+      "agent": {
+        "required_context": [],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [],
+        "non_goals": []
+      },
+      "state": {
+        "execution": "planned",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T09:34:52.396493Z",
+        "last_result": null,
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "OUTCOME-410",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-410-01",
+              "result": "passed",
+              "evidence": [
+                "CONTRACT-401, TASK-402, TASK-403, and GATE-490 are verified",
+                "Codex and Claude Code lifecycle and Settings flows pass focused tests"
+              ]
+            },
+            {
+              "id": "CHECK-410-02",
+              "result": "passed",
+              "evidence": [
+                "Xcode project build succeeded",
+                "Agent Access remains opt-in and separate"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "OUTCOME-410"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-420"
+      ],
+      "children": [
+        "CONTRACT-401",
+        "TASK-402",
+        "TASK-403",
+        "GATE-490"
+      ],
+      "dependencies": [],
+      "audit_gates": [
+        "GATE-490"
+      ],
+      "evidence": [],
+      "source_path": "docs/tasks/nodes/OUTCOME-410-codex-and-claude-code-setup-works-from-settings.md"
+    },
+    {
+      "id": "TASK-501",
+      "kind": "implementation",
+      "title": "Add Cursor, VS Code, Claude Desktop, and manual adapters",
+      "summary": "Extend the registry with bounded detection and client-owned installation flows or transactional configuration fallbacks for the remaining named clients.",
+      "level": 2,
+      "wave": 3,
+      "workstream": "client-adapters",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-404"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-501-01",
+          "description": "Cursor and VS Code setup delegates trust to their supported installation surfaces where available; Claude Desktop uses a documented supported path; unknown clients receive a copyable stdio configuration only."
+        },
+        {
+          "id": "AC-501-02",
+          "description": "Every adapter implements inspect, setup or handoff, verify, repair, and remove semantics honestly, including approval-pending states that Disk Steward cannot complete itself."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-501-01",
+          "type": "automated-test",
+          "description": "Fixture tests cover supported client detection, generated configuration, client-owned handoff, conflict behavior, and manual fallback output."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/AgentIntegrations",
+          "Tests/DiskStewardAppTests/AgentIntegrations",
+          "Config/Packaging/project.yml"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/Cursor**",
+          "Sources/DiskStewardApp/AgentIntegrations/VSCode**",
+          "Sources/DiskStewardApp/AgentIntegrations/ClaudeDesktop**",
+          "Sources/DiskStewardApp/AgentIntegrations/Manual**",
+          "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClients**",
+          "docs/tasks/evidence/TASK-501/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/TASK-501/**"
+        ],
+        "commands": [
+          "swift test --filter AgentIntegration"
+        ],
+        "deliverables": [
+          "Remaining client adapters",
+          "Manual configuration flow",
+          "Adapter tests"
+        ],
+        "non_goals": [
+          "Publishing to external MCP registries"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T09:38:55.337623Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-501",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/VSCodeIntegrationAdapter.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/ClaudeDesktopIntegrationAdapter.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/ManualIntegrationAdapter.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+            "docs/tasks/evidence/TASK-501/remaining-clients-verification.json",
+            "docs/tasks/evidence/TASK-501/agent-result.json"
+          ],
+          "changed_assets": [],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/VSCodeIntegrationAdapter.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/ClaudeDesktopIntegrationAdapter.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/ManualIntegrationAdapter.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-501/remaining-clients-verification.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-501/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "swift test --disable-sandbox --filter RemainingClientsAdapterTests",
+              "result": "passed",
+              "tests": 6
+            },
+            {
+              "command": "swift test --disable-sandbox --filter AgentIntegration",
+              "result": "passed",
+              "tests": 10
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-501-01",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/TASK-501/remaining-clients-verification.json"
+            },
+            {
+              "criterion": "AC-501-02",
+              "result": "passed",
+              "reference": "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift"
+            }
+          ],
+          "discovered_risks": [
+            "Client-owned deep links can only be marked configured after the client writes the accepted entry; until then the state remains approval-pending."
+          ],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-501",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-501-01",
+              "result": "passed",
+              "evidence": [
+                "Cursor and VS Code client-owned handoff tests pass",
+                "Claude Desktop documented configuration and manual copy tests pass"
+              ]
+            },
+            {
+              "id": "CHECK-501-02",
+              "result": "passed",
+              "evidence": [
+                "Conflict, approval-pending, backup, preservation, verify, repair, and owned-removal fixture paths pass"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-501"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-501",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-420"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "CONTRACT-401",
+          "type": "contract-requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [
+        "EV-401",
+        "EV-404",
+        "EV-405"
+      ],
+      "source_path": "docs/tasks/03-client-adapters/TASK-501-add-cursor-vs-code-claude-desktop-and-manual-adapters.md"
+    },
+    {
+      "id": "TASK-502",
+      "kind": "integration",
+      "title": "Harden packaging, receipts, repair, and cross-client verification",
+      "summary": "Exercise the final built app against stable helper-path, app update, receipt ownership, partial failure, and removal scenarios across all supported clients.",
+      "level": 2,
+      "wave": 3,
+      "workstream": "integration",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-402",
+        "REQ-403",
+        "REQ-404",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-502-01",
+          "description": "The packaged helper path is used consistently and a moved, missing, or replaced helper produces a repairable state rather than silent success."
+        },
+        {
+          "id": "AC-502-02",
+          "description": "Receipts permit removal only while the current owned entry still matches; user modifications create a conflict instead of destructive rollback."
+        },
+        {
+          "id": "AC-502-03",
+          "description": "A mixed multi-client run reports successes and failures independently and remains safe to repeat."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-502-01",
+          "type": "packaging-integration-test",
+          "description": "Built-app helper inspection, cross-client lifecycle matrix, and update/repair fixture evidence."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Config/Packaging",
+          "Scripts/Distribution",
+          "Sources/DiskStewardApp/AgentIntegrations",
+          "Tests/IntegrationInstallTests"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/**",
+          "Tests/DiskStewardAppTests/AgentIntegrations/**",
+          "Tests/IntegrationInstallTests/**",
+          "Config/Packaging/**",
+          "Scripts/Distribution/**",
+          "docs/tasks/evidence/TASK-502/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/TASK-502/**"
+        ],
+        "commands": [
+          "swift test",
+          "Scripts/Development/build_xcode_project",
+          "Scripts/Distribution/verify-release"
+        ],
+        "deliverables": [
+          "Hardened integration lifecycle",
+          "Packaging verification",
+          "Cross-client test matrix"
+        ],
+        "non_goals": [
+          "Notarizing or publishing a release"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T23:21:30.050483Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-502",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+            "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift",
+            "docs/tasks/evidence/TASK-502/repair-20260917/verification.json",
+            "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log",
+            "docs/tasks/evidence/TASK-502/repair-20260917/agent-result.json"
+          ],
+          "changed_assets": [],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-502/repair-20260917/verification.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-502/repair-20260917/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "DISK_STEWARD_NATIVE_CLIENT_TESTS=1 swift test --disable-sandbox",
+              "result": "passed",
+              "tests": 238,
+              "failures": 0,
+              "duration_seconds": 15.573,
+              "log": "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+            },
+            {
+              "command": "xcodebuild -quiet -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task502-final-xcode CODE_SIGNING_ALLOWED=NO build",
+              "result": "passed",
+              "scope": "unsigned-arm64-debug"
+            },
+            {
+              "command": "DISK_STEWARD_PACKAGED_HELPER='<temporary-built-app>/Contents/Helpers/disk-witness-mcp' swift test --disable-sandbox --filter IntegrationInstallTests",
+              "result": "passed",
+              "tests": 7,
+              "failures": 0,
+              "includes": [
+                "real embedded helper stdio tools and evidence query",
+                "self-check succeeds with fixture server and fails without it",
+                "isolated install/upgrade/uninstall",
+                "session registration/end"
+              ]
+            },
+            {
+              "command": "<temporary-built-app>/Contents/MacOS/Disk Steward --ui-smoke",
+              "result": "passed",
+              "observed": {
+                "status": "launched",
+                "activation_policy": "accessory",
+                "isolated_smoke": true,
+                "agent_access": "off",
+                "ipc_service": "off",
+                "detail_sampling_paused": true,
+                "watched_root_count": 0
+              }
+            },
+            {
+              "command": "Scripts/Distribution/verify-release <temporary-built-app>",
+              "result": "expected-rejection",
+              "exit": 67,
+              "reason": "Unsigned development helper is not Developer ID signed. No distribution acceptance is claimed."
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-502-01",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/TASK-502/repair-20260917/verification.json",
+              "detail": "Moved/missing/same-path replacement repair tests and Xcode embedded-helper request/self-check checks."
+            },
+            {
+              "criterion": "AC-502-02",
+              "result": "passed",
+              "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+              "detail": "Exact ownership, extra-field conflict, symlink refusal, receipt failure rollback, verify recheck and concurrent-change preservation."
+            },
+            {
+              "criterion": "AC-502-03",
+              "result": "passed",
+              "reference": "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+              "detail": "Client-owned canceled/repeated repair matrix, native CLI repeated lifecycle and inherited multi-select manager scenarios."
+            }
+          ],
+          "discovered_risks": [
+            "No native Cursor/VS Code UI approval or Claude Desktop launch was automated; these paths are intentionally client-owned and tested through URL/document contracts.",
+            "No uncooperative-writer atomic compare-and-swap is supplied by native CLI APIs; immediate reads and conservative rollback refuse observed conflicts.",
+            "Executable stat identity detects normal updates/replacements; it is not a cryptographic authenticity check.",
+            "No signing, notarization, installation, commit, push, publication, or broader scanner completion is claimed."
+          ],
+          "suggested_graph_changes": [
+            "Keep scanner/IPC/query reliability under its own subsequent intent; do not attribute those preceding uncommitted changes to this onboarding task."
+          ]
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-502",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-502-01",
+              "result": "passed",
+              "evidence": [
+                "docs/tasks/evidence/TASK-502/repair-20260917/verification.json",
+                "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+                "Tests/IntegrationInstallTests/IntegrationInstallTests.swift"
+              ]
+            },
+            {
+              "id": "CHECK-502-02",
+              "result": "passed",
+              "evidence": [
+                "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+                "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+                "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+              ]
+            },
+            {
+              "id": "CHECK-502-03",
+              "result": "passed",
+              "evidence": [
+                "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift",
+                "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+                "docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-502"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": {
+          "at": "2026-09-16T20:24:43.412271Z",
+          "actor": "codex",
+          "reason": "September 16 review reproduced false helper verification and unsafe ownership/removal after user configuration changes. September 17 local correctness repairs pass 227 tests, but packaged/native-client and exhaustive recovery assurance remain unverified; preserve prior completion as historical and reopen its stale proof. Broader scanner repair work is recorded separately in docs/reliability/repair-log.md.",
+          "evidence": "/Users/merdankiji/localGit/disk_steward/docs/reliability/repair-status.json"
+        }
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-502",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-420"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "TASK-501",
+          "type": "integration-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-403",
+          "type": "integration-requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [
+        "EV-401",
+        "EV-405"
+      ],
+      "source_path": "docs/tasks/03-integration/TASK-502-harden-packaging-receipts-repair-and-cross-client-verification.md"
+    },
+    {
+      "id": "GATE-590",
+      "kind": "audit",
+      "title": "Audit complete multi-client MCP onboarding",
+      "summary": "Verify the final candidate across every named client path while repeating the accepted Codex and Claude Code scenario and checking recovery and packaging boundaries.",
+      "level": 2,
+      "wave": 4,
+      "workstream": "audit",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-403",
+        "REQ-404",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-590-01",
+          "description": "The complete test matrix and application build pass for all supported adapters and the manual fallback."
+        },
+        {
+          "id": "AC-590-02",
+          "description": "The earlier Codex and Claude Code multi-select scenario still passes against the final candidate."
+        },
+        {
+          "id": "AC-590-03",
+          "description": "No adapter requests administrator access, stores credentials, enables Agent Access, overwrites conflicting configuration, or exposes write/delete MCP tools."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-590-01",
+          "type": "final-integration-audit",
+          "description": "Full Swift test output, packaged-app verification, client lifecycle matrix, and safety inspection."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/AgentIntegrations",
+          "Tests",
+          "Config/Packaging",
+          "Scripts/Distribution"
+        ],
+        "allowed_write_scope": [
+          "docs/tasks/evidence/GATE-590/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/tasks/evidence/GATE-590/**"
+        ],
+        "commands": [
+          "swift test",
+          "Scripts/Development/build_xcode_project",
+          "Scripts/Distribution/verify-release"
+        ],
+        "deliverables": [
+          "Final multi-client onboarding audit result"
+        ],
+        "non_goals": [
+          "Changing product code",
+          "Publishing a release"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T23:22:11.352038Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "GATE-590",
+          "outcome": "implemented",
+          "changed_files": [
+            "docs/tasks/evidence/GATE-590/final-multiclient-audit.json",
+            "docs/tasks/evidence/GATE-590/agent-result.json"
+          ],
+          "changed_assets": [],
+          "change_effect": "evidence-only",
+          "changes": [
+            {
+              "path": "docs/tasks/evidence/GATE-590/final-multiclient-audit.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/GATE-590/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "swift test --disable-sandbox",
+              "result": "passed",
+              "tests": 213
+            },
+            {
+              "command": "Scripts/Development/build_xcode_project",
+              "result": "passed"
+            },
+            {
+              "command": "packaged helper and safety inspection",
+              "result": "passed"
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-590-01",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/GATE-590/final-multiclient-audit.json"
+            },
+            {
+              "criterion": "AC-590-02",
+              "result": "passed",
+              "reference": "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift"
+            },
+            {
+              "criterion": "AC-590-03",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/GATE-590/final-multiclient-audit.json"
+            }
+          ],
+          "discovered_risks": [],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "GATE-590",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "AC-590-01",
+              "result": "passed",
+              "evidence": [
+                "docs/tasks/evidence/TASK-502/repair-20260917/verification.json",
+                "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+              ]
+            },
+            {
+              "id": "AC-590-02",
+              "result": "passed",
+              "evidence": [
+                "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+                "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift",
+                "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+              ]
+            },
+            {
+              "id": "AC-590-03",
+              "result": "passed",
+              "evidence": [
+                "Sources/DiskStewardApp/AgentIntegrations",
+                "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+                "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+                "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "GATE-590"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "GATE-590",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-420"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "TASK-501",
+          "type": "integration-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-502",
+          "type": "integration-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "OUTCOME-410",
+          "type": "validation-requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [],
+      "source_path": "docs/tasks/04-audit/GATE-590-audit-complete-multi-client-mcp-onboarding.md"
+    },
+    {
+      "id": "CONTRACT-401",
+      "kind": "contract",
+      "title": "Define the client-adapter and lifecycle contract",
+      "summary": "Specify bounded detection, state transitions, command execution, receipts, conflict handling, verification, rollback, and Agent Access separation before product mutations are implemented.",
+      "level": 3,
+      "wave": 0,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-403",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-401-01",
+          "description": "The Swift contract represents detected, configured, approval-pending, verified, broken, conflicting, and unavailable states without deriving them from Agent Access."
+        },
+        {
+          "id": "AC-401-02",
+          "description": "Mutation operations are explicit, cancellable, independently reported, idempotent, and testable with injected filesystem, workspace, and process boundaries."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-401-01",
+          "type": "contract-test",
+          "description": "Unit tests cover state derivation, bounded detection, receipt ownership, conflict refusal, and process failure mapping."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/Settings",
+          "Sources/DiskStewardApp/MCPAccess",
+          "Scripts/Integration",
+          "Tests/IntegrationInstallTests"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/**",
+          "Tests/DiskStewardAppTests/AgentIntegrations/**",
+          "docs/tasks/evidence/CONTRACT-401/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/CONTRACT-401/**"
+        ],
+        "commands": [
+          "swift test --filter AgentIntegration"
+        ],
+        "deliverables": [
+          "Adapter protocols and models",
+          "Integration receipt store",
+          "Contract tests"
+        ],
+        "non_goals": [
+          "Concrete client UI",
+          "Changing Agent Access semantics"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T09:22:50.974835Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "CONTRACT-401",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift",
+            "docs/tasks/evidence/CONTRACT-401/contract-verification.json",
+            "docs/tasks/evidence/CONTRACT-401/agent-result.json"
+          ],
+          "changed_assets": [],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/tasks/evidence/CONTRACT-401/contract-verification.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/CONTRACT-401/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "swift test --filter AgentIntegrationContractTests",
+              "result": "passed"
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-401-01",
+              "result": "passed",
+              "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift"
+            },
+            {
+              "criterion": "AC-401-02",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/CONTRACT-401/contract-verification.json"
+            }
+          ],
+          "discovered_risks": [
+            "Client-owned approval cannot always be verified from Disk Steward and must remain an explicit approvalPending state."
+          ],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "CONTRACT-401",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-401-01",
+              "result": "passed",
+              "evidence": [
+                "swift test --filter AgentIntegrationContractTests: 6 tests passed",
+                "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift"
+              ]
+            },
+            {
+              "id": "CHECK-401-02",
+              "result": "passed",
+              "evidence": [
+                "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift keeps Agent Access outside integration state derivation",
+                "docs/tasks/evidence/CONTRACT-401/contract-verification.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "CONTRACT-401"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "CONTRACT-401",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-410"
+      ],
+      "children": [],
+      "dependencies": [],
+      "audit_gates": [],
+      "evidence": [
+        "EV-401",
+        "EV-402",
+        "EV-403",
+        "EV-404"
+      ],
+      "source_path": "docs/tasks/00-foundation/CONTRACT-401-define-the-client-adapter-and-lifecycle-contract.md"
+    },
+    {
+      "id": "TASK-402",
+      "kind": "implementation",
+      "title": "Implement Codex and Claude Code adapters",
+      "summary": "Use official client commands for user-scoped add, inspect, verify, repair, and remove operations, with bounded detection and recoverable fallback behavior.",
+      "level": 3,
+      "wave": 1,
+      "workstream": "client-adapters",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-402-01",
+          "description": "Codex setup uses the official shared Codex configuration lifecycle and Claude Code setup uses official user scope rather than the obsolete repository script location."
+        },
+        {
+          "id": "AC-402-02",
+          "description": "Repeated setup does not duplicate entries; conflicting entries are not overwritten; removal touches only the owned entry; command and path failures are actionable."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-402-01",
+          "type": "automated-test",
+          "description": "Fixture CLI and configuration tests cover detection, setup, repeated setup, verification, repair, conflict, and removal."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/AgentIntegrations",
+          "Scripts/Integration",
+          "Tests/IntegrationInstallTests",
+          "Config/Packaging/project.yml"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/Codex**",
+          "Sources/DiskStewardApp/AgentIntegrations/ClaudeCode**",
+          "Tests/DiskStewardAppTests/AgentIntegrations/Codex**",
+          "Tests/DiskStewardAppTests/AgentIntegrations/ClaudeCode**",
+          "docs/tasks/evidence/TASK-402/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/TASK-402/**"
+        ],
+        "commands": [
+          "swift test --filter AgentIntegration"
+        ],
+        "deliverables": [
+          "Codex adapter",
+          "Claude Code adapter",
+          "Adapter lifecycle tests"
+        ],
+        "non_goals": [
+          "Cursor, VS Code, or Claude Desktop setup"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T09:29:11.686797Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-402",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+            "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+            "docs/tasks/evidence/TASK-402/adapter-verification.json",
+            "docs/tasks/evidence/TASK-402/agent-result.json"
+          ],
+          "changed_assets": [],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-402/adapter-verification.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-402/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "swift test --disable-sandbox --filter CodexAndClaudeCodeAdapterTests",
+              "result": "passed",
+              "tests": 7
+            },
+            {
+              "command": "swift test --disable-sandbox --filter AgentIntegrationContractTests",
+              "result": "passed",
+              "tests": 6
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-402-01",
+              "result": "passed",
+              "reference": "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift"
+            },
+            {
+              "criterion": "AC-402-02",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/TASK-402/adapter-verification.json"
+            }
+          ],
+          "discovered_risks": [
+            "A client CLI output-format change will fail as malformed instead of guessing or editing an unknown configuration."
+          ],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-402",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-402-01",
+              "result": "passed",
+              "evidence": [
+                "CodexAndClaudeCodeAdapterTests: 7 tests passed",
+                "Codex add/get/remove and Claude Code user-scoped add/get/remove are asserted by fixture commands"
+              ]
+            },
+            {
+              "id": "CHECK-402-02",
+              "result": "passed",
+              "evidence": [
+                "Conflict, idempotency, repair, verification, missing-helper, failure, and owned-removal paths pass",
+                "docs/tasks/evidence/TASK-402/adapter-verification.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-402"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-402",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-410"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "CONTRACT-401",
+          "type": "contract-requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [
+        "EV-401",
+        "EV-402",
+        "EV-403"
+      ],
+      "source_path": "docs/tasks/01-client-adapters/TASK-402-implement-codex-and-claude-code-adapters.md"
+    },
+    {
+      "id": "TASK-403",
+      "kind": "implementation",
+      "title": "Build the multi-select Agent Integrations settings experience",
+      "summary": "Add a native settings section that rescans known clients, supports multi-selection, executes setup with independent row results, and exposes test, repair, remove, and manual configuration actions.",
+      "level": 3,
+      "wave": 1,
+      "workstream": "experience",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-403"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-403-01",
+          "description": "Detected supported clients appear as accessible selectable rows with text status independent of color; absent clients are not preselected."
+        },
+        {
+          "id": "AC-403-02",
+          "description": "Set Up Selected reports partial success per client, and setup state remains visually and semantically separate from the Agent Access toggle."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-403-01",
+          "type": "ui-test",
+          "description": "Presentation and interaction tests cover scanning, multi-selection, partial failure, repair/remove actions, and accessibility labels."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "Sources/DiskStewardApp/StatusItemController.swift",
+          "Sources/DiskStewardApp/AgentIntegrations"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+          "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+          "Sources/DiskStewardApp/StatusItemController.swift",
+          "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+          "docs/tasks/evidence/TASK-403/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/tasks/evidence/TASK-403/**"
+        ],
+        "commands": [
+          "swift test --filter AgentIntegration",
+          "Scripts/Development/build_xcode_project"
+        ],
+        "deliverables": [
+          "Agent Integrations settings UI",
+          "Selection and partial-result presentation tests"
+        ],
+        "non_goals": [
+          "Changing the menu bar status board"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T09:33:33.889259Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-403",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+            "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+            "Sources/DiskStewardApp/StatusItemController.swift",
+            "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+            "docs/tasks/evidence/TASK-403/presentation-verification.json",
+            "docs/tasks/evidence/TASK-403/agent-result.json"
+          ],
+          "changed_assets": [],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/StatusItemController.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-403/presentation-verification.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/TASK-403/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "swift test --disable-sandbox --filter AgentIntegration",
+              "result": "passed",
+              "tests": 10
+            },
+            {
+              "command": "Scripts/Development/build_xcode_project",
+              "result": "passed"
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-403-01",
+              "result": "passed",
+              "reference": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift"
+            },
+            {
+              "criterion": "AC-403-02",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/TASK-403/presentation-verification.json"
+            }
+          ],
+          "discovered_risks": [
+            "GUI clients without an installed command-line setup path remain explicitly unavailable until their adapters land in TASK-501."
+          ],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-403",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-403-01",
+              "result": "passed",
+              "evidence": [
+                "AgentIntegrationsPresentationTests: 4 tests passed",
+                "Rows expose client name, state text, selection state, and accessible action labels"
+              ]
+            },
+            {
+              "id": "CHECK-403-02",
+              "result": "passed",
+              "evidence": [
+                "Partial setup results persist independently per client",
+                "Agent Access separation is asserted and Xcode Debug build succeeded"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-403"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-403",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-410"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "CONTRACT-401",
+          "type": "contract-requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [
+        "EV-404"
+      ],
+      "source_path": "docs/tasks/01-experience/TASK-403-build-the-multi-select-agent-integrations-settings-experience.md"
+    },
+    {
+      "id": "GATE-490",
+      "kind": "audit",
+      "title": "Audit the Codex and Claude Code onboarding increment",
+      "summary": "Independently exercise the built settings flow, adapter lifecycle, unrelated-setting preservation, conflict refusal, and Agent Access separation.",
+      "level": 3,
+      "wave": 2,
+      "workstream": "audit",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-401",
+        "REQ-402",
+        "REQ-403",
+        "REQ-405"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-490-01",
+          "description": "The app builds and a representative multi-select Codex plus Claude Code setup, verify, repair, and removal scenario passes with fixture client homes."
+        },
+        {
+          "id": "AC-490-02",
+          "description": "Existing MCP entries and evidence remain unchanged, conflict and unavailable states are honest, and enabling integrations does not enable Agent Access."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-490-01",
+          "type": "integration-audit",
+          "description": "Build log, focused Swift test output, configuration before/after fixtures, and settings presentation evidence."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/AgentIntegrations",
+          "Tests/DiskStewardAppTests/AgentIntegrations",
+          "Tests/IntegrationInstallTests"
+        ],
+        "allowed_write_scope": [
+          "docs/tasks/evidence/GATE-490/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/tasks/evidence/GATE-490/**"
+        ],
+        "commands": [
+          "swift test --filter AgentIntegration",
+          "swift test --filter IntegrationInstallTests",
+          "Scripts/Development/build_xcode_project"
+        ],
+        "deliverables": [
+          "Increment audit result"
+        ],
+        "non_goals": [
+          "Changing product code"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-16T09:34:37.223569Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "GATE-490",
+          "outcome": "implemented",
+          "changed_files": [
+            "docs/tasks/evidence/GATE-490/increment-audit.json",
+            "docs/tasks/evidence/GATE-490/agent-result.json"
+          ],
+          "changed_assets": [],
+          "change_effect": "evidence-only",
+          "changes": [
+            {
+              "path": "docs/tasks/evidence/GATE-490/increment-audit.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/tasks/evidence/GATE-490/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "swift test --disable-sandbox --filter AgentIntegration",
+              "result": "passed",
+              "tests": 10
+            },
+            {
+              "command": "swift test --disable-sandbox --filter IntegrationInstallTests",
+              "result": "passed",
+              "tests": 6
+            },
+            {
+              "command": "Scripts/Development/build_xcode_project",
+              "result": "passed"
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-490-01",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/GATE-490/increment-audit.json"
+            },
+            {
+              "criterion": "AC-490-02",
+              "result": "passed",
+              "reference": "docs/tasks/evidence/GATE-490/increment-audit.json"
+            }
+          ],
+          "discovered_risks": [],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "GATE-490",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-490-01",
+              "result": "passed",
+              "evidence": [
+                "16 focused and integration tests passed",
+                "Xcode Debug build succeeded with bundled signed helper"
+              ]
+            },
+            {
+              "id": "CHECK-490-02",
+              "result": "passed",
+              "evidence": [
+                "Foreign configuration and evidence preservation fixtures passed",
+                "Agent Access separation presentation test passed"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "GATE-490",
+            "OUTCOME-410"
+          ],
+          "recommended_action": "advance"
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "GATE-490",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "INTENT-004"
+      ],
+      "parents": [
+        "OUTCOME-410"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "CONTRACT-401",
+          "type": "validation-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-402",
+          "type": "integration-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-403",
+          "type": "integration-requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [],
+      "source_path": "docs/tasks/02-audit/GATE-490-audit-the-codex-and-claude-code-onboarding-increment.md"
+    }
+  ],
+  "edges": [
+    {
+      "from": "OUTCOME-420",
+      "to": "INTENT-004",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-410",
+      "to": "OUTCOME-420",
+      "type": "contributes-to"
+    },
+    {
+      "from": "CONTRACT-401",
+      "to": "OUTCOME-410",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-402",
+      "to": "OUTCOME-410",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-403",
+      "to": "OUTCOME-410",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-490",
+      "to": "OUTCOME-410",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-501",
+      "to": "OUTCOME-420",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-502",
+      "to": "OUTCOME-420",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-590",
+      "to": "OUTCOME-420",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-402",
+      "to": "CONTRACT-401",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-403",
+      "to": "CONTRACT-401",
+      "type": "contract-requires"
+    },
+    {
+      "from": "GATE-490",
+      "to": "CONTRACT-401",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-490",
+      "to": "TASK-402",
+      "type": "integration-requires"
+    },
+    {
+      "from": "GATE-490",
+      "to": "TASK-403",
+      "type": "integration-requires"
+    },
+    {
+      "from": "OUTCOME-410",
+      "to": "GATE-490",
+      "type": "validated-by"
+    },
+    {
+      "from": "TASK-501",
+      "to": "CONTRACT-401",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-502",
+      "to": "TASK-501",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-502",
+      "to": "TASK-403",
+      "type": "integration-requires"
+    },
+    {
+      "from": "GATE-590",
+      "to": "TASK-501",
+      "type": "integration-requires"
+    },
+    {
+      "from": "GATE-590",
+      "to": "TASK-502",
+      "type": "integration-requires"
+    },
+    {
+      "from": "GATE-590",
+      "to": "OUTCOME-410",
+      "type": "validation-requires"
+    },
+    {
+      "from": "OUTCOME-420",
+      "to": "GATE-590",
+      "type": "validated-by"
+    },
+    {
+      "from": "INTENT-004",
+      "to": "OUTCOME-420",
+      "type": "validation-requires"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-401",
+      "claim": "Disk Steward already ships an executable read-only MCP helper inside the application bundle and exposes Agent Access through a private current-user socket.",
+      "source": "Config/Packaging/project.yml; Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift; Scripts/Distribution/verify-release",
+      "confidence": "high",
+      "freshness": "Repository observation on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-402",
+        "TASK-501",
+        "TASK-502"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-402",
+      "claim": "The current integration installer is repository-only, directly edits Codex TOML, and writes Claude configuration to a location that is not the current Claude Code user-scope location.",
+      "source": "Scripts/Integration/install; Tests/IntegrationInstallTests/IntegrationInstallTests.swift; Claude Code MCP documentation",
+      "confidence": "high",
+      "freshness": "Repository and official documentation reviewed on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-402"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-403",
+      "claim": "Codex and Claude Code provide official add, list/get, and remove lifecycle commands suitable for app-owned adapters.",
+      "source": "https://developers.openai.com/codex/mcp/; https://code.claude.com/docs/en/mcp",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-402"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-404",
+      "claim": "Docker MCP Toolkit models multi-client onboarding as explicit connect, disconnect, list, and per-client verification rather than universal implicit mutation.",
+      "source": "https://docs.docker.com/ai/mcp-catalog-and-toolkit/get-started/; https://docs.docker.com/reference/cli/docker/mcp/client/",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-403",
+        "TASK-501"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-405",
+      "claim": "Cursor and VS Code expose client-owned MCP installation paths, while Claude Desktop provides MCPB packaging with client-managed trust, updates, and auditing.",
+      "source": "https://docs.cursor.com/context/model-context-protocol; https://code.visualstudio.com/docs/agent-customization/mcp-servers; https://www.anthropic.com/engineering/desktop-extensions",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed on 2026-09-16",
+      "supports": [
+        "TASK-501",
+        "TASK-502"
+      ],
+      "contradicts": []
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DECISION-401",
+      "question": "How should Disk Steward configure several heterogeneous MCP clients?",
+      "choice": "Use a typed client-adapter registry with explicit multi-selection, official client-owned commands or flows first, transactional fallback writes, independent per-client results, and a manual configuration escape hatch.",
+      "alternatives": [
+        "Edit every known configuration file directly",
+        "Install one central MCP gateway",
+        "Offer documentation only",
+        "Treat setup and Agent Access as one switch"
+      ],
+      "rationale": "The selected path matches mature client-connector practice, preserves client trust boundaries, remains reversible, and keeps Disk Steward's single read-only helper and evidence engine authoritative.",
+      "evidence": [
+        "EV-401",
+        "EV-402",
+        "EV-403",
+        "EV-404",
+        "EV-405"
+      ]
+    },
+    {
+      "id": "DECISION-402",
+      "question": "What is the smallest honest delivery ladder?",
+      "choice": "First deliver a runnable Codex and Claude Code setup flow in the app, then extend the same lifecycle to Cursor, VS Code, Claude Desktop, and the manual fallback while repeating the first increment's safety checks.",
+      "alternatives": [
+        "One horizontal backend phase followed by UI",
+        "Claim client detection alone as an increment",
+        "Ship every client without an earlier runnable slice"
+      ],
+      "rationale": "Codex and Claude Code have authoritative CLI lifecycles and are already present in the user's environment, so they form the smallest end-to-end actor-visible setup scenario; the second rung adds heterogeneous client-owned flows and broader regression proof.",
+      "evidence": [
+        "EV-402",
+        "EV-403",
+        "EV-404",
+        "EV-405"
+      ]
+    }
+  ],
+  "project": {
+    "schema": "pyramid-project-v1",
+    "format_version": 3,
+    "runtime_version": "3.7.1",
+    "plan_id": "PLAN-DISK-STEWARD-004",
+    "mode": "greenfield",
+    "created_at": "2026-09-16T09:19:07.910619Z",
+    "created_by": "codex",
+    "last_upgraded_at": null,
+    "last_upgraded_by": null,
+    "upgraded_from": null,
+    "migrations": []
+  },
+  "assurance": null,
+  "history": {
+    "schema": "pyramid-history-summary-v1",
+    "chronicles": [
+      {
+        "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-001-B5D5DEEDDD-C1",
+        "plan_id": "PLAN-DISK-STEWARD-001",
+        "title": "Disk Steward macOS evidence monitor",
+        "recorded_at": "2026-09-12T21:19:04.215115Z",
+        "outcome": "completed",
+        "intent": "A macOS user can leave Disk Steward running as a lightweight menu-bar app, understand material disk growth, export trustworthy evidence for Codex or Claude, and query the same evidence through a read-only local MCP integration.",
+        "path": [
+          "Launchable disk snapshot and export utility",
+          "Persistent bounded evidence recorder",
+          "Agent-queryable storage evidence",
+          "Advanced trustworthy provenance"
+        ],
+        "progress": [
+          "Implemented Validate native toolchain and packaging path.",
+          "Accepted evidence for Validate native toolchain and packaging path.",
+          "Implemented Create the native project foundation.",
+          "Accepted evidence for Create the native project foundation.",
+          "Implemented Define core evidence and privacy contracts.",
+          "Accepted evidence for Define core evidence and privacy contracts.",
+          "Implemented Implement volume snapshot and basic export.",
+          "Evidence failed for Implement volume snapshot and basic export and required repair.",
+          "Implemented Implement volume snapshot and basic export.",
+          "Accepted evidence for Implement volume snapshot and basic export.",
+          "Implemented Implement menu-bar shell and compact status board.",
+          "Accepted evidence for Implement menu-bar shell and compact status board.",
+          "Implemented Audit launchable snapshot increment.",
+          "Accepted evidence for Audit launchable snapshot increment.",
+          "Accepted evidence for Launchable disk snapshot and export utility.",
+          "Implemented Implement bounded SQLite evidence store.",
+          "Accepted evidence for Implement bounded SQLite evidence store.",
+          "Implemented Validate Endpoint Security feasibility and fallback boundary.",
+          "Accepted evidence for Validate Endpoint Security feasibility and fallback boundary.",
+          "Implemented Implement hybrid monitoring and growth explanation.",
+          "Accepted evidence for Implement hybrid monitoring and growth explanation.",
+          "Implemented Add background lifecycle, settings, status, and notifications.",
+          "Accepted evidence for Add background lifecycle, settings, status, and notifications.",
+          "Implemented Implement complete evidence bundle export.",
+          "Accepted evidence for Implement complete evidence bundle export.",
+          "Implemented Audit persistent evidence recorder increment.",
+          "Accepted evidence for Audit persistent evidence recorder increment.",
+          "Accepted evidence for Persistent bounded evidence recorder.",
+          "Implemented Define agent session and read-only MCP contracts.",
+          "Accepted evidence for Define agent session and read-only MCP contracts.",
+          "Implemented Implement agent session registry and process correlation.",
+          "Accepted evidence for Implement agent session registry and process correlation.",
+          "Implemented Implement the bundled read-only MCP connector.",
+          "Accepted evidence for Implement the bundled read-only MCP connector.",
+          "Implemented Package Codex and Claude integration paths.",
+          "Accepted evidence for Package Codex and Claude integration paths.",
+          "Implemented Audit agent-queryable evidence increment.",
+          "Accepted evidence for Audit agent-queryable evidence increment.",
+          "Accepted evidence for Agent-queryable storage evidence.",
+          "Implemented Define privileged event bridge and provenance semantics.",
+          "Accepted evidence for Define privileged event bridge and provenance semantics.",
+          "Implemented Implement optional Endpoint Security observer.",
+          "Accepted evidence for Implement optional Endpoint Security observer.",
+          "Implemented Implement exact and inferred provenance engine.",
+          "Accepted evidence for Implement exact and inferred provenance engine.",
+          "Implemented Enforce privacy, resource, permission, and release controls.",
+          "Accepted evidence for Enforce privacy, resource, permission, and release controls.",
+          "Implemented Audit advanced provenance and final intent.",
+          "Accepted evidence for Audit advanced provenance and final intent.",
+          "Accepted evidence for Advanced trustworthy provenance.",
+          "Accepted evidence for Trustworthy macOS storage evidence for humans and agents."
+        ],
+        "turning_points": [
+          "Decision: Deliver four cumulative runnable increments: snapshot/export menu app; persistent evidence recorder; agent-queryable MCP integration; advanced exact provenance with fallback — Each selected rung gives the user a launchable, meaningful scenario and isolates storage, integration, and restricted-entitlement risks behind independent gates",
+          "Decision: Swift 6 with a small AppKit NSStatusItem shell, SwiftUI presentation, a shared Swift core, and SQLite persistence — The selected stack directly accesses macOS monitoring, service-management, signing, and menu APIs while minimizing continuous runtime and cross-language boundaries",
+          "Decision: Track whole-volume capacity everywhere accessible, but persist detailed evidence only for configured roots, registered agent process trees, and bounded investigation windows — The hybrid model preserves unexplained-growth detection and agent attribution without creating an unbounded privacy and resource burden",
+          "Decision: Bundle one read-only Swift MCP stdio executable that delegates to the app-owned evidence service over a protected local IPC boundary — One connector minimizes duplication and attack surface while keeping database ownership, sanitization, and retention inside the application",
+          "Decision: Implement it as an advanced capability with explicit confidence semantics and retain a useful FSEvents/snapshot fallback — Entitlement approval is external and cannot be guaranteed; the product must remain honest and useful in its absence",
+          "Decision: No; it will explain, export, and recommend while all MCP tools remain read-only — Evidence trust and attribution accuracy must be established before introducing destructive operations",
+          "plan.replanned at graph version 4",
+          "plan.replanned at graph version 8",
+          "plan.replanned at graph version 14",
+          "plan.replanned at graph version 18",
+          "audit.fail at graph version 21",
+          "plan.replanned at graph version 42",
+          "plan.replanned at graph version 60"
+        ],
+        "ending": "The intent ended with all required primary evidence verified.",
+        "why_this_result": "The selected decisions were Deliver four cumulative runnable increments: snapshot/export menu app; persistent evidence recorder; agent-queryable MCP integration; advanced exact provenance with fallback — Each selected rung gives the user a launchable, meaningful scenario and isolates storage, integration, and restricted-entitlement risks behind independent gates; Swift 6 with a small AppKit NSStatusItem shell, SwiftUI presentation, a shared Swift core, and SQLite persistence — The selected stack directly accesses macOS monitoring, service-management, signing, and menu APIs while minimizing continuous runtime and cross-language boundaries; Track whole-volume capacity everywhere accessible, but persist detailed evidence only for configured roots, registered agent process trees, and bounded investigation windows — The hybrid model preserves unexplained-growth detection and agent attribution without creating an unbounded privacy and resource burden; Bundle one read-only Swift MCP stdio executable that delegates to the app-owned evidence service over a protected local IPC boundary — One connector minimizes duplication and attack surface while keeping database ownership, sanitization, and retention inside the application; Implement it as an advanced capability with explicit confidence semantics and retain a useful FSEvents/snapshot fallback — Entitlement approval is external and cannot be guaranteed; the product must remain honest and useful in its absence; No; it will explain, export, and recommend while all MCP tools remain read-only — Evidence trust and attribution accuracy must be established before introducing destructive operations.",
+        "changed_files": 168,
+        "provenance_status": "partial",
+        "replay_fidelity": "partial",
+        "bound_commit": null,
+        "binding_status": "unavailable",
+        "binding_next_action": "No Git commit was captured at intent start; retain the partial replay record.",
+        "current_applicability": "historical"
+      },
+      {
+        "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-002-636907A95A-C1",
+        "plan_id": "PLAN-DISK-STEWARD-002",
+        "title": "Polished and Direct-Distribution-Ready Disk Steward",
+        "recorded_at": "2026-09-14T21:38:46.068992Z",
+        "outcome": "completed",
+        "intent": "A macOS user can install and launch Disk Steward as a polished native menu-bar application, understand why it exists through a research-grounded 30-second product story, inspect its MIT-licensed public source, discover a truthful Homebrew distribution path, and receive a verifiably signed and notarized direct-distribution artifact without weakening the existing monitoring, evidence, privacy, or MCP behavior.",
+        "path": [
+          "Polished native Xcode application",
+          "Direct-distribution-ready application"
+        ],
+        "progress": [
+          "Implemented Lock product, bundle, and status-board contracts.",
+          "Accepted evidence for Lock product, bundle, and status-board contracts.",
+          "Implemented Define the evidence identity, reconciliation, query, and lifecycle contract.",
+          "Accepted evidence for Define the evidence identity, reconciliation, query, and lifecycle contract.",
+          "Implemented Verify paid-team direct-distribution readiness.",
+          "Accepted evidence for Verify paid-team direct-distribution readiness.",
+          "Implemented Persist observations and reconcile current file state safely.",
+          "Accepted evidence for Persist observations and reconcile current file state safely.",
+          "Implemented Create the canonical Xcode application bundle.",
+          "Accepted evidence for Create the canonical Xcode application bundle.",
+          "Implemented Add enforceable MCP Agent Access control.",
+          "Accepted evidence for Add enforceable MCP Agent Access control.",
+          "Implemented Persist provenance and agent-session evidence.",
+          "Accepted evidence for Persist provenance and agent-session evidence.",
+          "Implemented Implement bounded retention, coverage, and export lifecycle.",
+          "Accepted evidence for Implement bounded retention, coverage, and export lifecycle.",
+          "Implemented Rebuild MCP queries on authoritative read models.",
+          "Accepted evidence for Rebuild MCP queries on authoritative read models.",
+          "Implemented Redesign the menu-bar status board.",
+          "Accepted evidence for Redesign the menu-bar status board.",
+          "Implemented Audit the polished native application increment.",
+          "Accepted evidence for Audit the polished native application increment.",
+          "Accepted evidence for Polished native Xcode application.",
+          "Implemented Build the credential-free release and notarization handoff.",
+          "Accepted evidence for Build the credential-free release and notarization handoff.",
+          "Implemented Build the credential-free release and notarization handoff.",
+          "Accepted evidence for Build the credential-free release and notarization handoff.",
+          "Implemented Build the credential-free release and notarization handoff.",
+          "Accepted evidence for Build the credential-free release and notarization handoff.",
+          "Implemented Enforce distributable-artifact integrity and secret safety.",
+          "Accepted evidence for Enforce distributable-artifact integrity and secret safety.",
+          "Implemented Persist observations and reconcile current file state safely.",
+          "Accepted evidence for Persist observations and reconcile current file state safely.",
+          "Accepted evidence for Persist provenance and agent-session evidence.",
+          "Accepted evidence for Implement bounded retention, coverage, and export lifecycle.",
+          "Implemented Rebuild MCP queries on authoritative read models.",
+          "Accepted evidence for Rebuild MCP queries on authoritative read models.",
+          "Accepted evidence for Redesign the menu-bar status board.",
+          "Accepted evidence for Audit the polished native application increment.",
+          "Accepted evidence for Polished native Xcode application.",
+          "Accepted evidence for Build the credential-free release and notarization handoff.",
+          "Accepted evidence for Enforce distributable-artifact integrity and secret safety.",
+          "Implemented Define actionable export and convergent coverage contracts.",
+          "Accepted evidence for Define actionable export and convergent coverage contracts.",
+          "Evidence failed for Define actionable export and convergent coverage contracts and required repair.",
+          "Implemented Define actionable export and convergent coverage contracts.",
+          "Accepted evidence for Define actionable export and convergent coverage contracts.",
+          "Implemented Ship authoritative human-triggered evidence bundles.",
+          "Accepted evidence for Ship authoritative human-triggered evidence bundles.",
+          "Implemented Make capped watched-root scans converge safely.",
+          "Accepted evidence for Make capped watched-root scans converge safely.",
+          "Evidence failed for Ship authoritative human-triggered evidence bundles and required repair.",
+          "Implemented Ship authoritative human-triggered evidence bundles.",
+          "Accepted evidence for Ship authoritative human-triggered evidence bundles.",
+          "Accepted evidence for Define the evidence identity, reconciliation, query, and lifecycle contract.",
+          "Accepted evidence for Persist observations and reconcile current file state safely.",
+          "Accepted evidence for Implement bounded retention, coverage, and export lifecycle.",
+          "Accepted evidence for Rebuild MCP queries on authoritative read models.",
+          "Accepted evidence for Audit the polished native application increment.",
+          "Accepted evidence for Polished native Xcode application.",
+          "Accepted evidence for Build the credential-free release and notarization handoff.",
+          "Accepted evidence for Enforce distributable-artifact integrity and secret safety.",
+          "Evidence failed for Audit the direct-distribution release and required repair.",
+          "Implemented Harden folder selection and export handoff.",
+          "Implemented Publish the open-source project surface.",
+          "Implemented Produce the research-grounded 30-second product story.",
+          "Implemented Publish a fail-closed Homebrew tap.",
+          "Implemented Build the credential-free release and notarization handoff.",
+          "Accepted evidence for Build the credential-free release and notarization handoff.",
+          "Accepted evidence for Publish a fail-closed Homebrew tap.",
+          "Evidence failed for Create the canonical Xcode application bundle and required repair.",
+          "Implemented Create the canonical Xcode application bundle.",
+          "Accepted evidence for Create the canonical Xcode application bundle.",
+          "Accepted evidence for Redesign the menu-bar status board.",
+          "Accepted evidence for Ship authoritative human-triggered evidence bundles.",
+          "Accepted evidence for Harden folder selection and export handoff.",
+          "Accepted evidence for Audit the polished native application increment.",
+          "Accepted evidence for Polished native Xcode application.",
+          "Accepted evidence for Enforce distributable-artifact integrity and secret safety.",
+          "Accepted evidence for Publish the open-source project surface.",
+          "Accepted evidence for Produce the research-grounded 30-second product story.",
+          "Implemented Audit the direct-distribution release.",
+          "Accepted evidence for Audit the direct-distribution release.",
+          "Accepted evidence for Direct-distribution-ready application.",
+          "Accepted evidence for Polished distributable Disk Steward."
+        ],
+        "turning_points": [
+          "Decision: Deliver a canonical launchable Xcode app and redesigned dashboard as the first increment, then add the direct-distribution pipeline as a cumulative second increment — The first increment is independently useful and reviewable in Xcode, while Apple credential availability remains an external release dependency",
+          "Decision: Use direct distribution outside the Mac App Store under Team G3P6TU385Y with the proposed com.marudankiji.disksteward product identity — It matches the user's requested distributable desktop utility and Apple's Developer ID and notarization path; permanent identifiers also remove current configuration inconsistency",
+          "Decision: Keep the standard app complete without Endpoint Security and retain the optional extension as a separately gated target until Apple grants the restricted entitlement — This preserves the product's proven fallback while avoiding a distribution blocker and retaining the future exact-provenance path",
+          "Decision: Lead with current free-space health and a concise growth assessment, then show monitoring state and recency, with evidence export as the single clear action — This aligns the small popover with the user's immediate decision while detailed evidence remains available through export and MCP",
+          "Decision: Use one persistent Agent Access state, default off on fresh installs, that starts or stops the private local IPC service; show the state with a native toggle while keeping monitoring and manual evidence export independent — A privacy control must enforce service availability rather than merely change presentation, and it should not mutate external client configuration or interrupt the app's core evidence collection",
+          "Decision: Use a visible rolling lifecycle: 7 days of raw detail, 30 days of hourly path and capacity summaries, 365 days of daily summaries, finite anomaly detail, deterministic oldest-first pressure compaction, and a 512 MiB default hard ceiling; preserve manual exports as user-owned files and expose lifecycle status through UI and a read-only MCP tool — The tiers preserve recent forensic detail and long-term growth trends, while explicit coverage and pressure records prevent an agent from mistaking compacted history for complete history",
+          "Decision: Persist immutable observation runs and state observations, reconcile them through stable file objects and time-bounded path bindings, atomically maintain a current-file projection, and attach provenance, session context, rollups, retention, exports, and coverage gaps as separate linked records — An event chain supplies history, the materialized projection answers current state, stable identity handles rename and path reuse, and explicit observation coverage prevents unavailable roots or capped scans from fabricating deletions",
+          "Decision: Repair the existing native-app increment with one shared evidence-usefulness contract, then run two bounded branches: durable scan-generation convergence and authoritative human-triggered export; require the current-candidate gate to inspect an actual menu-created bundle from a populated database — The current database proves detailed state exists but the user path omits it, while repeated entry-cap scans cannot yet establish change history. Both defects invalidate the first actor-visible increment and can be repaired independently without changing the final intent or weakening privacy, retention, or distribution controls",
+          "plan.replanned at graph version 21",
+          "plan.replanned at graph version 23",
+          "plan.replanned at graph version 28",
+          "plan.replanned at graph version 33",
+          "task.reopened at graph version 49",
+          "task.reopened at graph version 55",
+          "task.blocked at graph version 63",
+          "task.blocked at graph version 64",
+          "task.blocked at graph version 65",
+          "task.reopened at graph version 66",
+          "task.reopened at graph version 72",
+          "task.blocked at graph version 81",
+          "plan.replanned at graph version 83",
+          "plan.replanned at graph version 84",
+          "audit.fail at graph version 90",
+          "audit.fail at graph version 100",
+          "audit.fail at graph version 112",
+          "task.blocked at graph version 116",
+          "task.reopened at graph version 118",
+          "plan.replanned at graph version 121",
+          "plan.replanned at graph version 126",
+          "plan.replanned at graph version 127",
+          "plan.replanned at graph version 130",
+          "plan.replanned at graph version 133",
+          "plan.replanned at graph version 136",
+          "plan.replanned at graph version 139",
+          "plan.replanned at graph version 140",
+          "audit.fail at graph version 149"
+        ],
+        "ending": "The intent ended with all required primary evidence verified.",
+        "why_this_result": "The selected decisions were Deliver a canonical launchable Xcode app and redesigned dashboard as the first increment, then add the direct-distribution pipeline as a cumulative second increment — The first increment is independently useful and reviewable in Xcode, while Apple credential availability remains an external release dependency; Use direct distribution outside the Mac App Store under Team G3P6TU385Y with the proposed com.marudankiji.disksteward product identity — It matches the user's requested distributable desktop utility and Apple's Developer ID and notarization path; permanent identifiers also remove current configuration inconsistency; Keep the standard app complete without Endpoint Security and retain the optional extension as a separately gated target until Apple grants the restricted entitlement — This preserves the product's proven fallback while avoiding a distribution blocker and retaining the future exact-provenance path; Lead with current free-space health and a concise growth assessment, then show monitoring state and recency, with evidence export as the single clear action — This aligns the small popover with the user's immediate decision while detailed evidence remains available through export and MCP; Use one persistent Agent Access state, default off on fresh installs, that starts or stops the private local IPC service; show the state with a native toggle while keeping monitoring and manual evidence export independent — A privacy control must enforce service availability rather than merely change presentation, and it should not mutate external client configuration or interrupt the app's core evidence collection; Use a visible rolling lifecycle: 7 days of raw detail, 30 days of hourly path and capacity summaries, 365 days of daily summaries, finite anomaly detail, deterministic oldest-first pressure compaction, and a 512 MiB default hard ceiling; preserve manual exports as user-owned files and expose lifecycle status through UI and a read-only MCP tool — The tiers preserve recent forensic detail and long-term growth trends, while explicit coverage and pressure records prevent an agent from mistaking compacted history for complete history; Persist immutable observation runs and state observations, reconcile them through stable file objects and time-bounded path bindings, atomically maintain a current-file projection, and attach provenance, session context, rollups, retention, exports, and coverage gaps as separate linked records — An event chain supplies history, the materialized projection answers current state, stable identity handles rename and path reuse, and explicit observation coverage prevents unavailable roots or capped scans from fabricating deletions; Repair the existing native-app increment with one shared evidence-usefulness contract, then run two bounded branches: durable scan-generation convergence and authoritative human-triggered export; require the current-candidate gate to inspect an actual menu-created bundle from a populated database — The current database proves detailed state exists but the user path omits it, while repeated entry-cap scans cannot yet establish change history. Both defects invalidate the first actor-visible increment and can be repaired independently without changing the final intent or weakening privacy, retention, or distribution controls.",
+        "changed_files": 146,
+        "provenance_status": "partial",
+        "replay_fidelity": "partial",
+        "bound_commit": null,
+        "binding_status": "pending",
+        "binding_next_action": "Commit the implementation, ensure the worktree is clean, then bind this chronicle.",
+        "current_applicability": "historical"
+      },
+      {
+        "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-003-2563BA4DE6-C1",
+        "plan_id": "PLAN-DISK-STEWARD-003",
+        "title": "Bounded and Crash-Resilient Disk Steward",
+        "recorded_at": "2026-09-16T03:35:13.599923Z",
+        "outcome": "completed",
+        "intent": "Disk Steward continuously monitors realistic developer folders without exhausting host memory or growing its evidence indefinitely, survives interrupted work, and reports current, historical, incomplete, and unavailable evidence honestly through the app, exports, and read-only MCP.",
+        "path": [
+          "The app fails safely",
+          "Large roots complete within resource limits",
+          "Evidence stays correct through change and interruption",
+          "All evidence consumers remain bounded",
+          "A verified safe upgrade candidate is ready for release promotion"
+        ],
+        "progress": [
+          "Implemented Add containment, diagnostics, and safe startup.",
+          "Accepted evidence for Add containment, diagnostics, and safe startup.",
+          "Implemented Audit safe failure increment.",
+          "Accepted evidence for Audit safe failure increment.",
+          "Accepted evidence for The app fails safely.",
+          "Implemented Replace repeated listings with bounded resumable traversal.",
+          "Accepted evidence for Replace repeated listings with bounded resumable traversal.",
+          "Implemented Audit bounded traversal increment.",
+          "Accepted evidence for Audit bounded traversal increment.",
+          "Accepted evidence for Large roots complete within resource limits.",
+          "Implemented Make reconciliation and event recovery bounded and authoritative.",
+          "Accepted evidence for Make reconciliation and event recovery bounded and authoritative.",
+          "Implemented Audit evidence correctness increment.",
+          "Accepted evidence for Audit evidence correctness increment.",
+          "Accepted evidence for Evidence stays correct through change and interruption.",
+          "Implemented Bound retention, storage admission, export, UI, and MCP.",
+          "Accepted evidence for Bound retention, storage admission, export, UI, and MCP.",
+          "Implemented Audit bounded evidence-system increment.",
+          "Accepted evidence for Audit bounded evidence-system increment.",
+          "Accepted evidence for All evidence consumers remain bounded.",
+          "Implemented Migrate, stress, package, and verify the release candidate.",
+          "Accepted evidence for Migrate, stress, package, and verify the release candidate.",
+          "Implemented Audit safe upgrade and final intent.",
+          "Accepted evidence for Audit safe upgrade and final intent.",
+          "Accepted evidence for A verified safe upgrade candidate is ready for release promotion.",
+          "Accepted evidence for Bounded and crash-resilient Disk Steward."
+        ],
+        "turning_points": [
+          "Decision: Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments — The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact",
+          "Decision: Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof — A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication",
+          "plan.replanned at graph version 31"
+        ],
+        "ending": "The intent ended with all required primary evidence verified.",
+        "why_this_result": "The selected decisions were Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments — The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact; Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof — A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication.",
+        "changed_files": 46,
+        "provenance_status": "partial",
+        "replay_fidelity": "partial",
+        "bound_commit": null,
+        "binding_status": "pending",
+        "binding_next_action": "Commit the implementation, ensure the worktree is clean, then bind this chronicle.",
+        "current_applicability": "historical"
+      },
+      {
+        "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-003-2563BA4DE6-C2",
+        "plan_id": "PLAN-DISK-STEWARD-003",
+        "title": "Bounded and Crash-Resilient Disk Steward",
+        "recorded_at": "2026-09-16T07:37:06.555542Z",
+        "outcome": "completed",
+        "intent": "Disk Steward continuously monitors realistic developer folders without exhausting host memory or growing its evidence indefinitely, survives interrupted work, and reports current, historical, incomplete, and unavailable evidence honestly through the app, exports, and read-only MCP.",
+        "path": [
+          "The app fails safely",
+          "Large roots complete within resource limits",
+          "Evidence stays correct through change and interruption",
+          "All evidence consumers remain bounded",
+          "A verified safe upgrade candidate is ready for release promotion"
+        ],
+        "progress": [
+          "Implemented Add containment, diagnostics, and safe startup.",
+          "Accepted evidence for Add containment, diagnostics, and safe startup.",
+          "Implemented Audit safe failure increment.",
+          "Accepted evidence for Audit safe failure increment.",
+          "Accepted evidence for The app fails safely.",
+          "Implemented Replace repeated listings with bounded resumable traversal.",
+          "Accepted evidence for Replace repeated listings with bounded resumable traversal.",
+          "Implemented Audit bounded traversal increment.",
+          "Accepted evidence for Audit bounded traversal increment.",
+          "Accepted evidence for Large roots complete within resource limits.",
+          "Implemented Make reconciliation and event recovery bounded and authoritative.",
+          "Accepted evidence for Make reconciliation and event recovery bounded and authoritative.",
+          "Implemented Audit evidence correctness increment.",
+          "Accepted evidence for Audit evidence correctness increment.",
+          "Accepted evidence for Evidence stays correct through change and interruption.",
+          "Implemented Bound retention, storage admission, export, UI, and MCP.",
+          "Accepted evidence for Bound retention, storage admission, export, UI, and MCP.",
+          "Implemented Audit bounded evidence-system increment.",
+          "Accepted evidence for Audit bounded evidence-system increment.",
+          "Accepted evidence for All evidence consumers remain bounded.",
+          "Implemented Migrate, stress, package, and verify the release candidate.",
+          "Accepted evidence for Migrate, stress, package, and verify the release candidate.",
+          "Implemented Audit safe upgrade and final intent.",
+          "Accepted evidence for Audit safe upgrade and final intent.",
+          "Accepted evidence for A verified safe upgrade candidate is ready for release promotion.",
+          "Accepted evidence for Bounded and crash-resilient Disk Steward.",
+          "Implemented Bound retention, storage admission, export, UI, and MCP.",
+          "Accepted evidence for Bound retention, storage admission, export, UI, and MCP.",
+          "Accepted evidence for Audit bounded evidence-system increment.",
+          "Accepted evidence for All evidence consumers remain bounded.",
+          "Accepted evidence for Migrate, stress, package, and verify the release candidate.",
+          "Accepted evidence for Audit safe upgrade and final intent.",
+          "Accepted evidence for A verified safe upgrade candidate is ready for release promotion.",
+          "Accepted evidence for Bounded and crash-resilient Disk Steward."
+        ],
+        "turning_points": [
+          "Decision: Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments — The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact",
+          "Decision: Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof — A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication",
+          "plan.replanned at graph version 31",
+          "task.reopened at graph version 41"
+        ],
+        "ending": "The intent ended with all required primary evidence verified.",
+        "why_this_result": "The selected decisions were Build a bounded resumable metadata pipeline with durable work, explicit coverage, bounded evidence consumers, and an independently supervised unprivileged worker; deliver it through five cumulative runnable increments — The chosen path addresses algorithmic memory growth, synchronous stalls, crash containment, evidence correctness, database growth, and recovery as separate but cumulative guarantees. The alternatives leave at least one load-bearing failure mechanism intact; Close the engineering intent only after deterministic migration, interruption, stress, lifecycle, signature, architecture, and isolated-launch evidence passes; keep the unchanged production verifier as a hard promotion gate that rejects any artifact lacking notarization, stapling, Gatekeeper acceptance, or final launch proof — A deterministic 864-cycle soak and high-volume event storm exercise the load-dependent failure mechanisms reproducibly, while Apple trust services are external release operations rather than code completion. Keeping those checks fail-closed preserves distribution safety without falsely claiming publication.",
+        "changed_files": 41,
+        "provenance_status": "partial",
+        "replay_fidelity": "partial",
+        "bound_commit": null,
+        "binding_status": "pending",
+        "binding_next_action": "Commit the implementation, ensure the worktree is clean, then bind this chronicle.",
+        "current_applicability": "historical"
+      },
+      {
+        "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-004-DF3E68457C-C1",
+        "plan_id": "PLAN-DISK-STEWARD-004",
+        "title": "Safe Multi-Client MCP Setup",
+        "recorded_at": "2026-09-16T09:45:38.597899Z",
+        "outcome": "completed",
+        "intent": "Disk Steward users can discover supported local AI clients, explicitly select one or more, and safely set up, verify, repair, or remove the read-only Disk Steward MCP integration without manually editing configuration files or confusing client setup with Agent Access.",
+        "path": [
+          "Codex and Claude Code setup works from Settings",
+          "All supported clients have an honest onboarding path"
+        ],
+        "progress": [
+          "Implemented Define the client-adapter and lifecycle contract.",
+          "Accepted evidence for Define the client-adapter and lifecycle contract.",
+          "Implemented Implement Codex and Claude Code adapters.",
+          "Accepted evidence for Implement Codex and Claude Code adapters.",
+          "Implemented Build the multi-select Agent Integrations settings experience.",
+          "Accepted evidence for Build the multi-select Agent Integrations settings experience.",
+          "Implemented Audit the Codex and Claude Code onboarding increment.",
+          "Accepted evidence for Audit the Codex and Claude Code onboarding increment.",
+          "Accepted evidence for Codex and Claude Code setup works from Settings.",
+          "Implemented Add Cursor, VS Code, Claude Desktop, and manual adapters.",
+          "Accepted evidence for Add Cursor, VS Code, Claude Desktop, and manual adapters.",
+          "Implemented Harden packaging, receipts, repair, and cross-client verification.",
+          "Accepted evidence for Harden packaging, receipts, repair, and cross-client verification.",
+          "Implemented Audit complete multi-client MCP onboarding.",
+          "Accepted evidence for Audit complete multi-client MCP onboarding.",
+          "Accepted evidence for All supported clients have an honest onboarding path.",
+          "Accepted evidence for Safe multi-client MCP onboarding."
+        ],
+        "turning_points": [
+          "Decision: Use a typed client-adapter registry with explicit multi-selection, official client-owned commands or flows first, transactional fallback writes, independent per-client results, and a manual configuration escape hatch — The selected path matches mature client-connector practice, preserves client trust boundaries, remains reversible, and keeps Disk Steward's single read-only helper and evidence engine authoritative",
+          "Decision: First deliver a runnable Codex and Claude Code setup flow in the app, then extend the same lifecycle to Cursor, VS Code, Claude Desktop, and the manual fallback while repeating the first increment's safety checks — Codex and Claude Code have authoritative CLI lifecycles and are already present in the user's environment, so they form the smallest end-to-end actor-visible setup scenario; the second rung adds heterogeneous client-owned flows and broader regression proof"
+        ],
+        "ending": "The intent ended with all required primary evidence verified.",
+        "why_this_result": "The selected decisions were Use a typed client-adapter registry with explicit multi-selection, official client-owned commands or flows first, transactional fallback writes, independent per-client results, and a manual configuration escape hatch — The selected path matches mature client-connector practice, preserves client trust boundaries, remains reversible, and keeps Disk Steward's single read-only helper and evidence engine authoritative; First deliver a runnable Codex and Claude Code setup flow in the app, then extend the same lifecycle to Cursor, VS Code, Claude Desktop, and the manual fallback while repeating the first increment's safety checks — Codex and Claude Code have authoritative CLI lifecycles and are already present in the user's environment, so they form the smallest end-to-end actor-visible setup scenario; the second rung adds heterogeneous client-owned flows and broader regression proof.",
+        "changed_files": 30,
+        "provenance_status": "partial",
+        "replay_fidelity": "partial",
+        "bound_commit": null,
+        "binding_status": "pending",
+        "binding_next_action": "Commit the implementation, ensure the worktree is clean, then bind this chronicle.",
+        "current_applicability": "historical"
+      },
+      {
+        "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-004-DF3E68457C-C2",
+        "plan_id": "PLAN-DISK-STEWARD-004",
+        "title": "Safe Multi-Client MCP Setup",
+        "recorded_at": "2026-09-16T23:22:27.369857Z",
+        "outcome": "completed",
+        "intent": "Disk Steward users can discover supported local AI clients, explicitly select one or more, and safely set up, verify, repair, or remove the read-only Disk Steward MCP integration without manually editing configuration files or confusing client setup with Agent Access.",
+        "path": [
+          "Codex and Claude Code setup works from Settings",
+          "All supported clients have an honest onboarding path"
+        ],
+        "progress": [
+          "Implemented Define the client-adapter and lifecycle contract.",
+          "Accepted evidence for Define the client-adapter and lifecycle contract.",
+          "Implemented Implement Codex and Claude Code adapters.",
+          "Accepted evidence for Implement Codex and Claude Code adapters.",
+          "Implemented Build the multi-select Agent Integrations settings experience.",
+          "Accepted evidence for Build the multi-select Agent Integrations settings experience.",
+          "Implemented Audit the Codex and Claude Code onboarding increment.",
+          "Accepted evidence for Audit the Codex and Claude Code onboarding increment.",
+          "Accepted evidence for Codex and Claude Code setup works from Settings.",
+          "Implemented Add Cursor, VS Code, Claude Desktop, and manual adapters.",
+          "Accepted evidence for Add Cursor, VS Code, Claude Desktop, and manual adapters.",
+          "Implemented Harden packaging, receipts, repair, and cross-client verification.",
+          "Accepted evidence for Harden packaging, receipts, repair, and cross-client verification.",
+          "Implemented Audit complete multi-client MCP onboarding.",
+          "Accepted evidence for Audit complete multi-client MCP onboarding.",
+          "Accepted evidence for All supported clients have an honest onboarding path.",
+          "Accepted evidence for Safe multi-client MCP onboarding.",
+          "Implemented Harden packaging, receipts, repair, and cross-client verification.",
+          "Accepted evidence for Harden packaging, receipts, repair, and cross-client verification.",
+          "Accepted evidence for Audit complete multi-client MCP onboarding.",
+          "Accepted evidence for All supported clients have an honest onboarding path.",
+          "Accepted evidence for Safe multi-client MCP onboarding."
+        ],
+        "turning_points": [
+          "Decision: Use a typed client-adapter registry with explicit multi-selection, official client-owned commands or flows first, transactional fallback writes, independent per-client results, and a manual configuration escape hatch — The selected path matches mature client-connector practice, preserves client trust boundaries, remains reversible, and keeps Disk Steward's single read-only helper and evidence engine authoritative",
+          "Decision: First deliver a runnable Codex and Claude Code setup flow in the app, then extend the same lifecycle to Cursor, VS Code, Claude Desktop, and the manual fallback while repeating the first increment's safety checks — Codex and Claude Code have authoritative CLI lifecycles and are already present in the user's environment, so they form the smallest end-to-end actor-visible setup scenario; the second rung adds heterogeneous client-owned flows and broader regression proof",
+          "task.reopened at graph version 27"
+        ],
+        "ending": "The intent ended with all required primary evidence verified.",
+        "why_this_result": "The selected decisions were Use a typed client-adapter registry with explicit multi-selection, official client-owned commands or flows first, transactional fallback writes, independent per-client results, and a manual configuration escape hatch — The selected path matches mature client-connector practice, preserves client trust boundaries, remains reversible, and keeps Disk Steward's single read-only helper and evidence engine authoritative; First deliver a runnable Codex and Claude Code setup flow in the app, then extend the same lifecycle to Cursor, VS Code, Claude Desktop, and the manual fallback while repeating the first increment's safety checks — Codex and Claude Code have authoritative CLI lifecycles and are already present in the user's environment, so they form the smallest end-to-end actor-visible setup scenario; the second rung adds heterogeneous client-owned flows and broader regression proof.",
+        "changed_files": 34,
+        "provenance_status": "partial",
+        "replay_fidelity": "partial",
+        "bound_commit": null,
+        "binding_status": "pending",
+        "binding_next_action": "Commit the implementation, ensure the worktree is clean, then bind this chronicle.",
+        "current_applicability": "current"
+      }
+    ]
+  }
+}

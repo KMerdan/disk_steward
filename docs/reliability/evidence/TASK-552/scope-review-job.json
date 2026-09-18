@@ -1,0 +1,32 @@
+{
+ "schema": "helper-job-v1",
+ "helper_id": "HELPER-TASK-552-SCOPE-01",
+ "parent_task": "TASK-552",
+ "task_guard": "GUARD-TASK-C8F56F21FDC7B6032A1F940B8952F285",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:f4e36c148079526e53845b556bd5c5dd2913616e975cec7636f1464c19f6a07c", "immutable": true},
+ "read_scope": [
+  "docs/reliability/evidence/TASK-552/scope-base-source/**",
+  "docs/reliability/evidence/TASK-552/scope-source/**",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceQueryModels.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+  "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+  "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+  "Sources/DiskStewardApp/StatusItemController.swift",
+  "Tests/DiskStewardAppTests/IPC/EvidenceQueryScopeIPCIntegrationTests.swift",
+  "Tests/DiskStewardAppTests/IPC/EvidenceCardinalityIPCIntegrationTests.swift",
+  "Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift"
+ ],
+ "purpose": "Read-only static delta review of the nine product-input files changed since candidate f85e3970 (base copies archived in scope-base-source/). Review SQL bind ordering and injection safety of the query scope, hidden-row semantics, identity limit, revision-bound session cursor, response byte ceiling, coverage downgrade, typed registry errors, privacy of new fields, MainActor wiring, and test soundness. No executions, writes, Pyramid mutation, or nested agents.",
+ "questions": [
+  "Does every modified SQL statement bind parameters in placeholder order, apply scope to both count and page sides, and stay injection-safe; can a scope change ever surface hidden rows as deleted?",
+  "Are the byte ceiling, identity limit, session cursor revision, coverage downgrade, and typed registry errors correct and honest, and do the new fields leak no absolute paths?"
+ ],
+ "acceptance_criteria": ["AC-TASK-552-01", "AC-TASK-552-02"],
+ "execution_isolation": "read-only",
+ "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "run-tests-or-builds", "publish-or-deploy", "change-git-history"],
+ "join_before": "candidate-acceptance",
+ "result_budget": {"max_findings": 6, "max_evidence_items": 12, "max_output_chars": 7000}
+}

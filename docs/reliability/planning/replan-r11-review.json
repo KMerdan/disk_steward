@@ -1,0 +1,169 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-R11-STORAGE-PROOF-DEPENDENCY",
+ "stage": "candidate",
+ "outcome": "revised",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "revision": 10,
+  "sha256": "25d4b498b347f7d5fa0bdef52f9d61bd878c0a4b904e2737182eb3c2aba6c3ce"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "revision": 11,
+  "sha256": "b8ebe45ef0101d89c59b9c5f7e28c4955250d112b9b9d87aad478bff61a51407"
+ },
+ "facts": [
+  {
+   "id": "FACT-R11-001",
+   "claim": "TASK-531 and TASK-532 carried requires edges to RESEARCH-530 and OUTCOME-520, so neither could start before those nodes were verified.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    ".pyramid/graph.json",
+    "docs/tasks/06-reliability/TASK-531-implement-bounded-scan-continuation-and-persistence.md"
+   ],
+   "supports": [
+    "TASK-531",
+    "TASK-532"
+   ],
+   "freshness": "Graph query at G89"
+  },
+  {
+   "id": "FACT-R11-002",
+   "claim": "RESEARCH-530's audit is blocked by the open high finding FIND-SCALE on ASSET-SCANNER/STORE/RESOURCE, and GATE-529 (OUTCOME-520) is blocked by the same finding on ASSET-STORE; the runtime blocks any audit whose impacted assets intersect an open high finding.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "pyramid_assurance.py::assurance_blockers",
+    "docs/reliability/evidence/TASK-552/scope-and-budgets.md"
+   ],
+   "supports": [
+    "RESEARCH-530",
+    "GATE-529"
+   ],
+   "freshness": "audit-readiness queries at G89"
+  },
+  {
+   "id": "FACT-R11-003",
+   "claim": "FIND-SCALE describes unbounded frontier growth, repeated enumeration, monolithic publication and scheduler progress; only TASK-531/532 implementation evidence at 100k/1M can resolve it.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "docs/reliability/evidence/RESEARCH-530/query-and-decision.md"
+   ],
+   "supports": [
+    "TASK-531",
+    "TASK-532"
+   ],
+   "freshness": "Research decision 2026-09-17"
+  },
+  {
+   "id": "FACT-R11-004",
+   "claim": "The research decision record explicitly asked for a bounded replan that keeps a proof dependency before production implementation instead of unblocking production by report alone.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "docs/reliability/evidence/RESEARCH-530/query-and-decision.md#exact-evidence-needed-to-remove-the-storage-block"
+   ],
+   "supports": [
+    "RESEARCH-530"
+   ],
+   "freshness": "Research decision 2026-09-17"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FINDING-R11-001",
+   "class": "dependency-cycle",
+   "affected_nodes": [
+    "RESEARCH-530",
+    "TASK-531",
+    "TASK-532",
+    "OUTCOME-520",
+    "GATE-539"
+   ],
+   "claim": "The storage rung cannot start under the current edges because its prerequisites' verification depends on evidence only the storage rung can produce.",
+   "evidence": [
+    "FACT-R11-001",
+    "FACT-R11-002",
+    "FACT-R11-003"
+   ],
+   "counterevidence": [],
+   "disposition": "accepted",
+   "change": "Retype TASK-531\u2192RESEARCH-530, TASK-531\u2192OUTCOME-520 and TASK-532\u2192OUTCOME-520 from requires to integration-requires; add the research decision, design candidate and recovery/space records to both tasks' required context.",
+   "rationale": "integration-requires lets the tasks start while still forbidding their audit pass until the research and OUTCOME-520 are verified, which is the proof dependency the research asked to preserve; no gate, acceptance criterion, finding or increment boundary is weakened."
+  },
+  {
+   "id": "FINDING-R11-002",
+   "class": "alternative-rejected",
+   "affected_nodes": [
+    "RESEARCH-530"
+   ],
+   "claim": "Accepting FIND-SCALE for the research rung would unblock its audit without evidence.",
+   "evidence": [
+    "FACT-R11-003"
+   ],
+   "counterevidence": [
+    "FACT-R11-004"
+   ],
+   "disposition": "rejected",
+   "change": "None.",
+   "rationale": "Acceptance of a real unresolved high finding without an accountable owner would be dishonest gating."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-BOUNDED-MONITORING",
+   "before_nodes": [
+    "RESEARCH-530",
+    "TASK-531",
+    "TASK-532",
+    "GATE-539",
+    "OUTCOME-530"
+   ],
+   "after_nodes": [
+    "RESEARCH-530",
+    "TASK-531",
+    "TASK-532",
+    "GATE-539",
+    "OUTCOME-530"
+   ],
+   "status": "preserved"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "preserved",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "preserved",
+  "audit_closure": "preserved",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 32,
+   "executable_nodes": 24,
+   "edges": 97,
+   "hard_dependencies": 3,
+   "audit_gates": 7
+  },
+  "after": {
+   "nodes": 32,
+   "executable_nodes": 24,
+   "edges": 97,
+   "hard_dependencies": 0,
+   "audit_gates": 7
+  }
+ },
+ "summary": "Retype three requires edges to integration-requires so the bounded storage tasks can start against the recorded research decision while their audit pass still waits for RESEARCH-530 and OUTCOME-520 verification.",
+ "limitations": [
+  "hard_dependencies counts only the three affected requires edges before and after; other metrics are counted from the plan files.",
+  "This replan changes no node scope; the storage implementation still must satisfy the research's four-part validation matrix before its audit."
+ ]
+}

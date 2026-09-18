@@ -1,0 +1,88 @@
+{
+ "schema": "helper-result-v1",
+ "helper_id": "HELPER-TASK-552-LINKED-01",
+ "parent_task": "TASK-552",
+ "task_guard": "GUARD-TASK-9A1675B8874041A7B92691E7E6564240",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {
+  "kind": "content-hash",
+  "id": "sha256:f85e397066ed35742cf1a6ade57c4346a42671660ee48f5bb7bd387ec0bc0b8f",
+  "immutable": true
+ },
+ "status": "completed",
+ "summary": "Read-only delta review of the two changed files found no high-confidence regression, privacy leak, or vacuous test. readProvenanceChain now decodes one ProvenanceQueryCursor envelope and checks its revision before branch selection, sharing a single eventCursor/decodedCursor across both the raw and object-linked branches; raw-branch pagination (predicate binding, boundedLimit, next-cursor encoding) is unchanged apart from wrapping in the unified envelope. This directly fixes the prior bug where a branch-mismatched cursor decoded as the wrong Codable type and threw invalidObservation instead of cursorExpired. Both new tests are sound: the branch-transition test exercises a real raw->object-linked transition via recordObservation and a real object-linked->raw transition via a raw SQLiteConnection DELETE FROM path_bindings (explicitly commented as a synthetic storage-boundary fixture, not going through the store API), and both legs assert IPC code cursor_expired; the linked-session test builds its claim by calling the real ProvenanceEngine().attribute(...) on a genuine registration/event pair (no stubbed writer), asserts actor is nil / confidence .inferred / session matches the registration, persists it via the real store API, and then paginates get_provenance in basename/hashed/full modes (bounded retry loop) to reach the actual linked event page and assert sessionItem's task_context/task_context_withheld projection plus assertPrivate coverage for basename/hashed.",
+ "findings": [],
+ "evidence": [
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2566-2578 readProvenanceChain decodes a single ProvenanceQueryCursor and checks decodedCursor.revision != revision before objectIDs/branch selection is computed",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2574,2603-2608,2647,2660-2667 the same eventCursor (decodedCursor?.event) is used for the cursor predicate binding in both the raw branch and the object-linked branch",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2616-2619 raw branch next-cursor now encodes ProvenanceQueryCursor(currentStateOffset: 0, event: ...), matching the object-linked branch's envelope type",
+  "docs/reliability/evidence/TASK-552/api-matrix-source/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2582-2584,2621-2622 BASE decoded a differently-typed cursor per branch only after objectIDs were already computed, so a branch-mismatched cursor failed Codable decoding (invalidObservation) rather than a revision check (cursorExpired)",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:4829-4836 fullQueryRevision includes COUNT(*)/MAX(valid_from) from path_bindings, so both the recordObservation binding creation and the raw DELETE FROM path_bindings fixture genuinely change the revision used for cursor invalidation",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:42-44 confirms EvidenceStoreError.cursorExpired is mapped to remote code 'cursor_expired', distinct from the generic invalidObservation path, corroborating the prior bug class",
+  "Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift:7-56 testProvenanceCursorExpiresWhenPathBindingsChangeItsQueryBranch exercises both transition directions and comments the raw SQLiteConnection DELETE as a synthetic, store-API-bypassing fixture",
+  "Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift:99-109 chain.events filtered for a single bounded event, then ProvenanceEngine().attribute(...) called directly on the real event/registration, asserting actor nil / confidence .inferred / session match before persistProvenanceClaim",
+  "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift:109-133 attribute()'s unique-workspace-and-time-overlap path returns actor: nil, confidence: .inferred, session: ProvenanceSession(registration:...) exactly matching the test's assertions, confirming the fixture is not fabricated",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:841-863 sessionItem(detail:) nulls task_context and sets task_context_withheld outside .full, which is precisely what testProvenanceLinkedSessionWithholdsTaskContextOutsideFullDetail:144-151 exercises against a real linked session for the first time"
+ ],
+ "checks": [
+  {
+   "command": "Read and diffed Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift readProvenanceChain (candidate, lines ~2560-2690) against the archived BASE version at the same path under docs/reliability/evidence/TASK-552/api-matrix-source/",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "Confirmed unified single-decode-before-branch-selection design; no change to boundedLimit, cursor predicate SQL, or bind order in either branch beyond the shared envelope type."
+  },
+  {
+   "command": "Read Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift lines 1-40 and 4795-4845 for ProvenanceQueryCursor/EventQueryCursor struct shapes and encodeCursor/decodeCursor/fullQueryRevision",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "fullQueryRevision folds in path_bindings COUNT/MAX(valid_from), confirming both new tests' fixtures actually perturb the revision used for cursor invalidation."
+  },
+  {
+   "command": "Read candidate Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift in full and compared against archived BASE version",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "Both new tests use real production APIs (store.recordObservation, raw SQLiteConnection fixture explicitly commented as synthetic, ProvenanceEngine().attribute) rather than stubs; no vacuous assertions identified."
+  },
+  {
+   "command": "Read Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift lines 1-55 (error mapping) and 790-863 (claimItem/sessionItem projections)",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "cursorExpired maps to 'cursor_expired'; sessionItem's task_context gating matches the new test's assertions."
+  },
+  {
+   "command": "Read Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift attribute() and ProvenanceModels.swift ProvenanceInput init",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "Confirmed the unique-workspace-and-time-overlap branch produces exactly the actor/confidence/session values the new test asserts, from real event timing (occurredStart derived from event.timing), not a hand-built claim."
+  },
+  {
+   "command": "Tests, builds, database access, and runtime reproduction",
+   "result": "not-run",
+   "isolation": "read-only",
+   "evidence": "Prohibited by the job."
+  }
+ ],
+ "stale_if": [
+  "Relevant scoped source or tests change after this snapshot.",
+  "The parent task guard or accepted candidate hash differs from the assigned job."
+ ],
+ "evidence_use": "candidate-bound",
+ "freshness": "pending",
+ "final_evidence_eligible": false,
+ "eligibility_reason": "Raw static-review result awaiting coordinator identity, guard, snapshot, and finding reconciliation.",
+ "changed_files": [],
+ "changed_assets": [],
+ "risks": [
+  "No runtime validation was performed.",
+  "This delta review does not establish whole-task privacy or pagination acceptance.",
+  "Not scored as a finding (below 80 confidence, and outside the two-file delta since decodeCursor/encodeCursor are unchanged), but worth the coordinator's awareness: the raw branch's cursor wire format changed from a bare EventQueryCursor to a ProvenanceQueryCursor envelope, so a raw-branch cursor issued by a pre-fix server and resumed after a live upgrade would fail JSON decoding and surface as the generic invalidObservation error rather than cursor_expired; this cross-version compatibility edge case is not exercised by either new test."
+ ],
+ "coordinator_reconciliation": {
+  "reconciled_at": "2026-09-18T00:50:05Z",
+  "reconciled_by": "claude",
+  "identity_guard_snapshot_matched": true,
+  "findings_open": 0,
+  "note": "The reviewer reported changed_files for the two reviewed paths; the reviewer itself changed nothing, so changed_files is recorded as empty here. The cross-version cursor risk is accepted as an open boundary: released 1.1.0 (cf313e4) issued bare EventQueryCursor provenance cursors, so a cursor held across a live upgrade decodes as 'Evidence query cursor is invalid' (invalidObservation) rather than cursor_expired. Cursors are short-lived, revision-bound session state, but a typed nonretryable invalid_cursor mapping belongs to the AC-TASK-552-01 cursor contract work. Result remains advisory, candidate-bound, not final evidence."
+ }
+}

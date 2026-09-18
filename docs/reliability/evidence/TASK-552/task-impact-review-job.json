@@ -1,0 +1,44 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-552-IMPACT-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-B7CFF057041F576DA4D767C93E4991C2",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:0724b257a1b191b09705125b427c855c831e7ccc1f1c721465986bf3e23da27d",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/EvidenceStore/EvidenceQueryModels.swift",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Tests/DiskStewardAppTests/IPC/TaskImpactTimingIPCIntegrationTests.swift",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Tests/DiskStewardCoreTests/EvidenceStore/TaskImpactCandidateTests.swift"
+  ],
+  "purpose": "Independent static review of task-impact occurrence-interval correction; compare same scoped files at prior /private/tmp/ds-ci-liwxs4km/project if useful. Do not run code/builds or open any database.",
+  "questions": [
+    "Does taskImpactCandidates plus taskAttribution avoid false discovery-time/competing-session inference while retaining direct process proof and correct query-window semantics?",
+    "Any concrete regression in current-claim precedence, bounds, totals, timestamp identity, or pre-decode budgeting? Distinguish introduced defects from documented remaining all-tools/scale/budget work."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-552-02"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 10,
+    "max_output_chars": 6000
+  }
+}

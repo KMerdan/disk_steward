@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-REVIEWED",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:6d22b93e54a486fa1c0c551cc0cda0c9d5188c01bf649bfc2e458385af632eb3",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Sources/DiskStewardApp/Lifecycle/**",
+    "/private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Sources/DiskStewardApp/ApplicationDelegate.swift",
+    "/private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Sources/DiskStewardApp/StatusItemController.swift",
+    "/private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW/Tests/DiskStewardAppTests/Lifecycle/**"
+  ],
+  "purpose": "Narrow rereview of corrected intermediate lifecycle patch compared with rejected candidate /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD. Coordinator reproduced direct-settings loop and post-commit baseline bugs; now fixed. Ordinary hint durability, callback generations and notification send-boundary still explicitly pending, NOT task acceptance.",
+  "questions": [
+    "Confirm prior direct-pause loop and committed-cancellation baseline findings are resolved without a new defect in their deltas.",
+    "Check revised bounded/throwing probe and clock waits, teardown, early-deadline and zero/deadline-race controls. Report concrete remaining blockers in this intermediate patch only."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 8,
+    "max_output_chars": 6500
+  }
+}

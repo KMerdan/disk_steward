@@ -4,7 +4,7 @@ set -u
 client=""
 config_root=""
 connector=""
-socket_path="$HOME/Library/Application Support/DiskSteward/disk-steward.sock"
+socket_path="$HOME/Library/Application Support/Disk Steward/disk-steward.sock"
 dry_run=0
 
 usage() {
@@ -45,7 +45,7 @@ else
   (( failures += 1 ))
 fi
 
-if [[ -x "$connector" ]] && "$connector" --self-check >/dev/null 2>&1; then
+if [[ -x "$connector" ]] && DISK_STEWARD_SOCKET_PATH="$socket_path" "$connector" --self-check >/dev/null 2>&1; then
   print "ok: connector self-check passed"
 else
   print -u2 "failed: connector is missing or its self-check failed at $connector"

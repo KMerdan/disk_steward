@@ -126,7 +126,9 @@ final class StatusBoardViewModel: ObservableObject {
         self.exportCompletion = exportCompletion
         self.lifecycle = lifecycle ?? MonitoringLifecycleController(
             settingsStore: MonitoringSettingsStore(persistence: EphemeralSettingsPersistence()),
-            probe: UnavailableMonitoringProbe(reason: "Background monitoring is not attached to this view model.")
+            probe: UnavailableMonitoringProbe(reason: "Background monitoring is not attached to this view model."),
+            notificationDelivery: DisabledNotificationDelivery(),
+            changeCollector: nil
         )
     }
 
@@ -250,7 +252,7 @@ final class StatusBoardViewModel: ObservableObject {
         }
     }
 
-    nonisolated private static func defaultExportParent() -> URL {
+    nonisolated static func defaultExportParent() -> URL {
         let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser.appending(path: "Documents", directoryHint: .isDirectory)
         return documents.appending(path: AppConfiguration.defaultExportFolderName, directoryHint: .isDirectory)

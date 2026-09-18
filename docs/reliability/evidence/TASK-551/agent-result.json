@@ -1,0 +1,357 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-551",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceTimestamp.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+    "Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift",
+    "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+    "Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift",
+    "Tests/DiskStewardCoreTests/Export/EvidenceBundle/ZlibRegressionTests.swift",
+    "docs/reliability/evidence/TASK-551/agent-result.json",
+    "docs/reliability/evidence/TASK-551/assurance-candidate.json",
+    "docs/reliability/evidence/TASK-551/delta-job.json",
+    "docs/reliability/evidence/TASK-551/delta-result.json",
+    "docs/reliability/evidence/TASK-551/export-safety.md",
+    "docs/reliability/evidence/TASK-551/final-review-job.json",
+    "docs/reliability/evidence/TASK-551/final-review-result.json",
+    "docs/reliability/evidence/TASK-551/final-run/build.log",
+    "docs/reliability/evidence/TASK-551/final-run/candidate.json",
+    "docs/reliability/evidence/TASK-551/final-run/entitlements.log",
+    "docs/reliability/evidence/TASK-551/final-run/harness.log",
+    "docs/reliability/evidence/TASK-551/final-run/manifest.log",
+    "docs/reliability/evidence/TASK-551/final-run/tests.log",
+    "docs/reliability/evidence/TASK-551/final-run/toolchain.log",
+    "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceTimestamp.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift",
+    "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ZlibRegressionTests.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/build.log",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/candidate.json",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/entitlements.log",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/harness.log",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/manifest.log",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/tests.log",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/toolchain.log",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceTimestamp.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift",
+    "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ZlibRegressionTests.swift",
+    "docs/reliability/evidence/TASK-551/red-run/result.json",
+    "docs/reliability/evidence/TASK-551/red-run/tests.log",
+    "docs/reliability/evidence/TASK-551/red-source/ExportSafetyRegressionTests.swift",
+    "docs/reliability/evidence/TASK-551/red-source/ZlibCodec.swift",
+    "docs/reliability/evidence/TASK-551/review-job.json",
+    "docs/reliability/evidence/TASK-551/review-result.json"
+  ],
+  "changed_assets": [
+    "ASSET-EXPORT",
+    "ASSET-QUERY",
+    "ASSET-IPC",
+    "ASSET-STORE"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceTimestamp.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/ZlibRegressionTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/agent-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/assurance-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/delta-job.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/delta-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/export-safety.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-review-job.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-review-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-run/build.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-run/candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-run/entitlements.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-run/harness.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-run/manifest.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-run/tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-run/toolchain.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceTimestamp.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/final-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ZlibRegressionTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/build.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/entitlements.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/harness.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/manifest.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-run/toolchain.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceTimestamp.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/pre-cleanup-review-source/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ZlibRegressionTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/red-run/result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/red-run/tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/red-source/ExportSafetyRegressionTests.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/red-source/ZlibCodec.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/review-job.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-551/review-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 Scripts/Testing/verify_candidate.py --output /private/tmp/ds551-final2-20260917",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-551/final-run/candidate.json",
+      "details": "All six stages passed; 20 harness tests and 452 Swift tests, 4 opt-in skips and zero failures. Candidate b46aff222dc214fa4735fd5d6064a53ebade829b5b6169abfdee08b02413a9f7."
+    },
+    {
+      "command": "Reproduce original codec failures with isolated fixtures; expected failing baseline retained",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-551/red-run/result.json",
+      "details": "Baseline Swift test command exited 1: three tests, six failed assertions; this is failure reproduction, not a passing baseline test run."
+    },
+    {
+      "command": "Compare current verifier input manifest, ten frozen changed-source/test copies, and every archived log hash with accepted candidate report; git diff --check",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-551/export-safety.md"
+    },
+    {
+      "command": "Validate/reconcile bounded review envelopes; implement all three cleanup findings and rerun actual coordinator tests",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-551/final-review-result.json",
+      "details": "Final review matches accepted candidate and pre-submission task guard; static advisory review only, not promoted to independently run validation."
+    },
+    {
+      "command": "Pyramid impact preview/apply G69: map added IPC regressions and plan a pre-audit inspection",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-551/assurance-candidate.json"
+    },
+    {
+      "command": "Installed-app exercise, full-product RSS/scale/overnight, crash-orphan recovery, rollback, signing/notarization, commit/push/release",
+      "result": "not-run",
+      "details": "Not claimed by this worker; separate tasks/gates and distribution authority remain."
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-TASK-551-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-551/export-safety.md"
+    },
+    {
+      "criterion": "EVREQ-TASK-551-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-551/final-run/tests.log"
+    }
+  ],
+  "discovered_risks": [
+    "Worker implemented, not audited; aggregate findings and mandatory post-change inspections remain open.",
+    "Per-request serialized byte ceilings do not imply equal RSS, and whole database backup space is governed separately. Full-product resource/scale proof remains outstanding.",
+    "Process-kill recovery of abandoned scratch is not proven. Preserve unknown ownership rather than deleting by age; persistent inventory failure requires later recovery evidence.",
+    "Filesystem identity checks prevent observed replacement-path mistakes; they are not a security guarantee against deliberate same-user TOCTOU attacks.",
+    "MCP compact/privacy-correct DTOs and complete policy/provenance semantics remain TASK-552. Large manual/inline exports now fail explicitly at finite byte caps instead of allocating without a bound.",
+    "No installed app/evidence/configuration or distribution artifact was changed. Six obsolete owned .build directories (~2.0GiB) removed after terminal runners/no open files; final build and evidence retained."
+  ],
+  "suggested_graph_changes": []
+}

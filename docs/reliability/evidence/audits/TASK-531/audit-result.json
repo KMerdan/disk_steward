@@ -1,0 +1,77 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-531",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-531-A1",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-562/candidate-2/candidate.json",
+    "docs/reliability/evidence/TASK-562/candidate-2/tests.log",
+    "Constructability on the final candidate 5ecd49a31717: fifteen stages, 547 tests, 0 failures."
+   ]
+  },
+  {
+   "id": "CHECK-531-A2",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-531/bounded-frontier.md",
+    "Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift",
+    "Tests/IncrementTests/Monitoring/ScanContinuationIncrementTests.swift",
+    "docs/reliability/evidence/TASK-531/bounded-frontier.md",
+    "docs/reliability/evidence/TASK-531/frontier-final-candidate-green/candidate.json",
+    "docs/reliability/evidence/TASK-531/frontier-final-candidate-green/tests.log",
+    "docs/reliability/evidence/TASK-531/frontier-green/tests.log",
+    "docs/reliability/evidence/TASK-531/frontier-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-531/frontier-source-manifest.json",
+    "docs/reliability/evidence/TASK-531/scale-runs/",
+    "docs/reliability/evidence/TASK-532/candidate/candidate.json",
+    "docs/reliability/evidence/TASK-532/candidate/tests.log",
+    "100k and 1M synthetic workloads converge without per-batch pacing or unbounded frontier materialization; the 100k wide run repeated on the final candidate completes in 27.8 s with one enumeration pass and no restarts."
+   ]
+  },
+  {
+   "id": "CHECK-531-A3",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/soak-runs/soak-3h/summary.json",
+    "docs/reliability/evidence/GATE-539/scale-runs/wide-100k/supervisor.out",
+    "Resource behaviour on the candidate: real-time soak of 112 min with 0 mismatches, peak RSS 455 MiB, plus 43 min on the exact final candidate; 100k wide full workload on the final candidate in 27.8 s."
+   ]
+  },
+  {
+   "id": "CHECK-531-A4",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/assurance-overnight-interim.json",
+    "Assurance reviewed: IMPACT-TASK-531-SCANNER, IMPACT-TASK-531-STORE, IMPACT-TASK-531-LIFECYCLE, IMPACT-TASK-531-RESOURCE; inspections INSPECT-TASK-531-1 performed and sufficient; findings on these assets: FIND-OCCURRENCE, FIND-OVERNIGHT, FIND-QUERY, FIND-ROLLBACK, FIND-SCALE (FIND-OVERNIGHT resolved under the R13 criterion)."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-531-SCANNER",
+   "IMPACT-TASK-531-STORE",
+   "IMPACT-TASK-531-LIFECYCLE",
+   "IMPACT-TASK-531-RESOURCE"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-531-1"
+  ],
+  "finding_ids": [
+   "FIND-OCCURRENCE",
+   "FIND-OVERNIGHT",
+   "FIND-QUERY",
+   "FIND-ROLLBACK",
+   "FIND-SCALE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "FIND-OVERNIGHT resolved under the R13 criterion (bounded real-time soak evidence of at least one hour, the scale matrix and the rollback rehearsal; an overnight run is not a release requirement for this open-source project).",
+   "The auditor also implemented later tasks on the shared candidate; independence rests on isolated reruns, mutation reds, static reviews and archived hashes."
+  ]
+ }
+}

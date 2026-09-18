@@ -1,0 +1,56 @@
+warning: /Users/merdankiji/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/merdankiji/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/merdankiji/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'disk-steward-522-lifecycle-dev.9cyz1t': failed storing manifest for 'disk-steward-522-lifecycle-dev.9cyz1t' in cache: attempt to write a readonly database
+Building for debugging...
+[0/7] Write sources
+[1/7] Write swift-version--58304C5D6DBC2206.txt
+[3/5] Compiling DiskStewardAppTests MonitoringReceiptTests.swift
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:191:15: warning: result of call to 'releaseDrainWakeIfClean()' is unused [#no-usage]
+189 |         let independent = try XCTUnwrap(before.roots.first { $0.rootPath == other.path })
+190 |         XCTAssertGreaterThan(independent.observedFileCount, 0, "The independent root must have actual staged progress")
+191 |         inbox.releaseDrainWakeIfClean()
+    |               `- warning: result of call to 'releaseDrainWakeIfClean()' is unused [#no-usage]
+192 |         XCTAssertTrue(inbox.receive(hint(fixture.root.appending(path: "A").path), stream: stream, at: receiptDate))
+193 |         try await probe.persistPendingChanges()
+
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:222:15: warning: result of call to 'receive(_:stream:at:)' is unused [#no-usage]
+220 |         XCTAssertGreaterThan(staged.stagedFileCount, 0)
+221 |         try FileManager.default.removeItem(at: fixture.root.appending(path: "A"))
+222 |         inbox.receive(hint(fixture.root.appending(path: "A").path), stream: stream, at: receiptDate)
+    |               `- warning: result of call to 'receive(_:stream:at:)' is unused [#no-usage]
+223 |         // Deliberately do not persist/acknowledge the receipt before closing.
+224 |         await store.close()
+[4/5] Emitting module DiskStewardAppTests
+[4/6] Write Objects.LinkFileList
+[5/6] Linking DiskStewardPackageTests
+Build complete! (1.22s)
+Test Suite 'Selected tests' started at 2026-09-17 16:48:01.414.
+Test Suite 'DiskStewardPackageTests.xctest' started at 2026-09-17 16:48:01.415.
+Test Suite 'MonitoringReceiptTests' started at 2026-09-17 16:48:01.415.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxCoalescesBurstAndAcknowledgesOnlyCumulativeLatestReceipt]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxCoalescesBurstAndAcknowledgesOnlyCumulativeLatestReceipt]' passed (0.074 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxStreamIdentityAndOverflowRemainExplicitUncertainty]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testMailboxStreamIdentityAndOverflowRemainExplicitUncertainty]' passed (0.000 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testNewProbeInvalidatesStagingAfterUnpersistedReceiptAndStoreReopen]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testNewProbeInvalidatesStagingAfterUnpersistedReceiptAndStoreReopen]' passed (0.407 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryControllerReceiptDuringStorePreparationRejectsStalePublication]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryControllerReceiptDuringStorePreparationRejectsStalePublication]' passed (0.029 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryProbeReceiptPreservesIndependentRootProgress]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testOrdinaryProbeReceiptPreservesIndependentRootProgress]' passed (0.142 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPauseAndSleepPersistPendingReceiptsAndIgnoreOldCallbacksAfterResume]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPauseAndSleepPersistPendingReceiptsAndIgnoreOldCallbacksAfterResume]' passed (0.034 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPersistenceFailureFencesSamplingRetainsMarkerAndRetries]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testPersistenceFailureFencesSamplingRetainsMarkerAndRetries]' passed (0.020 seconds).
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testQuitWithUnpersistableReceiptReportsUndrainedAndKeepsSafetyMarker]' started.
+Test Case '-[DiskStewardAppTests.MonitoringReceiptTests testQuitWithUnpersistableReceiptReportsUndrainedAndKeepsSafetyMarker]' passed (0.017 seconds).
+Test Suite 'MonitoringReceiptTests' passed at 2026-09-17 16:48:02.140.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.724 (0.725) seconds
+Test Suite 'DiskStewardPackageTests.xctest' passed at 2026-09-17 16:48:02.140.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.724 (0.725) seconds
+Test Suite 'Selected tests' passed at 2026-09-17 16:48:02.140.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.724 (0.726) seconds
+◇ Test run started.
+↳ Testing Library Version: 1501
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

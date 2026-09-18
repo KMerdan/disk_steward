@@ -1,0 +1,40 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-571-PACKAGE-REVIEW",
+  "parent_task": "TASK-571",
+  "task_guard": "GUARD-TASK-20B8AFCBD11591570701416EC54B71B7",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:da830641563824ee2cc8c3d169e2709024ba439a33ecc1add403e9350cd7b6a6", "immutable": true},
+  "status": "completed",
+  "summary": "Static review found three narrow false-pass gaps in sentinel and protocol validation. Source-copy and bundle provenance checks are substantial, and package/upgrade limitations explicitly leave connectivity, distribution readiness and rollback unverified. No candidate code or tests were executed.",
+  "findings": [
+    {"claim": "[P2] The required sentinel test can be satisfied by a different test whose name merely starts with the required name. The regex has a boundary before SENTINEL_TEST but accepts any trailing characters. Consequently, a skipped required case plus a passing case named testSmokeStartupPreservesLiveFixtureEndpointAndAllSentinelStateWithoutEndpoint would produce sentinelPreserved=true.", "confidence": "high", "evidence": ["E1"], "recommendation": "Match the exact XCTest case identifier and its closing delimiter before the passed result. Add a regression case where the required test is skipped and a suffixed test passes."},
+    {"claim": "[P2] Package sentinel preservation ignores newly created fixture state. The verifier compares only the original eight files, socket and lease. A smoke regression can create evidence.sqlite-wal, an extra export, a settings sidecar or a new directory under the supplied fixture and still receive sentinelPreserved=true when the original entries remain unchanged.", "confidence": "high", "evidence": ["E2"], "recommendation": "Capture and compare the entire fixture tree before and after the packaged checks, including entry paths and types, while retaining the existing socket-connectivity and lease checks. Add a focused regression for an unexpected new fixture file."},
+    {"claim": "[P2] The helper protocol checker accepts structurally incomplete successful responses. Its own accepted fixture has no initialization capabilities or server version and advertises a tool without inputSchema. Such a catalog cannot establish that a client can consume the advertised tool definition. Additionally, Python equality lets a JSON boolean response id true satisfy expected request id 1.", "confidence": "high", "evidence": ["E3", "E4"], "recommendation": "Validate the required shapes and types of these existing initialization/list/ping responses, including exact integer IDs, initialization metadata/capabilities and each tool's inputSchema. This requires no evidence query or expansion into actual app connectivity."}
+  ],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-571-review.e2Uk0q/verify_candidate.py:154-156 uses SENTINEL_TEST followed by [^\\n]* passed; test_verify_candidate.py:113-119 covers started/skipped/failed/exact-pass outcomes but not suffixed names.",
+    "E2: /private/tmp/disk-steward-571-review.e2Uk0q/verify_packaged_candidate.py:178-198 creates the fixture and records identities only for a fixed list; lines 206-222 compare that list, inspect socket/lease behavior and then assert sentinelPreserved. No fixture-tree inventory is compared.",
+    "E3: /private/tmp/disk-steward-571-review.e2Uk0q/verify_packaged_candidate.py:90-109 checks ID equality, selected initialization fields, tool names and annotations; it does not enforce exact ID types or required initialization/tool-definition shapes.",
+    "E4: /private/tmp/disk-steward-571-review.e2Uk0q/test_verify_packaged_candidate.py:23-30 defines the incomplete helper response fixture; lines 99-106 explicitly accept it as passed.",
+    "E5: /private/tmp/disk-steward-571-review.e2Uk0q/verify_candidate.py:103-151 supervises commands with deadlines, an 8 MiB retained-log limit and process-group termination; lines 159-173 explicitly describe synthetic forward-upgrade evidence and mark rollback unverified.",
+    "E6: /private/tmp/disk-steward-571-review.e2Uk0q/verify_candidate.py:45-83 bounds and hashes copied inputs and rejects links; lines 254-255 recheck source and snapshot. verify_packaged_candidate.py:150-175 records generated inputs, hashes the fresh bundle, checks identity/executables, and lines 223-224 recheck inputs and bundle.",
+    "E7: /private/tmp/disk-steward-571-review.e2Uk0q/verify_candidate.py:206-210 creates retained scratch with an initial 8 GiB free-space check; lines 259-264 write the report without scratch cleanup. ci.yml:44-53 retains report/log artifacts for 14 days but does not upload the built bundle."
+  ],
+  "checks": [
+    {"command": "Static read of the five frozen candidate files and the supplied helper job/result schema", "result": "passed", "isolation": "sandbox", "evidence": "All five candidate files were read; inspection stayed within the supplied candidate scope."},
+    {"command": "shasum -a 256 ci.yml test_verify_candidate.py test_verify_packaged_candidate.py verify_candidate.py verify_packaged_candidate.py | shasum -a 256", "result": "passed", "isolation": "sandbox", "evidence": "Returned da830641563824ee2cc8c3d169e2709024ba439a33ecc1add403e9350cd7b6a6, matching the assigned snapshot."},
+    {"command": "Candidate runtime, harness, Swift, packaged-app and MCP execution", "result": "not-run", "isolation": "sandbox", "evidence": "Execution was prohibited for this static review. Parent-reported runtime results were not independently reproduced."}
+  ],
+  "stale_if": ["Any of the five frozen candidate files changes.", "The candidate used for acceptance differs from the assigned content hash.", "The verifier's fixture-isolation or protocol-validation claims change."],
+  "evidence_use": "candidate-bound", "freshness": "pending", "final_evidence_eligible": false,
+  "eligibility_reason": "Candidate review requires parent reconciliation before acceptance; static review is not final runtime validation.",
+  "changed_files": [], "changed_assets": [],
+  "risks": [
+    "Scratch and build products are retained locally with no aggregate scratch-size limit or cleanup policy in these files. Input, bundle and log limits do not cap compiler intermediates or accumulation across repeated runs.",
+    "CI preserves hashes and logs but not the actual app bundle. Artifact identity can be recorded, while later retrieval of that exact binary depends on separate retention.",
+    "Process-group termination covers descendants that remain in the owned group; it is not containment for deliberately detached or hostile processes. This matches the stated non-hostile fixture-isolation contract.",
+    "Actual app MCP queries, scale, overnight behavior, native-client behavior, signing, installation and downgrade rollback remain outside this review and are not claimed verified."
+  ]
+}

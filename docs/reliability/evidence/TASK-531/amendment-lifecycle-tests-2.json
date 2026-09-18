@@ -1,0 +1,8 @@
+{
+  "schema": "pyramid-amendment-v1",
+  "task": "TASK-531",
+  "reason": "Two more existing lifecycle tests assume one 512-entry slice per sample (a representable-batch cap test and the receipt-fencing fixture); budgeted continuation now finishes their small trees inside one sample, so their fixtures must pin a zero continuation budget to keep exercising the per-slice contracts they prove.",
+  "boundary_review": "Only test fixtures change; the task outcome, AC-TASK-531-01, non-goals, dependencies and authority are preserved and both files map to ASSET-LIFECYCLE via IMPACT-TASK-531-LIFECYCLE. Evidence: Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift::testPersistentProbeCapsOneSafetySliceToARepresentableBatch and Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift::probe(store:beforeVolumeSample:).",
+  "add_write_paths": ["Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift", "Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift"],
+  "add_context_paths": []
+}

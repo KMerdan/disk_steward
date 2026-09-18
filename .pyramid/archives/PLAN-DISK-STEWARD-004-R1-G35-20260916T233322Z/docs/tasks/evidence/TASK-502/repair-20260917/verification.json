@@ -1,0 +1,99 @@
+{
+  "schema": "disk-steward-integration-repair-evidence-v1",
+  "date": "2026-09-17",
+  "candidate": {
+    "source_sha256": "8c8c8aa07395c51f4e1e88bb0929e30cc772c180c72f9fd864b73d253b21a5d7",
+    "snapshot": "/private/tmp/disk-steward-candidate.LsZIbw",
+    "hash_command": "rg --files -0 Sources Tests Config Scripts DiskSteward.xcodeproj | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+    "canonical_matches": true
+  },
+  "checks": [
+    {
+      "command": "DISK_STEWARD_NATIVE_CLIENT_TESTS=1 swift test --disable-sandbox",
+      "result": "passed",
+      "tests": 238,
+      "failures": 0,
+      "duration_seconds": 15.573,
+      "log": "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+    },
+    {
+      "command": "xcodebuild -quiet -project DiskSteward.xcodeproj -scheme DiskSteward -configuration Debug -derivedDataPath /private/tmp/disk-steward-task502-final-xcode CODE_SIGNING_ALLOWED=NO build",
+      "result": "passed",
+      "scope": "unsigned-arm64-debug"
+    },
+    {
+      "command": "DISK_STEWARD_PACKAGED_HELPER='<temporary-built-app>/Contents/Helpers/disk-witness-mcp' swift test --disable-sandbox --filter IntegrationInstallTests",
+      "result": "passed",
+      "tests": 7,
+      "failures": 0,
+      "includes": [
+        "real embedded helper stdio tools and evidence query",
+        "self-check succeeds with fixture server and fails without it",
+        "isolated install/upgrade/uninstall",
+        "session registration/end"
+      ]
+    },
+    {
+      "command": "<temporary-built-app>/Contents/MacOS/Disk Steward --ui-smoke",
+      "result": "passed",
+      "observed": {
+        "status": "launched",
+        "activation_policy": "accessory",
+        "isolated_smoke": true,
+        "agent_access": "off",
+        "ipc_service": "off",
+        "detail_sampling_paused": true,
+        "watched_root_count": 0
+      }
+    },
+    {
+      "command": "Scripts/Distribution/verify-release <temporary-built-app>",
+      "result": "expected-rejection",
+      "exit": 67,
+      "reason": "Unsigned development helper is not Developer ID signed. No distribution acceptance is claimed."
+    }
+  ],
+  "clients": {
+    "codex": "0.153.4 real CLI temporary CODEX_HOME + clean cwd",
+    "claude_code": "2.1.270 real CLI temporary CLAUDE_CONFIG_DIR + clean cwd",
+    "cursor": "client-owned URL handoff fixture, canceled/repeated repair and approval observation",
+    "vscode": "client-owned URL handoff fixture, canceled/repeated repair and approval observation",
+    "claude_desktop": "isolated JSON document lifecycle and failure injection",
+    "manual": "configuration/snippet presentation and client-owned removal fixture"
+  },
+  "fixes": [
+    "Bounded subprocess I/O and deadline",
+    "Safe private atomic config/receipt writes without post-commit permission failure",
+    "Receipt failure rollback for setup, repair and remove",
+    "No rollback over observed concurrent user edits",
+    "Configuration and helper identity rechecked after verification",
+    "Same-path helper replacement requires Repair; legacy receipt repair remains available",
+    "Claude empty Environment heading normalized, non-user scope and unknown fields conflict",
+    "Durable handoff receipt precedes client prompt; prior exact ownership retained until approval observed",
+    "Duplicate per-client manager actions suppressed"
+  ],
+  "independent_review": {
+    "first_candidate": "4fa5c3ce196a7d9e4ec1e592d4ac809436831aa9f746a297fca1810bac5955bb",
+    "found": [
+      "Canceled client-owned repair lost previous ownership",
+      "Prompt opened before receipt persistence"
+    ],
+    "resolution": "Both reproduced as new regression scenarios and fixed; REVIEW-02 found no new actionable ordinary fault in repaired handoff paths.",
+    "reviewed_candidate": "8c8c8aa07395c51f4e1e88bb0929e30cc772c180c72f9fd864b73d253b21a5d7",
+    "guard": "GUARD-TASK-8C4E3FF8EFF9CD96A110BADC5304C74A",
+    "scope": "AgentIntegrations source/tests",
+    "coordinator_reconciliation": "Source hash matches accepted canonical candidate; static review complements executed checks, not independent test execution."
+  },
+  "sources": [
+    "https://learn.chatgpt.com/docs/config-file/config-advanced",
+    "https://learn.chatgpt.com/docs/extend/mcp?surface=cli",
+    "https://code.claude.com/docs/en/env-vars",
+    "https://code.claude.com/docs/en/mcp"
+  ],
+  "limitations": [
+    "No native Cursor/VS Code UI approval or Claude Desktop launch was automated; these paths are intentionally client-owned and tested through URL/document contracts.",
+    "No uncooperative-writer atomic compare-and-swap is supplied by native CLI APIs; immediate reads and conservative rollback refuse observed conflicts.",
+    "Executable stat identity detects normal updates/replacements; it is not a cryptographic authenticity check.",
+    "No signing, notarization, installation, commit, push, publication, or broader scanner completion is claimed."
+  ]
+}

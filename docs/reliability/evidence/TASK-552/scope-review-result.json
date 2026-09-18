@@ -1,0 +1,62 @@
+{
+ "schema": "helper-result-v1",
+ "helper_id": "HELPER-TASK-552-SCOPE-01",
+ "parent_task": "TASK-552",
+ "task_guard": "GUARD-TASK-C8F56F21FDC7B6032A1F940B8952F285",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:f4e36c148079526e53845b556bd5c5dd2913616e975cec7636f1464c19f6a07c", "immutable": true},
+ "status": "completed",
+ "summary": "Read-only static delta review of the 9 changed files. All modified SQL statements checked textually: placeholder order matches bind order exactly, including growthAggregate's two identical subselects and readProvenanceChain's identity LIMIT 101 (both branches report identityLimitReached). EvidenceQueryScope.predicate is fully parameterized and its root '/' handling and normalization match MonitoringPolicy.includes/isIncluded. scopeHiddenCount correctly isolates the scope's effect from rootPath/category/modifiedBefore. Coverage downgrade logic never turns an honest 'partial' into 'none'. Two concrete defects found in the export path and the response-budget sizing; both are exercised by no existing test.",
+ "findings": [
+  {
+   "claim": "[P2] EvidenceBundleExporter applies its 25,000-row export cap to provenance_claims BEFORE Swift-side scope filtering, not after. A scope change can silently drop in-scope claims when out-of-scope claims consume the row budget first, and the cap limitation is derived from the post-filter count, so the truncation is never disclosed in exactly this case.",
+   "confidence": "high",
+   "evidence": [
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:1104-1121 (readProvenanceChain: SQL has no scope clause, LIMIT applied first, Swift filter after)",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:1218-1241 (readCurrentProvenance: identical pattern)",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:961-966 (truncation limitation keyed on already-filtered counts)",
+    "Contrast: readEvents/readCurrentState/readCurrentStateAggregate/readSummaries push scope into SQL before LIMIT."
+   ],
+   "recommendation": "Push the scope predicate into the provenance_claims SQL before LIMIT, matching the pattern used for events/current-state/summaries; or compute the truncation flag from the pre-filter row count."
+  },
+  {
+   "claim": "[P2] list_current_consumers' worstCaseItemBytes=1,536 undercounts the true worst case: currentItem serializes BOTH path and root_path through the same path_detail, so at path_detail=full with paths near PATH_MAX a single item can exceed 2,000 bytes, over-admitting rows into the pre-read clamp.",
+   "confidence": "high",
+   "evidence": [
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:302 (rowBudget(arguments, worstCaseItemBytes: 1_536) for currentConsumers)",
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:950-965 (currentItem shapes both path and root_path at the requested detail)",
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:139-144 (rowBudget affordable-rows calculation)",
+    "No test exercises path_detail=full with long paths."
+   ],
+   "recommendation": "Because the post-encode check still throws response_too_large rather than returning an oversized page this is not a leak, but legitimate full-detail requests over long paths fail more often than necessary and waste a read. Raise worstCaseItemBytes to account for two path fields, then add a test with path_detail=full and near-max-length paths."
+  }
+ ],
+ "evidence": [
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceQueryModels.swift:39-56 (EvidenceQueryScope.predicate: parameterized, root '/' handled as universal prefix)",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2325-2356 (queryCurrentConsumers scopeHiddenCount computed against unscopedWhere including other filters)",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2451-2500 (growthAggregate bind order matches placeholder order)",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2654-2787 (readProvenanceChain identity LIMIT 101/prefix 100 on both branches)",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:187-191 (evidenceCoverage only downgrades a 'complete' base)",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:1148-1163 (decodeOffsetCursor requires exact revision-hash match; cross-tool reuse blocked by cursorLeases queryKey)",
+  "Sources/DiskStewardApp/StatusItemController.swift:93-99 (queryScopeProvider hops to MainActor per request via a cheap synchronous settings read)"
+ ],
+ "checks": [
+  {"command": "diff -u docs/reliability/evidence/TASK-552/scope-base-source/... vs working tree for all 9 changed files", "result": "passed", "isolation": "read-only", "evidence": "Reviewed EvidenceQueryModels.swift, the modified EvidenceStore.swift sections, AppEvidenceQueryBackend.swift, EvidenceBundleExporter.swift, StatusItemController.swift wiring, and the new test files."},
+  {"command": "Tests, builds, database access, and runtime reproduction", "result": "not-run", "isolation": "read-only", "evidence": "Prohibited by the job."}
+ ],
+ "stale_if": ["Relevant scoped source or tests change after this snapshot.", "The parent task guard or accepted candidate hash differs from the assigned job."],
+ "evidence_use": "candidate-bound",
+ "freshness": "pending",
+ "final_evidence_eligible": false,
+ "eligibility_reason": "Raw static-review result awaiting coordinator identity, guard, snapshot, and finding reconciliation.",
+ "changed_files": [],
+ "changed_assets": [],
+ "risks": ["No runtime validation was performed.", "This delta review does not establish whole-task privacy or pagination acceptance.", "Finding 1 requires a >25,000-claim fixture to reproduce at runtime; the defect is derived from static SQL/control-flow analysis only."],
+ "coordinator_reconciliation": {
+  "reconciled_by": "claude",
+  "identity_guard_snapshot_matched": true,
+  "findings_open": 0,
+  "note": "The reviewer listed the reviewed paths under changed_files; the reviewer changed nothing, so changed_files is recorded as empty here. Finding 1 fixed: readProvenanceChain and readCurrentProvenance now join the claim's event row and apply the scope predicate in SQL before LIMIT whenever a scope is set; without a scope the statements are unchanged. Finding 2 fixed: list_current_consumers uses a 2,688-byte worst-case item (two PATH_MAX strings plus fields); the post-encode ceiling remains the hard guard. A near-PATH_MAX full-detail fixture was not added; recorded as a boundary. Separately, the full-suite run of this snapshot exposed a time-base representation defect in retained-claim revalidation (see attribution-tolerance-*), fixed in ProvenanceEngine and ProvenanceChronology with a deterministic regression. Result remains advisory and candidate-bound; the corrected candidate is re-verified in full."
+ }
+}

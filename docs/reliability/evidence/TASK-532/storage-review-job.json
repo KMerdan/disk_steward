@@ -1,0 +1,34 @@
+{
+ "schema": "helper-job-v1",
+ "helper_id": "HELPER-TASK-532-STORAGE-01",
+ "parent_task": "TASK-532",
+ "task_guard": "GUARD-TASK-49C90C3E5D4C58EAEB5567956CE5E958",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:dc291746a1e984873ddd66c0fc64a1564b9da8affa6c6d4d5d9507eaccacff7a", "immutable": true},
+ "read_scope": [
+  "docs/reliability/evidence/TASK-532/storage-source-delta.diff",
+  "docs/reliability/evidence/TASK-532/storage-base-source/**",
+  "docs/reliability/evidence/TASK-532/storage-headroom.md",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+  "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+  "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+  "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+  "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+  "Tests/DiskStewardCoreTests/EvidenceStore/StorageHeadroomTests.swift",
+  "Tests/IncrementTests/Monitoring/StorageRecoveryIncrementTests.swift"
+ ],
+ "purpose": "Read-only static delta review of the storage headroom candidate against the TASK-531 candidate f55627d8 (base copies archived). Review admission completeness (every write path typed, no path bypasses admit), the reserve/cost model arithmetic and its new-vs-republished split, the retention target and eviction loop (bounded batches, demand-driven target, never evicting current_file_state), write-ahead-log probing (PASSIVE then TRUNCATE; pinned-reader detection; blocking risk under busy_timeout), the probe's recovery path (one retention, one retry, explicit non-progress, breaker skipped only for the stated admissions, cancellation and permit reuse), the scanner consumedNames desync restart, schema/DTO compatibility (optional Codable fields on persisted cursors and public DTOs), and test soundness (fixture premises, vacuity). No executions, writes, Pyramid mutation, or nested agents.",
+ "questions": [
+  "Can any write path still exceed the cap, evict authoritative current state, or loop on retention or the resource breaker without the observation saying so?",
+  "Can a refused or failed slice still lose, duplicate or reorder directory names, and does the consumedNames field stay consistent across restart, eviction and legacy cursors?",
+  "Are the fixtures proving what the note claims, or could a premise (fresh schema size, log inflation, page limits) make them pass vacuously?"
+ ],
+ "acceptance_criteria": ["AC-TASK-532-01"],
+ "execution_isolation": "read-only",
+ "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "run-tests-or-builds", "publish-or-deploy", "change-git-history"],
+ "join_before": "candidate-acceptance",
+ "result_budget": {"max_findings": 8, "max_evidence_items": 12, "max_output_chars": 8000}
+}

@@ -1,0 +1,541 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-522",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/ApplicationDelegate.swift",
+    "Sources/DiskStewardApp/StatusItemController.swift",
+    "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+    "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+    "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+    "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+    "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+    "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+    "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+    "Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift",
+    "docs/reliability/evidence/TASK-522/agent-result.json",
+    "docs/reliability/evidence/TASK-522/assurance-boot-map.json",
+    "docs/reliability/evidence/TASK-522/collector-focused.log",
+    "docs/reliability/evidence/TASK-522/collector-red.log",
+    "docs/reliability/evidence/TASK-522/helper-inbox-final-result.json",
+    "docs/reliability/evidence/TASK-522/helper-inbox-final.json",
+    "docs/reliability/evidence/TASK-522/helper-inbox-oracle-result.json",
+    "docs/reliability/evidence/TASK-522/helper-inbox-oracle.json",
+    "docs/reliability/evidence/TASK-522/helper-inbox-result.json",
+    "docs/reliability/evidence/TASK-522/helper-inbox.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-candidate-result.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-candidate.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-preflight-result.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-preflight.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-reviewed-result.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-reviewed.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-settings-result.json",
+    "docs/reliability/evidence/TASK-522/helper-lifecycle-settings.json",
+    "docs/reliability/evidence/TASK-522/helper-notification-result.json",
+    "docs/reliability/evidence/TASK-522/helper-notification.json",
+    "docs/reliability/evidence/TASK-522/helper-publication-result.json",
+    "docs/reliability/evidence/TASK-522/helper-publication.json",
+    "docs/reliability/evidence/TASK-522/helper-receipt-core-result.json",
+    "docs/reliability/evidence/TASK-522/helper-receipt-core.json",
+    "docs/reliability/evidence/TASK-522/hint-publication-design-notes.md",
+    "docs/reliability/evidence/TASK-522/implementation-handoff.md",
+    "docs/reliability/evidence/TASK-522/inbox-accepted-focused.log",
+    "docs/reliability/evidence/TASK-522/inbox-accepted-full.log",
+    "docs/reliability/evidence/TASK-522/inbox-accepted-release.log",
+    "docs/reliability/evidence/TASK-522/inbox-final-focused.log",
+    "docs/reliability/evidence/TASK-522/inbox-final-full.log",
+    "docs/reliability/evidence/TASK-522/inbox-final-release.log",
+    "docs/reliability/evidence/TASK-522/inbox-full.log",
+    "docs/reliability/evidence/TASK-522/inbox-overlap-red-compiled.log",
+    "docs/reliability/evidence/TASK-522/inbox-overlap-red.log",
+    "docs/reliability/evidence/TASK-522/inbox-recovery-marker-red.log",
+    "docs/reliability/evidence/TASK-522/inbox-recovery-tests.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-accepted-focused.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-accepted-full.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-final-focused.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-final-full.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-focused.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-full-host.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-full.log",
+    "docs/reliability/evidence/TASK-522/lifecycle-progress.md",
+    "docs/reliability/evidence/TASK-522/lifecycle-reviewed-full.log",
+    "docs/reliability/evidence/TASK-522/notification-focused.log",
+    "docs/reliability/evidence/TASK-522/notification-full.log",
+    "docs/reliability/evidence/TASK-522/notification-progress.md",
+    "docs/reliability/evidence/TASK-522/notification-red.log",
+    "docs/reliability/evidence/TASK-522/ownership-corrected-tests.log",
+    "docs/reliability/evidence/TASK-522/ownership-red.log",
+    "docs/reliability/evidence/TASK-522/ownership-tests.log",
+    "docs/reliability/evidence/TASK-522/probe-red.log",
+    "docs/reliability/evidence/TASK-522/publication-cancellation-red.log",
+    "docs/reliability/evidence/TASK-522/publication-focused.log",
+    "docs/reliability/evidence/TASK-522/publication-full.log",
+    "docs/reliability/evidence/TASK-522/publication-red.log",
+    "docs/reliability/evidence/TASK-522/publication-sqlite-red.log",
+    "docs/reliability/evidence/TASK-522/queued-settings-red.log",
+    "docs/reliability/evidence/TASK-522/queued-settings-tests.log",
+    "docs/reliability/evidence/TASK-522/receipt-core-focused.log",
+    "docs/reliability/evidence/TASK-522/receipt-core-full.log",
+    "docs/reliability/evidence/TASK-522/receipt-core-progress.md",
+    "docs/reliability/evidence/TASK-522/receipt-core-release.log",
+    "docs/reliability/evidence/TASK-522/review-corrected.log",
+    "docs/reliability/evidence/TASK-522/review-red.log",
+    "docs/reliability/evidence/TASK-522/safety-reason-red.log",
+    "docs/reliability/evidence/TASK-522/safety-reason-tests.log",
+    "docs/reliability/evidence/TASK-522/settings-red.log",
+    "docs/reliability/evidence/TASK-522/terminal-red.log",
+    "docs/reliability/evidence/TASK-522/unpause-red.log",
+    "docs/reliability/evidence/TASK-522/unpause-tests.log",
+    "docs/reliability/evidence/notification-boundary-assurance.json",
+    "docs/reliability/evidence/notification-boundary-plan-review.json",
+    "docs/reliability/evidence/notification-boundary-plan.json",
+    "docs/reliability/evidence/receipt-publication-assurance.json",
+    "docs/reliability/evidence/receipt-publication-plan-review.json",
+    "docs/reliability/evidence/receipt-publication-plan.json"
+  ],
+  "changed_assets": [
+    "ASSET-BOOT",
+    "ASSET-LIFECYCLE",
+    "ASSET-UI",
+    "ASSET-STORE",
+    "ASSET-SCANNER"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Sources/DiskStewardApp/ApplicationDelegate.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardApp/StatusItemController.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/agent-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/assurance-boot-map.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/collector-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/collector-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-inbox-final-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-inbox-final.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-inbox-oracle-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-inbox-oracle.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-inbox-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-inbox.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-preflight-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-preflight.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-reviewed-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-reviewed.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-settings-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-lifecycle-settings.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-notification-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-notification.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-publication-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-publication.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-receipt-core-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/helper-receipt-core.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/hint-publication-design-notes.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/implementation-handoff.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-accepted-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-accepted-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-accepted-release.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-final-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-final-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-final-release.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-overlap-red-compiled.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-overlap-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-recovery-marker-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/inbox-recovery-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-accepted-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-accepted-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-final-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-final-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-full-host.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/lifecycle-reviewed-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/notification-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/notification-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/notification-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/notification-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/ownership-corrected-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/ownership-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/ownership-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/probe-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/publication-cancellation-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/publication-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/publication-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/publication-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/publication-sqlite-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/queued-settings-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/queued-settings-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/receipt-core-focused.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/receipt-core-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/receipt-core-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/receipt-core-release.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/review-corrected.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/review-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/safety-reason-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/safety-reason-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/settings-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/terminal-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/unpause-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-522/unpause-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/notification-boundary-assurance.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/notification-boundary-plan-review.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/notification-boundary-plan.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/receipt-publication-assurance.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/receipt-publication-plan-review.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/receipt-publication-plan.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "Exact candidate b3b546fb: isolated swift test --disable-sandbox --jobs 2",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-522/inbox-accepted-full.log",
+      "detail": "416 total: 415 passed, 1 native-client opt-in skipped, zero failures; session13033 exit0."
+    },
+    {
+      "command": "Exact candidate b3b546fb: isolated swift test --disable-sandbox --jobs 2 --filter MonitoringReceiptTests",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-522/inbox-accepted-focused.log",
+      "detail": "12 passed; session13188 exit0."
+    },
+    {
+      "command": "Exact candidate b3b546fb: isolated swift test --disable-sandbox -c release --jobs 2 --filter 'MonitoringReceiptTests|MonitoringLifecycleTests|MonitoringProbeCancellationTests|NotificationDeliveryTests|ScanPublicationFenceTests|MonitoringTests'",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-522/inbox-accepted-release.log",
+      "detail": "67 passed; session86006 exit0."
+    },
+    {
+      "command": "Validate three helper envelopes/results, reconcile reproduced defects and test-oracle correction, compare immutable product deltas and candidate hashes",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-522/implementation-handoff.md",
+      "detail": "Read-only static reviews, not independently executed tests or audit acceptance. Reconciled before G55 impact mapping changed the task guard."
+    },
+    {
+      "command": "git diff --check; inventory source/test changes versus task baseline; Pyramid validation",
+      "result": "passed",
+      "evidence": "docs/reliability/evidence/TASK-522/implementation-handoff.md"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-TASK-522-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-522/implementation-handoff.md#requirement-to-evidence-map",
+      "detail": "Existing deterministic lifecycle/probe/notification tests plus two fail-first real receipt-marker tests, all rerun on accepted candidate. Fake center tests prove submission ordering, not actual native notification display."
+    },
+    {
+      "criterion": "AC-TASK-522-02",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-522/implementation-handoff.md#requirement-to-evidence-map",
+      "detail": "Twelve mailbox/controller/probe/store receipt methods, seven publication-fence tests and native-ingress fixtures cover bounded coalescing, stream identities, before-entry/during-prepare/after-commit ordering, cumulative equal-time persistence with partial failure/retry, unaffected roots, pause/sleep, reopen uncertainty and rollback."
+    }
+  ],
+  "discovered_risks": [
+    "Worker implementation only; no brownfield audit or outcome/intent closure. Required BOOT/LIFECYCLE/UI/STORE/SCANNER inspections remain pending.",
+    "Final COMMIT serializes receipt acceptance and disables busy retries, but underlying disk I/O is not hard time-bounded; no atomic filesystem snapshot claim.",
+    "RESEARCH-530/TASK-531/TASK-532 still owe representative scale, useful progress and headroom evidence; bounded ingress does not prove whole-app memory safety at scale.",
+    "Native notification display, signed packaged lifecycle acceptance, real client opt-ins and overnight stability are not claimed.",
+    "Remaining service/export/privacy/occurrence/onboarding/CI/rollback/monitoring obligations and seven material findings remain open.",
+    "Installed app, user evidence/configuration, signing identity and Git/release state were not modified."
+  ],
+  "suggested_graph_changes": []
+}

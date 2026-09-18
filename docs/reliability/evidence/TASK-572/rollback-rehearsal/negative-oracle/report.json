@@ -1,0 +1,462 @@
+{
+  "backupHashes": {
+    "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+    "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+  },
+  "baseline": {
+    "commit": "cf313e4527a3bd30dae217d2c1ff68d7a7a87b60",
+    "ref": "HEAD"
+  },
+  "candidate": {
+    "inputSHA256": "7f3ff4fa33b2ace1811192c4f4229a33870a07b9f51b3f1e30babf26e9de27fa"
+  },
+  "completedAt": "2026-09-18T05:15:11Z",
+  "negativeOracle": "candidate probe replaced by the baseline probe; the rehearsal must fail",
+  "newSchemaVersion": 6,
+  "oldSchemaVersion": 6,
+  "output": "/private/tmp/ds572-rollback-oracle",
+  "passed": false,
+  "schema": "disk-steward-rollback-rehearsal-v1",
+  "startedAt": "2026-09-18T05:14:36Z",
+  "steps": [
+    {
+      "binary": "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+      "binarySHA256": "535387e44d0add91a218231200757a42ec948922d08bb39fcd2084595d72521d",
+      "seconds": 15.9,
+      "step": "build-probe-baseline"
+    },
+    {
+      "binary": "/private/tmp/ds572-rollback-oracle/probe-candidate/.build/release/store-probe",
+      "binarySHA256": "d4dc93fd97ebdef47fa7bbbcbbe89414fd07ef687967db4ffd9a28d8bb451bc7",
+      "seconds": 18.5,
+      "step": "build-probe-candidate"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "create",
+        "/private/tmp/ds572-rollback-oracle/fixture/evidence.sqlite",
+        "--seed",
+        "300"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "create",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/fixture/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 473616
+      },
+      "problems": [],
+      "seconds": 0.247,
+      "step": "baseline-create-fixture",
+      "tail": "{\"command\":\"create\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/fixture\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":473616}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "backup",
+        "/private/tmp/ds572-rollback-oracle/fixture/evidence.sqlite",
+        "--destination",
+        "/private/tmp/ds572-rollback-oracle/backup/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "backup",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/fixture/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.017,
+      "step": "baseline-backup",
+      "tail": "{\"command\":\"backup\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/fixture\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "exitCode": 0,
+      "output": [
+        "ok",
+        "6",
+        "300"
+      ],
+      "problems": [],
+      "step": "sqlite3-validate-backup"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-after-consistent-copy/evidence.sqlite",
+        "--interrupt",
+        "after-consistent-copy"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-after-consistent-copy/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [
+        "exit 0 != 4",
+        "ok=True != False",
+        "interruptedAt=None != 'after-consistent-copy'"
+      ],
+      "seconds": 0.013,
+      "step": "candidate-migrate-interrupted-after-consistent-copy",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-after-consistent-copy\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-after-consistent-copy/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-after-consistent-copy/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.011,
+      "step": "candidate-recover-after-consistent-copy",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-after-consistent-copy\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-after-shadow-validation/evidence.sqlite",
+        "--interrupt",
+        "after-shadow-validation"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-after-shadow-validation/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [
+        "exit 0 != 4",
+        "ok=True != False",
+        "interruptedAt=None != 'after-shadow-validation'"
+      ],
+      "seconds": 0.009,
+      "step": "candidate-migrate-interrupted-after-shadow-validation",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-after-shadow-validation\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-after-shadow-validation/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-after-shadow-validation/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.009,
+      "step": "candidate-recover-after-shadow-validation",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-after-shadow-validation\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-before-atomic-switch/evidence.sqlite",
+        "--interrupt",
+        "before-atomic-switch"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-before-atomic-switch/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [
+        "exit 0 != 4",
+        "ok=True != False",
+        "interruptedAt=None != 'before-atomic-switch'"
+      ],
+      "seconds": 0.009,
+      "step": "candidate-migrate-interrupted-before-atomic-switch",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-before-atomic-switch\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-before-atomic-switch/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-before-atomic-switch/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.008,
+      "step": "candidate-recover-before-atomic-switch",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-before-atomic-switch\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-after-atomic-switch/evidence.sqlite",
+        "--interrupt",
+        "after-atomic-switch"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-after-atomic-switch/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [
+        "exit 0 != 4",
+        "ok=True != False",
+        "interruptedAt=None != 'after-atomic-switch'"
+      ],
+      "seconds": 0.008,
+      "step": "candidate-migrate-interrupted-after-atomic-switch",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-after-atomic-switch\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-after-atomic-switch/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-after-atomic-switch/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.008,
+      "step": "candidate-recover-after-atomic-switch",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-after-atomic-switch\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/work-uninterrupted/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/work-uninterrupted/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.007,
+      "step": "candidate-migrate-uninterrupted",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/work-uninterrupted\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "problems": [
+        "old 6 new 6"
+      ],
+      "step": "schema-advanced"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/scratch-newer/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/scratch-newer/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [
+        "exit 0 != 3",
+        "ok=True != False",
+        "refusedNewerSchema=None != True"
+      ],
+      "seconds": 0.007,
+      "step": "baseline-refuses-newer-schema",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/scratch-newer\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "after": {
+        "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+      },
+      "before": {
+        "-shm": null,
+        "-wal": null,
+        "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+      },
+      "problems": [],
+      "step": "newer-schema-untouched-by-refusal"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/restore/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/restore/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.007,
+      "step": "baseline-opens-restored-backup",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/restore\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-oracle/restore/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-oracle/restore/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.007,
+      "step": "candidate-migrates-restored-backup",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-oracle\\/restore\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "after": {
+        "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+      },
+      "before": {
+        "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+      },
+      "problems": [],
+      "step": "backup-never-modified"
+    }
+  ]
+}

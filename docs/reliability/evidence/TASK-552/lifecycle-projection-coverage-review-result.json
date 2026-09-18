@@ -1,0 +1,48 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-LIFECYCLE-02",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-B8E1C2F9F0B506B7FC5D3E59FF469274",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:81170d0e5d8a4d102a4ecc7e0558e40d94a4a0ad73014ec0b2ec570832b2a4c7",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The earlier growth-coverage finding is resolved in this inspected delta. Active scans produce partial coverage when their open-ended interval overlaps the request, including equality at the boundary. Earlier disjoint windows retain persisted-gap coverage. No actionable delta findings.",
+  "findings": [],
+  "evidence": [
+    "/private/tmp/ds-ci-dvlgb2pv/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:251-259 uses only the bounded active-generation projection, tests startedAt <= through, and otherwise preserves interval-filtered persisted-gap coverage.",
+    "/private/tmp/ds-ci-dvlgb2pv/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:283 routes explain_growth through the corrected coverage merge.",
+    "/private/tmp/ds-ci-dvlgb2pv/project/Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift:7-50 checks unchanged coverage and items for a populated disjoint historical window, plus partial coverage at the inclusive boundary and after scan start. The extended private-checkpoint test also checks overlapping growth coverage without decoding progress."
+  ],
+  "checks": [
+    {
+      "command": "Read-only diff of the two scoped files against /private/tmp/ds-ci-xrt3hymg/project",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed static inspection of the coverage predicate, call-site replacement, and regression assertions."
+    },
+    {
+      "command": "Tests, builds, database access, and runtime reproduction",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Excluded by the helper job; coordinator test results were not treated as independent helper evidence."
+    }
+  ],
+  "stale_if": [
+    "Either scoped file changes after the identified snapshot.",
+    "The parent task guard or accepted candidate hash differs from this job."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-review result awaiting coordinator identity, guard, snapshot, and checkpoint reconciliation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "This narrow static review does not establish runtime behavior or whole-task acceptance."
+  ]
+}

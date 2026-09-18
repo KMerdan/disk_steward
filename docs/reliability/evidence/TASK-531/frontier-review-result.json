@@ -1,0 +1,83 @@
+{
+ "schema": "helper-result-v1",
+ "helper_id": "HELPER-TASK-531-FRONTIER-01",
+ "parent_task": "TASK-531",
+ "task_guard": "GUARD-TASK-A976E39DFD2B5A2196B42F5D1E71EE91",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {
+  "kind": "content-hash",
+  "id": "sha256:f55627d8ff97069353588827e1d1530994723d34b46babda0fa31541dff84353",
+  "immutable": true
+ },
+ "status": "completed",
+ "summary": "Read-only static review of the bounded scan-frontier, DirectoryStreamRegistry, and probe continuation changes. The membership-invalidation ordering (invalidateDirectoryPass before synchronizeFrontier, both inside the same slice transaction), the frontier window/durable-row disjointness invariant, foreign-key CASCADE cleanup on generation deletion/abandonment, the registry's lock usage and descriptor lifecycle, and the probe's per-slice cancellation/permit/stall handling all check out on inspection. No confidence >=80 correctness bugs were found in the reviewed diff; one sub-80 observation is noted for awareness only and is not counted as a finding.",
+ "findings": [],
+ "evidence": [
+  "EvidenceStore.swift:337-423 invalidateDirectoryPass runs before synchronizeFrontier inside one slice transaction, so stale rows under a restarted prefix are deleted before fresh discovery is inserted.",
+  "EvidenceStore.swift:4405-4413 scan_frontier primary key and ON DELETE CASCADE with PRAGMA foreign_keys=ON (3721) give cascade cleanup on generation deletion/abandonment.",
+  "EvidenceStore.swift:4529-4603 synchronizeFrontier keeps window and durable rows disjoint: refill removes from scan_frontier what it adds to the window; the scanner appends to the window only below frontierWindowSize.",
+  "EvidenceStore.swift:537-552 invalidateDirectoryPass deletes strict descendants from scan_frontier; the restarted directory itself is the window head, never a durable row.",
+  "DirectoryMetadataScanner.swift:454-478,502-522,601-616 the three restart triggers remove same-slice entries/passes/discovered under the prefix, record the invalidation, and close the stream first.",
+  "DirectoryMetadataScanner.swift:924-1037 registry locking is never nested; every opendir success is stored and every error/eviction/close/deinit path closes the descriptor.",
+  "DirectoryMetadataScanner.swift:950-1023 exactly 512 names sort; 513 fall through to streaming, matching the documented contract.",
+  "PersistentMonitoringProbe.swift:286-317 cancellation, resource budget, pending changes and a fresh permit are re-acquired before each continuation slice; empty-directory passes count as progress.",
+  "EvidenceStore.swift:315-321 the reconciliationToken fence discards a stale in-memory generation after a root reset, so continuation slices cannot overwrite it.",
+  "MonitoringLifecycleController.swift:188-191 bounded continuation delay gated on scanStalled.",
+  "BoundedFrontierTests.swift:121-187 lost-stream and legacy-spill tests assert exact restart counts, inspected names, unique published sets and row/blob sizes.",
+  "ConvergentScanGenerationTests.swift:366-388 the legacy cursor test asserts restart-from-beginning rather than a lexical skip."
+ ],
+ "checks": [
+  {
+   "command": "Read DirectoryMetadataScanner.swift in full and diffed logic against the description",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "Frontier window, restart triggers and registry inspected inline."
+  },
+  {
+   "command": "Read scan_frontier/synchronizeFrontier/invalidateDirectoryPass/validateDirectoryPasses/beginOrResumeScanGeneration/currentSchemaVersion in EvidenceStore.swift",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "Transaction boundaries, cascade schema and refill/spill logic confirmed."
+  },
+  {
+   "command": "Diff-by-read of PersistentMonitoringProbe.swift and MonitoringLifecycleController.swift against frontier-base-source copies",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "The continuation loop and the delay formula are the only behavioral deltas."
+  },
+  {
+   "command": "Read the new and modified tests",
+   "result": "passed",
+   "isolation": "read-only",
+   "evidence": "Assertions are concrete counts, set memberships and byte bounds."
+  },
+  {
+   "command": "Tests, builds, database access, and runtime reproduction",
+   "result": "not-run",
+   "isolation": "read-only",
+   "evidence": "Prohibited by the job."
+  }
+ ],
+ "stale_if": [
+  "Relevant scoped source or tests change after this snapshot.",
+  "The parent task guard or accepted candidate hash differs from the assigned job."
+ ],
+ "evidence_use": "candidate-bound",
+ "freshness": "pending",
+ "final_evidence_eligible": false,
+ "eligibility_reason": "Raw static-review result awaiting coordinator identity, guard, snapshot, and finding reconciliation.",
+ "changed_files": [],
+ "changed_assets": [],
+ "risks": [
+  "No runtime validation was performed.",
+  "This delta review does not establish whole-task scale acceptance.",
+  "Sub-80 observation: a root that fails mid-generation keeps its already-durable scan_frontier rows until the whole generation completes or abandons (cascade); this affects only the diagnostic pending-directory count, not published membership."
+ ],
+ "coordinator_reconciliation": {
+  "reconciled_by": "claude",
+  "identity_guard_snapshot_matched": true,
+  "findings_open": 0,
+  "note": "The reviewer listed the reviewed paths under changed_files; it changed nothing, so changed_files is recorded as empty here. The failed-root durable-row observation is accepted as a documented boundary of this candidate and carried into TASK-532's admission/maintenance accounting work, keeping the scale evidence bound to one candidate hash. Advisory only; not runtime proof."
+ }
+}

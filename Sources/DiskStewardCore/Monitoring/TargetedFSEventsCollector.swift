@@ -66,6 +66,15 @@ public enum TargetedFSEventsCollectorError: Error, Equatable, LocalizedError {
 }
 
 enum FSEventsBatchInterpreter {
+    // Admission limits, not filesystem limits. A batch outside these bounds
+    // becomes global uncertainty and must be reconciled, never silently dropped.
+    static let maximumEventsPerBatch = 256
+    static let maximumPathUTF16Units = 4_096
+
+    private static func gap(_ limitation: String) -> TargetedChangeBatch {
+        TargetedChangeBatch(hints: [], eventGap: true, limitations: [limitation])
+    }
+
     static func interpret(
         paths: [String],
         flags: [FSEventStreamEventFlags],
@@ -73,24 +82,60 @@ enum FSEventsBatchInterpreter {
         policy: MonitoringPolicy,
         observedAt: Date
     ) -> TargetedChangeBatch? {
-        let count = min(paths.count, flags.count, eventIDs.count)
+        guard paths.count == flags.count, paths.count == eventIDs.count else {
+            return gap("FSEvents supplied inconsistent batch lengths; reconcile all watched roots.")
+        }
+        return interpret(count: paths.count, policy: policy, observedAt: observedAt) { index in
+            let path = paths[index]
+            guard path.utf16.count <= maximumPathUTF16Units else { return nil }
+            return (path, flags[index], eventIDs[index])
+        }
+    }
+
+    /// Borrows the native array without bridging/copying the whole batch into
+    /// Swift arrays. Reject count before reading a path, flag or event ID.
+    static func interpretNative(
+        paths: NSArray,
+        count: Int,
+        flags: UnsafePointer<FSEventStreamEventFlags>,
+        eventIDs: UnsafePointer<FSEventStreamEventId>,
+        policy: MonitoringPolicy,
+        observedAt: Date
+    ) -> TargetedChangeBatch? {
+        guard count == paths.count else {
+            return gap("FSEvents supplied inconsistent batch lengths; reconcile all watched roots.")
+        }
+        return interpret(count: count, policy: policy, observedAt: observedAt) { index in
+            // Check NSString's length before allocating a bridged Swift String.
+            guard let path = paths.object(at: index) as? NSString,
+                  path.length <= maximumPathUTF16Units else { return nil }
+            return (path as String, flags[index], eventIDs[index])
+        }
+    }
+
+    static func interpret(
+        count: Int,
+        policy: MonitoringPolicy,
+        observedAt: Date,
+        eventAt: (Int) -> (String, FSEventStreamEventFlags, FSEventStreamEventId)?
+    ) -> TargetedChangeBatch? {
+        guard count >= 0, count <= maximumEventsPerBatch else {
+            return gap("FSEvents batch exceeded the bounded receipt budget; reconcile all watched roots.")
+        }
         var hints: [TargetedChangeHint] = []
-        var limitations: [String] = []
         var eventGap = false
 
         for index in 0 ..< count {
-            let path = URL(fileURLWithPath: paths[index]).standardizedFileURL.path
-            let eventFlags = flags[index]
-            let gap = hasAnyGapFlag(eventFlags)
-            if gap {
-                eventGap = true
-                limitations.append("FSEvents reported dropped, wrapped, or root-change history; rescan affected roots.")
+            guard let (rawPath, eventFlags, eventID) = eventAt(index), rawPath.hasPrefix("/") else {
+                return gap("FSEvents supplied an invalid or oversized path; reconcile all watched roots.")
             }
+            let path = URL(fileURLWithPath: rawPath).standardizedFileURL.path
+            eventGap = eventGap || hasAnyGapFlag(eventFlags)
             guard policy.includes(path: path, at: observedAt) else { continue }
             hints.append(
                 TargetedChangeHint(
                     path: path,
-                    eventID: eventIDs[index],
+                    eventID: eventID,
                     observedAt: observedAt,
                     kind: kind(for: eventFlags),
                     requiresRescan: true,
@@ -100,7 +145,10 @@ enum FSEventsBatchInterpreter {
             )
         }
         guard eventGap || !hints.isEmpty else { return nil }
-        return TargetedChangeBatch(hints: hints, eventGap: eventGap, limitations: limitations)
+        return TargetedChangeBatch(
+            hints: hints, eventGap: eventGap,
+            limitations: eventGap ? ["FSEvents reported dropped, wrapped, or root-change history; rescan affected roots."] : []
+        )
     }
 
     private static func hasAnyGapFlag(_ flags: FSEventStreamEventFlags) -> Bool {
@@ -171,7 +219,6 @@ public final class TargetedFSEventsCollector: @unchecked Sendable {
     private let deliveryQueue: DispatchQueue
     private let stateLock = NSLock()
     private var stream: FSEventStreamRef?
-    private var callbackBox: CallbackBox?
 
     public init(deliveryQueue: DispatchQueue = DispatchQueue(label: "dev.disksteward.fsevents")) {
         self.deliveryQueue = deliveryQueue
@@ -195,8 +242,15 @@ public final class TargetedFSEventsCollector: @unchecked Sendable {
         var context = FSEventStreamContext(
             version: 0,
             info: Unmanaged.passUnretained(box).toOpaque(),
-            retain: nil,
-            release: nil,
+            retain: { info in
+                guard let info else { return nil }
+                _ = Unmanaged<CallbackBox>.fromOpaque(info).retain()
+                return info
+            },
+            release: { info in
+                guard let info else { return }
+                Unmanaged<CallbackBox>.fromOpaque(info).release()
+            },
             copyDescription: nil
         )
         let flags = FSEventStreamCreateFlags(
@@ -205,15 +259,18 @@ public final class TargetedFSEventsCollector: @unchecked Sendable {
                 | kFSEventStreamCreateFlagWatchRoot
                 | kFSEventStreamCreateFlagNoDefer
         )
-        guard let candidate = FSEventStreamCreate(
-            kCFAllocatorDefault,
-            Self.callback,
-            &context,
-            roots.map(\.path) as CFArray,
-            FSEventStreamEventId(kFSEventStreamEventIdSinceNow),
-            max(0.05, latency),
-            flags
-        ) else {
+        let created = withExtendedLifetime(box) {
+            FSEventStreamCreate(
+                kCFAllocatorDefault,
+                Self.callback,
+                &context,
+                roots.map(\.path) as CFArray,
+                FSEventStreamEventId(kFSEventStreamEventIdSinceNow),
+                max(0.05, latency),
+                flags
+            )
+        }
+        guard let candidate = created else {
             throw TargetedFSEventsCollectorError.streamCreationFailed
         }
 
@@ -225,7 +282,6 @@ public final class TargetedFSEventsCollector: @unchecked Sendable {
         }
 
         stateLock.lock()
-        callbackBox = box
         stream = candidate
         stateLock.unlock()
     }
@@ -252,22 +308,16 @@ public final class TargetedFSEventsCollector: @unchecked Sendable {
             FSEventStreamInvalidate(activeStream)
             FSEventStreamRelease(activeStream)
         }
-
-        stateLock.lock()
-        callbackBox = nil
-        stateLock.unlock()
     }
 
     private static let callback: FSEventStreamCallback = { _, info, count, rawPaths, rawFlags, rawIDs in
         guard let info else { return }
         let box = Unmanaged<CallbackBox>.fromOpaque(info).takeUnretainedValue()
-        guard let paths = unsafeBitCast(rawPaths, to: NSArray.self) as? [String] else { return }
-        let flags = (0 ..< count).map { rawFlags[$0] }
-        let eventIDs = (0 ..< count).map { rawIDs[$0] }
-        if let batch = FSEventsBatchInterpreter.interpret(
-            paths: paths,
-            flags: flags,
-            eventIDs: eventIDs,
+        if let batch = FSEventsBatchInterpreter.interpretNative(
+            paths: unsafeBitCast(rawPaths, to: NSArray.self),
+            count: count,
+            flags: rawFlags,
+            eventIDs: rawIDs,
             policy: box.policy,
             observedAt: Date()
         ) {

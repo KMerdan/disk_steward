@@ -1,0 +1,25 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-ROOT-PATH-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-8D6F2C95AF59DB49E61F216EE1A9094B",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:858eab3db676e1275a7b2501b35d9efee78e583165bdd312da11c54ec6a828d0", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-521-root-path-candidate.MdvxSZ/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "/private/tmp/disk-steward-521-root-path-candidate.MdvxSZ/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-root-path-candidate.MdvxSZ/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift"
+  ],
+  "purpose": "Review intermediate root/pass ownership and per-object/path reconciliation independently while the coordinator researches genuine migration fixtures. This is not final TASK-521 acceptance.",
+  "questions": [
+    "Check that the new root-and-pass-keyed staging fixes the prior overlapping-root mutation and failed-ancestor findings. Identify any distinct counterexample with a deterministic sequence.",
+    "Review the immutable-prior SQL reconciliation, unknown-path rebasing, hard-link replacement accounting, path swaps and scope changes. Look for false deletion, unique-path conflicts, double debits or unsupported rename claims. Report actionable untested cases rather than only green-test observations.",
+    "Known incomplete work is precise timestamp propagation, genuine old-schema migration fixtures and the separate legacy recordObservation path. Do not repeat those known gaps unless a distinct interaction is relevant. Publication scale remains TASK-531; note a new amplification hazard but do not request an unrelated redesign."
+  ],
+  "acceptance_criteria": ["AC-TASK-521-01"],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "candidate-acceptance",
+  "result_budget": {"max_findings": 4, "max_evidence_items": 6, "max_output_chars": 5000}
+}

@@ -1,0 +1,1870 @@
+--- base/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift
+@@ -114,6 +114,38 @@
+         }
+         guard extras.isEmpty || digest != nil else { return nil }
+         return .init(command: command, arguments: entry["args"] as? [String] ?? [], configurationFingerprint: digest)
++    }
++}
++
++/// Every configuration mutation either preserves the user's file byte for byte
++/// or fails with one of these, naming the file, the backup that holds the
++/// pre-mutation bytes, and the recovery step. Nothing is ever partially applied
++/// without an explicit, recoverable report.
++enum AgentIntegrationMutationError: LocalizedError, Equatable {
++    case notOwned(path: String)
++    case concurrentEdit(path: String, backup: String?)
++    case backupFailed(path: String, reason: String)
++    case commitFailed(path: String, backup: String?, reason: String)
++    case restoreFailed(path: String, backup: String?, reason: String)
++    /// A concurrent writer's file was swapped out and could not be swapped
++    /// back; it is preserved at `preserved` and the caller's bytes stand.
++    case concurrentEditUndoFailed(path: String, preserved: String, reason: String)
++
++    var errorDescription: String? {
++        switch self {
++        case let .notOwned(path):
++            return "Disk Steward will not change an entry it does not own in \(path). Remove or rename that entry, then rescan; nothing was changed."
++        case let .concurrentEdit(path, backup):
++            return "\(path) changed while Disk Steward was editing it, so the edit was abandoned and the file was left as the other writer saved it. Rescan and retry" + (backup.map { "; the bytes read before the edit are in \($0)." } ?? ".")
++        case let .backupFailed(path, reason):
++            return "Disk Steward could not write a backup before editing \(path) (\(reason)), so it changed nothing. Free space or fix permissions in \((path as NSString).deletingLastPathComponent), then retry."
++        case let .commitFailed(path, backup, reason):
++            return "Disk Steward could not save \(path) (\(reason)); the file was left unchanged" + (backup.map { " and its pre-edit bytes are in \($0)" } ?? "") + ". Retry after fixing the folder's permissions or free space."
++        case let .restoreFailed(path, backup, reason):
++            return "Disk Steward saved \(path) but could not record its receipt and could not restore the file automatically (\(reason))." + (backup.map { " Your previous configuration is preserved in \($0); copy it back or rescan and repair." } ?? " Rescan and repair.")
++        case let .concurrentEditUndoFailed(path, preserved, reason):
++            return "\(path) was changed by another program while Disk Steward saved it, and Disk Steward could not put that program's version back (\(reason)). Disk Steward's version is now in place; the other program's version is preserved at \(preserved). Merge them by hand, then rescan."
++        }
+     }
+ }
+ 
+@@ -132,6 +164,10 @@
+     let previousHelperIdentity: String?
+     var lastVerifiedAt: Date?
+     var lastResult: String
++    /// The backup written before the last direct edit of the client file;
++    /// legacy receipts omit it. Backups live next to the client file in
++    /// `.disk-steward-backups/` and are bounded per file.
++    var lastBackupPath: String?
+ 
+     init(
+         clientID: AgentClientID,
+@@ -142,7 +178,8 @@
+         previousDefinition: AgentIntegrationDefinition? = nil,
+         previousHelperIdentity: String? = nil,
+         lastVerifiedAt: Date? = nil,
+-        lastResult: String = "configured"
++        lastResult: String = "configured",
++        lastBackupPath: String? = nil
+     ) {
+         schemaVersion = Self.currentSchemaVersion
+         self.clientID = clientID
+@@ -154,6 +191,7 @@
+         self.previousHelperIdentity = previousHelperIdentity
+         self.lastVerifiedAt = lastVerifiedAt
+         self.lastResult = lastResult
++        self.lastBackupPath = lastBackupPath
+     }
+ }
+ 
+--- base/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift
+@@ -221,5 +221,138 @@
+             }
+         }
+         guard fsync(fd) == 0, rename(temporary.path, url.path) == 0 else { throw CocoaError(.fileWriteUnknown) }
++    }
++
++    /// Commits `data` to `url` only if the file still holds `expected`.
++    /// The check is not a separate compare: an atomic swap installs the new
++    /// bytes and hands back the file that was there, which is then compared;
++    /// a mismatch swaps the original straight back. A file that must not exist
++    /// yet is installed with an exclusive rename. Either way no other writer's
++    /// bytes are ever lost, and the caller learns exactly what happened.
++    static func replace(_ data: Data, at url: URL, expecting expected: Data?) throws {
++        guard data.count <= 4 * 1_024 * 1_024 else { throw CocoaError(.fileWriteOutOfSpace) }
++        let temporary = url.deletingLastPathComponent().appending(path: ".disk-steward-\(UUID().uuidString).tmp")
++        let fd = Darwin.open(temporary.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
++        guard fd >= 0 else { throw CocoaError(.fileWriteUnknown) }
++        var committed = false
++        defer { Darwin.close(fd); if !committed { unlink(temporary.path) } }
++        try data.withUnsafeBytes { bytes in
++            var offset = 0
++            while offset < bytes.count {
++                let count = Darwin.write(fd, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
++                if count < 0, errno == EINTR { continue }
++                guard count > 0 else { throw CocoaError(.fileWriteUnknown) }
++                offset += count
++            }
++        }
++        guard fsync(fd) == 0 else { throw CocoaError(.fileWriteUnknown) }
++        guard let expected else {
++            guard renamex_np(temporary.path, url.path, UInt32(RENAME_EXCL)) == 0 else {
++                if errno == EEXIST { throw AgentIntegrationMutationError.concurrentEdit(path: url.path, backup: nil) }
++                throw CocoaError(.fileWriteUnknown)
++            }
++            committed = true
++            return
++        }
++        guard renamex_np(temporary.path, url.path, UInt32(RENAME_SWAP)) == 0 else {
++            if errno == ENOENT { throw AgentIntegrationMutationError.concurrentEdit(path: url.path, backup: nil) }
++            throw CocoaError(.fileWriteUnknown)
++        }
++        // The other file now sits at the temporary path; it is what was really
++        // replaced. Anything but the expected bytes means a concurrent writer
++        // won, so its file goes straight back and ours is discarded. If even
++        // that swap fails, the other writer's bytes are never deleted: they are
++        // preserved beside the file and the error names them.
++        let replaced = try? Data(contentsOf: temporary)
++        if replaced != expected {
++            let undone = undoSwapFaultForTesting ? -1 : renamex_np(temporary.path, url.path, UInt32(RENAME_SWAP))
++            guard undone == 0 else {
++                let reason = undoSwapFaultForTesting ? "injected fault" : String(cString: strerror(errno))
++                committed = true // keep the temporary file: it holds the other writer's bytes
++                let preserved = (try? preserveConcurrentBytes(at: temporary, for: url)) ?? temporary
++                throw AgentIntegrationMutationError.concurrentEditUndoFailed(path: url.path, preserved: preserved.path, reason: reason)
++            }
++            throw AgentIntegrationMutationError.concurrentEdit(path: url.path, backup: nil)
++        }
++        committed = true
++        unlink(temporary.path)
+     }
++
++    /// Test seam: makes the undo swap fail so the preservation path is proven.
++    nonisolated(unsafe) static var undoSwapFaultForTesting = false
++
++    /// Moves a concurrent writer's swapped-out file into the backups directory
++    /// under a name that says what it is; falls back to leaving it in place.
++    private static func preserveConcurrentBytes(at temporary: URL, for url: URL) throws -> URL {
++        let directory = backupDirectory(for: url)
++        var info = stat()
++        if lstat(directory.path, &info) != 0 { guard mkdir(directory.path, 0o700) == 0 else { throw CocoaError(.fileWriteUnknown) } }
++        let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "")
++        let destination = directory.appending(path: "\(url.lastPathComponent).\(stamp)-concurrent-\(UUID().uuidString.lowercased()).bak")
++        guard renamex_np(temporary.path, destination.path, UInt32(RENAME_EXCL)) == 0 else { throw CocoaError(.fileWriteUnknown) }
++        return destination
++    }
++
++    static let backupLimitPerFile = 10
++
++    /// Backups sit beside the client file in a private directory, named by the
++    /// file they protect, so they can be found, restored and bounded.
++    static func backupDirectory(for url: URL) -> URL {
++        url.deletingLastPathComponent().appending(path: ".disk-steward-backups", directoryHint: .isDirectory)
++    }
++
++    static func writeBackup(of data: Data, for url: URL) throws -> URL {
++        let directory = backupDirectory(for: url)
++        var directoryInfo = stat()
++        if lstat(directory.path, &directoryInfo) == 0 {
++            guard directoryInfo.st_mode & S_IFMT == S_IFDIR, directoryInfo.st_uid == getuid() else {
++                throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: "\(directory.path) is not a private directory")
++            }
++        } else {
++            guard mkdir(directory.path, 0o700) == 0 else {
++                throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: String(cString: strerror(errno)))
++            }
++        }
++        let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "")
++        let backup = directory.appending(path: "\(url.lastPathComponent).\(stamp)-\(UUID().uuidString.lowercased()).bak")
++        let fd = Darwin.open(backup.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
++        guard fd >= 0 else { throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: String(cString: strerror(errno))) }
++        defer { Darwin.close(fd) }
++        do {
++            try data.withUnsafeBytes { bytes in
++                var offset = 0
++                while offset < bytes.count {
++                    let count = Darwin.write(fd, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
++                    if count < 0, errno == EINTR { continue }
++                    guard count > 0 else { throw CocoaError(.fileWriteUnknown) }
++                    offset += count
++                }
++            }
++            guard fsync(fd) == 0 else { throw CocoaError(.fileWriteUnknown) }
++        } catch {
++            unlink(backup.path)
++            throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: error.localizedDescription)
++        }
++        pruneBackups(for: url, keeping: backupLimitPerFile)
++        return backup
++    }
++
++    /// Removes only this file's oldest backups beyond the limit; other files'
++    /// backups and anything else in the directory are never touched.
++    static func pruneBackups(for url: URL, keeping limit: Int) {
++        let directory = backupDirectory(for: url)
++        let prefix = url.lastPathComponent + "."
++        guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
++        let own = names.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".bak") }.sorted()
++        for name in own.dropLast(limit) {
++            unlink(directory.appending(path: name).path)
++        }
++    }
++
++    static func backups(for url: URL) -> [URL] {
++        let directory = backupDirectory(for: url)
++        let prefix = url.lastPathComponent + "."
++        guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return [] }
++        return names.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".bak") }.sorted().map { directory.appending(path: $0) }
++    }
+ }
+--- base/Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift
++++ candidate/Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift
+@@ -30,6 +30,10 @@
+     private let runner: any AgentCommandRunning
+     private let linkOpener: any AgentIntegrationLinkOpening
+     private let fileManager: FileManager
++    // Fault-injection seams for concurrent-edit and failure-at-every-step proofs.
++    var beforeCommit: () throws -> Void = {}
++    var beforeRestore: () throws -> Void = {}
++    private(set) var beforeCommitInvocations = 0
+ 
+     init(
+         descriptor: AgentClientDescriptor,
+@@ -115,7 +119,7 @@
+         default: break
+         }
+         if before.state == .conflict {
+-            return result(action, .failed, "Disk Steward will not overwrite an existing entry it does not own.", before)
++            return result(action, .failed, "Disk Steward will not overwrite an existing entry it does not own. " + (AgentIntegrationMutationError.notOwned(path: configurationURL.path).errorDescription ?? ""), before)
+         }
+         guard fileManager.isExecutableFile(atPath: helperURL.path) else {
+             return result(action, .failed, "The bundled MCP helper is missing at \(helperURL.path). Reinstall Disk Steward.", before)
+@@ -128,12 +132,12 @@
+         do {
+             switch setupMode {
+             case .direct:
+-                let receipt = AgentIntegrationReceipt(clientID: descriptor.id, definition: definition,
+-                    helperIdentity: PrivateIntegrationFile.executableIdentity(helperURL))
+                 let mutation = try writeDefinition(definition)
++                let receipt = AgentIntegrationReceipt(clientID: descriptor.id, definition: definition,
++                    helperIdentity: PrivateIntegrationFile.executableIdentity(helperURL), lastBackupPath: mutation.backup?.path)
+                 do { try receiptStore.upsert(receipt) }
+                 catch {
+-                    try restore(mutation)
++                    try restore(mutation, after: error)
+                     throw error
+                 }
+                 let snapshot = AgentIntegrationSnapshot.derive(
+@@ -219,7 +223,7 @@
+     private func remove() async -> AgentIntegrationOperationResult {
+         let before = await inspect()
+         if before.state == .conflict {
+-            return result(.remove, .failed, "Disk Steward will not remove an entry it does not own.", before)
++            return result(.remove, .failed, "Disk Steward will not remove an entry it does not own. " + (AgentIntegrationMutationError.notOwned(path: configurationURL.path).errorDescription ?? ""), before)
+         }
+         do {
+             switch before.inspection {
+@@ -227,7 +231,7 @@
+                 let mutation = try removeDefinition()
+                 do { try receiptStore.remove(clientID: descriptor.id) }
+                 catch {
+-                    try restore(mutation)
++                    try restore(mutation, after: error)
+                     throw error
+                 }
+                 let snapshot = AgentIntegrationSnapshot.derive(descriptor: descriptor, presence: before.presence, inspection: .missing)
+@@ -272,7 +276,7 @@
+         return definition
+     }
+ 
+-    private struct Mutation { let before: Data?; let after: Data }
++    private struct Mutation { let before: Data?; let after: Data; let backup: URL? }
+ 
+     private func writeDefinition(_ definition: AgentIntegrationDefinition) throws -> Mutation {
+         let before = try configurationBytes()
+@@ -280,7 +284,7 @@
+         let current = try self.definition(in: document)
+         if let current {
+             guard case .owned = AgentIntegrationOwnership.resolve(current: current,
+-                receipt: try receiptStore.receipt(for: descriptor.id)) else { throw CocoaError(.fileWriteNoPermission) }
++                receipt: try receiptStore.receipt(for: descriptor.id)) else { throw AgentIntegrationMutationError.notOwned(path: configurationURL.path) }
+         }
+         var servers = document[rootKey] as? [String: Any] ?? [:]
+         var entry: [String: Any] = ["command": definition.command, "args": definition.arguments]
+@@ -295,33 +299,57 @@
+         var document = try before.map(parseDocument) ?? [:]
+         guard let current = try definition(in: document),
+               case .owned = AgentIntegrationOwnership.resolve(current: current, receipt: try receiptStore.receipt(for: descriptor.id)),
+-              var servers = document[rootKey] as? [String: Any] else { throw CocoaError(.fileWriteNoPermission) }
++              var servers = document[rootKey] as? [String: Any] else { throw AgentIntegrationMutationError.notOwned(path: configurationURL.path) }
+         servers.removeValue(forKey: serverName)
+         document[rootKey] = servers
+         return try persist(document, replacing: before)
+     }
+ 
++    /// Backup first, then a check-and-swap commit: the new bytes are installed
++    /// only if the file still holds exactly the bytes that were read. A
++    /// concurrent writer keeps its file; every failure is typed with the
++    /// backup path and the recovery step.
+     private func persist(_ document: [String: Any], replacing before: Data?) throws -> Mutation {
+-        try fileManager.createDirectory(at: configurationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+-        guard try configurationBytes() == before else { throw CocoaError(.fileWriteFileExists) }
+-        if let before {
+-            let backup = configurationURL.appendingPathExtension("disk-steward-backup-\(UUID().uuidString)")
+-            let descriptor = Darwin.open(backup.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+-            guard descriptor >= 0 else { throw CocoaError(.fileWriteUnknown) }
+-            let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
+-            try handle.write(contentsOf: before)
+-            try handle.close()
++        do {
++            try fileManager.createDirectory(at: configurationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
++        } catch {
++            throw AgentIntegrationMutationError.commitFailed(path: configurationURL.path, backup: nil, reason: error.localizedDescription)
++        }
++        var backup: URL? = nil
++        if let before {
++            backup = try PrivateIntegrationFile.writeBackup(of: before, for: configurationURL)
+         }
+         let data = try JSONSerialization.data(withJSONObject: document, options: [.prettyPrinted, .sortedKeys])
+-        guard try configurationBytes() == before else { throw CocoaError(.fileWriteFileExists) }
+-        try PrivateIntegrationFile.write(data, to: configurationURL)
+-        return Mutation(before: before, after: data)
++        beforeCommitInvocations += 1
++        try beforeCommit()
++        do {
++            try PrivateIntegrationFile.replace(data, at: configurationURL, expecting: before)
++        } catch AgentIntegrationMutationError.concurrentEdit {
++            throw AgentIntegrationMutationError.concurrentEdit(path: configurationURL.path, backup: backup?.path)
++        } catch let error as AgentIntegrationMutationError {
++            throw error // concurrentEditUndoFailed, backupFailed: already precise
++        } catch {
++            throw AgentIntegrationMutationError.commitFailed(path: configurationURL.path, backup: backup?.path, reason: error.localizedDescription)
++        }
++        return Mutation(before: before, after: data, backup: backup)
+     }
+ 
+-    private func restore(_ mutation: Mutation) throws {
+-        guard try configurationBytes() == mutation.after else { throw CocoaError(.fileWriteFileExists) }
+-        if let original = mutation.before { try PrivateIntegrationFile.write(original, to: configurationURL) }
+-        else { try fileManager.removeItem(at: configurationURL) }
++    /// Puts the pre-mutation bytes back after a later step failed, again only
++    /// if nobody else has written since; otherwise the user is told where the
++    /// original bytes are.
++    private func restore(_ mutation: Mutation, after failure: Error) throws {
++        do {
++            try beforeRestore()
++            if let original = mutation.before {
++                try PrivateIntegrationFile.replace(original, at: configurationURL, expecting: mutation.after)
++            } else {
++                guard try configurationBytes() == mutation.after else { throw AgentIntegrationMutationError.concurrentEdit(path: configurationURL.path, backup: nil) }
++                try fileManager.removeItem(at: configurationURL)
++            }
++        } catch {
++            throw AgentIntegrationMutationError.restoreFailed(path: configurationURL.path, backup: mutation.backup?.path,
++                reason: "\(failure.localizedDescription); \(error.localizedDescription)")
++        }
+     }
+ 
+     private func result(
+--- base/Scripts/Integration/json-config.swift
++++ candidate/Scripts/Integration/json-config.swift
+@@ -1,30 +1,132 @@
+ #!/usr/bin/env swift
+ 
++// Edits only the `disk_steward` entry of an MCP client's JSON configuration.
++//
++// Ownership rules (TASK-561):
++//   - The root and `mcpServers` must be objects; anything else is refused and
++//     the file is left untouched.
++//   - `set` keeps every key the user added to an existing `disk_steward` entry
++//     (env, cwd, unknown keys) and only refreshes type/command/args. A
++//     malformed entry (non-string command, non-array args) is refused.
++//   - `remove` refuses an entry that carries user additions; remove it by hand.
++//   - Every write is check-and-swap: the new bytes are installed only if the
++//     file still holds exactly the bytes that were read, otherwise nothing
++//     changes and the other writer's file survives (exit 75).
++//
++// Exit codes: 0 done, 64 usage, 65 refused (malformed or user additions),
++// 75 changed concurrently, 74 I/O failure.
++
+ import Foundation
+ 
+ enum ConfigurationError: Error, CustomStringConvertible {
+     case usage(String)
+     case invalidRoot
++    case malformedEntry(String)
++    case userAdditions([String])
++    case concurrentEdit
++    case concurrentEditUndoFailed(preserved: String, reason: String)
++    case io(String)
+ 
+     var description: String {
+         switch self {
+         case let .usage(message): message
+-        case .invalidRoot: "The JSON configuration root and mcpServers must be objects."
++        case .invalidRoot: "The JSON configuration root and mcpServers must be objects; nothing was changed."
++        case let .malformedEntry(reason): "The existing disk_steward entry is malformed (\(reason)); nothing was changed. Fix or remove it by hand, then retry."
++        case let .userAdditions(keys): "The disk_steward entry carries settings Disk Steward does not own (\(keys.joined(separator: ", "))); nothing was changed. Remove the entry by hand if you want it gone."
++        case .concurrentEdit: "The file changed while it was being edited; nothing was changed. Retry."
++        case let .concurrentEditUndoFailed(preserved, reason): "Another program changed the file while it was being edited and its version could not be put back (\(reason)). Disk Steward's version is in place; the other version is preserved at \(preserved). Merge them by hand."
++        case let .io(reason): "Could not write the configuration (\(reason)); nothing was changed."
+         }
+     }
++
++    var exitCode: Int32 {
++        switch self {
++        case .usage: 64
++        case .invalidRoot, .malformedEntry, .userAdditions: 65
++        case .concurrentEdit: 75
++        case .concurrentEditUndoFailed: 70
++        case .io: 74
++        }
++    }
+ }
+ 
++let ownedKeys: Set<String> = ["type", "command", "args"]
++
++func userAdditions(in entry: [String: Any]) -> [String] {
++    entry.keys.filter { key in
++        if ownedKeys.contains(key) { return false }
++        if key == "env", let env = entry[key] as? [String: Any], env.isEmpty { return false }
++        if entry[key] is NSNull { return false }
++        return true
++    }.sorted()
++}
++
++func validate(_ entry: [String: Any]) throws {
++    guard entry["command"] is String, !(entry["command"] as! String).isEmpty else { throw ConfigurationError.malformedEntry("command is not a non-empty string") }
++    guard entry["args"] == nil || entry["args"] is [String] else { throw ConfigurationError.malformedEntry("args is not an array of strings") }
++}
++
++/// Installs `data` at `file` only if the file still holds `expected` (nil: the
++/// file must not exist yet). Uses an atomic swap and verifies what came back.
++func commit(_ data: Data, to file: URL, expecting expected: Data?) throws {
++    let directory = file.deletingLastPathComponent()
++    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
++    let temporary = directory.appendingPathComponent(".\(file.lastPathComponent).disk-steward-\(UUID().uuidString)")
++    let descriptor = open(temporary.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
++    guard descriptor >= 0 else { throw ConfigurationError.io(String(cString: strerror(errno))) }
++    var committed = false
++    defer { close(descriptor); if !committed { unlink(temporary.path) } }
++    try data.withUnsafeBytes { bytes in
++        var offset = 0
++        while offset < bytes.count {
++            let count = write(descriptor, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
++            if count < 0, errno == EINTR { continue }
++            guard count > 0 else { throw ConfigurationError.io(String(cString: strerror(errno))) }
++            offset += count
++        }
++    }
++    guard fsync(descriptor) == 0 else { throw ConfigurationError.io("fsync failed") }
++    guard let expected else {
++        guard renamex_np(temporary.path, file.path, UInt32(RENAME_EXCL)) == 0 else {
++            if errno == EEXIST { throw ConfigurationError.concurrentEdit }
++            throw ConfigurationError.io(String(cString: strerror(errno)))
++        }
++        committed = true
++        return
++    }
++    guard renamex_np(temporary.path, file.path, UInt32(RENAME_SWAP)) == 0 else {
++        if errno == ENOENT { throw ConfigurationError.concurrentEdit }
++        throw ConfigurationError.io(String(cString: strerror(errno)))
++    }
++    let replaced = try? Data(contentsOf: temporary)
++    if replaced != expected {
++        guard renamex_np(temporary.path, file.path, UInt32(RENAME_SWAP)) == 0 else {
++            // Never delete the other writer's bytes: keep them beside the file.
++            committed = true
++            let reason = String(cString: strerror(errno))
++            let preserved = directory.appendingPathComponent(".\(file.lastPathComponent).concurrent-\(UUID().uuidString.lowercased())")
++            let kept = renamex_np(temporary.path, preserved.path, UInt32(RENAME_EXCL)) == 0 ? preserved : temporary
++            throw ConfigurationError.concurrentEditUndoFailed(preserved: kept.path, reason: reason)
++        }
++        throw ConfigurationError.concurrentEdit
++    }
++    committed = true
++    unlink(temporary.path)
++}
++
+ func run() throws {
+     let arguments = Array(CommandLine.arguments.dropFirst())
+     guard arguments.count >= 2 else {
+-        throw ConfigurationError.usage("usage: json-config.swift set FILE COMMAND | remove FILE")
++        throw ConfigurationError.usage("usage: json-config.swift set FILE COMMAND | remove FILE | inspect FILE")
+     }
+     let operation = arguments[0]
+     let file = URL(fileURLWithPath: arguments[1])
++    var original: Data? = nil
+     var root: [String: Any] = [:]
+     if FileManager.default.fileExists(atPath: file.path) {
+-        let value = try JSONSerialization.jsonObject(with: Data(contentsOf: file))
+-        guard let object = value as? [String: Any] else { throw ConfigurationError.invalidRoot }
++        let bytes = try Data(contentsOf: file)
++        original = bytes
++        guard let object = try JSONSerialization.jsonObject(with: bytes) as? [String: Any] else { throw ConfigurationError.invalidRoot }
+         root = object
+     }
+     var servers: [String: Any]
+@@ -34,20 +136,35 @@
+     } else {
+         servers = [:]
+     }
++    let existingEntry: [String: Any]?
++    if let raw = servers["disk_steward"] {
++        guard let entry = raw as? [String: Any] else { throw ConfigurationError.malformedEntry("entry is not an object") }
++        try validate(entry)
++        existingEntry = entry
++    } else {
++        existingEntry = nil
++    }
+ 
+     switch operation {
++    case "inspect":
++        let additions = existingEntry.map(userAdditions) ?? []
++        let report: [String: Any] = ["present": existingEntry != nil, "command": existingEntry?["command"] ?? NSNull(), "userAdditions": additions]
++        print(String(data: try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]), encoding: .utf8) ?? "{}")
++        return
+     case "set":
+-        guard arguments.count == 3 else {
+-            throw ConfigurationError.usage("set requires an executable path")
+-        }
+-        servers["disk_steward"] = [
+-            "type": "stdio",
+-            "command": arguments[2],
+-            "args": [],
+-            "env": [:],
+-        ]
++        guard arguments.count == 3 else { throw ConfigurationError.usage("set requires an executable path") }
++        var entry = existingEntry ?? ["env": [String: Any]()]
++        entry["type"] = "stdio"
++        entry["command"] = arguments[2]
++        entry["args"] = existingEntry?["args"] as? [String] ?? []
++        let preserved = existingEntry.map(userAdditions) ?? []
++        servers["disk_steward"] = entry
++        if !preserved.isEmpty { print("Preserved user settings on disk_steward: \(preserved.joined(separator: ", "))") }
+     case "remove":
+         guard arguments.count == 2 else { throw ConfigurationError.usage("remove accepts only a file") }
++        guard let existingEntry else { return }
++        let additions = userAdditions(in: existingEntry)
++        guard additions.isEmpty else { throw ConfigurationError.userAdditions(additions) }
+         servers.removeValue(forKey: "disk_steward")
+     default:
+         throw ConfigurationError.usage("unknown operation: \(operation)")
+@@ -55,20 +172,15 @@
+ 
+     root["mcpServers"] = servers
+     let data = try JSONSerialization.data(withJSONObject: root, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
+-    try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+-    let temporary = file.deletingLastPathComponent().appendingPathComponent(".\(file.lastPathComponent).disk-steward-\(UUID().uuidString)")
+-    try data.write(to: temporary, options: .atomic)
+-    try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: temporary.path)
+-    if FileManager.default.fileExists(atPath: file.path) {
+-        _ = try FileManager.default.replaceItemAt(file, withItemAt: temporary)
+-    } else {
+-        try FileManager.default.moveItem(at: temporary, to: file)
+-    }
++    try commit(data, to: file, expecting: original)
+ }
+ 
+ do {
+     try run()
++} catch let error as ConfigurationError {
++    FileHandle.standardError.write(Data(("json-config: \(error)\n").utf8))
++    exit(error.exitCode)
+ } catch {
+     FileHandle.standardError.write(Data(("json-config: \(error)\n").utf8))
+-    exit(64)
++    exit(74)
+ }
+--- base/Scripts/Integration/install
++++ candidate/Scripts/Integration/install
+@@ -1,4 +1,11 @@
+ #!/bin/zsh
++# Installs the read-only Disk Steward connector for one CLI client.
++#
++# Every mutation is recoverable (TASK-561): a timestamped backup directory under
++# <config-root>/.disk-steward-backups/ receives the pre-install files and a
++# manifest.json with their hashes; a failure at any later step restores exactly
++# those files before exiting; `Scripts/Integration/rollback` restores a backup
++# on request; only the newest ten backup directories are kept.
+ set -euo pipefail
+ 
+ client=""
+@@ -30,6 +37,7 @@
+   print "Configuration root: $config_root"
+   print "Connector: $connector"
+   print "Only the disk_steward MCP entry and Disk Steward-owned plugin files would change."
++  print "A recoverable backup with a manifest would be written under $config_root/.disk-steward-backups/ first."
+   exit 0
+ fi
+ 
+@@ -37,13 +45,88 @@
+ 
+ script_dir=${0:A:h}
+ repo_root=${script_dir:h:h}
++source "$script_dir/backup-lib.zsh"
++
+ timestamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+-backup_root="$config_root/.disk-steward-backups/$timestamp"
++backups_dir="$config_root/.disk-steward-backups"
++backup_root="$backups_dir/$timestamp"
+ mkdir -p "$config_root" "$backup_root"
+-chmod 700 "$config_root" "$config_root/.disk-steward-backups" "$backup_root"
++chmod 700 "$config_root" "$backups_dir" "$backup_root"
+ 
+ if [[ "$client" == "codex" ]]; then
+   config_file="$config_root/config.toml"
++  plugin_target="$config_root/plugins/disk-steward"
++else
++  config_file="$config_root/.mcp.json"
++  plugin_target=""
++fi
++
++# Everything below is undone on failure: the backup taken first is the source
++# of truth for what "unchanged" means.
++config_backed=0
++plugin_backed=0
++plugin_written=0
++config_written=0
++undo_done=0
++undo() {
++  local exit_status=$?
++  trap - ZERR EXIT
++  setopt localoptions noerrexit noerrreturn
++  (( undo_done )) && exit $exit_status
++  undo_done=1
++  if (( exit_status != 0 )); then
++    local -a failures
++    failures=()
++    local restored=0
++    if (( config_written || config_backed )); then
++      if [[ -f "$backup_root/${config_file:t}" ]]; then
++        if ! verify_unchanged "$backup_root/${config_file:t}" "$config_file"; then
++          restore_file "$backup_root/${config_file:t}" "$config_file" && restored=1 || failures+=("could not restore ${config_file:t} from $backup_root/${config_file:t}")
++        fi
++      elif (( config_written )) && [[ -f "$config_file" ]]; then
++        rm -f "$config_file" && restored=1 || failures+=("could not remove the partially written $config_file")
++      fi
++    fi
++    if [[ -n "$plugin_target" ]] && (( plugin_written || plugin_backed )); then
++      if [[ "${DISK_STEWARD_INTEGRATION_FAULT:-}" == "undo-plugin" && "$config_root" == /tmp/ds-* ]]; then
++        failures+=("fault injected: plugin restore skipped (test roots only)")
++      else
++        rm -rf "$plugin_target" && restored=1 || failures+=("could not remove the partially written $plugin_target")
++        if [[ -e "$backup_root/disk-steward-plugin" ]]; then
++          mv "$backup_root/disk-steward-plugin" "$plugin_target" || failures+=("could not restore the previous plugin from $backup_root/disk-steward-plugin")
++        fi
++      fi
++    fi
++    if (( ${#failures} > 0 )); then
++      manifest_finish "$backup_root" "restore-failed"
++      print -u2 "install: step failed (exit $exit_status) and the automatic restore did not complete:"
++      local failure
++      for failure in "${failures[@]}"; do print -u2 "  - $failure"; done
++      print -u2 "install: the pre-install copies stay in $backup_root; restore them with: $script_dir/rollback --client $client --config-root $config_root --backup ${backup_root:t} --force"
++      exit_status=70
++    elif (( restored )); then
++      manifest_finish "$backup_root" "failed-and-restored"
++      print -u2 "install: step failed (exit $exit_status); restored the $client configuration from $backup_root"
++      print -u2 "install: nothing from this attempt remains; the backup stays in $backup_root"
++    else
++      manifest_finish "$backup_root" "refused-nothing-changed"
++      print -u2 "install: step failed (exit $exit_status); nothing was changed"
++    fi
++  fi
++  exit $exit_status
++}
++trap undo ZERR EXIT
++
++manifest_begin "$backup_root" "install" "$client" "$connector"
++if [[ -f "$config_file" ]]; then
++  cp -p "$config_file" "$backup_root/${config_file:t}"
++  manifest_file "$backup_root" "${config_file:t}" "$config_file" existed
++  config_backed=1
++else
++  manifest_file "$backup_root" "${config_file:t}" "$config_file" absent
++fi
++
++if [[ "$client" == "codex" ]]; then
+   if [[ -f "$config_file" ]]; then
+     begins=$(grep -c '^# BEGIN DISK STEWARD MANAGED v1$' "$config_file" || true)
+     ends=$(grep -c '^# END DISK STEWARD MANAGED v1$' "$config_file" || true)
+@@ -54,15 +137,18 @@
+   fi
+   plugin_source="$repo_root/Integrations/Codex/disk-steward"
+   plugin_parent="$config_root/plugins"
+-  plugin_target="$plugin_parent/disk-steward"
+   mkdir -p "$plugin_parent"
+   if [[ -e "$plugin_target" ]]; then
+     mv "$plugin_target" "$backup_root/disk-steward-plugin"
++    manifest_plugin "$backup_root" existed
++    plugin_backed=1
++  else
++    manifest_plugin "$backup_root" absent
+   fi
+   cp -R "$plugin_source" "$plugin_target"
++  plugin_written=1
+   /usr/bin/swift "$script_dir/json-config.swift" set "$plugin_target/.mcp.json" "$connector"
+ 
+-  if [[ -f "$config_file" ]]; then cp -p "$config_file" "$backup_root/config.toml"; fi
+   temporary=$(mktemp "$config_root/.config.toml.disk-steward.XXXXXX")
+   if [[ -f "$config_file" ]]; then
+     awk '
+@@ -87,12 +173,24 @@
+     print "# END DISK STEWARD MANAGED v1"
+   } >> "$temporary"
+   chmod 600 "$temporary"
++  # Check-and-swap: the file must still be the one that was backed up.
++  if (( config_backed )); then
++    verify_unchanged "$backup_root/${config_file:t}" "$config_file" || { rm -f "$temporary"; print -u2 "install: $config_file changed while it was being edited; nothing was changed. Retry."; exit 75; }
++  elif [[ -e "$config_file" ]]; then
++    rm -f "$temporary"; print -u2 "install: $config_file appeared while it was being edited; nothing was changed. Retry."; exit 75
++  fi
++  config_written=1
+   mv "$temporary" "$config_file"
+ else
+-  config_file="$config_root/.mcp.json"
+-  if [[ -f "$config_file" ]]; then cp -p "$config_file" "$backup_root/.mcp.json"; fi
++  config_written=1
+   /usr/bin/swift "$script_dir/json-config.swift" set "$config_file" "$connector"
+ fi
+ 
++manifest_after "$backup_root" "${config_file:t}" "$config_file"
++manifest_finish "$backup_root" "installed"
++prune_backups "$backups_dir" 10
++trap - ZERR EXIT
++
+ print "Installed Disk Steward for $client in $config_root"
+ print "Backup: $backup_root"
++print "Undo: $script_dir/rollback --client $client --config-root $config_root --backup $timestamp"
+--- base/Scripts/Integration/uninstall
++++ candidate/Scripts/Integration/uninstall
+@@ -1,4 +1,9 @@
+ #!/bin/zsh
++# Removes only the disk_steward MCP entry (and the Disk Steward-owned Codex
++# plugin) for one CLI client. Recoverable (TASK-561): the removed files go into a
++# timestamped backup directory with a manifest, a failure mid-way restores them,
++# an entry carrying user additions is refused rather than deleted, and
++# `Scripts/Integration/rollback` puts a backup back on request.
+ set -euo pipefail
+ 
+ client=""
+@@ -25,18 +30,78 @@
+ if (( dry_run )); then
+   print "Would remove only the disk_steward MCP entry for $client from $config_root."
+   print "Disk Steward evidence and unrelated client settings would remain untouched."
++  print "A recoverable backup with a manifest would be written under $config_root/.disk-steward-backups/ first."
+   exit 0
+ fi
+ 
+ [[ -d "$config_root" ]] || { print "Nothing installed at $config_root"; exit 0; }
+ script_dir=${0:A:h}
+-timestamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
+-backup_root="$config_root/.disk-steward-backups/uninstalled-$timestamp"
++source "$script_dir/backup-lib.zsh"
++timestamp=uninstalled-$(date -u +%Y%m%dT%H%M%SZ)-$$
++backups_dir="$config_root/.disk-steward-backups"
++backup_root="$backups_dir/$timestamp"
+ mkdir -p "$backup_root"
+-chmod 700 "$config_root/.disk-steward-backups" "$backup_root"
++chmod 700 "$backups_dir" "$backup_root"
+ 
+ if [[ "$client" == "codex" ]]; then
+   config_file="$config_root/config.toml"
++  plugin_target="$config_root/plugins/disk-steward"
++else
++  config_file="$config_root/.mcp.json"
++  plugin_target=""
++fi
++
++config_backed=0
++plugin_moved=0
++undo_done=0
++undo() {
++  local exit_status=$?
++  trap - ZERR EXIT
++  setopt localoptions noerrexit noerrreturn
++  (( undo_done )) && exit $exit_status
++  undo_done=1
++  if (( exit_status != 0 )); then
++    local -a failures
++    failures=()
++    local restored=0
++    if (( config_backed )) && [[ -f "$backup_root/${config_file:t}" ]]; then
++      if ! verify_unchanged "$backup_root/${config_file:t}" "$config_file"; then
++        restore_file "$backup_root/${config_file:t}" "$config_file" && restored=1 || failures+=("could not restore ${config_file:t} from $backup_root/${config_file:t}")
++      fi
++    fi
++    if (( plugin_moved )) && [[ -e "$backup_root/disk-steward-plugin" ]]; then
++      rm -rf "$plugin_target"
++      mv "$backup_root/disk-steward-plugin" "$plugin_target" && restored=1 || failures+=("could not restore the plugin from $backup_root/disk-steward-plugin")
++    fi
++    if (( ${#failures} > 0 )); then
++      manifest_finish "$backup_root" "restore-failed"
++      print -u2 "uninstall: step failed (exit $exit_status) and the automatic restore did not complete:"
++      local failure
++      for failure in "${failures[@]}"; do print -u2 "  - $failure"; done
++      print -u2 "uninstall: the removed copies stay in $backup_root; restore them with: $script_dir/rollback --client $client --config-root $config_root --backup ${backup_root:t} --force"
++      exit_status=70
++    elif (( restored )); then
++      manifest_finish "$backup_root" "failed-and-restored"
++      print -u2 "uninstall: step failed (exit $exit_status); restored the $client configuration from $backup_root"
++    else
++      manifest_finish "$backup_root" "refused-nothing-changed"
++      print -u2 "uninstall: step failed (exit $exit_status); nothing was changed"
++    fi
++  fi
++  exit $exit_status
++}
++trap undo ZERR EXIT
++
++manifest_begin "$backup_root" "uninstall" "$client" ""
++if [[ -f "$config_file" ]]; then
++  cp -p "$config_file" "$backup_root/${config_file:t}"
++  manifest_file "$backup_root" "${config_file:t}" "$config_file" existed
++  config_backed=1
++else
++  manifest_file "$backup_root" "${config_file:t}" "$config_file" absent
++fi
++
++if [[ "$client" == "codex" ]]; then
+   if [[ -f "$config_file" ]]; then
+     begins=$(grep -c '^# BEGIN DISK STEWARD MANAGED v1$' "$config_file" || true)
+     ends=$(grep -c '^# END DISK STEWARD MANAGED v1$' "$config_file" || true)
+@@ -44,7 +109,6 @@
+       print -u2 "Refusing to edit $config_file because its Disk Steward managed markers are malformed."
+       exit 65
+     fi
+-    cp -p "$config_file" "$backup_root/config.toml"
+     temporary=$(mktemp "$config_root/.config.toml.disk-steward.XXXXXX")
+     awk '
+       $0 == "# BEGIN DISK STEWARD MANAGED v1" { managed=1; next }
+@@ -52,17 +116,27 @@
+       !managed { print }
+     ' "$config_file" > "$temporary"
+     chmod 600 "$temporary"
++    verify_unchanged "$backup_root/${config_file:t}" "$config_file" || { rm -f "$temporary"; print -u2 "uninstall: $config_file changed while it was being edited; nothing was changed. Retry."; exit 75; }
+     mv "$temporary" "$config_file"
+   fi
+-  plugin_target="$config_root/plugins/disk-steward"
+-  if [[ -e "$plugin_target" ]]; then mv "$plugin_target" "$backup_root/disk-steward-plugin"; fi
++  if [[ -e "$plugin_target" ]]; then
++    manifest_plugin "$backup_root" existed
++    mv "$plugin_target" "$backup_root/disk-steward-plugin"
++    plugin_moved=1
++  else
++    manifest_plugin "$backup_root" absent
++  fi
+ else
+-  config_file="$config_root/.mcp.json"
+   if [[ -f "$config_file" ]]; then
+-    cp -p "$config_file" "$backup_root/.mcp.json"
+     /usr/bin/swift "$script_dir/json-config.swift" remove "$config_file"
+   fi
+ fi
+ 
++manifest_after "$backup_root" "${config_file:t}" "$config_file"
++manifest_finish "$backup_root" "uninstalled"
++prune_backups "$backups_dir" 10
++trap - ZERR EXIT
++
+ print "Uninstalled Disk Steward from $client."
+ print "Recoverable backup: $backup_root"
++print "Undo: $script_dir/rollback --client $client --config-root $config_root --backup $timestamp"
+--- base/Scripts/Integration/rollback
++++ candidate/Scripts/Integration/rollback
+@@ -0,0 +1,221 @@
++#!/bin/zsh
++# Restores a backup written by install or uninstall (TASK-561 CLI rollback).
++#
++#   rollback --client codex|claude --config-root PATH [--backup NAME] [--list] [--dry-run] [--force]
++#
++# Without --backup the newest backup is used. Each file is put back only when
++# the current file is still exactly what that install/uninstall left behind
++# (the manifest's after-hash); a file the user has edited since is refused
++# unless --force is given. Before restoring, the current state is itself saved
++# into a new rollback-* backup, so a rollback can be rolled back. Nothing else
++# in the configuration root is touched.
++set -euo pipefail
++
++client=""
++config_root=""
++backup_name=""
++dry_run=0
++force=0
++list=0
++
++usage() {
++  print -u2 "usage: rollback --client codex|claude --config-root ABSOLUTE_PATH [--backup NAME] [--list] [--dry-run] [--force]"
++  exit 64
++}
++
++while (( $# > 0 )); do
++  case "$1" in
++    --client) (( $# >= 2 )) || usage; client="$2"; shift 2 ;;
++    --config-root) (( $# >= 2 )) || usage; config_root="$2"; shift 2 ;;
++    --backup) (( $# >= 2 )) || usage; backup_name="$2"; shift 2 ;;
++    --dry-run) dry_run=1; shift ;;
++    --force) force=1; shift ;;
++    --list) list=1; shift ;;
++    *) usage ;;
++  esac
++done
++
++[[ "$client" == "codex" || "$client" == "claude" ]] || usage
++[[ "$config_root" == /* && "$config_root" != *$'\n'* ]] || usage
++[[ "$backup_name" != */* && "$backup_name" != .* ]] || usage
++
++script_dir=${0:A:h}
++source "$script_dir/backup-lib.zsh"
++backups_dir="$config_root/.disk-steward-backups"
++
++if (( list )); then
++  [[ -d "$backups_dir" ]] || { print "No backups under $backups_dir"; exit 0; }
++  for dir in "$backups_dir"/*(N/); do
++    [[ -f "$dir/manifest.json" ]] || continue
++    /usr/bin/python3 - "$dir" <<'PY'
++import json, sys, os
++directory = sys.argv[1]
++data = json.load(open(os.path.join(directory, "manifest.json")))
++print(f"{os.path.basename(directory)}  {data.get('operation')}  {data.get('client')}  {data.get('status')}  {data.get('createdAt')}")
++PY
++  done
++  exit 0
++fi
++
++[[ -d "$backups_dir" ]] || { print -u2 "No backups under $backups_dir"; exit 66; }
++if [[ -z "$backup_name" ]]; then
++  # Newest completed backup by embedded stamp, across install/uninstall/rollback families.
++  backup_root=""
++  for dir in "${(@f)$(owned_backups_chronological "$backups_dir")}"; do
++    [[ -n "$dir" && -f "$dir/manifest.json" ]] && backup_root="$dir"
++  done
++  [[ -n "$backup_root" ]] || { print -u2 "No backup with a manifest under $backups_dir"; exit 66; }
++  backup_name="${backup_root:t}"
++else
++  backup_root="$backups_dir/$backup_name"
++fi
++[[ -d "$backup_root" && -f "$backup_root/manifest.json" ]] || { print -u2 "Backup $backup_name has no manifest; restore it by hand from $backup_root"; exit 66; }
++
++if [[ "$client" == "codex" ]]; then
++  config_file="$config_root/config.toml"
++  plugin_target="$config_root/plugins/disk-steward"
++else
++  config_file="$config_root/.mcp.json"
++  plugin_target=""
++fi
++
++# The manifest decides whether the current files are still the ones that
++# install/uninstall wrote; the shell only carries the verdict.
++plan=$(/usr/bin/python3 - "$backup_root/manifest.json" "$client" "$config_file" "$plugin_target" "$force" <<'PY'
++import hashlib, json, os, sys
++manifest, client, config_file, plugin_target, force = sys.argv[1:]
++data = json.load(open(manifest))
++problems, actions = [], []
++if data.get("client") != client:
++    problems.append(f"backup is for client {data.get('client')}, not {client}")
++if data.get("status") not in ("installed", "uninstalled", "restored", "rollback-failed-and-restored", "failed-and-restored", "restore-failed"):
++    problems.append(f"backup status is {data.get('status')}; only completed operations can be restored")
++def digest(path):
++    h = hashlib.sha256()
++    with open(path, "rb") as stream:
++        for chunk in iter(lambda: stream.read(1 << 20), b""):
++            h.update(chunk)
++    return h.hexdigest()
++name = os.path.basename(config_file)
++record = data.get("files", {}).get(name)
++if record is None:
++    problems.append(f"manifest has no record for {name}")
++else:
++    exists = os.path.isfile(config_file)
++    current = digest(config_file) if exists else None
++    if exists != bool(record.get("existsAfter")) or current != record.get("sha256After"):
++        if force != "1":
++            problems.append(f"{config_file} changed since that backup was made; use --force to overwrite it")
++        else:
++            actions.append(f"overwrite {config_file} (changed since the backup; --force)")
++    if record.get("existedBefore"):
++        actions.append(f"restore {config_file} from backup copy")
++    else:
++        actions.append(f"remove {config_file} (it did not exist before)")
++plugin = data.get("plugin")
++if plugin_target:
++    if plugin and plugin.get("existedBefore"):
++        actions.append(f"restore {plugin_target} from backup copy")
++    elif plugin is not None:
++        actions.append(f"remove {plugin_target} (it did not exist before)")
++print(json.dumps({"problems": problems, "actions": actions, "existedBefore": bool(record and record.get("existedBefore")), "pluginExistedBefore": bool(plugin and plugin.get("existedBefore")), "pluginRecorded": plugin is not None}))
++PY
++)
++problems=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print("\n".join(json.load(sys.stdin)["problems"]))')
++if [[ -n "$problems" ]]; then
++  print -u2 "rollback refused; nothing was changed:"
++  print -u2 -- "$problems"
++  exit 65
++fi
++print "Rollback plan for $client from $backup_name:"
++print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; [print("  - " + a) for a in json.load(sys.stdin)["actions"]]'
++(( dry_run )) && { print "Dry run: nothing was changed."; exit 0; }
++
++existed_before=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print(int(json.load(sys.stdin)["existedBefore"]))')
++plugin_existed=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print(int(json.load(sys.stdin)["pluginExistedBefore"]))')
++plugin_recorded=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print(int(json.load(sys.stdin)["pluginRecorded"]))')
++
++# The current state is saved first, so this rollback is itself recoverable.
++stamp=rollback-$(date -u +%Y%m%dT%H%M%SZ)-$$
++save_root="$backups_dir/$stamp"
++mkdir -p "$save_root"
++chmod 700 "$save_root"
++manifest_begin "$save_root" "rollback" "$client" ""
++if [[ -f "$config_file" ]]; then
++  cp -p "$config_file" "$save_root/${config_file:t}"
++  manifest_file "$save_root" "${config_file:t}" "$config_file" existed
++else
++  manifest_file "$save_root" "${config_file:t}" "$config_file" absent
++fi
++if [[ -n "$plugin_target" ]]; then
++  if [[ -e "$plugin_target" ]]; then
++    cp -R "$plugin_target" "$save_root/disk-steward-plugin"
++    manifest_plugin "$save_root" existed
++  else
++    manifest_plugin "$save_root" absent
++  fi
++fi
++
++# Any failure while applying puts the just-saved state back and says so; the
++# safety backup is finished either way so a later rollback can use it.
++apply_done=0
++apply_undo() {
++  local exit_status=$?
++  trap - ZERR EXIT
++  setopt localoptions noerrexit noerrreturn
++  (( apply_done )) && exit $exit_status
++  apply_done=1
++  if (( exit_status != 0 )); then
++    local -a failures
++    failures=()
++    print -u2 "rollback: applying $backup_name failed (exit $exit_status); putting the previous state back from $save_root"
++    if [[ -f "$save_root/${config_file:t}" ]]; then
++      restore_file "$save_root/${config_file:t}" "$config_file" || failures+=("could not put back ${config_file:t} from $save_root")
++    else
++      rm -f "$config_file" || failures+=("could not remove $config_file")
++    fi
++    if [[ -n "$plugin_target" ]]; then
++      rm -rf "$plugin_target" || failures+=("could not clear $plugin_target")
++      if [[ -e "$save_root/disk-steward-plugin" ]]; then
++        cp -R "$save_root/disk-steward-plugin" "$plugin_target" || failures+=("could not put back the plugin from $save_root/disk-steward-plugin")
++      fi
++    fi
++    if (( ${#failures} > 0 )); then
++      manifest_finish "$save_root" "restore-failed"
++      local failure
++      for failure in "${failures[@]}"; do print -u2 "  - $failure"; done
++      print -u2 "rollback: the previous state stays in $save_root; restore it with --backup ${save_root:t} --force"
++      exit_status=70
++    else
++      manifest_after "$save_root" "${config_file:t}" "$config_file"
++      manifest_finish "$save_root" "rollback-failed-and-restored"
++      print -u2 "rollback: the previous state is back; nothing from this rollback remains"
++    fi
++  fi
++  exit $exit_status
++}
++trap apply_undo ZERR EXIT
++
++if (( existed_before )); then
++  restore_file "$backup_root/${config_file:t}" "$config_file"
++else
++  rm -f "$config_file"
++fi
++if [[ -n "$plugin_target" ]] && (( plugin_recorded )); then
++  if [[ "${DISK_STEWARD_INTEGRATION_FAULT:-}" == "rollback-plugin" && "$config_root" == /tmp/ds-* ]]; then
++    print -u2 "rollback: fault injected before the plugin step (test roots only)"; false
++  fi
++  rm -rf "$plugin_target"
++  if (( plugin_existed )); then
++    mkdir -p "${plugin_target:h}"
++    cp -R "$backup_root/disk-steward-plugin" "$plugin_target"
++  fi
++fi
++manifest_after "$save_root" "${config_file:t}" "$config_file"
++manifest_finish "$save_root" "restored"
++prune_backups "$backups_dir" 10
++apply_done=1
++trap - ZERR EXIT
++
++print "Restored $client configuration from $backup_name."
++print "The state before this rollback is kept in $save_root"
+--- base/Scripts/Integration/backup-lib.zsh
++++ candidate/Scripts/Integration/backup-lib.zsh
+@@ -0,0 +1,132 @@
++# Shared by install, uninstall and rollback: recoverable backups with a manifest.
++#
++# A backup directory holds copies of the files that were about to change plus
++# manifest.json recording, per file, whether it existed, its hash before the
++# change and its hash after. Restores are check-and-swap: a file is only put
++# back when the current file is still the one the manifest says was written.
++# Only backup directories created by these scripts are ever pruned.
++
++sha256_of() {
++  /usr/bin/shasum -a 256 "$1" | /usr/bin/cut -d' ' -f1
++}
++
++manifest_begin() {
++  local dir=$1 operation=$2 client=$3 connector=$4
++  {
++    print "{"
++    print "  \"schema\": \"disk-steward-client-backup-v1\","
++    print "  \"operation\": \"$operation\","
++    print "  \"client\": \"$client\","
++    print "  \"connector\": \"${connector//\"/\\\"}\","
++    print "  \"createdAt\": \"$(/bin/date -u +%Y-%m-%dT%H:%M:%SZ)\","
++    print "  \"files\": {"
++    print "  },"
++    print "  \"plugin\": null,"
++    print "  \"status\": \"in-progress\""
++    print "}"
++  } > "$dir/manifest.json"
++  chmod 600 "$dir/manifest.json"
++}
++
++# Append a file record. The manifest is rewritten through Python's json module
++# so that ordering, escaping and later updates stay well-formed.
++manifest_file() {
++  local dir=$1 name=$2 path=$3 presence=$4 hash=""
++  [[ "$presence" == existed ]] && hash=$(sha256_of "$path")
++  /usr/bin/python3 - "$dir/manifest.json" "$name" "$path" "$presence" "$hash" <<'PY'
++import json, sys
++manifest, name, path, presence, digest = sys.argv[1:]
++data = json.load(open(manifest))
++data["files"][name] = {"path": path, "existedBefore": presence == "existed", "sha256Before": digest or None, "sha256After": None, "existsAfter": None}
++json.dump(data, open(manifest, "w"), indent=2, sort_keys=True)
++PY
++}
++
++manifest_after() {
++  local dir=$1 name=$2 path=$3 hash="" exists=false
++  if [[ -f "$path" ]]; then hash=$(sha256_of "$path"); exists=true; fi
++  /usr/bin/python3 - "$dir/manifest.json" "$name" "$hash" "$exists" <<'PY'
++import json, sys
++manifest, name, digest, exists = sys.argv[1:]
++data = json.load(open(manifest))
++data["files"][name]["sha256After"] = digest or None
++data["files"][name]["existsAfter"] = exists == "true"
++json.dump(data, open(manifest, "w"), indent=2, sort_keys=True)
++PY
++}
++
++manifest_plugin() {
++  local dir=$1 presence=$2
++  /usr/bin/python3 - "$dir/manifest.json" "$presence" <<'PY'
++import json, sys
++manifest, presence = sys.argv[1:]
++data = json.load(open(manifest))
++data["plugin"] = {"existedBefore": presence == "existed", "backupName": "disk-steward-plugin" if presence == "existed" else None}
++json.dump(data, open(manifest, "w"), indent=2, sort_keys=True)
++PY
++}
++
++manifest_finish() {
++  local dir=$1 outcome=$2
++  /usr/bin/python3 - "$dir/manifest.json" "$outcome" <<'PY'
++import json, sys
++manifest, outcome = sys.argv[1:]
++data = json.load(open(manifest))
++data["status"] = outcome
++data["finishedAt"] = __import__("time").strftime("%Y-%m-%dT%H:%M:%SZ", __import__("time").gmtime())
++json.dump(data, open(manifest, "w"), indent=2, sort_keys=True)
++PY
++}
++
++# True when the file at $2 still has the same bytes as the backup copy $1.
++verify_unchanged() {
++  local backup=$1 current=$2
++  [[ -f "$current" ]] || return 1
++  [[ "$(sha256_of "$backup")" == "$(sha256_of "$current")" ]]
++}
++
++# Atomically puts the backup copy back in place with private permissions.
++restore_file() {
++  local backup=$1 target=$2 temporary
++  temporary=$(/usr/bin/mktemp "${target:h}/.${target:t}.disk-steward-restore.XXXXXX")
++  /bin/cp "$backup" "$temporary"
++  /bin/chmod 600 "$temporary"
++  /bin/mv "$temporary" "$target"
++}
++
++# Owned backup directories are named <stamp>-<pid>, uninstalled-<stamp>-<pid>
++# or rollback-<stamp>-<pid>. They are ordered by the embedded UTC stamp, never
++# by the raw name, so the operation families interleave chronologically.
++backup_sort_key() {
++  local name=${1:t}
++  name=${name#uninstalled-}
++  name=${name#rollback-}
++  print -r -- "$name"
++}
++
++# Prints the owned backup directories under $1, oldest first.
++owned_backups_chronological() {
++  local dir=$1
++  local -a owned decorated
++  owned=("$dir"/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]T[0-9]*Z-*(N/) "$dir"/uninstalled-[0-9]*(N/) "$dir"/rollback-[0-9]*(N/))
++  local entry
++  for entry in "${owned[@]}"; do decorated+=("$(backup_sort_key "$entry")"$'\t'"$entry"); done
++  local -a sorted
++  sorted=(${(o)decorated})
++  for entry in "${sorted[@]}"; do print -r -- "${entry#*$'\t'}"; done
++}
++
++# Keeps only the newest $2 owned backup directories (by stamp). Anything else
++# in the directory is never touched.
++prune_backups() {
++  local dir=$1 keep=$2
++  [[ -d "$dir" ]] || return 0
++  local -a sorted
++  sorted=("${(@f)$(owned_backups_chronological "$dir")}")
++  local excess=$(( ${#sorted} - keep ))
++  (( excess > 0 )) || return 0
++  local index
++  for (( index = 1; index <= excess; index++ )); do
++    [[ -n "${sorted[index]}" ]] && /bin/rm -rf "${sorted[index]}"
++  done
++}
+--- base/Tests/DiskStewardAppTests/AgentIntegrations/ConfigurationOwnershipTests.swift
++++ candidate/Tests/DiskStewardAppTests/AgentIntegrations/ConfigurationOwnershipTests.swift
+@@ -0,0 +1,289 @@
++@testable import DiskStewardApp
++import Foundation
++import XCTest
++
++/// TASK-561: every client-configuration mutation preserves the user's file
++/// byte for byte or fails with an explicit, recoverable report. Malformed
++/// roots and args, user additions (env, cwd, unknown keys), second profiles,
++/// concurrent writes and a failure at each mutation step are exercised on
++/// isolated fixtures; setup and remove stay idempotent.
++@MainActor
++final class ConfigurationOwnershipTests: XCTestCase {
++    func testMalformedRootAndArgsFailClosedWithoutTouchingTheFile() async throws {
++        for (label, bytes) in [("array root", "[1, 2]"), ("string servers", "{\"mcpServers\": \"nope\"}"),
++                               ("string args", "{\"mcpServers\": {\"disk-steward\": {\"command\": \"/x\", \"args\": \"--bad\"}}}"),
++                               ("missing command", "{\"mcpServers\": {\"disk-steward\": {\"args\": []}}}")] {
++            let fixture = try OwnershipFixture()
++            try Data(bytes.utf8).write(to: fixture.config, options: .atomic)
++            let original = try Data(contentsOf: fixture.config)
++            let adapter = fixture.adapter()
++            let inspected = await adapter.inspect()
++            XCTAssertEqual(inspected.state, .broken, label)
++            for action in [AgentIntegrationAction.setup, .repair, .remove] {
++                let result = await adapter.perform(action)
++                XCTAssertEqual(result.outcome, .failed, "\(label) \(action)")
++                XCTAssertEqual(try Data(contentsOf: fixture.config), original, "\(label) \(action) must not rewrite a malformed file")
++            }
++            XCTAssertNil(try fixture.receipts.receipt(for: .claudeDesktop), label)
++            XCTAssertTrue(PrivateIntegrationFile.backups(for: fixture.config).isEmpty, "No backup is written when nothing is changed")
++        }
++    }
++
++    func testUserAdditionsAreNeverOverwrittenOrRemoved() async throws {
++        for (label, entry) in [("env", ["command": "/tmp/helper", "args": [], "env": ["TOKEN": "secret"]] as [String: Any]),
++                               ("cwd", ["command": "/tmp/helper", "cwd": "/Users/me"] as [String: Any]),
++                               ("unknown key", ["command": "/tmp/helper", "args": ["--flag"], "timeout": 30] as [String: Any])] {
++            let fixture = try OwnershipFixture()
++            try fixture.write(["mcpServers": ["disk-steward": entry, "foreign": ["command": "/tmp/foreign"]], "theme": "dark"])
++            let original = try Data(contentsOf: fixture.config)
++            let adapter = fixture.adapter()
++            let observed1 = await adapter.inspect().state
++            XCTAssertEqual(observed1, .conflict, label)
++            for action in [AgentIntegrationAction.setup, .repair, .remove] {
++                let result = await adapter.perform(action)
++                XCTAssertEqual(result.outcome, .failed, "\(label) \(action)")
++                XCTAssertTrue(result.message.contains("does not own"), result.message)
++                XCTAssertTrue(result.message.contains(fixture.config.path), "The report names the file: \(result.message)")
++                XCTAssertEqual(try Data(contentsOf: fixture.config), original, "\(label) \(action) must preserve the user's entry")
++            }
++            // An owned entry that the user later extends becomes a conflict too.
++            let clean = try OwnershipFixture()
++            let owner = clean.adapter()
++            let observed2 = await owner.perform(.setup).outcome
++            XCTAssertEqual(observed2, .changed)
++            var document = try clean.document()
++            var servers = try XCTUnwrap(document["mcpServers"] as? [String: Any])
++            var owned = try XCTUnwrap(servers["disk-steward"] as? [String: Any])
++            owned["env"] = ["EXTRA": "1"]
++            servers["disk-steward"] = owned
++            document["mcpServers"] = servers
++            try clean.write(document)
++            let extended = try Data(contentsOf: clean.config)
++            let observed3 = await owner.inspect().state
++            XCTAssertEqual(observed3, .conflict, "user additions to an owned entry end ownership")
++            let observed4 = await owner.perform(.repair).outcome
++            XCTAssertEqual(observed4, .failed)
++            let observed5 = await owner.perform(.remove).outcome
++            XCTAssertEqual(observed5, .failed)
++            XCTAssertEqual(try Data(contentsOf: clean.config), extended)
++        }
++    }
++
++    func testSecondProfileAndUnrelatedKeysStayUntouchedAcrossSetupRepairRemove() async throws {
++        let fixture = try OwnershipFixture()
++        let profile = fixture.root.appending(path: "profiles/work/claude_desktop_config.json")
++        try FileManager.default.createDirectory(at: profile.deletingLastPathComponent(), withIntermediateDirectories: true)
++        let profileBytes = Data("{\"mcpServers\": {\"disk-steward\": {\"command\": \"/somewhere/else\"}}, \"note\": \"work profile\"}".utf8)
++        try profileBytes.write(to: profile, options: .atomic)
++        try fixture.write(["mcpServers": ["foreign": ["command": "/tmp/foreign", "env": ["A": "1"]]], "theme": "dark", "nested": ["keep": [1, 2, 3]]])
++        let adapter = fixture.adapter()
++        let observed6 = await adapter.perform(.setup).outcome
++        XCTAssertEqual(observed6, .changed)
++        let observed7 = await adapter.perform(.repair).outcome
++        XCTAssertEqual(observed7, .changed)
++        let observed8 = await adapter.perform(.remove).outcome
++        XCTAssertEqual(observed8, .changed)
++        let document = try fixture.document()
++        XCTAssertEqual(document["theme"] as? String, "dark")
++        XCTAssertEqual((document["nested"] as? [String: Any])?["keep"] as? [Int], [1, 2, 3])
++        let servers = try XCTUnwrap(document["mcpServers"] as? [String: Any])
++        XCTAssertEqual((servers["foreign"] as? [String: Any])?["env"] as? [String: String], ["A": "1"])
++        XCTAssertNil(servers["disk-steward"])
++        XCTAssertEqual(try Data(contentsOf: profile), profileBytes, "Another profile's file is never read or written")
++        // The other profile is a separate file: without a receipt it is external, never ours.
++        let profileAdapter = fixture.adapter(configuration: profile)
++        let observed9 = await profileAdapter.inspect().state
++        XCTAssertEqual(observed9, .conflict)
++        let observed10 = await profileAdapter.perform(.remove).outcome
++        XCTAssertEqual(observed10, .failed)
++        XCTAssertEqual(try Data(contentsOf: profile), profileBytes)
++    }
++
++    func testConcurrentWriteBetweenReadAndCommitIsAnExplicitRecoverableConflict() async throws {
++        for action in [AgentIntegrationAction.setup, .repair, .remove] {
++            let fixture = try OwnershipFixture()
++            let adapter = fixture.adapter()
++            if action != .setup {
++                let prepared = await adapter.perform(.setup).outcome
++                XCTAssertEqual(prepared, .changed)
++            }
++            let receiptBefore = try fixture.receipts.receipt(for: .claudeDesktop)
++            let backupsBefore = PrivateIntegrationFile.backups(for: fixture.config).count
++            let invocationsBefore = adapter.beforeCommitInvocations
++            let concurrent = Data("{\"mcpServers\": {\"foreign\": {\"command\": \"/tmp/foreign\"}}, \"other-writer\": true}".utf8)
++            adapter.beforeCommit = { try concurrent.write(to: fixture.config, options: .atomic) }
++            let result = await adapter.perform(action)
++            XCTAssertEqual(result.outcome, .failed, "\(action)")
++            XCTAssertTrue(result.message.contains("changed while Disk Steward was editing it"), result.message)
++            XCTAssertTrue(result.message.contains(".disk-steward-backups"), "The report names the backup: \(result.message)")
++            XCTAssertEqual(try Data(contentsOf: fixture.config), concurrent, "\(action): the other writer's file wins and is never lost")
++            XCTAssertEqual(try fixture.receipts.receipt(for: .claudeDesktop), receiptBefore, "\(action): no receipt change without a commit")
++            let backups = PrivateIntegrationFile.backups(for: fixture.config)
++            XCTAssertEqual(backups.count, backupsBefore + 1, "\(action)")
++            XCTAssertNotEqual(try Data(contentsOf: try XCTUnwrap(backups.last)), concurrent, "The backup holds the bytes read before the edit")
++            XCTAssertEqual(adapter.beforeCommitInvocations, invocationsBefore + 1)
++        }
++    }
++
++    func testConcurrentCreationOfAMissingFileIsRefused() async throws {
++        let fixture = try OwnershipFixture()
++        try FileManager.default.removeItem(at: fixture.config)
++        let adapter = fixture.adapter()
++        let concurrent = Data("{\"mcpServers\": {}}".utf8)
++        adapter.beforeCommit = { try concurrent.write(to: fixture.config, options: .atomic) }
++        let result = await adapter.perform(.setup)
++        XCTAssertEqual(result.outcome, .failed)
++        XCTAssertTrue(result.message.contains("changed while Disk Steward was editing it"), result.message)
++        XCTAssertEqual(try Data(contentsOf: fixture.config), concurrent)
++        XCTAssertNil(try fixture.receipts.receipt(for: .claudeDesktop))
++    }
++
++    func testBackupFailureChangesNothing() async throws {
++        let fixture = try OwnershipFixture()
++        // A regular file where the private backup directory must go.
++        try Data("occupied".utf8).write(to: PrivateIntegrationFile.backupDirectory(for: fixture.config))
++        let original = try Data(contentsOf: fixture.config)
++        let adapter = fixture.adapter()
++        let result = await adapter.perform(.setup)
++        XCTAssertEqual(result.outcome, .failed)
++        XCTAssertTrue(result.message.contains("could not write a backup"), result.message)
++        XCTAssertTrue(result.message.contains("changed nothing"), result.message)
++        XCTAssertEqual(try Data(contentsOf: fixture.config), original)
++        XCTAssertNil(try fixture.receipts.receipt(for: .claudeDesktop))
++    }
++
++    func testCommitFailureLeavesTheFileAndNamesTheBackup() async throws {
++        let fixture = try OwnershipFixture()
++        let adapter = fixture.adapter()
++        let observed11 = await adapter.perform(.setup).outcome
++        XCTAssertEqual(observed11, .changed)
++        let original = try Data(contentsOf: fixture.config)
++        let receipt = try fixture.receipts.receipt(for: .claudeDesktop)
++        // The directory becomes unwritable after the backup is written.
++        adapter.beforeCommit = { try FileManager.default.setAttributes([.posixPermissions: 0o500], ofItemAtPath: fixture.root.path) }
++        defer { try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: fixture.root.path) }
++        let result = await adapter.perform(.repair)
++        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: fixture.root.path)
++        XCTAssertEqual(result.outcome, .failed)
++        XCTAssertTrue(result.message.contains("could not save"), result.message)
++        XCTAssertTrue(result.message.contains(".disk-steward-backups"), result.message)
++        XCTAssertEqual(try Data(contentsOf: fixture.config), original)
++        XCTAssertEqual(try fixture.receipts.receipt(for: .claudeDesktop), receipt)
++    }
++
++    func testReceiptFailureRestoresOrReportsTheBackupWhenRestoreIsImpossible() async throws {
++        // Restore succeeds: exact bytes come back (covered for all actions in
++        // AgentIntegrationHardeningTests). Here the file changes again before
++        // the restore, so the restore must refuse and name the backup.
++        var failWrites = false
++        let fixture = try OwnershipFixture(beforePersist: { if failWrites { throw CocoaError(.fileWriteOutOfSpace) } })
++        let adapter = fixture.adapter()
++        let concurrent = Data("{\"mcpServers\": {\"foreign\": {\"command\": \"/tmp/foreign\"}}, \"third-writer\": true}".utf8)
++        adapter.beforeRestore = { try concurrent.write(to: fixture.config, options: .atomic) }
++        failWrites = true
++        let result = await adapter.perform(.setup)
++        XCTAssertEqual(result.outcome, .failed)
++        XCTAssertTrue(result.message.contains("could not restore the file automatically"), result.message)
++        XCTAssertTrue(result.message.contains(".disk-steward-backups"), result.message)
++        XCTAssertEqual(try Data(contentsOf: fixture.config), concurrent, "The later writer's file is preserved")
++        XCTAssertNil(try fixture.receipts.receipt(for: .claudeDesktop))
++        let backup = try XCTUnwrap(PrivateIntegrationFile.backups(for: fixture.config).first)
++        let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: backup)) as? [String: Any])
++        XCTAssertNotNil((saved["mcpServers"] as? [String: Any])?["foreign"], "The backup is the user's pre-edit configuration")
++    }
++
++    func testFailedUndoSwapPreservesTheOtherWritersBytesAndSaysSo() async throws {
++        let fixture = try OwnershipFixture()
++        let adapter = fixture.adapter()
++        let prepared = await adapter.perform(.setup).outcome
++        XCTAssertEqual(prepared, .changed)
++        let concurrent = Data("{\"mcpServers\": {\"foreign\": {\"command\": \"/tmp/foreign\"}}, \"other-writer\": 2}".utf8)
++        adapter.beforeCommit = { try concurrent.write(to: fixture.config, options: .atomic) }
++        PrivateIntegrationFile.undoSwapFaultForTesting = true
++        defer { PrivateIntegrationFile.undoSwapFaultForTesting = false }
++        let result = await adapter.perform(.repair)
++        PrivateIntegrationFile.undoSwapFaultForTesting = false
++        XCTAssertEqual(result.outcome, .failed)
++        XCTAssertTrue(result.message.contains("could not put that program's version back"), result.message)
++        XCTAssertTrue(result.message.contains("preserved at"), result.message)
++        let preservedPath = try XCTUnwrap(result.message.components(separatedBy: "preserved at ").last?.components(separatedBy: ". Merge").first)
++        XCTAssertEqual(try Data(contentsOf: URL(fileURLWithPath: preservedPath)), concurrent, "the other writer's bytes survive at the named path")
++        XCTAssertTrue(preservedPath.contains(".disk-steward-backups"), preservedPath)
++        XCTAssertNotEqual(try Data(contentsOf: fixture.config), concurrent, "Disk Steward's version stands, as the message says")
++        XCTAssertNil(try FileManager.default.contentsOfDirectory(atPath: fixture.root.path).first { $0.hasPrefix(".disk-steward-") && $0.hasSuffix(".tmp") }, "no stray temporary file is left")
++    }
++
++    func testSetupAndRemoveAreIdempotentAndBackupsStayBounded() async throws {
++        let fixture = try OwnershipFixture()
++        let adapter = fixture.adapter()
++        let observed12 = await adapter.perform(.setup).outcome
++        XCTAssertEqual(observed12, .changed)
++        let observed13 = await adapter.perform(.setup).outcome
++        XCTAssertEqual(observed13, .unchanged)
++        let receipt = try XCTUnwrap(try fixture.receipts.receipt(for: .claudeDesktop))
++        XCTAssertNotNil(receipt.lastBackupPath)
++        XCTAssertTrue(FileManager.default.fileExists(atPath: try XCTUnwrap(receipt.lastBackupPath)))
++        for _ in 0..<14 {
++            let repaired = await adapter.perform(.repair).outcome
++            XCTAssertEqual(repaired, .changed)
++        }
++        XCTAssertEqual(PrivateIntegrationFile.backups(for: fixture.config).count, PrivateIntegrationFile.backupLimitPerFile)
++        let observed14 = await adapter.perform(.remove).outcome
++        XCTAssertEqual(observed14, .changed)
++        let observed15 = await adapter.perform(.remove).outcome
++        XCTAssertEqual(observed15, .unchanged)
++        XCTAssertNil(try fixture.receipts.receipt(for: .claudeDesktop))
++        let document = try fixture.document()
++        XCTAssertNotNil((document["mcpServers"] as? [String: Any])?["foreign"])
++        // Backups of other files in the same directory are never pruned.
++        let sibling = PrivateIntegrationFile.backupDirectory(for: fixture.config).appending(path: "other.json.20260101T000000Z-x.bak")
++        try Data("other".utf8).write(to: sibling)
++        for _ in 0..<3 { _ = await adapter.perform(.setup); _ = await adapter.perform(.remove) }
++        XCTAssertEqual(try Data(contentsOf: sibling), Data("other".utf8))
++        XCTAssertLessThanOrEqual(PrivateIntegrationFile.backups(for: fixture.config).count, PrivateIntegrationFile.backupLimitPerFile)
++    }
++}
++
++@MainActor
++private final class OwnershipFixture {
++    let root: URL
++    let config: URL
++    let helper: URL
++    let receipts: AgentIntegrationReceiptStore
++    let runner = OwnershipRunner()
++
++    init(beforePersist: @escaping () throws -> Void = {}) throws {
++        root = URL(fileURLWithPath: "/tmp/ds-ownership-\(UUID().uuidString)", isDirectory: true)
++        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
++        config = root.appending(path: "claude_desktop_config.json")
++        helper = root.appending(path: "Disk Steward.app/Contents/Helpers/disk-witness-mcp")
++        try FileManager.default.createDirectory(at: helper.deletingLastPathComponent(), withIntermediateDirectories: true)
++        FileManager.default.createFile(atPath: helper.path, contents: Data("#!/bin/sh\n".utf8))
++        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: helper.path)
++        receipts = AgentIntegrationReceiptStore(url: root.appending(path: "support/receipts.json"), beforePersist: beforePersist)
++        try write(["mcpServers": ["foreign": ["command": "/tmp/foreign"]]])
++    }
++
++    deinit {
++        try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: root.path)
++        try? FileManager.default.removeItem(at: root)
++    }
++
++    func adapter(configuration: URL? = nil) -> ClaudeDesktopIntegrationAdapter {
++        ClaudeDesktopIntegrationAdapter(configurationURL: configuration ?? config, helperURL: helper, receiptStore: receipts, runner: runner)
++    }
++
++    func write(_ object: [String: Any]) throws {
++        try JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]).write(to: config, options: .atomic)
++    }
++
++    func document() throws -> [String: Any] {
++        try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: config)) as? [String: Any])
++    }
++}
++
++private actor OwnershipRunner: AgentCommandRunning {
++    func run(_ command: AgentCommand) async throws -> AgentCommandResult {
++        .init(exitCode: 0, standardOutput: "ok", standardError: "")
++    }
++}
+--- base/Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift
++++ candidate/Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift
+@@ -136,9 +136,9 @@
+         let servers = try XCTUnwrap(object["mcpServers"] as? [String: Any])
+         XCTAssertNotNil(servers["foreign"])
+         XCTAssertNotNil(servers["disk-steward"])
+-        let backups = try FileManager.default.contentsOfDirectory(at: fixture.root, includingPropertiesForKeys: nil)
+-            .filter { $0.lastPathComponent.hasPrefix("client.json.disk-steward-backup-") }
++        let backups = PrivateIntegrationFile.backups(for: fixture.config)
+         XCTAssertEqual(backups.count, 1)
++        XCTAssertEqual(backups.first?.deletingLastPathComponent().lastPathComponent, ".disk-steward-backups")
+         let backup = try XCTUnwrap(backups.first)
+         let original = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: backup)) as? [String: Any])
+         XCTAssertNil((original["mcpServers"] as? [String: Any])?["disk-steward"])
+--- base/Tests/IntegrationInstallTests/ConfigurationRollbackTests.swift
++++ candidate/Tests/IntegrationInstallTests/ConfigurationRollbackTests.swift
+@@ -0,0 +1,337 @@
++import Foundation
++import XCTest
++
++/// TASK-561: the CLI install/uninstall path keeps user additions, refuses to
++/// delete what it does not own, records a recoverable manifest-backed backup
++/// for every mutation, restores on a mid-way failure, and `rollback` puts a
++/// backup back only while the current file is still what that operation
++/// wrote. Everything runs against per-test temporary configuration roots.
++final class ConfigurationRollbackTests: XCTestCase {
++    func testClaudeUpgradePreservesUserAdditionsAndUninstallRefusesToDeleteThem() throws {
++        let root = temporaryRoot("ds-own-claude")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let configRoot = root.appendingPathComponent("claude")
++        try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++        let config = configRoot.appendingPathComponent(".mcp.json")
++        let original: [String: Any] = [
++            "custom": "preserve-me",
++            "mcpServers": [
++                "other": ["command": "other-server"],
++                "disk_steward": ["command": "/old/helper", "args": ["--legacy"], "env": ["TOKEN": "secret"], "cwd": "/Users/me"],
++            ],
++        ]
++        try JSONSerialization.data(withJSONObject: original, options: [.prettyPrinted]).write(to: config)
++        let connector = try fakeConnector(in: root)
++
++        let installed = try run(install, ["--client", "claude", "--config-root", configRoot.path, "--connector", connector.path])
++        XCTAssertEqual(installed.status, 0, installed.combined)
++        XCTAssertTrue(installed.stdout.contains("Preserved user settings on disk_steward: cwd, env"), installed.combined)
++        var configured = try servers(of: config)
++        let entry = try XCTUnwrap(configured["disk_steward"] as? [String: Any])
++        XCTAssertEqual(entry["command"] as? String, connector.path)
++        XCTAssertEqual(entry["args"] as? [String], ["--legacy"], "user args are kept")
++        XCTAssertEqual(entry["env"] as? [String: String], ["TOKEN": "secret"])
++        XCTAssertEqual(entry["cwd"] as? String, "/Users/me")
++        XCTAssertNotNil(configured["other"])
++
++        let removal = try run(uninstall, ["--client", "claude", "--config-root", configRoot.path])
++        XCTAssertEqual(removal.status, 65, removal.combined)
++        XCTAssertTrue(removal.stderr.contains("settings Disk Steward does not own (cwd, env)"), removal.combined)
++        configured = try servers(of: config)
++        XCTAssertNotNil(configured["disk_steward"], "the entry with user additions is never deleted")
++        XCTAssertEqual((try jsonObject(config))["custom"] as? String, "preserve-me")
++    }
++
++    func testMalformedRootsAndEntriesAreRefusedWithoutChanges() throws {
++        for (label, bytes) in [("array root", "[1]"), ("string servers", "{\"mcpServers\": \"x\"}"),
++                               ("string args", "{\"mcpServers\": {\"disk_steward\": {\"command\": \"/x\", \"args\": \"bad\"}}}")] {
++            let root = temporaryRoot("ds-malformed")
++            defer { try? FileManager.default.removeItem(at: root) }
++            let configRoot = root.appendingPathComponent("claude")
++            try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++            let config = configRoot.appendingPathComponent(".mcp.json")
++            try Data(bytes.utf8).write(to: config)
++            let connector = try fakeConnector(in: root)
++            let result = try run(install, ["--client", "claude", "--config-root", configRoot.path, "--connector", connector.path])
++            XCTAssertEqual(result.status, 65, "\(label): \(result.combined)")
++            XCTAssertTrue(result.stderr.contains("nothing was changed"), "\(label): \(result.combined)")
++            XCTAssertEqual(try Data(contentsOf: config), Data(bytes.utf8), label)
++            XCTAssertFalse(result.stderr.contains("restoring"), "a refusal changes nothing, so nothing is restored: \(result.combined)")
++        }
++    }
++
++    func testInstallThenRollbackRestoresBothClientsAndRefusesEditedFiles() throws {
++        let root = temporaryRoot("ds-rollback")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        for client in ["codex", "claude"] {
++            let configRoot = root.appendingPathComponent(client)
++            try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++            let config = configRoot.appendingPathComponent(client == "codex" ? "config.toml" : ".mcp.json")
++            let original = client == "codex" ? Data("[core]\nname = \"keep\"\n".utf8) : Data("{\"mcpServers\": {\"other\": {\"command\": \"o\"}}, \"custom\": 1}".utf8)
++            try original.write(to: config)
++            let installed = try run(install, ["--client", client, "--config-root", configRoot.path, "--connector", connector.path])
++            XCTAssertEqual(installed.status, 0, installed.combined)
++            XCTAssertNotEqual(try Data(contentsOf: config), original)
++            let backupsDir = configRoot.appendingPathComponent(".disk-steward-backups")
++            let listing = try run(rollback, ["--client", client, "--config-root", configRoot.path, "--list"])
++            XCTAssertTrue(listing.stdout.contains("install  \(client)  installed"), listing.combined)
++            let manifests = try FileManager.default.contentsOfDirectory(at: backupsDir, includingPropertiesForKeys: nil).map { $0.appendingPathComponent("manifest.json") }
++            XCTAssertEqual(manifests.count, 1)
++            let manifest = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: try XCTUnwrap(manifests.first))) as? [String: Any])
++            XCTAssertEqual(manifest["status"] as? String, "installed")
++            let record = try XCTUnwrap((manifest["files"] as? [String: Any])?[config.lastPathComponent] as? [String: Any])
++            XCTAssertEqual(record["existedBefore"] as? Bool, true)
++            XCTAssertNotNil(record["sha256After"])
++
++            let plan = try run(rollback, ["--client", client, "--config-root", configRoot.path, "--dry-run"])
++            XCTAssertEqual(plan.status, 0, plan.combined)
++            XCTAssertTrue(plan.stdout.contains("Dry run: nothing was changed."), plan.combined)
++            XCTAssertNotEqual(try Data(contentsOf: config), original, "a dry run changes nothing")
++
++            // The user edits the installed file: rollback must refuse without --force.
++            let edited = try Data(contentsOf: config) + Data("\n".utf8)
++            try edited.write(to: config)
++            let refused = try run(rollback, ["--client", client, "--config-root", configRoot.path])
++            XCTAssertEqual(refused.status, 65, refused.combined)
++            XCTAssertTrue(refused.stderr.contains("changed since that backup was made; use --force"), refused.combined)
++            XCTAssertEqual(try Data(contentsOf: config), edited)
++
++            let forced = try run(rollback, ["--client", client, "--config-root", configRoot.path, "--force"])
++            XCTAssertEqual(forced.status, 0, forced.combined)
++            XCTAssertEqual(try Data(contentsOf: config), original, "\(client): the pre-install bytes are back")
++            if client == "codex" {
++                XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward").path), "the plugin that did not exist before is gone")
++            }
++            let after = try FileManager.default.contentsOfDirectory(at: backupsDir, includingPropertiesForKeys: nil).filter { $0.lastPathComponent.hasPrefix("rollback-") }
++            XCTAssertEqual(after.count, 1, "a rollback saves the state it replaced")
++            let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: try XCTUnwrap(after.first).appendingPathComponent("manifest.json"))) as? [String: Any])
++            XCTAssertEqual(saved["status"] as? String, "restored")
++        }
++    }
++
++    func testUninstallBackupIsRestorableAndRollbackRefusesAnotherClientsBackup() throws {
++        let root = temporaryRoot("ds-uninstall-rollback")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        let configRoot = root.appendingPathComponent("codex")
++        try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++        let config = configRoot.appendingPathComponent("config.toml")
++        try Data("[core]\nname = \"keep\"\n".utf8).write(to: config)
++        XCTAssertEqual(try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path]).status, 0)
++        let installedBytes = try Data(contentsOf: config)
++        let removed = try run(uninstall, ["--client", "codex", "--config-root", configRoot.path])
++        XCTAssertEqual(removed.status, 0, removed.combined)
++        XCTAssertFalse(try String(contentsOf: config, encoding: .utf8).contains("disk_steward"))
++        let uninstallBackup = try XCTUnwrap(removed.stdout.split(separator: "\n").first { $0.hasPrefix("Recoverable backup: ") }?.replacingOccurrences(of: "Recoverable backup: ", with: ""))
++        let name = URL(fileURLWithPath: uninstallBackup).lastPathComponent
++        let wrongClient = try run(rollback, ["--client", "claude", "--config-root", configRoot.path, "--backup", name])
++        XCTAssertEqual(wrongClient.status, 65, wrongClient.combined)
++        XCTAssertTrue(wrongClient.stderr.contains("backup is for client codex, not claude"), wrongClient.combined)
++        let restored = try run(rollback, ["--client", "codex", "--config-root", configRoot.path, "--backup", name])
++        XCTAssertEqual(restored.status, 0, restored.combined)
++        XCTAssertEqual(try Data(contentsOf: config), installedBytes, "uninstall is undone exactly")
++        XCTAssertTrue(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward/.mcp.json").path), "the plugin directory comes back")
++    }
++
++    func testFailureBeforeAnyChangeIsReportedAsARefusalWithoutRestoring() throws {
++        let root = temporaryRoot("ds-refused")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        let configRoot = root.appendingPathComponent("codex")
++        try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++        let config = configRoot.appendingPathComponent("config.toml")
++        let original = Data("[core]\nname = \"keep\"\n".utf8)
++        try original.write(to: config)
++        // A regular file where the plugin directory must be created fails before
++        // anything was written: the report says so, and nothing is "restored".
++        try Data("busy".utf8).write(to: configRoot.appendingPathComponent("plugins"))
++        let result = try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path])
++        XCTAssertNotEqual(result.status, 0)
++        XCTAssertTrue(result.stderr.contains("nothing was changed"), result.combined)
++        XCTAssertFalse(result.stderr.contains("restored"), result.combined)
++        XCTAssertEqual(try Data(contentsOf: config), original)
++        let manifest = try singleManifest(under: configRoot)
++        XCTAssertEqual(manifest["status"] as? String, "refused-nothing-changed")
++    }
++
++    func testMidInstallFailureRestoresWhatWasAlreadyWrittenAndKeepsTheBackup() throws {
++        let root = temporaryRoot("ds-midfail")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        let configRoot = root.appendingPathComponent("codex")
++        try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++        // The plugin step succeeds, then the configuration commit fails because a
++        // directory sits where config.toml must be written.
++        let config = configRoot.appendingPathComponent("config.toml")
++        try FileManager.default.createDirectory(at: config, withIntermediateDirectories: true)
++        let result = try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path])
++        XCTAssertNotEqual(result.status, 0)
++        XCTAssertTrue(result.stderr.contains("restored the codex configuration"), result.combined)
++        XCTAssertTrue(result.stderr.contains("nothing from this attempt remains"), result.combined)
++        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward").path), "the plugin written before the failure is removed again")
++        var isDirectory: ObjCBool = false
++        XCTAssertTrue(FileManager.default.fileExists(atPath: config.path, isDirectory: &isDirectory) && isDirectory.boolValue, "the user's directory is untouched")
++        let manifest = try singleManifest(under: configRoot)
++        XCTAssertEqual(manifest["status"] as? String, "failed-and-restored")
++    }
++
++    func testBackupsAreBoundedToTenOwnedDirectoriesAndForeignEntriesStay() throws {
++        let root = temporaryRoot("ds-bounded")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        let configRoot = root.appendingPathComponent("claude")
++        try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++        let backupsDir = configRoot.appendingPathComponent(".disk-steward-backups")
++        try FileManager.default.createDirectory(at: backupsDir.appendingPathComponent("user-notes"), withIntermediateDirectories: true)
++        try Data("mine".utf8).write(to: backupsDir.appendingPathComponent("user-notes/keep.txt"))
++        for _ in 0..<13 {
++            XCTAssertEqual(try run(install, ["--client", "claude", "--config-root", configRoot.path, "--connector", connector.path]).status, 0)
++        }
++        let entries = try FileManager.default.contentsOfDirectory(at: backupsDir, includingPropertiesForKeys: nil)
++        let owned = entries.filter { $0.lastPathComponent.first?.isNumber == true }
++        XCTAssertEqual(owned.count, 10)
++        XCTAssertEqual(try Data(contentsOf: backupsDir.appendingPathComponent("user-notes/keep.txt")), Data("mine".utf8))
++    }
++
++    func testDefaultRollbackAndPruningFollowTheStampNotTheNamePrefix() throws {
++        let root = temporaryRoot("ds-chrono")
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        let configRoot = root.appendingPathComponent("claude")
++        try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++        let config = configRoot.appendingPathComponent(".mcp.json")
++        try Data("{\"mcpServers\": {}}".utf8).write(to: config)
++        XCTAssertEqual(try run(install, ["--client", "claude", "--config-root", configRoot.path, "--connector", connector.path]).status, 0)
++        let installedBytes = try Data(contentsOf: config)
++        // A much newer "uninstalled-" backup by name prefix sorts after any
++        // digit-first name lexically, but its stamp is older than the install.
++        let backupsDir = configRoot.appendingPathComponent(".disk-steward-backups")
++        let stale = backupsDir.appendingPathComponent("uninstalled-20200101T000000Z-1")
++        try FileManager.default.createDirectory(at: stale, withIntermediateDirectories: true)
++        try Data("{\"mcpServers\": {\"ancient\": {}}}".utf8).write(to: stale.appendingPathComponent(".mcp.json"))
++        let manifest: [String: Any] = ["schema": "disk-steward-client-backup-v1", "operation": "uninstall", "client": "claude", "status": "uninstalled", "createdAt": "2020-01-01T00:00:00Z",
++                                       "files": [".mcp.json": ["path": config.path, "existedBefore": true, "sha256Before": "x", "sha256After": "y", "existsAfter": true]], "plugin": NSNull()]
++        try JSONSerialization.data(withJSONObject: manifest).write(to: stale.appendingPathComponent("manifest.json"))
++        let plan = try run(rollback, ["--client", "claude", "--config-root", configRoot.path, "--dry-run"])
++        XCTAssertEqual(plan.status, 0, plan.combined)
++        XCTAssertFalse(plan.stdout.contains("uninstalled-20200101T000000Z-1"), "the older uninstall backup must not be chosen by name order: \(plan.combined)")
++        XCTAssertTrue(plan.stdout.contains("Rollback plan for claude from 2026"), plan.combined)
++        XCTAssertEqual(try Data(contentsOf: config), installedBytes)
++        // Pruning keeps the newest ten by stamp: eleven fabricated old
++        // rollback-/uninstalled- directories plus the real install make twelve,
++        // and the two oldest by stamp go, whatever their prefix.
++        for index in 0..<11 {
++            let name = (index % 2 == 0 ? "rollback-" : "uninstalled-") + String(format: "2021%02d01T000000Z-%d", index + 1, index)
++            let dir = backupsDir.appendingPathComponent(name)
++            try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
++            try Data("{}".utf8).write(to: dir.appendingPathComponent("manifest.json"))
++        }
++        XCTAssertEqual(try run(install, ["--client", "claude", "--config-root", configRoot.path, "--connector", connector.path]).status, 0)
++        let remaining = try FileManager.default.contentsOfDirectory(at: backupsDir, includingPropertiesForKeys: nil).map(\.lastPathComponent).sorted()
++        XCTAssertEqual(remaining.count, 10, "\(remaining)")
++        XCTAssertFalse(remaining.contains("uninstalled-20200101T000000Z-1"), "the oldest stamp goes first")
++        XCTAssertFalse(remaining.contains("rollback-20210101T000000Z-0"))
++        XCTAssertEqual(remaining.filter { $0.hasPrefix("2026") }.count, 2, "both real install backups (newest stamps) survive: \(remaining)")
++    }
++
++    func testARestoreFailureInsideUndoIsReportedAndKeepsTheBackup() throws {
++        let root = URL(fileURLWithPath: "/tmp/ds-undofault-\(UUID().uuidString.prefix(8).lowercased())", isDirectory: true)
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        let configRoot = root.appendingPathComponent("codex")
++        try FileManager.default.createDirectory(at: configRoot.appendingPathComponent("plugins/disk-steward"), withIntermediateDirectories: true)
++        try Data("mine".utf8).write(to: configRoot.appendingPathComponent("plugins/disk-steward/.mcp.json"))
++        try FileManager.default.createDirectory(at: configRoot.appendingPathComponent("config.toml"), withIntermediateDirectories: true)
++        let result = try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path], environment: ["DISK_STEWARD_INTEGRATION_FAULT": "undo-plugin"])
++        XCTAssertEqual(result.status, 70, result.combined)
++        XCTAssertTrue(result.stderr.contains("automatic restore did not complete"), result.combined)
++        XCTAssertTrue(result.stderr.contains("restore them with"), result.combined)
++        let manifest = try singleManifest(under: configRoot)
++        XCTAssertEqual(manifest["status"] as? String, "restore-failed")
++        let backups = try FileManager.default.contentsOfDirectory(at: configRoot.appendingPathComponent(".disk-steward-backups"), includingPropertiesForKeys: nil)
++        XCTAssertEqual(try Data(contentsOf: try XCTUnwrap(backups.first).appendingPathComponent("disk-steward-plugin/.mcp.json")), Data("mine".utf8), "the previous plugin is still in the backup")
++    }
++
++    func testRollbackApplyFailurePutsThePreviousStateBack() throws {
++        let root = URL(fileURLWithPath: "/tmp/ds-rbfault-\(UUID().uuidString.prefix(8).lowercased())", isDirectory: true)
++        defer { try? FileManager.default.removeItem(at: root) }
++        let connector = try fakeConnector(in: root)
++        let configRoot = root.appendingPathComponent("codex")
++        try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
++        let config = configRoot.appendingPathComponent("config.toml")
++        try Data("[core]\nname = \"keep\"\n".utf8).write(to: config)
++        XCTAssertEqual(try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path]).status, 0)
++        let installed = try Data(contentsOf: config)
++        let plugin = configRoot.appendingPathComponent("plugins/disk-steward/.mcp.json")
++        XCTAssertTrue(FileManager.default.fileExists(atPath: plugin.path))
++        let result = try run(rollback, ["--client", "codex", "--config-root", configRoot.path], environment: ["DISK_STEWARD_INTEGRATION_FAULT": "rollback-plugin"])
++        XCTAssertNotEqual(result.status, 0)
++        XCTAssertTrue(result.stderr.contains("putting the previous state back"), result.combined)
++        XCTAssertTrue(result.stderr.contains("previous state is back"), result.combined)
++        XCTAssertEqual(try Data(contentsOf: config), installed, "the installed configuration is back after the failed rollback")
++        XCTAssertTrue(FileManager.default.fileExists(atPath: plugin.path), "the plugin is back")
++        let saves = try FileManager.default.contentsOfDirectory(at: configRoot.appendingPathComponent(".disk-steward-backups"), includingPropertiesForKeys: nil).filter { $0.lastPathComponent.hasPrefix("rollback-") }
++        XCTAssertEqual(saves.count, 1)
++        let manifest = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: try XCTUnwrap(saves.first).appendingPathComponent("manifest.json"))) as? [String: Any])
++        XCTAssertEqual(manifest["status"] as? String, "rollback-failed-and-restored", "the safety backup is finished, never left in progress")
++    }
++
++    // MARK: - helpers
++
++    private var repositoryRoot: URL {
++        URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
++    }
++    private var install: URL { repositoryRoot.appendingPathComponent("Scripts/Integration/install") }
++    private var uninstall: URL { repositoryRoot.appendingPathComponent("Scripts/Integration/uninstall") }
++    private var rollback: URL { repositoryRoot.appendingPathComponent("Scripts/Integration/rollback") }
++
++    private func temporaryRoot(_ prefix: String) -> URL {
++        URL(fileURLWithPath: "/tmp/\(prefix)-\(UUID().uuidString.prefix(8).lowercased())", isDirectory: true)
++    }
++
++    private func fakeConnector(in root: URL) throws -> URL {
++        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
++        let connector = root.appendingPathComponent("disk-witness-mcp")
++        try Data("#!/bin/sh\nexit 0\n".utf8).write(to: connector)
++        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: connector.path)
++        return connector
++    }
++
++    private func singleManifest(under configRoot: URL) throws -> [String: Any] {
++        let entries = try FileManager.default.contentsOfDirectory(at: configRoot.appendingPathComponent(".disk-steward-backups"), includingPropertiesForKeys: nil)
++        XCTAssertEqual(entries.count, 1)
++        return try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: try XCTUnwrap(entries.first).appendingPathComponent("manifest.json"))) as? [String: Any])
++    }
++
++    private func jsonObject(_ url: URL) throws -> [String: Any] {
++        try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
++    }
++
++    private func servers(of url: URL) throws -> [String: Any] {
++        try XCTUnwrap(jsonObject(url)["mcpServers"] as? [String: Any])
++    }
++
++    private func run(_ script: URL, _ arguments: [String], environment: [String: String] = [:]) throws -> ScriptResult {
++        let process = Process()
++        process.executableURL = URL(fileURLWithPath: "/bin/zsh")
++        process.arguments = [script.path] + arguments
++        process.currentDirectoryURL = repositoryRoot
++        process.environment = ProcessInfo.processInfo.environment.merging(environment) { _, new in new }
++        let stdout = Pipe(), stderr = Pipe()
++        process.standardOutput = stdout
++        process.standardError = stderr
++        try process.run()
++        let out = stdout.fileHandleForReading.readDataToEndOfFile()
++        let err = stderr.fileHandleForReading.readDataToEndOfFile()
++        process.waitUntilExit()
++        return ScriptResult(status: process.terminationStatus, stdout: String(decoding: out, as: UTF8.self), stderr: String(decoding: err, as: UTF8.self))
++    }
++}
++
++private struct ScriptResult {
++    let status: Int32
++    let stdout: String
++    let stderr: String
++    var combined: String { stdout + stderr }
++}

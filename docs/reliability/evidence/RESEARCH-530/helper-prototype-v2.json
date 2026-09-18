@@ -1,0 +1,43 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-RESEARCH-530-PROTOTYPE-V2",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-BACAFCFA003B73489525B42E8C89C865",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:7d822143a20fc3dd6f8a9a1619152b43d2e89824cfe29a40573b6632dd2f5947",
+    "immutable": true
+  },
+  "read_scope": [
+    "Tests/PerformanceTests/BoundedTraversalPrototype.swift",
+    "Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift",
+    "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+    "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift"
+  ],
+  "purpose": "Review the research prototype retry, permit and queue fixes only; not product approval.",
+  "questions": [
+    "Do the two failed-transaction regressions now prevent silent loss and preserve safe reopen?",
+    "Does binding the original permit prevent reuse of stale prepared evidence, including restart fail-closed?",
+    "Identify remaining correctness or measurement defects that invalidate interpreting fresh scale runs; prioritize reproducible schedules over already documented missing product features."
+  ],
+  "acceptance_criteria": [
+    "AC-RESEARCH-530-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 10,
+    "max_output_chars": 6500
+  }
+}

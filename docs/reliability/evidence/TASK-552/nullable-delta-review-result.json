@@ -1,0 +1,50 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-NULLABLE-02",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-A8DE5156DDA36184F5DE026E73D6D2D5",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9e4fb6a0d145f12d33250d1af0bf9e75f68a1a2e07a2241ecae50705987ca875",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The correction restores detectedAt/claimID precedence while retaining nullable interval matching and legacy exclusion. The added decoded-export regression exercises conflicting occurrence-end and detection orders. No concrete defect found in this narrow delta.",
+  "findings": [],
+  "evidence": [
+    "/private/tmp/ds-ci-liwxs4km/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:1207 — ordering is restored to detected_at, claim_id; the nullable overlap predicate, timing_version=1 filter, supersession filter, and row limit remain unchanged.",
+    "/private/tmp/ds-ci-liwxs4km/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:1219 — dictionary overwriting now retains the latest detected claim among retrieved candidates, with claim_id breaking ties.",
+    "/private/tmp/ds-ci-liwxs4km/project/Tests/DiskStewardCoreTests/Provenance/UnknownOccurrenceTests.swift:13 — two unsuperseded claims deliberately disagree in occurrence-end and detection order.",
+    "/private/tmp/ds-ci-liwxs4km/project/Tests/DiskStewardCoreTests/Provenance/UnknownOccurrenceTests.swift:22 — the regression decompresses the exported event and asserts that its attribution method belongs to the newer-detected claim.",
+    "Comparison with the permitted prior snapshot showed only the query-order correction and the added test; existing assertions were not removed or weakened."
+  ],
+  "checks": [
+    {
+      "command": "Read-only diff and static inspection of the two files authorized by the helper job.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Independently traced the corrected query, dictionary selection, and regression fixture without executing code."
+    },
+    {
+      "command": "Compilation, database access, and runtime tests",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited for this helper. Coordinator-reported verification was not treated as independent runtime evidence."
+    }
+  ],
+  "stale_if": [
+    "Reviewed sources differ from snapshot sha256:9e4fb6a0d145f12d33250d1af0bf9e75f68a1a2e07a2241ecae50705987ca875.",
+    "The helper identity, parent task, or task guard changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Advisory static delta review pending coordinator reconciliation; not runtime validation or whole-task acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "This review covers only the claim-selection correction and its regression source."
+  ]
+}

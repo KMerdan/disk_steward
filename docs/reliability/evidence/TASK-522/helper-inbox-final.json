@@ -1,0 +1,46 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-INBOX-FINAL",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-4C98A07F39E013F9ACF3E7D64B0F2F8A",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:51cf05199dfc307788edae3052319853e44592d608fbdb8e64bb46dbf9d324a0",
+    "immutable": true
+  },
+  "read_scope": [
+    "Sources/DiskStewardApp/Lifecycle/**",
+    "Tests/DiskStewardAppTests/Lifecycle/**",
+    "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+    "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift"
+  ],
+  "purpose": "Minimal delta rereview after crash-marker reproductions and strengthened real-persistence proof.",
+  "questions": [
+    "Does the recovery-marker correction resolve both reproduced ownership defects without clearing or retaining a marker incorrectly?",
+    "Do before-invalidation SQLite checkpoint and new real-probe cumulative/equal-time/partial-failure test establish the previously missing acknowledgement race proof?",
+    "Does the before-store-admission controller test exercise the same production permit boundary, and does the bounded delta introduce any concrete regression?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01",
+    "AC-TASK-522-02"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 12,
+    "max_output_chars": 8000
+  }
+}

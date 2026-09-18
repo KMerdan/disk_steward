@@ -1,0 +1,24 @@
+Building for debugging...
+[0/7] Write sources
+[1/7] Write swift-version--58304C5D6DBC2206.txt
+[3/10] Emitting module DiskStewardCore
+[4/10] Compiling DiskStewardCore DirectoryMetadataScanner.swift
+[5/10] Compiling DiskStewardCore EvidenceStore.swift
+/private/tmp/disk-steward-521-timestamp-dev.b8M9uv/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:592:32: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+ 586 |         var persistedEventCount = 0
+ 587 | 
+ 588 |         try connection.transaction {
+     |                        `- note: access can happen concurrently
+ 589 |             try connection.withStatement(
+ 590 |                 "INSERT OR IGNORE INTO scope_versions (scope_version_id, effective_at, roots_json, exclusions_json, maximum_entries, maximum_depth) VALUES (?, ?, ?, ?, ?, ?)"
+ 591 |             ) { statement in
+ 592 |                 try connection.bind(scope.scopeVersionID, at: 1, in: statement)
+     |                                |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                                `- note: 'self'-isolated 'connection' is captured by a nonisolated closure. nonisolated uses in closure may race against later actor-isolated uses
+ 593 |                 try connection.bind(scope.effectiveAt.timeIntervalSince1970, at: 2, in: statement)
+ 594 |                 try connection.bind(rootsJSON, at: 3, in: statement)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[6/12] Compiling DiskStewardCore EvidenceBundleExporter.swift
+[7/12] Compiling DiskStewardCore EvidenceLifecycleModels.swift
+error: fatalError

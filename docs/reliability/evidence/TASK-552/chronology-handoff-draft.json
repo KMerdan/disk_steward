@@ -1,0 +1,84 @@
+{
+  "schema": "pyramid-handoff-draft-v1",
+  "summary": "TASK-552 partial chronology repair is regression-tested; preserve this checkpoint and continue the full nullable timing and bounded public query contract. Neither acceptance criterion is complete.",
+  "progress": [
+    "Read the required review and TASK-521 handoff, claimed TASK-552 at G71, and inspected actual provenance/store/export/MCP callers.",
+    "Reproduced endpoint reordering, invalid persistence/attribution, discovery-only session correlation, and observer notifications outside occurrence bounds.",
+    "Repaired shared chronology validation and interval-aware correlation without changing public schema or database layout yet.",
+    "Final isolated verifier passed 20 Python harness tests and 458 Swift tests (4 opt-in skips, zero failures); archived exact sources, manifests and logs. Bounded helper review found no additional defect; reconciled as static advisory evidence only.",
+    "Verified copied log/source hashes and unchanged candidate manifest. Removed four terminated disposable .build directories after ownership and no-open-file checks; retained source snapshots, reports and final build."
+  ],
+  "changed_files": [
+    "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+    "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Tests/DiskStewardCoreTests/Provenance/ProvenanceChronologyTests.swift",
+    "docs/reliability/evidence/TASK-552/chronology-repair.md",
+    "docs/reliability/evidence/TASK-552/chronology-review-job.json",
+    "docs/reliability/evidence/TASK-552/chronology-review-result.json",
+    "docs/reliability/evidence/TASK-552/run_chronology_fixture.py",
+    "docs/reliability/evidence/TASK-552/chronology-handoff-draft.json",
+    "docs/reliability/evidence/TASK-552/chronology-red/result.json",
+    "docs/reliability/evidence/TASK-552/chronology-red/tests.log",
+    "docs/reliability/evidence/TASK-552/chronology-boundary-red/result.json",
+    "docs/reliability/evidence/TASK-552/chronology-boundary-red/tests.log",
+    "docs/reliability/evidence/TASK-552/chronology-base-source/ProvenanceModels.swift",
+    "docs/reliability/evidence/TASK-552/chronology-base-source/ProvenanceEngine.swift",
+    "docs/reliability/evidence/TASK-552/chronology-base-source/EvidenceStore.swift",
+    "docs/reliability/evidence/TASK-552/chronology-base-source/ProvenanceChronologyTests.swift",
+    "docs/reliability/evidence/TASK-552/chronology-source/ProvenanceModels.swift",
+    "docs/reliability/evidence/TASK-552/chronology-source/ProvenanceEngine.swift",
+    "docs/reliability/evidence/TASK-552/chronology-source/EvidenceStore.swift",
+    "docs/reliability/evidence/TASK-552/chronology-source/ProvenanceChronologyTests.swift",
+    "docs/reliability/evidence/TASK-552/chronology-green/candidate.json",
+    "docs/reliability/evidence/TASK-552/chronology-green/build.log",
+    "docs/reliability/evidence/TASK-552/chronology-green/entitlements.log",
+    "docs/reliability/evidence/TASK-552/chronology-green/harness.log",
+    "docs/reliability/evidence/TASK-552/chronology-green/manifest.log",
+    "docs/reliability/evidence/TASK-552/chronology-green/tests.log",
+    "docs/reliability/evidence/TASK-552/chronology-green/toolchain.log"
+  ],
+  "changed_assets": ["ASSET-ATTRIBUTION", "ASSET-STORE", "ASSET-ASSURANCE"],
+  "checks": [
+    {"command": "env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /private/tmp/task552-run.py ProvenanceChronologyTests", "result": "failed", "notes": "Expected first red run b1c25b7a: 4 tests, 26 assertion failures, 0 unexpected; second boundary red 97592b21: 6 tests, 4 assertion failures, 0 unexpected. Separate archived manifests/logs identify each source."},
+    {"command": "env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 Scripts/Testing/verify_candidate.py --output /private/tmp/ds552-chronology-20260917", "result": "passed", "notes": "Input 8e28d59130313947242d4a5a51d070b0a35af520f17f24d97458a7513dc18100; six stages, 20 harness/458 Swift tests, 4 skips, zero failures, sentinel and four historical forward-migration checks. Source only, not packaged or installed."},
+    {"command": "Validate helper envelopes, compare identity/guard/hash/budgets, verify copied log/source hashes and live input manifest", "result": "passed", "notes": "Static helper review remains advisory; no new actionable finding within the partial patch. Final manifest and four source snapshots match."},
+    {"command": "git diff --check", "result": "passed", "notes": "Whitespace validation only, not product assurance."},
+    {"command": "Full AC-TASK-552-01 and AC-TASK-552-02 integration acceptance", "result": "not-run", "notes": "Nullable occurrence bounds, version/migration, all-ten-tools/two-resources real IPC, effective scope, bounded materialization and privacy still require coordinated implementation and verification."}
+  ],
+  "decisions": [
+    {"decision": "Preserve invalid timestamps and reject unsupported chronology rather than sorting them.", "rationale": "Sorting hides contradictions and can fabricate writer/session support; actual failing regressions demonstrate the defect.", "reference": "docs/reliability/evidence/TASK-552/chronology-repair.md"},
+    {"decision": "Do not mark TASK-552 implemented from this partial repair.", "rationale": "Both full acceptance contracts remain unfinished. Unknown lower bounds must be carried through actual store/public APIs with deliberate schema and legacy handling, not disguised by stronger unit validation.", "reference": "docs/reliability/evidence/TASK-521/integration-handoff.md"}
+  ],
+  "assumptions": ["The current preview-v9 stores are disposable; only released v5/v6 historical migrations are established fixtures. Do not adopt existing preview stores without a migration decision."],
+  "blockers": [],
+  "risks": [
+    "Models still default omitted occurrence lower bounds to observedAt; the current interval checks do not solve unknown-bound attribution.",
+    "EvidenceStoreEvent does not carry authoritative change_events timing. Source search found no production calls to ProvenanceEngine/persistProvenanceClaim; existing provenance persistence tests explicitly invoke them. Actual store-to-agent timing must be proven without inventing automatic attribution.",
+    "The existing schema requires nonnull provenance lower bounds and overlap SQL must change with the public contract. Old payload timing must not be relabeled as measured.",
+    "Compact response formatting still occurs after some large store reads. Policy/exclusion visibility, query/revision-bound private pagination, byte budgets, typed errors and freshness require full-task tests.",
+    "This checkpoint changes source but is neither an audit nor installed app validation; previous broad assurance remains stale. Memory/storage redesign, native integrations, rollback, scale and overnight gates remain open."
+  ],
+  "next_steps": [
+    "Resume TASK-552 from this canonical handoff and verify scoped guard/worktree before editing.",
+    "Select the coordinated optional-bound representation and deliberate legacy/schema compatibility; wire authoritative change_events timing into actual bounded store-to-provenance/MCP/export reads. Add failing first-sighting, scope-entry, rename/growth, delayed-publication and unknown-interval/session regressions first.",
+    "Complete compact pre-materialization query budgets, effective settings/exclusions, path-free revision-bound cursors and truthful freshness/error semantics.",
+    "Run all ten MCP tools/two resources through isolated real IPC and decode exports against the actual store. Rerun the complete isolated verifier; refresh impact/inspection evidence and submit implemented only when both full criteria pass.",
+    "Continue the remaining full reliability graph, preserving history; no installation, signing, commit, push or release is authorized by this repair goal alone."
+  ],
+  "recommended_first_action": "Read chronology-repair.md and the stored timing/legacy call sites before choosing the nullable public contract; do not simply make occurredStart optional while leaving default synthesis, SQL overlap, persistence or export unchanged.",
+  "context_references": [
+    "docs/reliability/evidence/TASK-552/chronology-repair.md",
+    "docs/reliability/evidence/TASK-552/chronology-green/candidate.json",
+    "docs/reliability/evidence/TASK-521/integration-handoff.md",
+    "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+    "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
+    "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+    "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift"
+  ],
+  "external_session_refs": [],
+  "running_resources": []
+}

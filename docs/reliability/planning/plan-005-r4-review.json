@@ -1,0 +1,382 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-RELIABILITY-005-SEQUENCING-R4",
+  "stage": "candidate",
+  "outcome": "simplified",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 3,
+    "sha256": "6a0b547477a750d31c1f16e2762422d3775fd6483d98eec37feddb2aa383310b"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 4,
+    "sha256": "02fef8759cf7391efa259ce780dcf91819d8f53153a4c7abca9888f8ac03bc34"
+  },
+  "facts": [
+    {
+      "id": "FACT-R4-CYCLE",
+      "claim": "G16 ready frontier is empty; TASK512 audit blocks on FIND-SERVICE while TASK541 requires OUTCOME510, whose gate requires TASK512 verification.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "G16 inspect --ready",
+        "G16 inspect --audit-readiness TASK-512",
+        ".pyramid/plan.json edges TASK-541→OUTCOME-510; GATE-519→TASK-512"
+      ],
+      "supports": [
+        "TASK-541",
+        "TASK-512",
+        "OUTCOME-510"
+      ],
+      "freshness": "G16 2026-09-17"
+    },
+    {
+      "id": "FACT-R4-SAFETY",
+      "claim": "Current implementation has64 passing scoped isolation/ownership/integration tests. They establish safe disposable development, not all-service or full intent approval.",
+      "classification": "observed",
+      "verdict": "qualified",
+      "confidence": "high",
+      "references": [
+        "docs/reliability/evidence/TASK-512/post-implementation-tests.log",
+        "docs/reliability/evidence/TASK-512/scope-review.md"
+      ],
+      "supports": [
+        "TASK-521",
+        "TASK-522",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "TASK-541",
+        "TASK-542",
+        "TASK-551",
+        "TASK-552",
+        "TASK-561",
+        "TASK-562",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "freshness": "2026-09-17 candidate9546220c"
+    },
+    {
+      "id": "FACT-R4-BACKEND",
+      "claim": "Handler await and synchronous SQLite operations lack cancellation checks; backend and SQLite paths are necessary to fulfill existing effective-cancellation criterion.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift::handleIPC",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift::withStatement"
+      ],
+      "supports": [
+        "TASK-541"
+      ],
+      "freshness": "2026-09-17 source read"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-R4-ORDER",
+      "class": "unjustified-dependency",
+      "affected_nodes": [
+        "TASK-521",
+        "TASK-522",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "TASK-541",
+        "TASK-542",
+        "TASK-551",
+        "TASK-552",
+        "TASK-561",
+        "TASK-562",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "claim": "Blanket foundation outcome start prerequisites prevent implementing fixes that the same foundation audit requires through shared assets.",
+      "evidence": [
+        "FACT-R4-CYCLE",
+        "FACT-R4-SAFETY"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Convert only requires OUTCOME510 to integration-requires; add verified CONTRACT510 hard prerequisite. Keep specific artifact dependencies, all gates and cumulative validation order.",
+      "rationale": "Scope remains fixture-only and unsafe production actions stay prohibited. Every former verification requirement still blocks audit, while development no longer depends on falsely dispositioning unresolved findings."
+    },
+    {
+      "id": "FINDING-R4-SCOPE",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "TASK-541"
+      ],
+      "claim": "Declared write scope omits the backend and SQL cancellation boundary required by existing acceptance.",
+      "evidence": [
+        "FACT-R4-BACKEND"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add AppEvidenceQueryBackend subtree, exact SQLiteConnection file and exact SQLiteCancellationTests path.",
+      "rationale": "One end-to-end request cancellation effect, not new product scope or independent feature."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "preserved",
+    "audit_closure": "preserved",
+    "execution_safety": "preserved"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 31,
+      "executable_nodes": 23,
+      "edges": 80,
+      "hard_dependencies": 21,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 31,
+      "executable_nodes": 23,
+      "edges": 93,
+      "hard_dependencies": 21,
+      "audit_gates": 7
+    }
+  },
+  "summary": "Separate scoped development from cumulative audit acceptance. No requirement, node, gate, finding or historical evidence removed. Add exact backend cancellation source scope. Source implementation may precede OUTCOME510, but cannot pass audit before it.",
+  "limitations": [
+    "Specific artifact dependencies remain hard; any later evidence-backed assurance cycle must be reconciled explicitly, not bypassed.",
+    "Replan stales affected inspections; refresh applicable assurance before audit.",
+    "No install, release, native-client mutation or expanded final intent authorized."
+  ]
+}

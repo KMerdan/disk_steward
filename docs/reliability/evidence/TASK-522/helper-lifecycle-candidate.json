@@ -1,0 +1,42 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-CANDIDATE",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:942a5d8c13ed70816c43b744c98c7362041f8bda8718458e881ab7e99c683624",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/Lifecycle/**",
+    "/private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/ApplicationDelegate.swift",
+    "/private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/StatusItemController.swift",
+    "/private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Tests/DiskStewardAppTests/Lifecycle/**"
+  ],
+  "purpose": "Review the bounded intermediate TASK522 lifecycle ownership/drain/settings patch. This is NOT acceptance of all TASK522: ordinary hint durable fencing and delivery-side notification validity remain explicitly unfinished. Compare against preflight base /private/tmp/disk-steward-521-core-final.ZAhMFh if useful, restricted to same scopes.",
+  "questions": [
+    "Does the new owned sample task, marker ownership and deadline drain introduce a cancellation, retain, double-resume, late-state or scheduling regression? Give concrete counterexamples only.",
+    "Review the deterministic manual clock and tests for false passes/hangs, as well as incoming @Published settings handling. Identify untested cases necessary to trust this intermediate patch.",
+    "Check ApplicationDelegate .terminateLater and StatusItem forwarding for integration mistakes; do not operate native apps or infer packaged behavior from source."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 8,
+    "max_output_chars": 6500
+  }
+}

@@ -1,0 +1,137 @@
+{
+ "schema": "agent-result-v1",
+ "task": "GATE-519",
+ "outcome": "implemented",
+ "changed_files": [
+  "docs/reliability/evidence/GATE-519/candidate/build.log",
+  "docs/reliability/evidence/GATE-519/candidate/candidate.json",
+  "docs/reliability/evidence/GATE-519/candidate/entitlements.log",
+  "docs/reliability/evidence/GATE-519/candidate/harness.log",
+  "docs/reliability/evidence/GATE-519/candidate/manifest.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-architecture-app.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-architecture-helper.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-build.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-generator.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-helper.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-project.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-smoke.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-system-temporary.log",
+  "docs/reliability/evidence/GATE-519/candidate/package-toolchain.log",
+  "docs/reliability/evidence/GATE-519/candidate/tests.log",
+  "docs/reliability/evidence/GATE-519/candidate/toolchain.log",
+  "docs/reliability/evidence/GATE-519/rung-1-scenarios.md",
+  "docs/reliability/evidence/GATE-519/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "evidence-only",
+ "changes": [
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/build.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/entitlements.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/harness.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/manifest.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-architecture-app.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-architecture-helper.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-build.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-generator.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-helper.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-project.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-smoke.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-system-temporary.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/package-toolchain.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/candidate/toolchain.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/rung-1-scenarios.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-519/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "env -i ... Scripts/Testing/verify_candidate.py --output /private/tmp/ds519-gate --xcodegen /opt/homebrew/bin/xcodegen",
+   "result": "passed",
+   "notes": "15 stages passed on input 7f3ff4fa33b2...: 522 tests/0 failures with the sentinel scenario, unsigned CI app build, isolated packaged smoke, bundled helper protocol check (docs/reliability/evidence/GATE-519/candidate/)."
+  },
+  {
+   "command": "/private/tmp/task552-run.py (TASK-511 and TASK-512 scoped suites)",
+   "result": "passed",
+   "notes": "29 + 25 tests, 0 failures (docs/reliability/evidence/audits/scoped-511-521-522-green/, docs/reliability/evidence/audits/TASK-512/scoped-green/)."
+  },
+  {
+   "command": "pyramid audit TASK-511, TASK-512",
+   "result": "passed",
+   "notes": "Both validation-requires targets verified before the gate was exercised."
+  },
+  {
+   "command": "Scripts/Testing/rehearse_migration_rollback.py (inherited safety/recovery)",
+   "result": "passed",
+   "notes": "docs/reliability/evidence/TASK-572/rollback-rehearsal.md; negative oracle failed as required."
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-GATE-519-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/GATE-519/rung-1-scenarios.md; candidate/candidate.json"
+  }
+ ],
+ "discovered_risks": [
+  "Unsigned, disposable-copy packaging only; installed-app and notarized behavior are release-time checks.",
+  "FIND-OVERNIGHT stays open on RESOURCE/BUILD assets outside this rung until the TASK-572 soak runs."
+ ],
+ "suggested_graph_changes": []
+}

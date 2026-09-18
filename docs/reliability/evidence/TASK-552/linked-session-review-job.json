@@ -1,0 +1,42 @@
+{
+ "schema": "helper-job-v1",
+ "helper_id": "HELPER-TASK-552-LINKED-01",
+ "parent_task": "TASK-552",
+ "task_guard": "GUARD-TASK-9A1675B8874041A7B92691E7E6564240",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {
+  "kind": "content-hash",
+  "id": "sha256:f85e397066ed35742cf1a6ade57c4346a42671660ee48f5bb7bd387ec0bc0b8f",
+  "immutable": true
+ },
+ "read_scope": [
+  "/private/tmp/ds-ci-s05cck0y/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+  "/private/tmp/ds-ci-s05cck0y/project/Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift",
+  "docs/reliability/evidence/TASK-552/api-matrix-source/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+  "docs/reliability/evidence/TASK-552/api-matrix-source/Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift"
+ ],
+ "purpose": "Read-only static delta review of the two product-input files changed since candidate 223d3eb9 (base copies archived in api-matrix-source/). Review the unified provenance cursor envelope and the two new IPC regressions. No executions, database access, writes, Pyramid mutation, or nested agents.",
+ "questions": [
+  "Does the unified cursor envelope validate revision before branch selection in both branches without regressing raw-branch pagination, and does any path remain where a stale cursor surfaces as a non-cursor_expired error?",
+  "Are the branch-transition and linked-session tests sound rather than vacuous: both transitions exercised, an honest inferred claim from ProvenanceEngine.attribute with no invented writer, the linked event page reached in all three detail modes, and basename/hashed assertions covering sessionItem and claimItem leak paths?"
+ ],
+ "acceptance_criteria": [
+  "AC-TASK-552-01"
+ ],
+ "execution_isolation": "read-only",
+ "prohibited_actions": [
+  "write-canonical-worktree",
+  "mutate-pyramid",
+  "spawn-agents",
+  "run-tests-or-builds",
+  "publish-or-deploy",
+  "change-git-history"
+ ],
+ "join_before": "candidate-acceptance",
+ "result_budget": {
+  "max_findings": 5,
+  "max_evidence_items": 10,
+  "max_output_chars": 7000
+ }
+}

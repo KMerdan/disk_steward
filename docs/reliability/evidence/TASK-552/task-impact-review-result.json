@@ -1,0 +1,61 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-IMPACT-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-B7CFF057041F576DA4D767C93E4991C2",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:0724b257a1b191b09705125b427c855c831e7ccc1f1c721465986bf3e23da27d",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "One concrete current-claim bounds regression found. The scoped changes otherwise retain qualifying direct-process proof, consider competing registrations, and check candidate byte budgets before decoding. This is static review, not runtime validation.",
+  "findings": [
+    {
+      "claim": "[P2] Recomputing workspace attribution discards the selected current claim's occurrence bounds. For an event measured over [100,300] and a valid current inference corrected to [200,250], with a unique target covering [50,350], querying [110,120] admits the event through the SQL event-bounds branch. taskAttribution validates the current claim but then rebuilds its inference from event.timing, returning [100,300]; the backend consequently includes a delta outside the corrected current interval. Explicit verified inference bounds on an event lacking event.timing are also rejected outright.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift:17-40",
+        "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:169-179",
+        "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:514-518"
+      ],
+      "recommendation": "When rechecking a valid current claim against retained sessions, preserve its occurrence and detection facts, including an explicitly unknown lower bound. Fall back to event timing only when no applicable current claim exists. Add an end-to-end regression with measured event bounds wider than corrected current-claim bounds; the existing precedence test uses an event without measured timing and cannot expose the event-branch fallback."
+    }
+  ],
+  "evidence": [
+    "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/Provenance/ProvenanceModels.swift:88-125 permits valid explicit claim bounds distinct from event timing.",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:187-203 checks row and source-byte limits before copying or decoding payloads.",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Tests/DiskStewardAppTests/IPC/TaskImpactTimingIPCIntegrationTests.swift covers unknown lower bounds, competing sessions, occurrence overlap, fractional timestamp identity, and retained direct proof.",
+    "/private/tmp/ds552-check-ohoa2fx8/project/Tests/DiskStewardCoreTests/EvidenceStore/TaskImpactCandidateTests.swift covers budget rejection and SQL current-claim precedence."
+  ],
+  "checks": [
+    {
+      "command": "Read-only diff and line-numbered inspection of the seven scoped candidate files, with same-path prior source comparisons.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed bounded static inspection; the identified failure is a source-level path trace."
+    },
+    {
+      "command": "Tests, builds, database queries, and runtime reproduction",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited by the helper job; coordinator verification is not independent helper runtime evidence."
+    }
+  ],
+  "stale_if": [
+    "Any scoped source or test changes after the identified candidate snapshot.",
+    "The parent task guard or accepted candidate hash differs from this job."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-review result awaiting coordinator identity, snapshot, guard, and finding reconciliation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "No runtime reproduction was performed.",
+    "Remaining all-tools, scale, and broader budgeting work was outside this bounded review; this does not establish whole-task acceptance."
+  ]
+}

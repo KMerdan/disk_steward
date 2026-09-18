@@ -1,0 +1,45 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-RESEARCH-530-RECOVERY-REVIEW",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-36010BDAEE6F9609CECF3FD2ABF17C5C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:42b8415db7a3ce8a8e6ee64b1856d7e038440b820e9ab968ffaced617dadc638",
+    "immutable": true
+  },
+  "read_scope": [
+    "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+    "Tests/PerformanceTests/BoundedTraversalPrototype.swift",
+    "docs/reliability/benchmarks/resume_scale.py",
+    "docs/reliability/benchmarks/test_resume_scale.py",
+    "docs/reliability/benchmarks/supervise_scale.py",
+    "docs/reliability/benchmarks/collect_scale.py",
+    "docs/reliability/benchmarks/cleanup_scale.py"
+  ],
+  "purpose": "Review the isolated resume/pinned-reader/recovery measurement and evidence ownership boundaries, not a product design.",
+  "questions": [
+    "Can the new resume harness falsely claim successful continuation, snapshot consistency, safe resource limits or correct post-checkpoint space?",
+    "Do resume/recovery scripts preserve collected logs and restrict writes/deletion to precisely owned generated fixtures?",
+    "Identify any concrete test or reporting defect before interpreting the resulting research evidence."
+  ],
+  "acceptance_criteria": [
+    "AC-RESEARCH-530-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 10,
+    "max_output_chars": 6500
+  }
+}

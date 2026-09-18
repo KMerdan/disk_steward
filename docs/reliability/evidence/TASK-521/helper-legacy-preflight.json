@@ -1,0 +1,24 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-LEGACY-PREFLIGHT",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-779C0B1C50E50BA52094C33F0D7F7453",
+  "kind": "research",
+  "phase": "preflight",
+  "snapshot": {"kind": "content-hash", "id": "sha256:94a31ee73f4cc102ef01b874946e33527d0f1cc041c079807907d401ec7764c5", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-521-binding-candidate.Xgo6wc/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-binding-candidate.Xgo6wc/Sources/DiskStewardCore/Monitoring/**",
+    "/private/tmp/disk-steward-521-binding-candidate.Xgo6wc/Tests/DiskStewardCoreTests/EvidenceStore/**"
+  ],
+  "purpose": "Map legacy recordObservation compatibility constraints before applying the generation publisher's path and replacement safeguards. Coordinator independently implements timestamp propagation.",
+  "questions": [
+    "Which tested legacy semantics must survive, especially partial positive observations, scope changes, event accounting, ordering and idempotence?",
+    "Recommend the smallest focused way to reuse the indexed reconciliation without inventing filesystem pass proofs or weakening legacy partial coverage. Identify specific call boundaries and risks; do not implement."
+  ],
+  "acceptance_criteria": ["AC-TASK-521-01"],
+  "execution_isolation": "none",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "load-bearing-decision",
+  "result_budget": {"max_findings": 5, "max_evidence_items": 8, "max_output_chars": 6000}
+}

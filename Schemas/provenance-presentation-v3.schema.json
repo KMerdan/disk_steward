@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/provenance-presentation-v3.schema.json",
+  "title": "provenance-presentation-v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "claim_id",
+    "event_id",
+    "path",
+    "confidence",
+    "method",
+    "detected_at",
+    "timing_basis",
+    "support",
+    "limitations",
+    "contradictions",
+    "operation",
+    "logical_delta",
+    "allocated_delta",
+    "occurred_start",
+    "occurred_end",
+    "observed_ancestry"
+  ],
+  "properties": {
+    "schema": {
+      "const": "provenance-presentation-v3"
+    },
+    "claim_id": {
+      "type": "string"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "confidence": {
+      "enum": [
+        "exact",
+        "tool-linked",
+        "inferred",
+        "unknown"
+      ]
+    },
+    "method": {
+      "type": "string"
+    },
+    "detected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timing_basis": {
+      "enum": [
+        "observation-bounds",
+        "legacy-unverified"
+      ]
+    },
+    "support": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "identifier",
+          "supports"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "endpoint-security",
+              "fsevents",
+              "metadata-snapshot",
+              "process-ancestry",
+              "agent-session",
+              "historical-record"
+            ]
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "supports": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supersedes_claim_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "superseded_by_claim_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operation": {
+      "type": "string"
+    },
+    "logical_delta": {
+      "type": "integer"
+    },
+    "allocated_delta": {
+      "type": "integer"
+    },
+    "actor_pid": {
+      "type": "integer"
+    },
+    "actor_executable": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "session_client": {
+      "type": "string"
+    },
+    "occurred_start": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "occurred_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "observed_ancestry": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

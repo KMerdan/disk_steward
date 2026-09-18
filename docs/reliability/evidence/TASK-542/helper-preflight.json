@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-542-PREFLIGHT",
+  "parent_task": "TASK-542",
+  "task_guard": "GUARD-TASK-4D4819EF38EE7EAB7E01B019D071C4C8",
+  "kind": "research",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:59a1e4eefad005610def6cc04dba836d3e04f98d53a9264c8546c1fb6fdab4f0",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-541-accepted.uaJBzS/Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+    "/private/tmp/disk-steward-541-accepted.uaJBzS/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+    "/private/tmp/disk-steward-541-accepted.uaJBzS/Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift"
+  ],
+  "purpose": "Evaluate safe bounded Darwin subprocess ownership/termination design before runner implementation.",
+  "questions": [
+    "Review existing runner's pipe EOF, cancellation/spawn race, direct child/descendant lifetime gaps. Recommend concrete owned-process-group strategy without signalling unrelated PIDs.",
+    "Check primary Apple/POSIX/Swift sources for posix_spawn SETPGROUP, CLOEXEC_DEFAULT/file actions/chdir, waitid WNOWAIT and bounded TERM/KILL/reap semantics on macOS13. Is Foundation Process documented to guarantee needed ownership? No experiments spawning processes; research/static only.",
+    "Call out honest limits for descendants deliberately escaping their group. Keep result focused on AC542; no adapter mutation redesign."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-542-01"
+  ],
+  "execution_isolation": "none",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "load-bearing-decision",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 7,
+    "max_output_chars": 6000
+  }
+}

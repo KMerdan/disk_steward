@@ -1,0 +1,21 @@
+{
+ "schema": "audit-result-v1",
+ "target": "GATE-519",
+ "result": "pass",
+ "checks": [
+  {"id": "CHECK-519-01", "result": "passed", "evidence": ["docs/reliability/evidence/GATE-519/candidate/candidate.json", "docs/reliability/evidence/GATE-519/candidate/tests.log", "Constructability and entry: fifteen verifier stages passed on input 7f3ff4fa33b2ace1811192c4f4229a33870a07b9f51b3f1e30babf26e9de27fa, including the unsigned CI app build from a disposable source copy; 522 tests, 4 opt-in skips, 0 failures."]},
+  {"id": "CHECK-519-02", "result": "passed", "evidence": ["docs/reliability/evidence/GATE-519/candidate/package-smoke.log", "docs/reliability/evidence/GATE-519/candidate/package-helper.log", "docs/reliability/evidence/GATE-519/rung-1-scenarios.md", "The promised scenario: a running application's endpoint and sentinel state survive another isolated launch and the whole test run (sentinelPreserved true); the packaged accessory smoke launch is isolated, paused, zero-root, access-off and ephemeral, and the bundled helper answers the typed protocol."]},
+  {"id": "CHECK-519-03", "result": "passed", "evidence": ["docs/reliability/evidence/audits/TASK-511/audit-result.json", "docs/reliability/evidence/audits/TASK-512/audit-result.json", "docs/reliability/evidence/audits/scoped-511-521-522-green/tests.log", "docs/reliability/evidence/audits/TASK-512/scoped-green/tests.log", "Inherited scenarios re-established on the current candidate: isolation (29 tests) and ownership (25 tests) suites rerun by the auditor in isolated snapshots; both task audits passed before the gate."]},
+  {"id": "CHECK-519-04", "result": "passed", "evidence": ["docs/reliability/evidence/TASK-572/rollback-rehearsal.md", "docs/reliability/evidence/TASK-572/rollback-rehearsal/report.json", "docs/reliability/evidence/TASK-572/rollback-rehearsal/negative-oracle/report.json", "Applicable safety and recovery: migration interrupted at every checkpoint recovers; the compatible baseline refuses the newer schema without touching it; a restored backup opens with the old binary and migrates forward; the negative oracle fails as required."]},
+  {"id": "CHECK-519-05", "result": "passed", "evidence": ["docs/reliability/evidence/GATE-519/assurance-candidate.json", "docs/reliability/evidence/TASK-572/assurance-rollback-and-inspections.json", "Assurance reviewed: IMPACT-GATE-519-* and the TASK-511/512 and CONTRACT-510 impacts confirmed; INSPECT-GATE-519-1/2/3, INSPECT-TASK-511-1/2/3, INSPECT-TASK-512-1 and INSPECT-CONTRACT-510-1 performed and sufficient; FIND-ISOLATION, FIND-SCALE, FIND-SERVICE, FIND-ROLLBACK, FIND-QUERY and FIND-OCCURRENCE resolved; FIND-DISTRIBUTION-DOC open and non-material; FIND-OVERNIGHT open on assets outside this rung. No scope drift on the covered tasks; reproduction details (commands, fixture identity, budgets) are in candidate.json."]}
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": ["IMPACT-CONTRACT-510-ASSURANCE", "IMPACT-TASK-511-BOOT", "IMPACT-TASK-511-SETTINGS", "IMPACT-TASK-511-LIFECYCLE", "IMPACT-TASK-511-QUERY", "IMPACT-TASK-511-UI", "IMPACT-TASK-511-IPC", "IMPACT-TASK-511-CLIENTS", "IMPACT-TASK-511-CONTRACTS", "IMPACT-TASK-511-DISTRIBUTION", "IMPACT-TASK-512-BOOT", "IMPACT-TASK-512-IPC", "IMPACT-TASK-512-CLIENTS", "IMPACT-GATE-519-ASSURANCE", "IMPACT-GATE-519-BOOT", "IMPACT-GATE-519-SETTINGS", "IMPACT-GATE-519-LIFECYCLE", "IMPACT-GATE-519-QUERY", "IMPACT-GATE-519-UI", "IMPACT-GATE-519-IPC", "IMPACT-GATE-519-CLIENTS", "IMPACT-GATE-519-CONTRACTS", "IMPACT-GATE-519-DISTRIBUTION"],
+  "inspection_ids": ["INSPECT-CONTRACT-510-1", "INSPECT-TASK-511-1", "INSPECT-TASK-511-2", "INSPECT-TASK-511-3", "INSPECT-TASK-512-1", "INSPECT-GATE-519-1", "INSPECT-GATE-519-2", "INSPECT-GATE-519-3"],
+  "finding_ids": ["FIND-ISOLATION", "FIND-SCALE", "FIND-SERVICE", "FIND-ROLLBACK", "FIND-QUERY", "FIND-OCCURRENCE", "FIND-DISTRIBUTION-DOC", "FIND-OVERNIGHT"],
+  "scope_review": "complete",
+  "limitations": ["Unsigned disposable-copy packaging; installed-app and notarized behavior are release-time checks.", "Host macOS 15.6.1 arm64 only; macOS 13 is a declaration.", "The auditor also implemented later tasks on the shared candidate; independence rests on reruns, hashes and archived logs."]
+ }
+}

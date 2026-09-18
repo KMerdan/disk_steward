@@ -1,0 +1,138 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-512",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+    "Tests/DiskStewardAppTests/IPC/SocketOwnershipRegressionTests.swift",
+    "docs/reliability/evidence/TASK-512/final-review-job.json",
+    "docs/reliability/evidence/TASK-512/verification.json",
+    "docs/reliability/evidence/TASK-512/final-review-result.json",
+    "docs/reliability/evidence/TASK-512/helper-reconciliation.json",
+    "docs/reliability/evidence/TASK-512/scope-review.md",
+    "docs/reliability/evidence/TASK-512/integration-tests.log",
+    "docs/reliability/evidence/TASK-512/helper-result.json",
+    "docs/reliability/evidence/TASK-512/targeted-tests.log",
+    "docs/reliability/evidence/TASK-512/LegacyCollisionProbe.swift",
+    "docs/reliability/evidence/TASK-512/candidate-review-job.json",
+    "docs/reliability/evidence/TASK-512/helper-job.json",
+    "docs/reliability/evidence/TASK-512/legacy-reproduction.log",
+    "docs/reliability/evidence/TASK-512/ThrowingInitializerProbe.swift",
+    "docs/reliability/evidence/TASK-512/agent-result.json"
+  ],
+  "changed_assets": [
+    "ASSET-IPC",
+    "ASSET-BOOT",
+    "ASSET-CLIENTS"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/IPC/SocketOwnershipRegressionTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/final-review-job.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/verification.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/final-review-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/helper-reconciliation.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/scope-review.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/integration-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/helper-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/targeted-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/LegacyCollisionProbe.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/candidate-review-job.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/helper-job.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/legacy-reproduction.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/ThrowingInitializerProbe.swift",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-512/agent-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "Legacy collision probe compiled against cf313e4 IPC sources; Swift throwing-initializer primitive",
+      "result": "passed",
+      "detail": "Negative oracle confirmed both legacy socket interference behaviors and double-close semantics; not old-product passing tests."
+    },
+    {
+      "command": "Scoped swift test filter from verification.json",
+      "result": "passed",
+      "detail": "64 tests, 0 failures. Includes 17 socket tests, 10 checkpoint abrupt exits, 5 throwing starts, 40 restart cycles, held callback interleaving, full-capacity public path, smoke and real fixture MCP queries."
+    },
+    {
+      "command": "Final frozen candidate independent static review",
+      "result": "passed",
+      "detail": "HELPER-TASK-512-FINAL identity and budget reconciled; static-only review, not independently executed tests."
+    },
+    {
+      "command": "Canonical/frozen input hash comparison; git diff --check",
+      "result": "passed",
+      "detail": "9546220c27852fa5ce07726087db12e855e6b9818afacc2e063ad723595ba2b2; no whitespace errors."
+    },
+    {
+      "command": "Full suite, scale/overnight, signed packaging, installation and release",
+      "result": "not-run"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-TASK-512-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-512/verification.json; scope-review.md; integration-tests.log; legacy-reproduction.log; helper-reconciliation.json"
+    }
+  ],
+  "discovered_risks": [
+    "Swift subprocess _exit simulates abrupt process death, not filesystem power loss.",
+    "Dedicated private staging workspace is cooperative ownership, not a security boundary against malicious same-UID path/journal replacements.",
+    "At extreme Unix socket path length, staging requires a sufficiently short private ancestor on the same filesystem; standard Application Support path and exact-capacity private fixture tested.",
+    "Backend handler cancellation and capacity across service epochs remain TASK-541 / FIND-SERVICE. This is not full service or release approval.",
+    "Full suite, scale, real overnight, signing, installation and release not run."
+  ],
+  "suggested_graph_changes": [
+    "Reconcile the shared-asset audit/dependency cycle before advancing development: FIND-SERVICE correctly remains open for TASK541 backend cancellation but blocks foundation audits; do not mark it resolved from ownership tests."
+  ]
+}

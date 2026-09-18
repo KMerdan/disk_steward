@@ -1,0 +1,40 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-541-MCP",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9546220c27852fa5ce07726087db12e855e6b9818afacc2e063ad723595ba2b2",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-512-final.YakDXv/Sources/DiskStewardMCP/**",
+    "/private/tmp/disk-steward-512-final.YakDXv/Tests/DiskStewardMCPTests/**",
+    "/private/tmp/disk-steward-512-final.YakDXv/Tests/IntegrationInstallTests/**"
+  ],
+  "purpose": "Identify bounded stdio/MCP cancellation design and deterministic acceptance matrix while coordinator builds backend/IPC cancellation tests.",
+  "questions": [
+    "Review cancellation-ID races, active-request capacity, stdin responsiveness, stdout backpressure, EOF and response ownership. Recommend minimal coherent fix preserving existing protocol contracts.",
+    "Which existing tests/assertions must change and what exact disposable-subprocess scenarios prove effective cancellation and bounded stdout? Do not review socket server or SQLite; coordinator owns those."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-541-01"
+  ],
+  "execution_isolation": "none",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "load-bearing-decision",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 8,
+    "max_output_chars": 5500
+  }
+}

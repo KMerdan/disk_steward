@@ -1,0 +1,317 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-RECEIPT-PUBLICATION-508",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 7,
+    "sha256": "511a36a3cf746691598e2a1962179fdf870424cac6d83330e6fcc6b6a9c419f9"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 8,
+    "sha256": "2e751fbd7c42e5d43413184e67777aa6941d69eb7b967515b0f97f3517d48b30"
+  },
+  "facts": [
+    {
+      "id": "FACT-RECEIPT-COMMIT",
+      "claim": "The core rejects old durable tokens at entry but has no callback receipt boundary at final COMMIT; native-to-app batch delivery is not bounded and ordinary hints are not durably invalidated by the app.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "docs/reliability/evidence/TASK-522/hint-publication-design-notes.md",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::recordScanSlice,reconcileCompletedScanGeneration",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift::transaction",
+        "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift::callback"
+      ],
+      "supports": [
+        "TASK-522",
+        "GATE-529"
+      ],
+      "freshness": "2026-09-17 source5da2e407; deterministic receipt-during-transaction reproduction is the next proof, not yet a passed claim."
+    }
+  ],
+  "findings": [
+    {
+      "id": "REVIEW-RECEIPT-SCOPE",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "TASK-522"
+      ],
+      "claim": "Entry-token tests cannot establish ordinary receipt ordering during publication or native callback boundedness.",
+      "evidence": [
+        "FACT-RECEIPT-COMMIT"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add exact store/SQLite/collector/new-fence paths and two core test paths; retain and strengthen AC02 end-to-end proof.",
+      "rationale": "One internal publication fence plus the concrete callback integration implements existing trustworthy-evidence acceptance. Gate529 still requires the full vertical controller/probe/store path, restart/failure/root isolation and prior lifecycle proof. No new task competing for shared store ownership; no schema change authorized."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "strengthened",
+    "audit_closure": "preserved",
+    "execution_safety": "strengthened"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    }
+  },
+  "summary": "Retain the complete seven-rung ladder,32nodes/97edges,7requirements and7gates. Backward trace REQ502→OUTCOME520→TASK522 requires truthful evidence after ordinary changes; forward trace durable root tokens plus a commit permit and bounded inbox supplies a testable integration path. Source inspection confirms a missing explicit commit boundary, not yet its implementation proof. All unrelated tasks/results, OUTCOME510 prerequisite, gate order and inherited proof remain. The new Core fence is compiled by the existing package product, so no project-file or release changes are required.",
+  "limitations": [
+    "Do not mark TASK522 implemented from core fence tests alone. Concrete app callback ownership, durable receipt acknowledgement, pause/sleep/restart, overflow and persistence failure remain required.",
+    "Commit serialization is not a hard real-time filesystem guarantee. Avoid retry waits under the lock and measure the selected boundary; OS I/O is not guaranteed latency.",
+    "No load-bearing claim about actor FIFO ordering. Final receipt/commit interleaving must be reproduced and defined explicitly.",
+    "Scale, public occurrence intervals, service/export/configuration audits, rollback and overnight proof remain."
+  ]
+}

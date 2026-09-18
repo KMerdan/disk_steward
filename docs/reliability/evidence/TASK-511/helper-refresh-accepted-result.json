@@ -1,0 +1,46 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-511-CANDIDATE-02",
+  "parent_task": "TASK-511",
+  "task_guard": "GUARD-TASK-D083F1CF956025C5DC4746F691495425",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:baae0f8ab5994bc3154ce998a8dc2238b3359fb2f8112f43915f0e9189b8fb35",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Matching frozen source supports prior static conclusions: no actionable TASK-511 isolation fault identified in export ownership, path guards, smoke dependencies or bounded gate evidence.",
+  "findings": [],
+  "evidence": [
+    "Previous review E1-E4 remains applicable after the exact source hash matched: foreign/sibling exports preserved, artifact/helper guards precede unsafe actions, smoke dependencies isolated, normal startup retained, sentinel/release checks support bounded isolation."
+  ],
+  "checks": [
+    {
+      "command": "Recompute frozen candidate content hash",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Read-only hash exactly matched the refreshed job snapshot."
+    },
+    {
+      "command": "Independent runtime tests/builds/application launches",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Static-only assignment; coordinator's reported 41 passing tests were not independently reproduced."
+    }
+  ],
+  "stale_if": [
+    "Source hash changes or guard/snapshot reconciliation fails."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-only refresh awaits coordinator freshness reconciliation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "TASK-551 crash-orphan/resource bounds and TASK-512 duplicate-instance/socket edges remain outside scope.",
+    "Helper path/type checks do not prove build provenance; static review does not establish full reliability or release readiness."
+  ]
+}

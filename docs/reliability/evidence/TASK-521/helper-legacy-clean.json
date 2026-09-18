@@ -1,0 +1,40 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-LEGACY-CLEAN",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-731A15271692D0AA63D88B1C83495EB2",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9c16bd2d2abcaf56683ac4a3d5084c0505d0e7a608cc05b2cce8dcb5e81803e5",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "/private/tmp/disk-steward-521-legacy-clean.DusclS/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+    "/private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "/private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift"
+  ],
+  "purpose": "Refresh the preceding narrow static review after claim renewal and a one-space formatting correction. No broader acceptance claim.",
+  "questions": [
+    "Confirm the c253-to-9c16 source/test delta is only the expected trailing-space removal and whether any preceding review conclusion changes. Do not repeat an unrelated full audit."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-521-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 2,
+    "max_evidence_items": 4,
+    "max_output_chars": 3500
+  }
+}

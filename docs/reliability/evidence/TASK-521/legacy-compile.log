@@ -1,0 +1,14 @@
+Building for debugging...
+[0/7] Write sources
+[1/7] Write swift-version--58304C5D6DBC2206.txt
+[3/9] Emitting module DiskStewardCore
+[4/9] Compiling DiskStewardCore EvidenceStore.swift
+/private/tmp/disk-steward-521-legacy-dev.zkMXCw/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1068:42: error: operator can throw but expression is not marked with 'try'
+1066 |         let observedAt = metadata.observedAt
+1067 |         let startedAt = metadata.entries.values.reduce(observedAt) { min($0, $1.observedAt ?? observedAt) }
+1068 |         let effectiveEventGap = eventGap || (try hasPendingReconciliation())
+     |                                          |  `- note: call is to 'rethrows' function, but argument function can throw
+     |                                          `- error: operator can throw but expression is not marked with 'try'
+1069 |         let snapshotPayload = try JSONEncoder().encode(snapshot)
+1070 |         let rootsJSON = String(data: try JSONEncoder().encode(scope.rootPaths), encoding: .utf8) ?? "[]"
+error: fatalError

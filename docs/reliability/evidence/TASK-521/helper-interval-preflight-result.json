@@ -1,0 +1,89 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-521-INTERVAL-PREFLIGHT",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-DF3C078CCDB9D39E4D2718BCC19B95FB",
+  "kind": "review",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9c16bd2d2abcaf56683ac4a3d5084c0505d0e7a608cc05b2cce8dcb5e81803e5",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Core change-event and public provenance bounds are separate contracts. Nullable core lower bounds need not alter public exports. Preserve operation-specific sample/absence endpoints and handle contradictory chronology explicitly. Source-only preflight, not acceptance.",
+  "findings": [
+    {
+      "claim": "Without a prior row, insertChangeEvent sets occurred_start equal to occurred_end. First observation (baseline/create/scope-enter) establishes presence by the sample time, not exact creation then; the non-null schema forces fabricated lower-bound precision.",
+      "confidence": "high",
+      "evidence": [
+        "E1"
+      ],
+      "recommendation": "Make change_events.occurred_start nullable: NULL means no supported lower bound, not zero-duration occurrence. Retain an applicable prior observation only when it supports this change/binding and is no later than the upper bound. Keep actual sample/absence occurred_end and publication detected_at; do not substitute scan start, mtime or completion as invented lower evidence."
+    },
+    {
+      "claim": "No scoped consumer reads change_events.occurred_start/end as occurrence. Its readers join object/event identity or order by detected_at/events.observed_at. ProvenanceInput/Claim independently default omitted bounds to event.observedAt; provenance_claims bounds drive exported intervals and session/window overlap. EvidenceStoreEvent carries no occurrence interval.",
+      "confidence": "high",
+      "evidence": [
+        "E2",
+        "E3",
+        "E4"
+      ],
+      "recommendation": "Keep the core correction separate: it cannot fix public occurrence precision. Public unknown bounds would require coordinated provenance model, payload/schema and overlap-query changes; required-date v2 cannot accept NULL unchanged."
+    },
+    {
+      "claim": "Rename-plus-growth deliberately has different upper bounds: rename uses max(new-path sample, old-path absence), growth uses the metadata sample. If prior observedAt exceeds that sample, insertChangeEvent permits an inverted growth interval even when rename remains ordered. Example prior=40, sample=30, absence=50 gives growth [40,30] and rename [40,50].",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E5"
+      ],
+      "recommendation": "Reject contradictory chronology or retain an unknown lower bound with a limitation; never swap endpoints. Test prior=10/sample=20/absence=30/publication=40: rename end=30, growth end=20, both detected=40; separately test stale-sample inversion. Preserve these independent endpoints."
+    },
+    {
+      "claim": "change_events currently requires both bounds, while genuine v5/v6 fixtures already contain a no-prior baseline with start=end. Historical sample times were not retained, so migration cannot reconstruct precise physical occurrence from run completion.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E6",
+        "E7"
+      ],
+      "recommendation": "In unreleased v9, transactionally rebuild change_events with nullable start and an ordering check, preserving keys/FKs, deltas, detection/end fields and index. NULL historical no-prior starts; handle inversions explicitly. Keep noninverted prior-derived ranges as legacy estimates, not verified samples. Extend genuine v5/v6 fixtures with no-prior, prior-backed and inverted rows; assert NULL semantics, unchanged provenance, FK/index/cascade integrity, reopen idempotence and existing migration-failure recovery."
+    }
+  ],
+  "evidence": [
+    "E1: R=/private/tmp/disk-steward-521-legacy-clean.DusclS; S=R/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2796-2820 writer; 3607-3622 table definition.",
+    "E2: S:2099-2106,2242-2245,2414-2433,2469 readers; R/Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift:3-58 event has no interval.",
+    "E3: R/Sources/DiskStewardCore/Provenance/ProvenanceModels.swift:48-145 separate defaults; S:1422-1482 persistence,2481-2505 overlap.",
+    "E4: R/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:472-505,1022-1053,1151-1186 claim export/queries; R/Schemas/Evidence/provenance-claim-v2.schema.json:7-21 required dates.",
+    "E5: S:880-906 separate rename/growth timestamps;1037-1069 legacy guards do not enforce sample chronology.",
+    "E6: S:3888-3897 historical sample-time limitation; R/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalEvidenceSchema.swift:128-143 original interval schema.",
+    "E7: R/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift:6-85 v5/v6 recovery tests;123-132 no-prior baseline fixture."
+  ],
+  "checks": [
+    {
+      "command": "Read-only scoped symbol search and source/schema/test inspection",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "Traced both pipelines; chronology example is static reasoning, not an executed reproduction."
+    },
+    {
+      "command": "Tests/builds, database/native/production access and mutations",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Prohibited by the job."
+    }
+  ],
+  "stale_if": [
+    "Guard, immutable snapshot, interval writer/schema or scoped consumer contracts change."
+  ],
+  "evidence_use": "advisory",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Preflight advice requires coordinator reconciliation before the interval decision; not final validation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Historical non-null bounds retain legacy timestamp limitations. Call sites outside the supplied scope were not inspected. Public provenance semantics remain a separate decision."
+  ]
+}

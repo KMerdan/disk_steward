@@ -1,0 +1,100 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-R13-OPEN-SOURCE-SOAK-SCOPE",
+ "stage": "candidate",
+ "outcome": "revised",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "revision": 16,
+  "sha256": "ce17c62335c08584820435bf3ad014bdfe103e2b96244cce22280e5e9447eea1"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "revision": 17,
+  "sha256": "9c9fdd98c52c52ec084cd67a3b4f5b750778c3afb1bd27f48dc0b6596f657255"
+ },
+ "facts": [
+  {
+   "id": "FACT-R13-001",
+   "claim": "AC-GATE-579-01 required a real-time overnight soak on the final candidate; FIND-OVERNIGHT (high) blocked every audit on ASSET-RESOURCE/ASSET-BUILD, so rungs 3-7 could not close before an 8-hour run finished.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    ".pyramid/plan.json (revision 16) GATE-579",
+    "pyramid inspect --audit-readiness TASK-531 at G138"
+   ]
+  },
+  {
+   "id": "FACT-R13-002",
+   "claim": "Bounded-resource behaviour is already evidenced: 100k wide in 27.8 s on the final candidate, 1M wide from TASK-531, storage headroom fixtures (TASK-532), rollback rehearsal (FIND-ROLLBACK resolved), and about 110 minutes of real-time soak with memory plateaued near 450 MiB, 0 mismatches, 0 forced evictions, descriptors flat.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "docs/reliability/evidence/GATE-539/scale-runs/wide-100k/supervisor.out",
+    "docs/reliability/evidence/TASK-531/scale-runs/wide-1m/",
+    "docs/reliability/evidence/TASK-572/rollback-rehearsal.md",
+    "/private/tmp/disk-steward-572-soak.mzny29ey/soak.log (archived under docs/reliability/evidence/TASK-572/soak-runs/)"
+   ]
+  },
+  {
+   "id": "FACT-R13-003",
+   "claim": "The project owner directed on 2026-09-18 that overnight soaks and a bespoke watchdog are unnecessary for this open-source project and that user feedback is the intended long-run signal.",
+   "classification": "reported",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "EV-R13-OPEN-SOURCE-RELEASE-SCOPE"
+   ]
+  }
+ ],
+ "findings": [
+  {
+   "id": "RF-R13-001",
+   "severity": "medium",
+   "statement": "A release gate demanded evidence the project does not intend to keep producing (overnight soaks), which would either stall closure or invite dishonest acceptance.",
+   "resolution": "Relax AC-GATE-579-01/EVREQ-GATE-579-01 to bounded real-time soak evidence (>= 1 h) plus scale matrix and rollback rehearsal; keep every other criterion; resolve FIND-OVERNIGHT on the evidence in hand."
+  }
+ ],
+ "coverage": {
+  "requirements": [
+   "REQ-501",
+   "REQ-502",
+   "REQ-503",
+   "REQ-504",
+   "REQ-505",
+   "REQ-506",
+   "REQ-507"
+  ],
+  "gates": [
+   "GATE-519",
+   "GATE-529",
+   "GATE-539",
+   "GATE-549",
+   "GATE-559",
+   "GATE-569",
+   "GATE-579"
+  ],
+  "unchanged_nodes": "all except the wording of GATE-579's criterion/evidence requirement and TASK-572's summary",
+  "changed_edges": 0
+ },
+ "invariants": [
+  "Every increment outcome keeps its own gate; each later gate still depends on the previous verified outcome.",
+  "No node, edge or ownership changed; verified rungs 1 and 2 and all task audits are preserved.",
+  "The safety and recovery requirements (rollback rehearsal, scale matrix, bounded real-time soak) remain gate criteria; only the overnight duration is dropped.",
+  "Completed evidence, history and assurance records are preserved."
+ ],
+ "metrics": {
+  "nodes_before": 32,
+  "nodes_after": 32,
+  "edges_changed": 0,
+  "edges_added": 0,
+  "edges_removed": 0,
+  "criteria_changed": 1
+ },
+ "summary": "Contract-wording revision at the owner's direction: GATE-579 no longer requires an overnight soak; bounded real-time soak evidence plus the existing scale and rollback proofs are the final resource criteria.",
+ "limitations": [
+  "Long-run (multi-day) behaviour on real machines is deliberately left to post-release user feedback and crash reports; the CI workflow remains the regression proof."
+ ]
+}

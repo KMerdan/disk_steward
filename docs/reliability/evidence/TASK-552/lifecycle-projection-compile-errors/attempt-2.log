@@ -1,0 +1,304 @@
+Building for debugging...
+[0/27] /private/tmp/ds552-check-e100o5p2/project/.build/arm64-apple-macosx/debug/DiskStewardPackageTests.derived/runner.swift
+[1/27] Write sources
+[2/27] Write disk-witness-mcp-entitlement.plist
+[3/27] Write sources
+[16/27] Write DiskStewardApp-entitlement.plist
+[17/27] Write sources
+[18/27] Write swift-version--58304C5D6DBC2206.txt
+[20/49] Emitting module DiskStewardCore
+[21/49] Compiling DiskStewardCore TaskImpactCorrelation.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[22/49] Compiling DiskStewardCore BoundedEndpointEventBuffer.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[23/49] Compiling DiskStewardCore EndpointEventNormalizer.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[24/49] Compiling DiskStewardCore PrivilegedEventModels.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[25/49] Compiling DiskStewardCore ProtectedEndpointBridge.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[26/49] Compiling DiskStewardCore EvidenceEventTiming+SQLite.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[27/49] Compiling DiskStewardCore EvidenceEventTimingPresentation.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[28/49] Compiling DiskStewardCore EvidenceLifecycleModels.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[29/49] Compiling DiskStewardCore EvidenceLifecycleSummary.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[30/49] Compiling DiskStewardCore EvidenceQueryModels.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[31/49] Compiling DiskStewardCore EvidenceStore.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[32/49] Compiling DiskStewardCore EvidenceStoreModels.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[33/49] Compiling DiskStewardCore SQLiteConnection.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[34/49] Compiling DiskStewardCore GrowthExplanation.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[35/49] Compiling DiskStewardCore EvidenceBundleExporter.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[36/49] Compiling DiskStewardCore EvidenceBundleModels.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[37/49] Compiling DiskStewardCore EvidenceTimestamp.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[38/49] Compiling DiskStewardCore OwnedExportDirectory.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[39/49] Compiling DiskStewardCore ZlibCodec.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[40/49] Compiling DiskStewardCore SHA256Digest.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[41/49] Compiling DiskStewardCore SnapshotExportModels.swift
+/private/tmp/ds552-check-e100o5p2/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2148:22: error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+2145 |     public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+2146 |         let connection = try requireConnection()
+2147 |         return try connection.transaction(readOnly: true) {
+     |                               `- note: access can happen concurrently
+2148 |             try Self.validateLifecycleSummaryBudget(connection: connection)
+     |                      |- error: sending 'connection' risks causing data races [#SendingRisksDataRace]
+     |                      `- note: 'self'-isolated 'connection' is captured by a actor-isolated closure. actor-isolated uses in closure may race against later actor-isolated uses
+2149 |             let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+2150 |             let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+
+[#SendingRisksDataRace]: <https://docs.swift.org/compiler/documentation/diagnostics/sending-risks-data-race>
+[42/70] Compiling DiskStewardCore SnapshotExporter.swift
+[43/70] Compiling DiskStewardCore AgentAccessStateFile.swift
+[44/70] Compiling DiskStewardCore DiskStewardIPCClient.swift
+[45/70] Compiling DiskStewardCore JSONValue.swift
+[46/70] Compiling DiskStewardCore UnixSocketEvidenceServer.swift
+[47/70] Compiling DiskStewardCore DirectoryMetadataScanner.swift
+[48/70] Compiling DiskStewardCore MonitoringPolicy.swift
+[49/70] Compiling DiskStewardCore ScanPublicationFence.swift
+[50/70] Compiling DiskStewardCore TargetedFSEventsCollector.swift
+[51/70] Compiling DiskStewardCore WholeVolumeSampler.swift
+[52/70] Compiling DiskStewardCore WriteCoalescer.swift
+[53/70] Compiling DiskStewardCore EvidencePrivacyFilter.swift
+[54/70] Compiling DiskStewardCore ProductIdentity.swift
+[55/70] Compiling DiskStewardCore ProvenanceEngine.swift
+[56/70] Compiling DiskStewardCore ProvenanceModels.swift
+[57/70] Compiling DiskStewardCore ResourceBudget.swift
+[58/70] Compiling DiskStewardCore AgentSessionModels.swift
+[59/70] Compiling DiskStewardCore AgentSessionRegistry.swift
+[60/70] Compiling DiskStewardCore ProcessAncestryTracker.swift
+[61/70] Compiling DiskStewardCore StorageSnapshot.swift
+[62/70] Compiling DiskStewardCore VolumeSnapshotService.swift
+error: fatalError

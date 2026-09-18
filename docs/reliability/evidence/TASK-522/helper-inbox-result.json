@@ -1,0 +1,90 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-INBOX-01",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-4C98A07F39E013F9ACF3E7D64B0F2F8A",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:2a6e7b6e5be251a946163c0e210beef2c03afacf7e1c84727154ba24f8216125",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Original frozen candidate: two recovery-marker ownership defects and one integration-test gap. Callback fencing, cumulative acknowledgement and drain ownership otherwise appear coherent; no additional lost-wake counterexample found.",
+  "findings": [
+    {
+      "claim": "Successful receipt persistence can clear an unacknowledged previous-crash marker: shutdown or a paused settings change starts the startup-gap drain, whose endSafetyWork clears the marker despite requiresRecoveryConfirmation remaining true. Next launch loses the Safety Pause reason.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2",
+        "E4"
+      ],
+      "recommendation": "Separate prior-launch recovery ownership from live work. Test preseeded interruption markers surviving successful shutdown drains and paused settings changes until explicit resume."
+    },
+    {
+      "claim": "Resume while recovery-paused receipt persistence is running clears the live-work marker. Further overlapping beginSafetyWork calls do not restore it because safetyWorkCount is already nonzero.",
+      "confidence": "high",
+      "evidence": [
+        "E2",
+        "E3"
+      ],
+      "recommendation": "Acknowledge prior interruption while retaining live/pending ownership. Gate persistence, resume, and assert the marker remains until current work finishes."
+    },
+    {
+      "claim": "The eight tests do not exercise actual shared persistenceTask reentry when B arrives during A persistence, or partial multi-root failure. Manual mailbox acknowledgements prove the revision rule, not probe/controller integration.",
+      "confidence": "high",
+      "evidence": [
+        "E4",
+        "E5",
+        "E6",
+        "E7"
+      ],
+      "recommendation": "Gate actual invalidation after A capture, admit same-time B, reject stale acknowledgement and publication; fail root two, retain cumulative roots, then retry both. Exercise the controller callback/drain route too."
+    }
+  ],
+  "evidence": [
+    "E1 /private/tmp/disk-steward-522-inbox-review.uxMyD4/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:100-145 recovery pause and settings route.",
+    "E2 /private/tmp/disk-steward-522-inbox-review.uxMyD4/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:356-394,407-447 stop starts receipt drain; clean work clears marker without recovery guard.",
+    "E3 /private/tmp/disk-steward-522-inbox-review.uxMyD4/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:210-221 unconditional recovery acknowledgement.",
+    "E4 /private/tmp/disk-steward-522-inbox-review.uxMyD4/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift:69-73,310-326 startup gap and shared persistence task.",
+    "E5 /private/tmp/disk-steward-522-inbox-review.uxMyD4/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift:104-160 synchronous fencing, cumulative roots, revision acknowledgement and wake reservation.",
+    "E6 /private/tmp/disk-steward-522-inbox-review.uxMyD4/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:9-101 mailbox manual acknowledgements and publication-preparation gate.",
+    "E7 /private/tmp/disk-steward-522-inbox-review.uxMyD4/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:103-268 remaining six cases lack recovery-marker and cumulative-persistence schedules."
+  ],
+  "checks": [
+    {
+      "command": "Inspect frozen scoped lifecycle sources/tests and trace receipt, persistence, wake and safety ownership.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E7; static inspection completed with findings above."
+    },
+    {
+      "command": "Compare scoped core source with frozen receipt-core predecessor.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "ScanPublicationFence.swift, TargetedFSEventsCollector.swift, EvidenceStore.swift and SQLiteConnection.swift unchanged from /private/tmp/disk-steward-522-receipt-core.PBVfDl."
+    },
+    {
+      "command": "Tests, builds and native activation.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Prohibited. Coordinator reports 412 total/411 pass/1 opt-in skip/0 fail; not independently executed."
+    }
+  ],
+  "stale_if": [
+    "Scoped source, tests, guard or snapshot identity change."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw review awaits coordinator freshness and finding reconciliation; not task acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Static interleaving analysis is not exhaustive concurrency proof.",
+    "No native activation, OS-allocation measurement or production access; deferred capacity and whole-product acceptance excluded.",
+    "Coordinator reports both marker defects reproduced and subsequent corrections/new proof; those changes are outside this frozen result."
+  ]
+}

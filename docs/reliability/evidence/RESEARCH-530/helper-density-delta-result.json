@@ -1,0 +1,52 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-RESEARCH-530-DENSITY-DELTA",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-36010BDAEE6F9609CECF3FD2ABF17C5C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:6c83caca4102d9d9a72247c6c7f8c051794c2c2419f894f10a6cb50bdbf40fad",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Both prior findings are addressed within the limited six-table experiment. Plain and dictionary variants share the fresh-copy/index-building path and source page size. Reconstruction checks now follow processed-row count, and final SQL metadata queries precede budget and telemetry sampling. No new actionable defect found in this delta.",
+  "findings": [],
+  "evidence": [
+    "E1 /private/tmp/disk-steward-530-density-matched.7JbdkT/docs/reliability/benchmarks/probe_dictionary_layout.py:33-86 supports plain/dictionary modes with identical source-page-size, rowid-preserving copy and transaction paths; dictionary substitution is conditional.",
+    "E2 /private/tmp/disk-steward-530-density-matched.7JbdkT/docs/reliability/benchmarks/probe_dictionary_layout.py:87-119 shares index construction and reconstruction verification between modes, checking copied/reconstructed counts and ordered row hashes.",
+    "E3 /private/tmp/disk-steward-530-density-matched.7JbdkT/docs/reliability/benchmarks/probe_dictionary_layout.py:25-30,107-116 checks every 512 processed reconstruction rows and at completion, independently of source rowid.",
+    "E4 /private/tmp/disk-steward-530-density-matched.7JbdkT/docs/reliability/benchmarks/probe_dictionary_layout.py:120-139 performs integrity, checkpoint, dbstat and freelist queries before the final budget check and elapsed/RSS sampling; cooperative-limit and semantic caveats remain explicit.",
+    "E5 /private/tmp/disk-steward-530-density-matched.7JbdkT/docs/reliability/benchmarks/test_dictionary_layout.py:10-14 asserts check positions 512/1024/1025 for odd rowids; 16-47 compares plain/dictionary row hashes, index counts and page size while retaining NULL/Unicode/time/sparse-rowid and overwrite checks.",
+    "E6 /private/tmp/disk-steward-530-density-matched.7JbdkT/docs/reliability/benchmarks/resume_scale.py is unchanged from the prior frozen snapshot; database-family ownership validation is retained."
+  ],
+  "checks": [
+    {
+      "command": "Compare the three scoped files against /private/tmp/disk-steward-530-review-fixed.KS9t9t and inspect changed control, iterator and telemetry paths.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E6; prior attribution and budget-check findings resolve statically."
+    },
+    {
+      "command": "Run tests/probes, open databases, access native services or write files.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Prohibited. Actual density, timing and resource measurements were not independently verified."
+    }
+  ],
+  "stale_if": [
+    "Scoped files, guard, snapshot or source-fixture contract changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw narrow delta review awaits coordinator freshness and reconciliation; not acceptance of measured conclusions or a production layout.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Real paired runs must use the same quiescent source and matching per-table source hashes. The probe still lacks one explicit source transaction spanning all six tables.",
+    "The control isolates encoding from fresh rebuilding at this scope, not equivalent product constraints, collations, lexical queries, joins, migrations or full-store storage.",
+    "Resource checks remain cooperative; SQLite operations can overshoot between checks. Timing comparisons remain sensitive to cache state and process-wide RSS history."
+  ]
+}

@@ -1,0 +1,49 @@
+[0/1] Planning build
+Building for debugging...
+[0/8] Write sources
+[1/8] Write swift-version--58304C5D6DBC2206.txt
+[3/6] Emitting module DiskStewardCoreTests
+[4/6] Compiling DiskStewardCoreTests SQLiteCancellationTests.swift
+[5/8] Compiling DiskStewardPackageTests runner.swift
+[6/8] Emitting module DiskStewardPackageTests
+[6/8] Write Objects.LinkFileList
+[7/8] Linking DiskStewardPackageTests
+Build complete! (1.71s)
+Test Suite 'Selected tests' started at 2026-09-17 10:04:23.882.
+Test Suite 'DiskStewardPackageTests.xctest' started at 2026-09-17 10:04:23.883.
+Test Suite 'RequestCancellationTests' started at 2026-09-17 10:04:23.883.
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDeadlineCancelsActualHandlerWork]' started.
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift:40: error: -[DiskStewardAppTests.RequestCancellationTests testDeadlineCancelsActualHandlerWork] : XCTAssertTrue failed - The backend must observe cancellation within one second
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDeadlineCancelsActualHandlerWork]' failed (2.077 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDisconnectCancelsActualHandlerWork]' started.
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift:40: error: -[DiskStewardAppTests.RequestCancellationTests testDisconnectCancelsActualHandlerWork] : XCTAssertTrue failed - The backend must observe cancellation within one second
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testDisconnectCancelsActualHandlerWork]' failed (2.017 seconds).
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testStopCancelsActualHandlerWorkAndRestartCanServe]' started.
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift:40: error: -[DiskStewardAppTests.RequestCancellationTests testStopCancelsActualHandlerWorkAndRestartCanServe] : XCTAssertTrue failed - The backend must observe cancellation within one second
+Test Case '-[DiskStewardAppTests.RequestCancellationTests testStopCancelsActualHandlerWorkAndRestartCanServe]' failed (2.024 seconds).
+Test Suite 'RequestCancellationTests' failed at 2026-09-17 10:04:30.002.
+	 Executed 3 tests, with 3 failures (0 unexpected) in 6.118 (6.119) seconds
+Test Suite 'SQLiteCancellationTests' started at 2026-09-17 10:04:30.002.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite]' started.
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift:39: error: -[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite] : XCTAssertTrue failed
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift:41: error: -[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite] : XCTAssertEqual failed: ("1") is not equal to ("0")
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite]' failed (0.005 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult]' started.
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift:12: error: -[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult] : XCTAssertTrue failed - An interrupted row loop must not return a successful partial result
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift:13: error: -[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult] : XCTAssertLessThan failed: ("100000") is not less than ("1000") - Cancellation must stop SQLite execution, not merely discard its output
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult]' failed (0.021 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable]' started.
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift:23: error: -[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable] : XCTAssertTrue failed
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift:24: error: -[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable] : XCTAssertLessThan failed: ("100000") is not less than ("1000")
+/private/tmp/disk-steward-541-red.0mMHcL/Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift:26: error: -[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable] : XCTAssertEqual failed: ("1") is not equal to ("0") - The write before cancellation must roll back
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable]' failed (0.017 seconds).
+Test Suite 'SQLiteCancellationTests' failed at 2026-09-17 10:04:30.046.
+	 Executed 3 tests, with 7 failures (0 unexpected) in 0.043 (0.044) seconds
+Test Suite 'DiskStewardPackageTests.xctest' failed at 2026-09-17 10:04:30.046.
+	 Executed 6 tests, with 10 failures (0 unexpected) in 6.161 (6.162) seconds
+Test Suite 'Selected tests' failed at 2026-09-17 10:04:30.046.
+	 Executed 6 tests, with 10 failures (0 unexpected) in 6.161 (6.163) seconds
+◇ Test run started.
+↳ Testing Library Version: 1501
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

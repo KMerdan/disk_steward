@@ -1,4 +1,3 @@
-import Compression
 import CryptoKit
 import Darwin
 import DiskStewardCore
@@ -10,22 +9,46 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private let registry: AgentSessionRegistry
     private let challengeDigest: String
     private let processInspector = LocalProcessInspector()
-    private let inlineExportRoot: URL
+    private let inlineExportBase: URL
+    private let retentionPolicyProvider: @Sendable () async throws -> EvidenceStoreRetentionPolicy
+    private let queryScopeProvider: @Sendable () async throws -> EvidenceQueryScope?
+    /// Hard ceiling for one encoded response. Row limits are clamped before
+    /// the store reads so a page cannot be materialized beyond it.
+    private let responseByteCeiling: Int
+    /// Retained-evidence overlap admission for task impact: rows and SQLite
+    /// byte lengths are checked before any row is copied into Swift.
+    private let taskImpactMaximumRows: Int
+    private let taskImpactMaximumBytes: Int
+    private struct RowBudget {
+        let requested: Int
+        let applied: Int
+        var clamped: Bool { applied < requested }
+    }
+    private struct CursorLease {
+        let query: String
+        let raw: String
+        let expiresAt: TimeInterval
+    }
+    private var cursorLeases: [String: CursorLease] = [:]
 
-    init(databaseURL: URL) throws {
-        let inlineExportBase = FileManager.default.temporaryDirectory.appending(path: "DiskStewardIPCExports", directoryHint: .isDirectory)
-        try FileManager.default.createDirectory(at: inlineExportBase, withIntermediateDirectories: true)
-        let staleCutoff = Date().addingTimeInterval(-6 * 60 * 60)
-        for child in (try? FileManager.default.contentsOfDirectory(
-            at: inlineExportBase,
-            includingPropertiesForKeys: [.contentModificationDateKey],
-            options: [.skipsHiddenFiles]
-        )) ?? [] {
-            if (try? child.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate).map({ $0 < staleCutoff }) ?? false {
-                try? FileManager.default.removeItem(at: child)
-            }
-        }
-        inlineExportRoot = inlineExportBase.appending(path: "instance-\(UUID().uuidString.lowercased())", directoryHint: .isDirectory)
+    init(
+        databaseURL: URL,
+        temporaryExportDirectory: URL? = nil,
+        retentionPolicyProvider: @escaping @Sendable () async throws -> EvidenceStoreRetentionPolicy = { try .init() },
+        queryScopeProvider: @escaping @Sendable () async throws -> EvidenceQueryScope? = { nil },
+        responseByteCeiling: Int = 1_024 * 1_024,
+        taskImpactMaximumRows: Int = 100_000,
+        taskImpactMaximumBytes: Int = 8 * 1_024 * 1_024
+    ) throws {
+        self.retentionPolicyProvider = retentionPolicyProvider
+        self.queryScopeProvider = queryScopeProvider
+        self.responseByteCeiling = min(max(responseByteCeiling, 4 * 1_024), 4 * 1_024 * 1_024)
+        self.taskImpactMaximumRows = min(max(taskImpactMaximumRows, 1), 100_000)
+        self.taskImpactMaximumBytes = min(max(taskImpactMaximumBytes, 4 * 1_024), 8 * 1_024 * 1_024)
+        // Database fixtures own their scratch space too. Opening a backend must
+        // never sweep the shared process-user temp directory or another instance.
+        inlineExportBase = temporaryExportDirectory ?? databaseURL.deletingLastPathComponent()
+            .appending(path: "temporary-exports", directoryHint: .isDirectory)
         let evidenceStore = try EvidenceStore(url: databaseURL)
         store = evidenceStore
         let seed = Data(UUID().uuidString.utf8)
@@ -38,6 +61,34 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     }
 
     func handleIPC(method: String, payload: JSONValue, peer: IPCPeerIdentity) async throws -> JSONValue {
+        try Task.checkCancellation()
+        let result: JSONValue
+        do { result = try await performIPC(method: method, payload: payload, peer: peer) }
+        catch EvidenceStoreError.cursorExpired {
+            throw DiskStewardIPCError.remote(code: "cursor_expired", message: "Evidence changed since the previous page. Start again without a cursor.", retryable: false)
+        }
+        catch EvidenceLifecycleSummaryError.budgetExceeded {
+            throw DiskStewardIPCError.remote(code: "query_budget_exceeded", message: "Lifecycle metadata exceeds the summary budget; no partial coverage result was returned.", retryable: false)
+        }
+        // Session registry outcomes are client-actionable; never let them
+        // degrade into a generic retryable failure at the socket boundary.
+        catch SessionRegistryError.duplicateSession, SessionRegistryError.processAlreadyRegistered {
+            throw DiskStewardIPCError.remote(code: "session_conflict", message: "That session or process is already registered to another active session.", retryable: false)
+        }
+        catch SessionRegistryError.notFound, SessionRegistryError.staleRegistration {
+            throw DiskStewardIPCError.remote(code: "invalid_registration", message: "The registration is unknown or no longer active.", retryable: false)
+        }
+        catch let SessionRegistryError.invalidRequest(reason) {
+            throw DiskStewardIPCError.remote(code: "invalid_registration", message: "Session registration was rejected: \(reason).", retryable: false)
+        }
+        catch SessionRegistryError.unauthenticated {
+            throw DiskStewardIPCError.remote(code: "permission_denied", message: "The session proof did not match the private socket.", retryable: false)
+        }
+        try Task.checkCancellation()
+        return result
+    }
+
+    private func performIPC(method: String, payload: JSONValue, peer: IPCPeerIdentity) async throws -> JSONValue {
         switch method {
         case "tools/call":
             guard let object = payload.objectValue,
@@ -62,6 +113,101 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     }
 
     private func query(tool: String, arguments: [String: JSONValue]) async throws -> JSONValue {
+        var queryArguments = arguments
+        queryArguments.removeValue(forKey: "cursor")
+        let queryKey = tool + ":" + SHA256.hash(data: try JSONEncoder.diskSteward.encode(JSONValue.object(queryArguments))).map { String(format: "%02x", $0) }.joined()
+        cursorLeases = cursorLeases.filter { $0.value.expiresAt > ProcessInfo.processInfo.systemUptime }
+        if let token = arguments["cursor"]?.stringValue {
+            guard let lease = cursorLeases[token], lease.query == queryKey else {
+                throw DiskStewardIPCError.remote(code: "cursor_expired", message: "This page cursor expired or belongs to a different query. Start again without a cursor.", retryable: false)
+            }
+            queryArguments["cursor"] = .string(lease.raw)
+        }
+        let result = try await rawQuery(tool: tool, arguments: queryArguments)
+        try Task.checkCancellation()
+        let wrapped = wrapCursors(result, query: queryKey)
+        let encodedBytes = try JSONEncoder.diskSteward.encode(wrapped).count
+        guard encodedBytes <= responseByteCeiling else {
+            throw DiskStewardIPCError.remote(
+                code: "response_too_large",
+                message: "The \(tool) response would be \(encodedBytes) bytes, above the \(responseByteCeiling)-byte ceiling. Request a smaller limit; no partial page was returned.",
+                retryable: false)
+        }
+        return wrapped
+    }
+
+    private func rowBudget(_ arguments: [String: JSONValue], defaultLimit: Int = 100, worstCaseItemBytes: Int) -> RowBudget {
+        let requested = Int(arguments["limit"]?.integerValue ?? Int64(defaultLimit))
+        let envelopeBytes = 8 * 1_024
+        let affordable = max(1, (responseByteCeiling - envelopeBytes) / max(1, worstCaseItemBytes))
+        return .init(requested: max(requested, 1), applied: min(max(requested, 1), affordable, 500))
+    }
+
+    private func scopeObject(_ scope: EvidenceQueryScope?, hiddenCount: Int?) -> JSONValue {
+        guard let scope else {
+            return .object(["applied": .bool(false), "reason": .string("No current monitoring policy was supplied; retained evidence is shown as scanned.")])
+        }
+        return .object([
+            "applied": .bool(true),
+            "scope_version_id": .string(scope.scopeVersionID),
+            "active_root_count": .integer(Int64(scope.rootPaths.count)),
+            "excluded_path_count": .integer(Int64(scope.excludedPaths.count)),
+            "hidden_by_scope_count": hiddenCount.map { .integer(Int64($0)) } ?? .null,
+        ])
+    }
+
+    private func budgetObject(_ budget: RowBudget?) -> JSONValue {
+        guard let budget else { return .null }
+        return .object([
+            "row_limit_requested": .integer(Int64(budget.requested)),
+            "row_limit_applied": .integer(Int64(budget.applied)),
+            "response_byte_ceiling": .integer(Int64(responseByteCeiling)),
+        ])
+    }
+
+    private func policyLimitations(scope: EvidenceQueryScope?, hiddenCount: Int?, budget: RowBudget?, coverage: String) -> [String] {
+        var values: [String] = []
+        if let hiddenCount, hiddenCount > 0 {
+            values.append("\(hiddenCount) retained rows are hidden by the current watched roots and exclusions; they were not observed as deleted and remain until the next scan reconciles them.")
+        }
+        if let scope, scope.rootPaths.isEmpty {
+            values.append("No watched root is active; file-level evidence is withheld until a root is configured.")
+        }
+        if let budget, budget.clamped {
+            values.append("The requested limit of \(budget.requested) rows was reduced to \(budget.applied) to honor the \(responseByteCeiling)-byte response ceiling.")
+        }
+        if coverage == "none" {
+            values.append("No completed observation exists; empty results are not evidence of absence.")
+        }
+        return values
+    }
+
+    /// Coverage that distinguishes missing evidence from complete evidence: a
+    /// store with no completed observation cannot report complete coverage.
+    private func evidenceCoverage(observationGaps: [EvidenceCoverageGap], stateAsOf: Date?, hasRows: Bool, from: Date? = nil, through: Date? = nil) -> String {
+        let base = coverage(observationGaps: observationGaps, from: from, through: through)
+        guard stateAsOf == nil, base == "complete" else { return base }
+        return hasRows ? "partial" : "none"
+    }
+
+    private func wrapCursors(_ value: JSONValue, query: String) -> JSONValue {
+        switch value {
+        case .object(var object):
+            for (key, child) in object {
+                if key == "next_cursor", let raw = child.stringValue {
+                    if cursorLeases.count >= 256, let oldest = cursorLeases.min(by: { $0.value.expiresAt < $1.value.expiresAt })?.key { cursorLeases.removeValue(forKey: oldest) }
+                    let token = "ds-page-" + UUID().uuidString.lowercased()
+                    cursorLeases[token] = .init(query: query, raw: raw, expiresAt: ProcessInfo.processInfo.systemUptime + 600)
+                    object[key] = .string(token)
+                } else { object[key] = wrapCursors(child, query: query) }
+            }
+            return .object(object)
+        case .array(let children): return .array(children.map { wrapCursors($0, query: query) })
+        default: return value
+        }
+    }
+
+    private func rawQuery(tool: String, arguments: [String: JSONValue]) async throws -> JSONValue {
         switch tool {
         case "get_storage_summary":
             return try await storageSummary()
@@ -88,7 +234,8 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
 
     private func storageSummary() async throws -> JSONValue {
         let snapshot = try VolumeSnapshotService().capture()
-        let lifecycle = try await store.lifecycleStatus(try .init())
+        let publicLifecycle = try await store.lifecycleSummary(retentionPolicyProvider())
+        let lifecycle = publicLifecycle.status
         let diagnostics = try await store.diagnostics()
         let latestObservation = try await store.latestObservationAt()
         let volumes = snapshot.volumes.map { volume in
@@ -100,9 +247,9 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             ])
         }
         return .object([
-            "schema": .string("storage-summary-v1"),
-            "live_volume_observed_at": .string(snapshot.observedAt),
-            "persisted_state_as_of": latestObservation.map { .string(timestamp($0)) } ?? .null,
+            "schema": .string(StorageSummaryContract.schema),
+            StorageSummaryContract.liveVolumeObservedAt: .string(snapshot.observedAt),
+            StorageSummaryContract.persistedStateAsOf: latestObservation.map { .string(timestamp($0)) } ?? .null,
             "volumes": .array(volumes),
             "current_consumer_count": .integer(Int64(lifecycle.currentStateCount)),
             "current_allocated_bytes": .integer(lifecycle.currentStateAllocatedBytes),
@@ -112,33 +259,56 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "wal_bytes": .integer(diagnostics.walBytes),
             "shared_memory_bytes": .integer(diagnostics.sharedMemoryBytes),
             "storage_admission": .string(lifecycle.databaseBytes < lifecycle.databaseCapBytes ? "available" : "retention-required"),
-            "coverage": .string(coverage(observationGaps: lifecycle.observationGaps)),
+            "coverage": .string(lifecycleCoverage(publicLifecycle)),
             "freshness": .string("live-volume-plus-persisted-current-state"),
             "limitations": .array((snapshot.limitations + ["Detailed current state covers configured roots; whole-volume capacity does not imply whole-volume file attribution."]).map(JSONValue.string)),
         ])
     }
 
     private func evidenceLifecycle() async throws -> JSONValue {
-        let policy = try EvidenceStoreRetentionPolicy()
-        let status = try await store.lifecycleStatus(policy)
+        let policy = try await retentionPolicyProvider()
+        let scope = try await queryScopeProvider()
+        let status = try await store.lifecycleSummary(policy)
+        var limitations = ["Actual retained intervals may be shorter than policy after startup, collection gaps, or forced capacity eviction."]
+        let effectiveScope: JSONValue
+        if let scope {
+            let latest = try await store.latestObservationScope().map(EvidenceQueryScope.init)
+            let matchesLatestScan = latest.map { $0.rootPaths == scope.rootPaths && $0.excludedPaths == scope.excludedPaths }
+            if matchesLatestScan == false {
+                limitations.append("The current watched roots or exclusions differ from the latest scan; queries apply the current policy immediately and the next scan reconciles retained detail.")
+            }
+            effectiveScope = .object([
+                "scope_version_id": .string(scope.scopeVersionID),
+                "roots": .array(scope.rootPaths.map { .string(shape(path: $0, detail: .basename)) }),
+                "excluded": .array(scope.excludedPaths.map { .string(shape(path: $0, detail: .basename)) }),
+                "matches_latest_scan": matchesLatestScan.map(JSONValue.bool) ?? .null,
+            ])
+        } else {
+            effectiveScope = .null
+        }
         return .object([
             "schema": .string("evidence-lifecycle-v1"),
             "policy": try jsonValue(policy),
-            "status": try jsonValue(status),
-            "coverage": .string(coverage(observationGaps: status.observationGaps)),
-            "limitations": .array([.string("Actual retained intervals may be shorter than policy after startup, collection gaps, or forced capacity eviction.")]),
+            "status": try lifecycleSummary(status),
+            "effective_scope": effectiveScope,
+            "coverage": .string(lifecycleCoverage(status)),
+            "limitations": .array(limitations.map(JSONValue.string)),
         ])
     }
 
     private func currentConsumers(arguments: [String: JSONValue]) async throws -> JSONValue {
         let detail = pathDetail(arguments)
-        let limit = Int(arguments["limit"]?.integerValue ?? 100)
+        let scope = try await queryScopeProvider()
+        // Current items carry both `path` and `root_path` at the requested
+        // detail; two PATH_MAX strings plus the numeric fields bound one item.
+        let budget = rowBudget(arguments, worstCaseItemBytes: 2_688)
         let page = try await store.queryCurrentConsumers(
             rootPath: arguments["root_path"]?.stringValue,
             category: arguments["category"]?.stringValue,
             minimumAllocatedBytes: arguments["minimum_bytes"]?.integerValue ?? 0,
             cursor: arguments["cursor"]?.stringValue,
-            limit: limit
+            limit: budget.applied,
+            scope: scope
         )
         let now = Date()
         let stateAsOf = try await store.latestObservationAt()
@@ -151,42 +321,112 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             requestedThrough: now,
             retainedFrom: stateAsOf,
             retainedThrough: stateAsOf,
-            coverage: coverage(observationGaps: gaps),
+            coverage: evidenceCoverage(observationGaps: gaps, stateAsOf: stateAsOf, hasRows: !page.items.isEmpty),
             precision: "current",
             matchedCount: page.matchedCount,
             nextCursor: page.nextCursor,
             items: page.items.map { currentItem($0, detail: detail) },
-            limitations: ["Only actionable present objects from the latest persisted complete evidence are returned."]
+            limitations: ["Only actionable present objects from the latest persisted complete evidence are returned."],
+            scope: scope,
+            scopeHiddenCount: page.scopeHiddenCount,
+            budget: budget
         )
+    }
+
+    private func lifecycleSummary(_ value: EvidenceLifecycleSummary) throws -> JSONValue {
+        var summary = try jsonValue(value.status).objectValue ?? [:]
+        // The no-argument lifecycle tool defaults to basename privacy. Explicit
+        // DTOs prevent export paths/free-text diagnostics from bypassing it.
+        summary["observation_gaps"] = .array(value.status.observationGaps.map(gapItem))
+        summary["export_inventory"] = .array(try value.status.exportInventory.map { record in
+            var fields = try jsonValue(record).objectValue ?? [:]
+            fields["path"] = record.path.map { .string(shape(path: $0, detail: .basename)) } ?? .null
+            fields["failure"] = record.failure == nil ? .null : .string("Export failed; free-text diagnostics are withheld from this summary.")
+            fields["inventory_checked_at_request"] = .bool(false)
+            return .object(fields)
+        })
+        if let coverage = value.scanCoverage {
+            func generation(_ value: EvidenceScanGenerationSummary?) -> JSONValue {
+                guard let value else { return .null }
+                return .object([
+                    "generation_id": .string(value.generationID), "status": .string(value.status),
+                    "started_at": .string(timestamp(value.startedAt)), "updated_at": .string(timestamp(value.updatedAt)),
+                    "completed_at": value.completedAt.map { .string(timestamp($0)) } ?? .null,
+                    "processed_entry_count": .integer(Int64(value.processedEntryCount)),
+                    "staged_file_count": .integer(Int64(value.stagedFileCount)),
+                    "completed_root_count": value.completedRootCount.map(JSONValue.integer) ?? .null,
+                    "pending_directory_count": value.pendingDirectoryCount.map(JSONValue.integer) ?? .null,
+                    "frontier_omitted": .bool(true),
+                    "limitations": .array(value.pendingDirectoryCount == nil ? [.string("Historical traversal counters were not projected; unknown values are not zero.")] : []),
+                ])
+            }
+            summary["scan_coverage"] = .object([
+                "schema": .string("scan-coverage-summary-v1"),
+                "configured_roots": .array(coverage.latestGeneration.configuredRoots.map { .string(shape(path: $0, detail: .basename)) }),
+                "excluded_paths": .array(coverage.latestGeneration.excludedPaths.map { .string(shape(path: $0, detail: .basename)) }),
+                "detail_coverage": .string(coverage.detailCoverage),
+                "active_generation": generation(coverage.activeGeneration),
+                "latest_generation": coverage.latestGeneration.generationID == coverage.activeGeneration?.generationID ? .null : generation(coverage.latestGeneration),
+                "last_complete_generation_at": coverage.lastCompleteGenerationAt.map { .string(timestamp($0)) } ?? .null,
+            ])
+        }
+        return .object(summary)
+    }
+
+    private func lifecycleCoverage(_ summary: EvidenceLifecycleSummary) -> String {
+        if coverage(observationGaps: summary.status.observationGaps) != "complete" { return "partial" }
+        return summary.detailCoverage
+    }
+
+    private func growthCoverage(_ summary: EvidenceLifecycleSummary, from: Date, through: Date) -> String {
+        // An active scan has an open-ended observation interval. Its scalar
+        // projection preserves that uncertainty without decoding the traversal
+        // frontier or making an earlier, disjoint historical window partial.
+        if let active = summary.scanCoverage?.activeGeneration, active.startedAt <= through {
+            return "partial"
+        }
+        return coverage(observationGaps: summary.status.observationGaps, from: from, through: through)
     }
 
     private func explainGrowth(arguments: [String: JSONValue]) async throws -> JSONValue {
         let (from, through) = try requestedRange(arguments)
         let detail = pathDetail(arguments)
+        let scope = try await queryScopeProvider()
+        let budget = rowBudget(arguments, worstCaseItemBytes: 1_536)
         let model = try await store.queryGrowth(
             from: from,
             through: through,
             cursor: arguments["cursor"]?.stringValue,
-            limit: Int(arguments["limit"]?.integerValue ?? 100)
+            limit: budget.applied,
+            scope: scope
         )
-        let lifecycle = try await store.lifecycleStatus(try .init())
+        let publicLifecycle = try await store.lifecycleSummary(retentionPolicyProvider())
+        let lifecycle = publicLifecycle.status
         let actualDates = model.page.items.map(\.observedAt)
         let precisions = Set(model.page.items.map(\.precision))
         let precision = precisions.isEmpty ? "unknown" : (precisions.count == 1 ? precisions.first! : "mixed")
+        let stateAsOf = try await store.latestObservationAt()
+        // An active scan keeps "partial"; only a claim of complete coverage with
+        // no completed observation and no rows is downgraded to "none".
+        let baseCoverage = growthCoverage(publicLifecycle, from: from, through: through)
+        let coverage = stateAsOf == nil && model.page.items.isEmpty && baseCoverage == "complete" ? "none" : baseCoverage
         var result = pageObject(
             query: "explain_growth",
             observedAt: Date(),
-            stateAsOf: try await store.latestObservationAt(),
+            stateAsOf: stateAsOf,
             requestedFrom: from,
             requestedThrough: through,
             retainedFrom: retainedOldest(lifecycle),
             retainedThrough: retainedNewest(lifecycle),
-            coverage: coverage(observationGaps: lifecycle.observationGaps, from: from, through: through),
+            coverage: coverage,
             precision: precision,
             matchedCount: model.aggregate.matchedCount,
             nextCursor: model.page.nextCursor,
             items: model.page.items.map { growthItem($0, detail: detail) },
-            limitations: actualDates.isEmpty ? ["No retained evidence rows overlap the requested interval."] : []
+            limitations: actualDates.isEmpty ? ["No retained evidence rows overlap the requested interval."] : [],
+            scope: scope,
+            scopeHiddenCount: nil,
+            budget: budget
         ).objectValue ?? [:]
         result["summary"] = .object([
             "growth_bytes": .integer(model.aggregate.growthBytes),
@@ -202,10 +442,13 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private func provenance(arguments: [String: JSONValue]) async throws -> JSONValue {
         let query = arguments["path_query"]?.stringValue ?? ""
         let detail = pathDetail(arguments)
+        let scope = try await queryScopeProvider()
+        let budget = rowBudget(arguments, worstCaseItemBytes: 4_096)
         let chain = try await store.provenanceChain(
             pathQuery: query,
             cursor: arguments["cursor"]?.stringValue,
-            limit: Int(arguments["limit"]?.integerValue ?? 100)
+            limit: budget.applied,
+            scope: scope
         )
         let claimsByEvent = Dictionary(grouping: chain.claims, by: { $0.event.eventID })
         var items = chain.currentStates.map { state in
@@ -219,11 +462,12 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
                 "allocated_bytes": .integer(state.allocatedBytes),
             ])
         }
-        items += chain.events.map { event in
+        items += try chain.events.map { event in
             .object([
                 "kind": .string("change"),
                 "event_id": .string(event.eventID),
                 "observed_at": .string(timestamp(event.observedAt)),
+                "timing": try jsonValue(EvidenceEventTimingPresentation(timing: event.timing)),
                 "operation": .string(event.operation.rawValue),
                 "path": .string(shape(path: event.path, detail: detail)),
                 "logical_delta": .integer(event.logicalDelta),
@@ -233,23 +477,34 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             ])
         }
         let dates = chain.events.map(\.observedAt)
+        var limitations: [String] = []
+        if chain.objectIDs.count > 1 { limitations.append("The basename matched multiple historical file identities; each object ID remains distinct.") }
+        if chain.identityLimitReached {
+            limitations.append("More than \(EvidenceStore.provenanceIdentityLimit) file identities matched; results cover only the first \(EvidenceStore.provenanceIdentityLimit) by path order. Narrow the query to a fuller path.")
+        }
+        let latestObservation = try await store.latestObservationAt()
+        let stateAsOf = chain.currentStateAsOf ?? latestObservation
         var result = pageObject(
             query: "get_provenance",
             observedAt: Date(),
-            stateAsOf: chain.currentStates.map(\.observedAt).max(),
+            stateAsOf: chain.currentStateAsOf,
             requestedFrom: dates.min() ?? Date(),
             requestedThrough: dates.max() ?? Date(),
             retainedFrom: dates.min(),
             retainedThrough: dates.max(),
-            coverage: coverage(observationGaps: chain.observationGaps),
+            coverage: evidenceCoverage(observationGaps: chain.observationGaps, stateAsOf: stateAsOf, hasRows: !items.isEmpty),
             precision: dates.isEmpty ? "unknown" : "raw",
-            matchedCount: chain.matchedCount + chain.currentStates.count,
+            matchedCount: chain.matchedCount + chain.matchedCurrentStateCount,
             nextCursor: chain.nextCursor,
             items: items,
-            limitations: chain.objectIDs.count > 1 ? ["The basename matched multiple historical file identities; each object ID remains distinct."] : []
+            limitations: limitations,
+            scope: scope,
+            scopeHiddenCount: nil,
+            budget: budget
         ).objectValue ?? [:]
         result["object_ids"] = .array(chain.objectIDs.map(JSONValue.string))
-        result["sessions"] = .array(chain.sessions.map(sessionItem))
+        result["identity_limit_reached"] = .bool(chain.identityLimitReached)
+        result["sessions"] = .array(chain.sessions.map { sessionItem($0, detail: detail) })
         result["coverage_gaps"] = .array(chain.observationGaps.map(gapItem))
         return .object(result)
     }
@@ -260,11 +515,16 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let all = try await registry.activeRegistrations(proof: proof(), now: now)
             .filter { $0.lastHeartbeatAt >= cutoff }
             .sorted { ($0.lastHeartbeatAt, $0.registrationID.uuidString) > ($1.lastHeartbeatAt, $1.registrationID.uuidString) }
-        let limit = Int(arguments["limit"]?.integerValue ?? 100)
-        let offset = decodeOffsetCursor(arguments["cursor"]?.stringValue)
-        let page = Array(all.dropFirst(offset).prefix(limit))
-        let next = offset + page.count < all.count ? encodeOffsetCursor(offset + page.count) : nil
-        let sessionValues = page.map(sessionItem)
+        let budget = rowBudget(arguments, worstCaseItemBytes: 1_024)
+        // Bind the offset cursor to the ordered membership so a session that
+        // registers, ends, or reorders between pages expires the page instead
+        // of silently duplicating or skipping entries.
+        let revision = SHA256.hash(data: Data(all.map { $0.registrationID.uuidString.lowercased() }.joined(separator: "\n").utf8))
+            .map { String(format: "%02x", $0) }.joined()
+        let offset = try decodeOffsetCursor(arguments["cursor"]?.stringValue, revision: revision)
+        let page = Array(all.dropFirst(offset).prefix(budget.applied))
+        let next = offset + page.count < all.count ? encodeOffsetCursor(offset + page.count, revision: revision) : nil
+        let sessionValues = page.map { sessionItem($0) }
         return .object([
             "schema": .string(compatibilityAlias ? "active-writers-v1" : "active-agent-sessions-v1"),
             "observed_at": .string(timestamp(now)),
@@ -272,10 +532,13 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "returned_count": .integer(Int64(page.count)),
             "truncated": .bool(next != nil),
             "next_cursor": next.map(JSONValue.string) ?? .null,
+            "budget": budgetObject(budget),
             "sessions": .array(sessionValues),
             "writers": compatibilityAlias ? .array(sessionValues) : .null,
             "compatibility_alias": .bool(compatibilityAlias),
-            "limitations": .array([.string("These are authenticated active task contexts, not observed file writers. Writer identity requires direct provenance evidence.")]),
+            "limitations": .array(([
+                "These are authenticated active task contexts, not observed file writers. Writer identity requires direct provenance evidence.",
+            ] + policyLimitations(scope: nil, hiddenCount: nil, budget: budget, coverage: "n/a")).map(JSONValue.string)),
         ])
     }
 
@@ -284,31 +547,40 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let olderThanDays = Int(arguments["older_than_days"]?.integerValue ?? 0)
         let cutoff = olderThanDays > 0 ? now.addingTimeInterval(-TimeInterval(olderThanDays) * 86_400) : nil
         let detail = pathDetail(arguments)
+        let scope = try await queryScopeProvider()
+        let budget = rowBudget(arguments, worstCaseItemBytes: 1_536)
         let page = try await store.queryCurrentConsumers(
             rootPath: arguments["root_path"]?.stringValue,
             category: arguments["category"]?.stringValue,
             minimumAllocatedBytes: max(1, arguments["minimum_bytes"]?.integerValue ?? 1),
             modifiedBefore: cutoff,
             cursor: arguments["cursor"]?.stringValue,
-            limit: Int(arguments["limit"]?.integerValue ?? 100)
+            limit: budget.applied,
+            scope: scope
         )
         let candidates = page.items.compactMap { revalidatedCandidate($0, detail: detail, at: now) }
+        let stateAsOf = try await store.latestObservationAt()
+        let coverage = evidenceCoverage(observationGaps: try await store.coverageGaps(), stateAsOf: stateAsOf, hasRows: !page.items.isEmpty)
         return .object([
             "schema": .string("cleanup-candidates-v2"),
             "observed_at": .string(timestamp(now)),
-            "state_as_of": (try await store.latestObservationAt()).map { .string(timestamp($0)) } ?? .null,
+            "state_as_of": stateAsOf.map { .string(timestamp($0)) } ?? .null,
+            "state_age_seconds": stateAsOf.map { .integer(Int64(max(0, now.timeIntervalSince($0)))) } ?? .null,
+            "coverage": .string(coverage),
             "matched_count": .null,
             "prevalidation_matched_count": .integer(Int64(page.matchedCount)),
             "returned_count": .integer(Int64(candidates.count)),
             "truncated": .bool(page.truncated),
             "next_cursor": page.nextCursor.map(JSONValue.string) ?? .null,
+            "scope": scopeObject(scope, hiddenCount: page.scopeHiddenCount),
+            "budget": budgetObject(budget),
             "items": .array(candidates),
             "safety": .string("review-required-never-safe-to-delete-claim"),
-            "limitations": .array([
-                .string("Only present actionable records whose live path, stable identity, size, and modification time still match are returned."),
-                .string("Path-temporal identities, inaccessible paths, changed files, symlinks, and stale or reused paths are excluded."),
-                .string("Candidates are evidence for human review, not deletion instructions."),
-            ]),
+            "limitations": .array(([
+                "Only present actionable records whose live path, stable identity, size, and modification time still match are returned.",
+                "Path-temporal identities, inaccessible paths, changed files, symlinks, and stale or reused paths are excluded.",
+                "Candidates are evidence for human review, not deletion instructions.",
+            ] + policyLimitations(scope: scope, hiddenCount: page.scopeHiddenCount, budget: budget, coverage: coverage)).map(JSONValue.string)),
         ])
     }
 
@@ -409,7 +681,8 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         guard let sessionID = arguments["session_id"]?.stringValue else {
             throw DiskStewardIPCError.remote(code: "invalid_request", message: "session_id is required.", retryable: false)
         }
-        let registrations = try await registry.historicalRegistrations(sessionID: sessionID, proof: proof(), now: Date())
+        let allRegistrations = try await registry.historicalRegistrations(proof: proof(), now: Date())
+        let registrations = allRegistrations.filter { $0.sessionID == sessionID }
         guard !registrations.isEmpty else {
             throw DiskStewardIPCError.remote(code: "session_unavailable", message: "No retained session evidence matches that session ID.", retryable: false)
         }
@@ -420,93 +693,163 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         guard from < through else {
             throw DiskStewardIPCError.remote(code: "invalid_range", message: "A valid from/through range is required.", retryable: false)
         }
-        let sourceEvents = try await store.events(from: from, through: through, limit: 100_000)
-        let correlated = TaskImpactCorrelationEngine().correlate(
-            sourceEvents.map { CorrelationObservation(event: $0, writer: nil) },
-            registrations: registrations,
-            ancestry: .init(records: [])
-        )
-        let impact = TaskImpactCorrelationEngine().impact(for: sessionID, correlated: correlated)
-        let persistedAttributions = try await store.provenanceAttributions(
-            registrationIDs: registrations.map(\.registrationID),
-            from: from,
-            through: through
-        )
-        let directlyAttributedIDs = Set(persistedAttributions.map(\.eventID))
-        let correlatedIDs = Set(impact.eventIDs).union(directlyAttributedIDs)
-        let correlatedEvents = sourceEvents.filter { correlatedIDs.contains($0.eventID) }
-            .sorted { ($0.observedAt, $0.eventID) < ($1.observedAt, $1.eventID) }
+        let scope = try await queryScopeProvider()
+        let candidates: [TaskImpactCandidate]
+        do {
+            candidates = try await store.taskImpactCandidates(
+                from: from, through: through, maximumRows: taskImpactMaximumRows, maximumBytes: taskImpactMaximumBytes, scope: scope)
+        }
+        catch TaskImpactQueryError.budgetExceeded {
+            throw DiskStewardIPCError.remote(code: "query_budget_exceeded",
+                message: "Task impact exceeds the retained-evidence query budget. Use a narrower time window; no partial totals were returned.", retryable: false)
+        }
+        let gaps = try await store.coverageGaps()
+        var correlatedEvents: [EvidenceStoreEvent] = []
+        var confidenceValues: [EvidenceStoreEvent.Confidence] = []
+        var usedDirectClaim = false
+        let engine = ProvenanceEngine()
+        for candidate in candidates {
+            try Task.checkCancellation()
+            let event = candidate.event
+            let occurrence = candidate.currentClaim.map {
+                (start: $0.occurredStart, end: $0.occurredEnd)
+            } ?? event.timing.map { (start: $0.occurredStart, end: $0.occurredEnd) }
+            let hasGap = gaps.contains { gap in
+                let root = URL(fileURLWithPath: gap.rootPath).standardizedFileURL.path
+                let path = URL(fileURLWithPath: event.path).standardizedFileURL.path
+                guard gap.rootPath == "*" || path == root || path.hasPrefix(root == "/" ? "/" : root + "/") else { return false }
+                guard let timing = occurrence else { return true }
+                return gap.startedAt <= timing.end
+                    && (timing.start.map { gap.endedAt == nil || gap.endedAt! >= $0 } ?? true)
+            }
+            guard let claim = engine.taskAttribution(for: event, currentClaim: candidate.currentClaim,
+                registrations: allRegistrations, hasObservationGap: hasGap),
+                claim.session?.sessionID == sessionID,
+                claim.occurredEnd >= from, claim.occurredStart.map({ $0 <= through }) ?? true
+            else { continue }
+            correlatedEvents.append(event)
+            confidenceValues.append(claim.confidence)
+            usedDirectClaim = usedDirectClaim || claim.actor != nil
+        }
         let eventIDs = correlatedEvents.map(\.eventID)
         let surviving = try await store.survivingImpact(eventIDs: eventIDs)
         let limit = min(max(Int(arguments["limit"]?.integerValue ?? 500), 1), 500)
         let returnedIDs = Array(eventIDs.prefix(limit))
-        let growth = correlatedEvents.reduce(Int64(0)) { $0 + max(0, $1.allocatedDelta) }
-        let shrink = correlatedEvents.reduce(Int64(0)) { $0 + max(0, -$1.allocatedDelta) }
-        let logicalDelta = correlatedEvents.reduce(Int64(0)) { $0 + $1.logicalDelta }
-        let allocatedDelta = correlatedEvents.reduce(Int64(0)) { $0 + $1.allocatedDelta }
-        var confidenceValues = persistedAttributions.map(\.confidence)
-        if !impact.eventIDs.isEmpty { confidenceValues.append(impact.confidence) }
+        func sum(_ values: [Int64]) throws -> Int64 {
+            try values.reduce(0) { total, value in
+                let (result, overflow) = total.addingReportingOverflow(value)
+                guard !overflow else {
+                    throw DiskStewardIPCError.remote(code: "query_budget_exceeded", message: "Task impact totals exceed the representable byte range.", retryable: false)
+                }
+                return result
+            }
+        }
+        let growth = try sum(correlatedEvents.map { max(0, $0.allocatedDelta) })
+        let negative = try sum(correlatedEvents.map { min(0, $0.allocatedDelta) })
+        guard negative != Int64.min else {
+            throw DiskStewardIPCError.remote(code: "query_budget_exceeded", message: "Task impact shrinkage exceeds the representable byte range.", retryable: false)
+        }
+        let shrink = -negative
+        let logicalDelta = try sum(correlatedEvents.map(\.logicalDelta))
+        let allocatedDelta = try sum(correlatedEvents.map(\.allocatedDelta))
         let confidence = weakestConfidence(confidenceValues)
-        let gaps = try await store.coverageGaps()
         return .object([
             "schema": .string("task-impact-v1"),
+            "attribution_semantics": .string("occurrence-bounds-v1"),
+            "window_semantics": .string("possible-occurrence-overlap"),
+            "totals_scope": .string("whole-deltas-of-matched-events-not-time-prorated"),
             "session_id": .string(sessionID),
             "requested_interval": interval(from: from, through: through),
             "event_ids": .array(returnedIDs.map(JSONValue.string)),
             "matched_count": .integer(Int64(eventIDs.count)),
             "returned_count": .integer(Int64(returnedIDs.count)),
-            "truncated": .bool(returnedIDs.count < eventIDs.count || sourceEvents.count == 100_000),
+            "truncated": .bool(returnedIDs.count < eventIDs.count),
             "logical_delta": .integer(logicalDelta),
             "allocated_delta": .integer(allocatedDelta),
             "historical_growth_bytes": .integer(growth),
             "historical_shrink_bytes": .integer(shrink),
-            "historical_churn_bytes": .integer(growth + shrink),
+            "historical_churn_bytes": .integer(try sum([growth, shrink])),
             "surviving_object_count": .integer(Int64(surviving.objectCount)),
             "surviving_logical_bytes": .integer(surviving.logicalBytes),
             "surviving_allocated_bytes": .integer(surviving.allocatedBytes),
             "confidence": .string(confidence.rawValue),
             "session_lifecycle": .array(registrations.map { .string($0.lifecycle.rawValue) }),
-            "sessions": .array(registrations.map(sessionItem)),
-            "coverage": .string(coverage(observationGaps: gaps, from: from, through: through)),
+            "sessions": .array(registrations.map { sessionItem($0) }),
+            "coverage": .string(evidenceCoverage(observationGaps: gaps, stateAsOf: try await store.latestObservationAt(), hasRows: !candidates.isEmpty, from: from, through: through)),
             "coverage_gaps": .array(gaps.filter { $0.startedAt <= through && ($0.endedAt == nil || $0.endedAt! >= from) }.map(gapItem)),
-            "method": .string(directlyAttributedIDs.isEmpty ? "retained-session-temporal-and-workspace-correlation" : "persisted-provenance-and-session-correlation"),
-            "limitations": .array((impact.limitations + [
+            "scope": scopeObject(scope, hiddenCount: nil),
+            "method": .string(usedDirectClaim ? "persisted-provenance-and-session-correlation" : "retained-session-temporal-and-workspace-correlation"),
+            "limitations": .array([
                 "Ended or expired session evidence can support historical temporal/workspace inference but cannot establish a writer without direct process-file evidence.",
-                sourceEvents.count == 100_000 ? "The internal retained-event scan reached its 100000-row safety ceiling." : "",
-            ].filter { !$0.isEmpty }).map(JSONValue.string)),
+                "Unknown occurrence lower bounds and competing or partially covering workspaces cannot establish a workspace/time attribution. Unverified observations are not task creation evidence.",
+                "The window selects possible occurrence overlaps; totals include each matched event's whole delta, not bytes proven to have changed inside that window.",
+                "No matching attribution means unknown impact, not proof that the task changed nothing."
+            ].map(JSONValue.string)),
         ])
     }
 
     private func inlineBundle(arguments: [String: JSONValue]) async throws -> JSONValue {
         guard let fromText = arguments["from"]?.stringValue,
               let throughText = arguments["through"]?.stringValue,
-              let from = ISO8601DateFormatter().date(from: fromText),
-              let through = ISO8601DateFormatter().date(from: throughText),
+              let from = parseTimestamp(fromText),
+              let through = parseTimestamp(throughText),
               from < through
         else { throw DiskStewardIPCError.remote(code: "invalid_range", message: "A valid from/through range is required.", retryable: false) }
         let detail = EvidencePathDetail(rawValue: arguments["path_detail"]?.stringValue ?? "basename") ?? .basename
         let maximumEvents = Int(arguments["max_events"]?.integerValue ?? arguments["limit"]?.integerValue ?? 500)
-        let result = try await exporter.export(
+        try Task.checkCancellation()
+        // Actor reentrancy permits overlapping exports. Each call gets its own
+        // private directory, including cleanup when export construction throws.
+        let workspace = try InlineExportWorkspace(parent: inlineExportBase)
+        defer { workspace.removeIfOwned() }
+        let result: EvidenceBundleExportResult
+        let scope = try await queryScopeProvider()
+        do { result = try await exporter.export(
             store: store,
-            options: .init(from: from, through: through, pathDetail: detail, maximumEvents: min(max(maximumEvents, 1), 10_000)),
-            to: inlineExportRoot,
+            options: .init(from: from, through: through, pathDetail: detail, maximumEvents: min(max(maximumEvents, 1), 10_000), limits: .inline, scope: scope),
+            to: workspace.directory,
             kind: .temporary
-        )
+        ) } catch { throw exportFailure(error) }
+        var cleanup = TemporaryExportCleanup(result: result) { [store] in
+            try await store.markTemporaryExportDestroyed(id: result.exportID)
+        }
         do {
-            let manifest = try decodeJSON(result.bundleURL.appending(path: "manifest.json"))
-            let summary = try decodeJSON(result.bundleURL.appending(path: "summary.json"))
-            let rollups = try decodeJSON(result.bundleURL.appending(path: "rollups.json"))
-            let snapshots = try decodeJSON(result.bundleURL.appending(path: "snapshots.json"))
-            let currentState = try decodeJSON(result.bundleURL.appending(path: "current-state.json"))
-            let provenance = try decodeJSON(result.bundleURL.appending(path: "provenance.json"))
-            let sessions = try decodeJSON(result.bundleURL.appending(path: "sessions.json"))
-            let coverage = try decodeJSON(result.bundleURL.appending(path: "coverage.json"))
-            let lifecycle = try decodeJSON(result.bundleURL.appending(path: "lifecycle.json"))
-            let brief = try String(contentsOf: result.bundleURL.appending(path: "codex-brief.md"), encoding: .utf8)
-            let compressed = try Data(contentsOf: result.bundleURL.appending(path: "events.jsonl.zlib"))
-            let eventData = try decompress(compressed)
-            let events = String(decoding: eventData, as: UTF8.self).split(separator: "\n").map { line in
-                try! JSONDecoder().decode(JSONValue.self, from: Data(line.utf8))
+            try Task.checkCancellation()
+            // Bound the total decoded source, not each file independently. A
+            // large response must fail before materializing multiple JSON trees.
+            var remaining = EvidenceExportLimits.inline.maximumPayloadBytes
+            func read(_ name: String) throws -> Data {
+                let handle = try FileHandle(forReadingFrom: result.bundleURL.appending(path: name))
+                defer { try? handle.close() }
+                var bytes = Data()
+                while true {
+                    try Task.checkCancellation()
+                    let chunk = try handle.read(upToCount: min(64 * 1_024, remaining + 1)) ?? Data()
+                    guard chunk.count <= remaining else { throw DiskStewardIPCError.responseTooLarge }
+                    if chunk.isEmpty { return bytes }
+                    remaining -= chunk.count
+                    bytes.append(chunk)
+                }
+            }
+            func decode(_ name: String) throws -> JSONValue {
+                try JSONDecoder().decode(JSONValue.self, from: read(name))
+            }
+            let manifest = try decode("manifest.json")
+            let summary = try decode("summary.json")
+            let rollups = try decode("rollups.json")
+            let snapshots = try decode("snapshots.json")
+            let currentState = try decode("current-state.json")
+            let provenance = try decode("provenance.json")
+            let sessions = try decode("sessions.json")
+            let coverage = try decode("coverage.json")
+            let lifecycle = try decode("lifecycle.json")
+            guard let brief = String(data: try read("codex-brief.md"), encoding: .utf8) else { throw EvidenceBundleExportError.invalidEvidence }
+            let compressed = try read("events.jsonl.zlib")
+            let eventData = try ZlibCodec.decompress(compressed, maximumOutputBytes: remaining)
+            guard let eventText = String(data: eventData, encoding: .utf8) else { throw EvidenceBundleExportError.invalidEvidence }
+            let events = try eventText.split(separator: "\n").map { line in
+                try Task.checkCancellation()
+                return try JSONDecoder().decode(JSONValue.self, from: Data(line.utf8))
             }
             let manifestObject = manifest.objectValue ?? [:]
             let limitations = manifestObject["limitations"] ?? .array([])
@@ -525,21 +868,30 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
                 "events": .array(events),
                 "brief": .string(brief),
                 "truncated": .bool(truncated),
+                "scope": scopeObject(scope, hiddenCount: nil),
             ])
-            try await destroyTemporaryExport(result)
+            // MCP emits both structuredContent and escaped text; reserve ample
+            // space below its 4 MiB transport ceiling for that envelope.
+            guard try JSONEncoder().encode(response).count <= 1_024 * 1_024 else { throw DiskStewardIPCError.responseTooLarge }
+            try Task.checkCancellation()
+            try await cleanup.perform()
             return response
         } catch {
-            try? await destroyTemporaryExport(result)
-            throw error
+            try? await cleanup.perform()
+            throw exportFailure(error)
         }
     }
 
-    private func destroyTemporaryExport(_ result: EvidenceBundleExportResult) async throws {
-        if FileManager.default.fileExists(atPath: result.bundleURL.path) {
-            try FileManager.default.removeItem(at: result.bundleURL)
+    private func exportFailure(_ error: Error) -> Error {
+        if error as? EvidenceBundleExportError == .budgetExceeded { return DiskStewardIPCError.responseTooLarge }
+        if error is DecodingError || error as? EvidenceBundleExportError == .invalidEvidence
+            || error as? EvidenceBundleExportError == .compressionFailed {
+            return DiskStewardIPCError.remote(code: "invalid_evidence", message: "Stored evidence could not be decoded; no partial result was returned.", retryable: false)
         }
-        try? FileManager.default.removeItem(at: inlineExportRoot)
-        try await store.markTemporaryExportDestroyed(id: result.exportID)
+        if error as? EvidenceBundleExportError == .destinationOwnershipChanged {
+            return DiskStewardIPCError.remote(code: "export_cleanup_failed", message: "The temporary export destination changed; replacement data was preserved.", retryable: false)
+        }
+        return error
     }
 
     private func limitationsContainsTruncation(_ value: JSONValue) -> Bool {
@@ -560,7 +912,10 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         matchedCount: Int?,
         nextCursor: String?,
         items: [JSONValue],
-        limitations: [String]
+        limitations: [String],
+        scope: EvidenceQueryScope? = nil,
+        scopeHiddenCount: Int? = nil,
+        budget: RowBudget? = nil
     ) -> JSONValue {
         let retained: JSONValue
         if let retainedFrom, let retainedThrough {
@@ -568,11 +923,13 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         } else {
             retained = .null
         }
+        let allLimitations = limitations + policyLimitations(scope: scope, hiddenCount: scopeHiddenCount, budget: budget, coverage: coverage)
         return .object([
             "schema": .string("evidence-query-page-v1"),
             "query": .string(query),
             "observed_at": .string(timestamp(observedAt)),
             "state_as_of": stateAsOf.map { .string(timestamp($0)) } ?? .null,
+            "state_age_seconds": stateAsOf.map { .integer(Int64(max(0, observedAt.timeIntervalSince($0)))) } ?? .null,
             "requested_interval": interval(from: requestedFrom, through: requestedThrough),
             "retained_interval": retained,
             "coverage": .string(coverage),
@@ -581,8 +938,10 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "returned_count": .integer(Int64(items.count)),
             "truncated": .bool(nextCursor != nil),
             "next_cursor": nextCursor.map(JSONValue.string) ?? .null,
+            "scope": scopeObject(scope, hiddenCount: scopeHiddenCount),
+            "budget": budgetObject(budget),
             "items": .array(items),
-            "limitations": .array(limitations.map(JSONValue.string)),
+            "limitations": .array(allLimitations.map(JSONValue.string)),
         ])
     }
 
@@ -629,8 +988,13 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "path": .string(shape(path: claim.event.path, detail: detail)),
             "confidence": .string(claim.confidence.rawValue),
             "method": .string(claim.method),
+            "schema": .string("provenance-claim-v3"),
+            "timing_basis": .string(claim.timingBasis),
             "detected_at": .string(timestamp(claim.detectedAt)),
-            "occurred_interval": interval(from: claim.occurredStart, through: claim.occurredEnd),
+            "occurred_interval": .object([
+                "from": claim.occurredStart.map { .string(timestamp($0)) } ?? .null,
+                "through": .string(timestamp(claim.occurredEnd)),
+            ]),
             "actor": claim.actor.map { actor in
                 .object([
                     "pid": .integer(Int64(actor.process.pid)),
@@ -657,7 +1021,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         ])
     }
 
-    private func sessionItem(_ registration: AgentSessionRegistration) -> JSONValue {
+    private func sessionItem(_ registration: AgentSessionRegistration, detail: EvidencePathDetail = .basename) -> JSONValue {
         .object([
             "registration_id": .string(registration.registrationID.uuidString.lowercased()),
             "session_id": .string(registration.sessionID),
@@ -665,13 +1029,16 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "lifecycle": .string(registration.lifecycle.rawValue),
             "pid": .integer(Int64(registration.process.pid)),
             "process_start_time": .string(timestamp(registration.process.startTime)),
-            "executable": registration.process.executablePath.map { .string(shape(path: $0, detail: .basename)) } ?? .null,
-            "workspace_roots": .array(registration.workspaceRoots.map { .string(shape(path: $0, detail: .basename)) }),
+            "executable": registration.process.executablePath.map { .string(shape(path: $0, detail: detail)) } ?? .null,
+            "workspace_roots": .array(registration.workspaceRoots.map { .string(shape(path: $0, detail: detail)) }),
             "registered_at": .string(timestamp(registration.registeredAt)),
             "last_heartbeat_at": .string(timestamp(registration.lastHeartbeatAt)),
             "expires_at": .string(timestamp(registration.expiresAt)),
             "ended_at": registration.endedAt.map { .string(timestamp($0)) } ?? .null,
-            "task_context": registration.taskContext.map(JSONValue.string) ?? .null,
+            // Arbitrary text can name paths outside the registered workspace.
+            // Do not claim basename/hashed privacy by filtering roots alone.
+            "task_context": detail == .full ? (registration.taskContext.map(JSONValue.string) ?? .null) : .null,
+            "task_context_withheld": .bool(detail != .full && registration.taskContext != nil),
             "confidence": .string("tool-linked"),
             "method": .string("authenticated-session-context"),
             "writer_identity_observed": .bool(false),
@@ -780,25 +1147,25 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         return try JSONDecoder().decode(JSONValue.self, from: encoder.encode(value))
     }
 
-    private func encodeOffsetCursor(_ offset: Int) -> String {
-        Data("offset:\(offset)".utf8).base64EncodedString()
+    private func encodeOffsetCursor(_ offset: Int, revision: String) -> String {
+        Data("offset:\(offset):\(revision)".utf8).base64EncodedString()
     }
 
-    private func decodeOffsetCursor(_ cursor: String?) -> Int {
-        guard let cursor,
-              let data = Data(base64Encoded: cursor),
+    private func decodeOffsetCursor(_ cursor: String?, revision: String) throws -> Int {
+        guard let cursor else { return 0 }
+        guard let data = Data(base64Encoded: cursor),
               let text = String(data: data, encoding: .utf8),
-              text.hasPrefix("offset:"),
-              let value = Int(text.dropFirst(7)), value >= 0
-        else { return 0 }
+              text.hasPrefix("offset:")
+        else { throw EvidenceStoreError.cursorExpired }
+        let parts = text.dropFirst(7).split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard parts.count == 2, let value = Int(parts[0]), value >= 0, parts[1] == revision else {
+            throw EvidenceStoreError.cursorExpired
+        }
         return value
     }
 
     private func timestamp(_ date: Date) -> String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        return formatter.string(from: date)
+        EvidenceTimestamp.format(date)
     }
 
     private func proof(uid: uid_t = getuid()) -> SessionAuthenticationProof {
@@ -806,38 +1173,73 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     }
 
     private func parseTimestamp(_ value: String) -> Date? {
-        let fractional = ISO8601DateFormatter()
-        fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return fractional.date(from: value) ?? ISO8601DateFormatter().date(from: value)
+        EvidenceTimestamp.parse(value)
     }
 
-    private func decodeJSON(_ url: URL) throws -> JSONValue {
-        try JSONDecoder().decode(JSONValue.self, from: Data(contentsOf: url))
+}
+
+/// Retain proof of this request's successful removal across inventory retries.
+/// A missing pathname on the first attempt is never treated as such proof.
+struct TemporaryExportCleanup {
+    let result: EvidenceBundleExportResult
+    let finishInventory: @Sendable () async throws -> Void
+    private var removedPayload = false
+
+    init(result: EvidenceBundleExportResult, finishInventory: @escaping @Sendable () async throws -> Void) {
+        self.result = result
+        self.finishInventory = finishInventory
     }
 
-    private func decompress(_ data: Data) throws -> Data {
-        guard !data.isEmpty else { return Data() }
-        var capacity = max(1_024, data.count * 4)
-        for _ in 0 ..< 12 {
-            var output = Data(count: capacity)
-            let written = output.withUnsafeMutableBytes { destination in
-                data.withUnsafeBytes { source in
-                    compression_decode_buffer(
-                        destination.bindMemory(to: UInt8.self).baseAddress!,
-                        capacity,
-                        source.bindMemory(to: UInt8.self).baseAddress!,
-                        data.count,
-                        nil,
-                        COMPRESSION_ZLIB
-                    )
-                }
-            }
-            if written > 0, written < capacity {
-                output.count = written
-                return output
-            }
-            capacity *= 2
+    mutating func perform() async throws {
+        if !removedPayload {
+            try result.destroyTemporaryPayload()
+            removedPayload = true
         }
-        throw DiskStewardIPCError.remote(code: "export_decode_failed", message: "Inline export detail could not be decoded.", retryable: false)
+        // Await cleanup without inheriting the cancelled request's task flag.
+        let finish = finishInventory
+        try await Task { try await finish() }.value
+    }
+}
+
+/// A request may remove only the directory it created, never sibling exports.
+/// Interrupted-request recovery needs a separate owned lease/manifest protocol;
+/// age alone is not proof that another instance's directory is abandoned.
+final class InlineExportWorkspace {
+    let directory: URL
+    private let device: dev_t
+    private let inode: ino_t
+
+    init(parent: URL) throws {
+        try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        var parentMetadata = stat()
+        guard lstat(parent.path, &parentMetadata) == 0,
+              parentMetadata.st_mode & S_IFMT == S_IFDIR,
+              parentMetadata.st_uid == getuid(), parentMetadata.st_mode & 0o077 == 0 else {
+            throw CocoaError(.fileWriteNoPermission)
+        }
+        var template = Array(parent.appending(path: "request-XXXXXX").path.utf8CString)
+        let created = template.withUnsafeMutableBufferPointer { buffer -> String? in
+            guard let address = buffer.baseAddress, let result = mkdtemp(address) else { return nil }
+            return String(cString: result)
+        }
+        guard let created else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        var metadata = stat()
+        guard lstat(created, &metadata) == 0 else {
+            _ = rmdir(created) // Empty directory created by this call, not recursive cleanup.
+            throw CocoaError(.fileReadUnknown)
+        }
+        directory = URL(fileURLWithPath: created, isDirectory: true)
+        device = metadata.st_dev
+        inode = metadata.st_ino
+    }
+
+    func removeIfOwned() {
+        var current = stat()
+        guard lstat(directory.path, &current) == 0,
+              current.st_mode & S_IFMT == S_IFDIR, current.st_uid == getuid(),
+              current.st_dev == device, current.st_ino == inode else { return }
+        // A bundle whose ownership check failed may remain here. Never bypass
+        // that rejection by recursively deleting its enclosing workspace.
+        _ = rmdir(directory.path)
     }
 }

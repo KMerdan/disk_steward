@@ -1,0 +1,52 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-551-REVIEW-01",
+  "parent_task": "TASK-551",
+  "task_guard": "GUARD-TASK-B27A420D62FB5B4BF08FD5EF7B6C3C5B",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b9c5f5c0502d4904d18519be8f731da9cce74863748d66207ad564c36a8e468e",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "One actionable ownership finding. Static review only; no runtime validation.",
+  "findings": [
+    {
+      "claim": "Temporary-bundle cleanup bypasses directory ownership checks: replacing the request directory while export is suspended permits destroyTemporaryExport to recursively delete the replacement bundle.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds551-check-qxaa89uk/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:640",
+        "/private/tmp/ds551-check-qxaa89uk/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:302"
+      ],
+      "recommendation": "Use request/bundle ownership authority for destruction, preserve replacements, and finalize inventory only after owned cleanup succeeds. Add a replacement-parent regression."
+    }
+  ],
+  "evidence": [
+    "/private/tmp/ds551-check-qxaa89uk/project/Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift:67",
+    "/private/tmp/ds551-check-qxaa89uk/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:878",
+    "/private/tmp/ds551-check-qxaa89uk/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:575"
+  ],
+  "checks": [
+    {
+      "command": "Read-only static inspection within frozen job scope",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "No files changed; no runtime tests run."
+    }
+  ],
+  "stale_if": [
+    "Reviewed source or parent guard changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Advisory static review; old candidate superseded by repair and a new task impact guard.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Compression runtime boundary tests remain coordinator responsibility.",
+    "Store backup and SQLiteConnection implementation outside helper scope."
+  ]
+}

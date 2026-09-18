@@ -1,0 +1,42 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-551-REVIEW-01",
+  "parent_task": "TASK-551",
+  "task_guard": "GUARD-TASK-B27A420D62FB5B4BF08FD5EF7B6C3C5B",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b9c5f5c0502d4904d18519be8f731da9cce74863748d66207ad564c36a8e468e",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/ds551-check-qxaa89uk/project/Sources/DiskStewardCore/Export/EvidenceBundle/**",
+    "/private/tmp/ds551-check-qxaa89uk/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "/private/tmp/ds551-check-qxaa89uk/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/**",
+    "/private/tmp/ds551-check-qxaa89uk/project/Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift"
+  ],
+  "purpose": "Review export ownership/cancellation and shared streaming codec for concrete remaining correctness or safety defects. Coordinator handles compile/test integration and numeric aggregation separately.",
+  "questions": [
+    "Does the codec accept incomplete streams, hang on buffer boundaries, miss bounded work, or lose data?",
+    "Can export cleanup delete unowned data or leave owned scratch on ordinary failure/cancellation?",
+    "Do byte limits actually stop row decoding and inline tree materialization before unbounded growth?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-551-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 10,
+    "max_output_chars": 8000
+  }
+}

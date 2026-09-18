@@ -1,0 +1,24 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-523-CANDIDATE",
+  "parent_task": "TASK-523",
+  "task_guard": "GUARD-TASK-CBB365753CA4B6D2A0763DD23D3CA78C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:5d3963f0ec7966da582258322bc2ba7f96cb184b951cffad44336f4c6a39d931", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-523-candidate.h457y7/Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+    "/private/tmp/disk-steward-523-candidate.h457y7/Sources/DiskStewardCore/EndpointBridge/**",
+    "/private/tmp/disk-steward-523-candidate.h457y7/Tests/DiskStewardEndpointTests/**"
+  ],
+  "purpose": "Independently review ordered bounded delivery, authenticated epoch fences, loss visibility and deterministic regression oracles on the frozen candidate.",
+  "questions": [
+    "Find actionable correctness, boundedness or lifecycle bugs in the candidate, especially concurrent start/stop, synchronous callbacks before startup throws, and old in-flight reservations across restart.",
+    "Are tests deterministic and sufficient for AC523? Review single-consumer ownership, byte accounting (including coalescing), filtered/invalid gaps, auth and cleanup. Do not execute tests; coordinator is running the frozen full suite. Distinguish actual flaws from untested platform limitations."
+  ],
+  "acceptance_criteria": ["AC-TASK-523-01"],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "candidate-acceptance",
+  "result_budget": {"max_findings": 5, "max_evidence_items": 7, "max_output_chars": 6000}
+}

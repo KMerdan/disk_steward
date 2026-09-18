@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Disk Steward projected scan coverage summary v1",
+  "description": "Nested in evidence-lifecycle-v1. Historical counters are null until a post-upgrade scan write. No private traversal payload is queried or exported.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "configured_roots",
+    "excluded_paths",
+    "detail_coverage",
+    "active_generation",
+    "latest_generation",
+    "last_complete_generation_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scan-coverage-summary-v1"
+    },
+    "configured_roots": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": {
+        "type": "string"
+      }
+    },
+    "excluded_paths": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": {
+        "type": "string"
+      }
+    },
+    "detail_coverage": {
+      "enum": [
+        "complete",
+        "partial",
+        "unknown",
+        "stale",
+        "unavailable"
+      ]
+    },
+    "active_generation": {
+      "$ref": "#/$defs/generation"
+    },
+    "latest_generation": {
+      "$ref": "#/$defs/generation"
+    },
+    "last_complete_generation_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "$defs": {
+    "generation": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "generation_id",
+        "status",
+        "started_at",
+        "updated_at",
+        "completed_at",
+        "processed_entry_count",
+        "staged_file_count",
+        "completed_root_count",
+        "pending_directory_count",
+        "frontier_omitted",
+        "limitations"
+      ],
+      "properties": {
+        "generation_id": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "completed",
+            "abandoned"
+          ]
+        },
+        "started_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "completed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "processed_entry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "staged_file_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_root_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "pending_directory_count": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "frontier_omitted": {
+          "const": true
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

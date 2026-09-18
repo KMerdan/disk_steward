@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-SETTINGS",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:a855ff7be502bacec430ed6f093fbfbd2c59b917ec6ed2fde14e423a6ecd9d84",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Sources/DiskStewardApp/Lifecycle/**",
+    "/private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Sources/DiskStewardApp/ApplicationDelegate.swift",
+    "/private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Sources/DiskStewardApp/StatusItemController.swift",
+    "/private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Tests/DiskStewardAppTests/Lifecycle/**"
+  ],
+  "purpose": "Final narrow delta review of settings-driven scheduling vs frozen 6d22b93 /private/tmp/disk-steward-522-lifecycle-reviewed.HetPjW. The additional repros are direct settings unpause and a subsequent settings change before its queued restart. No whole-task acceptance; ordinary hint receipt/callback generations and notification boundary remain open.",
+  "questions": [
+    "Does the queued settings restart use committed latest settings, remain single/coalesced, and respect safety-pause/sleep/terminal/explicit-resume ownership? Check only these deltas and their tests against prior frozen candidate.",
+    "Any concrete new regression introduced by these corrections? Keep this delta review bounded; no testing or native execution."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 8,
+    "max_output_chars": 6500
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-IMPACT-02",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-B7CFF057041F576DA4D767C93E4991C2",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:74bd38987ebb54a77a7dd87a683d6339523607a0386f6cf4038c3216f1d00d92",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The prior bounds finding is resolved in the inspected delta. Revalidation retains explicit unknown lower bounds, preserves unknown and unlinked-operator evidence, prevents reassignment to another registration, and applies gaps by path and selected occurrence interval. No new concrete actionable defect identified within this narrow static review.",
+  "findings": [],
+  "evidence": [
+    "/private/tmp/ds-ci-dwume6kj/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:170-176 selects the current claim before overlap filtering and uses event bounds only when no current claim exists.",
+    "/private/tmp/ds-ci-dwume6kj/project/Sources/DiskStewardCore/Provenance/ProvenanceModels.swift:151-168 copies the selected claim's start, end, and detection timestamps directly; an explicit nil start does not default to event timing.",
+    "/private/tmp/ds-ci-dwume6kj/project/Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift:28-54 retains qualifying direct proof, rejects promotion of unknown or unlinked-operator claims, revalidates inferred claims, and rejects a different registration.",
+    "/private/tmp/ds-ci-dwume6kj/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:509-518 uses current-claim occurrence bounds and normalized path-boundary matching for gaps, retaining wildcard and root-directory handling.",
+    "/private/tmp/ds-ci-dwume6kj/project/Tests/DiskStewardCoreTests/Provenance/TaskAttributionClaimTests.swift:6-57 exercises explicit unknown bounds, verified bounds without event timing, known unlinked operators, retained unknown evidence, and non-reassignment.",
+    "/private/tmp/ds-ci-dwume6kj/project/Tests/DiskStewardAppTests/IPC/TaskImpactTimingIPCIntegrationTests.swift:60-76 adds unrelated-root-gap and corrected-current-interval IPC regressions; the direct-proof regression remains present at lines 48-57."
+  ],
+  "checks": [
+    {
+      "command": "Read-only diff against the assigned 0724 snapshot and line-numbered inspection of scoped corrected source and tests",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed the narrow static review; inspected both SQL membership and subsequent attribution/filtering paths."
+    },
+    {
+      "command": "Tests, builds, database access, and runtime reproduction",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Excluded by the job. Coordinator-reported verifier results were not treated as independent helper evidence."
+    }
+  ],
+  "stale_if": [
+    "Any relevant scoped source or test changes after the identified candidate snapshot.",
+    "The parent task guard or accepted candidate hash differs from this job."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-review result awaiting coordinator identity, guard, snapshot, and checkpoint reconciliation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Static inspection does not establish runtime behavior or whole-task acceptance.",
+    "Broader all-tools, scale, and budgeting work was outside the assigned delta."
+  ]
+}

@@ -1,0 +1,52 @@
+{
+ "schema": "helper-result-v1",
+ "helper_id": "HELPER-TASK-561-OWNERSHIP-01",
+ "parent_task": "TASK-561",
+ "task_guard": "GUARD-TASK-5D18F5475F02991BF1D9639E9F9433F4",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:7f3d8527c8cf520793d83da04affb54f2119e49cd29bfe419dd64bc72d261379", "immutable": false},
+ "status": "completed",
+ "summary": "Read-only review of TASK-561 delta. Two P1 defects and one P2 defect found, all inside the exact edge cases the job flagged. (1) rollback's default-backup pick and backup-lib.zsh's prune_backups sorted mixed directory-name prefixes (digit-first vs 'uninstalled-'/'rollback-') as one lexicographic list, so ASCII order could override real chronology once both families coexist -> wrong backup restored or a newer backup pruned instead of an older one. (2) The check-and-swap's swap-back-on-mismatch (PrivateIntegrationFile.replace and json-config.swift commit) unlinked the temp file holding the real concurrent writer's bytes whenever the undo-swap itself failed, leaving the caller's bytes committed while the surfaced error text claimed 'the file was left unchanged' -> silent data loss plus a wrong report. (3) install/uninstall's undo() disarmed its own traps before running restore steps, so a failure inside restore_file/plugin-restore aborted via set -e without manifest_finish or a message and could leave a worse state; rollback had no trap around its own apply phase, so a mid-way failure left its safety-net manifest 'in-progress'. All three were untested by the new suites.",
+ "findings": [
+  {"id": "F1", "severity": "P1", "confidence": 88, "location": "Scripts/Integration/rollback (default backup pick); Scripts/Integration/backup-lib.zsh (prune_backups)",
+   "claim": "Newest-backup selection and retention pruning conflated unrelated directory-name prefixes via a single lexicographic sort.",
+   "scenario": "With an install backup '20260601T...-3' (newest), an older 'rollback-20260102T...-2' and an older 'uninstalled-20260201T...-1', ${(o)...} sorts plain strings; '2' < 'r' < 'u', so any rollback-/uninstalled- entry sorts after every digit-prefixed one regardless of date: rollback without --backup restores the lexicographically largest name, and prune_backups can delete a newer install directory while keeping an older one.",
+   "suggested_fix": "Sort by the embedded UTC stamp, not the raw name.",
+   "disposition": "fixed", "disposition_evidence": "backup-lib.zsh owned_backups_chronological orders owned directories by the embedded stamp; rollback's default pick and prune_backups use it. Regression: ConfigurationRollbackTests.testDefaultRollbackAndPruningFollowTheStampNotTheNamePrefix (script-suites-green-2/)."},
+  {"id": "F2", "severity": "P1", "confidence": 82, "location": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift (PrivateIntegrationFile.replace); Scripts/Integration/json-config.swift (commit)",
+   "claim": "If the undo renamex_np(RENAME_SWAP) failed after a concurrent-edit mismatch was detected, the temp file holding the other writer's real bytes was unlinked by the function's own cleanup while the caller's new bytes remained installed.",
+   "scenario": "First swap succeeds (url holds data, temp holds the concurrent bytes); replaced != expected; the undo swap fails (ENOSPC/EIO/another writer touching the temp path) -> the guard threw CocoaError with committed still false, so the deferred cleanup deleted the only surviving copy of the concurrent bytes; the adapter then reported commitFailed whose text said the file was left unchanged.",
+   "suggested_fix": "On undo-swap failure keep the temp file, persist it beside the file and throw a distinct error naming that path.",
+   "disposition": "fixed", "disposition_evidence": "replace keeps the swapped-out file, moves it into .disk-steward-backups as <config>.<stamp>-concurrent-<uuid>.bak and throws AgentIntegrationMutationError.concurrentEditUndoFailed(path:preserved:reason:) whose message says Disk Steward's version stands and where the other version is; json-config.swift commit preserves the file as .<file>.concurrent-<uuid> with exit 70. Regression: ConfigurationOwnershipTests.testFailedUndoSwapPreservesTheOtherWritersBytesAndSaysSo through the undoSwapFaultForTesting seam (app-suites-green-2/); the CLI path is structurally identical and covered by inspection only."},
+  {"id": "F3", "severity": "P2", "confidence": 80, "location": "Scripts/Integration/install (undo); Scripts/Integration/uninstall (undo); Scripts/Integration/rollback (apply phase)",
+   "claim": "undo() cleared its own ZERR/EXIT trap first, so a failure inside the remaining restore commands aborted the script via set -e without reaching manifest_finish or any message and could leave a worse state; rollback had no trap around its apply phase, leaving its safety backup 'in-progress' on failure.",
+   "scenario": "In undo(), rm -rf plugin succeeds and the following mv fails (cross-device, disk full, permission) -> set -e terminates the script, manifest_finish never runs, the plugin is missing. In rollback, cp -R of the plugin fails after rm -rf -> the plugin is missing and the just-created rollback-* backup keeps status in-progress, which a later rollback refuses to use.",
+   "suggested_fix": "Guard each destructive undo/apply step individually and give rollback its own trap.",
+   "disposition": "fixed", "disposition_evidence": "undo() in install and uninstall runs with errexit/errreturn off, records every failed step, finishes the manifest as restore-failed and prints the exact rollback command (exit 70); rollback wraps its apply phase in apply_undo, which puts the saved state back and finishes the safety manifest as rollback-failed-and-restored. Regression: testARestoreFailureInsideUndoIsReportedAndKeepsTheBackup and testRollbackApplyFailurePutsThePreviousStateBack, driven by the DISK_STEWARD_INTEGRATION_FAULT seam that is honoured only for /tmp/ds-* test roots."}
+ ],
+ "observations": [
+  {"location": "AgentIntegrationInfrastructure.swift pruneBackups", "note": "Backups with identical second-resolution stamps are ordered by trailing UUID, not true chronology; low impact.", "disposition": "accepted as documented; only near-simultaneous backups of the same file are affected."},
+  {"location": "ConfigurationRollbackTests.swift", "note": "No test produced a backups directory with more than one name family before calling rollback without --backup.", "disposition": "fixed by testDefaultRollbackAndPruningFollowTheStampNotTheNamePrefix."},
+  {"location": "ConfigurationOwnershipTests.swift", "note": "No seam forced the second (undo) renamex_np to fail.", "disposition": "fixed by the undoSwapFaultForTesting seam and its test."}
+ ],
+ "evidence": [
+  "Scripts/Integration/rollback default pick: three differently-prefixed globs concatenated then sorted as plain strings (before the fix)",
+  "Scripts/Integration/backup-lib.zsh prune_backups: identical mixed-prefix string sort before deleting the excess (before the fix)",
+  "AgentIntegrationInfrastructure.swift replace(): undo-swap-on-mismatch branch with no handling for its own failure (before the fix)",
+  "Scripts/Integration/json-config.swift commit(): structurally identical undo-swap gap (before the fix)",
+  "Scripts/Integration/install undo(): trap - ZERR EXIT before the restore commands (before the fix)",
+  "Scripts/Integration/rollback apply phase: no trap (before the fix)",
+  "docs/reliability/evidence/TASK-561/configuration-ownership.md: the claims reviewed"
+ ],
+ "checks": [
+  {"question": "Can any path still overwrite or delete bytes a user wrote, or leave a partial change without naming the backup?", "answer": "Ordinary paths preserve bytes and name the backup. The undo-swap failure path (F2) violated this and is now fixed: the other writer's bytes are preserved at a named path and the report says which version stands.", "confidence": 82},
+  {"question": "Are the shell trap/undo paths correct under zsh with set -euo pipefail; can rollback restore the wrong thing or refuse the right thing?", "answer": "Double invocation was handled; failures inside undo() (F3) and the mixed-prefix ordering (F1) were not and are now fixed with regressions.", "confidence": 85},
+  {"question": "Do the fixtures prove the claims, or could a premise make them pass vacuously?", "answer": "Tests run real syscalls and scripts; the three previously unexercised sub-cases now have fixtures.", "confidence": 85}
+ ],
+ "limitations": [
+  "Static review only; F2/F3 triggers were reasoned from code and then reproduced through explicit fault seams, not by a real disk-full or cross-device condition.",
+  "Review snapshot 7f3d8527 predates the fixes; the fixed candidate is bound by ownership-source-manifest.json and the final full verifier run.",
+  "The CLI json-config undo-swap preservation has no automated fault seam; it mirrors the app path line for line."
+ ]
+}

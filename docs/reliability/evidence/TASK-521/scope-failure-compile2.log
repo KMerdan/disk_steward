@@ -1,0 +1,21 @@
+Building for debugging...
+[0/7] Write sources
+[1/7] Write swift-version--58304C5D6DBC2206.txt
+[3/5] Emitting module DiskStewardCoreTests
+[4/5] Compiling DiskStewardCoreTests ConvergentScanGenerationTests.swift
+/private/tmp/disk-steward-521-interval-dev.BVNWug/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:24:9: error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+  22 |         XCTAssertTrue(result.observation?.events.isEmpty == true)
+  23 |         let failedGaps = result.observation?.coverageGaps ?? []
+  24 |         XCTAssertTrue(failedGaps.contains { $0.rootPath == fixture.root.path && $0.state == "open" })
+     |         `- error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+  25 |         for reopen in [false, true] {
+  26 |             if reopen { await store.close(); store = try EvidenceStore(url: fixture.databaseURL) }
+
+/private/tmp/disk-steward-521-interval-dev.BVNWug/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:43:9: error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+  41 |         XCTAssertTrue(recovered.currentFiles.first?.actionable == true)
+  42 |         XCTAssertFalse(recovered.events.contains { $0.operation == .delete })
+  43 |         XCTAssertFalse(recovered.coverageGaps.contains { $0.rootPath == fixture.root.path && $0.state == "open" })
+     |         `- error: the compiler is unable to type-check this expression in reasonable time; try breaking up the expression into distinct sub-expressions
+  44 |         await store.close()
+  45 |     }
+error: fatalError

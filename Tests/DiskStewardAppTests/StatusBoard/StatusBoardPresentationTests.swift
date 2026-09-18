@@ -36,6 +36,7 @@ final class StatusBoardPresentationTests: XCTestCase {
         let lifecycle = MonitoringLifecycleController(
             settingsStore: MonitoringSettingsStore(persistence: EphemeralSettingsPersistence()),
             probe: StaticStatusBoardProbe(observation: fixture),
+            notificationDelivery: DisabledNotificationDelivery(),
             changeCollector: nil
         )
         await lifecycle.sampleNow()
@@ -56,6 +57,7 @@ final class StatusBoardPresentationTests: XCTestCase {
         let lifecycle = MonitoringLifecycleController(
             settingsStore: MonitoringSettingsStore(persistence: EphemeralSettingsPersistence()),
             probe: StaticStatusBoardProbe(observation: fixture),
+            notificationDelivery: DisabledNotificationDelivery(),
             changeCollector: nil
         )
         await lifecycle.sampleNow()
@@ -80,8 +82,7 @@ final class StatusBoardPresentationTests: XCTestCase {
         XCTAssertEqual(light.size, dark.size)
 
         if let destination = ProcessInfo.processInfo.environment["DISK_STEWARD_CAPTURE_DIR"] {
-            let directory = URL(fileURLWithPath: destination, isDirectory: true)
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let directory = try AppConfiguration.createVerificationArtifactDirectory(destination)
             try pngData(light).write(to: directory.appending(path: "status-board-light.png"), options: .atomic)
             try pngData(dark).write(to: directory.appending(path: "status-board-dark.png"), options: .atomic)
         }

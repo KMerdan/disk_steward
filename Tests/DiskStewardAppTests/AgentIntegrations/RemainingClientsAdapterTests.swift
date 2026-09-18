@@ -4,6 +4,81 @@ import XCTest
 
 @MainActor
 final class RemainingClientsAdapterTests: XCTestCase {
+    func testClientOwnedRepairRetainsPreviousOwnershipUntilApproval() async throws {
+        for client in [AgentClientID.cursor, .visualStudioCode] {
+            for approve in [false, true] {
+                let fixture = try RemainingFixture(client: client)
+                let rootKey = client == .cursor ? "mcpServers" : "servers"
+                let old = AgentIntegrationDefinition(command: "/tmp/old-packaged-helper")
+                try fixture.receipts.upsert(.init(clientID: client, definition: old))
+                try fixture.writeConfig([rootKey: ["disk-steward": ["command": old.command], "foreign": ["command": "/tmp/foreign"]]])
+                let adapter: JSONClientIntegrationAdapter = client == .cursor
+                    ? CursorIntegrationAdapter(configurationURL: fixture.config, helperURL: fixture.helper, receiptStore: fixture.receipts, linkOpener: fixture.opener)
+                    : VSCodeIntegrationAdapter(configurationURL: fixture.config, helperURL: fixture.helper, receiptStore: fixture.receipts, linkOpener: fixture.opener)
+                for _ in 0..<2 {
+                    let repair = await adapter.perform(.repair)
+                    XCTAssertEqual(repair.outcome, .approvalRequired)
+                    let state = await adapter.inspect()
+                    XCTAssertEqual(state.state, .broken, "The still-configured old helper remains repairable after cancellation")
+                }
+                if approve {
+                    try fixture.writeConfig([rootKey: ["disk-steward": ["command": fixture.helper.path, "args": []], "foreign": ["command": "/tmp/foreign"]]])
+                    let state = await adapter.inspect()
+                    XCTAssertEqual(state.state, .configured)
+                    XCTAssertNil(try fixture.receipts.receipt(for: client)?.previousDefinition)
+                }
+                let removal = await adapter.perform(.remove)
+                XCTAssertEqual(removal.outcome, .changed)
+                let remaining = try XCTUnwrap(try fixture.readConfig()[rootKey] as? [String: Any])
+                XCTAssertNil(remaining["disk-steward"])
+                XCTAssertNotNil(remaining["foreign"])
+            }
+        }
+    }
+
+    func testHandoffReceiptFailureDoesNotOpenClientPrompt() async throws {
+        let fixture = try RemainingFixture(client: .cursor)
+        let receipts = AgentIntegrationReceiptStore(url: fixture.root.appending(path: "failure-receipts.json"), beforePersist: {
+            throw CocoaError(.fileWriteOutOfSpace)
+        })
+        let adapter = CursorIntegrationAdapter(configurationURL: fixture.config, helperURL: fixture.helper,
+            receiptStore: receipts, linkOpener: fixture.opener)
+        let result = await adapter.perform(.setup)
+        XCTAssertEqual(result.outcome, .failed)
+        XCTAssertTrue(fixture.opener.urls.isEmpty)
+        XCTAssertNil(try receipts.receipt(for: .cursor))
+    }
+
+    func testMalformedContainerAndModifiedEnvironmentAreNeverOverwritten() async throws {
+        let fixture = try RemainingFixture(client: .claudeDesktop)
+        let adapter = ClaudeDesktopIntegrationAdapter(configurationURL: fixture.config, helperURL: fixture.helper, receiptStore: fixture.receipts, runner: fixture.runner)
+        try fixture.writeConfig(["mcpServers": ["invalid-array"]])
+        let malformedBytes = try Data(contentsOf: fixture.config)
+        let malformed = await adapter.perform(.setup)
+        XCTAssertEqual(malformed.outcome, .failed)
+        XCTAssertEqual(try Data(contentsOf: fixture.config), malformedBytes)
+        try fixture.writeConfig([:])
+        let setup = await adapter.perform(.setup)
+        XCTAssertEqual(setup.outcome, .changed)
+        try fixture.writeConfig(["mcpServers": ["disk-steward": ["command": fixture.helper.path, "args": [], "env": ["CUSTOM": "user-value"]]]])
+        let modifiedBytes = try Data(contentsOf: fixture.config)
+        for action in [AgentIntegrationAction.setup, .repair, .remove, .verify] {
+            let result = await adapter.perform(action)
+            XCTAssertEqual(result.outcome, .failed)
+            XCTAssertEqual(try Data(contentsOf: fixture.config), modifiedBytes)
+        }
+    }
+
+    func testVerificationRejectsOldConfiguredHelperBeforeInvokingNewHelper() async throws {
+        let fixture = try RemainingFixture(client: .claudeDesktop)
+        let old = fixture.root.appending(path: "old-helper")
+        try fixture.receipts.upsert(.init(clientID: .claudeDesktop, definition: .init(command: old.path)))
+        try fixture.writeConfig(["mcpServers": ["disk-steward": ["command": old.path, "args": []]]])
+        let adapter = ClaudeDesktopIntegrationAdapter(configurationURL: fixture.config, helperURL: fixture.helper, receiptStore: fixture.receipts, runner: fixture.runner)
+        let result = await adapter.perform(.verify)
+        XCTAssertEqual(result.outcome, .failed)
+        XCTAssertNil(try fixture.receipts.receipt(for: .claudeDesktop)?.lastVerifiedAt)
+    }
     func testCursorSetupUsesClientOwnedInstallLinkAndBecomesApprovalPending() async throws {
         let fixture = try RemainingFixture(client: .cursor)
         let adapter = CursorIntegrationAdapter(
@@ -61,7 +136,12 @@ final class RemainingClientsAdapterTests: XCTestCase {
         let servers = try XCTUnwrap(object["mcpServers"] as? [String: Any])
         XCTAssertNotNil(servers["foreign"])
         XCTAssertNotNil(servers["disk-steward"])
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.config.appendingPathExtension("disk-steward-backup").path))
+        let backups = PrivateIntegrationFile.backups(for: fixture.config)
+        XCTAssertEqual(backups.count, 1)
+        XCTAssertEqual(backups.first?.deletingLastPathComponent().lastPathComponent, ".disk-steward-backups")
+        let backup = try XCTUnwrap(backups.first)
+        let original = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: backup)) as? [String: Any])
+        XCTAssertNil((original["mcpServers"] as? [String: Any])?["disk-steward"])
     }
 
     func testForeignEntryFailsClosedAndRemovalPreservesOtherEntries() async throws {
@@ -177,6 +257,6 @@ private final class FixtureCopier: ManualConfigurationCopying {
 
 private actor RemainingRunner: AgentCommandRunning {
     func run(_ command: AgentCommand) async throws -> AgentCommandResult {
-        .init(exitCode: 0, standardOutput: "ok", standardError: "")
+        command.arguments == ["--self-check"] ? SelfCheckReportFixture.result(for: command) : .init(exitCode: 0, standardOutput: "ok", standardError: "")
     }
 }

@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`CONTRACT-401`](CONTRACT-401-define-the-client-adapter-and-lifecycle-contract.md) — Define the client-adapter and lifecycle contract
+- [`CONTRACT-510`](CONTRACT-510-establish-brownfield-safety-baseline-and-repair-invariants.md) — Establish brownfield safety baseline and repair invariants
 
 ## Parallelism
 

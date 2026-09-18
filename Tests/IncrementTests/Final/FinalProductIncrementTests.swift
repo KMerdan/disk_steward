@@ -7,6 +7,94 @@ import XCTest
 
 @MainActor
 final class FinalProductIncrementTests: XCTestCase {
+    func testReleaseSmokeGateRejectsMissingOrUnsafeIsolationFields() throws {
+        let repository = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let verifier = try String(contentsOf: repository.appending(path: "Scripts/Distribution/verify-release"), encoding: .utf8)
+        let start = try XCTUnwrap(verifier.range(of: "smoke_field()"))
+        let end = try XCTUnwrap(verifier.range(of: "print \"Release verification passed:", range: start.upperBound..<verifier.endIndex))
+        let gate = String(verifier[start.lowerBound..<end.lowerBound])
+        let valid: [String: Any] = [
+            "status": "launched", "activation_policy": "accessory", "isolated_smoke": true,
+            "detail_sampling_paused": true, "watched_root_count": 0, "agent_access": "off",
+            "settings_persistence": "ephemeral", "notifications_enabled": false,
+        ]
+        func check(_ report: [String: Any]) throws -> Int32 {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/bin/zsh")
+            process.arguments = ["-c", gate]
+            process.environment = ["smoke_output": String(decoding: try JSONSerialization.data(withJSONObject: report), as: UTF8.self)]
+            process.standardOutput = FileHandle.nullDevice
+            process.standardError = FileHandle.nullDevice
+            try process.run()
+            process.waitUntilExit()
+            return process.terminationStatus
+        }
+        XCTAssertEqual(try check(valid), 0)
+        for key in valid.keys {
+            var missing = valid
+            missing.removeValue(forKey: key)
+            XCTAssertEqual(try check(missing), 70, "Missing \(key) must reject the release")
+        }
+        for (key, badValue) in ["isolated_smoke": false, "detail_sampling_paused": false, "watched_root_count": 1, "agent_access": "on", "settings_persistence": "user-defaults", "notifications_enabled": true] as [String: Any] {
+            var unsafe = valid
+            unsafe[key] = badValue
+            XCTAssertEqual(try check(unsafe), 70, "Unsafe \(key) must reject the release")
+        }
+    }
+
+    func testSmokeStartupPreservesLiveFixtureEndpointAndAllSentinelState() throws {
+        let fixture = try FinalFixture()
+        let sentinels = ["evidence.sqlite", "monitoring-settings-v1", "monitoring-safety-v1", "agent-access.json", "exports/retained.json", "codex/config.toml", "claude/config.json", "cursor/mcp.json"]
+            .map { fixture.directory.appending(path: $0) }
+        for (index, file) in sentinels.enumerated() {
+            try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data("untouched-sentinel-\(index)".utf8).write(to: file)
+        }
+        let leaseURL = fixture.directory.appending(path: "application.lock")
+        let owner = try LocalServiceLease(url: leaseURL)
+        let server = UnixSocketEvidenceServer(socketPath: fixture.socket.path, handler: SmokeSentinelHandler())
+        try server.start()
+        defer { server.stop(); withExtendedLifetime(owner) {} }
+        let identities = try (sentinels + [fixture.socket, leaseURL]).map {
+            try FileManager.default.attributesOfItem(atPath: $0.path)[.systemFileNumber] as? NSNumber
+        }
+        let contents = try sentinels.map { try Data(contentsOf: $0) }
+        let client = UnixSocketDiskStewardIPCClient(socketPath: fixture.socket.path)
+        let before = try client.send(method: "sentinel", payload: .object([:]), isCancelled: { false })
+        let override = [
+            "DISK_STEWARD_SUPPORT_DIRECTORY": fixture.directory.path,
+            "DISK_STEWARD_SOCKET_PATH": fixture.socket.path,
+            "DISK_STEWARD_CAPTURE_DIR": fixture.directory.path,
+            "DISK_STEWARD_GATE_EVIDENCE": fixture.directory.path,
+        ]
+        for _ in 0..<2 {
+            let launch = try runProduct(executable: "DiskStewardApp", arguments: ["--ui-smoke"], environment: override)
+            XCTAssertEqual(launch.status, 0, launch.stderr)
+            let report = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(launch.stdout.utf8)) as? [String: Any])
+            XCTAssertEqual(report["isolated_smoke"] as? Bool, true)
+            XCTAssertEqual(report["settings_persistence"] as? String, "ephemeral")
+            XCTAssertEqual(report["notifications_enabled"] as? Bool, false)
+            XCTAssertEqual(report["detail_sampling_paused"] as? Bool, true)
+            XCTAssertEqual(report["watched_root_count"] as? Int, 0)
+            XCTAssertEqual(report["agent_access"] as? String, "off")
+            let scratch = try XCTUnwrap(report["support_directory"] as? String)
+            XCTAssertNotEqual(scratch, fixture.directory.path)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: scratch), "Smoke scratch must be removed after shutdown")
+        }
+        // Non-smoke support overrides must fail before opening a database,
+        // initializing defaults or interacting with the existing application.
+        let rejected = try runProduct(executable: "DiskStewardApp", environment: override)
+        XCTAssertNotEqual(rejected.status, 0)
+        XCTAssertTrue(rejected.stderr.contains("not an isolated launch"))
+        XCTAssertEqual(try sentinels.map { try Data(contentsOf: $0) }, contents)
+        XCTAssertEqual(try (sentinels + [fixture.socket, leaseURL]).map {
+            try FileManager.default.attributesOfItem(atPath: $0.path)[.systemFileNumber] as? NSNumber
+        }, identities)
+        XCTAssertThrowsError(try LocalServiceLease(url: leaseURL))
+        XCTAssertEqual(try client.send(method: "sentinel", payload: .object([:]), isCancelled: { false }), before)
+    }
+
     func testCompleteProductJourneyPreservesEvidenceAndHonestFallback() async throws {
         let fixture = try FinalFixture()
         let launch = try runProduct(executable: "DiskStewardApp", arguments: ["--ui-smoke"])
@@ -14,6 +102,12 @@ final class FinalProductIncrementTests: XCTestCase {
         let launchReport = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(launch.stdout.utf8)) as? [String: Any])
         XCTAssertEqual(launchReport["status"] as? String, "launched")
         XCTAssertEqual(launchReport["activation_policy"] as? String, "accessory")
+        XCTAssertEqual(launchReport["isolated_smoke"] as? Bool, true)
+        XCTAssertEqual(launchReport["detail_sampling_paused"] as? Bool, true)
+        XCTAssertEqual(launchReport["watched_root_count"] as? Int, 0)
+        XCTAssertEqual(launchReport["agent_access"] as? String, "off")
+        XCTAssertEqual(launchReport["settings_persistence"] as? String, "ephemeral")
+        XCTAssertEqual(launchReport["notifications_enabled"] as? Bool, false)
 
         let live = try VolumeSnapshotService().capture()
         XCTAssertFalse(live.volumes.isEmpty)
@@ -233,6 +327,12 @@ final class FinalProductIncrementTests: XCTestCase {
         }
         if let array = value as? [Any] { return array.contains { containsForbiddenKey($0, names: names) } }
         return false
+    }
+}
+
+private actor SmokeSentinelHandler: DiskStewardIPCRequestHandling {
+    func handleIPC(method: String, payload: JSONValue, peer: IPCPeerIdentity) async throws -> JSONValue {
+        .object(["sentinel": .string("still-live")])
     }
 }
 

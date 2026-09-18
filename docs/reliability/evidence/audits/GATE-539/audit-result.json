@@ -1,0 +1,88 @@
+{
+ "schema": "audit-result-v1",
+ "target": "GATE-539",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-539-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-562/candidate-2/candidate.json",
+    "docs/reliability/evidence/TASK-562/candidate-2/tests.log",
+    "Constructability and entry on the final candidate 5ecd49a317171e493451894bcc082cd8d4516d2922c29564107baace9d21dd68: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 547 tests, 5 opt-in skips, 0 failures; packaged unsigned app smoke and helper stages passed."
+   ]
+  },
+  {
+   "id": "CHECK-539-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/GATE-539/rung-3-scenarios.md",
+    "docs/reliability/evidence/audits/scoped-all-rungs-final-green/tests.log",
+    "docs/reliability/evidence/audits/scoped-all-rungs-final-green/suite-counts.json",
+    "Promised scenario for this rung and every earlier rung's accepted scenarios rerun on the same final input: 423 tests across 60 suites, 0 failures; rung-specific scenarios and limits in the rung note."
+   ]
+  },
+  {
+   "id": "CHECK-539-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/rollback-rehearsal.md",
+    "docs/reliability/evidence/TASK-572/soak-runs/soak-3h/summary.json",
+    "docs/reliability/evidence/TASK-572/soak-runs/soak-final-candidate/summary.json",
+    "docs/reliability/evidence/GATE-539/scale-runs/wide-100k/supervisor.out",
+    "Safety and recovery: migration rollback rehearsed against the compatible baseline; real-time soaks of 112 min and 43 min (the latter on the exact final candidate) with 0 mismatches; 100k wide full workload on the final candidate."
+   ]
+  },
+  {
+   "id": "CHECK-539-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/GATE-539/assurance-candidate.json",
+    "Assurance reviewed: impacts IMPACT-CONTRACT-510-ASSURANCE, IMPACT-RESEARCH-530-SCANNER, IMPACT-RESEARCH-530-STORE, IMPACT-RESEARCH-530-RESOURCE, IMPACT-TASK-531-SCANNER, IMPACT-TASK-531-STORE, IMPACT-TASK-531-LIFECYCLE, IMPACT-TASK-531-RESOURCE, IMPACT-TASK-532-STORE, IMPACT-TASK-532-LIFECYCLE, IMPACT-TASK-532-RESOURCE, IMPACT-RESEARCH-530-ASSURANCE, IMPACT-TASK-532-SCANNER, IMPACT-TASK-532-ASSURANCE; inspections INSPECT-CONTRACT-510-1, INSPECT-RESEARCH-530-1, INSPECT-TASK-531-1, INSPECT-TASK-532-1, INSPECT-TASK-532-SCANNER, INSPECT-RESEARCH-530-ASSURANCE, INSPECT-TASK-532-ASSURANCE performed and sufficient; findings on these assets: FIND-OCCURRENCE, FIND-OVERNIGHT, FIND-QUERY, FIND-ROLLBACK, FIND-SCALE."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-CONTRACT-510-ASSURANCE",
+   "IMPACT-RESEARCH-530-SCANNER",
+   "IMPACT-RESEARCH-530-STORE",
+   "IMPACT-RESEARCH-530-RESOURCE",
+   "IMPACT-TASK-531-SCANNER",
+   "IMPACT-TASK-531-STORE",
+   "IMPACT-TASK-531-LIFECYCLE",
+   "IMPACT-TASK-531-RESOURCE",
+   "IMPACT-TASK-532-STORE",
+   "IMPACT-TASK-532-LIFECYCLE",
+   "IMPACT-TASK-532-RESOURCE",
+   "IMPACT-RESEARCH-530-ASSURANCE",
+   "IMPACT-TASK-532-SCANNER",
+   "IMPACT-TASK-532-ASSURANCE"
+  ],
+  "inspection_ids": [
+   "INSPECT-CONTRACT-510-1",
+   "INSPECT-RESEARCH-530-1",
+   "INSPECT-TASK-531-1",
+   "INSPECT-TASK-532-1",
+   "INSPECT-TASK-532-SCANNER",
+   "INSPECT-RESEARCH-530-ASSURANCE",
+   "INSPECT-TASK-532-ASSURANCE"
+  ],
+  "finding_ids": [
+   "FIND-OCCURRENCE",
+   "FIND-OVERNIGHT",
+   "FIND-QUERY",
+   "FIND-ROLLBACK",
+   "FIND-SCALE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Fixture endpoint adapter only; no native EndpointSecurity activation.",
+   "Fake-clock lifecycle proofs; unsigned disposable-copy packaging; host macOS 15.6.1 arm64.",
+   "FIND-OVERNIGHT resolved under the R13 criterion (bounded real-time soak evidence of at least one hour, the scale matrix and the rollback rehearsal; an overnight run is not a release requirement for this open-source project).",
+   "The auditor also implemented tasks on the shared candidate; independence rests on isolated reruns, hashes and archived logs."
+  ]
+ }
+}

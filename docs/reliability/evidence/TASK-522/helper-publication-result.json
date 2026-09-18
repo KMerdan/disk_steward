@@ -1,0 +1,70 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-PUBLICATION",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-22D0081DF53D051CF5A58CA0A88D3A0D",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:97393b69e4cabbe88a27715d32456f58f583730d5b234ca890a0c80b810b08d4",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Static four-file review supports the limited process-local receipt-versus-final-publication ordering: preparation is outside the fence, supersession rejects final COMMIT, and existing rollback cleanup remains in use. One guarded-COMMIT cancellation error-classification regression remains. The six fixtures do not establish app integration, durable receipt admission or a hard native-COMMIT latency bound.",
+  "findings": [
+    {
+      "claim": "Guarded COMMIT bypasses execute's catch-time cancellation normalization. If cancellation arrives after the check at line 80 and COMMIT then fails with a SQLite error, executeUnchecked throws EvidenceStoreError.sqlite and transaction rethrows it after rollback. The previous execute(\"COMMIT\") path checked cancellation in its catch and returned CancellationError for that failed operation. The added precheck does not cover this race.",
+      "confidence": "high",
+      "evidence": [
+        "E2"
+      ],
+      "recommendation": "Preserve catch-time Task.checkCancellation around the unchecked COMMIT error path without reinstalling busy retries before COMMIT. Use a test-only SQLite commit hook that cancels the current task and rejects COMMIT; assert CancellationError, rolled-back state and connection reuse from a fresh task. The current six tests do not exercise cancellation on this new path."
+    }
+  ],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-522-publication-candidate.CIOxRx/Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift:3-58 (process-local revision/pending state, stale acknowledgement rejection and lock scope).",
+    "E2: /private/tmp/disk-steward-522-publication-candidate.CIOxRx/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift:37-52,74-127 (normal error normalization; guarded unchecked COMMIT; busy-handler restoration; cancellation-safe rollback).",
+    "E3: /private/tmp/disk-steward-522-publication-candidate.CIOxRx/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:217-257,328-364 (entry validation, separately committed staging and optional permit passed to final reconciliation).",
+    "E4: /private/tmp/disk-steward-522-publication-candidate.CIOxRx/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:541-590,661-718 (both final transaction branches guarded; reconciliation/checkpoints precede guarded COMMIT).",
+    "E5: /private/tmp/disk-steward-522-publication-candidate.CIOxRx/Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift:6-58 (conflicting reader timing, superseded rollback/reuse and receipt revision tests).",
+    "E6: /private/tmp/disk-steward-522-publication-candidate.CIOxRx/Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift:60-112 (concurrent receipt at three preparation checkpoints; bounded semaphore wait; retained current state and reopen recovery).",
+    "E7: /private/tmp/disk-steward-522-publication-candidate.CIOxRx/Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift:115-148 (pre-admission rejection and receipt after publication); EvidenceStore.swift:509-523,4212-4229 (durable invalidation/reset before acknowledgement)."
+  ],
+  "checks": [
+    {
+      "command": "Read-only diff of the four scoped files against frozen notification candidate and source trace of receipt/transaction ordering.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E4: the fence is acquired for final validation/COMMIT, not the transaction body; rollback executes after the fence releases. Nil-permit callers retain the previous transaction path."
+    },
+    {
+      "command": "Read-only review of all six publication fixtures and their assertions.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E5-E7 support source-level claims about supersession, retained current state, stale acknowledgements and retry/reopen recovery. No guarded-COMMIT cancellation case is present; the conflicting-reader case uses raw SQLiteConnection rather than the store's WAL configuration."
+    },
+    {
+      "command": "Run tests/builds, activate native APIs or mutate source/evidence.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Explicitly prohibited; coordinator execution results are not independently verified."
+    }
+  ],
+  "stale_if": [
+    "Parent guard or candidate hash changes.",
+    "Receipt fence, guarded transaction path or scoped publication tests change."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw bounded validation awaits coordinator reproduction/reconciliation; not task or AC02 acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Only final publication rolls back on supersession. Earlier staging/snapshot commits can remain and must be invalidated/reconciled by the owner.",
+    "Acknowledging the latest revision must cover all earlier pending receipts, through cumulative persistence or ordered draining; a single revision/pending bit does not track independently outstanding batches.",
+    "Disabling SQLite busy retries does not bound native COMMIT disk I/O, auto-checkpoint work or time waiting for the receipt lock.",
+    "Process-local fencing is not durable inbox admission, startup-gap handling, bounded native callbacks or completed app wiring."
+  ]
+}

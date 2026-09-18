@@ -1,0 +1,52 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-541-BACKEND-ACCEPTED",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:59a1e4eefad005610def6cc04dba836d3e04f98d53a9264c8546c1fb6fdab4f0",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Static refresh found no actionable defect in the bounded dispatch/continuation correction. Socket poll waits now suspend Swift tasks while retaining connection accounting and descriptor ownership. The constrained-executor regression checks useful EvidenceStore progress while all four slow peers remain admitted. This review supersedes the earlier backend snapshot reviews.",
+  "findings": [],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-541-accepted.uaJBzS/Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift:175-178,310-317,378-380,439-451; each admitted connection sequentially awaits its read and writes on the dedicated concurrent dispatch queue. Admission is capped and cancelled connections retain slots, so outstanding I/O operations remain bounded by maximumConnections.",
+    "E2: Same server:277-298,336-370,439-442; stop/watchdog mark work cancelled and shut down without closing worker fds. The continuation resumes exactly once with either the operation result or thrown error. Task cancellation cannot prematurely run the worker defer while dispatched I/O still owns access to its descriptor; worker close follows awaited completion.",
+    "E3: Frozen Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift:170-233; sockets are nonblocking and poll waits repeatedly check the shared revocation predicate and absolute deadline. The dispatched operations do not depend on inheriting Swift task cancellation. Frozen Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift:71-109 retains the same service/accounting across Off/On.",
+    "E4: Frozen Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift:7-76,222-225; separate children enable LIBDISPATCH_COOPERATIVE_POOL_STRICT=1 for idle, partial and nonreading peers. The synchronous child admits four peers, schedules an actual utility-priority EvidenceStore query, requires completion within one second while all four remain counted, and uses a two-MiB response for nonreaders. Child failure/timeout propagates to the parent test.",
+    "E5: Frozen SQLiteConnection.swift:74-114,132-177 retains cancellation-aware SQLite hooks, protected rollback, bounded backup stepping and deferred backup finish/close. Server:340-348 retains POLLOUT hangup detection rather than read-EOF or peek-based abandonment inference."
+  ],
+  "checks": [
+    {
+      "command": "Read accepted frozen socket implementation, bounded I/O helper, controller, SQLite cleanup paths and constrained-executor regression.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Read-only static refresh; continuation, capacity and descriptor invariants reviewed."
+    },
+    {
+      "command": "Execute tests/builds or independently recompute aggregate snapshot hash",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited for this assignment. Parent reports three modes failing before/passing after and 44 targeted tests passing; helper did not independently reproduce those results."
+    }
+  ],
+  "stale_if": [
+    "Any reviewed source/test, snapshot identity or parent task guard changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw candidate review awaits coordinator freshness reconciliation; runtime outcomes remain separate coordinator evidence.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "The correction bounds admitted socket I/O and removes its cooperative-executor waits; it does not promise hard preemption of arbitrary backend computation or synchronous filesystem operations.",
+    "Uncooperative backend work remains counted until completion, intentionally retaining its capacity slot.",
+    "TASK551 still owns bounded export materialization and orphan recovery. Backup rollback does not imply removal of an interrupted destination artifact.",
+    "Stdio/MCPServer behavior is outside this helper's review scope."
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-552-TIMING-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-A8DE5156DDA36184F5DE026E73D6D2D5",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:d05f25660846825a185a7525b341d603ebcd8b1cfbb5b4cd48961d022e569f1e",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardCore/Export/EvidenceBundle/{EvidenceBundleExporter.swift,EvidenceBundleModels.swift}",
+    "/private/tmp/ds-ci-6quvo487/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "/private/tmp/ds-ci-6quvo487/project/Tests/DiskStewardCoreTests/EvidenceStore/**",
+    "/private/tmp/ds-ci-6quvo487/project/Tests/DiskStewardAppTests/IPC/EventTimingIPCIntegrationTests.swift",
+    "/private/tmp/ds-ci-6quvo487/project/Schemas/{evidence-event-v2.schema.json,export-manifest-v2.schema.json}",
+    "/private/tmp/ds552-check-1tyq6wh6/project/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/ds552-check-1tyq6wh6/project/Sources/DiskStewardCore/Export/EvidenceBundle/{EvidenceBundleExporter.swift,EvidenceBundleModels.swift}",
+    "/private/tmp/ds552-check-1tyq6wh6/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift"
+  ],
+  "purpose": "Review the narrow measured event timing propagation patch, not whole TASK-552 acceptance.",
+  "questions": [
+    "Does schema-10 migration and indexed event_evidence view preserve legacy dates without claiming they are measured?",
+    "Do inline publication, bounded event readers, metadata-only get_provenance and decoded export agree on first-sighting/rename/growth/delete timing?",
+    "Any concrete new regression, unsafe silent timing loss, or gap in the changed contract/tests? Nullable ProvenanceClaim, task-impact attribution and all-tool budgets remain expressly unfinished; do not report them as newly introduced by this patch."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-552-02"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 10,
+    "max_output_chars": 8000
+  }
+}

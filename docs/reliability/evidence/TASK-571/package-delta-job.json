@@ -1,0 +1,39 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-571-PACKAGE-DELTA",
+  "parent_task": "TASK-571",
+  "task_guard": "GUARD-TASK-29F1CB4F962C84635F4193D5B7865F2B",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:95016b552a195bd52905315a7e0e32744caa38b810ab7b92421d7110b61e1026",
+    "immutable": true
+  },
+  "read_scope": [
+    "/Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-571/reviewed-source/*.py",
+    "/Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-571/reviewed-source/ci.yml",
+    "/private/tmp/disk-steward-571-review.e2Uk0q/*.py"
+  ],
+  "purpose": "Reconcile the three verifier findings against the frozen corrected candidate.",
+  "questions": [
+    "Do the exact-test delimiter, full fixture inventory and typed initialization/tool schema checks fix the three prior findings without introducing a concrete regression?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-571-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 3,
+    "max_evidence_items": 6,
+    "max_output_chars": 5000
+  }
+}

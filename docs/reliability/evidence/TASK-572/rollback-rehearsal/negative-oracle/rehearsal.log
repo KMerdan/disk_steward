@@ -1,0 +1,62 @@
+$ /usr/bin/swift build -c release --package-path /private/tmp/ds572-rollback-oracle/probe-baseline --cache-path /private/tmp/ds572-rollback-oracle/cache --config-path /private/tmp/ds572-rollback-oracle/config --security-path /private/tmp/ds572-rollback-oracle/security --disable-sandbox --jobs 3
+Building for production...
+[0/5] Write sources
+[2/5] Write swift-version--58304C5D6DBC2206.txt
+[4/6] Compiling DiskStewardCore TaskImpactCorrelation.swift
+[5/7] Compiling store_probe main.swift
+[5/7] Write Objects.LinkFileList
+[6/7] Linking store-probe
+Build complete! (15.06s)
+
+$ /usr/bin/swift build -c release --package-path /private/tmp/ds572-rollback-oracle/probe-candidate --cache-path /private/tmp/ds572-rollback-oracle/cache --config-path /private/tmp/ds572-rollback-oracle/config --security-path /private/tmp/ds572-rollback-oracle/security --disable-sandbox --jobs 3
+Building for production...
+[0/5] Write sources
+[2/5] Write swift-version--58304C5D6DBC2206.txt
+[4/6] Compiling DiskStewardCore TaskImpactCorrelation.swift
+[5/7] Compiling store_probe main.swift
+[5/7] Write Objects.LinkFileList
+[6/7] Linking store-probe
+Build complete! (17.92s)
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe create /private/tmp/ds572-rollback-oracle/fixture/evidence.sqlite --seed 300
+{"command":"create","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/fixture\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":473616}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe backup /private/tmp/ds572-rollback-oracle/fixture/evidence.sqlite --destination /private/tmp/ds572-rollback-oracle/backup/evidence.sqlite
+{"command":"backup","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/fixture\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-after-consistent-copy/evidence.sqlite --interrupt after-consistent-copy
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-after-consistent-copy\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-after-consistent-copy/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-after-consistent-copy\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-after-shadow-validation/evidence.sqlite --interrupt after-shadow-validation
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-after-shadow-validation\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-after-shadow-validation/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-after-shadow-validation\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-before-atomic-switch/evidence.sqlite --interrupt before-atomic-switch
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-before-atomic-switch\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-before-atomic-switch/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-before-atomic-switch\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-after-atomic-switch/evidence.sqlite --interrupt after-atomic-switch
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-after-atomic-switch\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-after-atomic-switch/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-after-atomic-switch\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/work-uninterrupted/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/work-uninterrupted\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/scratch-newer/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/scratch-newer\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/restore/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/restore\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+
+$ /private/tmp/ds572-rollback-oracle/probe-baseline/.build/release/store-probe open /private/tmp/ds572-rollback-oracle/restore/evidence.sqlite
+{"command":"open","currentFileCount":0,"database":"\/private\/tmp\/ds572-rollback-oracle\/restore\/evidence.sqlite","eventCount":300,"integrity":"ok","journalMode":"wal","ok":true,"retentionRunCount":0,"schemaVersion":6,"snapshotCount":0,"storageBytes":385024}
+

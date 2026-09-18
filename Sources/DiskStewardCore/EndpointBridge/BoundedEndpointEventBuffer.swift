@@ -13,6 +13,7 @@ public struct BoundedEndpointEventBuffer: Sendable {
     public private(set) var droppedEvents = 0
     public private(set) var hasGap = false
     private var events: [NormalizedPrivilegedEvent] = []
+    private var estimatedBytes = 0
 
     public init(maximumEvents: Int = 4_096, maximumEstimatedBytes: Int = 4 * 1_024 * 1_024, coalescingWindow: TimeInterval = 1) {
         self.maximumEvents = min(max(1, maximumEvents), 65_536)
@@ -22,38 +23,57 @@ public struct BoundedEndpointEventBuffer: Sendable {
 
     public mutating func append(_ event: NormalizedPrivilegedEvent) -> EndpointBufferResult {
         if let last = events.last, canCoalesce(last, event) {
-            events[events.count - 1] = NormalizedPrivilegedEvent(
+            let logical = last.logicalDelta.addingReportingOverflow(event.logicalDelta)
+            let allocated = last.allocatedDelta.addingReportingOverflow(event.allocatedDelta)
+            let count = last.coalescedCount.addingReportingOverflow(event.coalescedCount)
+            guard !logical.overflow, !allocated.overflow, !count.overflow else { return recordDrop() }
+            let replacement = NormalizedPrivilegedEvent(
                 raw: event.raw,
                 watchedRoot: event.watchedRoot,
-                logicalDelta: last.logicalDelta + event.logicalDelta,
-                allocatedDelta: last.allocatedDelta + event.allocatedDelta,
-                coalescedCount: last.coalescedCount + event.coalescedCount,
+                logicalDelta: logical.partialValue,
+                allocatedDelta: allocated.partialValue,
+                coalescedCount: count.partialValue,
                 gapBefore: last.gapBefore || event.gapBefore,
                 confidence: weakest(last.confidence, event.confidence),
                 method: last.confidence == .exact && event.confidence == .exact ? "endpoint-security-file-process" : "endpoint-security-incomplete",
                 limitations: Array(Set(last.limitations + event.limitations)).sorted()
             )
+            let previousBytes = estimate(last)
+            let replacementBytes = estimate(replacement)
+            guard replacementBytes <= maximumEstimatedBytes - (estimatedBytes - previousBytes) else { return recordDrop() }
+            estimatedBytes = estimatedBytes - previousBytes + replacementBytes
+            events[events.count - 1] = replacement
             return .coalesced
         }
-        if events.count >= maximumEvents || estimatedBytes + estimate(event) > maximumEstimatedBytes {
-            droppedEvents += 1
-            hasGap = true
-            return .dropped(total: droppedEvents)
-        }
+        let bytes = estimate(event)
+        if events.count >= maximumEvents || bytes > maximumEstimatedBytes - estimatedBytes { return recordDrop() }
         events.append(event)
+        estimatedBytes += bytes
         return .accepted
     }
 
     public mutating func drain() -> [NormalizedPrivilegedEvent] {
-        defer { events.removeAll(keepingCapacity: true) }
+        defer { events.removeAll(keepingCapacity: true); estimatedBytes = 0 }
         return events
     }
 
     public var count: Int { events.count }
-    private var estimatedBytes: Int { events.reduce(0) { $0 + estimate($1) } }
+
+    private mutating func recordDrop() -> EndpointBufferResult {
+        if droppedEvents < .max { droppedEvents += 1 }
+        hasGap = true
+        return .dropped(total: droppedEvents)
+    }
 
     private func estimate(_ event: NormalizedPrivilegedEvent) -> Int {
-        320 + event.raw.path.utf8.count + (event.raw.destinationPath?.utf8.count ?? 0) + (event.raw.process.executablePath?.utf8.count ?? 0)
+        var bytes = event.raw.estimatedRetainedBytes
+        for field in [event.watchedRoot, event.method] + event.limitations {
+            let size = field.utf8.count.multipliedReportingOverflow(by: 2)
+            let total = bytes.addingReportingOverflow(size.partialValue)
+            if size.overflow || total.overflow { return .max }
+            bytes = total.partialValue
+        }
+        return bytes
     }
 
     private func canCoalesce(_ left: NormalizedPrivilegedEvent, _ right: NormalizedPrivilegedEvent) -> Bool {

@@ -1,0 +1,17 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-571-PACKAGE-REVIEW",
+  "parent_task": "TASK-571",
+  "task_guard": "GUARD-TASK-20B8AFCBD11591570701416EC54B71B7",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:da830641563824ee2cc8c3d169e2709024ba439a33ecc1add403e9350cd7b6a6", "immutable": true},
+  "read_scope": ["/private/tmp/disk-steward-571-review.e2Uk0q/*.py", "/private/tmp/disk-steward-571-review.e2Uk0q/ci.yml"],
+  "purpose": "Review the credential-free candidate verifier for false success, unintended production access, process/output lifetime gaps and artifact identity gaps.",
+  "questions": ["Is there a concrete false-pass or unsafe execution path within the declared fixture-isolation contract?", "Do the package and migration claims overstate the actual checks?"],
+  "acceptance_criteria": ["AC-TASK-571-01"],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "candidate-acceptance",
+  "result_budget": {"max_findings": 4, "max_evidence_items": 8, "max_output_chars": 7000}
+}

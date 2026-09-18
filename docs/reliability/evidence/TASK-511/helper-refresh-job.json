@@ -1,0 +1,52 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-511-CANDIDATE-02",
+  "parent_task": "TASK-511",
+  "task_guard": "GUARD-TASK-D083F1CF956025C5DC4746F691495425",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:baae0f8ab5994bc3154ce998a8dc2238b3359fb2f8112f43915f0e9189b8fb35",
+    "immutable": true
+  },
+  "read_scope": [
+    "Sources/DiskStewardApp/AppConfiguration.swift",
+    "Sources/DiskStewardApp/main.swift",
+    "Sources/DiskStewardApp/StatusItemController.swift",
+    "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+    "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+    "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "Tests/DiskStewardAppTests/IPC/BackendIsolationTests.swift",
+    "Tests/DiskStewardAppTests/IPC/VerificationIsolationTests.swift",
+    "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+    "Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift",
+    "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+    "Scripts/Distribution/verify-release"
+  ],
+  "purpose": "Refresh static candidate validation after replan-cleared ownership was reacquired; same source hash and contract. Do not run tests, apps or builds.",
+  "questions": [
+    "Does backend initialization preserve foreign exports and does per-request cleanup preserve sibling requests?",
+    "Are inherited artifact/helper paths rejected before unsafe mutation or execution?",
+    "Are smoke notification/default/root/service dependencies actually isolated and does normal startup retain intentional behavior?",
+    "Does the sentinel and release-gate evidence support TASK-511 without asserting full reliability or release readiness?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-511-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 2,
+    "max_evidence_items": 4,
+    "max_output_chars": 4000
+  }
+}

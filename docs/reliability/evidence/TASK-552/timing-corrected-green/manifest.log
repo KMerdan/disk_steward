@@ -1,0 +1,480 @@
+{
+  "cLanguageStandard" : null,
+  "cxxLanguageStandard" : null,
+  "dependencies" : [
+
+  ],
+  "name" : "DiskSteward",
+  "packageKind" : {
+    "root" : [
+      "/private/tmp/ds-ci-cf8br7my/project"
+    ]
+  },
+  "pkgConfig" : null,
+  "platforms" : [
+    {
+      "options" : [
+
+      ],
+      "platformName" : "macos",
+      "version" : "13.0"
+    }
+  ],
+  "products" : [
+    {
+      "name" : "DiskSteward",
+      "settings" : [
+
+      ],
+      "targets" : [
+        "DiskStewardCore",
+        "DiskStewardEndpoint"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "DiskStewardCore",
+      "settings" : [
+
+      ],
+      "targets" : [
+        "DiskStewardCore"
+      ],
+      "type" : {
+        "library" : [
+          "automatic"
+        ]
+      }
+    },
+    {
+      "name" : "DiskStewardApp",
+      "settings" : [
+
+      ],
+      "targets" : [
+        "DiskStewardApp"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    },
+    {
+      "name" : "disk-witness-mcp",
+      "settings" : [
+
+      ],
+      "targets" : [
+        "DiskStewardMCP"
+      ],
+      "type" : {
+        "executable" : null
+      }
+    }
+  ],
+  "providers" : null,
+  "swiftLanguageVersions" : null,
+  "targets" : [
+    {
+      "dependencies" : [
+
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "CSQLite",
+      "packageAccess" : false,
+      "path" : "Sources/DiskStewardCore/EvidenceStore/CSQLite",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "system"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "CSQLite",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+        "EvidenceStore/CSQLite"
+      ],
+      "name" : "DiskStewardCore",
+      "packageAccess" : true,
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "DiskStewardApp",
+      "packageAccess" : true,
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "executable"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "DiskStewardMCP",
+      "packageAccess" : true,
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "executable"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+        "Info.plist"
+      ],
+      "name" : "DiskStewardEndpoint",
+      "packageAccess" : true,
+      "path" : "Extensions/DiskStewardEndpoint",
+      "resources" : [
+
+      ],
+      "settings" : [
+        {
+          "kind" : {
+            "linkedLibrary" : {
+              "_0" : "EndpointSecurity"
+            }
+          },
+          "tool" : "linker"
+        }
+      ],
+      "type" : "regular"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "FoundationTests",
+      "packageAccess" : true,
+      "path" : "Tests/Support",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "ContractTests",
+      "packageAccess" : true,
+      "path" : "Tests/ContractTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "DiskStewardCoreTests",
+      "packageAccess" : true,
+      "path" : "Tests/DiskStewardCoreTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardApp",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "DiskStewardAppTests",
+      "packageAccess" : true,
+      "path" : "Tests/DiskStewardAppTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardMCP",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "DiskStewardMCPTests",
+      "packageAccess" : true,
+      "path" : "Tests/DiskStewardMCPTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardApp",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "IncrementTests",
+      "packageAccess" : true,
+      "path" : "Tests/IncrementTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardMCP",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "IntegrationInstallTests",
+      "packageAccess" : true,
+      "path" : "Tests/IntegrationInstallTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardEndpoint",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "DiskStewardEndpointTests",
+      "packageAccess" : true,
+      "path" : "Tests/DiskStewardEndpointTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardApp",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardEndpoint",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "SafetyTests",
+      "packageAccess" : true,
+      "path" : "Tests/SafetyTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    },
+    {
+      "dependencies" : [
+        {
+          "byName" : [
+            "DiskStewardCore",
+            null
+          ]
+        },
+        {
+          "byName" : [
+            "DiskStewardEndpoint",
+            null
+          ]
+        }
+      ],
+      "exclude" : [
+
+      ],
+      "name" : "PerformanceTests",
+      "packageAccess" : true,
+      "path" : "Tests/PerformanceTests",
+      "resources" : [
+
+      ],
+      "settings" : [
+
+      ],
+      "type" : "test"
+    }
+  ],
+  "toolsVersion" : {
+    "_version" : "6.0.0"
+  },
+  "traits" : [
+
+  ]
+}

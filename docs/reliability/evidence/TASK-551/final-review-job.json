@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-551-DELTA-03",
+  "parent_task": "TASK-551",
+  "task_guard": "GUARD-TASK-5949B7E354B76E38193DB506FCE19E85",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b46aff222dc214fa4735fd5d6064a53ebade829b5b6169abfdee08b02413a9f7",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/ds-ci-lcqafne8/project/Sources/DiskStewardCore/Export/EvidenceBundle/**",
+    "/private/tmp/ds-ci-lcqafne8/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "/private/tmp/ds-ci-lcqafne8/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/**",
+    "/private/tmp/ds-ci-lcqafne8/project/Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift"
+  ],
+  "purpose": "Review only the final two cleanup repairs from DELTA-02.",
+  "questions": [
+    "Does empty-only workspace removal preserve a rejected replacement bundle inside the unchanged workspace?",
+    "Does TemporaryExportCleanup retain successful owned removal proof, permit inventory retry and preserve a later replacement, without a new lifecycle regression?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-551-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 3,
+    "max_evidence_items": 8,
+    "max_output_chars": 6000
+  }
+}

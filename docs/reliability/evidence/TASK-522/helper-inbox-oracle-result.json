@@ -1,0 +1,49 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-INBOX-ORACLE",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-4C98A07F39E013F9ACF3E7D64B0F2F8A",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b3b546fb1c09a77825ab564ef449fc748e216a36f03bbfe5871e85d0c8c54d21",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The test-oracle correction resolves the prior finding. 'watched' precedes 'z-other'; the counter is created after the original completion and records a newly committed first-root write during the failing attempt. Independent-connection counts of one after failure and two after retry distinguish current-attempt persistence from preexisting evidence. No actionable defect found in this narrow delta.",
+  "findings": [],
+  "evidence": [
+    "E1 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:339-354,439 uses sibling roots 'watched' and 'z-other', retains the actual gated equal-time receipt race and asserts cumulative sorted roots.",
+    "E2 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:351-371 creates the counter after original persistence completes; the first-root trigger records a write in its transaction, the later root aborts, and assertions retain revision/roots, block publication and require counter one.",
+    "E3 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:372-380 removes the failure trigger, retries the cumulative receipt, requires clean inbox and valid permit, verifies three durable invalidations and counter two.",
+    "E4 /private/tmp/disk-steward-522-inbox-accepted.3NjURz/Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift:469-477 reads the counter through a separately opened SQLite connection and finalizes/closes resources."
+  ],
+  "checks": [
+    {
+      "command": "Diff only MonitoringReceiptTests.swift against /private/tmp/disk-steward-522-inbox-final.H8j2Er and inspect the changed fixture/assertions.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "Delta is limited to ordered root naming, the transactional counter and assertions, and a scalar-read helper. E1-E4 resolve the identified oracle weakness."
+    },
+    {
+      "command": "Execute tests, builds, database operations or native APIs.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Read-only review only. Coordinator reports 12 focused methods passing; not independently executed."
+    }
+  ],
+  "stale_if": [
+    "The scoped test, referenced production behavior, guard or snapshot identity changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw narrow static review awaits coordinator freshness and reconciliation; not whole-task acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Production source was declared unchanged by the job and was not reread or compared in this one-file review.",
+    "The corrected oracle covers the specified deterministic schedule, not exhaustive concurrency or native behavior."
+  ]
+}

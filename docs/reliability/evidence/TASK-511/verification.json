@@ -1,0 +1,99 @@
+{
+  "schema": "disk-steward-task-verification-v1",
+  "task": "TASK-511",
+  "status": "scoped-checks-and-static-candidate-validation-passed",
+  "at": "2026-09-17T00:11:11Z",
+  "candidate": {
+    "directory": "/private/tmp/disk-steward-511-green.qfud7j",
+    "source_sha256": "baae0f8ab5994bc3154ce998a8dc2238b3359fb2f8112f43915f0e9189b8fb35",
+    "source_hash_command": "rg --files -0 Sources Tests Config Scripts DiskSteward.xcodeproj | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+    "expanded_input_sha256": "24d7cfe565ef299630c0c37b0f670a348a6b3e0ba2a932008b265cd106e9bf81",
+    "expanded_hash_command": "rg --files --no-ignore -0 Package.swift Sources Tests Config Scripts DiskSteward.xcodeproj Integrations Schemas Fixtures Resources | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+    "canonical_and_disposable_match": true
+  },
+  "red": {
+    "directory": "/private/tmp/disk-steward-511-red.YIhxnB",
+    "source_sha256": "9fd8fde7258a67cf70c6c4ab57252adbd7c7ec459aaed5da64f64402c8edf883",
+    "command": "swift test --disable-sandbox --skip-build --filter BackendIsolationTests",
+    "exit_code": 1,
+    "tests": 2,
+    "failures": 2,
+    "observed": "Both success and failed-database initialization removed still-in-use.json from the explicitly injected foreign-instance fixture directory; NSCocoaErrorDomain 260. Reproduced again at 2026-09-17 09:11:11 JST.",
+    "safety": "Only the injected private fixture base was swept. No shared or real app data used."
+  },
+  "green": {
+    "command": "swift test --disable-sandbox --filter 'BackendIsolationTests|VerificationIsolationTests|FinalProductIncrementTests|IntegrationInstallTests|MonitoringLifecycleTests|StatusBoardPresentationTests|SnapshotIncrementTests|AppEvidenceIPCIntegrationTests|DistributionReleaseIntegrityTests'",
+    "exit_code": 0,
+    "tests": 41,
+    "failures": 0,
+    "log": "targeted-tests.log",
+    "finished": "2026-09-17T00:08:11.871Z"
+  },
+  "post_reclaim": {
+    "graph_version": 11,
+    "task_guard": "GUARD-TASK-D083F1CF956025C5DC4746F691495425",
+    "command": "Same scoped swift test filter with --skip-build on unchanged candidate",
+    "tests": 41,
+    "failures": 0,
+    "exit_code": 0,
+    "finished": "2026-09-17T00:17:58.253Z",
+    "log": "reclaimed-tests.log",
+    "reason": "Replan cleared ownership; completion was refused without mutation, then task reclaimed before final submission."
+  },
+  "checks": [
+    "git diff --check passed",
+    "zsh -n Scripts/Distribution/verify-release passed",
+    "New plan review and helper job schema validation passed using local Ajv"
+  ],
+  "preceding_attempts": [
+    {
+      "result": "guard-stopped",
+      "reason": "TMPDIR did not redirect XCTest temporaryDirectory; unsafe reproduction was refused before backend init. Changed to explicit injected fixture."
+    },
+    {
+      "result": "compile-failed",
+      "reason": "Mandatory notification/collector injection identified omitted StatusBoardViewModel fallback; revision3 added source scope and fallback made inert."
+    },
+    {
+      "result": "2-tests-failed",
+      "reason": "Foundation prettifies existing /private/tmp paths; physical realpath validation corrected guards."
+    },
+    {
+      "result": "40-tests-7-assertion-failures",
+      "reason": "Disposable copy initially omitted Integrations templates. Copied missing unchanged dependency; 40 tests then passed. No product fix needed."
+    }
+  ],
+  "acceptance": {
+    "backend_startup": "Preserves old foreign exports on successful and failing DB open",
+    "export_ownership": "Each call owns mkdtemp workspace; sibling and replacement identities preserved; two overlapping exports leave no payload and destroyed records",
+    "startup": "Two real smoke subprocesses beside fixture socket/lease; eight files byte-identical and all file/socket/lease inodes unchanged, endpoint remains queryable, owner lease remains held",
+    "dependencies": "Ephemeral preferences, paused empty roots, disabled notifications and Agent Access off reported and source-wired; mandatory notification/collector constructor injection; circuit-breaker traversal rooted only in fixture",
+    "overrides": "Non-smoke support override rejected before startup; artifact destinations require new leaf in existing private canonical temp parent; helper overrides throw before execution on symlinks/traversal/non-regular/outside-temp paths",
+    "release_verifier": "Actual smoke gate extracted from verifier accepts valid report; rejects each missing field and unsafe values"
+  },
+  "changed_product_files": [
+    "Sources/DiskStewardApp/AppConfiguration.swift",
+    "Sources/DiskStewardApp/main.swift",
+    "Sources/DiskStewardApp/StatusItemController.swift",
+    "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+    "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+    "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+    "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+    "Scripts/Distribution/verify-release",
+    "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+    "Tests/DiskStewardAppTests/IPC/BackendIsolationTests.swift",
+    "Tests/DiskStewardAppTests/IPC/VerificationIsolationTests.swift",
+    "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+    "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+    "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+    "Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift",
+    "Tests/IntegrationInstallTests/IntegrationInstallTests.swift"
+  ],
+  "limitations": [
+    "No release or installed app replacement; full suite, unsigned Xcode packaging and real overnight/100k/1M checks remain later work.",
+    "No production database, watched roots or agent profiles were modified.",
+    "Temporary workspace inode checks are not an atomic defense against hostile same-user concurrent directory replacement.",
+    "Abandoned export recovery after process death remains TASK-551; no age-only sweep is reintroduced.",
+    "Material findings in shared modules remain open. An implementation pass is not a brownfield audit pass."
+  ]
+}

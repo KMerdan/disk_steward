@@ -1,0 +1,79 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260918T061031932281Z-880B0501",
+  "at": "2026-09-18T06:10:31.931978Z",
+  "graph_version": 134,
+  "actor": "claude",
+  "type": "task.amended",
+  "node": "TASK-562",
+  "before": {
+    "allowed_write_scope": [
+      "Sources/DiskStewardApp/AgentIntegrations/**",
+      "Sources/DiskStewardMCP/main.swift",
+      "Sources/DiskStewardCore/IPC/**",
+      "Scripts/Integration/session",
+      "Tests/DiskStewardAppTests/AgentIntegrations/**",
+      "Tests/IntegrationInstallTests/**",
+      "docs/integrations/**",
+      "docs/reliability/evidence/**"
+    ],
+    "required_context": [
+      "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+      "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+    ]
+  },
+  "after": {
+    "allowed_write_scope": [
+      "Sources/DiskStewardApp/AgentIntegrations/**",
+      "Sources/DiskStewardMCP/main.swift",
+      "Sources/DiskStewardCore/IPC/**",
+      "Scripts/Integration/session",
+      "Tests/DiskStewardAppTests/AgentIntegrations/**",
+      "Tests/IntegrationInstallTests/**",
+      "docs/integrations/**",
+      "docs/reliability/evidence/**",
+      "Scripts/Integration/doctor"
+    ],
+    "required_context": [
+      "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+      "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+    ]
+  },
+  "payload": {
+    "reason": "The TASK-562 survey found that Scripts/Integration/doctor defaults to a misspelt socket directory ('Application Support/DiskSteward') while the app, the helper and the session script use 'Application Support/Disk Steward'; doctor therefore always reports the app unavailable unless --socket is passed. Correcting the session socket contract (AC-TASK-562-01: 'Session entry point uses the canonical socket') requires this existing file.",
+    "amendment": {
+      "schema": "pyramid-amendment-v1",
+      "task": "TASK-562",
+      "reason": "The TASK-562 survey found that Scripts/Integration/doctor defaults to a misspelt socket directory ('Application Support/DiskSteward') while the app, the helper and the session script use 'Application Support/Disk Steward'; doctor therefore always reports the app unavailable unless --socket is passed. Correcting the session socket contract (AC-TASK-562-01: 'Session entry point uses the canonical socket') requires this existing file.",
+      "boundary_review": "One existing file on the already-impacted ASSET-CLIENTS (IMPACT-TASK-562-CLIENTS); the change is a one-line default-path correction plus its regression in Tests/IntegrationInstallTests (already in scope). Acceptance, non-goals, dependencies, commands and authority of TASK-562 are unchanged.",
+      "add_write_paths": [
+        "Scripts/Integration/doctor"
+      ],
+      "add_context_paths": []
+    },
+    "amendment_id": "AMEND-a305a58b0f08bcfa672cd721efab4eb00711d8391d9fe8bb1ef5c5c735f58158",
+    "stale_inspections": [
+      "INSPECT-GATE-519-2",
+      "INSPECT-GATE-529-2",
+      "INSPECT-GATE-529-4",
+      "INSPECT-TASK-511-1",
+      "INSPECT-TASK-511-2",
+      "INSPECT-TASK-512-1",
+      "INSPECT-TASK-523-1",
+      "INSPECT-TASK-541-1",
+      "INSPECT-TASK-541-3",
+      "INSPECT-TASK-542-1",
+      "INSPECT-TASK-551-1",
+      "INSPECT-TASK-551-IPC",
+      "INSPECT-TASK-552-1",
+      "INSPECT-TASK-552-2",
+      "INSPECT-TASK-552-OCCURRENCE",
+      "INSPECT-TASK-561-1"
+    ]
+  },
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "plan_revision": 16,
+  "context_id": "CTX-82B6FE47FD16C613A06113F3B3814531",
+  "previous_event_id": "EVENT-20260918T061005429431Z-293C0EF9",
+  "previous_event_sha256": "9a670eee2f9e515b7826bdadb583ad03f5c4a447d89ceba1a6f9b665f707e2ac"
+}

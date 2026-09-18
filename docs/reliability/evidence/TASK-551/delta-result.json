@@ -1,0 +1,59 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-551-DELTA-02",
+  "parent_task": "TASK-551",
+  "task_guard": "GUARD-TASK-5949B7E354B76E38193DB506FCE19E85",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:eb0a20f7ab3cc6661d8cd282d933eecbfb3c6e128953582b80b2cf18a148dc74",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Two remaining lifecycle defects found by read-only delta review; no runtime validation.",
+  "findings": [
+    {
+      "claim": "Outer workspace cleanup recursively deletes a replacement bundle even when destroyTemporaryPayload rejects the bundle's new inode.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:563",
+        "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:956"
+      ],
+      "recommendation": "Remove only an empty owned workspace; add unchanged-parent/replaced-child regression."
+    },
+    {
+      "claim": "Inventory retry cannot proceed after successful payload deletion because repeating destroyTemporaryPayload rejects the missing path.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:651",
+        "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift:48"
+      ],
+      "recommendation": "Retain proof of successful owned removal across inventory retries; test fail-once inventory finalization and later replacement preservation."
+    }
+  ],
+  "evidence": [
+    "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift:33",
+    "/private/tmp/ds-ci-31o2fa6r/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:66"
+  ],
+  "checks": [
+    {
+      "command": "Static delta source inspection; no execution",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Ownership capability propagation, cleanup ordering, parent replacement and scratch relocation reviewed."
+    }
+  ],
+  "stale_if": [
+    "Source differs from the frozen candidate or job/task guard changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Advisory static findings; coordinator must validate fixes on a new candidate.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Findings established from source tracing, not runtime execution."
+  ]
+}

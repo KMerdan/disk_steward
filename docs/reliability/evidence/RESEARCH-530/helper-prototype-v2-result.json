@@ -1,0 +1,56 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-RESEARCH-530-PROTOTYPE-V2",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-BACAFCFA003B73489525B42E8C89C865",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:7d822143a20fc3dd6f8a9a1619152b43d2e89824cfe29a40573b6632dd2f5947",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The bounded corrective delta resolves the two prior retry defects and prevents replacement permits from authorizing old prepared evidence. Queue index selection, telemetry accounting and semantic unit oracles address the earlier research-validity concerns. No new actionable correctness defect found in this delta; this is not production-design approval.",
+  "findings": [],
+  "evidence": [
+    "E1 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototype.swift:112-134 assigns the generation/permit only after the creation transaction commits; 237-250 requires a real preparing generation and root before pointer publication.",
+    "E2 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototype.swift:139-155 closes the advanced DIR and requires reopen on any failed step; 89-101 restarts unfinished enumeration with a new epoch and resets process-local validation.",
+    "E3 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototype.swift:77-87,118-133,154,244 persists fenced status, retains the original permit, validates it during work and uses it at COMMIT; fenced reopen explicitly fails closed.",
+    "E4 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift:8-64 reproduces failed enumeration persistence and failed begin; 184-233 covers cancellation after reading and failed durable-spool metadata replay with path/metadata verification.",
+    "E5 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift:151-181 tests actual mutation during rejected publication, inability to rebind a fresh permit and fail-closed fenced reopen.",
+    "E6 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototype.swift:62-65,291-314 pins matching ordered indexes and records query VM steps; /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift:236-259 asserts no temporary sort and fewer than 100 VM steps with 10000 pending rows.",
+    "E7 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift:262-282,308-337 verifies equal-count rename/size change and hard-link identity against expected paths, device/inode, logical/allocated bytes, modification/sample times and link counts.",
+    "E8 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Tests/PerformanceTests/BoundedTraversalScaleTests.swift:43-69,82-99 separates frontier telemetry, measures full iteration time and labels sampled frontier maxima as lower bounds; 106-129 makes failed count/coverage/integrity oracles error results and test failures.",
+    "E9 /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift:34-58 and /private/tmp/disk-steward-530-prototype-v2.VKZmHR/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift:74-112 enforce original-revision COMMIT checks and SQL rollback."
+  ],
+  "checks": [
+    {
+      "command": "Read only the five scoped frozen files; trace corrected retry/reopen, permit, queue and measurement paths.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E9. No remaining counterexample found in the corrective delta."
+    },
+    {
+      "command": "Run tests, benchmarks, native calls, query plans or subprocess fixtures.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Prohibited. Coordinator reports 12 unit tests passing; this helper inspected their assertions but did not execute them."
+    }
+  ],
+  "stale_if": [
+    "Scoped implementation/tests, guard or snapshot identity changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw bounded static review awaits coordinator freshness and reconciliation; neither benchmark results nor production redesign are approved.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Fenced restart is intentionally unavailable, not a durable receipt-recovery implementation. Fresh static benchmark runs use unfenced generations.",
+    "Resource/time checks precede telemetry and final correctness oracles; completed JSON alone is not proof total elapsed including verification stayed within the internal budget. Retain external supervision and separate oracle time.",
+    "Between-call RSS/WAL and once-per-second frontier samples can miss transient peaks. The VM-step fixture proves its tested queue shape, not every future schema/query change.",
+    "Scale oracles check file/directory counts and completion; detailed path/metadata equality is established only by small unit fixtures. Product history, multi-root attribution, migrations and retention remain excluded."
+  ]
+}

@@ -162,8 +162,12 @@ smoke_output=$(DISK_STEWARD_SUPPORT_DIRECTORY="$smoke_directory" "$app/Contents/
   print -u2 "$smoke_output"
   exit 70
 }
-if [[ "$smoke_output" != *'"status":"launched"'* || "$smoke_output" != *'"activation_policy":"accessory"'* ]]; then
-  print -u2 "Release rejected: launch smoke did not prove an accessory menu-bar application."
+smoke_field() { /usr/bin/plutil -extract "$1" raw -o - - <<< "$smoke_output" 2>/dev/null; }
+if [[ "$(smoke_field status)" != launched || "$(smoke_field activation_policy)" != accessory || \
+      "$(smoke_field isolated_smoke)" != true || "$(smoke_field detail_sampling_paused)" != true || \
+      "$(smoke_field watched_root_count)" != 0 || "$(smoke_field agent_access)" != off || \
+      "$(smoke_field settings_persistence)" != ephemeral || "$(smoke_field notifications_enabled)" != false ]]; then
+  print -u2 "Release rejected: launch smoke did not prove an isolated, paused accessory application with ephemeral settings, no watched roots, disabled notifications and Agent Access off."
   print -u2 "$smoke_output"
   exit 70
 fi

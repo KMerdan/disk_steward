@@ -1,0 +1,42 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-PUBLICATION",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-22D0081DF53D051CF5A58CA0A88D3A0D",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:97393b69e4cabbe88a27715d32456f58f583730d5b234ca890a0c80b810b08d4",
+    "immutable": true
+  },
+  "read_scope": [
+    "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift"
+  ],
+  "purpose": "Review the bounded receipt-versus-final-commit safeguard, not unfinished app receipt integration.",
+  "questions": [
+    "Does a concurrent invalidate during transaction preparation reject final publication and roll back without holding the receipt lock for the whole transaction?",
+    "Does guarded COMMIT avoid SQLite lock-retry waits and preserve connection reuse/cancellation semantics? Identify a concrete correctness regression if present.",
+    "Do the six tests exercise the claimed scope honestly? This is process-local; app wiring, durable inbox, startup gaps, callback bounds and full AC02 remain unfinished."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-02"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 8,
+    "max_output_chars": 7000
+  }
+}

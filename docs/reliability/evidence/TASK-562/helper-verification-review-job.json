@@ -1,0 +1,26 @@
+{
+ "schema": "helper-job-v1",
+ "helper_id": "HELPER-TASK-562-VERIFY-01",
+ "parent_task": "TASK-562",
+ "task_guard": "GUARD-TASK-44233EF787EA9CBD00688B2ED878E6EC",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:019559cfa4a8 (focused app/script suites); full candidate pending", "immutable": false},
+ "read_scope": [
+  "docs/reliability/evidence/TASK-562/helper-verification-source-delta.diff",
+  "docs/reliability/evidence/TASK-562/base-source/**",
+  "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+  "Sources/DiskStewardMCP/main.swift",
+  "Scripts/Integration/session",
+  "Scripts/Integration/doctor",
+  "Tests/DiskStewardAppTests/AgentIntegrations/HelperVerificationTests.swift",
+  "Tests/DiskStewardAppTests/AgentIntegrations/SelfCheckReportFixture.swift",
+  "Tests/IntegrationInstallTests/SessionContractTests.swift"
+ ],
+ "purpose": "Read-only static delta review of the helper-verification candidate against the pre-task snapshot (base copies archived). Review: (1) whether 'verified' can still be reached without the configured command printing a self-check report whose executable identity equals the receipt's helper identity (parse leniency, identity computation, adapters that skip the check, paths that record verified from an exit code); (2) whether the self-check command can be redirected by inherited environment (DISK_STEWARD_* overrides, PATH) or by a symlink/moved helper; (3) the stale/app-off/access-off/insecure-socket classification and whether any state is reported as verified when the app was not actually reached; (4) the session script's --process-pid contract (alive, ancestor, not self; usage/invalid/unavailable exit codes) and whether any path still registers a session implicitly (helper initialize, self-check, doctor); (5) the doctor default socket fix; (6) whether the new fixtures could pass vacuously (fixture report built from the same identity function the product uses).",
+ "must_not": ["modify files", "run swift test in the worktree", "treat exit 0 as verification"],
+ "deliverable": "Findings with severity, confidence, location, claim, scenario and suggested fix; observations; answers to the six questions with confidence; limitations."
+}

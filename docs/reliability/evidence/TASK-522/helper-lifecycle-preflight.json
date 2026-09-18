@@ -1,0 +1,42 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-PREFLIGHT",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b9154fdc02be7a8912db7285d93eff51e9d55af44a013e0fdbb3beceb94ef555",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardApp/Lifecycle/**",
+    "/private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardApp/ApplicationDelegate.swift",
+    "/private/tmp/disk-steward-521-core-final.ZAhMFh/Tests/DiskStewardAppTests/Lifecycle/**"
+  ],
+  "purpose": "Identify lifecycle/cancellation/shutdown correctness gaps and deterministic tests before completing TASK522; coordinator separately inspects ordinary dirty-hint delivery.",
+  "questions": [
+    "AC-TASK-522-01: current epoch fences and safety markers were partially changed in prior work. Trace pause/sleep/resume/quit while sample is awaited or busy follow-up pending. Identify concrete remaining defects with minimal failing fixtures, not a general redesign.",
+    "Does orderly shutdown clear its marker before persistence truly finishes, or can a late sample/notification override stop? Define what existing tests prove and what deterministic control is missing; no test execution.",
+    "Identify the minimal coordinator/source injection needed for deterministic lifecycle tests without production support/config/native access. Shared hint receipt is coordinated with AC-TASK-522-02; flag only integration conditions relevant to the same controller/probe lifecycle boundary."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01",
+    "AC-TASK-522-02"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "load-bearing-decision",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 8,
+    "max_output_chars": 6500
+  }
+}

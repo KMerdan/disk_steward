@@ -87,10 +87,65 @@ enum AgentClientPresence: Equatable, Sendable {
 struct AgentIntegrationDefinition: Codable, Equatable, Sendable {
     let command: String
     let arguments: [String]
+    // Legacy receipts omit this field. Meaningful extra configuration breaks
+    // ownership without persisting environment values or other secrets.
+    let configurationFingerprint: String?
 
-    init(command: String, arguments: [String] = []) {
+    init(command: String, arguments: [String] = [], configurationFingerprint: String? = nil) {
         self.command = command
         self.arguments = arguments
+        self.configurationFingerprint = configurationFingerprint
+    }
+
+    static func parse(_ entry: [String: Any]) -> AgentIntegrationDefinition? {
+        guard let command = entry["command"] as? String, !command.isEmpty,
+              entry["args"] == nil || entry["args"] is [String] else { return nil }
+        var extras = entry
+        extras.removeValue(forKey: "command")
+        extras.removeValue(forKey: "args")
+        if extras["type"] as? String == "stdio" { extras.removeValue(forKey: "type") }
+        for key in ["env", "cwd", "env_vars"] {
+            if extras[key] is NSNull { extras.removeValue(forKey: key) }
+        }
+        if let env = extras["env"] as? [String: Any], env.isEmpty { extras.removeValue(forKey: "env") }
+        if let env = extras["env_vars"] as? [String], env.isEmpty { extras.removeValue(forKey: "env_vars") }
+        let digest = extras.isEmpty ? nil : (try? JSONSerialization.data(withJSONObject: extras, options: [.sortedKeys])).map {
+            SHA256.hash(data: $0).map { String(format: "%02x", $0) }.joined()
+        }
+        guard extras.isEmpty || digest != nil else { return nil }
+        return .init(command: command, arguments: entry["args"] as? [String] ?? [], configurationFingerprint: digest)
+    }
+}
+
+/// Every configuration mutation either preserves the user's file byte for byte
+/// or fails with one of these, naming the file, the backup that holds the
+/// pre-mutation bytes, and the recovery step. Nothing is ever partially applied
+/// without an explicit, recoverable report.
+enum AgentIntegrationMutationError: LocalizedError, Equatable {
+    case notOwned(path: String)
+    case concurrentEdit(path: String, backup: String?)
+    case backupFailed(path: String, reason: String)
+    case commitFailed(path: String, backup: String?, reason: String)
+    case restoreFailed(path: String, backup: String?, reason: String)
+    /// A concurrent writer's file was swapped out and could not be swapped
+    /// back; it is preserved at `preserved` and the caller's bytes stand.
+    case concurrentEditUndoFailed(path: String, preserved: String, reason: String)
+
+    var errorDescription: String? {
+        switch self {
+        case let .notOwned(path):
+            return "Disk Steward will not change an entry it does not own in \(path). Remove or rename that entry, then rescan; nothing was changed."
+        case let .concurrentEdit(path, backup):
+            return "\(path) changed while Disk Steward was editing it, so the edit was abandoned and the file was left as the other writer saved it. Rescan and retry" + (backup.map { "; the bytes read before the edit are in \($0)." } ?? ".")
+        case let .backupFailed(path, reason):
+            return "Disk Steward could not write a backup before editing \(path) (\(reason)), so it changed nothing. Free space or fix permissions in \((path as NSString).deletingLastPathComponent), then retry."
+        case let .commitFailed(path, backup, reason):
+            return "Disk Steward could not save \(path) (\(reason)); the file was left unchanged" + (backup.map { " and its pre-edit bytes are in \($0)" } ?? "") + ". Retry after fixing the folder's permissions or free space."
+        case let .restoreFailed(path, backup, reason):
+            return "Disk Steward saved \(path) but could not record its receipt and could not restore the file automatically (\(reason))." + (backup.map { " Your previous configuration is preserved in \($0); copy it back or rescan and repair." } ?? " Rescan and repair.")
+        case let .concurrentEditUndoFailed(path, preserved, reason):
+            return "\(path) was changed by another program while Disk Steward saved it, and Disk Steward could not put that program's version back (\(reason)). Disk Steward's version is now in place; the other program's version is preserved at \(preserved). Merge them by hand, then rescan."
+        }
     }
 }
 
@@ -102,24 +157,41 @@ struct AgentIntegrationReceipt: Codable, Equatable, Sendable {
     let serverName: String
     let definition: AgentIntegrationDefinition
     let installedAt: Date
+    let helperIdentity: String?
+    // Client-owned install prompts can be cancelled. Retain the exact prior
+    // entry until approval replaces it, so repair never forfeits ownership.
+    let previousDefinition: AgentIntegrationDefinition?
+    let previousHelperIdentity: String?
     var lastVerifiedAt: Date?
     var lastResult: String
+    /// The backup written before the last direct edit of the client file;
+    /// legacy receipts omit it. Backups live next to the client file in
+    /// `.disk-steward-backups/` and are bounded per file.
+    var lastBackupPath: String?
 
     init(
         clientID: AgentClientID,
         serverName: String = "disk-steward",
         definition: AgentIntegrationDefinition,
         installedAt: Date = Date(),
+        helperIdentity: String? = nil,
+        previousDefinition: AgentIntegrationDefinition? = nil,
+        previousHelperIdentity: String? = nil,
         lastVerifiedAt: Date? = nil,
-        lastResult: String = "configured"
+        lastResult: String = "configured",
+        lastBackupPath: String? = nil
     ) {
         schemaVersion = Self.currentSchemaVersion
         self.clientID = clientID
         self.serverName = serverName
         self.definition = definition
         self.installedAt = installedAt
+        self.helperIdentity = helperIdentity
+        self.previousDefinition = previousDefinition
+        self.previousHelperIdentity = previousHelperIdentity
         self.lastVerifiedAt = lastVerifiedAt
         self.lastResult = lastResult
+        self.lastBackupPath = lastBackupPath
     }
 }
 
@@ -135,6 +207,10 @@ enum AgentConfigurationInspection: Equatable, Sendable {
 enum AgentVerification: Equatable, Sendable {
     case notRun
     case passed(at: Date)
+    /// The exact configured helper connected, but the evidence it returned is
+    /// older than `HelperSelfCheck.staleEvidenceThreshold`, or nothing has been
+    /// persisted yet (`evidenceAge == nil`).
+    case stale(at: Date, evidenceAge: TimeInterval?)
     case failed(reason: String)
 }
 
@@ -144,6 +220,7 @@ enum AgentIntegrationStateKind: String, Codable, Equatable, Sendable {
     case configured
     case approvalPending
     case verified
+    case stale
     case broken
     case conflict
     case unavailable
@@ -163,7 +240,7 @@ struct AgentIntegrationSnapshot: Equatable, Identifiable, Sendable {
         switch state {
         case .available, .configured, .broken:
             true
-        case .notDetected, .approvalPending, .verified, .conflict, .unavailable:
+        case .notDetected, .approvalPending, .verified, .stale, .conflict, .unavailable:
             false
         }
     }
@@ -202,6 +279,9 @@ struct AgentIntegrationSnapshot: Equatable, Identifiable, Sendable {
         case let (_, .owned, .passed(at)):
             state = .verified
             detail = "Verified \(at.formatted(date: .abbreviated, time: .shortened))."
+        case let (_, .owned, .stale(at, age)):
+            state = .stale
+            detail = "Connected \(at.formatted(date: .abbreviated, time: .shortened)), but \(HelperSelfCheck.describeStaleness(age: age)). Monitoring may be paused or the app may have just started."
         case (_, .owned, .notRun):
             state = .configured
             detail = "Configured; verification has not run yet."
@@ -267,8 +347,14 @@ enum AgentIntegrationOwnership: Equatable, Sendable {
             return .external(current)
         case let (current?, receipt?) where current == receipt.definition:
             return .owned(receipt)
+        case let (current?, receipt?) where receipt.lastResult == "approval-pending" && current == receipt.previousDefinition:
+            return .owned(.init(clientID: receipt.clientID, serverName: receipt.serverName,
+                definition: current, installedAt: receipt.installedAt,
+                helperIdentity: receipt.previousHelperIdentity, lastResult: "approval-pending"))
         case let (current?, receipt?):
             return .conflict(expected: receipt.definition, actual: current)
         }
     }
 }
+import CryptoKit
+import DiskStewardCore

@@ -1,4 +1,11 @@
 #!/bin/zsh
+# Installs the read-only Disk Steward connector for one CLI client.
+#
+# Every mutation is recoverable (TASK-561): a timestamped backup directory under
+# <config-root>/.disk-steward-backups/ receives the pre-install files and a
+# manifest.json with their hashes; a failure at any later step restores exactly
+# those files before exiting; `Scripts/Integration/rollback` restores a backup
+# on request; only the newest ten backup directories are kept.
 set -euo pipefail
 
 client=""
@@ -30,6 +37,7 @@ if (( dry_run )); then
   print "Configuration root: $config_root"
   print "Connector: $connector"
   print "Only the disk_steward MCP entry and Disk Steward-owned plugin files would change."
+  print "A recoverable backup with a manifest would be written under $config_root/.disk-steward-backups/ first."
   exit 0
 fi
 
@@ -37,13 +45,88 @@ fi
 
 script_dir=${0:A:h}
 repo_root=${script_dir:h:h}
+source "$script_dir/backup-lib.zsh"
+
 timestamp=$(date -u +%Y%m%dT%H%M%SZ)-$$
-backup_root="$config_root/.disk-steward-backups/$timestamp"
+backups_dir="$config_root/.disk-steward-backups"
+backup_root="$backups_dir/$timestamp"
 mkdir -p "$config_root" "$backup_root"
-chmod 700 "$config_root" "$config_root/.disk-steward-backups" "$backup_root"
+chmod 700 "$config_root" "$backups_dir" "$backup_root"
 
 if [[ "$client" == "codex" ]]; then
   config_file="$config_root/config.toml"
+  plugin_target="$config_root/plugins/disk-steward"
+else
+  config_file="$config_root/.mcp.json"
+  plugin_target=""
+fi
+
+# Everything below is undone on failure: the backup taken first is the source
+# of truth for what "unchanged" means.
+config_backed=0
+plugin_backed=0
+plugin_written=0
+config_written=0
+undo_done=0
+undo() {
+  local exit_status=$?
+  trap - ZERR EXIT
+  setopt localoptions noerrexit noerrreturn
+  (( undo_done )) && exit $exit_status
+  undo_done=1
+  if (( exit_status != 0 )); then
+    local -a failures
+    failures=()
+    local restored=0
+    if (( config_written || config_backed )); then
+      if [[ -f "$backup_root/${config_file:t}" ]]; then
+        if ! verify_unchanged "$backup_root/${config_file:t}" "$config_file"; then
+          restore_file "$backup_root/${config_file:t}" "$config_file" && restored=1 || failures+=("could not restore ${config_file:t} from $backup_root/${config_file:t}")
+        fi
+      elif (( config_written )) && [[ -f "$config_file" ]]; then
+        rm -f "$config_file" && restored=1 || failures+=("could not remove the partially written $config_file")
+      fi
+    fi
+    if [[ -n "$plugin_target" ]] && (( plugin_written || plugin_backed )); then
+      if [[ "${DISK_STEWARD_INTEGRATION_FAULT:-}" == "undo-plugin" && "$config_root" == /tmp/ds-* ]]; then
+        failures+=("fault injected: plugin restore skipped (test roots only)")
+      else
+        rm -rf "$plugin_target" && restored=1 || failures+=("could not remove the partially written $plugin_target")
+        if [[ -e "$backup_root/disk-steward-plugin" ]]; then
+          mv "$backup_root/disk-steward-plugin" "$plugin_target" || failures+=("could not restore the previous plugin from $backup_root/disk-steward-plugin")
+        fi
+      fi
+    fi
+    if (( ${#failures} > 0 )); then
+      manifest_finish "$backup_root" "restore-failed"
+      print -u2 "install: step failed (exit $exit_status) and the automatic restore did not complete:"
+      local failure
+      for failure in "${failures[@]}"; do print -u2 "  - $failure"; done
+      print -u2 "install: the pre-install copies stay in $backup_root; restore them with: $script_dir/rollback --client $client --config-root $config_root --backup ${backup_root:t} --force"
+      exit_status=70
+    elif (( restored )); then
+      manifest_finish "$backup_root" "failed-and-restored"
+      print -u2 "install: step failed (exit $exit_status); restored the $client configuration from $backup_root"
+      print -u2 "install: nothing from this attempt remains; the backup stays in $backup_root"
+    else
+      manifest_finish "$backup_root" "refused-nothing-changed"
+      print -u2 "install: step failed (exit $exit_status); nothing was changed"
+    fi
+  fi
+  exit $exit_status
+}
+trap undo ZERR EXIT
+
+manifest_begin "$backup_root" "install" "$client" "$connector"
+if [[ -f "$config_file" ]]; then
+  cp -p "$config_file" "$backup_root/${config_file:t}"
+  manifest_file "$backup_root" "${config_file:t}" "$config_file" existed
+  config_backed=1
+else
+  manifest_file "$backup_root" "${config_file:t}" "$config_file" absent
+fi
+
+if [[ "$client" == "codex" ]]; then
   if [[ -f "$config_file" ]]; then
     begins=$(grep -c '^# BEGIN DISK STEWARD MANAGED v1$' "$config_file" || true)
     ends=$(grep -c '^# END DISK STEWARD MANAGED v1$' "$config_file" || true)
@@ -54,15 +137,18 @@ if [[ "$client" == "codex" ]]; then
   fi
   plugin_source="$repo_root/Integrations/Codex/disk-steward"
   plugin_parent="$config_root/plugins"
-  plugin_target="$plugin_parent/disk-steward"
   mkdir -p "$plugin_parent"
   if [[ -e "$plugin_target" ]]; then
     mv "$plugin_target" "$backup_root/disk-steward-plugin"
+    manifest_plugin "$backup_root" existed
+    plugin_backed=1
+  else
+    manifest_plugin "$backup_root" absent
   fi
   cp -R "$plugin_source" "$plugin_target"
+  plugin_written=1
   /usr/bin/swift "$script_dir/json-config.swift" set "$plugin_target/.mcp.json" "$connector"
 
-  if [[ -f "$config_file" ]]; then cp -p "$config_file" "$backup_root/config.toml"; fi
   temporary=$(mktemp "$config_root/.config.toml.disk-steward.XXXXXX")
   if [[ -f "$config_file" ]]; then
     awk '
@@ -87,12 +173,24 @@ if [[ "$client" == "codex" ]]; then
     print "# END DISK STEWARD MANAGED v1"
   } >> "$temporary"
   chmod 600 "$temporary"
+  # Check-and-swap: the file must still be the one that was backed up.
+  if (( config_backed )); then
+    verify_unchanged "$backup_root/${config_file:t}" "$config_file" || { rm -f "$temporary"; print -u2 "install: $config_file changed while it was being edited; nothing was changed. Retry."; exit 75; }
+  elif [[ -e "$config_file" ]]; then
+    rm -f "$temporary"; print -u2 "install: $config_file appeared while it was being edited; nothing was changed. Retry."; exit 75
+  fi
+  config_written=1
   mv "$temporary" "$config_file"
 else
-  config_file="$config_root/.mcp.json"
-  if [[ -f "$config_file" ]]; then cp -p "$config_file" "$backup_root/.mcp.json"; fi
+  config_written=1
   /usr/bin/swift "$script_dir/json-config.swift" set "$config_file" "$connector"
 fi
 
+manifest_after "$backup_root" "${config_file:t}" "$config_file"
+manifest_finish "$backup_root" "installed"
+prune_backups "$backups_dir" 10
+trap - ZERR EXIT
+
 print "Installed Disk Steward for $client in $config_root"
 print "Backup: $backup_root"
+print "Undo: $script_dir/rollback --client $client --config-root $config_root --backup $timestamp"

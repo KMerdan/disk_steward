@@ -1,0 +1,105 @@
+[0/1] Planning build
+Building for debugging...
+[0/8] Write sources
+[2/8] Write swift-version--58304C5D6DBC2206.txt
+[4/10] Compiling DiskStewardCore SQLiteConnection.swift
+[5/10] Emitting module DiskStewardCore
+[5/12] Write Objects.LinkFileList
+[7/15] Linking disk-witness-mcp
+[8/15] Applying disk-witness-mcp
+[9/15] Linking DiskStewardApp
+[10/15] Applying DiskStewardApp
+[12/16] Compiling DiskStewardCoreTests ScanPublicationFenceTests.swift
+[13/16] Compiling DiskStewardCoreTests MonitoringTests.swift
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[14/16] Emitting module DiskStewardCoreTests
+[15/19] Emitting module DiskStewardAppTests
+[16/20] Compiling DiskStewardCoreTests DurableProvenanceLifecycleTests.swift
+[17/20] Compiling DiskStewardCoreTests EvidenceStoreTests.swift
+[18/20] Compiling DiskStewardCoreTests EvidenceBundleExporterTests.swift
+[18/20] Write Objects.LinkFileList
+[19/20] Linking DiskStewardPackageTests
+Build complete! (2.33s)
+Test Suite 'Selected tests' started at 2026-09-17 16:27:43.639.
+Test Suite 'DiskStewardPackageTests.xctest' started at 2026-09-17 16:27:43.640.
+Test Suite 'MonitoringTests' started at 2026-09-17 16:27:43.640.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsInterpreterFiltersExclusionsAndPreservesGapEvidence]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsInterpreterFiltersExclusionsAndPreservesGapEvidence]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsMalformedBatchCannotSilentlyLoseCoverage]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsMalformedBatchCannotSilentlyLoseCoverage]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsNativeAdapterPreservesBoundedEventsAndRejectsMalformedPaths]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsNativeAdapterPreservesBoundedEventsAndRejectsMalformedPaths]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOverflowBecomesOneGapInsteadOfRetainedHints]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOverflowBecomesOneGapInsteadOfRetainedHints]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOversizedPathBecomesGapWithoutRetainingPath]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsOversizedPathBecomesGapWithoutRetainingPath]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsRejectsHugeCountBeforeAccessingAnyNativeEvent]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testFSEventsRejectsHugeCountBeforeAccessingAnyNativeEvent]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testGrowthInsideAndOutsideWatchedRootBecomesDetailedAndUnexplained]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testGrowthInsideAndOutsideWatchedRootBecomesDetailedAndUnexplained]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerDerivesBoundedChangesWithoutReadingContents]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerDerivesBoundedChangesWithoutReadingContents]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerPreservesSharedIdentityAndLinkCountForHardLinks]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerPreservesSharedIdentityAndLinkCountForHardLinks]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerReportsUnavailableAndEntryLimit]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testMetadataScannerReportsUnavailableAndEntryLimit]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsCollectorEmitsRescanHintForWatchedRoot]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsCollectorEmitsRescanHintForWatchedRoot]' passed (0.227 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsContextOwnsHandlerUntilStreamStops]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testNativeFSEventsContextOwnsHandlerUntilStreamStops]' passed (0.018 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testPolicyCombinesStableRegisteredAndActiveInvestigationRoots]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testPolicyCombinesStableRegisteredAndActiveInvestigationRoots]' passed (0.003 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWholeVolumeSamplerReturnsMountedVolumeMetrics]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWholeVolumeSamplerReturnsMountedVolumeMetrics]' passed (0.048 seconds).
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWriteCoalescerMergesOnlyMatchingPathAndOperationInWindow]' started.
+Test Case '-[DiskStewardCoreTests.MonitoringTests testWriteCoalescerMergesOnlyMatchingPathAndOperationInWindow]' passed (0.000 seconds).
+Test Suite 'MonitoringTests' passed at 2026-09-17 16:27:43.948.
+	 Executed 15 tests, with 0 failures (0 unexpected) in 0.306 (0.308) seconds
+Test Suite 'SQLiteCancellationTests' started at 2026-09-17 16:27:43.948.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testAlreadyCancelledWorkCannotStartAShortWrite]' passed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationBetweenBackupPagesRollsBackAndReleasesDestination]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationBetweenBackupPagesRollsBackAndReleasesDestination]' passed (0.014 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationDuringRowsInterruptsAndDiscardsPartialResult]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationInterruptsLockWaitWithoutWaitingFiveSeconds]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancellationInterruptsLockWaitWithoutWaitingFiveSeconds]' passed (0.062 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testCancelledTransactionRollsBackAndConnectionRemainsUsable]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testSocketDeadlineInterruptsSQLiteInsideActorAndThenRecovers]' started.
+Test Case '-[DiskStewardCoreTests.SQLiteCancellationTests testSocketDeadlineInterruptsSQLiteInsideActorAndThenRecovers]' passed (0.215 seconds).
+Test Suite 'SQLiteCancellationTests' passed at 2026-09-17 16:27:44.242.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.294 (0.294) seconds
+Test Suite 'ScanPublicationFenceTests' started at 2026-09-17 16:27:44.242.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testCancellationInsideGuardedCommitPreservesErrorAndConnectionRecovery]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testCancellationInsideGuardedCommitPreservesErrorAndConnectionRecovery]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testGuardedCommitDoesNotWaitForAConflictingSQLiteReader]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testGuardedCommitDoesNotWaitForAConflictingSQLiteReader]' passed (0.001 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testPendingAndNewerReceiptsCannotBeAcknowledgedByAnOlderCompletion]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testPendingAndNewerReceiptsCannotBeAcknowledgedByAnOlderCompletion]' passed (0.000 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptAfterPublicationDoesNotRetroactivelyUndoTheCommittedObservation]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptAfterPublicationDoesNotRetroactivelyUndoTheCommittedObservation]' passed (0.020 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptBeforeStoreAdmissionRejectsWithoutStartingStaging]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptBeforeStoreAdmissionRejectsWithoutStartingStaging]' passed (0.009 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptDuringPreparedPublicationRollsBackCurrentStateAndRecovers]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testReceiptDuringPreparedPublicationRollsBackCurrentStateAndRecovers]' passed (0.046 seconds).
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testSupersededCommitRollsBackAndLeavesConnectionReusable]' started.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testSupersededCommitRollsBackAndLeavesConnectionReusable]' passed (0.001 seconds).
+Test Suite 'ScanPublicationFenceTests' passed at 2026-09-17 16:27:44.322.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.079 (0.080) seconds
+Test Suite 'DiskStewardPackageTests.xctest' passed at 2026-09-17 16:27:44.322.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.679 (0.682) seconds
+Test Suite 'Selected tests' passed at 2026-09-17 16:27:44.322.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.679 (0.682) seconds
+◇ Test run started.
+↳ Testing Library Version: 1501
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

@@ -1,0 +1,40 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-542-ACCEPTED",
+  "parent_task": "TASK-542",
+  "task_guard": "GUARD-TASK-4D4819EF38EE7EAB7E01B019D071C4C8",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:57dd89b23864d4115dd909bd224db2eaa0f92f0a56f55de119c205bf6f20324a",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-542-accepted.xRV6DE/Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+    "/private/tmp/disk-steward-542-accepted.xRV6DE/Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+    "/private/tmp/disk-steward-542-accepted.xRV6DE/Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift"
+  ],
+  "purpose": "Independently review the frozen TASK-542 owned command lifecycle and acceptance coverage.",
+  "questions": [
+    "Refresh the prior static review against this final snapshot: fixture cleanup no longer signals numeric PIDs, workloads are finite sleep/head, proc_pidinfo errors other than ESRCH fail tests, and the original cancellation case now asserts waitid ECHILD for the direct child. Confirm both prior findings addressed; same runner source as reviewed candidate.",
+    "Confirm prior runner conclusions remain applicable; report only new actionable issues and explicit limits. Static-only no tests/builds/process experiments or writes. Full suite and repetitions run separately by coordinator."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-542-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 7,
+    "max_output_chars": 6000
+  }
+}

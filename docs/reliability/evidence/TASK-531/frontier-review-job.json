@@ -1,0 +1,29 @@
+{
+ "schema": "helper-job-v1",
+ "helper_id": "HELPER-TASK-531-FRONTIER-01",
+ "parent_task": "TASK-531",
+ "task_guard": "GUARD-TASK-A976E39DFD2B5A2196B42F5D1E71EE91",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:f55627d8ff97069353588827e1d1530994723d34b46babda0fa31541dff84353", "immutable": true},
+ "read_scope": [
+  "docs/reliability/evidence/TASK-531/frontier-base-source/**",
+  "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+  "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+  "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+  "Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift",
+  "Tests/IncrementTests/Monitoring/ScanContinuationIncrementTests.swift",
+  "Tests/PerformanceTests/ScaleBenchmarkTests.swift"
+ ],
+ "purpose": "Read-only static delta review of the bounded-frontier candidate against the TASK-552 candidate d062e0b1 (base copies archived). Review stream registry lifetime and descriptor bounds, restart-of-unfinished-pass invalidation completeness, durable frontier spill/refill transactional consistency and ordering, root completion condition, schema 14 migration and the new index, continuation loop safety (cancellation, permits, stall), and test soundness. No executions, writes, Pyramid mutation, or nested agents.",
+ "questions": [
+  "Can any path publish stale or duplicate membership after a lost stream, eviction, or directory change, or lose a discovered directory between the window, durable rows and invalidation?",
+  "Are descriptors, memory and transactions bounded as claimed, and is the continuation loop safe under cancellation, dirty-evidence receipts and resource pressure?"
+ ],
+ "acceptance_criteria": ["AC-TASK-531-01"],
+ "execution_isolation": "read-only",
+ "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "run-tests-or-builds", "publish-or-deploy", "change-git-history"],
+ "join_before": "candidate-acceptance",
+ "result_budget": {"max_findings": 6, "max_evidence_items": 12, "max_output_chars": 7000}
+}

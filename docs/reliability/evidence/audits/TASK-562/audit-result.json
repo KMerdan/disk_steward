@@ -1,0 +1,73 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-562",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-562-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-562/candidate-2/candidate.json",
+    "docs/reliability/evidence/TASK-562/candidate-2/tests.log",
+    "Full fifteen-stage isolated verifier on the final input 5ecd49a317171e493451894bcc082cd8d4516d2922c29564107baace9d21dd68: 547 tests, 5 opt-in skips, 0 failures; packaged unsigned app smoke and helper stages passed."
+   ]
+  },
+  {
+   "id": "CHECK-562-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-562/suites-green-2/tests.log",
+    "docs/reliability/evidence/TASK-562/helper-verification.md",
+    "Isolated reruns: exit 0 without a report, a different helper's report, a moved/replaced helper and an inherited environment never yield verified; app-off, access-off, stale, absent and fresh evidence are classified and stamped accurately, with freshness read from the persisted_state_as_of the real backend publishes (StorageSummaryContract); the real connector's --self-check reports its identity and never registers a session; session register requires a live ancestor pid and refuses before any IPC; the default socket is canonical across session, doctor and the IPC client (AC-TASK-562-01)."
+   ]
+  },
+  {
+   "id": "CHECK-562-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-562/identity-mutation-red-2/result.json",
+    "docs/reliability/evidence/TASK-562/cleanenv-mutation-red-2/result.json",
+    "docs/reliability/evidence/TASK-562/sessionpid-mutation-red-2/result.json",
+    "docs/reliability/evidence/TASK-562/freshness-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-562/helper-verification-review-result.json",
+    "Non-vacuity on the final candidate: disabling the identity check, inheriting the environment, dropping the pid requirement or reading freshness from the wrong key each makes the targeted fixture fail; static delta review dispositions: F1 P1: fixed."
+   ]
+  },
+  {
+   "id": "CHECK-562-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-562/assurance-candidate.json",
+    "Assurance reviewed: IMPACT-TASK-562-ATTRIBUTION, IMPACT-TASK-562-CLIENTS, IMPACT-TASK-562-QUERY, IMPACT-TASK-562-MCP, IMPACT-TASK-562-IPC confirmed; INSPECT-TASK-562-1 performed and sufficient after the implementation event; findings on these assets: FIND-ATTRIBUTION, FIND-ENDPOINT-ORDER, FIND-ISOLATION, FIND-OCCURRENCE, FIND-QUERY, FIND-SERVICE; changed files lie inside the CLIENTS, ATTRIBUTION, MCP, QUERY (AppEvidenceQueryBackend) and STORE-adjacent Core IPC (StorageSummaryContract) locators; any drift reconciled to the matching IMPACT-TASK-562-* record."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-562-ATTRIBUTION",
+   "IMPACT-TASK-562-CLIENTS",
+   "IMPACT-TASK-562-QUERY",
+   "IMPACT-TASK-562-MCP",
+   "IMPACT-TASK-562-IPC"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-562-1"
+  ],
+  "finding_ids": [
+   "FIND-ATTRIBUTION",
+   "FIND-ENDPOINT-ORDER",
+   "FIND-ISOLATION",
+   "FIND-OCCURRENCE",
+   "FIND-QUERY",
+   "FIND-SERVICE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Fixture runners stand in for real client processes; the real helper is exercised against a recording socket server.",
+   "Native installed clients are not exercised.",
+   "The auditor also implemented the task; independence rests on isolated reruns, mutation reds, the independent static review and archived hashes."
+  ]
+ }
+}

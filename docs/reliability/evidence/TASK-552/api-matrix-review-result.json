@@ -1,0 +1,67 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-API-MATRIX-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-B8E1C2F9F0B506B7FC5D3E59FF469274",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:223d3eb9adcbd3c966981869e3b3013e7f6e652be7f2714ac5c7ab9f68644052",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Found one cursor-expiration regression and one targeted privacy-test gap. The combined states-then-events budget otherwise conserves rows on an unchanged snapshot, and both session projections withhold non-full task context with an explicit marker.",
+  "findings": [
+    {
+      "claim": "[P2] A valid provenance cursor produces the wrong error when evidence changes which query branch applies. The no-object branch decodes EventQueryCursor, while the object-backed branch now decodes ProvenanceQueryCursor, both before comparing revisions. Start with multiple raw events and no matching path bindings, obtain a continuation, then record the first matching observation: the continuation enters the object-backed branch and fails decoding currentStateOffset before detecting the changed revision. It throws invalidObservation rather than cursorExpired, bypassing the new typed IPC mapping. The reverse branch transition has the same incompatibility.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds-ci-n2xldgm4/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2582-2584,2621-2622,4836-4841",
+        "/private/tmp/ds-ci-n2xldgm4/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:38-46"
+      ],
+      "recommendation": "Decode and validate a common revision envelope before choosing a branch-specific cursor representation, or use one provenance cursor format for both branches. Add an IPC continuation regression that gains its first matching path binding and expects nonretryable cursor_expired."
+    },
+    {
+      "claim": "[P2] The new privacy matrix does not exercise get_provenance's changed session projection. Its observations are recorded before session registration, and no provenance claim links an event to that registration. Consequently provenanceChain returns no associated sessions, so basename/hashed requests pass without exercising sessionItem(detail:); the sole full-detail context assertion exercises the exporter, not this backend path.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds-ci-n2xldgm4/project/Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift:19-37,47-78,86-94",
+        "/private/tmp/ds-ci-n2xldgm4/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2669-2672"
+      ],
+      "recommendation": "Link a retained event claim to the registered session, then reach its event page and assert a nonempty sessions array. Verify null context and withheld=true for basename/hashed, and preserved context with withheld=false for full detail."
+    }
+  ],
+  "evidence": [
+    "/private/tmp/ds-ci-n2xldgm4/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2623-2687 shares the requested limit across current states and events, retains the event cursor across state-only pages, and returns total state count and global selected-state observation time.",
+    "/private/tmp/ds-ci-n2xldgm4/project/Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:841-858 and /private/tmp/ds-ci-n2xldgm4/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:537-555 explicitly preserve task context only for full-detail projections."
+  ],
+  "checks": [
+    {
+      "command": "Read-only comparison of the five scoped files against /private/tmp/ds-ci-dvlgb2pv/project and inspection of changed paths and regression assertions",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed bounded static review; findings are source-level traces, not executed reproductions."
+    },
+    {
+      "command": "Tests, builds, database access, and runtime reproduction",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited by the job; coordinator-reported results were not treated as independent reviewer evidence."
+    }
+  ],
+  "stale_if": [
+    "Relevant scoped source or tests change after this snapshot.",
+    "The parent task guard or accepted candidate hash differs from the assigned job."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-review result awaiting coordinator identity, guard, snapshot, and finding reconciliation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "No runtime validation was performed.",
+    "This delta review does not establish whole-task privacy or pagination acceptance."
+  ]
+}

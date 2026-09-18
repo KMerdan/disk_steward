@@ -4,6 +4,73 @@ import XCTest
 
 @MainActor
 final class CodexAndClaudeCodeAdapterTests: XCTestCase {
+    func testClaudeParserAcceptsEmptyEnvironmentButRejectsNonUserScopeAndUnknownFields() {
+        let standard = "disk-steward:\n  Scope: User config (available in all your projects)\n  Status: ✘ Failed to connect\n  Type: stdio\n  Command: /tmp/helper with spaces\n  Args:\n  Environment:\n\nTo remove this server, run: claude mcp remove disk-steward -s user\n"
+        let expected = AgentIntegrationDefinition(command: "/tmp/helper with spaces")
+        XCTAssertEqual(ClaudeCodeIntegrationAdapter.parseClaudeDefinition(standard), expected)
+        for changed in [standard + "  Cwd: /tmp/custom\n", standard + "  TOKEN: user-value\n",
+                        standard.replacingOccurrences(of: "User config (available in all your projects)", with: "Local config (private to you in this project)")] {
+            XCTAssertNotEqual(ClaudeCodeIntegrationAdapter.parseClaudeDefinition(changed), expected)
+        }
+    }
+    func testReceiptFailureRollsBackSetupRepairAndRemoval() async throws {
+        for client in [AgentClientID.codex, .claudeCode] {
+            for action in [AgentIntegrationAction.setup, .repair, .remove] {
+                var failWrites = false
+                let fixture = try Fixture(client: client, beforePersist: {
+                    if failWrites { throw CocoaError(.fileWriteOutOfSpace) }
+                })
+                let adapter: CodexCLIIntegrationAdapter = client == .codex ? fixture.codexAdapter() : fixture.claudeAdapter()
+                let old = AgentIntegrationDefinition(command: "/tmp/old-helper")
+                if action != .setup {
+                    fixture.runner.currentDefinition = old
+                    try fixture.receipts.upsert(.init(clientID: client, definition: old))
+                }
+                failWrites = true
+                let result = await adapter.perform(action)
+                XCTAssertEqual(result.outcome, .failed, "\(client) \(action)")
+                XCTAssertEqual(fixture.runner.currentDefinition, action == .setup ? nil : old)
+                XCTAssertEqual(try fixture.receipts.receipt(for: client)?.definition, action == .setup ? nil : old)
+                XCTAssertTrue(result.message.contains("previous configuration was restored"), result.message)
+            }
+        }
+    }
+
+    func testVerificationRejectsConfigurationChangedDuringHelperCheck() async throws {
+        let fixture = try Fixture(client: .codex)
+        let adapter = fixture.codexAdapter()
+        _ = await adapter.perform(.setup)
+        fixture.runner.modifyDuringSelfCheck = true
+        let result = await adapter.perform(.verify)
+        XCTAssertEqual(result.outcome, .failed)
+        XCTAssertNil(try fixture.receipts.receipt(for: .codex)?.lastVerifiedAt)
+        XCTAssertEqual(result.snapshot.state, .conflict)
+    }
+
+    func testFailedMutationDoesNotRollBackOverConcurrentUserChange() async throws {
+        let fixture = try Fixture(client: .codex)
+        let original = AgentIntegrationDefinition(command: fixture.helper.path)
+        fixture.runner.currentDefinition = original
+        try fixture.receipts.upsert(.init(clientID: .codex, definition: original))
+        fixture.runner.modifyAndFailAdd = true
+        let result = await fixture.codexAdapter().perform(.repair)
+        XCTAssertEqual(result.outcome, .failed)
+        XCTAssertEqual(fixture.runner.currentDefinition?.command, "/tmp/user-changed")
+        XCTAssertEqual(try fixture.receipts.receipt(for: .codex)?.definition, original)
+    }
+
+    func testFailedRepairRestoresPreviousOwnedDefinition() async throws {
+        let fixture = try Fixture(client: .codex)
+        let original = AgentIntegrationDefinition(command: fixture.helper.path)
+        fixture.runner.currentDefinition = original
+        try fixture.receipts.upsert(.init(clientID: .codex, definition: original))
+        fixture.runner.failNextAdd = true
+        let result = await fixture.codexAdapter().perform(.repair)
+        XCTAssertEqual(result.outcome, .failed)
+        XCTAssertEqual(fixture.runner.currentDefinition, original)
+        XCTAssertTrue(result.message.contains("previous configuration was restored"))
+        XCTAssertEqual(try fixture.receipts.receipt(for: .codex)?.definition, original)
+    }
     func testCodexUsesOfficialLifecycleAndRepeatedSetupIsIdempotent() async throws {
         let fixture = try Fixture(client: .codex)
         let adapter = fixture.codexAdapter()
@@ -103,7 +170,7 @@ private final class Fixture {
     let runner: CLIAdapterRunnerFixture
     let client: AgentClientID
 
-    init(client: AgentClientID, createHelper: Bool = true) throws {
+    init(client: AgentClientID, createHelper: Bool = true, beforePersist: @escaping () throws -> Void = {}) throws {
         self.client = client
         root = URL(fileURLWithPath: "/tmp/ds-cli-adapter-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
@@ -115,7 +182,7 @@ private final class Fixture {
             FileManager.default.createFile(atPath: helper.path, contents: Data("#!/bin/sh\n".utf8))
             try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: helper.path)
         }
-        receipts = AgentIntegrationReceiptStore(url: root.appending(path: "receipts.json"))
+        receipts = AgentIntegrationReceiptStore(url: root.appending(path: "receipts.json"), beforePersist: beforePersist)
         runner = CLIAdapterRunnerFixture(client: client)
     }
 
@@ -133,6 +200,9 @@ private final class Fixture {
 private actor CLIAdapterRunnerFixture: AgentCommandRunning {
     nonisolated(unsafe) var currentDefinition: AgentIntegrationDefinition?
     nonisolated(unsafe) var addFailure: AgentCommandResult?
+    nonisolated(unsafe) var failNextAdd = false
+    nonisolated(unsafe) var modifyDuringSelfCheck = false
+    nonisolated(unsafe) var modifyAndFailAdd = false
     nonisolated(unsafe) private(set) var commands: [AgentCommand] = []
     let client: AgentClientID
 
@@ -155,6 +225,14 @@ private actor CLIAdapterRunnerFixture: AgentCommandRunning {
             return .init(exitCode: 0, standardOutput: "Command: \(definition.command)\nArgs: \(definition.arguments.joined(separator: " "))\n", standardError: "")
         }
         if command.arguments.contains("add") {
+            if modifyAndFailAdd {
+                currentDefinition = .init(command: "/tmp/user-changed")
+                return .init(exitCode: 2, standardOutput: "", standardError: "Injected concurrent modification")
+            }
+            if failNextAdd {
+                failNextAdd = false
+                return .init(exitCode: 2, standardOutput: "", standardError: "Injected add failure")
+            }
             if let addFailure { return addFailure }
             currentDefinition = .init(command: command.arguments.last!)
             return .init(exitCode: 0, standardOutput: "Added", standardError: "")
@@ -164,7 +242,8 @@ private actor CLIAdapterRunnerFixture: AgentCommandRunning {
             return .init(exitCode: 0, standardOutput: "Removed", standardError: "")
         }
         if command.arguments == ["--self-check"] {
-            return .init(exitCode: 0, standardOutput: "ok", standardError: "")
+            if modifyDuringSelfCheck { currentDefinition = .init(command: "/tmp/user-changed") }
+            return SelfCheckReportFixture.result(for: command)
         }
         return .init(exitCode: 2, standardOutput: "", standardError: "unexpected command")
     }

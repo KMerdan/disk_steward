@@ -152,6 +152,90 @@ final class MonitoringTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(output.first { $0.eventID == "a" }?.confidence, .inferred)
     }
 
+    func testFSEventsOverflowBecomesOneGapInsteadOfRetainedHints() throws {
+        let fixture = try Fixture()
+        let count = 10_000
+        let batch = FSEventsBatchInterpreter.interpret(
+            paths: Array(repeating: fixture.watched.appending(path: "burst").path, count: count),
+            flags: Array(repeating: FSEventStreamEventFlags(kFSEventStreamEventFlagItemModified), count: count),
+            eventIDs: Array(repeating: 1, count: count),
+            policy: MonitoringPolicy(watchedRoots: [fixture.watched]),
+            observedAt: Date(timeIntervalSince1970: 100)
+        )
+        XCTAssertEqual(batch?.hints.count, 0)
+        XCTAssertTrue(batch?.eventGap == true)
+        XCTAssertEqual(batch?.limitations.count, 1)
+    }
+
+    func testFSEventsMalformedBatchCannotSilentlyLoseCoverage() throws {
+        let fixture = try Fixture()
+        let batch = FSEventsBatchInterpreter.interpret(
+            paths: [fixture.watched.appending(path: "missing-flags").path],
+            flags: [], eventIDs: [1],
+            policy: MonitoringPolicy(watchedRoots: [fixture.watched]),
+            observedAt: Date(timeIntervalSince1970: 100)
+        )
+        XCTAssertTrue(batch?.eventGap == true)
+        XCTAssertEqual(batch?.hints.count, 0)
+    }
+
+    func testFSEventsOversizedPathBecomesGapWithoutRetainingPath() throws {
+        let fixture = try Fixture()
+        let batch = FSEventsBatchInterpreter.interpret(
+            paths: [fixture.watched.path + "/" + String(repeating: "x", count: 16_384)],
+            flags: [FSEventStreamEventFlags(kFSEventStreamEventFlagItemModified)], eventIDs: [1],
+            policy: MonitoringPolicy(watchedRoots: [fixture.watched]),
+            observedAt: Date(timeIntervalSince1970: 100)
+        )
+        XCTAssertTrue(batch?.eventGap == true)
+        XCTAssertEqual(batch?.hints.count, 0)
+    }
+
+    func testFSEventsRejectsHugeCountBeforeAccessingAnyNativeEvent() {
+        var reads = 0
+        let batch = FSEventsBatchInterpreter.interpret(
+            count: 1_000_000_000,
+            policy: MonitoringPolicy(watchedRoots: []),
+            observedAt: Date(timeIntervalSince1970: 100)
+        ) { _ in
+            reads += 1
+            return nil
+        }
+        XCTAssertEqual(reads, 0)
+        XCTAssertTrue(batch?.eventGap == true)
+        XCTAssertEqual(batch?.hints.count, 0)
+    }
+
+    func testFSEventsNativeAdapterPreservesBoundedEventsAndRejectsMalformedPaths() throws {
+        let fixture = try Fixture()
+        let flags = [FSEventStreamEventFlags(kFSEventStreamEventFlagItemModified)]
+        let ids: [FSEventStreamEventId] = [22]
+        let validPath = fixture.watched.appending(path: "native").path
+        for (paths, expectedGap) in [
+            (NSArray(object: validPath), false),
+            (NSArray(object: NSNumber(value: 42)), true),
+            (NSArray(object: "relative/path"), true),
+            (NSArray(object: validPath + String(repeating: "x", count: 16_384)), true),
+        ] {
+            let batch = flags.withUnsafeBufferPointer { flags in
+                ids.withUnsafeBufferPointer { ids in
+                    FSEventsBatchInterpreter.interpretNative(
+                        paths: paths, count: 1, flags: flags.baseAddress!, eventIDs: ids.baseAddress!,
+                        policy: MonitoringPolicy(watchedRoots: [fixture.watched]),
+                        observedAt: Date(timeIntervalSince1970: 100)
+                    )
+                }
+            }
+            XCTAssertEqual(batch?.eventGap, expectedGap)
+            XCTAssertEqual(batch?.hints.count, expectedGap ? 0 : 1)
+            if !expectedGap {
+                XCTAssertEqual(batch?.hints.first?.path, validPath)
+                XCTAssertEqual(batch?.hints.first?.eventID, 22)
+                XCTAssertEqual(batch?.hints.first?.kind, .modified)
+            }
+        }
+    }
+
     func testWholeVolumeSamplerReturnsMountedVolumeMetrics() throws {
         let (snapshot, sample) = try WholeVolumeSampler().sample(after: nil)
 
@@ -183,6 +267,27 @@ final class MonitoringTests: XCTestCase, @unchecked Sendable {
         let hints = batches.value.flatMap(\.hints).filter { $0.path == expectedPath }
         XCTAssertFalse(hints.isEmpty)
         XCTAssertTrue(hints.allSatisfy(\.requiresRescan))
+    }
+
+    func testNativeFSEventsContextOwnsHandlerUntilStreamStops() throws {
+        let fixture = try Fixture()
+        let collector = TargetedFSEventsCollector()
+        defer { collector.stop() }
+        var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+        weak var retainedToken = token
+        try autoreleasepool {
+            try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+                withExtendedLifetime(token) {}
+            }
+        }
+        token = nil
+        XCTAssertNotNil(retainedToken, "The native stream must retain callback context")
+        collector.stop()
+        let deadline = Date().addingTimeInterval(2)
+        while retainedToken != nil, Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+        }
+        XCTAssertNil(retainedToken, "Stopping the stream must release its handler, not leak it")
     }
 
     private func event(
@@ -217,6 +322,8 @@ private final class LockedBatches: @unchecked Sendable {
         lock.withLock { storage.append(batch) }
     }
 }
+
+private final class CollectorLifetimeToken: Sendable {}
 
 private final class Fixture {
     let directory: URL

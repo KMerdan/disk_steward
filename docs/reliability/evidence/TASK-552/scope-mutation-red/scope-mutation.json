@@ -1,0 +1,9 @@
+{
+ "purpose": "Ignore the current query scope in the current-consumer and export reads; the exclusion-immediacy test must fail.",
+ "mutations": [
+  {"file": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "replacements": [
+    ["            cursor: arguments[\"cursor\"]?.stringValue,\n            limit: budget.applied,\n            scope: scope\n        )\n        let now = Date()\n        let stateAsOf = try await store.latestObservationAt()", "            cursor: arguments[\"cursor\"]?.stringValue,\n            limit: budget.applied,\n            scope: nil\n        )\n        let now = Date()\n        let stateAsOf = try await store.latestObservationAt()"]
+   ]}
+ ]
+}

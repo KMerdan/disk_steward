@@ -4,6 +4,42 @@ import Foundation
 import XCTest
 
 final class AuthoritativeMCPReadModelTests: XCTestCase, @unchecked Sendable {
+    func testCursorIsOpaqueAndBoundToItsQuery() async throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        let watched = root.appending(path: "private-directory")
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        for name in ["A", "B", "C"] { try Data([1]).write(to: watched.appending(path: name)) }
+        let database = root.appending(path: "evidence.sqlite")
+        let now = Date()
+        let policy = MonitoringPolicy(watchedRoots: [watched])
+        let writer = try EvidenceStore(url: database)
+        _ = try await writer.recordObservation(snapshot: .init(snapshotID: "cursor", observedAt: ISO8601DateFormatter().string(from: now), volumes: []), metadata: DirectoryMetadataScanner().scan(policy: policy, at: now), scope: policy.scopeVersion(at: now), trigger: .scheduled)
+        let backend = try AppEvidenceQueryBackend(databaseURL: database, retentionPolicyProvider: { try .init(maxDatabaseBytes: 32 * 1_024 * 1_024) })
+        let peer = IPCPeerIdentity(uid: getuid(), gid: getgid(), pid: getpid())
+        let arguments: [String: JSONValue] = ["limit": .integer(1), "path_detail": .string("basename")]
+        let first = try await call(backend, peer: peer, tool: "list_current_consumers", arguments: arguments)
+        let token = try XCTUnwrap(first.objectValue?["next_cursor"]?.stringValue)
+        XCTAssertTrue(token.hasPrefix("ds-page-"))
+        XCTAssertNil(Data(base64Encoded: token))
+        let firstJSON = String(decoding: try JSONEncoder().encode(first), as: UTF8.self)
+        XCTAssertFalse(firstJSON.contains(watched.path))
+        var continuation = arguments
+        continuation["cursor"] = .string(token)
+        let second = try await call(backend, peer: peer, tool: "list_current_consumers", arguments: continuation)
+        XCTAssertNotEqual(first.objectValue?["items"], second.objectValue?["items"])
+        continuation["path_detail"] = .string("full")
+        do {
+            _ = try await call(backend, peer: peer, tool: "list_current_consumers", arguments: continuation)
+            XCTFail("Cross-query cursor must be rejected")
+        } catch {
+            guard case DiskStewardIPCError.remote(let code, _, _) = error else { return XCTFail("Wrong error: \(error)") }
+            XCTAssertEqual(code, "cursor_expired")
+        }
+        let status = try await call(backend, peer: peer, tool: "get_evidence_lifecycle", arguments: [:])
+        XCTAssertEqual(status.objectValue?["status"]?.objectValue?["database_cap_bytes"], .integer(32 * 1_024 * 1_024))
+        await writer.close()
+    }
     func testCleanupCandidateIsWithdrawnIfFileGainsHardLinkAfterObservation() async throws {
         let root = URL(fileURLWithPath: "/tmp/ds-mcp-hardlink-\(UUID().uuidString.prefix(8).lowercased())", isDirectory: true)
         let candidate = root.appending(path: "candidate.bin")

@@ -1,0 +1,9 @@
+{
+  "name": "json-config remove ignores user additions and rollback ignores post-backup edits",
+  "mutations": [
+    {"file": "Scripts/Integration/json-config.swift",
+     "replacements": [["        guard additions.isEmpty else { throw ConfigurationError.userAdditions(additions) }\n", "        _ = additions\n"]]},
+    {"file": "Scripts/Integration/rollback",
+     "replacements": [["        if force != \"1\":\n            problems.append(f\"{config_file} changed since that backup was made; use --force to overwrite it\")\n", "        if False:\n            problems.append(f\"{config_file} changed since that backup was made; use --force to overwrite it\")\n"]]}
+  ]
+}

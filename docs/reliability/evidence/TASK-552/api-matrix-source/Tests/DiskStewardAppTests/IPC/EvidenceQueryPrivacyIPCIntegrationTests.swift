@@ -1,0 +1,175 @@
+import DiskStewardCore
+@testable import DiskStewardApp
+import Foundation
+import XCTest
+
+final class EvidenceQueryPrivacyIPCIntegrationTests: XCTestCase {
+    func testAllTenToolsAndBothResourcesThroughIPCDoNotExposeSessionPaths() async throws {
+        let root = URL(fileURLWithPath: "/tmp/ds-privacy-\(UUID().uuidString.prefix(8))", isDirectory: true)
+        let watched = root.appending(path: "private-workspace", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        for name in ["artifact-a.bin", "artifact-b.bin", "artifact-c.bin"] {
+            try Data(repeating: 1, count: 4_096).write(to: watched.appending(path: name))
+        }
+        let database = root.appending(path: "evidence.sqlite")
+        let now = Date()
+        let policy = MonitoringPolicy(watchedRoots: [watched])
+        let store = try EvidenceStore(url: database)
+        _ = try await store.recordObservation(
+            snapshot: .init(snapshotID: "privacy-baseline", observedAt: EvidenceTimestamp.format(now), volumes: []),
+            metadata: DirectoryMetadataScanner().scan(policy: policy, at: now),
+            scope: policy.scopeVersion(at: now), trigger: .scheduled)
+        let backend = try AppEvidenceQueryBackend(databaseURL: database)
+        let socket = root.appending(path: "ipc/service.sock").path
+        let server = UnixSocketEvidenceServer(socketPath: socket, handler: backend)
+        try server.start()
+        defer { server.stop() }
+        let client = UnixSocketDiskStewardIPCClient(socketPath: socket)
+        _ = try client.send(method: "sessions/register", payload: .object([
+            "client": .string("codex"), "session_id": .string("privacy-task"),
+            "workspace_roots": .array([.string(watched.path)]),
+            "task_context": .string("Investigate \(watched.path)/artifact-a.bin; also see /Users/private-owner/another-project"),
+            "lease_seconds": .integer(600)
+        ]), isCancelled: { false })
+        let storedSessions = try await store.agentSessions()
+        XCTAssertEqual(storedSessions.count, 1)
+        XCTAssertTrue(try XCTUnwrap(storedSessions.first?.taskContext).contains(watched.path))
+        let interval: [String: JSONValue] = [
+            "from": .string(EvidenceTimestamp.format(now.addingTimeInterval(-60))),
+            "through": .string(EvidenceTimestamp.format(now.addingTimeInterval(60)))
+        ]
+        let tools: [(String, [String: JSONValue], String)] = [
+            ("get_storage_summary", [:], "storage-summary-v1"),
+            ("get_evidence_lifecycle", [:], "evidence-lifecycle-v1"),
+            ("list_current_consumers", ["limit": .integer(1)], "evidence-query-page-v1"),
+            ("explain_growth", interval.merging(["limit": .integer(1)]) { _, new in new }, "evidence-query-page-v1"),
+            ("get_provenance", ["path_query": .string("artifact-a.bin"), "limit": .integer(1)], "evidence-query-page-v1"),
+            ("list_active_agent_sessions", ["limit": .integer(1)], "active-agent-sessions-v1"),
+            ("list_active_writers", ["limit": .integer(1)], "active-writers-v1"),
+            ("get_task_impact", ["session_id": .string("privacy-task"), "limit": .integer(1)], "task-impact-v1"),
+            ("find_cleanup_candidates", ["minimum_bytes": .integer(1), "limit": .integer(1)], "cleanup-candidates-v2"),
+            ("export_evidence", interval.merging(["max_events": .integer(1)]) { _, new in new }, "inline-evidence-bundle-v1")
+        ]
+        XCTAssertEqual(Set(tools.map { $0.0 }).count, 10)
+        let detailTools: Set<String> = ["list_current_consumers", "explain_growth", "get_provenance", "find_cleanup_candidates", "export_evidence"]
+        for (tool, arguments, schema) in tools {
+            for detail in detailTools.contains(tool) ? ["basename", "hashed"] : ["basename"] {
+                var request = arguments
+                if detailTools.contains(tool) { request["path_detail"] = .string(detail) }
+                let response = try client.call(tool: tool, arguments: request, isCancelled: { false })
+                XCTAssertEqual(response.objectValue?["schema"], .string(schema), tool)
+                if tool == "list_active_agent_sessions" {
+                    guard case let .array(sessions)? = response.objectValue?["sessions"] else { return XCTFail("Missing sessions") }
+                    XCTAssertEqual(sessions.count, 1)
+                    XCTAssertEqual(sessions.first?.objectValue?["task_context"], .null, "Unstructured context is not path-private merely because workspace_roots are redacted")
+                    XCTAssertEqual(sessions.first?.objectValue?["task_context_withheld"], .bool(true))
+                }
+                try assertPrivate(response, hidden: [root.path, "/Users/private-owner/another-project"], label: "\(tool) \(detail)")
+                if let count = response.objectValue?["returned_count"]?.integerValue {
+                    XCTAssertLessThanOrEqual(count, 1, tool)
+                }
+                if let cursor = response.objectValue?["next_cursor"]?.stringValue {
+                    XCTAssertTrue(cursor.hasPrefix("ds-page-"), tool)
+                    XCTAssertNil(Data(base64Encoded: cursor), tool)
+                    request["cursor"] = .string(cursor)
+                    let next = try client.call(tool: tool, arguments: request, isCancelled: { false })
+                    try assertPrivate(next, hidden: [root.path, "/Users/private-owner/another-project"], label: "\(tool) continuation")
+                }
+            }
+        }
+        for (uri, schema) in [("disk-steward://status", "service-status-v1"), ("disk-steward://evidence-guide", "evidence-guide-v1")] {
+            let response = try client.readResource(uri: uri, isCancelled: { false })
+            XCTAssertEqual(response.objectValue?["schema"], .string(schema))
+            try assertPrivate(response, hidden: [root.path, "/Users/private-owner/another-project"], label: uri)
+        }
+        let fullExport = try client.call(tool: "export_evidence", arguments: interval.merging([
+            "path_detail": .string("full"), "max_events": .integer(1)
+        ]) { _, new in new }, isCancelled: { false })
+        guard case let .array(exportedSessions)? = fullExport.objectValue?["sessions"]?.objectValue?["sessions"] else {
+            return XCTFail("Missing full-detail session history")
+        }
+        XCTAssertEqual(exportedSessions.count, 1)
+        XCTAssertEqual(exportedSessions.first?.objectValue?["task_context"], storedSessions.first?.taskContext.map(JSONValue.string))
+        XCTAssertEqual(exportedSessions.first?.objectValue?["task_context_withheld"], .bool(false))
+        await store.close()
+    }
+
+    func testProvenancePagesShareOneRowBudgetWithoutLosingStatesOrEvents() async throws {
+        let root = URL(fileURLWithPath: "/tmp/ds-provenance-page-\(UUID().uuidString.prefix(8))", isDirectory: true)
+        let watched = root.appending(path: "watch", directoryHint: .isDirectory)
+        for name in ["one", "two", "three"] {
+            let directory = watched.appending(path: name, directoryHint: .isDirectory)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try Data([1]).write(to: directory.appending(path: "same.bin"))
+        }
+        defer { try? FileManager.default.removeItem(at: root) }
+        let database = root.appending(path: "evidence.sqlite")
+        let now = Date()
+        let policy = MonitoringPolicy(watchedRoots: [watched])
+        let store = try EvidenceStore(url: database)
+        _ = try await store.recordObservation(
+            snapshot: .init(snapshotID: "page-baseline", observedAt: EvidenceTimestamp.format(now), volumes: []),
+            metadata: DirectoryMetadataScanner().scan(policy: policy, at: now),
+            scope: policy.scopeVersion(at: now), trigger: .scheduled)
+        let backend = try AppEvidenceQueryBackend(databaseURL: database)
+        let socket = root.appending(path: "ipc/service.sock").path
+        let server = UnixSocketEvidenceServer(socketPath: socket, handler: backend)
+        try server.start()
+        defer { server.stop() }
+        let client = UnixSocketDiskStewardIPCClient(socketPath: socket)
+        var expectedIDs: Set<String>?
+        for limit in [1, 2, 3, 4, 6] {
+            var cursor: String?
+            var ids: [String] = []
+            var kinds: [String] = []
+            var requests = 0
+            repeat {
+                requests += 1
+                guard requests <= 7 else { return XCTFail("Pagination did not converge") }
+                var arguments: [String: JSONValue] = ["path_query": .string("same.bin"), "limit": .integer(Int64(limit)), "path_detail": .string("hashed")]
+                if let cursor { arguments["cursor"] = .string(cursor) }
+                let page = try client.call(tool: "get_provenance", arguments: arguments, isCancelled: { false })
+                guard case let .array(items)? = page.objectValue?["items"] else { return XCTFail("Missing items") }
+                XCTAssertFalse(items.isEmpty)
+                XCTAssertLessThanOrEqual(items.count, limit)
+                XCTAssertEqual(page.objectValue?["matched_count"], .integer(6), "Matched count must be stable across both page phases")
+                XCTAssertEqual(page.objectValue?["state_as_of"], .string(EvidenceTimestamp.format(now)), "Paging into history must not lose the current-state observation time")
+                for item in items {
+                    let fields = try XCTUnwrap(item.objectValue)
+                    let kind = try XCTUnwrap(fields["kind"]?.stringValue)
+                    kinds.append(kind)
+                    ids.append(kind + ":" + (try XCTUnwrap((fields["event_id"] ?? fields["object_id"])?.stringValue)))
+                }
+                try assertPrivate(page, hidden: [root.path], label: "provenance page")
+                cursor = page.objectValue?["next_cursor"]?.stringValue
+            } while cursor != nil
+            XCTAssertEqual(ids.count, 6)
+            XCTAssertEqual(Set(ids).count, 6)
+            XCTAssertEqual(kinds.filter { $0 == "current-state" }.count, 3)
+            XCTAssertEqual(kinds.filter { $0 == "change" }.count, 3)
+            if let expectedIDs { XCTAssertEqual(Set(ids), expectedIDs) } else { expectedIDs = Set(ids) }
+        }
+        let first = try client.call(tool: "get_provenance", arguments: ["path_query": .string("same.bin"), "limit": .integer(1)], isCancelled: { false })
+        let oldCursor = try XCTUnwrap(first.objectValue?["next_cursor"]?.stringValue)
+        try await store.insert(.init(eventID: "revision-change", observedAt: now.addingTimeInterval(1), operation: .modify,
+            path: watched.appending(path: "one/same.bin").path, logicalDelta: 1, allocatedDelta: 1, consumerCategory: "watched-root", confidence: .unknown))
+        do {
+            _ = try client.call(tool: "get_provenance", arguments: ["path_query": .string("same.bin"), "limit": .integer(1), "cursor": .string(oldCursor)], isCancelled: { false })
+            XCTFail("Changed evidence must invalidate the combined cursor")
+        } catch DiskStewardIPCError.remote(let code, _, let retryable) {
+            XCTAssertEqual(code, "cursor_expired")
+            XCTAssertFalse(retryable)
+        }
+        await store.close()
+    }
+
+    private func assertPrivate(_ value: JSONValue, hidden: [String], label: String, file: StaticString = #filePath, line: UInt = #line) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.withoutEscapingSlashes]
+        let data = try encoder.encode(value)
+        XCTAssertLessThan(data.count, 256 * 1_024, label, file: file, line: line)
+        let text = String(decoding: data, as: UTF8.self)
+        for path in hidden { XCTAssertFalse(text.contains(path), "\(label) disclosed a private path", file: file, line: line) }
+    }
+}

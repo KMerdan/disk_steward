@@ -1,0 +1,42 @@
+import DiskStewardCore
+@testable import DiskStewardEndpoint
+import Foundation
+import XCTest
+
+// Instrumented old observer: only barriers are added around its independent Tasks.
+final class EndpointOrderingReproductionTests: XCTestCase {
+    func testDelayedFirstCallbackDoesNotInventSequenceGap() async throws {
+        let entered = ReproductionSignal(), release = ReproductionSignal()
+        let firstDone = ReproductionSignal(), secondDone = ReproductionSignal()
+        let proof = EndpointBridgePeerProof(teamID: "T", bundleID: "B", appGroupContainer: "C", designatedRequirementSatisfied: true, challengeDigest: "D")
+        let bridge = ProtectedEndpointBridge(expectedTeamID: "T", expectedBundleID: "B", expectedContainer: "C", expectedChallengeDigest: "D", scope: .init(watchedRoots: ["/watched"], excludedRoots: []))
+        let runtime = FixtureEndpointSecurityRuntime()
+        let observer = EndpointSecurityObserver(runtime: runtime, bridge: bridge, proof: proof, beforeDelivery: { event in
+            if event.sequence == 1 { await entered.signal(); await release.wait() }
+        }, afterDelivery: { event in
+            if event.sequence == 1 { await firstDone.signal() } else { await secondDone.signal() }
+        })
+        await observer.start()
+        runtime.emit(raw(1, "/watched/a"))
+        await entered.wait()
+        runtime.emit(raw(2, "/excluded/b"))
+        await secondDone.wait()
+        await release.signal()
+        await firstDone.wait()
+        let events = try await bridge.drain(proof: proof)
+        XCTAssertEqual(events.map(\.raw.sequence), [1])
+        XCTAssertEqual(events.first?.confidence, .exact, "Sequential source callbacks must not invent a gap when delivery of the first is delayed")
+        await observer.stop()
+    }
+
+    private func raw(_ sequence: UInt64, _ path: String) -> RawPrivilegedNotification {
+        .init(eventID: "e\(sequence)", streamID: "s", sequence: sequence, observedAt: Date(), operation: .create, path: path, process: .init(pid: 1, startTime: Date(timeIntervalSince1970: 0)), fileIdentity: .init(volumeID: "v", fileID: sequence), size: .init(logicalBefore: 0, logicalAfter: 1, allocatedBefore: 0, allocatedAfter: 1, method: "fixture"))
+    }
+}
+
+private actor ReproductionSignal {
+    private var signalled = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+    func signal() { signalled = true; let pending = waiters; waiters.removeAll(); for waiter in pending { waiter.resume() } }
+    func wait() async { if !signalled { await withCheckedContinuation { waiters.append($0) } } }
+}

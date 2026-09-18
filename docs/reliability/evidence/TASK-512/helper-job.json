@@ -1,0 +1,40 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-512-PREFLIGHT",
+  "parent_task": "TASK-512",
+  "task_guard": "GUARD-TASK-BF46DF8FCF15EE588C207379CFEE0318",
+  "kind": "review",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:24d7cfe565ef299630c0c37b0f670a348a6b3e0ba2a932008b265cd106e9bf81",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-511-green.qfud7j/Sources/DiskStewardCore/IPC/**",
+    "/private/tmp/disk-steward-511-green.qfud7j/Sources/DiskStewardApp/main.swift",
+    "/private/tmp/disk-steward-511-green.qfud7j/Tests/DiskStewardAppTests/IPC/SocketOwnershipRegressionTests.swift"
+  ],
+  "purpose": "Independent ownership/race review while coordinator extends fixture regressions.",
+  "questions": [
+    "Identify concrete endpoint/lease/descriptor ownership bugs under duplicate start, failed start, stop/restart and process death; give minimal safe fixes and deterministic reproductions.",
+    "Distinguish cooperative lifecycle hazards from hostile same-UID path replacement, and identify missing tests."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-512-01"
+  ],
+  "execution_isolation": "none",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "load-bearing-decision",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 6,
+    "max_output_chars": 4500
+  }
+}

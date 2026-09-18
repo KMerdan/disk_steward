@@ -1,0 +1,40 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-512-CANDIDATE",
+  "parent_task": "TASK-512",
+  "task_guard": "GUARD-TASK-BF46DF8FCF15EE588C207379CFEE0318",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:92cb515540a65b8002459fd7ba1c5f962418cd608fbc6f17fb5182b589be3f27",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-512-green.cwrU63/Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+    "/private/tmp/disk-steward-512-green.cwrU63/Tests/DiskStewardAppTests/IPC/SocketOwnershipRegressionTests.swift",
+    "/private/tmp/disk-steward-512-green.cwrU63/Sources/DiskStewardApp/main.swift"
+  ],
+  "purpose": "Review frozen lease/journal/staged publication and listener lifetime candidate before acceptance.",
+  "questions": [
+    "Do the candidate changes close the preflight double-close, listener reuse and crash-before-record windows? Identify remaining defects specific to TASK512 ownership criteria.",
+    "Does the staged recovery/delete boundary preserve unrelated files and unknown public endpoints? Review test accuracy, single-close invariants and repeated partial-journal recovery. Suspended backend workers remain TASK541 explicitly, not fixed here."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-512-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 6,
+    "max_output_chars": 4500
+  }
+}

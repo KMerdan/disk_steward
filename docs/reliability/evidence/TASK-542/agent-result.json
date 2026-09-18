@@ -1,0 +1,174 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-542",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+    "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+    "Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift",
+    "docs/reliability/evidence/TASK-542/endpoint-order-failure.log",
+    "docs/reliability/evidence/TASK-542/full-tests.log",
+    "docs/reliability/evidence/TASK-542/helper-accepted-result.json",
+    "docs/reliability/evidence/TASK-542/helper-accepted.json",
+    "docs/reliability/evidence/TASK-542/helper-candidate-result.json",
+    "docs/reliability/evidence/TASK-542/helper-candidate.json",
+    "docs/reliability/evidence/TASK-542/helper-preflight-result.json",
+    "docs/reliability/evidence/TASK-542/helper-preflight.json",
+    "docs/reliability/evidence/TASK-542/helper-reconciliation.json",
+    "docs/reliability/evidence/TASK-542/repeat-1.log",
+    "docs/reliability/evidence/TASK-542/repeat-2.log",
+    "docs/reliability/evidence/TASK-542/repeat-3.log",
+    "docs/reliability/evidence/TASK-542/repeat-4.log",
+    "docs/reliability/evidence/TASK-542/repeat-5.log",
+    "docs/reliability/evidence/TASK-542/runner-red.log",
+    "docs/reliability/evidence/TASK-542/scope-review.md",
+    "docs/reliability/evidence/TASK-542/verification.json",
+    "docs/reliability/evidence/TASK-542/agent-result.json"
+  ],
+  "changed_assets": [
+    "ASSET-CLIENTS"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/endpoint-order-failure.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/helper-accepted-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/helper-accepted.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/helper-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/helper-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/helper-preflight-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/helper-preflight.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/helper-reconciliation.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/repeat-1.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/repeat-2.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/repeat-3.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/repeat-4.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/repeat-5.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/runner-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/scope-review.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/verification.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-542/agent-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "Accepted frozen candidate full swift test (see verification.json)",
+      "result": "passed",
+      "detail": "302 tests; 1 native-client opt-in skipped; 0 failures on hash57dd89b23864d4115dd909bd224db2eaa0f92f0a56f55de119c205bf6f20324a."
+    },
+    {
+      "command": "Five accepted-candidate repetitions of CommandRunnerRegressionTests",
+      "result": "passed",
+      "detail": "13 tests per repetition, zero failures. Covers dual 1MiB output, overflow, timeout, parent exit, TERM resistance, pre/post-spawn cancellation, global admission retained after caller completion, spawn delay/failure, working directory/environment, repeated FD and zombie checks."
+    },
+    {
+      "command": "Pre-TASK542 negative-oracle command regressions",
+      "result": "passed",
+      "detail": "Successfully reproduced two live-descendant defects; runner-red.log is an expected-failure log, not a passing old-product test."
+    },
+    {
+      "command": "Independent accepted snapshot static helper review; schema, scope, identity and budget reconciliation",
+      "result": "passed",
+      "detail": "Both test-safety/oracle findings corrected and re-reviewed. No helper-executed tests claimed."
+    },
+    {
+      "command": "Intermediate full suite endpoint observer regression",
+      "result": "failed",
+      "detail": "One unknown-vs-exact confidence failure in unchanged endpoint code/test; retained endpoint-order-failure.log. Inferred unstructured Task ordering race is unresolved and proposed for the remaining reliability graph. Later green run does not close it."
+    },
+    {
+      "command": "Canonical/frozen input hash, Extensions diff, source/test diff from TASK541 and git diff --check",
+      "result": "passed",
+      "detail": "Only two allowed source files and one allowed test file changed; all other product inputs preserved."
+    },
+    {
+      "command": "Installed/native clients, macOS13/Intel, scale/overnight, packaging/release",
+      "result": "not-run"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-TASK-542-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-542/scope-review.md; verification.json; repeat-1.log through repeat-5.log; full-tests.log; helper-reconciliation.json"
+    }
+  ],
+  "discovered_risks": [
+    "Intermittent endpoint observer confidence/order failure remains unresolved outside TASK542 product scope; must be mapped into the remaining graph and repaired before final intent closure.",
+    "Owned process groups are not adversarial containment; deliberately escaped descendants remain outside the guarantee.",
+    "OS spawn/reap delays cannot be hard-preempted. Watchdog returns cleanupIncomplete while worker and admission remain owned; four stuck workers refuse further commands.",
+    "Exclusive child reaping/no SIGCHLD auto-reap is required; ECHILD ends signalling.",
+    "Scoped implementation does not establish whole-product, native client, scale, overnight or release readiness."
+  ],
+  "suggested_graph_changes": [
+    {
+      "action": "add-or-map-bounded-follow-up",
+      "description": "Map the observed endpoint ordering failure to ASSET-ATTRIBUTION and a bounded ordered-delivery/lifecycle regression task; preserve all existing reliability scope. See scope-review.md#discovered-endpoint-ordering-failure-unresolved."
+    }
+  ]
+}

@@ -1,0 +1,401 @@
+{
+  "backupHashes": {
+    "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+    "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+  },
+  "baseline": {
+    "commit": "cf313e4527a3bd30dae217d2c1ff68d7a7a87b60",
+    "ref": "HEAD"
+  },
+  "candidate": {
+    "inputSHA256": "068d9107bf5e57714ae8d63e71ede25af268e770e995a330e5cca2a13135b78f"
+  },
+  "completedAt": "2026-09-18T05:13:12Z",
+  "newSchemaVersion": 14,
+  "oldSchemaVersion": 6,
+  "output": "/private/tmp/ds572-rollback-1",
+  "passed": true,
+  "schema": "disk-steward-rollback-rehearsal-v1",
+  "startedAt": "2026-09-18T05:12:37Z",
+  "steps": [
+    {
+      "binary": "/private/tmp/ds572-rollback-1/probe-baseline/.build/release/store-probe",
+      "binarySHA256": "cfa8f7a2ef19690478792cac8c8b2bcd1a9d40ddd95e2a41f2b42391f5182782",
+      "seconds": 16.0,
+      "step": "build-probe-baseline"
+    },
+    {
+      "binary": "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+      "binarySHA256": "437215d8c009270d44d1b6b5fe37883d9bf66a8db215215fceeaf376589b234c",
+      "seconds": 18.5,
+      "step": "build-probe-candidate"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-baseline/.build/release/store-probe",
+        "create",
+        "/private/tmp/ds572-rollback-1/fixture/evidence.sqlite",
+        "--seed",
+        "300"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "create",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/fixture/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 473616
+      },
+      "problems": [],
+      "seconds": 0.249,
+      "step": "baseline-create-fixture",
+      "tail": "{\"command\":\"create\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/fixture\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":473616}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-baseline/.build/release/store-probe",
+        "backup",
+        "/private/tmp/ds572-rollback-1/fixture/evidence.sqlite",
+        "--destination",
+        "/private/tmp/ds572-rollback-1/backup/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "backup",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/fixture/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.015,
+      "step": "baseline-backup",
+      "tail": "{\"command\":\"backup\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/fixture\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "exitCode": 0,
+      "output": [
+        "ok",
+        "6",
+        "300"
+      ],
+      "problems": [],
+      "step": "sqlite3-validate-backup"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-after-consistent-copy/evidence.sqlite",
+        "--interrupt",
+        "after-consistent-copy"
+      ],
+      "exitCode": 4,
+      "output": {
+        "command": "open",
+        "database": "/private/tmp/ds572-rollback-1/work-after-consistent-copy/evidence.sqlite",
+        "interruptedAt": "after-consistent-copy",
+        "ok": false
+      },
+      "problems": [],
+      "seconds": 0.268,
+      "step": "candidate-migrate-interrupted-after-consistent-copy",
+      "tail": "{\"command\":\"open\",\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-after-consistent-copy\\/evidence.sqlite\",\"interruptedAt\":\"after-consistent-copy\",\"ok\":false}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-after-consistent-copy/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/work-after-consistent-copy/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 14,
+        "snapshotCount": 0,
+        "storageBytes": 434176
+      },
+      "problems": [],
+      "seconds": 0.042,
+      "step": "candidate-recover-after-consistent-copy",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-after-consistent-copy\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":14,\"snapshotCount\":0,\"storageBytes\":434176}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-after-shadow-validation/evidence.sqlite",
+        "--interrupt",
+        "after-shadow-validation"
+      ],
+      "exitCode": 4,
+      "output": {
+        "command": "open",
+        "database": "/private/tmp/ds572-rollback-1/work-after-shadow-validation/evidence.sqlite",
+        "interruptedAt": "after-shadow-validation",
+        "ok": false
+      },
+      "problems": [],
+      "seconds": 0.032,
+      "step": "candidate-migrate-interrupted-after-shadow-validation",
+      "tail": "{\"command\":\"open\",\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-after-shadow-validation\\/evidence.sqlite\",\"interruptedAt\":\"after-shadow-validation\",\"ok\":false}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-after-shadow-validation/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/work-after-shadow-validation/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 14,
+        "snapshotCount": 0,
+        "storageBytes": 434176
+      },
+      "problems": [],
+      "seconds": 0.031,
+      "step": "candidate-recover-after-shadow-validation",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-after-shadow-validation\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":14,\"snapshotCount\":0,\"storageBytes\":434176}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-before-atomic-switch/evidence.sqlite",
+        "--interrupt",
+        "before-atomic-switch"
+      ],
+      "exitCode": 4,
+      "output": {
+        "command": "open",
+        "database": "/private/tmp/ds572-rollback-1/work-before-atomic-switch/evidence.sqlite",
+        "interruptedAt": "before-atomic-switch",
+        "ok": false
+      },
+      "problems": [],
+      "seconds": 0.029,
+      "step": "candidate-migrate-interrupted-before-atomic-switch",
+      "tail": "{\"command\":\"open\",\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-before-atomic-switch\\/evidence.sqlite\",\"interruptedAt\":\"before-atomic-switch\",\"ok\":false}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-before-atomic-switch/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/work-before-atomic-switch/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 14,
+        "snapshotCount": 0,
+        "storageBytes": 434176
+      },
+      "problems": [],
+      "seconds": 0.031,
+      "step": "candidate-recover-before-atomic-switch",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-before-atomic-switch\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":14,\"snapshotCount\":0,\"storageBytes\":434176}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-after-atomic-switch/evidence.sqlite",
+        "--interrupt",
+        "after-atomic-switch"
+      ],
+      "exitCode": 4,
+      "output": {
+        "command": "open",
+        "database": "/private/tmp/ds572-rollback-1/work-after-atomic-switch/evidence.sqlite",
+        "interruptedAt": "after-atomic-switch",
+        "ok": false
+      },
+      "problems": [],
+      "seconds": 0.029,
+      "step": "candidate-migrate-interrupted-after-atomic-switch",
+      "tail": "{\"command\":\"open\",\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-after-atomic-switch\\/evidence.sqlite\",\"interruptedAt\":\"after-atomic-switch\",\"ok\":false}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-after-atomic-switch/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/work-after-atomic-switch/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 14,
+        "snapshotCount": 0,
+        "storageBytes": 434176
+      },
+      "problems": [],
+      "seconds": 0.009,
+      "step": "candidate-recover-after-atomic-switch",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-after-atomic-switch\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":14,\"snapshotCount\":0,\"storageBytes\":434176}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/work-uninterrupted/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/work-uninterrupted/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 14,
+        "snapshotCount": 0,
+        "storageBytes": 434176
+      },
+      "problems": [],
+      "seconds": 0.029,
+      "step": "candidate-migrate-uninterrupted",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/work-uninterrupted\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":14,\"snapshotCount\":0,\"storageBytes\":434176}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/scratch-newer/evidence.sqlite"
+      ],
+      "exitCode": 3,
+      "output": {
+        "command": "open",
+        "database": "/private/tmp/ds572-rollback-1/scratch-newer/evidence.sqlite",
+        "error": "sqlite(code: 20, message: \"Database schema is newer than this application\")",
+        "ok": false,
+        "refusedNewerSchema": true
+      },
+      "problems": [],
+      "seconds": 0.007,
+      "step": "baseline-refuses-newer-schema",
+      "tail": "{\"command\":\"open\",\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/scratch-newer\\/evidence.sqlite\",\"error\":\"sqlite(code: 20, message: \\\"Database schema is newer than this application\\\")\",\"ok\":false,\"refusedNewerSchema\":true}\n"
+    },
+    {
+      "after": {
+        "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "main": "4ae2c43f74c4487f4604e0a0a1396def168c5bca7679654862c7dc1f5f9b5a3e"
+      },
+      "before": {
+        "-shm": null,
+        "-wal": null,
+        "main": "4ae2c43f74c4487f4604e0a0a1396def168c5bca7679654862c7dc1f5f9b5a3e"
+      },
+      "problems": [],
+      "step": "newer-schema-untouched-by-refusal"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-baseline/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/restore/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/restore/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 6,
+        "snapshotCount": 0,
+        "storageBytes": 385024
+      },
+      "problems": [],
+      "seconds": 0.007,
+      "step": "baseline-opens-restored-backup",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/restore\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":6,\"snapshotCount\":0,\"storageBytes\":385024}\n"
+    },
+    {
+      "command": [
+        "/private/tmp/ds572-rollback-1/probe-candidate/.build/release/store-probe",
+        "open",
+        "/private/tmp/ds572-rollback-1/restore/evidence.sqlite"
+      ],
+      "exitCode": 0,
+      "output": {
+        "command": "open",
+        "currentFileCount": 0,
+        "database": "/private/tmp/ds572-rollback-1/restore/evidence.sqlite",
+        "eventCount": 300,
+        "integrity": "ok",
+        "journalMode": "wal",
+        "ok": true,
+        "retentionRunCount": 0,
+        "schemaVersion": 14,
+        "snapshotCount": 0,
+        "storageBytes": 434176
+      },
+      "problems": [],
+      "seconds": 0.029,
+      "step": "candidate-migrates-restored-backup",
+      "tail": "{\"command\":\"open\",\"currentFileCount\":0,\"database\":\"\\/private\\/tmp\\/ds572-rollback-1\\/restore\\/evidence.sqlite\",\"eventCount\":300,\"integrity\":\"ok\",\"journalMode\":\"wal\",\"ok\":true,\"retentionRunCount\":0,\"schemaVersion\":14,\"snapshotCount\":0,\"storageBytes\":434176}\n"
+    },
+    {
+      "after": {
+        "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+      },
+      "before": {
+        "-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "main": "d794ab9a22e0222c8e4277c929a7a1465f67ab94d5cdf76503b903fc5f70dd88"
+      },
+      "problems": [],
+      "step": "backup-never-modified"
+    }
+  ]
+}

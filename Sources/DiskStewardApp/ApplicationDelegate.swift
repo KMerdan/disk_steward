@@ -5,6 +5,7 @@ import Foundation
 final class ApplicationDelegate: NSObject, NSApplicationDelegate {
     private(set) var statusController: StatusItemController?
     private var workspaceObservers: [NSObjectProtocol] = []
+    private var terminationTask: Task<Void, Never>?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         ensureStatusController()
@@ -12,9 +13,23 @@ final class ApplicationDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        statusController?.shutdown()
         let center = NSWorkspace.shared.notificationCenter
         workspaceObservers.forEach(center.removeObserver)
         workspaceObservers.removeAll()
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard let statusController else { return .terminateNow }
+        if terminationTask == nil {
+            terminationTask = Task {
+                // A bounded drain avoids a permanent Quit hang. On timeout the
+                // unfinished marker remains for the next launch's safety pause.
+                _ = await statusController.shutdownAndDrain()
+                sender.reply(toApplicationShouldTerminate: true)
+            }
+        }
+        return .terminateLater
     }
 
     func ensureStatusController() {

@@ -1,0 +1,905 @@
+Building for debugging...
+[0/27] /private/tmp/ds552-check-j4vrjk4x/project/.build/arm64-apple-macosx/debug/DiskStewardPackageTests.derived/runner.swift
+[1/27] Write sources
+[2/27] Write disk-witness-mcp-entitlement.plist
+[3/27] Write sources
+[16/27] Write DiskStewardApp-entitlement.plist
+[17/27] Write sources
+[18/27] Write swift-version--58304C5D6DBC2206.txt
+[20/49] Emitting module DiskStewardCore
+[21/49] Compiling DiskStewardCore TaskImpactCorrelation.swift
+[22/49] Compiling DiskStewardCore BoundedEndpointEventBuffer.swift
+[23/49] Compiling DiskStewardCore EndpointEventNormalizer.swift
+[24/49] Compiling DiskStewardCore PrivilegedEventModels.swift
+[25/49] Compiling DiskStewardCore ProtectedEndpointBridge.swift
+[26/49] Compiling DiskStewardCore EvidenceEventTiming+SQLite.swift
+[27/49] Compiling DiskStewardCore EvidenceEventTimingPresentation.swift
+[28/49] Compiling DiskStewardCore EvidenceLifecycleModels.swift
+[29/49] Compiling DiskStewardCore EvidenceLifecycleSummary.swift
+[30/49] Compiling DiskStewardCore EvidenceQueryModels.swift
+[31/49] Compiling DiskStewardCore EvidenceStore.swift
+[32/49] Compiling DiskStewardCore EvidenceStoreModels.swift
+[33/49] Compiling DiskStewardCore SQLiteConnection.swift
+[34/49] Compiling DiskStewardCore GrowthExplanation.swift
+[35/49] Compiling DiskStewardCore EvidenceBundleExporter.swift
+[36/49] Compiling DiskStewardCore EvidenceBundleModels.swift
+[37/49] Compiling DiskStewardCore EvidenceTimestamp.swift
+[38/49] Compiling DiskStewardCore OwnedExportDirectory.swift
+[39/49] Compiling DiskStewardCore ZlibCodec.swift
+[40/49] Compiling DiskStewardCore SHA256Digest.swift
+[41/49] Compiling DiskStewardCore SnapshotExportModels.swift
+[42/70] Compiling DiskStewardCore SnapshotExporter.swift
+[43/70] Compiling DiskStewardCore AgentAccessStateFile.swift
+[44/70] Compiling DiskStewardCore DiskStewardIPCClient.swift
+[45/70] Compiling DiskStewardCore JSONValue.swift
+[46/70] Compiling DiskStewardCore UnixSocketEvidenceServer.swift
+[47/70] Compiling DiskStewardCore DirectoryMetadataScanner.swift
+[48/70] Compiling DiskStewardCore MonitoringPolicy.swift
+[49/70] Compiling DiskStewardCore ScanPublicationFence.swift
+[50/70] Compiling DiskStewardCore TargetedFSEventsCollector.swift
+[51/70] Compiling DiskStewardCore WholeVolumeSampler.swift
+[52/70] Compiling DiskStewardCore WriteCoalescer.swift
+[53/70] Compiling DiskStewardCore EvidencePrivacyFilter.swift
+[54/70] Compiling DiskStewardCore ProductIdentity.swift
+[55/70] Compiling DiskStewardCore ProvenanceEngine.swift
+[56/70] Compiling DiskStewardCore ProvenanceModels.swift
+[57/70] Compiling DiskStewardCore ResourceBudget.swift
+[58/70] Compiling DiskStewardCore AgentSessionModels.swift
+[59/70] Compiling DiskStewardCore AgentSessionRegistry.swift
+[60/70] Compiling DiskStewardCore ProcessAncestryTracker.swift
+[61/70] Compiling DiskStewardCore StorageSnapshot.swift
+[62/70] Compiling DiskStewardCore VolumeSnapshotService.swift
+[63/75] Emitting module DiskStewardMCP
+[64/75] Compiling DiskStewardMCP MCPResponseSanitizer.swift
+[65/75] Compiling DiskStewardMCP MCPServer.swift
+[66/77] Compiling DiskStewardMCP MCPToolCatalog.swift
+[67/77] Compiling DiskStewardMCP main.swift
+[68/79] Emitting module DiskStewardEndpoint
+[69/79] Compiling DiskStewardEndpoint EndpointSecurityObserver.swift
+[70/94] Emitting module DiskStewardCoreTests
+[71/108] Emitting module FoundationTests
+[72/108] Compiling FoundationTests ProductIdentityTests.swift
+[73/112] Compiling DiskStewardCoreTests SnapshotExporterTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[74/112] Compiling DiskStewardCoreTests BoundedFrontierTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[75/112] Compiling DiskStewardCoreTests ConvergentScanGenerationTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[76/112] Compiling DiskStewardCoreTests MonitoringTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[77/112] Compiling DiskStewardCoreTests ScanPublicationFenceTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[78/112] Compiling DiskStewardCoreTests DurableProvenanceLifecycleTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[79/112] Compiling DiskStewardCoreTests ProvenanceChronologyTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[80/112] Compiling DiskStewardCoreTests ProvenanceEngineTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[81/112] Compiling DiskStewardCoreTests TaskAttributionClaimTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[82/112] Compiling DiskStewardCoreTests UnknownOccurrenceTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[83/112] Compiling DiskStewardCoreTests SQLiteCancellationTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[84/112] Compiling DiskStewardCoreTests AgentSessionRegistryTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[85/112] Compiling DiskStewardCoreTests JSONSchemaValidator.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[86/112] Compiling DiskStewardCoreTests StorageSnapshotTests.swift
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:83:28: error: 'await' in an autoclosure that does not support concurrency
+ 81 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: policy, start: Date(timeIntervalSince1970: 2_200_000_000))
+ 82 |         XCTAssertNotNil(run.observation, "The wide directory must publish")
+ 83 |         XCTAssertEqual(try await store.currentFiles().count, count)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+ 84 |         // One pass streams the directory exactly once: no quadratic rereads.
+ 85 |         XCTAssertEqual(run.passes, 1)
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:40: error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                                        `- error: call to actor-isolated instance method 'currentFiles(includeNonActionable:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1353:17: note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1351 |     }
+1352 | 
+1353 |     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
+     |                 `- note: calls to instance method 'currentFiles(includeNonActionable:)' from outside of its actor context are implicitly asynchronous
+1354 |         try readCurrentFiles(connection: requireConnection(), includeNonActionable: includeNonActionable)
+1355 |     }
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift:107:28: error: 'await' in an autoclosure that does not support concurrency
+105 |         let run = try await complete(store: store, reader: reader, scanner: DirectoryMetadataScanner(), policy: fixture.policy(maximumEntries: 50), start: Date(timeIntervalSince1970: 2_200_001_000))
+106 |         XCTAssertNotNil(run.observation)
+107 |         XCTAssertEqual(try await store.currentFiles().count, directories)
+    |                            `- error: 'await' in an autoclosure that does not support concurrency
+108 |         XCTAssertLessThanOrEqual(run.peakWindow, DirectoryMetadataScanner.frontierWindowSize)
+109 |         XCTAssertTrue(run.sawDurablePending, "Directories beyond the window live in scan_frontier rows")
+
+/private/tmp/ds552-check-j4vrjk4x/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[87/112] Compiling PerformanceTests BoundedTraversalPrototype.swift
+[88/112] Compiling PerformanceTests BoundedTraversalPrototypeTests.swift
+[89/112] Compiling PerformanceTests BoundedTraversalResumeTests.swift
+[90/112] Emitting module PerformanceTests
+[91/115] Compiling PerformanceTests BoundedTraversalScaleTests.swift
+[92/115] Compiling PerformanceTests PerformanceTests.swift
+[93/115] Compiling PerformanceTests ScaleBenchmarkTests.swift
+[94/117] Compiling DiskStewardEndpointTests DiskStewardEndpointTests.swift
+[95/117] Emitting module DiskStewardEndpointTests
+[102/118] Compiling DiskStewardCoreTests HistoricalEvidenceSchema.swift
+[103/118] Compiling DiskStewardCoreTests HistoricalMigrationTests.swift
+[104/118] Compiling DiskStewardCoreTests LifecycleProjectionTests.swift
+[105/118] Compiling DiskStewardCoreTests TaskImpactCandidateTests.swift
+[106/118] Compiling DiskStewardCoreTests ExplanationTests.swift
+[107/118] Compiling DiskStewardCoreTests EvidenceBundleExporterTests.swift
+[108/118] Compiling DiskStewardCoreTests ExportSafetyRegressionTests.swift
+[109/118] Compiling DiskStewardCoreTests ZlibRegressionTests.swift
+error: fatalError

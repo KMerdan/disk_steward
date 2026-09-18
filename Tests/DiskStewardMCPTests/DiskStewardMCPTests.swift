@@ -105,16 +105,15 @@ final class DiskStewardMCPTests: XCTestCase {
         }
     }
 
-    func testCancellationStopsBeforeIPCAndProducesToolExecutionError() throws {
+    func testUnknownCancellationDoesNotPoisonLaterRequest() throws {
         let client = FakeIPCClient(result: sampleSummary)
         let server = initializedServer(client: client)
         XCTAssertNil(server.handle(line: notification(method: "notifications/cancelled", params: ["requestId": .integer(7)])))
         let output = try response(server, request(id: 7, method: "tools/call", params: [
             "name": .string("get_storage_summary"), "arguments": .object([:]),
         ]))
-        XCTAssertEqual(output.objectValue?["result"]?.objectValue?["isError"], .bool(true))
-        XCTAssertEqual(output.objectValue?["result"]?.objectValue?["structuredContent"]?.objectValue?["code"], .string("cancelled"))
-        XCTAssertEqual(client.calledTools, [])
+        XCTAssertEqual(output.objectValue?["result"]?.objectValue?["isError"], .bool(false))
+        XCTAssertEqual(client.calledTools, ["get_storage_summary"])
     }
 
     func testResponseLimitFailsClosedAndExportPreservesInlineParity() throws {

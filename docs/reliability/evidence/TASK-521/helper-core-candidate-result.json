@@ -1,0 +1,73 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-521-CORE-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-DF3C078CCDB9D39E4D2718BCC19B95FB",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:9688186dc6c2de154c66ec60982db1372551e2f26fdcf5b60f09bec4e285b238",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Two actionable core composition gaps remain: scope reentry reuses out-of-scope historical rows as change/retirement baselines, and all-root failure bypasses failed-root uncertainty reconciliation. The new alias/interval delta and schema rebuild otherwise match their inspected test oracles. Static review only; candidate acceptance remains with the coordinator.",
+  "findings": [
+    {
+      "claim": "Scope reentry treats an outOfScope historical row as an active predecessor despite its closed bindings. O1 watches /watch with X at A=3; O2 watches /other and scopes X out; O3 returns to /watch. If A now contains Y=7, readPriorFileAtPath falls back to historical X, producing incoming +7 replace and retired-X -3 replace (net +4), marking X deleted. If X returns at A=8, oldObject comparison instead emits +5 modify. Both bypass scope-entry accounting across the unobserved scope boundary.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2"
+      ],
+      "recommendation": "Distinguish retained out-of-scope history from an in-scope comparison baseline in both present and missing passes. Add same-identity and replacement return-to-scope regressions for both ingestion paths; establish scope-entry state without inventing growth/retirement from stale out-of-scope rows. Handle an occupied historical path without restoring a conflicting current row."
+    },
+    {
+      "claim": "When every configured root fails, scanSlice returns abandoned rather than a failed-coverage observation. recordScanSlice removes transient inputs and returns before reconcileObjects. After a successful baseline, making the sole root unavailable therefore leaves its current row present and actionable and writes no observation coverage gap; mixed-root failure instead retains that row as unknown/nonactionable. Actionable currentFiles queries do not consult the abandoned generation.",
+      "confidence": "high",
+      "evidence": [
+        "E3",
+        "E4"
+      ],
+      "recommendation": "Persist all-root failure uncertainty atomically without inferring deletion or replacement: retain prior identity/bytes/sample provenance, make affected current rows unknown/nonactionable, and record truthful failed coverage. Keep genuine scope-abandon behavior separate. Add sole-root and multi-root-all-failed regressions, including reopen/recovery and no lifecycle debit."
+    }
+  ],
+  "evidence": [
+    "E1: R=/private/tmp/disk-steward-521-interval-candidate.D7ovMy; S=R/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:798-842 compares oldObject/oldPathObject before scope-entry classification;953-990 retires binding-free historical rows;4237-4244 falls back to prior current by path.",
+    "E2: R/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift:411-436 and588-605 cover scope exit/move and repeat suppression, not return-to-scope same-object or replacement baselines.",
+    "E3: R/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift:578-608 marks all failed roots abandoned; S:332-347 removes transient rows and returns without observation reconciliation.",
+    "E4: S:953-966 preserves failed/incomplete coverage as unknown during reconciliation;2530-2535 filters actionable current rows by presence/actionable only.",
+    "E5: S:805-810 rejects stale/future selected samples;2809-2852 uses nullable no-prior starts, binding-specific replacement lower evidence and chronological rejection;4312-4321 selects newest alias before preferred-path tie-break.",
+    "E6: R/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift:6-103 asserts NULL baseline/create bounds, rollback, alias replacement timing and newest-alias metadata; R/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:6-97 asserts alias restart and distinct rename/growth endpoints.",
+    "E7: S:3925-3963 rebuilds change_events within unreleased-v9 migration, preserving FK definitions/index and withdrawing no-prior/inverted lower bounds;3376-3465 retains shadow-copy validation and atomic switch.",
+    "E8: R/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift:6-38 checks genuine v5/v6 NULL/inverted/prior bounds, reopen, FK/index and cascade;79-104 retains atomic migration interruption recovery.",
+    "E9: S:269-325,368-493,1238-1326,4146-4216 implements producing-pass/root isolation, bounded restart validation, absence proofs and dirty receipts/fencing; R/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:257-329,369-479,495-569 supplies restart, replay and overlap oracles."
+  ],
+  "checks": [
+    {
+      "command": "Read-only frozen-source diff, core composition inspection and scoped test-oracle inspection",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed bounded static review; the two failure sequences are source-derived and require coordinator reproduction."
+    },
+    {
+      "command": "Tests/builds, app/native/database access and Pyramid mutations",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited. Coordinator-reported 366-test result was not independently executed or treated as absence of defects."
+    }
+  ],
+  "stale_if": [
+    "Candidate hash, task guard, scoped source/test content or accepted core contract changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static helper result requires coordinator reconciliation; unresolved findings prevent treating it as passing core acceptance or whole-product approval.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Public provenance/API occurrence propagation and ordinary app hint routing remain explicitly later work. Integration must persist dirty evidence through the fencing path before accepting superseded off-actor slices.",
+    "Interval scans do not establish an atomic filesystem snapshot; sample/absence provenance must remain visible. Historical retained bounds remain legacy estimates; unsupported preview-schema9 shapes were excluded."
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-CANDIDATE",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:942a5d8c13ed70816c43b744c98c7362041f8bda8718458e881ab7e99c683624",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Static intermediate review: owned-task cancellation, active-marker retention and terminal guards address the corresponding preflight gaps. Drain continuation handling and delegate forwarding show no additional concrete defect in inspected paths. Two lifecycle/probe concerns and two test-control gaps remain; no acceptance is granted.",
+  "findings": [
+    {
+      "claim": "Incoming monitoringPaused changes can permanently strand the periodic loop. The subscription cancels sampleTask but does not cancel/clear loopTask. If settings.update sets paused=true while a loop sample is pending, that loop returns at line 137 after completion, leaving a non-nil completed handle. Later resume/start refuses to launch another loop.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E3"
+      ],
+      "recommendation": "Test direct incoming paused=true during a gated periodic sample, release it, then resume and require a fresh call with a bounded assertion. Reconcile periodic ownership on incoming pause/resume and clear completed loop handles using generation-safe cleanup. The current publisher test exercises lifecycle.pause(), which explicitly clears the handle and misses this path."
+    },
+    {
+      "claim": "The new post-recordScanSlice cancellation check can discard bookkeeping for a transaction that already committed. previousStorage and hasSampledThisLaunch remain at the older sample. On resume, volumeGrowth uses that older baseline while detailedEvents come only from the new scanCommit, misaligning the intervals used by the growth report.",
+      "confidence": "high",
+      "evidence": [
+        "E2",
+        "E4"
+      ],
+      "recommendation": "Add a deterministic post-commit cancellation gate on the same probe instance: baseline 100, committed-but-cancelled 150, next 160 should compare the final sample against 150, not 100. Preserve bookkeeping for accepted durable commits before throwing cancellation, while still suppressing UI publication and new maintenance. Existing cancellation tests cover before work and before slice submission, not this boundary."
+    },
+    {
+      "claim": "The deadline test can falsely pass an early timeout. After advance(by:4), it immediately asserts result is nil on MainActor; a wrongly expired timer's resumed Task cannot set result until the test yields. Advancing the final second and awaiting quit then produces the expected false result even if expiry occurred early.",
+      "confidence": "high",
+      "evidence": [
+        "E5"
+      ],
+      "recommendation": "At the four-second checkpoint assert the registered timeout remains pending (pendingSleeps==1 here), then yield through an explicit scheduler boundary before checking result. Add zero-deadline and completion/deadline race cases. Manual sleep currently registers nonpositive delays until another advance, unlike the live zero-delay sleep."
+    },
+    {
+      "claim": "The new resume regression can hang instead of reporting a missing replacement sample: GatedCompletionProbe.waitUntilStarted loops indefinitely, including the second invocation at line 110. The bounded eventually helper records XCTFail but returns normally, allowing subsequent awaits of unresolved tasks to hang too.",
+      "confidence": "high",
+      "evidence": [
+        "E3",
+        "E5"
+      ],
+      "recommendation": "Make gate arrival and scheduler-boundary waits bounded and throwing/guarded, so failed arrival exits the test path. Provide cleanup that releases any outstanding fake probe/clock continuation before awaiting task completion; do not continue to unconditional task.value after a failed boundary assertion."
+    }
+  ],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:110-143,161-173 (incoming settings, loop exit and restart guard).",
+    "E2: /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift:104-159 (commit, cancellation check, volume/event report and deferred baseline update).",
+    "E3: /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:8-18,97-121,572-588 (publisher and resumed-sample tests; unbounded gate).",
+    "E4: /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift:8-58 (entry and pre-submit cancellation only; recovery uses a new probe).",
+    "E5: /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:45-71,483-551 (deadline assertions and manual-clock/wait implementation).",
+    "E6: /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:202-245,298-339 (owned sample, marker release and single continuation drain).",
+    "E7: /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/ApplicationDelegate.swift:22-32 and /private/tmp/disk-steward-522-lifecycle-candidate.FCXXpD/Sources/DiskStewardApp/StatusItemController.swift:148-163 (terminateLater and drain forwarding)."
+  ],
+  "checks": [
+    {
+      "command": "Read-only source/test inspection and immutable-base diffs; no test/build/native/database execution.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E1-E7. Findings are source-derived, not independently executed failures."
+    }
+  ],
+  "stale_if": [
+    "Parent guard or candidate hash changes.",
+    "Relevant lifecycle, probe, termination or test-control code changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw intermediate helper review awaits coordinator reproduction and reconciliation; excluded work remains unfinished.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Ordinary hint durability and notification send-boundary fencing are explicitly excluded and not approved.",
+    "Source forwarding review does not establish packaged AppKit behavior.",
+    "The direct-settings pause failure is a remaining boundary gap, not asserted to originate entirely in this patch."
+  ]
+}

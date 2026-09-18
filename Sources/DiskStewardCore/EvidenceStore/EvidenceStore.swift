@@ -3,6 +3,10 @@ import Darwin
 import Foundation
 
 public actor EvidenceStore {
+    /// Highest schema this build understands; migrations run up to it and a
+    /// newer on-disk schema is refused rather than partially interpreted.
+    static let currentSchemaVersion: Int64 = 14
+
     public typealias DateSource = @Sendable () -> Date
     public typealias ReconciliationCheckpoint = @Sendable (String) throws -> Void
     public typealias MigrationCheckpoint = @Sendable (String) throws -> Void
@@ -22,11 +26,31 @@ public actor EvidenceStore {
         let eventID: String
     }
 
+    private struct ProvenanceQueryCursor: Codable {
+        let revision: String
+        let currentStateOffset: Int
+        let event: EventQueryCursor?
+    }
+
     private var connection: SQLiteConnection?
     private let databaseURL: URL
     private let dateSource: DateSource
     private let reconciliationCheckpoint: ReconciliationCheckpoint
     private var storageCapBytes: Int64
+    private let availableCapacitySource: AvailableCapacitySource
+    private let retentionCheckpoint: ReconciliationCheckpoint
+    private let walJournalSizeLimit: Int64
+    /// The largest demand refused since retention last ran. It is cleared only
+    /// when work of at least that size is admitted or when retention targets
+    /// it, so an unrelated small write between a refusal and the retention it
+    /// triggers cannot erase the demand. Callers that hold the refusal pass its
+    /// demand explicitly as well.
+    private var pendingStorageDemandBytes: Int64 = 0
+    // Validation is deliberately process-local: after a crash every retained
+    // directory proof is checked again, rather than trusting an old checkpoint.
+    private var validatingGenerationID: String?
+    private var validatedAfterDirectory = ""
+    private var validatedAfterRoot = ""
 
     public init(
         url: URL,
@@ -34,11 +58,17 @@ public actor EvidenceStore {
         reconciliationCheckpoint: @escaping ReconciliationCheckpoint = { _ in },
         migrationCheckpoint: @escaping MigrationCheckpoint = { _ in },
         availableCapacitySource: @escaping AvailableCapacitySource = { EvidenceStore.availableCapacity(at: $0) },
-        maximumStorageBytes: Int64 = 512 * 1_024 * 1_024
+        maximumStorageBytes: Int64 = 512 * 1_024 * 1_024,
+        retentionCheckpoint: @escaping ReconciliationCheckpoint = { _ in },
+        maximumPageCount: Int64? = nil,
+        walJournalSizeLimit: Int64 = EvidenceStore.defaultWALJournalSizeLimit
     ) throws {
         databaseURL = url
         self.dateSource = dateSource
         self.reconciliationCheckpoint = reconciliationCheckpoint
+        self.retentionCheckpoint = retentionCheckpoint
+        self.availableCapacitySource = availableCapacitySource
+        self.walJournalSizeLimit = max(4_096, walJournalSizeLimit)
         storageCapBytes = max(1 * 1_024 * 1_024, maximumStorageBytes)
         try Self.prepareDatabaseForOpen(
             at: url,
@@ -47,7 +77,12 @@ public actor EvidenceStore {
         )
         let connection = try SQLiteConnection(url: url)
         do {
-            try Self.configure(connection)
+            try Self.configure(connection, walJournalSizeLimit: self.walJournalSizeLimit)
+            if let maximumPageCount {
+                // Disk-full fixture: SQLite refuses growth beyond this page count
+                // with SQLITE_FULL, exactly as a full volume would.
+                try connection.execute("PRAGMA max_page_count=\(max(1, maximumPageCount))")
+            }
             try Self.migrate(connection)
             try Self.recoverInterruptedLifecycles(connection, at: dateSource())
             self.connection = connection
@@ -67,7 +102,7 @@ public actor EvidenceStore {
     }
 
     public func insert(_ events: [EvidenceStoreEvent]) throws {
-        try ensureStorageAdmission(estimatedBytes: Int64(events.count * 512))
+        try admit(.generic(bytes: Int64(events.count * 512)))
         let connection = try requireConnection()
         try connection.transaction {
             for event in events {
@@ -105,8 +140,9 @@ public actor EvidenceStore {
         return try connection.withStatement(
             """
             SELECT event_id, observed_at, operation, path, logical_delta, allocated_delta,
-                   consumer_category, confidence, is_anomaly, is_reviewed
-            FROM events
+                   consumer_category, confidence, is_anomaly, is_reviewed,
+                   occurred_start, occurred_end, detected_at
+            FROM event_evidence
             WHERE observed_at >= ? AND observed_at <= ?
             ORDER BY observed_at, event_id
             LIMIT ?
@@ -136,9 +172,70 @@ public actor EvidenceStore {
                     confidence: confidence,
                     isAnomaly: sqlite3_column_int64(statement, 8) != 0,
                     isReviewed: sqlite3_column_int64(statement, 9) != 0
-                ))
+                ).withTiming(try EvidenceEventTiming.read(statement)))
             }
             return values
+        }
+    }
+
+    /// Candidate membership uses possible occurrence overlap, never discovery
+    /// time. Select the newest non-superseded claim before filtering its bounds:
+    /// filtering first could resurrect an older claim outside the current truth.
+    public func taskImpactCandidates(
+        from: Date, through: Date, maximumRows: Int = 100_000, maximumBytes: Int = 8 * 1_024 * 1_024,
+        scope: EvidenceQueryScope? = nil
+    ) throws -> [TaskImpactCandidate] {
+        guard from.timeIntervalSince1970.isFinite, through.timeIntervalSince1970.isFinite, from <= through else {
+            throw EvidenceStoreError.invalidEvent("Task impact query range is invalid")
+        }
+        let rows = min(100_000, max(1, maximumRows))
+        let bytes = min(8 * 1_024 * 1_024, max(1, maximumBytes))
+        let connection = try requireConnection()
+        let scopePredicate = scope?.predicate(column: "e.path")
+        let scopeClause = scopePredicate.map { " AND " + $0.sql } ?? ""
+        return try connection.withStatement("""
+            SELECT e.event_id, e.observed_at, e.operation, e.path, e.logical_delta, e.allocated_delta,
+                   e.consumer_category, e.confidence, e.is_anomaly, e.is_reviewed,
+                   e.occurred_start, e.occurred_end, e.detected_at, p.payload
+            FROM event_evidence e
+            LEFT JOIN provenance_claims p ON p.claim_id = (
+                SELECT c.claim_id FROM provenance_claims c
+                WHERE c.event_id = e.event_id AND c.timing_version = 1 AND c.superseded_by_claim_id IS NULL
+                ORDER BY c.detected_at DESC, c.claim_id DESC LIMIT 1
+            )
+            WHERE ((p.claim_id IS NULL AND e.occurred_end >= ? AND (e.occurred_start IS NULL OR e.occurred_start <= ?))
+               OR (p.occurred_end >= ? AND (p.occurred_start IS NULL OR p.occurred_start <= ?)))\(scopeClause)
+            ORDER BY e.observed_at, e.event_id
+            LIMIT ?
+            """) { statement in
+            var index: Int32 = 1
+            try connection.bind(from.timeIntervalSince1970, at: index, in: statement); index += 1
+            try connection.bind(through.timeIntervalSince1970, at: index, in: statement); index += 1
+            try connection.bind(from.timeIntervalSince1970, at: index, in: statement); index += 1
+            try connection.bind(through.timeIntervalSince1970, at: index, in: statement); index += 1
+            for value in scopePredicate?.bindings ?? [] { try connection.bind(value, at: index, in: statement); index += 1 }
+            try connection.bind(Int64(rows + 1), at: index, in: statement)
+            var candidates: [TaskImpactCandidate] = []
+            var admittedBytes = 0
+            while true {
+                try Task.checkCancellation()
+                let code = sqlite3_step(statement)
+                if code == SQLITE_DONE { break }
+                guard code == SQLITE_ROW else { throw connection.lastError(code) }
+                // Check SQLite byte lengths before copying strings/JSON into
+                // Swift. Refuse incomplete totals instead of returning a prefix
+                // that looks like complete task impact.
+                let rowBytes = [0, 2, 3, 6, 7, 13].reduce(256) { $0 + Int(sqlite3_column_bytes(statement, Int32($1))) }
+                guard candidates.count < rows, rowBytes <= bytes - admittedBytes else {
+                    throw TaskImpactQueryError.budgetExceeded
+                }
+                admittedBytes += rowBytes
+                let event = try Self.readEvent(statement: statement, connection: connection)
+                let claim: ProvenanceClaim? = sqlite3_column_type(statement, 13) == SQLITE_NULL ? nil
+                    : try JSONDecoder().decode(ProvenanceClaim.self, from: Self.columnData(statement, column: 13, connection: connection))
+                candidates.append(.init(event: event, currentClaim: claim))
+            }
+            return candidates
         }
     }
 
@@ -148,11 +245,21 @@ public actor EvidenceStore {
     ) throws -> MetadataScanGeneration {
         let connection = try requireConnection()
         if let active = try Self.readScanGeneration(status: .active, connection: connection),
-           active.scopeVersionID == scope.scopeVersionID
+           active.scopeVersionID == scope.scopeVersionID,
+           active.passProvenanceVersion == 2,
+           active.reconciliationToken != nil,
+           active.status == .active
         {
-            return active
+            var refreshed = active
+            try connection.transaction {
+                refreshed = try Self.synchronizeFrontier(active, discovered: [], connection: connection)
+                if refreshed != active {
+                    try Self.persistScanGeneration(refreshed, rowStatus: .active, connection: connection)
+                }
+            }
+            return refreshed
         }
-        try ensureStorageAdmission(estimatedBytes: 4_096)
+        try admit(.generic(bytes: 4_096))
 
         let rootsJSON = String(data: try JSONEncoder().encode(scope.rootPaths), encoding: .utf8) ?? "[]"
         let exclusionsJSON = String(data: try JSONEncoder().encode(scope.excludedPaths), encoding: .utf8) ?? "[]"
@@ -164,10 +271,14 @@ public actor EvidenceStore {
                     status: .abandoned,
                     updatedAt: date,
                     completedAt: date,
-                    limitations: active.limitations + ["Scope version changed before this scan generation completed; staged observations were discarded without reconciling absence."]
+                    limitations: active.limitations + [active.scopeVersionID != scope.scopeVersionID
+                        ? "Scope version changed before this scan generation completed; staged observations were discarded without reconciling absence."
+                        : "Unpublished staging lacks resumable pass provenance or publication was interrupted; retained current evidence is unchanged and a fresh generation is required."]
                 )
                 try Self.persistScanGeneration(abandoned, rowStatus: .abandoned, connection: connection)
                 try connection.execute("DELETE FROM scan_generation_entries WHERE generation_id = '\(Self.sqlLiteral(active.generationID))'")
+                try connection.execute("DELETE FROM scan_directory_passes WHERE generation_id = '\(Self.sqlLiteral(active.generationID))'")
+                try Self.deleteFrontier(generationID: active.generationID, connection: connection)
             }
             try connection.withStatement(
                 "INSERT OR IGNORE INTO scope_versions (scope_version_id, effective_at, roots_json, exclusions_json, maximum_entries, maximum_depth) VALUES (?, ?, ?, ?, ?, ?)"
@@ -206,8 +317,10 @@ public actor EvidenceStore {
         slice: MetadataScanSlice,
         scope: EvidenceScopeVersion,
         trigger: EvidenceObservationTrigger,
-        eventGap: Bool = false
+        eventGap: Bool = false,
+        publicationPermit: ScanPublicationPermit? = nil
     ) throws -> ScanGenerationCommitResult {
+        try publicationPermit?.validate()
         let connection = try requireConnection()
         guard slice.generation.scopeVersionID == scope.scopeVersionID else {
             throw EvidenceStoreError.invalidObservation("scan generation and scope version identifiers differ")
@@ -217,19 +330,34 @@ public actor EvidenceStore {
         else {
             throw EvidenceStoreError.invalidObservation("scan generation cursor is no longer active")
         }
+        guard active.reconciliationToken != nil else {
+            throw EvidenceStoreError.invalidObservation("scan generation lacks a dirty-evidence fence")
+        }
+        guard active.reconciliationToken == slice.generation.reconciliationToken else {
+            // Receipt-order changes trump wall-clock order. Return the durable
+            // reset cursor so the caller continues without publishing old work.
+            return ScanGenerationCommitResult(generation: active, observation: nil)
+        }
         guard active.processedEntryCount <= slice.generation.processedEntryCount else {
             throw EvidenceStoreError.invalidObservation("scan generation progress moved backwards")
         }
-        try ensureStorageAdmission(
-            estimatedBytes: Int64(slice.entries.count * 768),
-            allowRecoveryWrite: slice.generation.status == .completed
-        )
+        guard slice.generation.passProvenanceVersion == 2 else {
+            throw EvidenceStoreError.invalidObservation("scan generation has no current pass provenance")
+        }
+        try admit(.staging(rows: slice.entries.count, passes: slice.directoryPasses.count))
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         let snapshotPayload = try encoder.encode(snapshot)
         var persisted = slice.generation
         try connection.transaction {
+            // Restarting a directory invalidates the preceding pass, including
+            // descendants already staged. A lexical restart alone would retain
+            // deleted files from the superseded pass and publish false presence.
+            for invalidation in slice.invalidatedDirectoryPasses {
+                try Self.invalidateDirectoryPass(invalidation.directoryPath, rootPath: invalidation.rootPath,
+                                                 generationID: slice.generation.generationID, connection: connection)
+            }
             try connection.withStatement("INSERT OR IGNORE INTO snapshots (snapshot_id, observed_at, payload) VALUES (?, ?, ?)") { statement in
                 try connection.bind(snapshot.snapshotID, at: 1, in: statement)
                 try connection.bind(slice.generation.updatedAt.timeIntervalSince1970, at: 2, in: statement)
@@ -237,9 +365,13 @@ public actor EvidenceStore {
                 try connection.stepDone(statement)
             }
             for entry in slice.entries {
+                guard !slice.generation.roots.contains(where: { $0.rootPath == entry.rootPath && $0.status == .failed }) else { continue }
+                guard let passID = entry.directoryPassID, !passID.isEmpty, let sampledAt = entry.observedAt else {
+                    throw EvidenceStoreError.invalidObservation("staged file lacks producing-pass or sample-time provenance")
+                }
                 let payload = try encoder.encode(entry)
                 try connection.withStatement(
-                    "INSERT INTO scan_generation_entries (generation_id, path, payload, object_id, identity_method, root_path, logical_bytes, allocated_bytes, modified_at, link_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(generation_id, path) DO UPDATE SET payload = excluded.payload, object_id = excluded.object_id, identity_method = excluded.identity_method, root_path = excluded.root_path, logical_bytes = excluded.logical_bytes, allocated_bytes = excluded.allocated_bytes, modified_at = excluded.modified_at, link_count = excluded.link_count"
+                    "INSERT INTO scan_generation_entries (generation_id, path, payload, object_id, identity_method, root_path, logical_bytes, allocated_bytes, modified_at, link_count, directory_path, pass_id, observed_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(generation_id, root_path, path) DO UPDATE SET payload = excluded.payload, object_id = excluded.object_id, identity_method = excluded.identity_method, logical_bytes = excluded.logical_bytes, allocated_bytes = excluded.allocated_bytes, modified_at = excluded.modified_at, link_count = excluded.link_count, directory_path = excluded.directory_path, pass_id = excluded.pass_id, observed_at = excluded.observed_at"
                 ) { statement in
                     try connection.bind(slice.generation.generationID, at: 1, in: statement)
                     try connection.bind(entry.path, at: 2, in: statement)
@@ -251,20 +383,73 @@ public actor EvidenceStore {
                     try connection.bind(entry.allocatedBytes, at: 8, in: statement)
                     try connection.bind(entry.modifiedAt?.timeIntervalSince1970, at: 9, in: statement)
                     try connection.bind(Int64(entry.linkCount), at: 10, in: statement)
+                    try connection.bind(URL(fileURLWithPath: entry.path).deletingLastPathComponent().path, at: 11, in: statement)
+                    try connection.bind(passID, at: 12, in: statement)
+                    try connection.bind(sampledAt.timeIntervalSince1970, at: 13, in: statement)
+                    try connection.stepDone(statement)
+                }
+            }
+            for root in slice.generation.roots where root.status == .failed {
+                try connection.withStatement("DELETE FROM scan_generation_entries WHERE generation_id = ? AND root_path = ?") { statement in
+                    try connection.bind(slice.generation.generationID, at: 1, in: statement)
+                    try connection.bind(root.rootPath, at: 2, in: statement)
+                    try connection.stepDone(statement)
+                }
+                try connection.withStatement("DELETE FROM scan_directory_passes WHERE generation_id = ? AND root_path = ?") { statement in
+                    try connection.bind(slice.generation.generationID, at: 1, in: statement)
+                    try connection.bind(root.rootPath, at: 2, in: statement)
+                    try connection.stepDone(statement)
+                }
+            }
+            for pass in slice.directoryPasses {
+                guard !slice.generation.roots.contains(where: { $0.rootPath == pass.rootPath && $0.status == .failed }) else { continue }
+                // A new pass replaces only this root's immediate-directory
+                // membership. Other roots retain independent successful evidence.
+                try connection.withStatement("DELETE FROM scan_generation_entries WHERE generation_id = ? AND root_path = ? AND directory_path = ? AND (pass_id IS NULL OR pass_id != ?)") { statement in
+                    try connection.bind(slice.generation.generationID, at: 1, in: statement)
+                    try connection.bind(pass.rootPath, at: 2, in: statement)
+                    try connection.bind(pass.directoryPath, at: 3, in: statement)
+                    try connection.bind(pass.passID, at: 4, in: statement)
+                    try connection.stepDone(statement)
+                }
+                try connection.withStatement("INSERT INTO scan_directory_passes (generation_id, directory_path, root_path, payload, pass_id) VALUES (?, ?, ?, ?, ?) ON CONFLICT(generation_id, root_path, directory_path) DO UPDATE SET payload = excluded.payload, pass_id = excluded.pass_id") { statement in
+                    try connection.bind(slice.generation.generationID, at: 1, in: statement)
+                    try connection.bind(pass.directoryPath, at: 2, in: statement)
+                    try connection.bind(pass.rootPath, at: 3, in: statement)
+                    try connection.bind(encoder.encode(pass), at: 4, in: statement)
+                    try connection.bind(pass.passID, at: 5, in: statement)
                     try connection.stepDone(statement)
                 }
             }
             let stagedCount = Int(try connection.scalarInt(
-                "SELECT COUNT(*) FROM scan_generation_entries WHERE generation_id = '\(Self.sqlLiteral(slice.generation.generationID))'"
+                "SELECT COUNT(DISTINCT path) FROM scan_generation_entries WHERE generation_id = '\(Self.sqlLiteral(slice.generation.generationID))'"
             ))
             persisted = Self.copyScanGeneration(slice.generation, stagedFileCount: stagedCount)
+            if persisted.status != .abandoned {
+                // Frontier deltas commit with the staging they belong to.
+                persisted = try Self.synchronizeFrontier(persisted, discovered: slice.discoveredDirectories, connection: connection)
+            }
             let rowStatus: MetadataScanGenerationStatus = persisted.status == .abandoned ? .abandoned : .active
             try Self.persistScanGeneration(persisted, rowStatus: rowStatus, connection: connection)
             if persisted.status == .abandoned {
                 try connection.execute("DELETE FROM scan_generation_entries WHERE generation_id = '\(Self.sqlLiteral(persisted.generationID))'")
+                try connection.execute("DELETE FROM scan_directory_passes WHERE generation_id = '\(Self.sqlLiteral(persisted.generationID))'")
+                try Self.deleteFrontier(generationID: persisted.generationID, connection: connection)
             }
         }
 
+        let validationIdentity = "\(persisted.generationID)|\(persisted.reconciliationToken ?? "legacy")"
+        if validatingGenerationID != validationIdentity || !slice.directoryPasses.isEmpty || !slice.invalidatedDirectories.isEmpty {
+            validatingGenerationID = validationIdentity
+            validatedAfterDirectory = ""
+            validatedAfterRoot = ""
+        }
+
+        guard persisted.status == .completed else {
+            return ScanGenerationCommitResult(generation: persisted, observation: nil)
+        }
+
+        persisted = try validateDirectoryPasses(generation: persisted, scope: scope, connection: connection)
         guard persisted.status == .completed else {
             return ScanGenerationCommitResult(generation: persisted, observation: nil)
         }
@@ -274,9 +459,155 @@ public actor EvidenceStore {
             generation: persisted,
             scope: scope,
             trigger: trigger,
-            eventGap: eventGap
+            eventGap: eventGap,
+            publicationPermit: publicationPermit
         )
         return ScanGenerationCommitResult(generation: persisted, observation: observation)
+    }
+
+    /// A finished frontier is not proof that earlier directories stayed stable.
+    /// Recheck bounded SQLite-backed batches after traversal, retaining no full
+    /// directory list in Swift. This establishes an observation interval, not an
+    /// atomic filesystem snapshot; metadata retains its original sample time.
+    private func validateDirectoryPasses(
+        generation: MetadataScanGeneration,
+        scope: EvidenceScopeVersion,
+        connection: SQLiteConnection
+    ) throws -> MetadataScanGeneration {
+        for root in generation.roots where root.status == .completed {
+            let hasRootPass = try connection.withStatement("SELECT COUNT(*) FROM scan_directory_passes WHERE generation_id = ? AND directory_path = ? AND root_path = ?") { statement in
+                try connection.bind(generation.generationID, at: 1, in: statement)
+                try connection.bind(root.rootPath, at: 2, in: statement)
+                try connection.bind(root.rootPath, at: 3, in: statement)
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+                return sqlite3_column_int64(statement, 0) == 1
+            }
+            guard hasRootPass else { throw EvidenceStoreError.invalidObservation("completed root has no membership pass") }
+        }
+        let budget = min(512, max(1, scope.maximumEntries))
+        let afterDirectory = validatedAfterDirectory
+        let afterRoot = validatedAfterRoot
+        let passes = try connection.withStatement("SELECT payload FROM scan_directory_passes WHERE generation_id = ? AND (directory_path, root_path) > (?, ?) ORDER BY directory_path, root_path LIMIT ?") { statement -> [MetadataScanDirectoryPass] in
+            try connection.bind(generation.generationID, at: 1, in: statement)
+            try connection.bind(afterDirectory, at: 2, in: statement)
+            try connection.bind(afterRoot, at: 3, in: statement)
+            try connection.bind(Int64(budget), at: 4, in: statement)
+            var result: [MetadataScanDirectoryPass] = []
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let bytes = sqlite3_column_blob(statement, 0) else { throw connection.lastError(SQLITE_CORRUPT) }
+                result.append(try JSONDecoder().decode(MetadataScanDirectoryPass.self,
+                    from: Data(bytes: bytes, count: Int(sqlite3_column_bytes(statement, 0)))))
+            }
+            return result
+        }
+        for pass in passes {
+            guard let owner = generation.roots.first(where: { $0.rootPath == pass.rootPath && $0.status == .completed }) else {
+                // Failed-only coverage cannot authorize absence, even if one of
+                // its individual directory passes happened to finish earlier.
+                continue
+            }
+            let signature = DirectoryMetadataScanner.directorySignature(atPath: pass.directoryPath)
+            if signature != pass.signature {
+                // If the directory itself vanished/replaced with a symlink, its
+                // root must rediscover the tree rather than following that path.
+                let restartPath = signature == nil ? owner.rootPath : pass.directoryPath
+                var restarted: MetadataScanGeneration!
+                try connection.transaction {
+                    try Self.invalidateDirectoryPass(restartPath, rootPath: owner.rootPath,
+                                                     generationID: generation.generationID, connection: connection)
+                    let roots = generation.roots.map { root in
+                        guard root.rootPath == owner.rootPath else { return root }
+                        let rootRestart = restartPath
+                        let depth = URL(fileURLWithPath: rootRestart).pathComponents.count - URL(fileURLWithPath: root.rootPath).pathComponents.count
+                        return MetadataScanRootProgress(rootPath: root.rootPath, status: .active,
+                            frontier: [.init(directoryPath: rootRestart, depth: depth)],
+                            processedEntryCount: root.processedEntryCount,
+                            observedFileCount: root.observedFileCount, limitations: root.limitations)
+                    }
+                    let count = try connection.scalarInt("SELECT COUNT(DISTINCT path) FROM scan_generation_entries WHERE generation_id = '\(Self.sqlLiteral(generation.generationID))'")
+                    try Self.deleteFrontier(generationID: generation.generationID, rootPath: owner.rootPath, connection: connection)
+                    restarted = Self.copyScanGeneration(generation, status: .active, stagedFileCount: Int(count), roots: roots)
+                    try Self.persistScanGeneration(restarted, rowStatus: .active, connection: connection)
+                }
+                validatedAfterDirectory = ""
+                validatedAfterRoot = ""
+                return restarted
+            }
+        }
+        let last = passes.last?.directoryPath ?? validatedAfterDirectory
+        let lastRoot = passes.last?.rootPath ?? validatedAfterRoot
+        let more = try connection.withStatement("SELECT EXISTS(SELECT 1 FROM scan_directory_passes WHERE generation_id = ? AND (directory_path, root_path) > (?, ?))") { statement in
+            try connection.bind(generation.generationID, at: 1, in: statement)
+            try connection.bind(last, at: 2, in: statement)
+            try connection.bind(lastRoot, at: 3, in: statement)
+            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+            return sqlite3_column_int64(statement, 0) != 0
+        }
+        let result = more ? Self.copyScanGeneration(generation, status: .active) : generation
+        try Self.persistScanGeneration(result, rowStatus: .active, connection: connection)
+        validatedAfterDirectory = last
+        validatedAfterRoot = lastRoot
+        return result
+    }
+
+    private static func invalidateDirectoryPass(_ directory: String, rootPath: String, generationID: String, connection: SQLiteConnection) throws {
+        let prefix = directory == "/" ? "/" : directory + "/"
+        // Pending descendants in the durable frontier belong to the superseded
+        // pass; the restarted pass rediscovers them.
+        for (table, column, includeDirectory) in [("scan_generation_entries", "path", false), ("scan_directory_passes", "directory_path", true), ("scan_frontier", "directory_path", false)] {
+            try connection.withStatement("DELETE FROM \(table) WHERE generation_id = ? AND (substr(\(column), 1, length(?)) = ? OR (? AND \(column) = ?)) AND root_path = ?") { statement in
+                try connection.bind(generationID, at: 1, in: statement)
+                try connection.bind(prefix, at: 2, in: statement)
+                try connection.bind(prefix, at: 3, in: statement)
+                try connection.bind(Int64(includeDirectory ? 1 : 0), at: 4, in: statement)
+                try connection.bind(directory, at: 5, in: statement)
+                try connection.bind(rootPath, at: 6, in: statement)
+                try connection.stepDone(statement)
+            }
+        }
+    }
+
+    private static func path(_ path: String, isWithin root: String) -> Bool {
+        path == root || path.hasPrefix(root == "/" ? "/" : root + "/")
+    }
+
+    /// Absence is bounded by a producing directory pass, not by publication.
+    /// If a parent vanished, the nearest retained ancestor pass supplies the
+    /// membership proof. Only completed roots are eligible. Each lookup is
+    /// indexed and the walk retains at most one directory proof at a time.
+    private static func coveredAbsenceDate(path: String, generation: MetadataScanGeneration, connection: SQLiteConnection) throws -> Date {
+        var observedAt: Date?
+        for root in generation.roots where root.status == .completed && Self.path(path, isWithin: root.rootPath) {
+            var directory = URL(fileURLWithPath: path).deletingLastPathComponent().path
+            while Self.path(directory, isWithin: root.rootPath) {
+                let pass: MetadataScanDirectoryPass? = try connection.withStatement("SELECT payload FROM scan_directory_passes WHERE generation_id = ? AND root_path = ? AND directory_path = ?") { statement in
+                    try connection.bind(generation.generationID, at: 1, in: statement)
+                    try connection.bind(root.rootPath, at: 2, in: statement)
+                    try connection.bind(directory, at: 3, in: statement)
+                    guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
+                    guard let bytes = sqlite3_column_blob(statement, 0) else { throw connection.lastError(SQLITE_CORRUPT) }
+                    return try JSONDecoder().decode(MetadataScanDirectoryPass.self, from: Data(bytes: bytes, count: Int(sqlite3_column_bytes(statement, 0))))
+                }
+                if let pass {
+                    observedAt = max(observedAt ?? pass.completedAt, pass.completedAt)
+                    break
+                }
+                if directory == root.rootPath || directory == "/" { break }
+                directory = URL(fileURLWithPath: directory).deletingLastPathComponent().path
+            }
+        }
+        guard let observedAt else { throw EvidenceStoreError.invalidObservation("absence lacks a covering directory pass") }
+        return observedAt
+    }
+
+    private static func stagedReplacementDate(input: ReconciliationInput, generationID: String, path: String, objectID: String, connection: SQLiteConnection) throws -> Date? {
+        try connection.withStatement("SELECT MAX(observed_at) FROM \(input.table) WHERE generation_id = ? AND path = ? AND object_id != ?") { statement in
+            try connection.bind(generationID, at: 1, in: statement)
+            try connection.bind(path, at: 2, in: statement)
+            try connection.bind(objectID, at: 3, in: statement)
+            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+            return columnDate(statement, column: 0)
+        }
     }
 
     public func recordReconciliationInvalidation(
@@ -286,12 +617,16 @@ public actor EvidenceStore {
     ) throws {
         let connection = try requireConnection()
         let normalizedRoot = rootPath == "*" ? "*" : URL(fileURLWithPath: rootPath).standardizedFileURL.path
-        try Self.upsertReconciliationInvalidation(
-            rootPath: normalizedRoot,
-            reason: reason,
-            at: date,
-            connection: connection
-        )
+        let checkpoint = reconciliationCheckpoint
+        try connection.transaction {
+            try checkpoint("before-invalidation")
+            try Self.upsertReconciliationInvalidation(
+                rootPath: normalizedRoot,
+                reason: reason,
+                at: date,
+                connection: connection
+            )
+        }
     }
 
     public func hasPendingReconciliation() throws -> Bool {
@@ -314,7 +649,8 @@ public actor EvidenceStore {
         generation: MetadataScanGeneration,
         scope: EvidenceScopeVersion,
         trigger: EvidenceObservationTrigger,
-        eventGap: Bool
+        eventGap: Bool,
+        publicationPermit: ScanPublicationPermit?
     ) throws -> ObservationCommitResult {
         let connection = try requireConnection()
         let observationID = generation.generationID
@@ -323,10 +659,11 @@ public actor EvidenceStore {
         let effectiveEventGap = eventGap || hasDurableInvalidation
 
         if try observationExists(observationID, connection: connection) {
-            try connection.transaction {
+            try connection.transaction(publicationPermit: publicationPermit) {
                 try Self.persistScanGeneration(generation, rowStatus: .completed, connection: connection)
                 try connection.execute("DELETE FROM scan_generation_entries WHERE generation_id = '\(Self.sqlLiteral(observationID))'")
-                try Self.resolveReconciliationInvalidations(at: observedAt, connection: connection)
+                try connection.execute("DELETE FROM scan_directory_passes WHERE generation_id = '\(Self.sqlLiteral(observationID))'")
+                try Self.deleteFrontier(generationID: observationID, connection: connection)
             }
             return try boundedCommitResult(
                 observationID: observationID,
@@ -337,7 +674,10 @@ public actor EvidenceStore {
         }
 
         let previousScopeID = try latestScopeVersionID(connection: connection)
-        let scopeChanged = previousScopeID.map { $0 != scope.scopeVersionID } ?? true
+        // Publication creates indexes/current-state/history in addition to the
+        // staging rows. Reserve this work before entering the atomic transaction.
+        let priorCurrentCount = try connection.scalarInt("SELECT COUNT(*) FROM current_file_state")
+        try admit(.publication(stagedRows: Int64(generation.stagedFileCount), priorCurrentRows: priorCurrentCount))
         let previousObservedAt = try Self.latestCurrentObservationDate(connection: connection)
         let snapshotPayload = try JSONEncoder().encode(snapshot)
         let rootsJSON = String(data: try JSONEncoder().encode(scope.rootPaths), encoding: .utf8) ?? "[]"
@@ -348,13 +688,13 @@ public actor EvidenceStore {
             scopeVersionID: scope.scopeVersionID,
             observedAt: observedAt,
             entries: [:],
-            rootCoverage: generation.rootPaths.map { .init(rootPath: $0, coverage: .complete) },
+            rootCoverage: generation.roots.map { .init(rootPath: $0.rootPath, coverage: $0.status == .completed ? .complete : .failed, limitations: $0.limitations) },
             limitations: generation.limitations
         )
         var inlineEvents: [EvidenceStoreEvent] = []
         var persistedEventCount = 0
 
-        try connection.transaction {
+        try connection.transaction(publicationPermit: publicationPermit) {
             try connection.withStatement(
                 "INSERT OR IGNORE INTO scope_versions (scope_version_id, effective_at, roots_json, exclusions_json, maximum_entries, maximum_depth) VALUES (?, ?, ?, ?, ?, ?)"
             ) { statement in
@@ -367,7 +707,7 @@ public actor EvidenceStore {
                 try connection.stepDone(statement)
             }
             try connection.withStatement(
-                "INSERT INTO observation_runs (observation_id, scope_version_id, trigger, started_at, completed_at, coverage, event_gap) VALUES (?, ?, ?, ?, ?, 'complete', ?)"
+                "INSERT INTO observation_runs (observation_id, scope_version_id, trigger, started_at, completed_at, coverage, event_gap) VALUES (?, ?, ?, ?, ?, '\(metadata.coverage.rawValue)', ?)"
             ) { statement in
                 try connection.bind(observationID, at: 1, in: statement)
                 try connection.bind(scope.scopeVersionID, at: 2, in: statement)
@@ -385,15 +725,22 @@ public actor EvidenceStore {
                 try connection.bind(snapshotPayload, at: 3, in: statement)
                 try connection.stepDone(statement)
             }
-            for root in generation.rootPaths {
+            for root in generation.roots {
+                let complete = root.status == .completed
                 try connection.withStatement(
-                    "INSERT INTO observation_roots (observation_id, root_path, coverage, limitations_json) VALUES (?, ?, 'complete', '[]')"
+                    "INSERT INTO observation_roots (observation_id, root_path, coverage, limitations_json) VALUES (?, ?, ?, ?)"
                 ) { statement in
                     try connection.bind(observationID, at: 1, in: statement)
-                    try connection.bind(root, at: 2, in: statement)
+                    try connection.bind(root.rootPath, at: 2, in: statement)
+                    try connection.bind(complete ? "complete" : "failed", at: 3, in: statement)
+                    try connection.bind(String(decoding: JSONEncoder().encode(root.limitations), as: UTF8.self), at: 4, in: statement)
                     try connection.stepDone(statement)
                 }
-                try Self.resolveCoverageGaps(rootPath: root, endedAt: observedAt, connection: connection)
+                if complete {
+                    try Self.resolveCoverageGaps(rootPath: root.rootPath, endedAt: observedAt, connection: connection)
+                } else {
+                    try Self.insertCoverageGap(.init(gapID: "gap-\(observationID)-\(Self.sqlLiteral(root.rootPath))", observationID: observationID, rootPath: root.rootPath, reason: "root-scan-failed", startedAt: generation.startedAt, endedAt: nil), connection: connection)
+                }
             }
             if effectiveEventGap {
                 let startedAt = try Self.earliestOpenInvalidationDate(connection: connection) ?? observedAt
@@ -403,11 +750,10 @@ public actor EvidenceStore {
                     rootPath: "*",
                     reason: "event-drop",
                     startedAt: startedAt,
-                    endedAt: observedAt
+                    endedAt: nil
                 )
                 try Self.insertCoverageGap(gap, connection: connection)
             }
-            try Self.resolveCoverageGaps(rootPath: "*", reason: "event-drop", endedAt: observedAt, connection: connection)
             if trigger == .startup, let previousObservedAt, previousObservedAt < observedAt {
                 let gap = EvidenceCoverageGap(
                     gapID: "gap-\(observationID)-app-offline",
@@ -421,176 +767,55 @@ public actor EvidenceStore {
             }
             try checkpoint("after-observation")
 
-            try connection.execute("DROP TABLE IF EXISTS temp.reconcile_missing_objects")
-            try connection.execute(
-                "CREATE TEMP TABLE reconcile_missing_objects (object_id TEXT PRIMARY KEY NOT NULL) WITHOUT ROWID"
+            // Every contribution must be authorized by its own root's completed
+            // producing pass. Only after validation do overlapping observations
+            // collapse to one (latest sampled) value for a physical path.
+            let generationLiteral = Self.sqlLiteral(observationID)
+            let unproven = try connection.scalarInt("""
+                SELECT EXISTS(
+                    SELECT 1 FROM scan_generation_entries AS e
+                    LEFT JOIN scan_directory_passes AS p
+                      ON p.generation_id = e.generation_id AND p.root_path = e.root_path
+                     AND p.directory_path = e.directory_path AND p.pass_id = e.pass_id
+                    WHERE e.generation_id = '\(generationLiteral)' AND p.pass_id IS NULL
+                )
+                """)
+            guard unproven == 0 else { throw EvidenceStoreError.invalidObservation("staged membership has no matching completed producing pass") }
+            try connection.execute("""
+                DELETE FROM scan_generation_entries WHERE rowid IN (
+                    SELECT entry_rowid FROM (
+                        SELECT rowid AS entry_rowid,
+                               ROW_NUMBER() OVER (PARTITION BY path ORDER BY observed_at DESC, root_path) AS rank
+                        FROM scan_generation_entries WHERE generation_id = '\(generationLiteral)'
+                    ) WHERE rank > 1
+                )
+                """)
+
+            let reconciled = try Self.reconcileObjects(
+                metadata: metadata, scope: scope, previousScopeID: previousScopeID,
+                input: .generation(generation), inlineEventLimit: Self.maximumInlineCommitRows,
+                checkpoint: checkpoint, connection: connection
             )
-            try connection.withStatement(
-                "INSERT INTO reconcile_missing_objects (object_id) SELECT current.object_id FROM current_file_state AS current WHERE NOT EXISTS (SELECT 1 FROM scan_generation_entries AS staged WHERE staged.generation_id = ? AND staged.object_id = current.object_id)"
-            ) { statement in
-                try connection.bind(observationID, at: 1, in: statement)
-                try connection.stepDone(statement)
-            }
-
-            try connection.withStatement(
-                "SELECT object_id FROM scan_generation_entries WHERE generation_id = ? GROUP BY object_id ORDER BY object_id"
-            ) { objectStatement in
-                try connection.bind(observationID, at: 1, in: objectStatement)
-                while sqlite3_step(objectStatement) == SQLITE_ROW {
-                    guard let objectID = Self.columnString(objectStatement, column: 0) else {
-                        throw connection.lastError(SQLITE_CORRUPT)
-                    }
-                    let oldObject = try Self.readCurrentFile(objectID: objectID, connection: connection)
-                    let (file, observedPathCount, observedLinkCount) = try Self.readCanonicalStagedFile(
-                        generationID: observationID,
-                        objectID: objectID,
-                        preferredPath: oldObject?.path,
-                        connection: connection
-                    )
-                    let oldPathObject = try Self.readCurrentFile(path: file.path, connection: connection)
-                    let previousPathCount = try Self.openPathCount(objectID: objectID, connection: connection)
-                    let isMultiLink = max(observedPathCount, observedLinkCount) > 1
-                    try Self.upsertFileObject(file, observedAt: observedAt, state: .present, connection: connection)
-
-                    let operation: EvidenceStoreEvent.Operation?
-                    var before: CurrentFileStateRecord?
-                    if let oldObject {
-                        before = oldObject
-                        if oldObject.path != file.path {
-                            operation = previousPathCount == 1 && observedPathCount == 1 ? .rename : nil
-                        } else if oldObject.logicalBytes != file.logicalBytes
-                                    || oldObject.allocatedBytes != file.allocatedBytes
-                                    || oldObject.modifiedAt != file.modifiedAt
-                        {
-                            operation = file.logicalBytes < oldObject.logicalBytes ? .truncate : .modify
-                        } else {
-                            operation = nil
-                        }
-                    } else if let replaced = oldPathObject, replaced.objectID != file.objectID {
-                        before = replaced
-                        operation = .replace
-                        try Self.closePathBinding(objectID: replaced.objectID, path: replaced.path, at: observedAt, reason: "replace", connection: connection)
-                        try Self.updateFileObjectState(replaced.objectID, state: "deleted", observedAt: observedAt, connection: connection)
-                        try connection.withStatement("DELETE FROM current_file_state WHERE object_id = ?") { statement in
-                            try connection.bind(replaced.objectID, at: 1, in: statement)
-                            try connection.stepDone(statement)
-                        }
-                    } else {
-                        operation = previousScopeID == nil ? .baseline : (scopeChanged ? .scopeEnter : .create)
-                    }
-
-                    try Self.forEachStagedFile(generationID: observationID, objectID: objectID, connection: connection) { observedFile in
-                        if try !Self.hasOpenPathBinding(objectID: objectID, path: observedFile.path, connection: connection) {
-                            try Self.openPathBinding(
-                                observedFile,
-                                at: observedAt,
-                                reason: isMultiLink ? "hard-link-observed" : (operation?.rawValue ?? "observed"),
-                                connection: connection
-                            )
-                        }
-                    }
-                    try Self.forEachOpenPath(objectID: objectID, connection: connection) { previousPath in
-                        guard try !Self.stagedPathExists(generationID: observationID, path: previousPath, objectID: objectID, connection: connection) else { return }
-                        if !Self.isIncluded(previousPath, in: scope) {
-                            try Self.closePathBinding(objectID: objectID, path: previousPath, at: observedAt, reason: "scope-exit", connection: connection)
-                        } else if !scopeChanged {
-                            try Self.closePathBinding(
-                                objectID: objectID,
-                                path: previousPath,
-                                at: observedAt,
-                                reason: previousPathCount > 1 || isMultiLink ? "hard-link-removed" : "rename",
-                                connection: connection
-                            )
-                        }
-                    }
-
-                    try Self.upsertCurrentFile(
-                        file,
-                        scope: scope,
-                        observationID: observationID,
-                        observedAt: observedAt,
-                        actionable: !isMultiLink,
-                        connection: connection
-                    )
-                    if let operation {
-                        // Current state is authoritative in current_file_state. Historical
-                        // state rows exist only at lifecycle changes, so an unchanged scan
-                        // does not add file-count × scan-count history.
-                        try Self.insertStateObservation(file, observationID: observationID, connection: connection)
-                        let event = Self.makeEvent(operation: operation, file: file, before: before, metadata: metadata)
-                        try Self.insertEvent(event, connection: connection)
-                        try Self.insertChangeEvent(event, objectID: objectID, before: before, afterPath: file.path, metadata: metadata, connection: connection)
-                        persistedEventCount += 1
-                        if inlineEvents.count < Self.maximumInlineCommitRows { inlineEvents.append(event) }
-                    }
-                }
-            }
-            try checkpoint("after-present-objects")
-
-            try connection.withStatement("SELECT object_id FROM reconcile_missing_objects ORDER BY object_id") { missingStatement in
-                while sqlite3_step(missingStatement) == SQLITE_ROW {
-                    guard let objectID = Self.columnString(missingStatement, column: 0),
-                          let old = try Self.readCurrentFile(objectID: objectID, connection: connection)
-                    else { continue }
-                    if try Self.stagedReplacementExists(generationID: observationID, objectID: objectID, connection: connection) {
-                        try connection.withStatement("DELETE FROM current_file_state WHERE object_id = ?") { statement in
-                            try connection.bind(objectID, at: 1, in: statement)
-                            try connection.stepDone(statement)
-                        }
-                        continue
-                    }
-                    let includedPathCount = try Self.includedOpenPathCount(objectID: objectID, scope: scope, connection: connection)
-                    let operation: EvidenceStoreEvent.Operation?
-                    if includedPathCount == 0 {
-                        operation = .scopeExit
-                    } else if !scopeChanged {
-                        operation = .delete
-                    } else {
-                        operation = nil
-                    }
-                    guard let operation else {
-                        try Self.updateCurrentPresence(objectID, presence: .unknown, actionable: false, scopeVersionID: scope.scopeVersionID, connection: connection)
-                        continue
-                    }
-                    let file = FileMetadata(
-                        objectID: old.objectID,
-                        identityMethod: old.identityMethod,
-                        rootPath: old.rootPath,
-                        path: old.path,
-                        logicalBytes: operation == .delete ? 0 : old.logicalBytes,
-                        allocatedBytes: operation == .delete ? 0 : old.allocatedBytes,
-                        modifiedAt: operation == .delete ? nil : old.modifiedAt
-                    )
-                    let event = Self.makeEvent(operation: operation, file: file, before: old, metadata: metadata)
-                    try Self.insertEvent(event, connection: connection)
-                    try Self.insertChangeEvent(event, objectID: objectID, before: old, afterPath: nil, metadata: metadata, connection: connection)
-                    try Self.forEachOpenPath(objectID: objectID, connection: connection) { path in
-                        try Self.closePathBinding(objectID: objectID, path: path, at: observedAt, reason: operation.rawValue, connection: connection)
-                    }
-                    if operation == .scopeExit {
-                        try Self.updateCurrentPresence(objectID, presence: .outOfScope, actionable: false, scopeVersionID: scope.scopeVersionID, connection: connection)
-                        try Self.updateFileObjectState(objectID, state: "out-of-scope", observedAt: observedAt, connection: connection)
-                    } else {
-                        try Self.updateFileObjectState(objectID, state: "deleted", observedAt: observedAt, connection: connection)
-                        try connection.withStatement("DELETE FROM current_file_state WHERE object_id = ?") { statement in
-                            try connection.bind(objectID, at: 1, in: statement)
-                            try connection.stepDone(statement)
-                        }
-                    }
-                    persistedEventCount += 1
-                    if inlineEvents.count < Self.maximumInlineCommitRows { inlineEvents.append(event) }
-                }
-            }
-            try checkpoint("after-missing-objects")
-
-            try connection.execute("DROP TABLE temp.reconcile_missing_objects")
+            inlineEvents = reconciled.events
+            persistedEventCount = reconciled.count
             try checkpoint("before-finalize")
             try Self.persistScanGeneration(generation, rowStatus: .completed, connection: connection)
             try connection.withStatement("DELETE FROM scan_generation_entries WHERE generation_id = ?") { statement in
                 try connection.bind(observationID, at: 1, in: statement)
                 try connection.stepDone(statement)
             }
-            try Self.resolveReconciliationInvalidations(at: observedAt, connection: connection)
+            // These are transient publication inputs, not per-scan history.
+            // Reclaim them atomically with staging, before future admission.
+            try connection.withStatement("DELETE FROM scan_directory_passes WHERE generation_id = ?") { statement in
+                try connection.bind(observationID, at: 1, in: statement)
+                try connection.stepDone(statement)
+            }
+            try Self.deleteFrontier(generationID: observationID, connection: connection)
+            try Self.resolveReconciliationInvalidations(generation: generation, at: observedAt, connection: connection)
+            if metadata.coverage == .complete,
+               try connection.scalarInt("SELECT EXISTS(SELECT 1 FROM reconciliation_invalidations WHERE state = 'open')") == 0 {
+                try Self.resolveCoverageGaps(rootPath: "*", reason: "event-drop", endedAt: observedAt, connection: connection)
+            }
         }
 
         return try boundedCommitResult(
@@ -601,19 +826,337 @@ public actor EvidenceStore {
         )
     }
 
+    // The two public ingestion paths have different coverage proofs, but share
+    // one identity/path reconciliation contract. Table names are a closed enum,
+    // never supplied by callers; a legacy snapshot cannot forge directory passes.
+    private enum ReconciliationInput {
+        case generation(MetadataScanGeneration)
+        case legacySnapshot
+
+        var table: String {
+            switch self {
+            case .generation: return "scan_generation_entries"
+            case .legacySnapshot: return "legacy_observation_entries"
+            }
+        }
+    }
+
+    private static func reconciliationAbsenceDate(
+        path: String, input: ReconciliationInput, metadata: MetadataSnapshot, connection: SQLiteConnection
+    ) throws -> Date {
+        switch input {
+        case .generation(let generation):
+            return try coveredAbsenceDate(path: path, generation: generation, connection: connection)
+        case .legacySnapshot:
+            // The legacy caller supplies a single coverage observation, not a
+            // resumable directory proof. Missing rows still require complete
+            // unchanged-scope coverage in the common reconciler.
+            return metadata.observedAt
+        }
+    }
+
+    private static func reconcileObjects(
+        metadata: MetadataSnapshot,
+        scope: EvidenceScopeVersion,
+        previousScopeID: String?,
+        input: ReconciliationInput,
+        inlineEventLimit: Int?,
+        checkpoint: ReconciliationCheckpoint,
+        connection: SQLiteConnection
+    ) throws -> (events: [EvidenceStoreEvent], count: Int) {
+        let observationID = metadata.observationID
+        let observedAt = metadata.observedAt
+        let scopeChanged = previousScopeID.map { $0 != scope.scopeVersionID } ?? true
+        let rootCoverage = Dictionary(uniqueKeysWithValues: metadata.rootCoverage.map { ($0.rootPath, $0) })
+        let fallbackSampleDate: Date
+        switch input {
+        case .generation(let generation): fallbackSampleDate = generation.startedAt
+        case .legacySnapshot: fallbackSampleDate = observedAt
+        }
+        var inlineEvents: [EvidenceStoreEvent] = []
+        var persistedEventCount = 0
+        // Read all comparisons from an immutable SQL snapshot, not rows
+        // already changed by an earlier object. Rebuilding current state
+        // inside this transaction also permits path swaps without violating
+        // its unique-path constraint. No file-count-sized Swift collection.
+        try connection.execute("DROP TABLE IF EXISTS temp.reconcile_prior_current")
+        try connection.execute("CREATE TEMP TABLE reconcile_prior_current AS SELECT * FROM current_file_state")
+        try connection.execute("CREATE UNIQUE INDEX reconcile_prior_current_object ON reconcile_prior_current(object_id)")
+        try connection.execute("CREATE UNIQUE INDEX reconcile_prior_current_path ON reconcile_prior_current(path)")
+        try connection.execute("DROP TABLE IF EXISTS temp.reconcile_prior_paths")
+        try connection.execute("CREATE TEMP TABLE reconcile_prior_paths AS SELECT DISTINCT object_id, path FROM path_bindings WHERE valid_through IS NULL")
+        try connection.execute("CREATE INDEX reconcile_prior_paths_path ON reconcile_prior_paths(path, object_id)")
+        try connection.execute("CREATE INDEX reconcile_prior_paths_object ON reconcile_prior_paths(object_id, path)")
+        try connection.execute("DELETE FROM current_file_state")
+        try connection.execute("DROP TABLE IF EXISTS temp.reconcile_missing_objects")
+        try connection.execute(
+            "CREATE TEMP TABLE reconcile_missing_objects (object_id TEXT PRIMARY KEY NOT NULL) WITHOUT ROWID"
+        )
+        try connection.withStatement(
+            "INSERT INTO reconcile_missing_objects (object_id) SELECT current.object_id FROM reconcile_prior_current AS current WHERE NOT EXISTS (SELECT 1 FROM \(input.table) AS staged WHERE staged.generation_id = ? AND staged.object_id = current.object_id)"
+        ) { statement in
+            try connection.bind(observationID, at: 1, in: statement)
+            try connection.stepDone(statement)
+        }
+
+        try connection.withStatement(
+            "SELECT object_id FROM \(input.table) WHERE generation_id = ? GROUP BY object_id ORDER BY object_id"
+        ) { objectStatement in
+            try connection.bind(observationID, at: 1, in: objectStatement)
+            while sqlite3_step(objectStatement) == SQLITE_ROW {
+                guard let objectID = Self.columnString(objectStatement, column: 0) else {
+                    throw connection.lastError(SQLITE_CORRUPT)
+                }
+                let oldObject = try Self.readCurrentFile(objectID: objectID, fromPriorSnapshot: true, connection: connection)
+                let (file, observedPathCount, observedLinkCount) = try Self.readCanonicalStagedFile(input: input,
+                    generationID: observationID,
+                    objectID: objectID,
+                    preferredPath: oldObject?.path,
+                    connection: connection
+                )
+                let sampledAt = file.observedAt ?? fallbackSampleDate
+                guard sampledAt <= observedAt else {
+                    throw EvidenceStoreError.invalidObservation("file sample is later than observation publication")
+                }
+                if let oldObject, sampledAt < oldObject.observedAt {
+                    throw EvidenceStoreError.invalidObservation("file sample predates the committed object observation")
+                }
+                let oldPathObject = try Self.readPriorFileAtPath(file.path, connection: connection)
+                let previousPathCount = try Self.openPathCount(objectID: objectID, connection: connection)
+                let isMultiLink = max(observedPathCount, observedLinkCount) > 1
+                // A scoped-out object's current row may have yielded its old
+                // path to another object. Its durable identity still records
+                // that the next sighting is scope entry, not creation/growth.
+                let historicalScopeExit = try connection.withStatement(
+                    "SELECT lifecycle_state FROM file_objects WHERE object_id = ?"
+                ) { statement in
+                    try connection.bind(objectID, at: 1, in: statement)
+                    guard sqlite3_step(statement) == SQLITE_ROW else { return false }
+                    return Self.columnString(statement, column: 0) == "out-of-scope"
+                }
+                try Self.upsertFileObject(file, observedAt: file.observedAt ?? fallbackSampleDate, state: .present, connection: connection)
+
+                let operation: EvidenceStoreEvent.Operation?
+                var before: CurrentFileStateRecord?
+                if oldObject?.presence == .outOfScope || historicalScopeExit {
+                    // Re-entering the watched set starts a fresh comparison
+                    // baseline. Changes while scoped out are not monitored
+                    // growth, rename or replacement evidence.
+                    operation = .scopeEnter
+                } else if let oldObject {
+                    before = oldObject
+                    let metadataChanged = oldObject.logicalBytes != file.logicalBytes
+                        || oldObject.allocatedBytes != file.allocatedBytes || oldObject.modifiedAt != file.modifiedAt
+                    if oldObject.path != file.path {
+                        let oldPathCovered = Self.coverage(for: oldObject.path, scope: scope, rootCoverage: rootCoverage) == .complete
+                        if !scopeChanged && oldPathCovered && previousPathCount == 1 && !isMultiLink {
+                            operation = .rename
+                        } else {
+                            operation = metadataChanged ? (file.logicalBytes < oldObject.logicalBytes ? .truncate : .modify) : nil
+                        }
+                    } else if metadataChanged {
+                        operation = file.logicalBytes < oldObject.logicalBytes ? .truncate : .modify
+                    } else {
+                        operation = nil
+                    }
+                } else if let replaced = oldPathObject, replaced.objectID != file.objectID {
+                    before = replaced
+                    operation = .replace
+                    // Replacing one path is not proof that every other link
+                    // of the old object disappeared. Its own reconciliation
+                    // below decides present, unknown, or absent.
+                } else {
+                    operation = previousScopeID == nil ? .baseline : (scopeChanged ? .scopeEnter : .create)
+                }
+
+                try Self.forEachStagedFile(input: input, generationID: observationID, objectID: objectID, connection: connection) { observedFile in
+                    let sampledAt = observedFile.observedAt ?? fallbackSampleDate
+                    // Aliases may be sampled in different slices. Object
+                    // first/last observations span those actual samples;
+                    // the canonical metadata keeps its own sample time.
+                    try Self.upsertFileObject(observedFile, observedAt: sampledAt, state: .present, connection: connection)
+                    if try !Self.hasOpenPathBinding(objectID: objectID, path: observedFile.path, connection: connection) {
+                        try Self.openPathBinding(
+                            observedFile,
+                            at: sampledAt,
+                            reason: isMultiLink ? "hard-link-observed" : (operation?.rawValue ?? "observed"),
+                            connection: connection
+                        )
+                    }
+                }
+                try Self.forEachOpenPath(objectID: objectID, connection: connection) { previousPath in
+                    guard try !Self.stagedPathExists(input: input, generationID: observationID, path: previousPath, objectID: objectID, connection: connection) else { return }
+                    if !Self.isIncluded(previousPath, in: scope) {
+                        try Self.closePathBinding(objectID: objectID, path: previousPath, at: observedAt, reason: "scope-exit", connection: connection)
+                    } else if let replacementAt = try Self.stagedReplacementDate(input: input, generationID: observationID, path: previousPath, objectID: objectID, connection: connection) {
+                        try Self.closePathBinding(objectID: objectID, path: previousPath, at: replacementAt, reason: "replace", connection: connection)
+                    } else if !scopeChanged, Self.coverage(for: previousPath, scope: scope, rootCoverage: rootCoverage) == .complete {
+                        let absenceAt = try Self.reconciliationAbsenceDate(path: previousPath, input: input, metadata: metadata, connection: connection)
+                        try Self.closePathBinding(
+                            objectID: objectID,
+                            path: previousPath,
+                            at: absenceAt,
+                            reason: previousPathCount > 1 || isMultiLink ? "hard-link-removed" : "rename",
+                            connection: connection
+                        )
+                    }
+                }
+
+                let survivingPathCount = try Self.openPathCount(objectID: objectID, connection: connection)
+                try Self.upsertCurrentFile(
+                    file,
+                    scope: scope,
+                    observationID: observationID,
+                    observedAt: file.observedAt ?? fallbackSampleDate,
+                    actionable: !isMultiLink && survivingPathCount <= 1,
+                    connection: connection
+                )
+                if let operation {
+                    // Current state is authoritative in current_file_state. Historical
+                    // state rows exist only at lifecycle changes, so an unchanged scan
+                    // does not add file-count × scan-count history.
+                    try Self.insertStateObservation(file, observationID: observationID, connection: connection)
+                    var operations = [operation]
+                    if operation == .rename, let before,
+                       before.logicalBytes != file.logicalBytes || before.allocatedBytes != file.allocatedBytes || before.modifiedAt != file.modifiedAt {
+                        operations.append(file.logicalBytes < before.logicalBytes ? .truncate : .modify)
+                    }
+                    for operation in operations {
+                        // Replacement is not necessarily one old object to
+                        // one new object. This event accounts only for the
+                        // incoming object. Each retired object receives its
+                        // own negative replacement event in the missing pass.
+                        // Rename requires both the new positive observation
+                        // and evidence that the old binding is gone. Size
+                        // change remains tied to the actual metadata sample.
+                        var eventObservedAt = file.observedAt ?? fallbackSampleDate
+                        if operation == .rename, let before {
+                            eventObservedAt = max(eventObservedAt, try Self.reconciliationAbsenceDate(path: before.path, input: input, metadata: metadata, connection: connection))
+                        }
+                        let event = Self.makeEvent(operation: operation, file: file, before: before, metadata: metadata,
+                            replacementAddition: operation == .replace, observedAt: eventObservedAt)
+                        try Self.insertEvent(event, connection: connection)
+                        let timedEvent = try Self.insertChangeEvent(event, objectID: objectID, before: before, afterPath: file.path,
+                            pathBefore: operation == .replace ? file.path : nil, metadata: metadata, connection: connection)
+                        persistedEventCount += 1
+                        if inlineEventLimit.map({ inlineEvents.count < $0 }) ?? true { inlineEvents.append(timedEvent) }
+                    }
+                }
+            }
+        }
+        try checkpoint("after-present-objects")
+
+        try connection.withStatement("SELECT object_id FROM reconcile_missing_objects ORDER BY object_id") { missingStatement in
+            while sqlite3_step(missingStatement) == SQLITE_ROW {
+                guard let objectID = Self.columnString(missingStatement, column: 0),
+                      let old = try Self.readCurrentFile(objectID: objectID, fromPriorSnapshot: true, connection: connection)
+                else { continue }
+                if old.presence == .outOfScope {
+                    // A previously closed scope binding is historical, not
+                    // a live object to debit on re-entry (now or next scan).
+                    // If its path has a new occupant, retain that history in
+                    // file_objects/path_bindings without a conflicting row.
+                    let occupied = try Self.stagedReplacementDate(input: input, generationID: observationID,
+                        path: old.path, objectID: objectID, connection: connection) != nil
+                    if !occupied {
+                        try Self.restorePriorCurrent(old, path: old.path, rootPath: old.rootPath,
+                            presence: .outOfScope, scope: scope, connection: connection)
+                    }
+                    continue
+                }
+                var hasIncludedPath = false
+                var uncertainPath: String?
+                var hasReplacement = false
+                var knownPathCount = 0
+                var absenceAt: Date?
+                try Self.forEachOpenPath(objectID: objectID, connection: connection) { path in
+                    knownPathCount += 1
+                    guard Self.isIncluded(path, in: scope) else {
+                        try Self.closePathBinding(objectID: objectID, path: path, at: observedAt, reason: "scope-exit", connection: connection)
+                        return
+                    }
+                    hasIncludedPath = true
+                    if let replacementAt = try Self.stagedReplacementDate(input: input, generationID: observationID, path: path, objectID: objectID, connection: connection) {
+                        hasReplacement = true
+                        absenceAt = max(absenceAt ?? replacementAt, replacementAt)
+                        try Self.closePathBinding(objectID: objectID, path: path, at: replacementAt, reason: "replace", connection: connection)
+                    } else if !scopeChanged, Self.coverage(for: path, scope: scope, rootCoverage: rootCoverage) == .complete {
+                        let pathAbsentAt = try Self.reconciliationAbsenceDate(path: path, input: input, metadata: metadata, connection: connection)
+                        absenceAt = max(absenceAt ?? pathAbsentAt, pathAbsentAt)
+                        try Self.closePathBinding(objectID: objectID, path: path, at: pathAbsentAt, reason: "delete", connection: connection)
+                    } else if uncertainPath == nil {
+                        uncertainPath = path
+                    }
+                }
+                // Old out-of-scope rows have no open binding. Re-entering
+                // scope alone must not make that historical path present.
+                if knownPathCount == 0, Self.isIncluded(old.path, in: scope) {
+                    hasIncludedPath = true
+                    if let replacementAt = try Self.stagedReplacementDate(input: input, generationID: observationID, path: old.path, objectID: objectID, connection: connection) {
+                        hasReplacement = true
+                        absenceAt = replacementAt
+                    } else if scopeChanged || Self.coverage(for: old.path, scope: scope, rootCoverage: rootCoverage) != .complete {
+                        uncertainPath = old.path
+                    } else {
+                        absenceAt = try Self.reconciliationAbsenceDate(path: old.path, input: input, metadata: metadata, connection: connection)
+                    }
+                }
+                if let uncertainPath {
+                    let root = scope.rootPaths.filter { uncertainPath.hasPrefix($0 == "/" ? "/" : $0 + "/") }.max { $0.count < $1.count } ?? old.rootPath
+                    try Self.restorePriorCurrent(old, path: uncertainPath, rootPath: root, presence: .unknown, scope: scope, connection: connection)
+                    continue
+                }
+                let operation: EvidenceStoreEvent.Operation = hasIncludedPath ? (hasReplacement ? .replace : .delete) : .scopeExit
+                if operation == .scopeExit {
+                    try Self.restorePriorCurrent(old, path: old.path, rootPath: old.rootPath, presence: .outOfScope, scope: scope, connection: connection)
+                    if old.presence == .outOfScope { continue }
+                }
+                let file = FileMetadata(
+                    objectID: old.objectID,
+                    identityMethod: old.identityMethod,
+                    rootPath: old.rootPath,
+                    path: old.path,
+                    logicalBytes: operation == .scopeExit ? old.logicalBytes : 0,
+                    allocatedBytes: operation == .scopeExit ? old.allocatedBytes : 0,
+                    modifiedAt: operation == .scopeExit ? old.modifiedAt : nil
+                )
+                let eventObservedAt = absenceAt ?? observedAt
+                let event = Self.makeEvent(operation: operation, file: file, before: old, metadata: metadata, observedAt: eventObservedAt)
+                try Self.insertEvent(event, connection: connection)
+                let timedEvent = try Self.insertChangeEvent(event, objectID: objectID, before: old, afterPath: nil, metadata: metadata, connection: connection)
+                if operation == .scopeExit {
+                    try Self.updateFileObjectState(objectID, state: "out-of-scope", observedAt: observedAt, connection: connection)
+                } else {
+                    try Self.updateFileObjectState(objectID, state: "deleted", observedAt: eventObservedAt, connection: connection)
+                }
+                persistedEventCount += 1
+                if inlineEventLimit.map({ inlineEvents.count < $0 }) ?? true { inlineEvents.append(timedEvent) }
+            }
+        }
+        try checkpoint("after-missing-objects")
+
+        try connection.execute("DROP TABLE temp.reconcile_missing_objects")
+        try connection.execute("DROP TABLE temp.reconcile_prior_current")
+        try connection.execute("DROP TABLE temp.reconcile_prior_paths")
+        return (inlineEvents, persistedEventCount)
+    }
+
     public func scanCoverageStatus() throws -> EvidenceScanCoverageStatus? {
         let connection = try requireConnection()
         guard let latest = try Self.readScanGeneration(status: nil, connection: connection) else { return nil }
         let active = try Self.readScanGeneration(status: .active, connection: connection)
         let lastCompleteAt = try connection.withStatement(
-            "SELECT MAX(completed_at) FROM scan_generations WHERE status = 'completed'"
+            "SELECT MAX(g.completed_at) FROM scan_generations g JOIN observation_runs o ON o.observation_id = g.generation_id WHERE g.status = 'completed' AND o.coverage = 'complete'"
         ) { statement -> Date? in
             guard sqlite3_step(statement) == SQLITE_ROW, sqlite3_column_type(statement, 0) != SQLITE_NULL else { return nil }
             return Date(timeIntervalSince1970: sqlite3_column_double(statement, 0))
         }
         let detailCoverage: String
         if active != nil { detailCoverage = "partial" }
-        else if latest.status == .completed { detailCoverage = "complete" }
+        else if latest.status == .completed {
+            if !latest.roots.isEmpty && latest.completedRootCount == 0 { detailCoverage = "unavailable" }
+            else { detailCoverage = latest.completedRootCount == latest.rootPaths.count ? "complete" : "partial" }
+        }
         else { detailCoverage = "stale" }
         return EvidenceScanCoverageStatus(
             configuredRoots: latest.rootPaths,
@@ -649,7 +1192,6 @@ public actor EvidenceStore {
         eventGap: Bool = false
     ) throws -> ObservationCommitResult {
         let connection = try requireConnection()
-        try ensureStorageAdmission(estimatedBytes: Int64(metadata.entries.count * 768))
         guard metadata.scopeVersionID == scope.scopeVersionID else {
             throw EvidenceStoreError.invalidObservation("metadata and scope version identifiers differ")
         }
@@ -667,35 +1209,14 @@ public actor EvidenceStore {
         }
 
         let previousScopeID = try latestScopeVersionID(connection: connection)
-        let scopeChanged = previousScopeID.map { $0 != scope.scopeVersionID } ?? true
-        let prior = try readCurrentFiles(connection: connection, includeNonActionable: true)
-        let priorByObject = Dictionary(uniqueKeysWithValues: prior.map { ($0.objectID, $0) })
-        let priorOpenPathsByObject = try readOpenPathBindingsByObject(connection: connection)
-        var priorByPath = Dictionary(uniqueKeysWithValues: prior.map { ($0.path, $0) })
-        for (objectID, paths) in priorOpenPathsByObject {
-            guard let object = priorByObject[objectID] else { continue }
-            for path in paths { priorByPath[path] = object }
-        }
-        let observedByObject = Dictionary(grouping: metadata.entries.values, by: \.objectID)
-        let afterByObject = Dictionary(uniqueKeysWithValues: observedByObject.map { objectID, candidates in
-            let sorted = candidates.sorted { $0.path < $1.path }
-            let selected = priorByObject[objectID].flatMap { prior in
-                sorted.first { $0.path == prior.path }
-            } ?? sorted[0]
-            let observedLinkCount = max(sorted.count, sorted.map(\.linkCount).max() ?? 1)
-            return (objectID, FileMetadata(
-                objectID: selected.objectID,
-                identityMethod: selected.identityMethod,
-                rootPath: selected.rootPath,
-                path: selected.path,
-                logicalBytes: selected.logicalBytes,
-                allocatedBytes: selected.allocatedBytes,
-                modifiedAt: selected.modifiedAt,
-                linkCount: observedLinkCount
-            ))
-        })
-        let rootCoverage = Dictionary(uniqueKeysWithValues: metadata.rootCoverage.map { ($0.rootPath, $0) })
+        let priorCurrentCount = try connection.scalarInt("SELECT COUNT(*) FROM current_file_state")
+        try admit(.publication(stagedRows: Int64(metadata.entries.count), priorCurrentRows: priorCurrentCount))
+        let previousObservedAt = try Self.latestCurrentObservationDate(connection: connection)
+        let checkpoint = reconciliationCheckpoint
         let observedAt = metadata.observedAt
+        let startedAt = metadata.entries.values.reduce(observedAt) { min($0, $1.observedAt ?? observedAt) }
+        let hasDurableInvalidation = try hasPendingReconciliation()
+        let effectiveEventGap = eventGap || hasDurableInvalidation
         let snapshotPayload = try JSONEncoder().encode(snapshot)
         let rootsJSON = String(data: try JSONEncoder().encode(scope.rootPaths), encoding: .utf8) ?? "[]"
         let exclusionsJSON = String(data: try JSONEncoder().encode(scope.excludedPaths), encoding: .utf8) ?? "[]"
@@ -720,10 +1241,10 @@ public actor EvidenceStore {
                 try connection.bind(metadata.observationID, at: 1, in: statement)
                 try connection.bind(scope.scopeVersionID, at: 2, in: statement)
                 try connection.bind(trigger.rawValue, at: 3, in: statement)
-                try connection.bind(observedAt.timeIntervalSince1970, at: 4, in: statement)
+                try connection.bind(startedAt.timeIntervalSince1970, at: 4, in: statement)
                 try connection.bind(observedAt.timeIntervalSince1970, at: 5, in: statement)
                 try connection.bind(metadata.coverage.rawValue, at: 6, in: statement)
-                try connection.bind(Int64(eventGap ? 1 : 0), at: 7, in: statement)
+                try connection.bind(Int64(effectiveEventGap ? 1 : 0), at: 7, in: statement)
                 try connection.stepDone(statement)
             }
             try connection.withStatement(
@@ -762,21 +1283,21 @@ public actor EvidenceStore {
                     try Self.resolveCoverageGaps(rootPath: root.rootPath, endedAt: observedAt, connection: connection)
                 }
             }
-            if eventGap {
+            if effectiveEventGap {
                 let gap = EvidenceCoverageGap(
                     gapID: "gap-\(metadata.observationID)-event-stream",
                     observationID: metadata.observationID,
                     rootPath: "*",
                     reason: "event-drop",
-                    startedAt: observedAt,
+                    startedAt: try Self.earliestOpenInvalidationDate(connection: connection) ?? observedAt,
                     endedAt: nil
                 )
                 gaps.append(gap)
                 try Self.insertCoverageGap(gap, connection: connection)
-            } else {
+            } else if metadata.coverage == .complete {
                 try Self.resolveCoverageGaps(rootPath: "*", reason: "event-drop", endedAt: observedAt, connection: connection)
             }
-            if trigger == .startup, let lastObserved = prior.map(\.observedAt).max(), lastObserved < observedAt {
+            if trigger == .startup, let lastObserved = previousObservedAt, lastObserved < observedAt {
                 let gap = EvidenceCoverageGap(
                     gapID: "gap-\(metadata.observationID)-app-offline",
                     observationID: metadata.observationID,
@@ -789,120 +1310,15 @@ public actor EvidenceStore {
                 try Self.insertCoverageGap(gap, connection: connection)
             }
 
-            for file in afterByObject.values.sorted(by: { $0.path < $1.path }) {
-                let observedFiles = observedByObject[file.objectID, default: [file]].sorted { $0.path < $1.path }
-                let observedPaths = Set(observedFiles.map(\.path))
-                let previousPaths = priorOpenPathsByObject[file.objectID] ?? priorByObject[file.objectID].map { Set([$0.path]) } ?? []
-                let isMultiLink = file.linkCount > 1 || observedPaths.count > 1
-                try Self.upsertFileObject(file, observedAt: observedAt, state: .present, connection: connection)
-
-                let oldObject = priorByObject[file.objectID]
-                let oldPathObject = priorByPath[file.path]
-                let operation: EvidenceStoreEvent.Operation?
-                var before: CurrentFileStateRecord?
-                if let oldObject {
-                    before = oldObject
-                    if oldObject.path != file.path {
-                        operation = previousPaths.count == 1 && observedPaths.count == 1 ? .rename : nil
-                    } else if oldObject.logicalBytes != file.logicalBytes || oldObject.allocatedBytes != file.allocatedBytes || oldObject.modifiedAt != file.modifiedAt {
-                        operation = file.logicalBytes < oldObject.logicalBytes ? .truncate : .modify
-                    } else {
-                        operation = nil
-                    }
-                } else if let replaced = oldPathObject, replaced.objectID != file.objectID {
-                    before = replaced
-                    operation = .replace
-                    try Self.closePathBinding(objectID: replaced.objectID, path: replaced.path, at: observedAt, reason: "replace", connection: connection)
-                    try Self.updateFileObjectState(replaced.objectID, state: "deleted", observedAt: observedAt, connection: connection)
-                    try connection.execute("DELETE FROM current_file_state WHERE object_id = '\(Self.sqlLiteral(replaced.objectID))'")
-                } else {
-                    operation = previousScopeID == nil ? .baseline : (scopeChanged ? .scopeEnter : .create)
-                }
-
-                for observedFile in observedFiles where !previousPaths.contains(observedFile.path) {
-                    let reason = isMultiLink ? "hard-link-observed" : (operation?.rawValue ?? "observed")
-                    try Self.openPathBinding(observedFile, at: observedAt, reason: reason, connection: connection)
-                }
-                for previousPath in previousPaths.subtracting(observedPaths).sorted() {
-                    if !Self.isIncluded(previousPath, in: scope) {
-                        try Self.closePathBinding(objectID: file.objectID, path: previousPath, at: observedAt, reason: "scope-exit", connection: connection)
-                    } else if !scopeChanged, Self.coverage(for: previousPath, scope: scope, rootCoverage: rootCoverage) == .complete {
-                        let reason = previousPaths.count > 1 || isMultiLink ? "hard-link-removed" : "rename"
-                        try Self.closePathBinding(objectID: file.objectID, path: previousPath, at: observedAt, reason: reason, connection: connection)
-                    }
-                }
-
-                try Self.upsertCurrentFile(
-                    file,
-                    scope: scope,
-                    observationID: metadata.observationID,
-                    observedAt: observedAt,
-                    actionable: !isMultiLink,
-                    connection: connection
-                )
-                if let operation {
-                    try Self.insertStateObservation(file, observationID: metadata.observationID, connection: connection)
-                    let event = Self.makeEvent(operation: operation, file: file, before: before, metadata: metadata)
-                    events.append(event)
-                    try Self.insertEvent(event, connection: connection)
-                    try Self.insertChangeEvent(event, objectID: file.objectID, before: before, afterPath: file.path, metadata: metadata, connection: connection)
-                }
-            }
-
-            for old in prior where afterByObject[old.objectID] == nil {
-                let knownPaths = priorOpenPathsByObject[old.objectID] ?? Set([old.path])
-                if knownPaths.compactMap({ metadata.entries[$0] }).contains(where: { $0.objectID != old.objectID }) {
-                    try connection.execute("DELETE FROM current_file_state WHERE object_id = '\(Self.sqlLiteral(old.objectID))'")
-                    continue
-                }
-                let includedPaths = knownPaths.filter { Self.isIncluded($0, in: scope) }
-                guard !includedPaths.isEmpty else {
-                    let file = FileMetadata(
-                        objectID: old.objectID,
-                        identityMethod: old.identityMethod,
-                        rootPath: old.rootPath,
-                        path: old.path,
-                        logicalBytes: old.logicalBytes,
-                        allocatedBytes: old.allocatedBytes,
-                        modifiedAt: old.modifiedAt
-                    )
-                    let event = Self.makeEvent(operation: .scopeExit, file: file, before: old, metadata: metadata)
-                    events.append(event)
-                    try Self.insertEvent(event, connection: connection)
-                    try Self.insertChangeEvent(event, objectID: old.objectID, before: old, afterPath: nil, metadata: metadata, connection: connection)
-                    for path in knownPaths.sorted() {
-                        try Self.closePathBinding(objectID: old.objectID, path: path, at: observedAt, reason: "scope-exit", connection: connection)
-                    }
-                    try Self.updateCurrentPresence(old.objectID, presence: .outOfScope, actionable: false, scopeVersionID: scope.scopeVersionID, connection: connection)
-                    try Self.updateFileObjectState(old.objectID, state: "out-of-scope", observedAt: observedAt, connection: connection)
-                    continue
-                }
-                let allKnownPathsCovered = includedPaths.allSatisfy {
-                    Self.coverage(for: $0, scope: scope, rootCoverage: rootCoverage) == .complete
-                }
-                if !scopeChanged, allKnownPathsCovered {
-                    let file = FileMetadata(
-                        objectID: old.objectID,
-                        identityMethod: old.identityMethod,
-                        rootPath: old.rootPath,
-                        path: old.path,
-                        logicalBytes: 0,
-                        allocatedBytes: 0,
-                        modifiedAt: nil
-                    )
-                    let event = Self.makeEvent(operation: .delete, file: file, before: old, metadata: metadata)
-                    events.append(event)
-                    try Self.insertEvent(event, connection: connection)
-                    try Self.insertChangeEvent(event, objectID: old.objectID, before: old, afterPath: nil, metadata: metadata, connection: connection)
-                    for path in knownPaths.sorted() {
-                        try Self.closePathBinding(objectID: old.objectID, path: path, at: observedAt, reason: "delete", connection: connection)
-                    }
-                    try Self.updateFileObjectState(old.objectID, state: "deleted", observedAt: observedAt, connection: connection)
-                    try connection.execute("DELETE FROM current_file_state WHERE object_id = '\(Self.sqlLiteral(old.objectID))'")
-                } else {
-                    try Self.updateCurrentPresence(old.objectID, presence: .unknown, actionable: false, scopeVersionID: scope.scopeVersionID, connection: connection)
-                }
-            }
+            try checkpoint("after-observation")
+            try Self.stageLegacyObservations(metadata, connection: connection)
+            events = try Self.reconcileObjects(
+                metadata: metadata, scope: scope, previousScopeID: previousScopeID,
+                input: .legacySnapshot, inlineEventLimit: nil, checkpoint: checkpoint,
+                connection: connection
+            ).events
+            try checkpoint("before-finalize")
+            try connection.execute("DROP TABLE temp.legacy_observation_entries")
         }
 
         return ObservationCommitResult(
@@ -911,6 +1327,47 @@ public actor EvidenceStore {
             currentFiles: try readCurrentFiles(connection: connection, includeNonActionable: true),
             coverageGaps: gaps
         )
+    }
+
+    /// Adapt the legacy, already-materialized snapshot into the indexed input
+    /// contract. Do not create scan generations or alter an active scan's rows.
+    private static func stageLegacyObservations(_ metadata: MetadataSnapshot, connection: SQLiteConnection) throws {
+        try connection.execute("""
+            CREATE TEMP TABLE legacy_observation_entries (
+                generation_id TEXT NOT NULL, object_id TEXT NOT NULL, identity_method TEXT NOT NULL,
+                root_path TEXT NOT NULL, path TEXT PRIMARY KEY NOT NULL, logical_bytes INTEGER NOT NULL,
+                allocated_bytes INTEGER NOT NULL, modified_at REAL, link_count INTEGER NOT NULL,
+                payload BLOB NOT NULL, observed_at REAL NOT NULL
+            ) WITHOUT ROWID
+            """)
+        try connection.execute("CREATE INDEX legacy_observation_objects ON legacy_observation_entries(generation_id, object_id, path)")
+        for entry in metadata.entries.values {
+            let file = FileMetadata(
+                objectID: entry.objectID, identityMethod: entry.identityMethod, rootPath: entry.rootPath,
+                path: entry.path, logicalBytes: entry.logicalBytes, allocatedBytes: entry.allocatedBytes,
+                modifiedAt: entry.modifiedAt, linkCount: entry.linkCount,
+                observedAt: entry.observedAt ?? metadata.observedAt
+            )
+            try connection.withStatement("""
+                INSERT INTO legacy_observation_entries
+                (generation_id, object_id, identity_method, root_path, path, logical_bytes,
+                 allocated_bytes, modified_at, link_count, payload, observed_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """) { statement in
+                try connection.bind(metadata.observationID, at: 1, in: statement)
+                try connection.bind(file.objectID, at: 2, in: statement)
+                try connection.bind(file.identityMethod.rawValue, at: 3, in: statement)
+                try connection.bind(file.rootPath, at: 4, in: statement)
+                try connection.bind(file.path, at: 5, in: statement)
+                try connection.bind(file.logicalBytes, at: 6, in: statement)
+                try connection.bind(file.allocatedBytes, at: 7, in: statement)
+                try connection.bind(file.modifiedAt?.timeIntervalSince1970, at: 8, in: statement)
+                try connection.bind(Int64(file.linkCount), at: 9, in: statement)
+                try connection.bind(JSONEncoder().encode(file), at: 10, in: statement)
+                try connection.bind(file.observedAt?.timeIntervalSince1970, at: 11, in: statement)
+                try connection.stepDone(statement)
+            }
+        }
     }
 
     public func currentFiles(includeNonActionable: Bool = false) throws -> [CurrentFileStateRecord] {
@@ -923,7 +1380,7 @@ public actor EvidenceStore {
 
     public func recordFSEvents(_ batch: TargetedChangeBatch, observationID: String) throws {
         let connection = try requireConnection()
-        try ensureStorageAdmission(estimatedBytes: Int64(batch.hints.count * 512 + 512))
+        try admit(.generic(bytes: Int64(batch.hints.count * 512 + 512)))
         guard try observationExists(observationID, connection: connection) else {
             throw EvidenceStoreError.invalidObservation("FSEvents hints require an existing observation run")
         }
@@ -932,11 +1389,15 @@ public actor EvidenceStore {
         let limitations = try encoder.encode(batch.limitations)
         let gapObservedAt = batch.hints.map(\.observedAt).min() ?? dateSource()
         try connection.transaction {
+            // Hints identify replayable receipts. A hint-free loss signal has
+            // no receipt identity and must conservatively remain a new signal.
+            var hasNewGapEvidence = batch.hints.isEmpty
             for hint in batch.hints {
                 let hintID = "fsevent:\(observationID):\(hint.eventID):\(Self.stableIdentifier(hint.path))"
                 let signals = try encoder.encode(hint.signals)
+                var gapRecorded = false
                 let existing = try connection.withStatement(
-                    "SELECT event_id, observed_at, path, kind, raw_flags, requires_rescan, signals_json, limitations_json FROM fsevent_hints WHERE hint_id = ?"
+                    "SELECT event_id, observed_at, path, kind, raw_flags, requires_rescan, signals_json, limitations_json, gap_recorded FROM fsevent_hints WHERE hint_id = ?"
                 ) { statement -> PersistedFSEventHint? in
                     try connection.bind(hintID, at: 1, in: statement)
                     guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
@@ -944,6 +1405,7 @@ public actor EvidenceStore {
                           let kindText = Self.columnString(statement, column: 3),
                           let kind = TargetedChangeHint.Kind(rawValue: kindText)
                     else { throw connection.lastError(SQLITE_CORRUPT) }
+                    gapRecorded = sqlite3_column_int64(statement, 8) != 0
                     return .init(
                         hintID: hintID,
                         observationID: observationID,
@@ -969,10 +1431,17 @@ public actor EvidenceStore {
                     guard existing == candidate else {
                         throw EvidenceStoreError.invalidObservation("FSEvents hint identifier was reused with different evidence")
                     }
+                    if batch.eventGap && !gapRecorded {
+                        hasNewGapEvidence = true
+                        try connection.withStatement("UPDATE fsevent_hints SET gap_recorded = 1 WHERE hint_id = ?") { statement in
+                            try connection.bind(hintID, at: 1, in: statement)
+                            try connection.stepDone(statement)
+                        }
+                    }
                     continue
                 }
                 try connection.withStatement(
-                    "INSERT OR IGNORE INTO fsevent_hints (hint_id, observation_id, event_id, observed_at, path, kind, raw_flags, requires_rescan, signals_json, limitations_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    "INSERT OR IGNORE INTO fsevent_hints (hint_id, observation_id, event_id, observed_at, path, kind, raw_flags, requires_rescan, signals_json, limitations_json, gap_recorded) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 ) { statement in
                     try connection.bind(hintID, at: 1, in: statement)
                     try connection.bind(observationID, at: 2, in: statement)
@@ -984,10 +1453,12 @@ public actor EvidenceStore {
                     try connection.bind(Int64(hint.requiresRescan ? 1 : 0), at: 8, in: statement)
                     try connection.bind(signals, at: 9, in: statement)
                     try connection.bind(limitations, at: 10, in: statement)
+                    try connection.bind(Int64(batch.eventGap ? 1 : 0), at: 11, in: statement)
                     try connection.stepDone(statement)
                 }
+                if batch.eventGap { hasNewGapEvidence = true }
             }
-            if batch.eventGap {
+            if batch.eventGap && hasNewGapEvidence {
                 try Self.upsertReconciliationInvalidation(
                     rootPath: "*",
                     reason: "event-drop",
@@ -1038,7 +1509,7 @@ public actor EvidenceStore {
         evidenceEventID: String? = nil
     ) throws {
         let connection = try requireConnection()
-        try ensureStorageAdmission(estimatedBytes: 2_048)
+        try admit(.generic(bytes: 2_048))
         if let observationID, !(try observationExists(observationID, connection: connection)) {
             throw EvidenceStoreError.invalidObservation("Endpoint evidence references an unknown observation run")
         }
@@ -1100,12 +1571,12 @@ public actor EvidenceStore {
 
     public func persistProvenanceClaim(_ claim: ProvenanceClaim) throws {
         let connection = try requireConnection()
-        try ensureStorageAdmission(estimatedBytes: 4_096)
+        try admit(.generic(bytes: 4_096))
         guard try containsEvent(id: claim.event.eventID) else {
             throw EvidenceStoreError.invalidEvent("Provenance claim references an unknown event")
         }
-        guard claim.occurredStart <= claim.occurredEnd else {
-            throw EvidenceStoreError.invalidEvent("Provenance occurrence interval is invalid")
+        guard claim.hasValidChronology else {
+            throw EvidenceStoreError.invalidEvent("Provenance chronology is invalid")
         }
         let claimEncoder = JSONEncoder()
         claimEncoder.outputFormatting = [.sortedKeys]
@@ -1146,18 +1617,19 @@ public actor EvidenceStore {
                 }
             }
             try connection.withStatement(
-                "INSERT OR IGNORE INTO provenance_claims (claim_id, event_id, method, confidence, detected_at, occurred_start, occurred_end, session_registration_id, supersedes_claim_id, superseded_by_claim_id, payload) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)"
+                "INSERT OR IGNORE INTO provenance_claims (claim_id, event_id, method, confidence, detected_at, occurred_start, occurred_end, session_registration_id, supersedes_claim_id, superseded_by_claim_id, payload, timing_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)"
             ) { statement in
                 try connection.bind(claim.claimID, at: 1, in: statement)
                 try connection.bind(claim.event.eventID, at: 2, in: statement)
                 try connection.bind(claim.method, at: 3, in: statement)
                 try connection.bind(claim.confidence.rawValue, at: 4, in: statement)
                 try connection.bind(claim.detectedAt.timeIntervalSince1970, at: 5, in: statement)
-                try connection.bind(claim.occurredStart.timeIntervalSince1970, at: 6, in: statement)
+                try connection.bind(claim.occurredStart?.timeIntervalSince1970, at: 6, in: statement)
                 try connection.bind(claim.occurredEnd.timeIntervalSince1970, at: 7, in: statement)
                 try connection.bind(claim.session?.registrationID.uuidString.lowercased(), at: 8, in: statement)
                 try connection.bind(claim.supersedesClaimID, at: 9, in: statement)
                 try connection.bind(payload, at: 10, in: statement)
+                try connection.bind(Int64(claim.timingBasis == "legacy-unverified" ? 0 : 1), at: 11, in: statement)
                 try connection.stepDone(statement)
             }
             if let priorID = claim.supersedesClaimID {
@@ -1197,7 +1669,7 @@ public actor EvidenceStore {
 
     public func persistAgentSession(_ registration: AgentSessionRegistration) throws {
         let connection = try requireConnection()
-        try ensureStorageAdmission(estimatedBytes: 2_048)
+        try admit(.generic(bytes: 2_048))
         guard registration.registeredAt <= registration.lastHeartbeatAt,
               registration.lastHeartbeatAt <= registration.expiresAt,
               registration.endedAt.map({ $0 >= registration.lastHeartbeatAt && $0 <= registration.expiresAt }) ?? true
@@ -1278,7 +1750,7 @@ public actor EvidenceStore {
     public func recordSnapshot(_ snapshot: StorageSnapshot, observedAt: Date) throws {
         let connection = try requireConnection()
         let payload = try JSONEncoder().encode(snapshot)
-        try ensureStorageAdmission(estimatedBytes: Int64(payload.count + 512))
+        try admit(.generic(bytes: Int64(payload.count + 512)))
         try connection.withStatement(
             "INSERT INTO snapshots (snapshot_id, observed_at, payload) VALUES (?, ?, ?)"
         ) { statement in
@@ -1328,9 +1800,13 @@ public actor EvidenceStore {
         }
     }
 
+    /// `demandBytes` is the demand of a refusal the caller holds; retention
+    /// targets the largest of it, any demand refused since the last run, the
+    /// publication reserve and a fixed margin.
     public func applyRetention(
         _ policy: EvidenceStoreRetentionPolicy,
-        trigger: RetentionTrigger = .scheduled
+        trigger: RetentionTrigger = .scheduled,
+        demandBytes: Int64 = 0
     ) throws -> RetentionReport {
         let connection = try requireConnection()
         storageCapBytes = policy.maxDatabaseBytes
@@ -1434,13 +1910,21 @@ public actor EvidenceStore {
             }
 
             try connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
-            var bytes = storageBytes()
+            try retentionCheckpoint("after-tier-compaction")
             var recordedForcedLoss = false
             var evictionBatches = 0
             let capacityEvictionBatchLimit = 10_000
-            let maximumEvictionBatches = 512
-            while bytes > policy.maxDatabaseBytes,
-                  try reclaimableStorageBytes(connection: connection) > policy.maxDatabaseBytes,
+            let maximumEvictionBatches = 8
+            // The target leaves room for the last refused write and for
+            // publishing whatever is staged, not just a fixed margin.
+            let staged = try storageAccounting(connection: connection, capBytes: policy.maxDatabaseBytes, probeCheckpoint: false)
+            let demand = max(min(16 * 1_024 * 1_024, policy.maxDatabaseBytes / 10), max(0, demandBytes), pendingStorageDemandBytes,
+                             staged.reservedPublicationBytes + staged.nextWorkReserveBytes)
+            pendingStorageDemandBytes = 0
+            let admissionTarget = policy.maxDatabaseBytes - demand
+            // Judged on the same live-plus-log bytes that admission counts, so
+            // a refused demand always makes this loop evict when history exists.
+            while try reclaimableStorageBytes(connection: connection) > admissionTarget,
                   evictionBatches < maximumEvictionBatches
             {
                 guard try hasEvictableHistory(connection: connection) else { break }
@@ -1453,20 +1937,26 @@ public actor EvidenceStore {
                 evictionBatches += 1
                 try updateRetentionGap(runID: runID, rowsRemoved: forcedEvictions, connection: connection)
                 guard removed > 0 else { break }
+                try retentionCheckpoint("after-eviction-batch")
                 try connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
             }
             if evictionBatches == maximumEvictionBatches,
-               try reclaimableStorageBytes(connection: connection) > policy.maxDatabaseBytes
+               try reclaimableStorageBytes(connection: connection) > admissionTarget
             {
-                limitations.append("Capacity eviction stopped after 512 bounded batches; a later pressure retention run will continue the work.")
+                limitations.append("Capacity eviction stopped after 8 bounded batches; a later pressure retention run will continue the work.")
             }
             // Compact at most once per retention run. Repeated VACUUM operations can
             // transiently double disk use and were a second resource-amplification path.
             if forcedEvictions > 0 || rawAggregated > 0 || hourlyAggregated > 0 || dailyDeleted > 0 || snapshotsDeleted > 0 || historicalRowsDeleted > 0 {
-                try connection.execute("VACUUM")
-                try connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                let requiredCapacity = storageBytes() * 2 + 1_024 * 1_024
+                if let available = availableCapacitySource(databaseURL), available >= requiredCapacity {
+                    try connection.execute("VACUUM")
+                    try connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+                } else {
+                    limitations.append("Physical compaction deferred: available temporary disk headroom is insufficient or unknown. Freed database pages remain reusable.")
+                }
             }
-            bytes = storageBytes()
+            let bytes = storageBytes()
             if bytes > policy.maxDatabaseBytes {
                 limitations.append("The database remains above its cap because no evictable history remains; live current-state truth was preserved.")
             }
@@ -1708,6 +2198,101 @@ public actor EvidenceStore {
     }
 
     public func lifecycleStatus(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleStatus {
+        try readLifecycleStatus(policy, at: date, includePrivateProgress: true)
+    }
+
+    /// A coherent, bounded metadata read. In particular, this never selects
+    /// scan_generations.progress, even for pre-projection databases.
+    public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+        try requireConnection().transaction(readOnly: true) {
+            try readLifecycleSummary(policy, at: date)
+        }
+    }
+
+    private func readLifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date) throws -> EvidenceLifecycleSummary {
+        let connection = try requireConnection()
+        try Self.validateLifecycleSummaryBudget(connection: connection)
+        let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
+        let active = latest?.status == "active" ? latest : try Self.readScanGenerationSummary(status: "active", connection: connection)
+        let scan: EvidenceScanCoverageSummary?
+        if let latest {
+            let completeAt = try connection.withStatement("SELECT MAX(g.completed_at) FROM scan_generations g JOIN observation_runs o ON o.observation_id = g.generation_id WHERE g.status = 'completed' AND o.coverage = 'complete'") { statement -> Date? in
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError() }
+                return Self.columnDate(statement, column: 0)
+            }
+            let detail: String
+            if active != nil { detail = "partial" }
+            else if latest.status != "completed" { detail = "stale" }
+            else if latest.publishedCoverage == "complete" { detail = "complete" }
+            else if let total = latest.totalRootCount, total > 0, latest.completedRootCount == 0 { detail = "unavailable" }
+            else { detail = latest.publishedCoverage == nil ? "unknown" : "partial" }
+            scan = .init(activeGeneration: active, latestGeneration: latest, lastCompleteGenerationAt: completeAt, detailCoverage: detail)
+        } else { scan = nil }
+        let latestObservationCoverage = try connection.withStatement("SELECT coverage FROM observation_runs ORDER BY completed_at DESC, observation_id DESC LIMIT 1") { statement -> String? in
+            let step = sqlite3_step(statement)
+            if step == SQLITE_DONE { return nil }
+            guard step == SQLITE_ROW else { throw connection.lastError(step) }
+            return Self.columnString(statement, column: 0)
+        }
+        return .init(status: try readLifecycleStatus(policy, at: date, includePrivateProgress: false),
+                     scanCoverage: scan, detailCoverage: scan?.detailCoverage ?? latestObservationCoverage ?? "unknown")
+    }
+
+    private static func validateLifecycleSummaryBudget(connection: SQLiteConnection) throws {
+        var remainingBytes: Int64 = 512 * 1_024
+        // Refuse before copying strings/decoding arrays; never claim a prefix
+        // of gaps is complete. This runs in the same snapshot as the reads.
+        for (table, columns, limit, suffix) in [
+            ("coverage_gaps", ["gap_id", "observation_id", "root_path", "reason"], 512, ""),
+            ("retention_coverage_gaps", ["gap_id", "retention_run_id", "reason", "affected_precision"], 512, ""),
+            ("export_records", ["export_id", "kind", "precision", "path_detail", "path", "manifest_sha256", "status", "failure"], 512, ""),
+            ("retention_runs", ["run_id", "trigger", "result", "limitations"], 1, "ORDER BY started_at DESC, run_id DESC LIMIT 1"),
+        ] {
+            let bytes = columns.map { "COALESCE(length(CAST(\($0) AS BLOB)), 0)" }.joined(separator: " + ")
+            try connection.withStatement("SELECT COUNT(*), COALESCE(SUM(n), 0) FROM (SELECT 256 + \(bytes) AS n FROM \(table) \(suffix))") { statement in
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError() }
+                let count = sqlite3_column_int64(statement, 0)
+                let size = sqlite3_column_int64(statement, 1)
+                guard count <= limit, size >= 0, size <= remainingBytes else { throw EvidenceLifecycleSummaryError.budgetExceeded }
+                remainingBytes -= size
+            }
+        }
+    }
+
+    private static func readScanGenerationSummary(status: String?, connection: SQLiteConnection) throws -> EvidenceScanGenerationSummary? {
+        let predicate = status == nil ? "" : "WHERE g.status = ?"
+        return try connection.withStatement("""
+            SELECT g.generation_id, g.status, g.started_at, g.updated_at, g.completed_at,
+                   g.processed_entry_count, g.staged_file_count, s.completed_root_count,
+                   s.pending_directory_count, s.total_root_count, v.roots_json, v.exclusions_json, o.coverage
+            FROM scan_generations g
+            LEFT JOIN scan_generation_summaries s ON s.generation_id = g.generation_id
+            JOIN scope_versions v ON v.scope_version_id = g.scope_version_id
+            LEFT JOIN observation_runs o ON o.observation_id = g.generation_id
+            \(predicate)
+            ORDER BY g.updated_at DESC, CASE g.status WHEN 'active' THEN 0 WHEN 'completed' THEN 1 ELSE 2 END, g.generation_id DESC LIMIT 1
+            """) { statement in
+            if let status { try connection.bind(status, at: 1, in: statement) }
+            let step = sqlite3_step(statement)
+            if step == SQLITE_DONE { return nil }
+            guard step == SQLITE_ROW else { throw connection.lastError(step) }
+            let bytes = [0, 1, 10, 11, 12].reduce(0) { $0 + Int(sqlite3_column_bytes(statement, Int32($1))) }
+            guard bytes <= 128 * 1_024 else { throw EvidenceLifecycleSummaryError.budgetExceeded }
+            guard let id = columnString(statement, column: 0), let status = columnString(statement, column: 1) else { throw connection.lastError(SQLITE_CORRUPT) }
+            let roots = try decodeStringArray(statement, column: 10, connection: connection)
+            let exclusions = try decodeStringArray(statement, column: 11, connection: connection)
+            guard roots.count <= 1_024, exclusions.count <= 1_024 else { throw EvidenceLifecycleSummaryError.budgetExceeded }
+            return .init(generationID: id, status: status,
+                startedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 2)),
+                updatedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 3)), completedAt: columnDate(statement, column: 4),
+                processedEntryCount: sqlite3_column_int64(statement, 5), stagedFileCount: sqlite3_column_int64(statement, 6),
+                completedRootCount: columnInt64(statement, column: 7), pendingDirectoryCount: columnInt64(statement, column: 8),
+                totalRootCount: columnInt64(statement, column: 9), configuredRoots: roots, excludedPaths: exclusions,
+                publishedCoverage: columnString(statement, column: 12))
+        }
+    }
+
+    private func readLifecycleStatus(_ policy: EvidenceStoreRetentionPolicy, at date: Date, includePrivateProgress: Bool) throws -> EvidenceLifecycleStatus {
         let connection = try requireConnection()
         let rawFrom = date.addingTimeInterval(-Double(policy.rawEventDays * 86_400))
         let anomalyFrom = date.addingTimeInterval(-Double(policy.anomalyDetailDays * 86_400))
@@ -1721,7 +2306,7 @@ public actor EvidenceStore {
             tierStatus(name: "snapshots", table: "snapshots", timeColumn: "observed_at", predicate: nil, requestedFrom: dailyFrom, precision: "raw-then-hourly-then-daily", connection: connection),
         ]
         let runs = try retentionRuns(limit: 1)
-        let scanCoverage = try scanCoverageStatus()
+        let scanCoverage = includePrivateProgress ? try scanCoverageStatus() : nil
         var observationGaps = try readCoverageGaps(connection: connection, observationID: nil)
         if let active = scanCoverage?.activeGeneration {
             observationGaps.append(contentsOf: active.roots
@@ -1746,10 +2331,11 @@ public actor EvidenceStore {
             totalForcedEvictions: Int(try connection.scalarInt("SELECT COALESCE(SUM(forced_evictions), 0) FROM retention_runs")),
             currentStateCount: Int(try connection.scalarInt("SELECT COUNT(*) FROM current_file_state")),
             currentStateAllocatedBytes: try connection.scalarInt("SELECT COALESCE(SUM(allocated_bytes), 0) FROM current_file_state"),
-            exportInventory: try exportRecords(refreshManualInventory: true),
+            exportInventory: try exportRecords(refreshManualInventory: includePrivateProgress),
             observationGaps: observationGaps,
             retentionGaps: try retentionCoverageGaps(),
-            scanCoverage: scanCoverage
+            scanCoverage: scanCoverage,
+            storage: try storageAccounting(connection: connection, capBytes: policy.maxDatabaseBytes, probeCheckpoint: includePrivateProgress)
         )
     }
 
@@ -1759,11 +2345,13 @@ public actor EvidenceStore {
         minimumAllocatedBytes: Int64 = 0,
         modifiedBefore: Date? = nil,
         cursor: String? = nil,
-        limit: Int = 100
+        limit: Int = 100,
+        scope: EvidenceQueryScope? = nil
     ) throws -> EvidenceQueryPage<CurrentConsumerRecord> {
         let connection = try requireConnection()
         let boundedLimit = min(max(limit, 1), 500)
         let revision = try Self.currentQueryRevision(connection: connection)
+        let scopePredicate = scope?.predicate(column: "c.path")
         let decodedCursor: CurrentQueryCursor? = try cursor.map { try Self.decodeCursor($0) }
         if let decodedCursor, decodedCursor.revision != revision { throw EvidenceStoreError.cursorExpired }
         // Current-state truth outlives raw event history. Prefer the most recent retained
@@ -1789,22 +2377,34 @@ public actor EvidenceStore {
         if rootPath != nil { basePredicates.append("c.root_path = ?") }
         if category != nil { basePredicates.append("\(categoryExpression) = ?") }
         if modifiedBefore != nil { basePredicates.append("c.modified_at IS NOT NULL AND c.modified_at <= ?") }
+        let unscopedWhere = basePredicates.joined(separator: " AND ")
+        if let scopePredicate { basePredicates.append(scopePredicate.sql) }
         let baseWhere = basePredicates.joined(separator: " AND ")
 
-        func bindBase(_ statement: OpaquePointer) throws -> Int32 {
+        func bindBase(_ statement: OpaquePointer, includeScope: Bool = true) throws -> Int32 {
             var index: Int32 = 1
             try connection.bind(max(0, minimumAllocatedBytes), at: index, in: statement); index += 1
             if let rootPath { try connection.bind(rootPath, at: index, in: statement); index += 1 }
             if let category { try connection.bind(category, at: index, in: statement); index += 1 }
             if let modifiedBefore { try connection.bind(modifiedBefore.timeIntervalSince1970, at: index, in: statement); index += 1 }
+            if includeScope, let scopePredicate {
+                for value in scopePredicate.bindings { try connection.bind(value, at: index, in: statement); index += 1 }
+            }
             return index
         }
 
-        let matchedCount = try connection.withStatement("SELECT COUNT(*) FROM current_file_state c WHERE \(baseWhere)") { statement in
-            _ = try bindBase(statement)
-            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
-            return Int(sqlite3_column_int64(statement, 0))
+        func count(where predicate: String, includeScope: Bool) throws -> Int {
+            try connection.withStatement("SELECT COUNT(*) FROM current_file_state c WHERE \(predicate)") { statement in
+                _ = try bindBase(statement, includeScope: includeScope)
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+                return Int(sqlite3_column_int64(statement, 0))
+            }
         }
+        let matchedCount = try count(where: baseWhere, includeScope: true)
+        // Hidden rows are retained evidence outside the current policy, never
+        // an observed removal; report how many the scope withholds.
+        let scopeHiddenCount: Int? = scopePredicate == nil ? nil
+            : max(0, try count(where: unscopedWhere, includeScope: false) - matchedCount)
         var pagePredicate = baseWhere
         if decodedCursor != nil {
             pagePredicate += " AND (c.allocated_bytes < ? OR (c.allocated_bytes = ? AND (c.path > ? OR (c.path = ? AND c.object_id > ?))))"
@@ -1858,7 +2458,7 @@ public actor EvidenceStore {
         let next = rows.count > boundedLimit ? items.last.map {
             Self.encodeCursor(CurrentQueryCursor(revision: revision, allocatedBytes: $0.state.allocatedBytes, path: $0.state.path, objectID: $0.state.objectID))
         } : nil
-        return .init(matchedCount: matchedCount, items: items, nextCursor: next)
+        return .init(matchedCount: matchedCount, items: items, nextCursor: next, scopeHiddenCount: scopeHiddenCount)
     }
 
     public func queryEvents(
@@ -1879,7 +2479,7 @@ public actor EvidenceStore {
         var predicate = "observed_at >= ? AND observed_at <= ?"
         if decodedCursor != nil { predicate += " AND (observed_at < ? OR (observed_at = ? AND event_id < ?))" }
         let rows = try connection.withStatement(
-            "SELECT event_id, observed_at, operation, path, logical_delta, allocated_delta, consumer_category, confidence, is_anomaly, is_reviewed FROM events WHERE \(predicate) ORDER BY observed_at DESC, event_id DESC LIMIT ?"
+            "SELECT event_id, observed_at, operation, path, logical_delta, allocated_delta, consumer_category, confidence, is_anomaly, is_reviewed, occurred_start, occurred_end, detected_at FROM event_evidence WHERE \(predicate) ORDER BY observed_at DESC, event_id DESC LIMIT ?"
         ) { statement in
             var index: Int32 = 1
             try connection.bind(from.timeIntervalSince1970, at: index, in: statement); index += 1
@@ -1899,9 +2499,18 @@ public actor EvidenceStore {
         return .init(matchedCount: matchedCount, items: items, nextCursor: next)
     }
 
-    public func growthAggregate(from: Date, through: Date) throws -> EvidenceGrowthAggregate {
+    public func growthAggregate(from: Date, through: Date, scope: EvidenceQueryScope? = nil) throws -> EvidenceGrowthAggregate {
         guard from <= through else { throw EvidenceStoreError.invalidEvent("Evidence event query range is invalid") }
         let connection = try requireConnection()
+        let stateScope = scope?.predicate(column: "c.path")
+        let joinedScope = scope?.predicate(column: "ee.path")
+        let eventScope = scope?.predicate(column: "events.path")
+        func clause(_ predicate: (sql: String, bindings: [String])?) -> String { predicate.map { " AND " + $0.sql } ?? "" }
+        let surviving = """
+            FROM current_file_state c
+                WHERE c.presence = 'present' AND c.actionable = 1\(clause(stateScope))
+                AND c.object_id IN (SELECT DISTINCT ce.object_id FROM change_events ce JOIN events ee ON ee.event_id = ce.event_id WHERE ee.observed_at >= ? AND ee.observed_at <= ?\(clause(joinedScope)))
+            """
         return try connection.withStatement(
             """
             SELECT
@@ -1910,19 +2519,24 @@ public actor EvidenceStore {
               COALESCE(SUM(CASE WHEN allocated_delta < 0 THEN -allocated_delta ELSE 0 END), 0),
               COALESCE(SUM(ABS(allocated_delta)), 0),
               COALESCE(SUM(allocated_delta), 0),
-              (SELECT COUNT(DISTINCT c.object_id) FROM current_file_state c
-                WHERE c.presence = 'present' AND c.actionable = 1
-                AND c.object_id IN (SELECT DISTINCT ce.object_id FROM change_events ce JOIN events ee ON ee.event_id = ce.event_id WHERE ee.observed_at >= ? AND ee.observed_at <= ?)),
-              (SELECT COALESCE(SUM(c.allocated_bytes), 0) FROM current_file_state c
-                WHERE c.presence = 'present' AND c.actionable = 1
-                AND c.object_id IN (SELECT DISTINCT ce.object_id FROM change_events ce JOIN events ee ON ee.event_id = ce.event_id WHERE ee.observed_at >= ? AND ee.observed_at <= ?))
-            FROM events WHERE observed_at >= ? AND observed_at <= ?
+              (SELECT COUNT(DISTINCT c.object_id) \(surviving)),
+              (SELECT COALESCE(SUM(c.allocated_bytes), 0) \(surviving))
+            FROM events WHERE observed_at >= ? AND observed_at <= ?\(clause(eventScope))
             """
         ) { statement in
-            let values = [from, through, from, through, from, through]
-            for (offset, value) in values.enumerated() {
-                try connection.bind(value.timeIntervalSince1970, at: Int32(offset + 1), in: statement)
+            var index: Int32 = 1
+            func bind(_ values: [String]) throws { for value in values { try connection.bind(value, at: index, in: statement); index += 1 } }
+            func bindRange() throws {
+                try connection.bind(from.timeIntervalSince1970, at: index, in: statement); index += 1
+                try connection.bind(through.timeIntervalSince1970, at: index, in: statement); index += 1
             }
+            for _ in 0..<2 {
+                try bind(stateScope?.bindings ?? [])
+                try bindRange()
+                try bind(joinedScope?.bindings ?? [])
+            }
+            try bindRange()
+            try bind(eventScope?.bindings ?? [])
             guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
             return .init(
                 matchedCount: Int(sqlite3_column_int64(statement, 0)),
@@ -1940,7 +2554,8 @@ public actor EvidenceStore {
         from: Date,
         through: Date,
         cursor: String? = nil,
-        limit: Int = 100
+        limit: Int = 100,
+        scope: EvidenceQueryScope? = nil
     ) throws -> EvidenceGrowthReadModel {
         guard from <= through else { throw EvidenceStoreError.invalidEvent("Evidence growth query range is invalid") }
         let connection = try requireConnection()
@@ -1948,6 +2563,11 @@ public actor EvidenceStore {
         let revision = try Self.historyQueryRevision(connection: connection)
         let decodedCursor: EventQueryCursor? = try cursor.map { try Self.decodeCursor($0) }
         if let decodedCursor, decodedCursor.revision != revision { throw EvidenceStoreError.cursorExpired }
+        let scopePredicate = scope?.predicate(column: "path")
+        let scopeClause = scopePredicate.map { " AND " + $0.sql } ?? ""
+        func bindScope(_ statement: OpaquePointer, _ index: inout Int32) throws {
+            for value in scopePredicate?.bindings ?? [] { try connection.bind(value, at: index, in: statement); index += 1 }
+        }
         let union = """
         SELECT event_id AS row_id, observed_at, 'raw' AS precision, operation, path, 1 AS event_count, logical_delta, allocated_delta, consumer_category, confidence FROM events
         UNION ALL
@@ -1955,12 +2575,14 @@ public actor EvidenceStore {
         UNION ALL
         SELECT 'daily:' || printf('%.6f', bucket_start) || ':' || path || ':' || operation, bucket_start, 'daily', operation, path, event_count, logical_delta, allocated_delta, 'summarized', 'unknown' FROM daily_summaries
         """
-        let surviving = try growthAggregate(from: from, through: through)
+        let surviving = try growthAggregate(from: from, through: through, scope: scope)
         let aggregate = try connection.withStatement(
-            "WITH evidence AS (\(union)) SELECT COUNT(*), COALESCE(SUM(CASE WHEN allocated_delta > 0 THEN allocated_delta ELSE 0 END), 0), COALESCE(SUM(CASE WHEN allocated_delta < 0 THEN -allocated_delta ELSE 0 END), 0), COALESCE(SUM(ABS(allocated_delta)), 0), COALESCE(SUM(allocated_delta), 0) FROM evidence WHERE observed_at >= ? AND observed_at <= ?"
+            "WITH evidence AS (\(union)) SELECT COUNT(*), COALESCE(SUM(CASE WHEN allocated_delta > 0 THEN allocated_delta ELSE 0 END), 0), COALESCE(SUM(CASE WHEN allocated_delta < 0 THEN -allocated_delta ELSE 0 END), 0), COALESCE(SUM(ABS(allocated_delta)), 0), COALESCE(SUM(allocated_delta), 0) FROM evidence WHERE observed_at >= ? AND observed_at <= ?\(scopeClause)"
         ) { statement in
-            try connection.bind(from.timeIntervalSince1970, at: 1, in: statement)
-            try connection.bind(through.timeIntervalSince1970, at: 2, in: statement)
+            var index: Int32 = 1
+            try connection.bind(from.timeIntervalSince1970, at: index, in: statement); index += 1
+            try connection.bind(through.timeIntervalSince1970, at: index, in: statement); index += 1
+            try bindScope(statement, &index)
             guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
             return EvidenceGrowthAggregate(
                 matchedCount: Int(sqlite3_column_int64(statement, 0)),
@@ -1975,11 +2597,12 @@ public actor EvidenceStore {
         var cursorPredicate = ""
         if decodedCursor != nil { cursorPredicate = " AND (observed_at < ? OR (observed_at = ? AND row_id < ?))" }
         let rows = try connection.withStatement(
-            "WITH evidence AS (\(union)) SELECT row_id, observed_at, precision, operation, path, event_count, logical_delta, allocated_delta, consumer_category, confidence FROM evidence WHERE observed_at >= ? AND observed_at <= ?\(cursorPredicate) ORDER BY observed_at DESC, row_id DESC LIMIT ?"
+            "WITH evidence AS (\(union)) SELECT row_id, observed_at, precision, operation, path, event_count, logical_delta, allocated_delta, consumer_category, confidence FROM evidence WHERE observed_at >= ? AND observed_at <= ?\(scopeClause)\(cursorPredicate) ORDER BY observed_at DESC, row_id DESC LIMIT ?"
         ) { statement in
             var index: Int32 = 1
             try connection.bind(from.timeIntervalSince1970, at: index, in: statement); index += 1
             try connection.bind(through.timeIntervalSince1970, at: index, in: statement); index += 1
+            try bindScope(statement, &index)
             if let decodedCursor {
                 try connection.bind(decodedCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
                 try connection.bind(decodedCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
@@ -2019,6 +2642,31 @@ public actor EvidenceStore {
         return .init(aggregate: aggregate, page: .init(matchedCount: aggregate.matchedCount, items: items, nextCursor: next))
     }
 
+    /// The scope (roots and exclusions) that produced the latest observation
+    /// run, so callers can tell whether the current policy differs from what
+    /// the retained detail was scanned under.
+    public func latestObservationScope() throws -> EvidenceScopeVersion? {
+        let connection = try requireConnection()
+        return try connection.withStatement(
+            "SELECT s.scope_version_id, s.effective_at, s.roots_json, s.exclusions_json, s.maximum_entries, s.maximum_depth FROM observation_runs o JOIN scope_versions s ON s.scope_version_id = o.scope_version_id ORDER BY o.completed_at DESC, o.observation_id DESC LIMIT 1"
+        ) { statement in
+            guard sqlite3_step(statement) == SQLITE_ROW,
+                  let identifier = Self.columnString(statement, column: 0),
+                  let rootsJSON = Self.columnString(statement, column: 2),
+                  let exclusionsJSON = Self.columnString(statement, column: 3)
+            else { return nil }
+            let decoder = JSONDecoder()
+            return EvidenceScopeVersion(
+                scopeVersionID: identifier,
+                effectiveAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 1)),
+                rootPaths: try decoder.decode([String].self, from: Data(rootsJSON.utf8)),
+                excludedPaths: try decoder.decode([String].self, from: Data(exclusionsJSON.utf8)),
+                maximumEntries: Int(sqlite3_column_int64(statement, 4)),
+                maximumDepth: Int(sqlite3_column_int64(statement, 5))
+            )
+        }
+    }
+
     public func latestObservationAt() throws -> Date? {
         let connection = try requireConnection()
         return try connection.withStatement("SELECT MAX(completed_at) FROM observation_runs") { statement in
@@ -2027,43 +2675,72 @@ public actor EvidenceStore {
         }
     }
 
-    public func provenanceChain(pathQuery: String, cursor: String? = nil, limit: Int = 100) throws -> EvidenceProvenanceChain {
+    public func provenanceChain(pathQuery: String, cursor: String? = nil, limit: Int = 100, scope: EvidenceQueryScope? = nil) throws -> EvidenceProvenanceChain {
+        try requireConnection().transaction(readOnly: true) {
+            try readProvenanceChain(pathQuery: pathQuery, cursor: cursor, limit: limit, scope: scope)
+        }
+    }
+
+    /// Bounded number of distinct file identities one provenance query resolves.
+    public static let provenanceIdentityLimit = 100
+
+    private func readProvenanceChain(pathQuery: String, cursor: String?, limit: Int, scope: EvidenceQueryScope?) throws -> EvidenceProvenanceChain {
         let connection = try requireConnection()
         let revision = try Self.fullQueryRevision(connection: connection)
+        let bindingScope = scope?.predicate(column: "pb.path")
+        let eventScope = scope?.predicate(column: "e.path")
+        let plainScope = scope?.predicate(column: "path")
+        func scopeClause(_ predicate: (sql: String, bindings: [String])?) -> String { predicate.map { " AND " + $0.sql } ?? "" }
+        func bindScope(_ predicate: (sql: String, bindings: [String])?, _ statement: OpaquePointer, _ index: inout Int32) throws {
+            for value in predicate?.bindings ?? [] { try connection.bind(value, at: index, in: statement); index += 1 }
+        }
+        // Validate a common envelope before choosing the current query branch:
+        // new/removed path bindings may switch a continuation between raw
+        // history and object-linked history while invalidating its revision.
+        let decodedCursor: ProvenanceQueryCursor? = try cursor.map { try Self.decodeCursor($0) }
+        if let decodedCursor, decodedCursor.revision != revision { throw EvidenceStoreError.cursorExpired }
+        let eventCursor = decodedCursor?.event
         let basename = URL(fileURLWithPath: pathQuery).lastPathComponent
-        let objectIDs = try connection.withStatement(
-            "SELECT DISTINCT pb.object_id FROM path_bindings pb WHERE pb.path = ? OR pb.path LIKE ? ORDER BY CASE WHEN pb.path = ? THEN 0 ELSE 1 END, pb.path, pb.object_id LIMIT 100"
+        let identityLimit = Self.provenanceIdentityLimit
+        let matchedIdentities = try connection.withStatement(
+            "SELECT DISTINCT pb.object_id FROM path_bindings pb WHERE (pb.path = ? OR pb.path LIKE ?)\(scopeClause(bindingScope)) ORDER BY CASE WHEN pb.path = ? THEN 0 ELSE 1 END, pb.path, pb.object_id LIMIT ?"
         ) { statement in
-            try connection.bind(pathQuery, at: 1, in: statement)
-            try connection.bind("%/\(basename)", at: 2, in: statement)
-            try connection.bind(pathQuery, at: 3, in: statement)
+            var index: Int32 = 1
+            try connection.bind(pathQuery, at: index, in: statement); index += 1
+            try connection.bind("%/\(basename)", at: index, in: statement); index += 1
+            try bindScope(bindingScope, statement, &index)
+            try connection.bind(pathQuery, at: index, in: statement); index += 1
+            try connection.bind(Int64(identityLimit + 1), at: index, in: statement)
             var values: [String] = []
             while sqlite3_step(statement) == SQLITE_ROW {
                 if let value = Self.columnString(statement, column: 0) { values.append(value) }
             }
             return values
         }
+        let identityLimitReached = matchedIdentities.count > identityLimit
+        let objectIDs = Array(matchedIdentities.prefix(identityLimit))
         if objectIDs.isEmpty {
-            let decodedCursor: EventQueryCursor? = try cursor.map { try Self.decodeCursor($0) }
-            if let decodedCursor, decodedCursor.revision != revision { throw EvidenceStoreError.cursorExpired }
             let pattern = "%\(pathQuery)%"
-            let matchedCount = try connection.withStatement("SELECT COUNT(*) FROM events WHERE path LIKE ?") { statement in
-                try connection.bind(pattern, at: 1, in: statement)
+            let matchedCount = try connection.withStatement("SELECT COUNT(*) FROM events WHERE path LIKE ?\(scopeClause(plainScope))") { statement in
+                var index: Int32 = 1
+                try connection.bind(pattern, at: index, in: statement); index += 1
+                try bindScope(plainScope, statement, &index)
                 guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
                 return Int(sqlite3_column_int64(statement, 0))
             }
             var cursorPredicate = ""
-            if decodedCursor != nil { cursorPredicate = " AND (observed_at > ? OR (observed_at = ? AND event_id > ?))" }
+            if eventCursor != nil { cursorPredicate = " AND (observed_at > ? OR (observed_at = ? AND event_id > ?))" }
             let boundedLimit = min(max(limit, 1), 500)
             let rows = try connection.withStatement(
-                "SELECT event_id, observed_at, operation, path, logical_delta, allocated_delta, consumer_category, confidence, is_anomaly, is_reviewed FROM events WHERE path LIKE ?\(cursorPredicate) ORDER BY observed_at ASC, event_id ASC LIMIT ?"
+                "SELECT event_id, observed_at, operation, path, logical_delta, allocated_delta, consumer_category, confidence, is_anomaly, is_reviewed, occurred_start, occurred_end, detected_at FROM event_evidence WHERE path LIKE ?\(scopeClause(plainScope))\(cursorPredicate) ORDER BY observed_at ASC, event_id ASC LIMIT ?"
             ) { statement in
                 var index: Int32 = 1
                 try connection.bind(pattern, at: index, in: statement); index += 1
-                if let decodedCursor {
-                    try connection.bind(decodedCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
-                    try connection.bind(decodedCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
-                    try connection.bind(decodedCursor.eventID, at: index, in: statement); index += 1
+                try bindScope(plainScope, statement, &index)
+                if let eventCursor {
+                    try connection.bind(eventCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
+                    try connection.bind(eventCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
+                    try connection.bind(eventCursor.eventID, at: index, in: statement); index += 1
                 }
                 try connection.bind(Int64(boundedLimit + 1), at: index, in: statement)
                 return try Self.readEvents(statement: statement, connection: connection)
@@ -2074,53 +2751,78 @@ public actor EvidenceStore {
             let sessions = try readAgentSessions(registrationIDs: registrationIDs, connection: connection)
             let gaps = try readCoverageGaps(connection: connection, observationID: nil, limit: 1_000)
             let next = rows.count > boundedLimit ? events.last.map {
-                Self.encodeCursor(EventQueryCursor(revision: revision, observedAt: $0.observedAt, eventID: $0.eventID))
+                Self.encodeCursor(ProvenanceQueryCursor(revision: revision, currentStateOffset: 0,
+                    event: EventQueryCursor(revision: revision, observedAt: $0.observedAt, eventID: $0.eventID)))
             } : nil
             return .init(
                 objectIDs: [], currentStates: [], events: events, claims: claims, sessions: sessions,
-                observationGaps: gaps, matchedCount: matchedCount, nextCursor: next
+                observationGaps: gaps, matchedCount: matchedCount, nextCursor: next,
+                identityLimitReached: identityLimitReached
             )
         }
         let placeholders = Array(repeating: "?", count: objectIDs.count).joined(separator: ",")
-        let decodedCursor: EventQueryCursor? = try cursor.map { try Self.decodeCursor($0) }
-        if let decodedCursor, decodedCursor.revision != revision { throw EvidenceStoreError.cursorExpired }
-        let matchedCount = try connection.withStatement("SELECT COUNT(*) FROM change_events WHERE object_id IN (\(placeholders))") { statement in
+        let boundedLimit = min(max(limit, 1), 500)
+        let currentIDs = try connection.withStatement("SELECT object_id FROM current_file_state WHERE object_id IN (\(placeholders))\(scopeClause(plainScope)) ORDER BY object_id") { statement in
             for (offset, objectID) in objectIDs.enumerated() { try connection.bind(objectID, at: Int32(offset + 1), in: statement) }
+            var index = Int32(objectIDs.count + 1)
+            try bindScope(plainScope, statement, &index)
+            var ids: [String] = []
+            while true {
+                let step = sqlite3_step(statement)
+                if step == SQLITE_DONE { return ids }
+                guard step == SQLITE_ROW, let id = Self.columnString(statement, column: 0) else { throw connection.lastError(step) }
+                ids.append(id)
+            }
+        }
+        let stateOffset = decodedCursor?.currentStateOffset ?? 0
+        guard stateOffset >= 0, stateOffset <= currentIDs.count else { throw EvidenceStoreError.cursorExpired }
+        let currentStateAsOf = try connection.withStatement("SELECT MAX(observed_at) FROM current_file_state WHERE object_id IN (\(placeholders))\(scopeClause(plainScope))") { statement -> Date? in
+            for (offset, objectID) in objectIDs.enumerated() { try connection.bind(objectID, at: Int32(offset + 1), in: statement) }
+            var index = Int32(objectIDs.count + 1)
+            try bindScope(plainScope, statement, &index)
+            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError() }
+            return Self.columnDate(statement, column: 0)
+        }
+        var currentStates: [CurrentFileStateRecord] = []
+        for id in currentIDs.dropFirst(stateOffset).prefix(boundedLimit) {
+            if let state = try Self.readCurrentFile(objectID: id, connection: connection) { currentStates.append(state) }
+        }
+        let nextStateOffset = stateOffset + currentStates.count
+        let eventLimit = boundedLimit - currentStates.count
+        let matchedCount = try connection.withStatement(
+            "SELECT COUNT(*) FROM change_events ce JOIN event_evidence e ON e.event_id = ce.event_id WHERE ce.object_id IN (\(placeholders))\(scopeClause(eventScope))"
+        ) { statement in
+            for (offset, objectID) in objectIDs.enumerated() { try connection.bind(objectID, at: Int32(offset + 1), in: statement) }
+            var index = Int32(objectIDs.count + 1)
+            try bindScope(eventScope, statement, &index)
             guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
             return Int(sqlite3_column_int64(statement, 0))
         }
         var cursorPredicate = ""
-        if decodedCursor != nil { cursorPredicate = " AND (e.observed_at > ? OR (e.observed_at = ? AND e.event_id > ?))" }
-        let boundedLimit = min(max(limit, 1), 500)
+        if eventCursor != nil { cursorPredicate = " AND (e.observed_at > ? OR (e.observed_at = ? AND e.event_id > ?))" }
         let rows = try connection.withStatement(
-            "SELECT e.event_id, e.observed_at, e.operation, e.path, e.logical_delta, e.allocated_delta, e.consumer_category, e.confidence, e.is_anomaly, e.is_reviewed FROM change_events ce JOIN events e ON e.event_id = ce.event_id WHERE ce.object_id IN (\(placeholders))\(cursorPredicate) ORDER BY e.observed_at ASC, e.event_id ASC LIMIT ?"
+            "SELECT e.event_id, e.observed_at, e.operation, e.path, e.logical_delta, e.allocated_delta, e.consumer_category, e.confidence, e.is_anomaly, e.is_reviewed, e.occurred_start, e.occurred_end, e.detected_at FROM change_events ce JOIN event_evidence e ON e.event_id = ce.event_id WHERE ce.object_id IN (\(placeholders))\(scopeClause(eventScope))\(cursorPredicate) ORDER BY e.observed_at ASC, e.event_id ASC LIMIT ?"
         ) { statement in
             var index: Int32 = 1
             for objectID in objectIDs { try connection.bind(objectID, at: index, in: statement); index += 1 }
-            if let decodedCursor {
-                try connection.bind(decodedCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
-                try connection.bind(decodedCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
-                try connection.bind(decodedCursor.eventID, at: index, in: statement); index += 1
+            try bindScope(eventScope, statement, &index)
+            if let eventCursor {
+                try connection.bind(eventCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
+                try connection.bind(eventCursor.observedAt.timeIntervalSince1970, at: index, in: statement); index += 1
+                try connection.bind(eventCursor.eventID, at: index, in: statement); index += 1
             }
-            try connection.bind(Int64(boundedLimit + 1), at: index, in: statement)
+            try connection.bind(Int64(eventLimit + 1), at: index, in: statement)
             return try Self.readEvents(statement: statement, connection: connection)
         }
-        let events = Array(rows.prefix(boundedLimit))
+        let events = Array(rows.prefix(eventLimit))
         let eventIDs = Set(events.map(\.eventID))
         let claims = try readProvenanceClaims(eventIDs: eventIDs, connection: connection)
         let registrationIDs = Set(claims.compactMap { $0.session?.registrationID.uuidString.lowercased() })
         let sessions = try readAgentSessions(registrationIDs: registrationIDs, connection: connection)
-        var currentStates: [CurrentFileStateRecord] = []
-        currentStates.reserveCapacity(objectIDs.count)
-        for objectID in objectIDs {
-            if let state = try Self.readCurrentFile(objectID: objectID, connection: connection) {
-                currentStates.append(state)
-            }
-        }
         let gaps = try readCoverageGaps(connection: connection, observationID: nil, limit: 1_000)
-        let next = rows.count > boundedLimit ? events.last.map {
-            Self.encodeCursor(EventQueryCursor(revision: revision, observedAt: $0.observedAt, eventID: $0.eventID))
-        } : nil
+        let nextEvent = events.last.map { EventQueryCursor(revision: revision, observedAt: $0.observedAt, eventID: $0.eventID) } ?? eventCursor
+        let next = nextStateOffset < currentIDs.count || rows.count > eventLimit
+            ? Self.encodeCursor(ProvenanceQueryCursor(revision: revision, currentStateOffset: nextStateOffset, event: nextEvent)) : nil
         return .init(
             objectIDs: objectIDs,
             currentStates: currentStates,
@@ -2129,7 +2831,10 @@ public actor EvidenceStore {
             sessions: sessions,
             observationGaps: gaps,
             matchedCount: matchedCount,
-            nextCursor: next
+            nextCursor: next,
+            matchedCurrentStateCount: currentIDs.count,
+            currentStateAsOf: currentStateAsOf,
+            identityLimitReached: identityLimitReached
         )
     }
 
@@ -2161,7 +2866,7 @@ public actor EvidenceStore {
         let identifiers = registrationIDs.map { $0.uuidString.lowercased() }.sorted()
         let placeholders = Array(repeating: "?", count: identifiers.count).joined(separator: ",")
         return try connection.withStatement(
-            "SELECT event_id, confidence FROM provenance_claims WHERE session_registration_id IN (\(placeholders)) AND occurred_end >= ? AND occurred_start <= ? AND superseded_by_claim_id IS NULL ORDER BY occurred_start, event_id LIMIT 100000"
+            "SELECT event_id, confidence FROM provenance_claims WHERE session_registration_id IN (\(placeholders)) AND occurred_end >= ? AND (occurred_start IS NULL OR occurred_start <= ?) AND timing_version = 1 AND superseded_by_claim_id IS NULL ORDER BY occurred_end, event_id LIMIT 100000"
         ) { statement in
             var index: Int32 = 1
             for identifier in identifiers { try connection.bind(identifier, at: index, in: statement); index += 1 }
@@ -2290,7 +2995,7 @@ public actor EvidenceStore {
         connection: SQLiteConnection
     ) throws {
         try connection.withStatement(
-            "INSERT INTO file_objects (object_id, identity_method, first_observed_at, last_observed_at, lifecycle_state) VALUES (?, ?, ?, ?, ?) ON CONFLICT(object_id) DO UPDATE SET identity_method = excluded.identity_method, last_observed_at = excluded.last_observed_at, lifecycle_state = excluded.lifecycle_state"
+            "INSERT INTO file_objects (object_id, identity_method, first_observed_at, last_observed_at, lifecycle_state) VALUES (?, ?, ?, ?, ?) ON CONFLICT(object_id) DO UPDATE SET identity_method = excluded.identity_method, first_observed_at = MIN(file_objects.first_observed_at, excluded.first_observed_at), last_observed_at = MAX(file_objects.last_observed_at, excluded.last_observed_at), lifecycle_state = excluded.lifecycle_state"
         ) { statement in
             try connection.bind(file.objectID, at: 1, in: statement)
             try connection.bind(file.identityMethod.rawValue, at: 2, in: statement)
@@ -2321,7 +3026,7 @@ public actor EvidenceStore {
         connection: SQLiteConnection
     ) throws {
         try connection.withStatement(
-            "INSERT INTO file_state_observations (observation_id, object_id, path, root_path, logical_bytes, allocated_bytes, modified_at, existence, confidence) VALUES (?, ?, ?, ?, ?, ?, ?, 'present', 'inferred')"
+            "INSERT INTO file_state_observations (observation_id, object_id, path, root_path, logical_bytes, allocated_bytes, modified_at, existence, confidence, observed_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'present', 'inferred', ?)"
         ) { statement in
             try connection.bind(observationID, at: 1, in: statement)
             try connection.bind(file.objectID, at: 2, in: statement)
@@ -2330,6 +3035,7 @@ public actor EvidenceStore {
             try connection.bind(file.logicalBytes, at: 5, in: statement)
             try connection.bind(file.allocatedBytes, at: 6, in: statement)
             try connection.bind(file.modifiedAt?.timeIntervalSince1970, at: 7, in: statement)
+            try connection.bind(file.observedAt?.timeIntervalSince1970, at: 8, in: statement)
             try connection.stepDone(statement)
         }
     }
@@ -2343,7 +3049,7 @@ public actor EvidenceStore {
         connection: SQLiteConnection
     ) throws {
         try connection.withStatement(
-            "INSERT INTO current_file_state (object_id, identity_method, path, root_path, scope_version_id, logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'present', ?, ?, ?) ON CONFLICT(object_id) DO UPDATE SET identity_method = excluded.identity_method, path = excluded.path, root_path = excluded.root_path, scope_version_id = excluded.scope_version_id, logical_bytes = excluded.logical_bytes, allocated_bytes = excluded.allocated_bytes, modified_at = excluded.modified_at, presence = 'present', state_as_of_observation_id = excluded.state_as_of_observation_id, observed_at = excluded.observed_at, actionable = excluded.actionable"
+            "INSERT INTO current_file_state (object_id, identity_method, path, root_path, scope_version_id, logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable, timing_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'present', ?, ?, ?, 1) ON CONFLICT(object_id) DO UPDATE SET identity_method = excluded.identity_method, path = excluded.path, root_path = excluded.root_path, scope_version_id = excluded.scope_version_id, logical_bytes = excluded.logical_bytes, allocated_bytes = excluded.allocated_bytes, modified_at = excluded.modified_at, presence = 'present', state_as_of_observation_id = excluded.state_as_of_observation_id, observed_at = excluded.observed_at, actionable = excluded.actionable, timing_verified = 1"
         ) { statement in
             try connection.bind(file.objectID, at: 1, in: statement)
             try connection.bind(file.identityMethod.rawValue, at: 2, in: statement)
@@ -2386,7 +3092,7 @@ public actor EvidenceStore {
     ) throws {
         let bindingID = "binding-\(stableIdentifier("\(file.objectID)|\(file.path)|\(date.timeIntervalSince1970)"))"
         try connection.withStatement(
-            "INSERT OR IGNORE INTO path_bindings (binding_id, object_id, path, valid_from, valid_through, opening_reason, closing_reason, confidence) VALUES (?, ?, ?, ?, NULL, ?, NULL, 'inferred')"
+            "INSERT OR IGNORE INTO path_bindings (binding_id, object_id, path, valid_from, valid_through, opening_reason, closing_reason, confidence, timing_verified) VALUES (?, ?, ?, ?, NULL, ?, NULL, 'inferred', 1)"
         ) { statement in
             try connection.bind(bindingID, at: 1, in: statement)
             try connection.bind(file.objectID, at: 2, in: statement)
@@ -2419,7 +3125,9 @@ public actor EvidenceStore {
         operation: EvidenceStoreEvent.Operation,
         file: FileMetadata,
         before: CurrentFileStateRecord?,
-        metadata: MetadataSnapshot
+        metadata: MetadataSnapshot,
+        replacementAddition: Bool = false,
+        observedAt: Date? = nil
     ) -> EvidenceStoreEvent {
         let logicalDelta: Int64
         let allocatedDelta: Int64
@@ -2428,12 +3136,12 @@ public actor EvidenceStore {
             logicalDelta = 0
             allocatedDelta = 0
         default:
-            logicalDelta = file.logicalBytes - (before?.logicalBytes ?? 0)
-            allocatedDelta = file.allocatedBytes - (before?.allocatedBytes ?? 0)
+            logicalDelta = file.logicalBytes - (replacementAddition ? 0 : (before?.logicalBytes ?? 0))
+            allocatedDelta = file.allocatedBytes - (replacementAddition ? 0 : (before?.allocatedBytes ?? 0))
         }
         return EvidenceStoreEvent(
             eventID: "change-\(metadata.observationID)-\(stableIdentifier("\(file.objectID)|\(operation.rawValue)"))",
-            observedAt: metadata.observedAt,
+            observedAt: observedAt ?? file.observedAt ?? metadata.observedAt,
             operation: operation,
             path: file.path,
             logicalDelta: logicalDelta,
@@ -2468,27 +3176,65 @@ public actor EvidenceStore {
         objectID: String,
         before: CurrentFileStateRecord?,
         afterPath: String?,
+        pathBefore: String? = nil,
         metadata: MetadataSnapshot,
         connection: SQLiteConnection
-    ) throws {
+    ) throws -> EvidenceStoreEvent {
+        // No previous observation means no supported occurrence lower bound.
+        // In particular a first sighting is not an exact creation timestamp.
+        // Legacy current-state rows retain publication/discovery dates. Only
+        // a fresh positive sample establishes a measured prior lower bound.
+        var occurredStart: Date?
+        if let before {
+            occurredStart = try connection.withStatement(
+                "SELECT observed_at FROM reconcile_prior_current WHERE object_id = ? AND timing_verified = 1"
+            ) { statement in
+                try connection.bind(before.objectID, at: 1, in: statement)
+                guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
+                return columnDate(statement, column: 0)
+            }
+        }
+        if let before, let pathBefore, pathBefore != before.path {
+            // A replacement of a noncanonical alias is constrained by that
+            // binding, not by a later sample of another surviving hard link.
+            // We retain first-observed binding evidence; no last-path sample
+            // is available, so deliberately use this wider supported bound.
+            occurredStart = try connection.withStatement(
+                "SELECT MAX(valid_from) FROM path_bindings WHERE object_id = ? AND path = ? AND timing_verified = 1"
+            ) { statement in
+                try connection.bind(before.objectID, at: 1, in: statement)
+                try connection.bind(pathBefore, at: 2, in: statement)
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+                return columnDate(statement, column: 0)
+            }
+        }
+        if let occurredStart, occurredStart > event.observedAt {
+            // Out-of-order inputs or a backwards clock are not evidence of an
+            // ordered change. Roll back publication rather than swap endpoints.
+            throw EvidenceStoreError.invalidObservation("change evidence has contradictory observation times")
+        }
+        guard event.observedAt <= metadata.observedAt else {
+            throw EvidenceStoreError.invalidObservation("change evidence is later than observation publication")
+        }
         try connection.withStatement(
-            "INSERT INTO change_events (event_id, operation, object_id, before_observation_id, after_observation_id, path_before, path_after, logical_delta, allocated_delta, detected_at, occurred_start, occurred_end, coverage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO change_events (event_id, operation, object_id, before_observation_id, after_observation_id, path_before, path_after, logical_delta, allocated_delta, detected_at, occurred_start, occurred_end, coverage, timing_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)"
         ) { statement in
             try connection.bind(event.eventID, at: 1, in: statement)
             try connection.bind(event.operation.rawValue, at: 2, in: statement)
             try connection.bind(objectID, at: 3, in: statement)
             try connection.bind(before?.stateAsOfObservationID, at: 4, in: statement)
             try connection.bind(metadata.observationID, at: 5, in: statement)
-            try connection.bind(before?.path, at: 6, in: statement)
+            try connection.bind(pathBefore ?? before?.path, at: 6, in: statement)
             try connection.bind(afterPath, at: 7, in: statement)
             try connection.bind(event.logicalDelta, at: 8, in: statement)
             try connection.bind(event.allocatedDelta, at: 9, in: statement)
             try connection.bind(metadata.observedAt.timeIntervalSince1970, at: 10, in: statement)
-            try connection.bind(before?.observedAt.timeIntervalSince1970 ?? metadata.observedAt.timeIntervalSince1970, at: 11, in: statement)
-            try connection.bind(metadata.observedAt.timeIntervalSince1970, at: 12, in: statement)
+            try connection.bind(occurredStart?.timeIntervalSince1970, at: 11, in: statement)
+            try connection.bind(event.observedAt.timeIntervalSince1970, at: 12, in: statement)
             try connection.bind(metadata.coverage.rawValue, at: 13, in: statement)
             try connection.stepDone(statement)
         }
+        return event.withTiming(.init(occurredStart: occurredStart, occurredEnd: event.observedAt, detectedAt: metadata.observedAt))
     }
 
     private static func insertCoverageGap(_ gap: EvidenceCoverageGap, connection: SQLiteConnection) throws {
@@ -2950,6 +3696,185 @@ public actor EvidenceStore {
             + fileSize(atPath: databaseURL.path + "-shm")
     }
 
+    /// Per-row storage costs measured on the one-million-file product run
+    /// (docs/reliability/evidence/TASK-531/scale-runs/wide-1m): a 3.3 GB final
+    /// database and a 2.98 GB peak write-ahead log for 1,000,000 new files.
+    /// Republishing a row that current state already holds costs far less.
+    /// Deliberately rounded up; the accounting reports what was reserved.
+    enum StorageCostModel {
+        static let stagedRowBytes: Int64 = 1_024
+        static let newPublishedRowBytes: Int64 = 2_304
+        static let republishedRowBytes: Int64 = 768
+        static let newRowLogBytes: Int64 = 3_072
+        static let republishedRowLogBytes: Int64 = 1_024
+        static let publicationFixedBytes: Int64 = 64 * 1_024
+        static let diskReserveBytes: Int64 = 64 * 1_024 * 1_024
+        /// One nominal safety slice of file detail, staged and later published,
+        /// with the fixed publication cost and an allowance for directory passes.
+        /// A first slice's admission demand never exceeds it; slices that close
+        /// hundreds of small directories at once may, and are still judged exactly.
+        static let nextSliceBytes: Int64 = 512 * (stagedRowBytes + newPublishedRowBytes) + 2 * publicationFixedBytes
+
+        /// Durable growth and transient log for publishing `stagedRows` when
+        /// `currentRows` are already published: rows beyond the current set
+        /// are treated as new, the rest as republished.
+        static func publication(stagedRows: Int64, currentRows: Int64) -> (reserve: Int64, log: Int64) {
+            guard stagedRows > 0 else { return (0, 0) }
+            let newRows = max(0, stagedRows - currentRows)
+            let republished = stagedRows - newRows
+            return (newRows * newPublishedRowBytes + republished * republishedRowBytes + publicationFixedBytes,
+                    newRows * newRowLogBytes + republished * republishedRowLogBytes + publicationFixedBytes)
+        }
+    }
+
+    /// Work whose storage cost is estimated before any of it is written.
+    enum StorageWork {
+        case generic(bytes: Int64)
+        case staging(rows: Int, passes: Int)
+        case publication(stagedRows: Int64, priorCurrentRows: Int64)
+    }
+
+    /// One accounting of live, reusable, log and shared-memory bytes plus the
+    /// reserve the next publication of currently staged rows will need.
+    public func storageAccounting() throws -> EvidenceStorageAccounting {
+        try storageAccounting(connection: requireConnection(), capBytes: storageCapBytes, probeCheckpoint: true, demandHint: 0)
+    }
+
+    /// The persisted retention setting is the single source of truth for the
+    /// cap; the owning process syncs it before sampling so a raised cap admits
+    /// work without waiting for a retention run.
+    public func updateStorageCap(_ bytes: Int64) {
+        storageCapBytes = max(1 * 1_024 * 1_024, bytes)
+    }
+
+    /// The active scan generation, if one is open.
+    public func activeScanGeneration() throws -> MetadataScanGeneration? {
+        try Self.readScanGeneration(status: .active, connection: requireConnection())
+    }
+
+    /// `demandHint` is the work about to be admitted; a write-ahead log that is
+    /// only decisive together with that demand is probed rather than trusted.
+    private func storageAccounting(
+        connection: SQLiteConnection, capBytes: Int64, probeCheckpoint: Bool, demandHint: Int64 = 0
+    ) throws -> EvidenceStorageAccounting {
+        let pageCount = try connection.scalarInt("PRAGMA page_count")
+        let freePages = try connection.scalarInt("PRAGMA freelist_count")
+        let pageSize = try connection.scalarInt("PRAGMA page_size")
+        let staged = try connection.scalarInt("SELECT COUNT(*) FROM scan_generation_entries")
+        let current = try connection.scalarInt("SELECT COUNT(*) FROM current_file_state")
+        let liveBytes = max(0, pageCount - freePages) * pageSize
+        let reusable = freePages * pageSize
+        let shm = fileSize(atPath: databaseURL.path + "-shm")
+        let publication = StorageCostModel.publication(stagedRows: staged, currentRows: current)
+        // While a generation is active the next slice is the next unit of work;
+        // an accounting that ignored it would call a store "available" whose
+        // very next slice is refused.
+        // A scalar existence check: the public summary path must never decode
+        // the private traversal checkpoint (scan_generations.progress).
+        let generationActive = try connection.scalarInt("SELECT EXISTS(SELECT 1 FROM scan_generations WHERE status = 'active')") != 0
+        let nextWork = generationActive ? StorageCostModel.nextSliceBytes : 0
+        var walPinned = false
+        var walBytes = fileSize(atPath: databaseURL.path + "-wal")
+        // The log file keeps its size after SQLite's own checkpoints, so it is
+        // trusted only while it cannot change the decision: past its bound, or
+        // when counting it would push the demand over the cap, it is probed.
+        // PASSIVE never blocks; frames it cannot move belong to an open
+        // reader's snapshot. Once every frame is moved, TRUNCATE resets the
+        // file without waiting on anyone.
+        let decisive = walBytes > 0
+            && (walBytes > walJournalSizeLimit || liveBytes + shm + walBytes + publication.reserve + nextWork + max(0, demandHint) > capBytes)
+        if probeCheckpoint, decisive {
+            let passive = try connection.walCheckpoint("PASSIVE")
+            walPinned = passive.logFrames > 0 && passive.checkpointedFrames < passive.logFrames
+            if !walPinned, passive.busy == 0 {
+                let truncate = try connection.walCheckpoint("TRUNCATE")
+                if truncate.busy == 0 { walBytes = fileSize(atPath: databaseURL.path + "-wal") }
+            }
+        }
+        let disk = availableCapacitySource(databaseURL)
+        let evictable = try hasEvictableHistory(connection: connection)
+        let committed = liveBytes + walBytes + shm
+        var limitations: [String] = []
+        let admission: EvidenceStorageAccounting.Admission
+        let reserved = publication.reserve + nextWork
+        if walPinned, committed + reserved > capBytes {
+            admission = .walPinned
+            limitations.append("An open reader pins \(walBytes) bytes of write-ahead log; they are reclaimed when it closes, not by eviction.")
+        } else if let disk, disk < publication.log + StorageCostModel.diskReserveBytes {
+            admission = .diskSpaceLimited
+            limitations.append("The volume has \(disk) bytes free; publishing \(staged) staged rows needs about \(publication.log + StorageCostModel.diskReserveBytes). Nothing was written.")
+        } else if committed + reserved <= capBytes {
+            admission = .available
+        } else if evictable {
+            admission = .retentionRequired
+            limitations.append("Committed \(committed) bytes plus a \(reserved)-byte reserve for publication and the next slice exceed the \(capBytes)-byte cap; retention can evict history.")
+        } else {
+            admission = .capacityLimited
+            limitations.append("Authoritative current state, staged work and the next slice need \(committed + reserved) bytes against a \(capBytes)-byte cap with no evictable history; raise the cap or narrow watched roots. Nothing was evicted.")
+        }
+        return EvidenceStorageAccounting(
+            capBytes: capBytes, fileBytes: fileSize(atPath: databaseURL.path), liveBytes: liveBytes, reusableBytes: reusable,
+            walBytes: walBytes, sharedMemoryBytes: shm, stagedRowCount: staged, reservedPublicationBytes: publication.reserve,
+            nextWorkReserveBytes: nextWork, publicationLogEstimateBytes: publication.log, availableDiskBytes: disk, walPinnedByReader: walPinned,
+            evictableHistory: evictable, admission: admission, limitations: limitations)
+    }
+
+    /// Admits work only when it and the next publication's reserve fit under
+    /// the cap and the volume can hold the transient publication log. Refusal
+    /// is explicit and typed; nothing is evicted here, and the refused demand
+    /// becomes the target of the next retention run.
+    private func admit(_ work: StorageWork) throws {
+        let hint: Int64
+        switch work {
+        case .generic(let bytes): hint = max(0, bytes)
+        case .staging(let rows, let passes): hint = Int64(rows) * (StorageCostModel.stagedRowBytes + StorageCostModel.newPublishedRowBytes) + Int64(passes) * 1_024
+        case .publication(let stagedRows, let priorCurrentRows): hint = stagedRows * StorageCostModel.newPublishedRowBytes + priorCurrentRows * 512
+        }
+        let accounting = try storageAccounting(connection: requireConnection(), capBytes: storageCapBytes, probeCheckpoint: true, demandHint: hint)
+        let estimate: Int64
+        let reserveAfter: Int64
+        let logAfter: Int64
+        switch work {
+        case .generic(let bytes):
+            // Small writes must not consume the headroom held for the next slice.
+            estimate = max(0, bytes)
+            reserveAfter = accounting.reservedPublicationBytes + accounting.nextWorkReserveBytes
+            logAfter = accounting.publicationLogEstimateBytes
+        case .staging(let rows, let passes):
+            // The slice is the next work itself: its bytes plus the publication
+            // of everything staged afterwards is exactly what the accounting's
+            // next-work reserve holds for it.
+            estimate = Int64(rows) * StorageCostModel.stagedRowBytes + Int64(passes) * 1_024
+            let current = try requireConnection().scalarInt("SELECT COUNT(*) FROM current_file_state")
+            let after = StorageCostModel.publication(stagedRows: accounting.stagedRowCount + Int64(rows), currentRows: current)
+            reserveAfter = after.reserve
+            logAfter = after.log
+        case .publication(let stagedRows, let priorCurrentRows):
+            let cost = StorageCostModel.publication(stagedRows: stagedRows, currentRows: priorCurrentRows)
+            estimate = cost.reserve + priorCurrentRows * 512
+            reserveAfter = 0
+            logAfter = cost.log
+        }
+        let demand = estimate + reserveAfter
+        if accounting.walPinnedByReader, accounting.committedBytes + demand > storageCapBytes {
+            pendingStorageDemandBytes = max(pendingStorageDemandBytes, demand)
+            throw EvidenceStoreError.storageHeadroomUnavailable(reason: "wal-pinned", demandBytes: demand, accounting: accounting)
+        }
+        if let disk = accounting.availableDiskBytes, disk < logAfter + StorageCostModel.diskReserveBytes {
+            throw EvidenceStoreError.storageHeadroomUnavailable(reason: "disk-space", demandBytes: demand, accounting: accounting)
+        }
+        guard accounting.committedBytes + demand <= storageCapBytes else {
+            pendingStorageDemandBytes = max(pendingStorageDemandBytes, demand)
+            if reserveAfter > 0, accounting.committedBytes + estimate <= storageCapBytes {
+                throw EvidenceStoreError.storageHeadroomUnavailable(reason: "publication-reserve", demandBytes: demand, accounting: accounting)
+            }
+            throw EvidenceStoreError.storageCapacityExceeded(currentBytes: accounting.committedBytes, capBytes: storageCapBytes)
+        }
+        // Only work at least as large as the refused demand proves the refusal
+        // obsolete (the cap was raised or space was freed).
+        if demand >= pendingStorageDemandBytes { pendingStorageDemandBytes = 0 }
+    }
+
     private func reclaimableStorageBytes(connection: SQLiteConnection) throws -> Int64 {
         let pageCount = try connection.scalarInt("PRAGMA page_count")
         let freePages = try connection.scalarInt("PRAGMA freelist_count")
@@ -2958,19 +3883,6 @@ public actor EvidenceStore {
         return liveDatabaseBytes
             + fileSize(atPath: databaseURL.path + "-wal")
             + fileSize(atPath: databaseURL.path + "-shm")
-    }
-
-    private func ensureStorageAdmission(
-        estimatedBytes: Int64,
-        allowRecoveryWrite: Bool = false
-    ) throws {
-        let current = storageBytes()
-        guard allowRecoveryWrite || current + max(0, estimatedBytes) <= storageCapBytes else {
-            throw EvidenceStoreError.storageCapacityExceeded(
-                currentBytes: current,
-                capBytes: storageCapBytes
-            )
-        }
     }
 
     private func fileSize(atPath path: String) -> Int64 {
@@ -2984,6 +3896,12 @@ public actor EvidenceStore {
     }
 
     private static func validate(_ event: EvidenceStoreEvent) throws {
+        guard event.timing == nil else {
+            throw EvidenceStoreError.invalidEvent("Measured timing must be recorded through an observation, not a standalone event")
+        }
+        guard event.observedAt.timeIntervalSince1970.isFinite else {
+            throw EvidenceStoreError.invalidEvent("observed_at is not finite")
+        }
         guard !event.eventID.isEmpty else { throw EvidenceStoreError.invalidEvent("event_id is empty") }
         guard !event.path.isEmpty else { throw EvidenceStoreError.invalidEvent("path is empty") }
         guard !event.consumerCategory.isEmpty else {
@@ -2991,12 +3909,18 @@ public actor EvidenceStore {
         }
     }
 
-    private static func configure(_ connection: SQLiteConnection) throws {
+    private static func configure(_ connection: SQLiteConnection, walJournalSizeLimit: Int64 = EvidenceStore.defaultWALJournalSizeLimit) throws {
         try connection.execute("PRAGMA busy_timeout=5000")
         try connection.execute("PRAGMA journal_mode=WAL")
         try connection.execute("PRAGMA synchronous=NORMAL")
         try connection.execute("PRAGMA foreign_keys=ON")
+        // A fully checkpointed write-ahead log is truncated to this size when
+        // the next writer restarts it, so the log file never stays at its
+        // publication peak (2.98 GB at one million files) between samples.
+        try connection.execute("PRAGMA journal_size_limit=\(walJournalSizeLimit)")
     }
+
+    public static let defaultWALJournalSizeLimit: Int64 = 16 * 1_024 * 1_024
 
     public nonisolated static func availableCapacity(at databaseURL: URL) -> Int64? {
         let directory = databaseURL.deletingLastPathComponent()
@@ -3027,7 +3951,7 @@ public actor EvidenceStore {
                 let interruptedShadow = try SQLiteConnection(url: shadowURL)
                 do {
                     try configure(interruptedShadow)
-                    guard try interruptedShadow.scalarInt("PRAGMA user_version") == 6,
+                    guard try interruptedShadow.scalarInt("PRAGMA user_version") == Self.currentSchemaVersion,
                           try interruptedShadow.scalarText("PRAGMA quick_check") == "ok"
                     else {
                         throw EvidenceStoreError.sqlite(
@@ -3051,13 +3975,13 @@ public actor EvidenceStore {
         defer { source.close() }
         try configure(source)
         let version = try source.scalarInt("PRAGMA user_version")
-        guard version <= 6 else {
+        guard version <= Self.currentSchemaVersion else {
             throw EvidenceStoreError.sqlite(
                 code: SQLITE_MISMATCH,
                 message: "Database schema is newer than this application"
             )
         }
-        guard version > 0, version < 6 else { return }
+        guard version > 0, version < Self.currentSchemaVersion else { return }
 
         let sourceBytes = sqliteStorageBytes(for: databaseURL)
         let requiredBytes = max(64 * 1_024 * 1_024, sourceBytes * 3 + 16 * 1_024 * 1_024)
@@ -3078,7 +4002,7 @@ public actor EvidenceStore {
         do {
             try configure(shadow)
             try migrate(shadow)
-            guard try shadow.scalarInt("PRAGMA user_version") == 6,
+            guard try shadow.scalarInt("PRAGMA user_version") == Self.currentSchemaVersion,
                   try shadow.scalarText("PRAGMA quick_check") == "ok"
             else {
                 throw EvidenceStoreError.sqlite(
@@ -3138,7 +4062,7 @@ public actor EvidenceStore {
 
     private static func migrate(_ connection: SQLiteConnection) throws {
         let version = try connection.scalarInt("PRAGMA user_version")
-        guard version <= 6 else {
+        guard version <= Self.currentSchemaVersion else {
             throw EvidenceStoreError.sqlite(code: SQLITE_MISMATCH, message: "Database schema is newer than this application")
         }
         if version == 0 {
@@ -3496,6 +4420,206 @@ public actor EvidenceStore {
             // Re-running this idempotently repairs databases interrupted in that window.
             try backfillScanGenerationEntryColumns(connection)
         }
+        if version < 7 {
+            try connection.transaction {
+                try connection.execute("""
+                    CREATE TABLE IF NOT EXISTS scan_directory_passes (
+                        generation_id TEXT NOT NULL REFERENCES scan_generations(generation_id) ON DELETE CASCADE,
+                        directory_path TEXT NOT NULL,
+                        root_path TEXT NOT NULL,
+                        payload BLOB NOT NULL,
+                        PRIMARY KEY(generation_id, directory_path)
+                    );
+                    CREATE INDEX IF NOT EXISTS scan_directory_passes_root ON scan_directory_passes(generation_id, root_path);
+                    PRAGMA user_version=7;
+                    """)
+            }
+        }
+        if version < 8 {
+            try connection.transaction {
+                try connection.execute("""
+                    ALTER TABLE scan_generation_entries RENAME TO legacy_scan_generation_entries;
+                    DROP INDEX IF EXISTS scan_generation_entries_object_path;
+                    CREATE TABLE scan_generation_entries (
+                        generation_id TEXT NOT NULL REFERENCES scan_generations(generation_id) ON DELETE CASCADE,
+                        path TEXT NOT NULL,
+                        payload BLOB NOT NULL,
+                        object_id TEXT,
+                        identity_method TEXT,
+                        root_path TEXT NOT NULL,
+                        logical_bytes INTEGER,
+                        allocated_bytes INTEGER,
+                        modified_at REAL,
+                        link_count INTEGER,
+                        directory_path TEXT,
+                        pass_id TEXT,
+                        observed_at REAL,
+                        PRIMARY KEY(generation_id, root_path, path)
+                    );
+                    INSERT INTO scan_generation_entries
+                        (generation_id, path, payload, object_id, identity_method, root_path, logical_bytes, allocated_bytes, modified_at, link_count)
+                        SELECT generation_id, path, payload, object_id, identity_method, COALESCE(root_path, ''), logical_bytes, allocated_bytes, modified_at, link_count
+                        FROM legacy_scan_generation_entries;
+                    DROP TABLE legacy_scan_generation_entries;
+                    CREATE INDEX scan_generation_entries_object_path ON scan_generation_entries(generation_id, object_id, path);
+                    CREATE INDEX scan_generation_entries_pass ON scan_generation_entries(generation_id, root_path, directory_path, pass_id);
+                    DROP TABLE scan_directory_passes;
+                    CREATE TABLE scan_directory_passes (
+                        generation_id TEXT NOT NULL REFERENCES scan_generations(generation_id) ON DELETE CASCADE,
+                        root_path TEXT NOT NULL,
+                        directory_path TEXT NOT NULL,
+                        pass_id TEXT NOT NULL,
+                        payload BLOB NOT NULL,
+                        PRIMARY KEY(generation_id, root_path, directory_path),
+                        UNIQUE(generation_id, pass_id)
+                    );
+                    CREATE INDEX scan_directory_passes_validation ON scan_directory_passes(generation_id, directory_path, root_path);
+                    PRAGMA user_version=8;
+                    """)
+            }
+        }
+        if version < 9 {
+            try connection.transaction {
+                // Historical observations did not retain their sample time.
+                // NULL is deliberate: run completion is not a substitute.
+                try connection.execute("ALTER TABLE file_state_observations ADD COLUMN observed_at REAL")
+                // Receipt state shares each hint's retention lifecycle. Old
+                // gap receipts are unknown and conservatively reset once.
+                try connection.execute("ALTER TABLE fsevent_hints ADD COLUMN gap_recorded INTEGER NOT NULL DEFAULT 0 CHECK(gap_recorded IN (0, 1))")
+                // A first sighting is not proof of an exact creation time.
+                // Historical inverted ranges are not repaired by swapping
+                // endpoints: preserve their measured upper/detection values
+                // and explicitly withdraw the unsupported lower bound.
+                try connection.execute("""
+                    CREATE TABLE change_events_with_bounds (
+                        event_id TEXT PRIMARY KEY NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
+                        operation TEXT NOT NULL,
+                        object_id TEXT NOT NULL REFERENCES file_objects(object_id),
+                        before_observation_id TEXT,
+                        after_observation_id TEXT NOT NULL REFERENCES observation_runs(observation_id),
+                        path_before TEXT,
+                        path_after TEXT,
+                        logical_delta INTEGER NOT NULL,
+                        allocated_delta INTEGER NOT NULL,
+                        detected_at REAL NOT NULL,
+                        occurred_start REAL,
+                        occurred_end REAL NOT NULL,
+                        coverage TEXT NOT NULL,
+                        CHECK(occurred_start IS NULL OR occurred_start <= occurred_end)
+                    );
+                    INSERT INTO change_events_with_bounds
+                        SELECT event_id, operation, object_id, before_observation_id, after_observation_id,
+                               path_before, path_after, logical_delta, allocated_delta, detected_at,
+                               CASE WHEN before_observation_id IS NULL OR occurred_start > occurred_end
+                                    THEN NULL ELSE occurred_start END,
+                               occurred_end, coverage
+                        FROM change_events;
+                    DROP TABLE change_events;
+                    ALTER TABLE change_events_with_bounds RENAME TO change_events;
+                    CREATE INDEX change_events_object_time ON change_events(object_id, detected_at);
+                    """)
+                try connection.execute("PRAGMA user_version=9")
+            }
+        }
+        if version < 10 {
+            try connection.transaction {
+                // Existing dates remain available as legacy evidence, but are
+                // not asserted to have the measured semantics of new events.
+                try connection.execute("""
+                    ALTER TABLE change_events ADD COLUMN timing_version INTEGER NOT NULL DEFAULT 0 CHECK(timing_version IN (0, 1));
+                    CREATE VIEW event_evidence AS
+                        SELECT e.*, c.occurred_start, c.occurred_end, c.detected_at
+                        FROM events e LEFT JOIN change_events c
+                          ON c.event_id = e.event_id AND c.timing_version = 1;
+                    PRAGMA user_version=10;
+                    """)
+            }
+        }
+        if version < 11 {
+            try connection.transaction {
+                try connection.execute("""
+                    ALTER TABLE current_file_state ADD COLUMN timing_verified INTEGER NOT NULL DEFAULT 0 CHECK(timing_verified IN (0, 1));
+                    ALTER TABLE path_bindings ADD COLUMN timing_verified INTEGER NOT NULL DEFAULT 0 CHECK(timing_verified IN (0, 1));
+                    UPDATE change_events SET timing_version = 0;
+                    PRAGMA user_version=11;
+                    """)
+                // Preview v10 could promote legacy lower bounds into new
+                // events. Keep its original dates but withdraw that assertion.
+            }
+        }
+        if version < 12 {
+            try connection.transaction {
+                // Keep historical bytes and dates intact, but do not let the
+                // former non-null discovery-time default act as a known bound.
+                try connection.execute("""
+                    PRAGMA defer_foreign_keys=ON;
+                    CREATE TABLE provenance_claims_with_bounds (
+                        claim_id TEXT PRIMARY KEY NOT NULL,
+                        event_id TEXT NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
+                        method TEXT NOT NULL,
+                        confidence TEXT NOT NULL,
+                        detected_at REAL NOT NULL,
+                        occurred_start REAL,
+                        occurred_end REAL NOT NULL,
+                        session_registration_id TEXT,
+                        supersedes_claim_id TEXT REFERENCES provenance_claims_with_bounds(claim_id),
+                        superseded_by_claim_id TEXT REFERENCES provenance_claims_with_bounds(claim_id),
+                        payload BLOB NOT NULL,
+                        legacy_occurred_start REAL,
+                        timing_version INTEGER NOT NULL DEFAULT 0 CHECK(timing_version IN (0, 1)),
+                        CHECK(occurred_start IS NULL OR occurred_start <= occurred_end)
+                    );
+                    INSERT INTO provenance_claims_with_bounds
+                        SELECT claim_id, event_id, method, confidence, detected_at, NULL, occurred_end,
+                               session_registration_id, supersedes_claim_id, superseded_by_claim_id,
+                               payload, occurred_start, 0 FROM provenance_claims;
+                    DROP TABLE provenance_claims;
+                    ALTER TABLE provenance_claims_with_bounds RENAME TO provenance_claims;
+                    CREATE INDEX provenance_claims_event_time ON provenance_claims(event_id, detected_at);
+                    CREATE INDEX provenance_claims_session ON provenance_claims(session_registration_id, occurred_start, occurred_end);
+                    CREATE INDEX provenance_claims_interval ON provenance_claims(occurred_end, occurred_start, detected_at, claim_id);
+                    PRAGMA user_version=12;
+                    """)
+            }
+        }
+        if version < 13 {
+            try connection.transaction {
+                // Historical progress is deliberately not decoded/backfilled:
+                // its optional counters remain unknown until the next write.
+                try connection.execute("""
+                    CREATE TABLE IF NOT EXISTS scan_generation_summaries (
+                        generation_id TEXT PRIMARY KEY NOT NULL REFERENCES scan_generations(generation_id) ON DELETE CASCADE,
+                        completed_root_count INTEGER NOT NULL CHECK(completed_root_count >= 0),
+                        pending_directory_count INTEGER NOT NULL CHECK(pending_directory_count >= 0),
+                        total_root_count INTEGER NOT NULL CHECK(total_root_count >= completed_root_count)
+                    );
+                    PRAGMA user_version=13;
+                    """)
+            }
+        }
+        if version < 14 {
+            try connection.transaction {
+                // Durable scan frontier beyond each root's bounded in-memory
+                // window. Rows are moved into the window in discovery order and
+                // removed with their generation; never a growing progress blob.
+                try connection.execute("""
+                    CREATE TABLE IF NOT EXISTS scan_frontier (
+                        generation_id TEXT NOT NULL REFERENCES scan_generations(generation_id) ON DELETE CASCADE,
+                        root_path TEXT NOT NULL,
+                        directory_path TEXT NOT NULL,
+                        depth INTEGER NOT NULL CHECK(depth >= 0),
+                        sequence INTEGER NOT NULL,
+                        PRIMARY KEY (generation_id, root_path, directory_path)
+                    ) WITHOUT ROWID;
+                    CREATE INDEX IF NOT EXISTS scan_frontier_order ON scan_frontier(generation_id, root_path, sequence);
+                    -- Publication revalidates every object's open bindings by object.
+                    -- Without an object-leading index each lookup scanned the
+                    -- whole table, making reconciliation quadratic in file count.
+                    CREATE INDEX IF NOT EXISTS path_bindings_object_path ON path_bindings(object_id, path, valid_through);
+                    PRAGMA user_version=14;
+                    """)
+            }
+        }
         guard try connection.scalarText("PRAGMA quick_check") == "ok" else {
             throw EvidenceStoreError.sqlite(code: SQLITE_CORRUPT, message: "Database integrity check failed")
         }
@@ -3598,6 +4722,96 @@ public actor EvidenceStore {
         }
     }
 
+    /// Keeps each root's in-memory frontier at the bounded window: newly
+    /// discovered directories and any legacy oversized window spill into
+    /// durable rows, durable rows refill a draining window in discovery order,
+    /// and the remaining durable count is recorded so a root completes only
+    /// when both are empty. Runs inside the caller's transaction.
+    private static func synchronizeFrontier(
+        _ generation: MetadataScanGeneration,
+        discovered: [MetadataScanDiscoveredDirectory],
+        connection: SQLiteConnection
+    ) throws -> MetadataScanGeneration {
+        let window = DirectoryMetadataScanner.frontierWindowSize
+        var sequence = try connection.withStatement("SELECT COALESCE(MAX(sequence), 0) FROM scan_frontier WHERE generation_id = ?") { statement -> Int64 in
+            try connection.bind(generation.generationID, at: 1, in: statement)
+            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+            return sqlite3_column_int64(statement, 0)
+        }
+        func insert(rootPath: String, directoryPath: String, depth: Int) throws {
+            sequence += 1
+            try connection.withStatement(
+                "INSERT OR IGNORE INTO scan_frontier (generation_id, root_path, directory_path, depth, sequence) VALUES (?, ?, ?, ?, ?)"
+            ) { statement in
+                try connection.bind(generation.generationID, at: 1, in: statement)
+                try connection.bind(rootPath, at: 2, in: statement)
+                try connection.bind(directoryPath, at: 3, in: statement)
+                try connection.bind(Int64(depth), at: 4, in: statement)
+                try connection.bind(sequence, at: 5, in: statement)
+                try connection.stepDone(statement)
+            }
+        }
+        let failedRoots = Set(generation.roots.filter { $0.status == .failed }.map(\.rootPath))
+        for item in discovered where !failedRoots.contains(item.rootPath) {
+            try insert(rootPath: item.rootPath, directoryPath: item.directoryPath, depth: item.depth)
+        }
+        var roots: [MetadataScanRootProgress] = []
+        for root in generation.roots {
+            var frontier = root.frontier
+            if frontier.count > window {
+                for cursor in frontier[window...] {
+                    try insert(rootPath: root.rootPath, directoryPath: cursor.directoryPath, depth: cursor.depth)
+                }
+                frontier = Array(frontier.prefix(window))
+            }
+            if root.status == .pending || root.status == .active, frontier.count < window {
+                let moved = try connection.withStatement(
+                    "SELECT directory_path, depth FROM scan_frontier WHERE generation_id = ? AND root_path = ? ORDER BY sequence LIMIT ?"
+                ) { statement -> [(String, Int)] in
+                    try connection.bind(generation.generationID, at: 1, in: statement)
+                    try connection.bind(root.rootPath, at: 2, in: statement)
+                    try connection.bind(Int64(window - frontier.count), at: 3, in: statement)
+                    var values: [(String, Int)] = []
+                    while sqlite3_step(statement) == SQLITE_ROW {
+                        guard let directory = columnString(statement, column: 0) else { throw connection.lastError(SQLITE_CORRUPT) }
+                        values.append((directory, Int(sqlite3_column_int64(statement, 1))))
+                    }
+                    return values
+                }
+                for (directory, depth) in moved {
+                    frontier.append(.init(directoryPath: directory, depth: depth))
+                    try connection.withStatement("DELETE FROM scan_frontier WHERE generation_id = ? AND root_path = ? AND directory_path = ?") { statement in
+                        try connection.bind(generation.generationID, at: 1, in: statement)
+                        try connection.bind(root.rootPath, at: 2, in: statement)
+                        try connection.bind(directory, at: 3, in: statement)
+                        try connection.stepDone(statement)
+                    }
+                }
+            }
+            let pending = try connection.withStatement("SELECT COUNT(*) FROM scan_frontier WHERE generation_id = ? AND root_path = ?") { statement -> Int64 in
+                try connection.bind(generation.generationID, at: 1, in: statement)
+                try connection.bind(root.rootPath, at: 2, in: statement)
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
+                return sqlite3_column_int64(statement, 0)
+            }
+            roots.append(.init(
+                rootPath: root.rootPath, status: root.status, frontier: frontier,
+                processedEntryCount: root.processedEntryCount, observedFileCount: root.observedFileCount,
+                limitations: root.limitations, pendingDirectoryCount: Int(pending)
+            ))
+        }
+        return copyScanGeneration(generation, roots: roots)
+    }
+
+    private static func deleteFrontier(generationID: String, rootPath: String? = nil, connection: SQLiteConnection) throws {
+        try connection.withStatement("DELETE FROM scan_frontier WHERE generation_id = ? AND (? IS NULL OR root_path = ?)") { statement in
+            try connection.bind(generationID, at: 1, in: statement)
+            try connection.bind(rootPath, at: 2, in: statement)
+            try connection.bind(rootPath, at: 3, in: statement)
+            try connection.stepDone(statement)
+        }
+    }
+
     private static func persistScanGeneration(
         _ generation: MetadataScanGeneration,
         rowStatus: MetadataScanGenerationStatus,
@@ -3618,6 +4832,20 @@ public actor EvidenceStore {
             try connection.bind(Int64(generation.processedEntryCount), at: 7, in: statement)
             try connection.bind(Int64(generation.stagedFileCount), at: 8, in: statement)
             try connection.bind(progress, at: 9, in: statement)
+            try connection.stepDone(statement)
+        }
+        // Same transaction as the private progress write and publication. This
+        // adds constant-sized metadata, independent of frontier width/depth.
+        let pending = try generation.roots.reduce(Int64(0)) { total, root in
+            let (value, overflow) = total.addingReportingOverflow(Int64(root.frontier.count + (root.pendingDirectoryCount ?? 0)))
+            guard !overflow else { throw EvidenceStoreError.invalidObservation("Scan summary counter overflow") }
+            return value
+        }
+        try connection.withStatement("INSERT INTO scan_generation_summaries VALUES (?, ?, ?, ?) ON CONFLICT(generation_id) DO UPDATE SET completed_root_count = excluded.completed_root_count, pending_directory_count = excluded.pending_directory_count, total_root_count = excluded.total_root_count") { statement in
+            try connection.bind(generation.generationID, at: 1, in: statement)
+            try connection.bind(Int64(generation.completedRootCount), at: 2, in: statement)
+            try connection.bind(pending, at: 3, in: statement)
+            try connection.bind(Int64(generation.roots.count), at: 4, in: statement)
             try connection.stepDone(statement)
         }
     }
@@ -3707,30 +4935,100 @@ public actor EvidenceStore {
             try connection.bind(date.timeIntervalSince1970, at: 4, in: statement)
             try connection.stepDone(statement)
         }
+        // This runs in the invalidation receipt transaction (including the
+        // FSEvents route). Reset only intersecting roots; healthy independent
+        // staging is retained. The token also fences work scanned off-actor.
+        guard let generation = try readScanGeneration(status: .active, connection: connection) else { return }
+        var affected = false
+        let roots = try generation.roots.map { root -> MetadataScanRootProgress in
+            guard rootPath == "*" || path(rootPath, isWithin: root.rootPath) || path(root.rootPath, isWithin: rootPath) else { return root }
+            affected = true
+            try invalidateDirectoryPass(root.rootPath, rootPath: root.rootPath, generationID: generation.generationID, connection: connection)
+            return .init(rootPath: root.rootPath, status: .active,
+                         frontier: [.init(directoryPath: root.rootPath, depth: 0)],
+                         processedEntryCount: root.processedEntryCount,
+                         observedFileCount: 0)
+        }
+        guard affected else { return }
+        let stagedCount = Int(try connection.scalarInt("SELECT COUNT(DISTINCT path) FROM scan_generation_entries WHERE generation_id = '\(sqlLiteral(generation.generationID))'"))
+        let restarted = copyScanGeneration(generation, status: .active, stagedFileCount: stagedCount,
+            updatedAt: max(date, generation.updatedAt),
+            limitations: generation.limitations + ["New dirty evidence restarted affected roots; superseded observations cannot prove current presence or absence."],
+            roots: roots, reconciliationToken: UUID().uuidString.lowercased())
+        try persistScanGeneration(restarted, rowStatus: .active, connection: connection)
     }
 
-    private static func resolveReconciliationInvalidations(at date: Date, connection: SQLiteConnection) throws {
+    private static func resolveReconciliationInvalidations(generation: MetadataScanGeneration, at date: Date, connection: SQLiteConnection) throws {
         try connection.withStatement(
-            "UPDATE reconciliation_invalidations SET resolved_at = ?, state = 'resolved' WHERE state = 'open'"
+            "SELECT invalidation_id, root_path FROM reconciliation_invalidations WHERE state = 'open'"
         ) { statement in
-            try connection.bind(date.timeIntervalSince1970, at: 1, in: statement)
-            try connection.stepDone(statement)
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let id = columnString(statement, column: 0), let root = columnString(statement, column: 1) else {
+                    throw connection.lastError(SQLITE_CORRUPT)
+                }
+                let affectedRoots = generation.roots.filter {
+                    root == "*" || path(root, isWithin: $0.rootPath) || path($0.rootPath, isWithin: root)
+                }
+                let covered = !affectedRoots.isEmpty && affectedRoots.allSatisfy { $0.status == .completed }
+                guard covered else { continue }
+                try connection.withStatement("UPDATE reconciliation_invalidations SET resolved_at = ?, state = 'resolved' WHERE invalidation_id = ?") { update in
+                    try connection.bind(date.timeIntervalSince1970, at: 1, in: update)
+                    try connection.bind(id, at: 2, in: update)
+                    try connection.stepDone(update)
+                }
+            }
         }
     }
 
     private static func readCurrentFile(
         objectID: String? = nil,
         path: String? = nil,
+        fromPriorSnapshot: Bool = false,
         connection: SQLiteConnection
     ) throws -> CurrentFileStateRecord? {
         precondition((objectID == nil) != (path == nil))
         let column = objectID == nil ? "path" : "object_id"
+        let table = fromPriorSnapshot ? "reconcile_prior_current" : "current_file_state"
         return try connection.withStatement(
-            "SELECT object_id, identity_method, path, root_path, scope_version_id, logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable FROM current_file_state WHERE \(column) = ? LIMIT 1"
+            "SELECT object_id, identity_method, path, root_path, scope_version_id, logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable FROM \(table) WHERE \(column) = ? LIMIT 1"
         ) { statement in
             try connection.bind(objectID ?? path!, at: 1, in: statement)
             guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
             return try decodeCurrentFile(statement, connection: connection)
+        }
+    }
+
+    private static func readPriorFileAtPath(_ path: String, connection: SQLiteConnection) throws -> CurrentFileStateRecord? {
+        let objectID = try connection.withStatement("SELECT object_id FROM reconcile_prior_paths WHERE path = ? ORDER BY object_id LIMIT 1") { statement -> String? in
+            try connection.bind(path, at: 1, in: statement)
+            guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
+            return columnString(statement, column: 0)
+        }
+        if let objectID { return try readCurrentFile(objectID: objectID, fromPriorSnapshot: true, connection: connection) }
+        let historical = try readCurrentFile(path: path, fromPriorSnapshot: true, connection: connection)
+        return historical?.presence == .outOfScope ? nil : historical
+    }
+
+    private static func restorePriorCurrent(
+        _ old: CurrentFileStateRecord,
+        path: String,
+        rootPath: String,
+        presence: CurrentFilePresence,
+        scope: EvidenceScopeVersion,
+        connection: SQLiteConnection
+    ) throws {
+        try connection.withStatement("""
+            INSERT INTO current_file_state (object_id, identity_method, path, root_path, scope_version_id,
+                logical_bytes, allocated_bytes, modified_at, presence, state_as_of_observation_id, observed_at, actionable, timing_verified)
+            SELECT object_id, identity_method, ?, ?, ?, logical_bytes, allocated_bytes, modified_at, ?,
+                state_as_of_observation_id, observed_at, 0, timing_verified FROM reconcile_prior_current WHERE object_id = ?
+            """) { statement in
+            try connection.bind(path, at: 1, in: statement)
+            try connection.bind(rootPath, at: 2, in: statement)
+            try connection.bind(scope.scopeVersionID, at: 3, in: statement)
+            try connection.bind(presence.rawValue, at: 4, in: statement)
+            try connection.bind(old.objectID, at: 5, in: statement)
+            try connection.stepDone(statement)
         }
     }
 
@@ -3765,21 +5063,25 @@ public actor EvidenceStore {
     }
 
     private static func readCanonicalStagedFile(
+        input: ReconciliationInput,
         generationID: String,
         objectID: String,
         preferredPath: String?,
         connection: SQLiteConnection
     ) throws -> (FileMetadata, Int, Int) {
         let counts = try connection.withStatement(
-            "SELECT COUNT(*), COALESCE(MAX(link_count), 1) FROM scan_generation_entries WHERE generation_id = ? AND object_id = ?"
+            "SELECT COUNT(*), COALESCE(MAX(link_count), 1) FROM \(input.table) WHERE generation_id = ? AND object_id = ?"
         ) { statement -> (Int, Int) in
             try connection.bind(generationID, at: 1, in: statement)
             try connection.bind(objectID, at: 2, in: statement)
             guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
             return (Int(sqlite3_column_int64(statement, 0)), Int(sqlite3_column_int64(statement, 1)))
         }
+        // A stable display path must not suppress fresher object metadata from
+        // another hard link. Keep the actual newest sample and its path/time
+        // together; prefer the previous path only when timestamps tie.
         let file = try connection.withStatement(
-            "SELECT object_id, identity_method, root_path, path, logical_bytes, allocated_bytes, modified_at, link_count FROM scan_generation_entries WHERE generation_id = ? AND object_id = ? ORDER BY CASE WHEN path = ? THEN 0 ELSE 1 END, path LIMIT 1"
+            "SELECT object_id, identity_method, root_path, path, logical_bytes, allocated_bytes, modified_at, link_count, payload FROM \(input.table) WHERE generation_id = ? AND object_id = ? ORDER BY observed_at DESC, CASE WHEN path = ? THEN 0 ELSE 1 END, path LIMIT 1"
         ) { statement -> FileMetadata in
             try connection.bind(generationID, at: 1, in: statement)
             try connection.bind(objectID, at: 2, in: statement)
@@ -3801,6 +5103,9 @@ public actor EvidenceStore {
               let rootPath = columnString(statement, column: 2),
               let path = columnString(statement, column: 3)
         else { throw connection.lastError(SQLITE_CORRUPT) }
+        struct ObservationTime: Decodable { let observedAt: Date? }
+        guard let payload = sqlite3_column_blob(statement, 8) else { throw connection.lastError(SQLITE_CORRUPT) }
+        let time = try JSONDecoder().decode(ObservationTime.self, from: Data(bytes: payload, count: Int(sqlite3_column_bytes(statement, 8))))
         return FileMetadata(
             objectID: objectID,
             identityMethod: identity,
@@ -3809,11 +5114,13 @@ public actor EvidenceStore {
             logicalBytes: sqlite3_column_int64(statement, 4),
             allocatedBytes: sqlite3_column_int64(statement, 5),
             modifiedAt: sqlite3_column_type(statement, 6) == SQLITE_NULL ? nil : Date(timeIntervalSince1970: sqlite3_column_double(statement, 6)),
-            linkCount: effectiveLinkCount ?? Int(sqlite3_column_int64(statement, 7))
+            linkCount: effectiveLinkCount ?? Int(sqlite3_column_int64(statement, 7)),
+            observedAt: time.observedAt
         )
     }
 
     private static func forEachStagedFile(
+        input: ReconciliationInput,
         generationID: String,
         objectID: String,
         connection: SQLiteConnection,
@@ -3822,7 +5129,7 @@ public actor EvidenceStore {
         var afterPath = ""
         while true {
             let file = try connection.withStatement(
-                "SELECT object_id, identity_method, root_path, path, logical_bytes, allocated_bytes, modified_at, link_count FROM scan_generation_entries WHERE generation_id = ? AND object_id = ? AND path > ? ORDER BY path LIMIT 1"
+                "SELECT object_id, identity_method, root_path, path, logical_bytes, allocated_bytes, modified_at, link_count, payload FROM \(input.table) WHERE generation_id = ? AND object_id = ? AND path > ? ORDER BY path LIMIT 1"
             ) { statement -> FileMetadata? in
                 try connection.bind(generationID, at: 1, in: statement)
                 try connection.bind(objectID, at: 2, in: statement)
@@ -3879,13 +5186,14 @@ public actor EvidenceStore {
     }
 
     private static func stagedPathExists(
+        input: ReconciliationInput,
         generationID: String,
         path: String,
         objectID: String,
         connection: SQLiteConnection
     ) throws -> Bool {
         try connection.withStatement(
-            "SELECT EXISTS(SELECT 1 FROM scan_generation_entries WHERE generation_id = ? AND path = ? AND object_id = ?)"
+            "SELECT EXISTS(SELECT 1 FROM \(input.table) WHERE generation_id = ? AND path = ? AND object_id = ?)"
         ) { statement in
             try connection.bind(generationID, at: 1, in: statement)
             try connection.bind(path, at: 2, in: statement)
@@ -3895,40 +5203,15 @@ public actor EvidenceStore {
         }
     }
 
-    private static func stagedReplacementExists(
-        generationID: String,
-        objectID: String,
-        connection: SQLiteConnection
-    ) throws -> Bool {
-        try connection.withStatement(
-            "SELECT EXISTS(SELECT 1 FROM path_bindings AS paths JOIN scan_generation_entries AS staged ON staged.generation_id = ? AND staged.path = paths.path WHERE paths.object_id = ? AND paths.valid_through IS NULL AND staged.object_id != paths.object_id)"
-        ) { statement in
-            try connection.bind(generationID, at: 1, in: statement)
-            try connection.bind(objectID, at: 2, in: statement)
-            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
-            return sqlite3_column_int64(statement, 0) != 0
-        }
-    }
-
-    private static func includedOpenPathCount(
-        objectID: String,
-        scope: EvidenceScopeVersion,
-        connection: SQLiteConnection
-    ) throws -> Int {
-        var count = 0
-        try forEachOpenPath(objectID: objectID, connection: connection) { path in
-            if isIncluded(path, in: scope) { count += 1 }
-        }
-        return count
-    }
-
     private static func copyScanGeneration(
         _ generation: MetadataScanGeneration,
         status: MetadataScanGenerationStatus? = nil,
         stagedFileCount: Int? = nil,
         updatedAt: Date? = nil,
         completedAt: Date? = nil,
-        limitations: [String]? = nil
+        limitations: [String]? = nil,
+        roots: [MetadataScanRootProgress]? = nil,
+        reconciliationToken: String? = nil
     ) -> MetadataScanGeneration {
         MetadataScanGeneration(
             generationID: generation.generationID,
@@ -3936,14 +5219,16 @@ public actor EvidenceStore {
             rootPaths: generation.rootPaths,
             excludedPaths: generation.excludedPaths,
             status: status ?? generation.status,
-            roots: generation.roots,
+            roots: roots ?? generation.roots,
             processedEntryCount: generation.processedEntryCount,
             stagedFileCount: stagedFileCount ?? generation.stagedFileCount,
             startedAt: generation.startedAt,
             updatedAt: updatedAt ?? generation.updatedAt,
-            completedAt: completedAt ?? generation.completedAt,
+            completedAt: status == .active ? nil : (completedAt ?? generation.completedAt),
             limitations: limitations ?? generation.limitations,
-            schedulerCursor: generation.schedulerCursor
+            schedulerCursor: generation.schedulerCursor,
+            passProvenanceVersion: generation.passProvenanceVersion,
+            reconciliationToken: reconciliationToken ?? generation.reconciliationToken
         )
     }
 
@@ -3995,6 +5280,12 @@ public actor EvidenceStore {
     private static func readEvents(statement: OpaquePointer, connection: SQLiteConnection) throws -> [EvidenceStoreEvent] {
         var values: [EvidenceStoreEvent] = []
         while sqlite3_step(statement) == SQLITE_ROW {
+            values.append(try readEvent(statement: statement, connection: connection))
+        }
+        return values
+    }
+
+    private static func readEvent(statement: OpaquePointer, connection: SQLiteConnection) throws -> EvidenceStoreEvent {
             guard let eventID = columnString(statement, column: 0),
                   let operationText = columnString(statement, column: 2),
                   let operation = EvidenceStoreEvent.Operation(rawValue: operationText),
@@ -4003,7 +5294,7 @@ public actor EvidenceStore {
                   let confidenceText = columnString(statement, column: 7),
                   let confidence = EvidenceStoreEvent.Confidence(rawValue: confidenceText)
             else { throw connection.lastError(SQLITE_CORRUPT) }
-            values.append(.init(
+            return EvidenceStoreEvent(
                 eventID: eventID,
                 observedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 1)),
                 operation: operation,
@@ -4014,9 +5305,7 @@ public actor EvidenceStore {
                 confidence: confidence,
                 isAnomaly: sqlite3_column_int64(statement, 8) != 0,
                 isReviewed: sqlite3_column_int64(statement, 9) != 0
-            ))
-        }
-        return values
+            ).withTiming(try EvidenceEventTiming.read(statement))
     }
 
     private func readProvenanceClaims(eventIDs: Set<String>, connection: SQLiteConnection) throws -> [ProvenanceClaim] {
@@ -4092,22 +5381,6 @@ public actor EvidenceStore {
     }
 
     private static func copy(_ claim: ProvenanceClaim, supersededByClaimID: String?) -> ProvenanceClaim {
-        ProvenanceClaim(
-            event: claim.event,
-            actor: claim.actor,
-            session: claim.session,
-            confidence: claim.confidence,
-            method: claim.method,
-            support: claim.support,
-            limitations: claim.limitations,
-            claimID: claim.claimID,
-            detectedAt: claim.detectedAt,
-            occurredStart: claim.occurredStart,
-            occurredEnd: claim.occurredEnd,
-            observedAncestry: claim.observedAncestry,
-            contradictions: claim.contradictions,
-            supersedesClaimID: claim.supersedesClaimID,
-            supersededByClaimID: supersededByClaimID
-        )
+        claim.withSupersededBy(supersededByClaimID)
     }
 }

@@ -1,0 +1,38 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-INBOX-ORACLE",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-4C98A07F39E013F9ACF3E7D64B0F2F8A",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b3b546fb1c09a77825ab564ef449fc748e216a36f03bbfe5871e85d0c8c54d21",
+    "immutable": true
+  },
+  "read_scope": [
+    "Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift"
+  ],
+  "purpose": "Narrow test-oracle correction rereview; product source unchanged from 51cf051.",
+  "questions": [
+    "Does the fixture delta (ordered z-other root and BEFORE INSERT counter in an independently committed first-root transaction) prove partial multi-root persistence within the failing attempt and cumulative retry, resolving the 51cf051 review finding?"
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01",
+    "AC-TASK-522-02"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 12,
+    "max_output_chars": 8000
+  }
+}

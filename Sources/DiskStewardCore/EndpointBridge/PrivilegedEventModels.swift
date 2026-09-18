@@ -52,6 +52,20 @@ public struct RawPrivilegedNotification: Codable, Equatable, Sendable {
     public let size: PrivilegedSizeObservation
     public let deadlineMet: Bool
 
+    /// Conservative payload accounting, including every variable-length field. This is not RSS.
+    /// Doubled UTF-8 length also covers bridged UTF-16 storage; fixed overhead covers value metadata.
+    public var estimatedRetainedBytes: Int {
+        let fields = [eventID, streamID, path, destinationPath ?? "", process.executablePath ?? "", fileIdentity?.volumeID ?? "", size.method]
+        var bytes = 1_024
+        for field in fields {
+            let length = field.utf8.count.multipliedReportingOverflow(by: 2)
+            let total = bytes.addingReportingOverflow(length.partialValue)
+            if length.overflow || total.overflow { return .max }
+            bytes = total.partialValue
+        }
+        return bytes
+    }
+
     public init(eventID: String, streamID: String, sequence: UInt64, observedAt: Date, operation: PrivilegedFileOperation, path: String, destinationPath: String? = nil, process: ProcessIdentity, fileIdentity: PrivilegedFileIdentity?, size: PrivilegedSizeObservation, deadlineMet: Bool = true) {
         self.eventID = eventID
         self.streamID = streamID

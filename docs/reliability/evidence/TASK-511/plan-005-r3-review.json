@@ -1,0 +1,308 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-RELIABILITY-005-ISOLATION-R3",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 2,
+    "sha256": "9184de6597bcbfc0d78eb70cc50e08e475656d0ba4cc91c6fb62f7457ee95161"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 3,
+    "sha256": "6a0b547477a750d31c1f16e2762422d3775fd6483d98eec37feddb2aa383310b"
+  },
+  "facts": [
+    {
+      "id": "FACT-511-01",
+      "claim": "Making notification and collector injection mandatory exposes the standalone StatusBoardViewModel fallback at line 127 as an additional isolation call site.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift:127",
+        "swift test targeted build /private/tmp/disk-steward-511-green.qfud7j; compiler missing arguments"
+      ],
+      "supports": [
+        "TASK-511"
+      ],
+      "freshness": "2026-09-17 isolated candidate compile"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-511-01",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "TASK-511"
+      ],
+      "claim": "The source fallback needs explicit inert notification and collector dependencies but was omitted from the declared write scope.",
+      "evidence": [
+        "FACT-511-01"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add only Sources/DiskStewardApp/StatusBoardViewModel.swift to TASK-511 write scope.",
+      "rationale": "Normal product startup already injects its real lifecycle. This closes an existing test isolation boundary without changing requirements, graph edges or acceptance."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "preserved",
+    "audit_closure": "preserved",
+    "execution_safety": "preserved"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 31,
+      "executable_nodes": 23,
+      "edges": 80,
+      "hard_dependencies": 21,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 31,
+      "executable_nodes": 23,
+      "edges": 80,
+      "hard_dependencies": 21,
+      "audit_gates": 7
+    }
+  },
+  "summary": "One additional source path; all 31 nodes, 80 edges, requirements, gates and completed foundation evidence retained. Standing user authorization covers implementation of the existing isolation contract. Observed correction after apply: the runtime clears ownership on the changed task; TASK-511 was reclaimed at graph11 before completion submission, and candidate review freshness was refreshed.",
+  "limitations": [
+    "Static scope review, not task completion or release approval.",
+    "Affected assurance inspections must be refreshed before audit."
+  ]
+}

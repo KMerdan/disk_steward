@@ -1,0 +1,372 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-OCCURRENCE-INTEGRATION-R6",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 5,
+    "sha256": "7b1a1d85ea11635914b97a722d38f2b6f3554138daabb446c90b5cc23622e3bd"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 6,
+    "sha256": "2a5bde680590d0ae5234ccd37c4ab23184d6eb91387d979956bdbb5d6b8a1551"
+  },
+  "facts": [
+    {
+      "id": "FACT-INTERVAL-PUBLIC",
+      "claim": "Core change-event bounds and exported provenance are separate data paths; public models fabricate point defaults and swap inversions.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift::ProvenanceInput",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+        "docs/reliability/evidence/TASK-521/integration-handoff.md"
+      ],
+      "supports": [
+        "TASK-552",
+        "GATE-559"
+      ],
+      "freshness": "2026-09-17 frozen candidate b9154fd source inspection; not yet fixed."
+    },
+    {
+      "id": "FACT-ORDINARY-HINT",
+      "claim": "Normal FSEvents only schedule work; controller invokes noteEventGap solely for loss batches, not ordinary dirty signals.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift::restartChangeCollector",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift::noteEventGap"
+      ],
+      "supports": [
+        "TASK-522",
+        "GATE-529"
+      ],
+      "freshness": "2026-09-17 frozen candidate b9154fd; no app integration claimed by core tests."
+    },
+    {
+      "id": "FACT-EXISTING-INTENT",
+      "claim": "REQ502/505 already require trustworthy changed-file evidence, accurate observation times, explicit coverage and useful private public results; seven cumulative gates remain mandatory.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        ".pyramid/plan.json::intent",
+        "docs/reliability/evidence/CONTRACT-510/safety-contract.md"
+      ],
+      "supports": [
+        "TASK-522",
+        "TASK-552",
+        "GATE-529",
+        "GATE-559"
+      ],
+      "freshness": "R5 G38 plan; no final-intent expansion."
+    }
+  ],
+  "findings": [
+    {
+      "id": "REFINE-INTEGRATION-ACCEPTANCE",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "TASK-522",
+        "TASK-552",
+        "GATE-529",
+        "GATE-559"
+      ],
+      "claim": "Generic freshness/coverage prose and informal handoff can omit the two real integration paths.",
+      "evidence": [
+        "FACT-INTERVAL-PUBLIC",
+        "FACT-ORDINARY-HINT"
+      ],
+      "counterevidence": [
+        "FACT-EXISTING-INTENT"
+      ],
+      "disposition": "applied",
+      "change": "Add explicit acceptance/evidence criteria and required handoff; narrowly extend TASK552 scope for the observed provenance/export dependencies.",
+      "rationale": "Strengthens proof of existing behavior without new feature or gate; no task or prior result removed. Existing graph paths remain the earliest demonstrable app/API boundaries."
+    },
+    {
+      "id": "REFINE-SEPARATE-WORKSTREAM",
+      "class": "over-decomposition",
+      "affected_nodes": [
+        "TASK-552"
+      ],
+      "claim": "A separate parallel timestamp task would compete for the same store/model/export files and fragment one public evidence contract.",
+      "evidence": [
+        "FACT-INTERVAL-PUBLIC"
+      ],
+      "counterevidence": [
+        "FACT-EXISTING-INTENT"
+      ],
+      "disposition": "rejected",
+      "change": "Retain existing TASK552 and seven-rung structure; do not add a competing branch.",
+      "rationale": "No independent ownership/recovery boundary is established by merely moving this DTO acceptance to another node. Re-evaluate decomposition only if implementation evidence shows independently reviewable work units."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "strengthened",
+    "audit_closure": "strengthened",
+    "execution_safety": "preserved"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    }
+  },
+  "summary": "Retain all 32 nodes, 24 executable nodes and seven cumulative increment gates. Strengthen two existing integration contracts and their evidence without rewriting historical claims or weakening material finding/rollback/scale/soak obligations. Runtime preview/validation and matching impact update required before affected audits.",
+  "limitations": [
+    "This review establishes planning traceability, not runtime correctness or release readiness.",
+    "Assurance must map new attribution/export impact and inspection before TASK552/GATE559 acceptance.",
+    "Unchanged baseline statement remains dated historical proof, not an assertion that current gates are verified."
+  ]
+}

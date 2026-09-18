@@ -1,0 +1,72 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-521",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-521-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/GATE-519/candidate/candidate.json",
+    "docs/reliability/evidence/GATE-519/candidate/tests.log",
+    "Full fifteen-stage isolated verifier on the current integrated candidate (input 7f3ff4fa33b2...): 522 tests, 4 opt-in skips, 0 failures, packaged unsigned app smoke and helper protocol check included."
+   ]
+  },
+  {
+   "id": "CHECK-521-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/audits/scoped-511-521-522-green/result.json",
+    "docs/reliability/evidence/audits/scoped-511-521-522-green/tests.log",
+    "Independent isolated rerun by the auditor: DirectoryMetadataScannerConvergentScanGenerationTests 46, EvidenceObjectLifecycleTests 26, HistoricalMigrationTests 7, MonitoringTests 15, EvidenceStoreTests 12, DurableProvenanceLifecycleTests 5, UnknownOccurrenceTests 6, EvidenceEventTimingTests 2 (input 7f3ff4fa, 205 tests, 0 failures): A/B/C deletion after staging never publishes deleted A as present; restart, directory mutation, failed roots, moves/replacement and scope changes keep explicit uncertainty; historical schemas migrate. Acceptance: A/B/C deletion after staging no longer publishes deleted A as freshly present. Restart, directory mutation, failed roots, moves/replacement and scope changes preserve explicit uncertainty; old records migrate safely."
+   ]
+  },
+  {
+   "id": "CHECK-521-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-521/implementation-result.md",
+    "docs/reliability/evidence/TASK-521/integration-handoff.md",
+    "docs/reliability/evidence/TASK-521/core-final-full.log",
+    "docs/reliability/evidence/TASK-521/scope-failure-red.log",
+    "docs/reliability/evidence/TASK-521/replacement-accounting-red.log",
+    "docs/reliability/evidence/TASK-521/legacy-regressions-red.log",
+    "Task evidence re-read against the current source; candidate hashes, red-before-green history and helper reconciliations are archived, not self-reported."
+   ]
+  },
+  {
+   "id": "CHECK-521-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/assurance-rollback-and-inspections.json",
+    "docs/reliability/evidence/GATE-519/assurance-reaffirm.json",
+    "Assurance reviewed: impacts IMPACT-TASK-521-SCANNER, IMPACT-TASK-521-STORE, IMPACT-TASK-521-CONTRACTS confirmed; inspections INSPECT-TASK-521-1 performed and sufficient; findings on these assets: FIND-ISOLATION, FIND-OCCURRENCE, FIND-QUERY, FIND-ROLLBACK, FIND-SCALE (material ones resolved; FIND-DISTRIBUTION-DOC non-material; FIND-OVERNIGHT open only on RESOURCE/BUILD). Scope drift: none open."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-521-SCANNER",
+   "IMPACT-TASK-521-STORE",
+   "IMPACT-TASK-521-CONTRACTS"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-521-1"
+  ],
+  "finding_ids": [
+   "FIND-ISOLATION",
+   "FIND-OCCURRENCE",
+   "FIND-QUERY",
+   "FIND-ROLLBACK",
+   "FIND-SCALE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Core store and scanner behavior; app-level hint handoffs are verified under TASK-522.",
+   "Fail-first red logs are the task's archives; the auditor reran the green suites.",
+   "The auditor also implemented later tasks on the shared candidate; independence rests on isolated reruns, hashes and archived logs."
+  ]
+ }
+}

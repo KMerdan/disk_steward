@@ -1,0 +1,96 @@
+warning: /Users/merdankiji/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/merdankiji/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/merdankiji/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'disk-steward-522-lifecycle-dev.9cyz1t': failed storing manifest for 'disk-steward-522-lifecycle-dev.9cyz1t' in cache: attempt to write a readonly database
+Building for debugging...
+[0/8] Write sources
+[2/8] Write swift-version--58304C5D6DBC2206.txt
+[4/11] Emitting module DiskStewardApp
+[5/11] Compiling DiskStewardApp PersistentMonitoringProbe.swift
+[6/11] Compiling DiskStewardApp StatusItemController.swift
+[7/11] Compiling DiskStewardApp MonitoringLifecycleController.swift
+[8/11] Compiling DiskStewardApp ApplicationDelegate.swift
+[9/15] Compiling DiskStewardApp StatusBoardView.swift
+[10/15] Compiling DiskStewardApp StatusBoardViewModel.swift
+[11/15] Compiling DiskStewardApp main.swift
+[12/15] Compiling DiskStewardApp MonitoringSettingsView.swift
+[12/17] Write Objects.LinkFileList
+[13/17] Linking DiskStewardApp
+[14/17] Applying DiskStewardApp
+[16/46] Compiling SafetyTests SafetyTests.swift
+[17/46] Emitting module SafetyTests
+[18/46] Compiling DiskStewardAppTests ThresholdNotificationPolicyTests.swift
+[19/47] Compiling DiskStewardAppTests MonitoringSettingsTests.swift
+[20/47] Compiling IncrementTests SnapshotIncrementTests.swift
+[21/47] Compiling IncrementTests AgentQueryableEvidenceIncrementTests.swift
+[22/47] Compiling DiskStewardAppTests RetentionScheduleTests.swift
+[23/47] Compiling DiskStewardAppTests StatusBoardEvidenceExportTests.swift
+[24/47] Compiling DiskStewardAppTests LaunchAtLoginControllerTests.swift
+[25/47] Compiling DiskStewardAppTests MCPAccessTests.swift
+[26/47] Compiling DiskStewardAppTests AppEvidenceIPCIntegrationTests.swift
+[27/47] Compiling DiskStewardAppTests BackendIsolationTests.swift
+[28/47] Compiling DiskStewardAppTests MonitoringLifecycleTests.swift
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:520:17: error: capture of 'sleeper' with non-Sendable type 'ManualLifecycleClock.Sleeper' in a '@Sendable' closure [#SendableClosureCaptures]
+470 | /// resumption outside the lock. Cancellation before registration is retained.
+471 | private final class ManualLifecycleClock: @unchecked Sendable {
+472 |     private final class Sleeper {
+    |                         `- note: class 'Sleeper' does not conform to the 'Sendable' protocol
+473 |         let id = UUID()
+474 |         var deadline: TimeInterval = 0
+    :
+518 |         } onCancel: {
+519 |             let continuation = self.lock.withLock {
+520 |                 sleeper.cancelled = true
+    |                 `- error: capture of 'sleeper' with non-Sendable type 'ManualLifecycleClock.Sleeper' in a '@Sendable' closure [#SendableClosureCaptures]
+521 |                 self.sleepers.removeValue(forKey: sleeper.id)
+522 |                 defer { sleeper.continuation = nil }
+
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:520:17: error: capture of 'sleeper' with non-Sendable type 'ManualLifecycleClock.Sleeper' in an isolated closure
+470 | /// resumption outside the lock. Cancellation before registration is retained.
+471 | private final class ManualLifecycleClock: @unchecked Sendable {
+472 |     private final class Sleeper {
+    |                         `- note: class 'Sleeper' does not conform to the 'Sendable' protocol
+473 |         let id = UUID()
+474 |         var deadline: TimeInterval = 0
+    :
+518 |         } onCancel: {
+519 |             let continuation = self.lock.withLock {
+520 |                 sleeper.cancelled = true
+    |                 `- error: capture of 'sleeper' with non-Sendable type 'ManualLifecycleClock.Sleeper' in an isolated closure
+521 |                 self.sleepers.removeValue(forKey: sleeper.id)
+522 |                 defer { sleeper.continuation = nil }
+
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:522:25: error: capture of 'sleeper' with non-Sendable type 'ManualLifecycleClock.Sleeper' in an isolated local function
+470 | /// resumption outside the lock. Cancellation before registration is retained.
+471 | private final class ManualLifecycleClock: @unchecked Sendable {
+472 |     private final class Sleeper {
+    |                         `- note: class 'Sleeper' does not conform to the 'Sendable' protocol
+473 |         let id = UUID()
+474 |         var deadline: TimeInterval = 0
+    :
+520 |                 sleeper.cancelled = true
+521 |                 self.sleepers.removeValue(forKey: sleeper.id)
+522 |                 defer { sleeper.continuation = nil }
+    |                         `- error: capture of 'sleeper' with non-Sendable type 'ManualLifecycleClock.Sleeper' in an isolated local function
+523 |                 return sleeper.continuation
+524 |             }
+
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+[29/47] Compiling IncrementTests PersistentRecorderIncrementTests.swift
+[30/47] Emitting module IncrementTests
+[31/47] Compiling IncrementTests FinalProductIncrementTests.swift
+[32/47] Compiling DiskStewardAppTests AuthoritativeMCPReadModelTests.swift
+[33/47] Compiling DiskStewardAppTests RequestCancellationTests.swift
+[34/47] Compiling DiskStewardAppTests VerificationIsolationTests.swift
+[35/47] Compiling DiskStewardAppTests RemainingClientsAdapterTests.swift
+[36/47] Compiling DiskStewardAppTests DiskStewardAppTests.swift
+[37/47] Compiling DiskStewardAppTests AgentIntegrationsPresentationTests.swift
+[38/47] Compiling DiskStewardAppTests CodexAndClaudeCodeAdapterTests.swift
+[39/47] Compiling DiskStewardAppTests CommandRunnerRegressionTests.swift
+[40/47] Compiling DiskStewardAppTests NativeClientLifecycleTests.swift
+[41/47] Compiling DiskStewardAppTests AgentIntegrationContractTests.swift
+[42/47] Compiling DiskStewardAppTests AgentIntegrationHardeningTests.swift
+[43/47] Emitting module DiskStewardAppTests
+[44/47] Compiling DiskStewardAppTests SocketOwnershipRegressionTests.swift
+[45/47] Compiling DiskStewardAppTests StatusBoardPresentationTests.swift
+error: fatalError

@@ -1,0 +1,63 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-561",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-561-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-561/candidate/candidate.json",
+    "docs/reliability/evidence/TASK-561/candidate/tests.log",
+    "Full six-stage isolated verifier on input f987812c8ffe637ed7c21c50091587538a7fe5d97863851e2d4ee8a7fa8621a5: 543 tests, 5 opt-in skips, 0 failures."
+   ]
+  },
+  {
+   "id": "CHECK-561-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-561/app-suites-green-2/tests.log",
+    "docs/reliability/evidence/TASK-561/script-suites-green-2/tests.log",
+    "docs/reliability/evidence/TASK-561/configuration-ownership.md",
+    "Isolated reruns: malformed roots/args, env/cwd/unknown additions, a second profile, concurrent writes and a failure at each mutation step preserve user data or report an explicit recoverable conflict; setup/repair/remove idempotent and approval-aware; CLI rollback restores install and uninstall backups, refuses edited files, orders backups chronologically and restores its own failed apply (AC-TASK-561-01)."
+   ]
+  },
+  {
+   "id": "CHECK-561-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-561/ownership-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-561/rollback-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-561/ownership-review-result.json",
+    "Non-vacuity: disabling the check-and-swap verification or the ownership refusals makes the fixtures fail; the static review's three findings were fixed with regressions before acceptance."
+   ]
+  },
+  {
+   "id": "CHECK-561-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-561/assurance-candidate-2.json",
+    "Assurance reviewed: IMPACT-TASK-561-CLIENTS confirmed; INSPECT-TASK-561-1 performed and sufficient; findings on these assets: FIND-ISOLATION; scope drift for the two new script files reconciled to IMPACT-TASK-561-CLIENTS."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-561-CLIENTS"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-561-1"
+  ],
+  "finding_ids": [
+   "FIND-ISOLATION"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "In-process fault seams stand in for a second real process.",
+   "Native installed clients are not exercised.",
+   "The auditor also implemented the task; independence rests on isolated reruns, mutation reds, the static review and archived hashes."
+  ]
+ }
+}

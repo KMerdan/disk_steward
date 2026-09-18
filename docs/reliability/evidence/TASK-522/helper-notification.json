@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-NOTIFICATION",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-73A06B30BC3A88A3A574153DCB1FE549",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:5da2e407b89521627ba4c31cb7a742eab423cef60155b49c97d9a8b541bdb140",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-522-notification-candidate.6FMZZT/Sources/DiskStewardApp/Notifications/**",
+    "/private/tmp/disk-steward-522-notification-candidate.6FMZZT/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+    "/private/tmp/disk-steward-522-notification-candidate.6FMZZT/Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift"
+  ],
+  "purpose": "Independently inspect the bounded notification send-boundary patch and adversarial fixtures against AC52201. Coordinator runs suite concurrently. Source-only review; do not run tests or mutate files.",
+  "questions": [
+    "Can pause/sleep/quit/settings changes accepted on MainActor precede a late native submission despite the cancellation checks? Examine exact suspension/submission boundary and ownership, not just test names.",
+    "Do fixtures actually exercise the concrete adapter and distinguish already-submitted completion from late sends? Identify any missing adversarial case that undermines the claimed boundary.",
+    "Any compatibility, denial handling, continuation or resource regression introduced by this delta? Existing threshold edge-trigger behavior and native GUI acceptance are not newly proven; qualify rather than overclaim."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 7,
+    "max_output_chars": 6000
+  }
+}

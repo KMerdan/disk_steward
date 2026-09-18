@@ -1,0 +1,315 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-NOTIFICATION-BOUNDARY-507",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 6,
+    "sha256": "2a5bde680590d0ae5234ccd37c4ab23184d6eb91387d979956bdbb5d6b8a1551"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 7,
+    "sha256": "511a36a3cf746691598e2a1962179fdf870424cac6d83330e6fcc6b6a9c419f9"
+  },
+  "facts": [
+    {
+      "id": "FACT-NOTIFICATION-BOUNDARY",
+      "claim": "Cancellation reaches the owned sample but the concrete notification adapter ignores it after asynchronous settings and authorization; the existing task lacks permission to edit that adapter.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift::deliver",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift::performSample",
+        "docs/reliability/evidence/TASK-522/lifecycle-progress.md"
+      ],
+      "supports": [
+        "TASK-522",
+        "GATE-529"
+      ],
+      "freshness": "2026-09-17 source3039895, current R6G46 task scope inspected."
+    }
+  ],
+  "findings": [
+    {
+      "id": "REVIEW-NOTIFICATION-SCOPE",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "TASK-522"
+      ],
+      "claim": "Late-notification acceptance must include suspension inside the adapter and an executable write scope.",
+      "evidence": [
+        "FACT-NOTIFICATION-BOUNDARY"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Add one exact adapter source path and strengthen AC01/required evidence; preserve AC02 and all graph edges.",
+      "rationale": "This fulfills the original lifecycle invariant without creating another workstream or changing user-facing intent. Existing lifecycle/UI asset mapping covers the new path; refresh the targeted inspection at the audit boundary."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-523"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "strengthened",
+    "audit_closure": "preserved",
+    "execution_safety": "strengthened"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 32,
+      "executable_nodes": 24,
+      "edges": 97,
+      "hard_dependencies": 22,
+      "audit_gates": 7
+    }
+  },
+  "summary": "Retain the seven-rung cumulative ladder and all32 nodes/97edges. Only TASK522 changes. Backward trace REQ502→OUTCOME520→TASK522 requires cancellation at the external side effect; forward trace existing owned cancellation→injectable center→suspended callback tests reaches that boundary. GATE529 remains independently required and cannot pass before OUTCOME510. Historical lifecycle tests remain bounded proof, not task completion. No parallel ownership changes, no weakening, no new product capability.",
+  "limitations": [
+    "Synthetic callback tests cannot prove native permission UI or actual delivery by macOS; keep packaged acceptance separate.",
+    "Ordinary hint receipt/publication ordering, scale, rollback, public occurrence intervals, service/export/config audits and overnight checks remain required.",
+    "Working claim may need reacquisition after runtime invalidation; do not hand-edit canonical state."
+  ]
+}

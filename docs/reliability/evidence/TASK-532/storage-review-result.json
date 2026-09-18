@@ -1,0 +1,52 @@
+{
+ "schema": "helper-result-v1",
+ "helper_id": "HELPER-TASK-532-STORAGE-01",
+ "parent_task": "TASK-532",
+ "task_guard": "GUARD-TASK-49C90C3E5D4C58EAEB5567956CE5E958",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:dc291746a1e984873ddd66c0fc64a1564b9da8affa6c6d4d5d9507eaccacff7a", "immutable": true},
+ "status": "completed",
+ "summary": "Reviewed the 8-file TASK-532 delta (admit/storageAccounting/applyRetention in EvidenceStore.swift, scanner consumedNames desync fix, PersistentMonitoringProbe recovery, both new test files) against storage-headroom.md's claims. Cap is never exceeded and current_file_state is never evicted in any path checked; retention and probe recovery loops are bounded (8 batches, one pressure retry per operation) with limitations surfaced. One real defect found: pendingStorageDemandBytes is a single actor-wide scalar that an unrelated concurrent successful admit can zero out between a refusal and the probe's subsequent applyRetention call, so retention can target the wrong (too-small) demand instead of the refusal that triggered it. Scanner consumedNames/streamDesynced fix reuses the proven signature-change restart path and looks sound for the described 688/1200 loss. Test fixtures assert their premises at runtime rather than assuming them, consistent with the described red/green history; no vacuous fixture found.",
+ "findings": [
+  {
+   "id": "F1",
+   "severity": "P2",
+   "confidence": 82,
+   "location": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift (pendingStorageDemandBytes property; admit; applyRetention demand)",
+   "claim": "pendingStorageDemandBytes ('Bytes the last refused write needed; retention targets this demand') is a single mutable actor property shared across every write path (events, hints, exports, sessions, scan staging, publication), not scoped to one recovery cycle.",
+   "scenario": "Probe's withStorageRecovery: recordScanSlice fails -> admit() sets pendingStorageDemandBytes = 5MB and throws -> probe awaits store.storageAccounting() then store.applyRetention(...). Both are separate actor calls, so a concurrently queued unrelated write can run on the actor in between, succeed, and reset pendingStorageDemandBytes to 0 inside admit(). applyRetention then computes demand from the fixed margin and reserve only, evicts less than needed, and the immediate retry of the scan slice fails again even though enough evictable history existed to satisfy the real demand.",
+   "suggested_fix": "Do not rely on shared actor state to carry the refused demand across await points. Have admit()/the thrown error carry the exact demand, and have withStorageRecovery pass that demand explicitly into applyRetention instead of reading a separately-mutable instance variable.",
+   "disposition": "fixed",
+   "disposition_evidence": "storageHeadroomUnavailable(reason:demandBytes:accounting:) and applyRetention(_:trigger:demandBytes:) carry the demand explicitly; the probe passes storageRefusalDemand(error). pendingStorageDemandBytes is now a monotonic maximum cleared only by retention or by admitting work at least that large, so an unrelated small write cannot erase it. Regression assertions in testOneRetentionRunTargetsTheRefusedDemandAndTheScanThenCompletes (a small write between refusal and retention; committed + refused demand <= cap after retention). review-fix-green/ (input 02fe77cd), candidate/ (full suite on the same input)."
+  }
+ ],
+ "observations": [
+  {"location": "EvidenceStore.swift admit()", "note": "admit()'s demand for .generic work never added accounting.nextWorkReserveBytes, even though storageAccounting()'s own .available/.retentionRequired classification includes it. Generic writes could therefore be admitted right up to cap-minus-publication-reserve, consuming the headroom the accounting reserves for the next scan slice.", "disposition": "fixed: generic writes now demand estimate + publication reserve + next-slice reserve; staging demand is unchanged because the slice is the next work itself (a first attempt that also added the next-slice reserve to staging made the accounting and the refusal disagree by one slice and was reverted; see review-fix-green/)."},
+  {"location": "PersistentMonitoringProbe.swift recoverStorageBeforeSampling", "note": "The database circuit breaker is skipped for .retentionRequired as well as .capacityLimited/.walPinned/.diskSpaceLimited; storage-headroom.md's prose only listed the latter three.", "disposition": "documentation reconciled in storage-headroom.md: the breaker's database dimension applies only while the store is available; every other admission is reported through limitations and handled by admission and retention."},
+  {"location": "EvidenceStore.swift applyRetention", "note": "var bytes = storageBytes() at the top of the post-compaction block was dead (unread before being reassigned).", "disposition": "fixed: removed."}
+ ],
+ "evidence": [
+  "EvidenceStore.swift admit(): hint/estimate/reserveAfter/logAfter per StorageWork case, wal-pinned/disk-space/cap guards, pendingStorageDemandBytes handling",
+  "EvidenceStore.swift applyRetention eviction loop: demand = max(16MiB-or-cap/10, demandBytes, pendingStorageDemandBytes, publication reserve + next-work reserve); bounded to maximumEvictionBatches=8",
+  "EvidenceStore.swift storageAccounting(): reserved = publication.reserve + nextWork; admission classification order (walPinned > disk-space > available > retentionRequired > capacityLimited)",
+  "EvidenceStore.swift beginOrResumeScanGeneration: admit() only called when actually creating a new generation, not on plain resume",
+  "PersistentMonitoringProbe.swift recoverStorageBeforeSampling: scheduled retention then admission-classification switch driving enforce vs enforceNonDatabaseBudget",
+  "PersistentMonitoringProbe.swift withStorageRecovery: one retention + one retry only, skips retention for disk-full/disk-space/wal-pinned reasons",
+  "PersistentMonitoringProbe.swift continuation loop: plain catch on storage refusal, no retention, single break",
+  "DirectoryMetadataScanner.swift streamDesynced computed from cursor.consumedNames vs streams.consumed(passID:); reuses the same restart branch as streamLost/signatureChanged/legacyCursor",
+  "DirectoryMetadataScanner.swift DirectoryStreamRegistry.read increments entry.consumed after every batch before returning",
+  "StorageHeadroomTests.swift fixtures assert their sizing premises at runtime rather than assuming them"
+ ],
+ "checks": [
+  {"question": "Can any write path still exceed the cap, evict authoritative current state, or loop on retention/the resource breaker without the observation saying so?", "answer": "No path found that exceeds the cap or evicts current_file_state; applyRetention only touches history tables and evictOldestBatch, and admit()'s guard always refuses before commit if committed+demand>cap. Retention and probe recovery are bounded and surfaced via limitations/scanStalled. The retention target could be silently reset by an unrelated concurrent successful write between a refusal and the subsequent retention call (F1, fixed after the review).", "confidence": 80},
+  {"question": "Can a refused or failed slice still lose, duplicate or reorder directory names, and does consumedNames stay consistent across restart, eviction and legacy cursors?", "answer": "The added consumedNames/streamDesynced check ties a persisted cursor to the exact count the in-process stream had served, and any mismatch routes into the same full-pass restart branch already used for genuine directory-signature changes, relying on the pre-existing idempotent upsert for scan_generation_entries to avoid duplicates on re-scan. No new loss/duplication path was found.", "confidence": 78},
+  {"question": "Are the fixtures proving what the note claims, or could a premise make them pass vacuously?", "answer": "Fixtures assert their sizing premises at runtime, consistent with the documented red-1/red-2 iteration where wrong premises were caught and fixed. No vacuous fixture identified with high confidence.", "confidence": 75}
+ ],
+ "limitations": [
+  "Did not execute or step through the SQL for scan_generation_entries insertion to directly confirm path-based upsert idempotency on restart; inferred from the pre-existing, unchanged signatureChanged restart path.",
+  "Did not trace every call site of EvidenceLifecycleStatus.storage/EvidenceStorageAccounting construction outside the read_scope files for exhaustive DTO-compatibility verification.",
+  "Concurrency finding (F1) is reasoned from the actor-scheduling model and the presence of other concurrent writers rather than an observed failing run.",
+  "Review snapshot dc291746 predates two deltas (projection fix, F1 fix); both are recorded in storage-source-manifest.json postReviewDelta and covered by the full verifier on input 02fe77cd. Advisory only, never final evidence."
+ ]
+}

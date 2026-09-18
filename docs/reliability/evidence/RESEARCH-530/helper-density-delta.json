@@ -1,0 +1,40 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-RESEARCH-530-DENSITY-DELTA",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-36010BDAEE6F9609CECF3FD2ABF17C5C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:6c83caca4102d9d9a72247c6c7f8c051794c2c2419f894f10a6cb50bdbf40fad",
+    "immutable": true
+  },
+  "read_scope": [
+    "docs/reliability/benchmarks/probe_dictionary_layout.py",
+    "docs/reliability/benchmarks/test_dictionary_layout.py",
+    "docs/reliability/benchmarks/resume_scale.py"
+  ],
+  "purpose": "Static read-only review of the isolated six-table dictionary density probe for fidelity and safety. No tests, database opens or native service calls; do not approve a production layout from it.",
+  "questions": [
+    "Does the matched plain control isolate encoding from rebuild/index fill at the stated limited scope?",
+    "Do the processed-row budget generator, sparse-rowid spy and final telemetry order resolve the prior review findings?"
+  ],
+  "acceptance_criteria": [
+    "AC-RESEARCH-530-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 6,
+    "max_output_chars": 5500
+  }
+}

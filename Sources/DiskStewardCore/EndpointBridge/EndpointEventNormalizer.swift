@@ -38,8 +38,8 @@ public struct EndpointEventNormalizer: Sendable {
             }
         }
 
-        let logicalDelta = delta(notification.size.logicalBefore, notification.size.logicalAfter)
-        let allocatedDelta = delta(notification.size.allocatedBefore, notification.size.allocatedAfter)
+        let logicalDelta = try delta(notification.size.logicalBefore, notification.size.logicalAfter)
+        let allocatedDelta = try delta(notification.size.allocatedBefore, notification.size.allocatedAfter)
         let exact = notification.fileIdentity != nil
             && notification.size.isComplete
             && notification.deadlineMet
@@ -61,8 +61,10 @@ public struct EndpointEventNormalizer: Sendable {
         )
     }
 
-    private func delta(_ before: Int64?, _ after: Int64?) -> Int64 {
+    private func delta(_ before: Int64?, _ after: Int64?) throws -> Int64 {
         guard let before, let after else { return 0 }
-        return after - before
+        let result = after.subtractingReportingOverflow(before)
+        guard !result.overflow else { throw EndpointBridgeError.invalidNotification("size delta is not representable") }
+        return result.partialValue
     }
 }

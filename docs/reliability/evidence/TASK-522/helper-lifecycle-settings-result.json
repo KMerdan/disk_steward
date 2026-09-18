@@ -1,0 +1,55 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-SETTINGS",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:a855ff7be502bacec430ed6f093fbfbd2c59b917ec6ed2fde14e423a6ecd9d84",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "The narrow scheduling corrections address direct settings unpause and superseding settings before restart. The queued task reads committed state, is epoch/cancellation fenced, and defers to an existing explicit-resume loop. One new safety-pause presentation regression remains; the safety sampling guard itself still holds.",
+  "findings": [
+    {
+      "claim": "Any incoming settings value with monitoringPaused=true now unconditionally publishes ordinary user Paused status. After startup detects an interrupted sample, changing only sampleIntervalMinutes replaces the degraded Safety Pause explanation with 'Disk sampling is paused by the user', even though requiresRecoveryConfirmation and the interrupted marker remain set. The new transition therefore hides the actual reason monitoring cannot resume automatically.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E3"
+      ],
+      "recommendation": "Preserve the Safety Pause status while recovery confirmation is required; an unrelated settings edit must not relabel it as a user pause. Extend the interrupted-sample fixture: preseed the marker, construct/start lifecycle, change only the interval, then assert the safety kind/detail and marker persist with zero probe calls. Also verify direct settings unpause does not acknowledge that interruption."
+    }
+  ],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:80-81,100-110,113-143 (recovery guard, initial Safety Pause, unconditional incoming-pause transition and queued restart).",
+    "E2: /private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:8-42,76-101 (latest-intent restart matrix and explicit/direct unpause variants).",
+    "E3: /private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:386-408 (interrupted-start fixture resumes immediately; no intervening settings edit).",
+    "E4: /private/tmp/disk-steward-522-lifecycle-accepted.HgsomZ/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:158-178,187-194,218-225,344-352 (start intent, loop ownership and cancellation of queued restart at stop boundaries)."
+  ],
+  "checks": [
+    {
+      "command": "Read-only settings-delta diffs against immutable 6d22b93 candidate and focused source/test inspection.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E1-E4. Probe, probe-cancellation tests, ApplicationDelegate and StatusItemController have no delta. No test/build/native/database execution."
+    }
+  ],
+  "stale_if": [
+    "Parent guard or candidate hash changes.",
+    "Settings subscription, restart ownership or relevant tests change."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw narrow helper result requires coordinator reproduction/reconciliation; not whole-task acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "The remaining finding concerns truthful safety-state presentation, not a demonstrated bypass of recovery confirmation.",
+    "Ordinary hint receipt/callback generations and notification send-boundary fencing remain explicitly excluded/open.",
+    "Coordinator-reported test passes were not independently executed."
+  ]
+}

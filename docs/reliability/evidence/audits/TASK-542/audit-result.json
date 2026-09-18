@@ -1,0 +1,64 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-542",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-542-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/GATE-519/candidate/candidate.json",
+    "docs/reliability/evidence/GATE-519/candidate/tests.log",
+    "Full fifteen-stage isolated verifier on the current integrated candidate (input 7f3ff4fa33b2...): 522 tests, 4 opt-in skips, 0 failures, packaged unsigned app smoke and helper protocol check included."
+   ]
+  },
+  {
+   "id": "CHECK-542-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/result.json",
+    "docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/tests.log",
+    "Independent isolated rerun by the auditor: CommandRunnerRegressionTests 13, CodexAndClaudeCodeAdapterTests 12, RemainingClientsAdapterTests 10, AgentIntegrationContractTests 6, AgentIntegrationHardeningTests 6 (input c2e4ad38, 0 failures): 1 MiB stdout and stderr commands finish without pipe deadlock; huge output, fast exit, never-exit, cancellation races and spawn failures end with bounded output and no orphaned child. Acceptance: 1MiB stdout and stderr commands complete without pipe deadlock; huge output, fast exit, never-exit, cancellation races and spawn failures finish with bounded output and no orphaned child."
+   ]
+  },
+  {
+   "id": "CHECK-542-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-542/scope-review.md",
+    "docs/reliability/evidence/TASK-542/verification.json",
+    "docs/reliability/evidence/TASK-542/post-implementation-tests.log",
+    "docs/reliability/evidence/TASK-542/helper-reconciliation.json",
+    "Task evidence re-read against the current source; candidate hashes, red-before-green history and helper reconciliations are archived, not self-reported."
+   ]
+  },
+  {
+   "id": "CHECK-542-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/assurance-rollback-and-inspections.json",
+    "docs/reliability/evidence/GATE-519/assurance-reaffirm.json",
+    "Assurance reviewed: impacts IMPACT-TASK-542-CLIENTS confirmed; inspections INSPECT-TASK-542-1 performed and sufficient; findings on these assets: FIND-ISOLATION (material ones resolved; FIND-DISTRIBUTION-DOC non-material; FIND-OVERNIGHT open only on RESOURCE/BUILD). Scope drift: none open."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-542-CLIENTS"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-542-1"
+  ],
+  "finding_ids": [
+   "FIND-ISOLATION"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Scoped command lifecycle only; native-client configuration and connectivity are TASK-561/562 work.",
+   "Deliberately escaped descendants are outside process-group containment.",
+   "The auditor also implemented later tasks on the shared candidate; independence rests on isolated reruns, hashes and archived logs."
+  ]
+ }
+}

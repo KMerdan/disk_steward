@@ -1,0 +1,26 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-DIRTY-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-779C0B1C50E50BA52094C33F0D7F7453",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:d902a53d01453c3d4f2656df8e9f42277e4f90d85fd2e791034b1cc859e1552b", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-521-dirty-candidate.s0tRrn/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "/private/tmp/disk-steward-521-dirty-candidate.s0tRrn/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+    "/private/tmp/disk-steward-521-dirty-candidate.s0tRrn/Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift",
+    "/private/tmp/disk-steward-521-timestamp-candidate.7qNrAP/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
+  ],
+  "purpose": "Narrow rereview of the two independently reproduced dirty-evidence findings and their corrections, not final task acceptance.",
+  "questions": [
+    "Does ancestor resolution now match the affected root set while retaining unresolved failure coverage?",
+    "Does per-hint durable gap_recorded state prevent replay resets while accepting newly declared gaps on existing non-gap hints and new equal-timestamp signals? Check schema9 migration and test oracles. Hint-free gaps have no replay identity and conservatively count as new receipts.",
+    "Report only distinct actionable defects in the correction; legacy route and ordinary app hint integration remain unfinished."
+  ],
+  "acceptance_criteria": ["AC-TASK-521-01"],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "candidate-acceptance",
+  "result_budget": {"max_findings": 3, "max_evidence_items": 5, "max_output_chars": 4000}
+}

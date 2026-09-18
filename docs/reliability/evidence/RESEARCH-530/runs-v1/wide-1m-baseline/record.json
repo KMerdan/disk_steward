@@ -1,0 +1,173 @@
+{
+  "artifactSHA256": {
+    "baseline-supervision.json": "cdcf1b95d48e0ee44037e52333b1886f46ce6b033e3812ac41d2cfbd1433cc22",
+    "baseline.log": "0a8bd5300512ad098479a269280104b75aba00633404c437f1549d268a72dfaa",
+    "fixture-supervision.json": "2f1131fdc2c0dd82ece156104425161736a80fc7d6adb8c378c30426b1f4a248",
+    "fixture.json": "5e6721f0fa89c456400e1d2b7cf5152ae2762ea7ed5bbf1f128c68a1832b73b6",
+    "fixture.log": "0e916230453741edb0608e35986225d2899a1fc388bf37053d3168599f6ff5fa"
+  },
+  "fixture": {
+    "complete": true,
+    "count": 1000000,
+    "directories": 1,
+    "files": 1000000,
+    "shape": "wide"
+  },
+  "label": "wide-1m-baseline",
+  "lastMeasurement": {
+    "attemptedProcessedEntries": 72704,
+    "directoryChangeRestarts": 0,
+    "directoryEntriesInspected": 142000000,
+    "directoryEnumerationPasses": 142,
+    "elapsedSeconds": 45.218911125004524,
+    "entriesReenumeratedQuiescentFixture": 141927296,
+    "error": "",
+    "expectedFiles": 1000000,
+    "finalStoreCallSecondsInclusive": 0,
+    "kind": "result",
+    "maxScanSliceSeconds": 0.777320041670464,
+    "maxStoreCallSeconds": 0.02689162502065301,
+    "peakFrontierCursors": 1,
+    "peakInProcessRSSBytes": 37699584,
+    "peakPersistedFrontierJSONBytes": 269,
+    "peakPersistedProgressBytes": 891,
+    "peakRetainedNames": 512,
+    "peakSampledDatabaseFamilyBytes": 93666096,
+    "peakSampledWALBytes": 4762752,
+    "processedEntries": 72704,
+    "publicationCheckpointsUptime": {},
+    "sampledPersistedProgressBytesSum": 126428,
+    "scanSeconds": 42.77617037508753,
+    "schema": "disk-steward-scale-baseline-v1",
+    "slices": 142,
+    "stagedFiles": 72704,
+    "status": "time-limit",
+    "storeSeconds": 2.3741972498828545,
+    "variant": "baseline"
+  },
+  "postRunDatabase": {
+    "queries": {
+      "currentFiles": {
+        "rows": [
+          [
+            0
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM current_file_state WHERE presence='present'"
+      },
+      "generations": {
+        "rows": [
+          [
+            "active",
+            72704,
+            72704
+          ]
+        ],
+        "sql": "SELECT status,processed_entry_count,staged_file_count FROM scan_generations"
+      },
+      "integrity": {
+        "rows": [
+          [
+            "ok"
+          ]
+        ],
+        "sql": "PRAGMA quick_check"
+      },
+      "observations": {
+        "rows": [
+          [
+            0
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM observation_runs"
+      },
+      "openPathCountPlan": {
+        "rows": [
+          [
+            3,
+            0,
+            216,
+            "SCAN path_bindings"
+          ]
+        ],
+        "sql": "EXPLAIN QUERY PLAN SELECT COUNT(*) FROM path_bindings WHERE object_id='fixture' AND valid_through IS NULL"
+      },
+      "openPathPagePlan": {
+        "rows": [
+          [
+            5,
+            0,
+            204,
+            "SEARCH path_bindings USING INDEX path_bindings_path_time (path>?)"
+          ]
+        ],
+        "sql": "EXPLAIN QUERY PLAN SELECT path FROM path_bindings WHERE object_id='fixture' AND valid_through IS NULL AND path>'' ORDER BY path LIMIT 1"
+      },
+      "stagedFiles": {
+        "rows": [
+          [
+            72704
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM scan_generation_entries"
+      }
+    },
+    "readerSQLiteVersion": "3.53.4"
+  },
+  "result": {
+    "attemptedProcessedEntries": 72704,
+    "directoryChangeRestarts": 0,
+    "directoryEntriesInspected": 142000000,
+    "directoryEnumerationPasses": 142,
+    "elapsedSeconds": 45.218911125004524,
+    "entriesReenumeratedQuiescentFixture": 141927296,
+    "error": "",
+    "expectedFiles": 1000000,
+    "finalStoreCallSecondsInclusive": 0,
+    "kind": "result",
+    "maxScanSliceSeconds": 0.777320041670464,
+    "maxStoreCallSeconds": 0.02689162502065301,
+    "peakFrontierCursors": 1,
+    "peakInProcessRSSBytes": 37699584,
+    "peakPersistedFrontierJSONBytes": 269,
+    "peakPersistedProgressBytes": 891,
+    "peakRetainedNames": 512,
+    "peakSampledDatabaseFamilyBytes": 93666096,
+    "peakSampledWALBytes": 4762752,
+    "processedEntries": 72704,
+    "publicationCheckpointsUptime": {},
+    "sampledPersistedProgressBytesSum": 126428,
+    "scanSeconds": 42.77617037508753,
+    "schema": "disk-steward-scale-baseline-v1",
+    "slices": 142,
+    "stagedFiles": 72704,
+    "status": "time-limit",
+    "storeSeconds": 2.3741972498828545,
+    "variant": "baseline"
+  },
+  "root": "/private/tmp/disk-steward-530-scale.oy4oj4z5",
+  "supervision": {
+    "command": [
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/usr/bin/xcrun",
+      "xctest",
+      "-XCTest",
+      "PerformanceTests.ScaleBenchmarkTests/testOptInProductionScan",
+      "/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/.build/arm64-apple-macosx/release/DiskStewardPackageTests.xctest"
+    ],
+    "exitCode": 0,
+    "peakProcessGroupRSSBytes": 43171840,
+    "peakSampledDatabaseFamilyBytes": 93666096,
+    "peakSampledWALBytes": 4762752,
+    "phase": "baseline",
+    "pollIntervalSeconds": 0.1,
+    "reason": "exited",
+    "root": "/private/tmp/disk-steward-530-scale.oy4oj4z5",
+    "rssStopBytes": 268435456,
+    "schema": "disk-steward-scale-supervisor-v1",
+    "seconds": 45.490953166998224,
+    "timeoutSeconds": 60.0
+  }
+}

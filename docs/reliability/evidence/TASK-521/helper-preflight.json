@@ -1,0 +1,26 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-PREFLIGHT",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-3ED6D927EF9784D42284DD07C7A9561A",
+  "kind": "research",
+  "phase": "preflight",
+  "snapshot": {"kind": "content-hash", "id": "sha256:e408ff149419ace16c04932147f8f635852ed011c8a8182d9126e27cf36220e8", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Tests/DiskStewardCoreTests/Monitoring/**",
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Tests/DiskStewardCoreTests/EvidenceStore/**",
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Schemas/Evidence/**"
+  ],
+  "purpose": "Identify migration, checkpoint and observation-time correctness risks for scan-generation repair.",
+  "questions": [
+    "Inspect durable scan progress, staged metadata and schema migrations: which legacy records/cursors lack directory-pass or observation provenance, and how can a correctness repair fail closed without destroying committed truth? Identify bounded fixture migrations/checkpoints to test.",
+    "Inspect publication of mixed healthy/failed roots, hard links across roots, same-path replacement and actual observation times. Identify concrete false-presence/absence/timestamp bugs still present after the existing partial invalidation patch. Keep recommendations within AC521, not the later enumeration performance redesign."
+  ],
+  "acceptance_criteria": ["AC-TASK-521-01"],
+  "execution_isolation": "none",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "load-bearing-decision",
+  "result_budget": {"max_findings": 6, "max_evidence_items": 8, "max_output_chars": 6500}
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-571-PACKAGE-DELTA",
+  "parent_task": "TASK-571",
+  "task_guard": "GUARD-TASK-29F1CB4F962C84635F4193D5B7865F2B",
+  "kind": "review", "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:95016b552a195bd52905315a7e0e32744caa38b810ab7b92421d7110b61e1026", "immutable": true},
+  "status": "completed",
+  "summary": "All three prior findings are resolved in the frozen corrected candidate. Static inspection found no concrete regression in the reviewed fixes. The sentinel matcher rejects suffixed test names, package preservation compares a bounded fixture inventory, and helper validation checks exact integer IDs, initialization metadata/capabilities and object input schemas. Focused regression cases cover the reported failures.",
+  "findings": [],
+  "evidence": [
+    "E1: /Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-571/reviewed-source/verify_candidate.py:154-156 requires the XCTest closing delimiter immediately after SENTINEL_TEST. test_verify_candidate.py:120-122 adds a skipped required case followed by a passing suffixed case and expects rejection.",
+    "E2: /Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-571/reviewed-source/verify_packaged_candidate.py:130-145 inventories root and descendant identities, with limits of 128 entries and 64 KiB. Lines 225 and 236 compare the entire inventory before and after packaged execution; the socket and lease checks remain present at lines 238-251.",
+    "E3: /Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-571/reviewed-source/test_verify_packaged_candidate.py:151-162 adds inventory regressions for a SQLite sidecar, an additional export and a new directory.",
+    "E4: /Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-571/reviewed-source/verify_packaged_candidate.py:91-125 rejects boolean IDs, non-object results, incomplete initialization metadata/capabilities and missing or malformed object input schemas. Type checks precede operations that depend on those types.",
+    "E5: /Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-571/reviewed-source/test_verify_packaged_candidate.py:127-149 covers missing initialization fields, boolean IDs, absent server version and malformed input schemas. The accepted helper fixture now includes capabilities, version and inputSchema."
+  ],
+  "checks": [
+    {"command": "Read the validated delta job and statically compare the four corrected Python files against the prior frozen candidate", "result": "passed", "isolation": "sandbox", "evidence": "The three requested corrections and their regression cases are present. No candidate code was executed and no files were changed."},
+    {"command": "shasum -a 256 ci.yml test_verify_candidate.py test_verify_packaged_candidate.py verify_candidate.py verify_packaged_candidate.py | shasum -a 256", "result": "passed", "isolation": "sandbox", "evidence": "Returned 95016b552a195bd52905315a7e0e32744caa38b810ab7b92421d7110b61e1026, matching the assigned corrected snapshot."},
+    {"command": "Harness, Swift and packaged-app execution", "result": "not-run", "isolation": "sandbox", "evidence": "Runtime execution was outside this static rereview. The parent's reported successful run was not independently reproduced."}
+  ],
+  "stale_if": ["Any of the five frozen candidate files changes.", "The candidate used for acceptance differs from the assigned content hash.", "The scope or acceptance criteria underlying the three reviewed fixes change."],
+  "evidence_use": "candidate-bound", "freshness": "pending", "final_evidence_eligible": false,
+  "eligibility_reason": "This bounded candidate review must be reconciled by the parent before acceptance and does not substitute for runtime validation.",
+  "changed_files": [], "changed_assets": [],
+  "risks": ["This review covers the three prior findings and their corrections; it does not expand the verifier's stated protocol, isolation or release-readiness claims."]
+}

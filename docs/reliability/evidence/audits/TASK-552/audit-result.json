@@ -1,0 +1,88 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-552",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-552-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/GATE-519/candidate/candidate.json",
+    "docs/reliability/evidence/GATE-519/candidate/tests.log",
+    "Full fifteen-stage isolated verifier on the current integrated candidate (input 7f3ff4fa33b2...): 522 tests, 4 opt-in skips, 0 failures, packaged unsigned app smoke and helper protocol check included."
+   ]
+  },
+  {
+   "id": "CHECK-552-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/result.json",
+    "docs/reliability/evidence/audits/scoped-523-541-542-551-552-green/tests.log",
+    "Independent isolated rerun by the auditor: EvidenceQueryScopeIPCIntegrationTests 6, EvidenceCardinalityIPCIntegrationTests 1, EvidenceQueryPrivacyIPCIntegrationTests 4, EventTimingIPCIntegrationTests 2, TaskImpactTimingIPCIntegrationTests 7, LifecycleProjectionIPCIntegrationTests 4, TaskAttributionClaimTests 6, ProvenanceChronologyTests 6, ProvenanceEngineTests 5 (input c2e4ad38, 0 failures): effective scope, response and row budgets, revision-bound cursors, privacy walker, occurrence-time uncertainty and attribution through real IPC and decoded exports. Acceptance: All ten tools and two resources pass isolated real-IPC tests; basename/hashed outputs including cursors leak no path; changing policy/exclusions is immediately visible; stale/missing evidence is explicit; responses honor selected row/byte budgets.; Actual store-to-provenance-to-MCP/export evidence preserves unknown occurrence lower bounds, distinct sample/absence upper bounds and publication time. First sightings and scope entry are not exact creation times; contradictory chronology is not normalized by swapping endpoints; uncertain timing does not create false session attribution. Deliberate old-payload/schema compatibility and bounded overlap-query behavior are proven through real IPC and decoded exports."
+   ]
+  },
+  {
+   "id": "CHECK-552-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-552/scope-and-budgets.md",
+    "docs/reliability/evidence/TASK-552/linked-session.md",
+    "docs/reliability/evidence/TASK-552/agent-result.json",
+    "docs/reliability/evidence/TASK-552/scope-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-552/settings-candidate-green/candidate.json",
+    "Task evidence re-read against the current source; candidate hashes, red-before-green history and helper reconciliations are archived, not self-reported."
+   ]
+  },
+  {
+   "id": "CHECK-552-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/assurance-rollback-and-inspections.json",
+    "docs/reliability/evidence/GATE-519/assurance-reaffirm.json",
+    "Assurance reviewed: impacts IMPACT-TASK-552-IPC, IMPACT-TASK-552-QUERY, IMPACT-TASK-552-STORE, IMPACT-TASK-552-PRIVACY, IMPACT-TASK-552-SETTINGS, IMPACT-TASK-552-MCP, IMPACT-TASK-552-CONTRACTS, IMPACT-TASK-552-ATTRIBUTION, IMPACT-TASK-552-EXPORT, IMPACT-TASK-552-LIFECYCLE, IMPACT-TASK-552-BOOT, IMPACT-TASK-552-ASSURANCE confirmed; inspections INSPECT-TASK-552-1, INSPECT-TASK-552-2, INSPECT-TASK-552-OCCURRENCE, INSPECT-TASK-552-RECORDER, INSPECT-TASK-552-BOOT, INSPECT-TASK-552-ASSURANCE performed and sufficient; findings on these assets: FIND-ATTRIBUTION, FIND-ENDPOINT-ORDER, FIND-EXPORT, FIND-ISOLATION, FIND-OCCURRENCE, FIND-QUERY, FIND-ROLLBACK, FIND-SCALE, FIND-SERVICE (material ones resolved; FIND-DISTRIBUTION-DOC non-material; FIND-OVERNIGHT open only on RESOURCE/BUILD). Scope drift: ['DRIFT-4BEE7D710EDC', 'DRIFT-6FD2F63BF1CD']."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-552-IPC",
+   "IMPACT-TASK-552-QUERY",
+   "IMPACT-TASK-552-STORE",
+   "IMPACT-TASK-552-PRIVACY",
+   "IMPACT-TASK-552-SETTINGS",
+   "IMPACT-TASK-552-MCP",
+   "IMPACT-TASK-552-CONTRACTS",
+   "IMPACT-TASK-552-ATTRIBUTION",
+   "IMPACT-TASK-552-EXPORT",
+   "IMPACT-TASK-552-LIFECYCLE",
+   "IMPACT-TASK-552-BOOT",
+   "IMPACT-TASK-552-ASSURANCE"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-552-1",
+   "INSPECT-TASK-552-2",
+   "INSPECT-TASK-552-OCCURRENCE",
+   "INSPECT-TASK-552-RECORDER",
+   "INSPECT-TASK-552-BOOT",
+   "INSPECT-TASK-552-ASSURANCE"
+  ],
+  "finding_ids": [
+   "FIND-ATTRIBUTION",
+   "FIND-ENDPOINT-ORDER",
+   "FIND-EXPORT",
+   "FIND-ISOLATION",
+   "FIND-OCCURRENCE",
+   "FIND-QUERY",
+   "FIND-ROLLBACK",
+   "FIND-SCALE",
+   "FIND-SERVICE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Public contract exercised through fixture IPC; installed MCP clients are not exercised.",
+   "The auditor also implemented later tasks on the shared candidate; independence rests on isolated reruns, hashes and archived logs."
+  ]
+ }
+}

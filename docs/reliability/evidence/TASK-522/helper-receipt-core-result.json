@@ -1,0 +1,67 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-RECEIPT-CORE",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-22D0081DF53D051CF5A58CA0A88D3A0D",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:0bc06c388195bfb255a75ddd985ee39d51f3047c6c89df55b82d0f1976ad2b0d",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "No new actionable defect found in the six-file bounded review. The guarded-COMMIT cancellation finding is corrected and its regression targets native COMMIT itself. Native ingress avoids whole-batch Swift bridging, rejects oversized counts before event reads, checks path length before explicit String conversion, and emits uncertainty on rejected input. Context ownership is explicit. These are static findings, not independently executed tests or TASK-522 acceptance.",
+  "findings": [],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-522-receipt-core.PBVfDl/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift:74-111 (guarded COMMIT catch-time cancellation normalization; busy-handler restoration and rollback cleanup).",
+    "E2: /private/tmp/disk-steward-522-receipt-core.PBVfDl/Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift:7-14,173-208 (test-only native commit hook cancels/rejects COMMIT, then checks rollback and reuse from an uncancelled actor call).",
+    "E3: /private/tmp/disk-steward-522-receipt-core.PBVfDl/Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift:68-151 (256-event and 4096-UTF16-unit admission limits; borrowed NSArray; malformed/oversized input becomes one gap without retained hints).",
+    "E4: /private/tmp/disk-steward-522-receipt-core.PBVfDl/Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift:241-285,300-324 (framework context retain/release, creation lifetime extension, failure cleanup, stop/release and native adapter invocation).",
+    "E5: /private/tmp/disk-steward-522-receipt-core.PBVfDl/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:155-237 (overflow, mismatched lengths, oversized paths, zero event reads for huge counts and native NSArray adapter cases).",
+    "E6: /private/tmp/disk-steward-522-receipt-core.PBVfDl/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:272-290 (native start/stop context-lifetime fixture with weak handler token and bounded release wait).",
+    "E7: /private/tmp/disk-steward-522-receipt-core.PBVfDl/Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift and /private/tmp/disk-steward-522-receipt-core.PBVfDl/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift are unchanged from frozen publication candidate 97393b69."
+  ],
+  "checks": [
+    {
+      "command": "Read-only cancellation-fix diff and native-COMMIT regression trace.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E1-E2: the hook is installed on the actual connection using sqlite3_db_handle; it cancels inside native COMMIT after the explicit precheck. Recovery removes the hook, verifies zero rows, then asserts a new write in an uncancelled caller leaves one row."
+    },
+    {
+      "command": "Read-only native ingress/context implementation and fixture review.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E3-E6: count admission precedes eventAt invocation; per-path NSString length admission precedes explicit String conversion and raw flag/ID indexing. Rejection is an explicit global gap. Framework ownership replaces the collector-held callbackBox, with local lifetime protected during creation."
+    },
+    {
+      "command": "Read-only comparison of the remaining scoped publication source.",
+      "result": "passed",
+      "isolation": "sandbox",
+      "evidence": "E7: no publication-fence or EvidenceStore delta; prior limited ordering analysis remains applicable."
+    },
+    {
+      "command": "Run builds/tests or activate native SQLite/FSEvents APIs.",
+      "result": "not-run",
+      "isolation": "sandbox",
+      "evidence": "Prohibited for this helper. Coordinator-reported focused/full-suite outcomes are not independently verified."
+    }
+  ],
+  "stale_if": [
+    "Parent guard or candidate hash changes.",
+    "Scoped cancellation, native decoding, context ownership or fixture code changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw bounded candidate validation awaits coordinator reconciliation; runtime evidence and freshness are not independently established.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Admission caps bound decoded event/path payloads, not OS-owned allocations, configured root count, arbitrary handler work or total queued app tasks.",
+    "The native-context fixture targets ordinary start/stop lifetime, not concurrent/reentrant start/stop or every framework failure path.",
+    "App shared-permit wiring, bounded cumulative receipt persistence/inbox, startup gaps and complete AC02 remain unfinished/outside scope.",
+    "Publication remains process-local: earlier staging may remain after rejection, latest acknowledgement must cover earlier pending receipts, and disabling busy retries does not bound native COMMIT disk-I/O latency."
+  ]
+}

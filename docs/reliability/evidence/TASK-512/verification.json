@@ -1,0 +1,26 @@
+{
+  "schema": "disk-steward-task-verification-v1",
+  "task": "TASK-512",
+  "candidateInputSHA256": "9546220c27852fa5ce07726087db12e855e6b9818afacc2e063ad723595ba2b2",
+  "hashCommand": "rg --files --no-ignore -0 Package.swift Sources Tests Config Scripts DiskSteward.xcodeproj Integrations Schemas Fixtures Resources | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "testedCopy": "/private/tmp/disk-steward-512-green.cwrU63",
+  "frozenReviewCopy": "/private/tmp/disk-steward-512-final.YakDXv",
+  "sourceBaseline": "cf313e4527a3bd30dae217d2c1ff68d7a7a87b60",
+  "checks": {
+    "legacyCollision": "reproduced against four unmodified IPC source files from sourceBaseline",
+    "throwingInitializer": "confirmed deinit executes after fully initialized throwing init",
+    "socketTests": 17,
+    "scopedTests": 64,
+    "failures": 0,
+    "completedAt": "2026-09-17T00:43:13.205Z"
+  },
+  "command": "swift test --disable-sandbox --filter 'SocketOwnershipRegressionTests|BackendIsolationTests|VerificationIsolationTests|FinalProductIncrementTests|IntegrationInstallTests|MonitoringLifecycleTests|StatusBoardPresentationTests|SnapshotIncrementTests|AppEvidenceIPCIntegrationTests|DistributionReleaseIntegrityTests|MCPAccessTests'",
+  "safety": "Only disposable source builds, current-user private socket and file fixtures, and explicitly selected crash subprocesses. Installed app, evidence store, real clients and settings untouched.",
+  "limits": [
+    "Swift subprocess _exit simulates abrupt process death, not filesystem power loss.",
+    "Dedicated private staging workspace is cooperative ownership, not a security boundary against malicious same-UID path/journal replacements.",
+    "At extreme Unix socket path length, staging requires a sufficiently short private ancestor on the same filesystem; standard Application Support path and exact-capacity private fixture tested.",
+    "Backend handler cancellation and capacity across service epochs remain TASK-541 / FIND-SERVICE. This is not full service or release approval.",
+    "Full suite, scale, real overnight, signing, installation and release not run."
+  ]
+}

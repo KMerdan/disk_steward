@@ -1,0 +1,490 @@
+{
+  "schema": "agent-result-v1",
+  "task": "TASK-521",
+  "outcome": "implemented",
+  "changed_files": [
+    "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+    "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+    "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+    "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalEvidenceSchema.swift",
+    "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift",
+    "docs/reliability/evidence/TASK-521/alias-corrected-tests.log",
+    "docs/reliability/evidence/TASK-521/alias-red.log",
+    "docs/reliability/evidence/TASK-521/alias-tests.log",
+    "docs/reliability/evidence/TASK-521/binding-full-tests.log",
+    "docs/reliability/evidence/TASK-521/binding-path-red.log",
+    "docs/reliability/evidence/TASK-521/bounds-red.log",
+    "docs/reliability/evidence/TASK-521/bounds-tests.log",
+    "docs/reliability/evidence/TASK-521/core-final-full.log",
+    "docs/reliability/evidence/TASK-521/core-final-targeted.log",
+    "docs/reliability/evidence/TASK-521/dirty-compile.log",
+    "docs/reliability/evidence/TASK-521/dirty-full-tests.log",
+    "docs/reliability/evidence/TASK-521/dirty-red.log",
+    "docs/reliability/evidence/TASK-521/dirty-review-red.log",
+    "docs/reliability/evidence/TASK-521/dirty-reviewed-tests.log",
+    "docs/reliability/evidence/TASK-521/dirty-tests.log",
+    "docs/reliability/evidence/TASK-521/helper-core-candidate-result.json",
+    "docs/reliability/evidence/TASK-521/helper-core-candidate.json",
+    "docs/reliability/evidence/TASK-521/helper-core-final-result.json",
+    "docs/reliability/evidence/TASK-521/helper-core-final.json",
+    "docs/reliability/evidence/TASK-521/helper-dirty-candidate-result.json",
+    "docs/reliability/evidence/TASK-521/helper-dirty-candidate.json",
+    "docs/reliability/evidence/TASK-521/helper-interval-preflight-result.json",
+    "docs/reliability/evidence/TASK-521/helper-interval-preflight.json",
+    "docs/reliability/evidence/TASK-521/helper-legacy-candidate-result.json",
+    "docs/reliability/evidence/TASK-521/helper-legacy-candidate.json",
+    "docs/reliability/evidence/TASK-521/helper-legacy-clean-result.json",
+    "docs/reliability/evidence/TASK-521/helper-legacy-clean.json",
+    "docs/reliability/evidence/TASK-521/helper-legacy-preflight-result.json",
+    "docs/reliability/evidence/TASK-521/helper-legacy-preflight.json",
+    "docs/reliability/evidence/TASK-521/helper-object-accounting-candidate-result.json",
+    "docs/reliability/evidence/TASK-521/helper-object-accounting-candidate.json",
+    "docs/reliability/evidence/TASK-521/helper-pass-candidate-result.json",
+    "docs/reliability/evidence/TASK-521/helper-pass-candidate.json",
+    "docs/reliability/evidence/TASK-521/helper-preflight.json",
+    "docs/reliability/evidence/TASK-521/helper-root-path-candidate-result.json",
+    "docs/reliability/evidence/TASK-521/helper-root-path-candidate.json",
+    "docs/reliability/evidence/TASK-521/helper-timestamp-candidate-result.json",
+    "docs/reliability/evidence/TASK-521/helper-timestamp-candidate.json",
+    "docs/reliability/evidence/TASK-521/historical-migration-tests.log",
+    "docs/reliability/evidence/TASK-521/implementation-result.md",
+    "docs/reliability/evidence/TASK-521/integration-handoff.md",
+    "docs/reliability/evidence/TASK-521/interval-full-tests.log",
+    "docs/reliability/evidence/TASK-521/interval-progress.md",
+    "docs/reliability/evidence/TASK-521/legacy-boundaries-red.log",
+    "docs/reliability/evidence/TASK-521/legacy-clean-tests.log",
+    "docs/reliability/evidence/TASK-521/legacy-compile.log",
+    "docs/reliability/evidence/TASK-521/legacy-corrected-tests.log",
+    "docs/reliability/evidence/TASK-521/legacy-envelope-red.log",
+    "docs/reliability/evidence/TASK-521/legacy-full-tests.log",
+    "docs/reliability/evidence/TASK-521/legacy-initial-tests.log",
+    "docs/reliability/evidence/TASK-521/legacy-progress.md",
+    "docs/reliability/evidence/TASK-521/legacy-regressions-red.log",
+    "docs/reliability/evidence/TASK-521/membership-review-tests.log",
+    "docs/reliability/evidence/TASK-521/membership-tests.log",
+    "docs/reliability/evidence/TASK-521/object-accounting-full-tests.log",
+    "docs/reliability/evidence/TASK-521/object-accounting-tests.log",
+    "docs/reliability/evidence/TASK-521/pass-boundaries-before-overlap-correction.log",
+    "docs/reliability/evidence/TASK-521/pass-candidate-full-tests.log",
+    "docs/reliability/evidence/TASK-521/pass-followup-full-tests.log",
+    "docs/reliability/evidence/TASK-521/pass-progress.md",
+    "docs/reliability/evidence/TASK-521/pass-review-red.log",
+    "docs/reliability/evidence/TASK-521/path-reconciliation-tests.log",
+    "docs/reliability/evidence/TASK-521/provenance-red.log",
+    "docs/reliability/evidence/TASK-521/replacement-accounting-red.log",
+    "docs/reliability/evidence/TASK-521/replacement-review-red.log",
+    "docs/reliability/evidence/TASK-521/return-history-red.log",
+    "docs/reliability/evidence/TASK-521/root-path-full-tests.log",
+    "docs/reliability/evidence/TASK-521/root-path-progress.md",
+    "docs/reliability/evidence/TASK-521/scope-failure-compile.log",
+    "docs/reliability/evidence/TASK-521/scope-failure-compile2.log",
+    "docs/reliability/evidence/TASK-521/scope-failure-matrix.log",
+    "docs/reliability/evidence/TASK-521/scope-failure-red.log",
+    "docs/reliability/evidence/TASK-521/scope-failure-tests.log",
+    "docs/reliability/evidence/TASK-521/timestamp-cache-build.log",
+    "docs/reliability/evidence/TASK-521/timestamp-full-tests.log",
+    "docs/reliability/evidence/TASK-521/timestamp-progress.md",
+    "docs/reliability/evidence/TASK-521/timestamp-regressions-red.log",
+    "docs/reliability/evidence/TASK-521/timestamp-schema-tests.log",
+    "docs/reliability/evidence/TASK-521/timestamp-tests.log",
+    "docs/reliability/evidence/TASK-521/agent-result.json"
+  ],
+  "changed_assets": [
+    "ASSET-SCANNER",
+    "ASSET-STORE",
+    "ASSET-CONTRACTS"
+  ],
+  "change_effect": "mixed",
+  "changes": [
+    {
+      "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+      "class": "source"
+    },
+    {
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalEvidenceSchema.swift",
+      "class": "source"
+    },
+    {
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift",
+      "class": "source"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/alias-corrected-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/alias-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/alias-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/binding-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/binding-path-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/bounds-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/bounds-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/core-final-full.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/core-final-targeted.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/dirty-compile.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/dirty-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/dirty-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/dirty-review-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/dirty-reviewed-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/dirty-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-core-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-core-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-core-final-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-core-final.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-dirty-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-dirty-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-interval-preflight-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-interval-preflight.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-legacy-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-legacy-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-legacy-clean-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-legacy-clean.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-legacy-preflight-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-legacy-preflight.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-object-accounting-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-object-accounting-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-pass-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-pass-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-preflight.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-root-path-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-root-path-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-timestamp-candidate-result.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/helper-timestamp-candidate.json",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/historical-migration-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/implementation-result.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/integration-handoff.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/interval-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/interval-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-boundaries-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-clean-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-compile.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-corrected-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-envelope-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-initial-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/legacy-regressions-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/membership-review-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/membership-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/object-accounting-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/object-accounting-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/pass-boundaries-before-overlap-correction.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/pass-candidate-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/pass-followup-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/pass-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/pass-review-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/path-reconciliation-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/provenance-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/replacement-accounting-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/replacement-review-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/return-history-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/root-path-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/root-path-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/scope-failure-compile.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/scope-failure-compile2.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/scope-failure-matrix.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/scope-failure-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/scope-failure-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/timestamp-cache-build.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/timestamp-full-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/timestamp-progress.md",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/timestamp-regressions-red.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/timestamp-schema-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/timestamp-tests.log",
+      "class": "evidence"
+    },
+    {
+      "path": "docs/reliability/evidence/TASK-521/agent-result.json",
+      "class": "evidence"
+    }
+  ],
+  "checks": [
+    {
+      "command": "In /private/tmp/disk-steward-521-core-final.ZAhMFh: env -u DISK_STEWARD_NATIVE_CLIENT_TESTS -u DISK_STEWARD_PACKAGED_HELPER -u DISK_STEWARD_GATE_EVIDENCE -u DISK_STEWARD_CAPTURE_DIR swift test --disable-sandbox",
+      "result": "passed: exact b9154fdc02be7a8912db7285d93eff51e9d55af44a013e0fdbb3beceb94ef555; 369 total, 368 passed, one native opt-in skip, zero failures; exit0; docs/reliability/evidence/TASK-521/core-final-full.log"
+    },
+    {
+      "command": "Same opt-in-unset swift test --disable-sandbox --filter 'DirectoryMetadataScannerConvergentScanGenerationTests|EvidenceObjectLifecycleTests|EvidenceStoreTests|HistoricalMigrationTests' in disposable dev copy",
+      "result": "passed: 88 tests; docs/reliability/evidence/TASK-521/core-final-targeted.log; copied source matches accepted candidate"
+    },
+    {
+      "command": "Fail-first synthetic new scope/all-root and durable-identity cases against prior candidates",
+      "result": "expected regression failures observed: scope-failure-red.log 25 assertions, return-history-red.log 2 assertions; corrected cases pass in accepted candidate. Earlier red/green paths retained in interval-progress.md and preceding reports."
+    },
+    {
+      "command": "Coordinator reconciliation of helper-core-candidate and helper-core-final static reviews; schema/identity/guard/hash/budget/source-evidence checks",
+      "result": "completed: prior findings reproduced and corrected; exact-final delta review reports no new actionable finding. Raw reviews remain pending/ineligible; coordinator reconciliation in implementation-result.md."
+    },
+    {
+      "command": "git diff --check; canonical/frozen product/test SHA-256 recipe in interval-progress.md",
+      "result": "passed; both source hashes b9154fdc02be7a8912db7285d93eff51e9d55af44a013e0fdbb3beceb94ef555"
+    }
+  ],
+  "acceptance_evidence": [
+    {
+      "criterion": "AC-TASK-521-01",
+      "result": "passed",
+      "reference": "docs/reliability/evidence/TASK-521/implementation-result.md; interval-progress.md scoped acceptance map; core-final-full.log; core-final-targeted.log. Core worker acceptance only; brownfield verification pending."
+    }
+  ],
+  "discovered_risks": [
+    "Ordinary app FSEvents still require TASK522 end-to-end dirty-hint routing; core token tests do not prove the app path.",
+    "Public provenance models/overlap queries/export schemas still need explicit measured/unknown occurrence interval propagation under TASK552; corrected change_events alone does not fix public timing.",
+    "Traversal completion is not complete coverage or an atomic filesystem snapshot. All-root failure completes with unavailable coverage and retained unknown rows.",
+    "Only genuine v5/v6 historical migration and fresh final-schema fixtures are supported/proven here; intermediate unreleased preview9 stores were never installed and need separate compatibility treatment if adopted.",
+    "100k/1M useful bounded progress, headroom, resource/retention, rollback controls and actual overnight acceptance remain required; no limits raised or broad finding closed.",
+    "Native opt-in test skipped, no installed app/user evidence/configuration/signing/release changes, and OUTCOME510 plus brownfield audit obligations remain unverified."
+  ],
+  "suggested_graph_changes": [
+    "Apply docs/reliability/evidence/occurrence-integration-plan.json with its plan-review artifact through replan: make TASK522 ordinary dirty hints and TASK552 public time semantics explicit, with required integration-handoff.md context and matching impact/inspection update. Preserve all requirements/gates and historical results."
+  ]
+}

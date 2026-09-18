@@ -1,0 +1,146 @@
+.............EE.E.E
+======================================================================
+ERROR: test_never_overwrites_previous_log (test_supervise_scale.SupervisorTests.test_never_overwrites_previous_log)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 64, in test_never_overwrites_previous_log
+    self.run_child('print("first")')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 25, in run_child
+    return bench.supervise([sys.executable, "-c", source], self.environment, self.root, "test", seconds, cap)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 107, in supervise
+    rss = group_rss(process.pid)
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 62, in group_rss
+    output = subprocess.check_output(["/bin/ps", "-axo", "pgid=,rss="], text=True, timeout=2)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 1] Operation not permitted: '/bin/ps'
+
+======================================================================
+ERROR: test_normal_exit_and_bounded_log (test_supervise_scale.SupervisorTests.test_normal_exit_and_bounded_log)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 28, in test_normal_exit_and_bounded_log
+    result = self.run_child('print("complete")')
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 25, in run_child
+    return bench.supervise([sys.executable, "-c", source], self.environment, self.root, "test", seconds, cap)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 107, in supervise
+    rss = group_rss(process.pid)
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 62, in group_rss
+    output = subprocess.check_output(["/bin/ps", "-axo", "pgid=,rss="], text=True, timeout=2)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 1] Operation not permitted: '/bin/ps'
+
+======================================================================
+ERROR: test_rss_stop_with_tiny_test_threshold_not_large_allocation (test_supervise_scale.SupervisorTests.test_rss_stop_with_tiny_test_threshold_not_large_allocation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 40, in test_rss_stop_with_tiny_test_threshold_not_large_allocation
+    result = self.run_child("import time; time.sleep(30)", cap=1)
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 25, in run_child
+    return bench.supervise([sys.executable, "-c", source], self.environment, self.root, "test", seconds, cap)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 107, in supervise
+    rss = group_rss(process.pid)
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 62, in group_rss
+    output = subprocess.check_output(["/bin/ps", "-axo", "pgid=,rss="], text=True, timeout=2)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 1] Operation not permitted: '/bin/ps'
+
+======================================================================
+ERROR: test_timeout_terminates_owned_child (test_supervise_scale.SupervisorTests.test_timeout_terminates_owned_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 34, in test_timeout_terminates_owned_child
+    result = self.run_child("import time; time.sleep(30)", seconds=0.2)
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/test_supervise_scale.py", line 25, in run_child
+    return bench.supervise([sys.executable, "-c", source], self.environment, self.root, "test", seconds, cap)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 107, in supervise
+    rss = group_rss(process.pid)
+  File "/Users/merdankiji/localGit/disk_steward/docs/reliability/benchmarks/supervise_scale.py", line 62, in group_rss
+    output = subprocess.check_output(["/bin/ps", "-axo", "pgid=,rss="], text=True, timeout=2)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 1] Operation not permitted: '/bin/ps'
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.069s
+
+FAILED (errors=4)

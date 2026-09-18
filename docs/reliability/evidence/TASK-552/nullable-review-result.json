@@ -1,0 +1,63 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-NULLABLE-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-A8DE5156DDA36184F5DE026E73D6D2D5",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:26f68d8082e34e9edcca0738a649db796927469bc386c4ef0e67b4d6f9ce1e0c",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "One concrete export-selection regression confirmed, also independently identified by the coordinator. No additional actionable defect found in the permitted nullable-bound and legacy-migration delta. Unknown lower bounds prevent workspace attribution; legacy payload dates remain preserved without becoming verified lower bounds.",
+  "findings": [
+    {
+      "claim": "[P2] Current export attribution now selects claims by occurrence-end order instead of detection recency. readCurrentProvenance overwrites its per-event dictionary for every row, so ordering first by occurred_end makes the largest occurrence end win even when its claim was detected earlier. For two unsuperseded claims on one event, A(end=100, detected=200) and B(end=150, detected=160), the previous query selected A; this patch selects B and can export its older actor/session attribution.",
+      "confidence": "high",
+      "evidence": [
+        "/private/tmp/ds-ci-37ijr9wh/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:1207 — current-provenance retrieval now orders by occurred_end, detected_at, claim_id.",
+        "/private/tmp/ds-ci-37ijr9wh/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:1219 — each matching row unconditionally replaces values[eventID].",
+        "/private/tmp/ds-ci-cf8br7my/project/Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift:1218 — the base query used detected_at, claim_id ordering."
+      ],
+      "recommendation": "Preserve the established detectedAt/claimID precedence when selecting the per-event claim, either by restoring that ordering or explicitly comparing candidates. Add a decoded-export regression with multiple unsuperseded claims whose occurrence-end and detection orders disagree."
+    }
+  ],
+  "evidence": [
+    "/private/tmp/ds-ci-37ijr9wh/project/Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift:68 — workspace attribution requires a known lower bound and complete session coverage; privileged evidence is evaluated separately.",
+    "/private/tmp/ds-ci-37ijr9wh/project/Sources/DiskStewardCore/Provenance/ProvenanceModels.swift:58 — legacy recorded bounds remain private and Codable-preserved while occurredStart exposes nil without timingVersion=1; withSupersededBy preserves that provenance.",
+    "/private/tmp/ds-ci-37ijr9wh/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:4046 — schema12 copies original payloads and supersession links, retains old lower dates in legacy_occurred_start, and sets indexed lower bounds to NULL with timing_version=0.",
+    "/private/tmp/ds-ci-37ijr9wh/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:2537 — current task-attribution lookup excludes legacy timing_version=0 claims.",
+    "/private/tmp/ds-ci-37ijr9wh/project/Tests/DiskStewardCoreTests/Provenance/UnknownOccurrenceTests.swift:94 — migration regression source checks preserved payload bytes, nullable legacy bounds, supersession overlays, and foreign-key integrity.",
+    "/private/tmp/ds-ci-37ijr9wh/project/Tests/DiskStewardAppTests/IPC/EventTimingIPCIntegrationTests.swift:7 — integration-test source checks measured defaults, unknown lower bounds, workspace attribution, real IPC serialization, and possible-overlap export."
+  ],
+  "checks": [
+    {
+      "command": "Read-only static comparison of the five permitted source files against /private/tmp/ds-ci-cf8br7my/project, plus review of the allowed candidate tests and v3 schemas.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Reviewed nullable propagation, legacy decoding/re-encoding, supersession copying, schema12 migration, query semantics, and contract serialization. No files changed."
+    },
+    {
+      "command": "Compilation, database inspection, migration execution, and runtime tests",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited for this helper. Coordinator-reported suite results were not treated as independent runtime evidence."
+    }
+  ],
+  "stale_if": [
+    "Reviewed sources differ from snapshot sha256:26f68d8082e34e9edcca0738a649db796927469bc386c4ef0e67b4d6f9ce1e0c.",
+    "The helper identity, parent task, or task guard changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Advisory candidate-bound static review pending coordinator reconciliation; not runtime validation or whole TASK-552 acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "The confirmed selection defect applies to this frozen candidate; a coordinator correction requires a new snapshot and delta review.",
+    "Unrelated remaining TASK-552 work was outside the review scope."
+  ]
+}

@@ -1,0 +1,97 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-R12-ACCEPTANCE-EVIDENCE-DEPENDENCY",
+ "stage": "candidate",
+ "outcome": "revised",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "revision": 14,
+  "sha256": "290aebea65f782f8655224dab4542169384b518ef0c36885f24991aae660733a"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "revision": 15,
+  "sha256": "596567ea45e9bee9e0661e9b66f28040d95966d1f6efe848a4d1d1669ac75b75"
+ },
+ "facts": [
+  {
+   "id": "FACT-R12-001",
+   "claim": "TASK-572 carried a requires edge to OUTCOME-560, so it could not start before GATE-569 verified OUTCOME-560.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    ".pyramid/graph.json",
+    "docs/tasks/13-reliability/TASK-572-collect-scale-lifecycle-and-rollback-acceptance-evidence.md"
+   ]
+  },
+  {
+   "id": "FACT-R12-002",
+   "claim": "FIND-ROLLBACK and FIND-OVERNIGHT block GATE-519 and every task audit on ASSET-STORE/ASSET-RESOURCE; the safety contract assigns their rehearsal and supervisor to TASK-572/GATE-579.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "docs/reliability/evidence/CONTRACT-510/safety-contract.md#rollback-and-monitoring-controls",
+    "pyramid inspect --audit-readiness GATE-519 at G102"
+   ]
+  },
+  {
+   "id": "FACT-R12-003",
+   "claim": "FIND-SCALE and FIND-SERVICE were resolved at G103 with TASK-531/532 and TASK-541/542 evidence; no finding is accepted rather than resolved.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "docs/reliability/evidence/TASK-532/assurance-findings-scale-service.json"
+   ]
+  }
+ ],
+ "findings": [
+  {
+   "id": "RF-R12-001",
+   "severity": "medium",
+   "statement": "Dependency cycle between acceptance-evidence production and the gates that require it.",
+   "resolution": "Retype one edge (TASK-572 -> OUTCOME-560) to integration-requires; audit ordering unchanged."
+  }
+ ],
+ "coverage": {
+  "requirements": [
+   "REQ-501",
+   "REQ-502",
+   "REQ-503",
+   "REQ-504",
+   "REQ-505",
+   "REQ-506",
+   "REQ-507"
+  ],
+  "gates": [
+   "GATE-519",
+   "GATE-529",
+   "GATE-539",
+   "GATE-549",
+   "GATE-559",
+   "GATE-569",
+   "GATE-579"
+  ],
+  "unchanged_nodes": "all",
+  "changed_edges": 1
+ },
+ "invariants": [
+  "Every increment outcome keeps its own gate; each later gate still depends on the previous verified outcome.",
+  "No acceptance criterion, non-goal, finding or control was weakened or removed.",
+  "Completed evidence, history and assurance records are preserved.",
+  "TASK-572 still cannot pass audit before OUTCOME-560 is verified; its overnight soak must be on the final candidate at GATE-579."
+ ],
+ "metrics": {
+  "nodes_before": 32,
+  "nodes_after": 32,
+  "edges_changed": 1,
+  "edges_added": 0,
+  "edges_removed": 0
+ },
+ "summary": "Topology-only revision: TASK-572 may start producing the rollback rehearsal and soak supervisor now; audit order and every gate are unchanged.",
+ "limitations": [
+  "The revision does not itself produce any evidence; FIND-ROLLBACK and FIND-OVERNIGHT stay open until TASK-572 records the rehearsal and the real-time soak."
+ ]
+}

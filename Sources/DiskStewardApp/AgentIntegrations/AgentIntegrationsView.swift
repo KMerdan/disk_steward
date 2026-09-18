@@ -17,6 +17,7 @@ struct AgentIntegrationRowPresentation: Equatable, Sendable {
         isSelectable = snapshot.canSelectForSetup
         switch snapshot.state {
         case .verified: symbolName = "checkmark.seal.fill"
+        case .stale: symbolName = "clock.badge.exclamationmark"
         case .configured, .approvalPending: symbolName = "checkmark.circle.fill"
         case .available: symbolName = "circle"
         case .broken, .conflict, .unavailable: symbolName = "exclamationmark.triangle.fill"
@@ -158,6 +159,7 @@ final class AgentIntegrationManager: ObservableObject {
     }
 
     func perform(_ action: AgentIntegrationAction, clientID: AgentClientID) async {
+        guard !busyClients.contains(clientID) else { return }
         guard let adapter = adapters[clientID] else {
             guard let snapshot = snapshots[clientID] else { return }
             results[clientID] = AgentIntegrationOperationResult(
@@ -295,7 +297,7 @@ struct AgentIntegrationsView: View {
         switch state {
         case .verified, .configured: .green
         case .available, .approvalPending: .blue
-        case .broken, .conflict: .orange
+        case .stale, .broken, .conflict: .orange
         case .notDetected, .unavailable: .secondary
         }
     }

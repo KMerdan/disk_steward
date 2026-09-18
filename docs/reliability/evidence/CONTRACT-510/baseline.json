@@ -1,0 +1,697 @@
+{
+  "schema": "pyramid-baseline-v1",
+  "baseline_id": "BASELINE-DISK-STEWARD",
+  "revision": 2,
+  "status": "current",
+  "captured_at": "2026-09-16T23:39:07Z",
+  "captured_by": "codex",
+  "capture_method": "Read source call sites, schemas, tests, package and packaging definitions, prior review reproductions and incident records. Current inventory, not a claim that the code is correct. Source set 8c8c8aa07395c51f4e1e88bb0929e30cc772c180c72f9fd864b73d253b21a5d7 on dirty cf313e4.",
+  "assets": [
+    {
+      "id": "ASSET-ASSURANCE",
+      "kind": "runbook",
+      "name": "Reliability safety and acceptance contract",
+      "locators": [
+        "docs/reliability/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "docs/reliability/planning/plan-005.json",
+        "docs/reliability/planning/transition-authorization.md"
+      ]
+    },
+    {
+      "id": "ASSET-BOOT",
+      "kind": "module",
+      "name": "Application startup and instance identity",
+      "locators": [
+        "Sources/DiskStewardApp/main.swift",
+        "Sources/DiskStewardApp/AppConfiguration.swift",
+        "Sources/DiskStewardApp/ApplicationDelegate.swift",
+        "Sources/DiskStewardApp/StatusItemController.swift",
+        "Tests/IncrementTests/Final/**",
+        "Tests/DiskStewardAppTests/DiskStewardAppTests.swift"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "critical",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardApp/main.swift::instanceLease",
+        "Sources/DiskStewardApp/StatusItemController.swift::init"
+      ]
+    },
+    {
+      "id": "ASSET-SETTINGS",
+      "kind": "module",
+      "name": "Monitoring scope, persistence and access preference",
+      "locators": [
+        "Sources/DiskStewardApp/Settings/**",
+        "Tests/DiskStewardAppTests/Settings/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+        "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift"
+      ]
+    },
+    {
+      "id": "ASSET-LIFECYCLE",
+      "kind": "module",
+      "name": "Sampling orchestration, crash markers and pause epochs",
+      "locators": [
+        "Sources/DiskStewardApp/Lifecycle/**",
+        "Tests/DiskStewardAppTests/Lifecycle/**",
+        "Tests/DiskStewardAppTests/EvidenceLifecycle/**",
+        "Tests/IncrementTests/Monitoring/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "critical",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift::sample",
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift::sampleNow"
+      ]
+    },
+    {
+      "id": "ASSET-SCANNER",
+      "kind": "module",
+      "name": "Metadata traversal, volume samples and change hints",
+      "locators": [
+        "Sources/DiskStewardCore/Monitoring/**",
+        "Tests/DiskStewardCoreTests/Monitoring/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "critical",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift::scanSlice",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift::boundedDirectoryBatch"
+      ]
+    },
+    {
+      "id": "ASSET-STORE",
+      "kind": "data-store",
+      "name": "SQLite evidence/current state, staging, retention and migration",
+      "locators": [
+        "Sources/DiskStewardCore/EvidenceStore/**",
+        "Tests/DiskStewardCoreTests/EvidenceStore/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "critical",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::recordScanSlice",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::reconcileCompletedScanGeneration",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::prepareDatabaseForOpen"
+      ]
+    },
+    {
+      "id": "ASSET-RESOURCE",
+      "kind": "module",
+      "name": "Resource measurement and circuit breaker",
+      "locators": [
+        "Sources/DiskStewardCore/ResourceControl/**",
+        "Tests/PerformanceTests/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "critical",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+        "Tests/PerformanceTests/PerformanceTests.swift"
+      ]
+    },
+    {
+      "id": "ASSET-IPC",
+      "kind": "api",
+      "name": "Same-user Unix-socket transport and lifetime leases",
+      "locators": [
+        "Sources/DiskStewardCore/IPC/**",
+        "Tests/DiskStewardAppTests/IPC/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+        "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift"
+      ]
+    },
+    {
+      "id": "ASSET-ACCESS",
+      "kind": "module",
+      "name": "Agent Access enablement and revocation",
+      "locators": [
+        "Sources/DiskStewardApp/MCPAccess/**",
+        "Tests/DiskStewardAppTests/MCPAccess/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift::setEnabled"
+      ]
+    },
+    {
+      "id": "ASSET-QUERY",
+      "kind": "api",
+      "name": "Authoritative evidence queries and inline export",
+      "locators": [
+        "Sources/DiskStewardApp/IPC/**",
+        "Tests/DiskStewardAppTests/MCP/**",
+        "Tests/IncrementTests/MCP/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift::handleIPC",
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift::wrapCursors"
+      ]
+    },
+    {
+      "id": "ASSET-MCP",
+      "kind": "api",
+      "name": "Read-only MCP stdio protocol and public tool catalog",
+      "locators": [
+        "Sources/DiskStewardMCP/**",
+        "Tests/DiskStewardMCPTests/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardMCP/main.swift",
+        "Sources/DiskStewardMCP/MCPServer.swift",
+        "Sources/DiskStewardMCP/MCPToolCatalog.swift"
+      ]
+    },
+    {
+      "id": "ASSET-CLIENTS",
+      "kind": "interface",
+      "name": "Client installation adapters and process runner",
+      "locators": [
+        "Sources/DiskStewardApp/AgentIntegrations/**",
+        "Tests/DiskStewardAppTests/AgentIntegrations/**",
+        "Scripts/Integration/install",
+        "Scripts/Integration/uninstall",
+        "Scripts/Integration/doctor",
+        "Scripts/Integration/json-config.swift",
+        "Tests/IntegrationInstallTests/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift"
+      ]
+    },
+    {
+      "id": "ASSET-ATTRIBUTION",
+      "kind": "module",
+      "name": "Opt-in session leases and bounded provenance",
+      "locators": [
+        "Sources/DiskStewardCore/Sessions/**",
+        "Sources/DiskStewardCore/Provenance/**",
+        "Sources/DiskStewardCore/Correlation/**",
+        "Sources/DiskStewardCore/EndpointBridge/**",
+        "Extensions/**",
+        "Scripts/Integration/session",
+        "Tests/DiskStewardCoreTests/Sessions/**",
+        "Tests/DiskStewardCoreTests/Provenance/**",
+        "Tests/DiskStewardCoreTests/Correlation/**",
+        "Tests/DiskStewardEndpointTests/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+        "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+        "Scripts/Integration/session",
+        "Package.swift"
+      ]
+    },
+    {
+      "id": "ASSET-EXPORT",
+      "kind": "module",
+      "name": "User-owned and temporary evidence bundles",
+      "locators": [
+        "Sources/DiskStewardCore/Export/**",
+        "Tests/DiskStewardCoreTests/Export/**",
+        "Tests/DiskStewardAppTests/Export/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift::export",
+        "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift"
+      ]
+    },
+    {
+      "id": "ASSET-PRIVACY",
+      "kind": "module",
+      "name": "Path filtering, exclusions and sensitive-value policy",
+      "locators": [
+        "Sources/DiskStewardCore/Privacy/**",
+        "Tests/SafetyTests/**",
+        "docs/operations/privacy-and-retention.md"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/Privacy/EvidencePrivacyFilter.swift",
+        "Tests/SafetyTests/SafetyTests.swift"
+      ]
+    },
+    {
+      "id": "ASSET-UI",
+      "kind": "interface",
+      "name": "Status, explanations, notifications and settings surfaces",
+      "locators": [
+        "Sources/DiskStewardApp/StatusBoard*",
+        "Sources/DiskStewardApp/AppSurfaces.swift",
+        "Sources/DiskStewardApp/MonitoringUI/**",
+        "Sources/DiskStewardApp/Notifications/**",
+        "Sources/DiskStewardApp/Onboarding/**",
+        "Sources/DiskStewardApp/ProvenanceUI/**",
+        "Sources/DiskStewardCore/Explanation/**",
+        "Tests/DiskStewardAppTests/StatusBoard/**",
+        "Tests/DiskStewardAppTests/Monitoring/**",
+        "Tests/DiskStewardCoreTests/Explanation/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "medium",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift"
+      ]
+    },
+    {
+      "id": "ASSET-CONTRACTS",
+      "kind": "interface",
+      "name": "Schemas, snapshot models and product identity",
+      "locators": [
+        "Schemas/**",
+        "Fixtures/**",
+        "Sources/DiskStewardCore/Snapshot/**",
+        "Sources/DiskStewardCore/ProductIdentity.swift",
+        "Tests/ContractTests/**",
+        "Tests/Support/**",
+        "Tests/DiskStewardCoreTests/Snapshot/**",
+        "Tests/IncrementTests/Snapshot/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+        "Schemas/Evidence/scan-generation-scenario-v1.schema.json",
+        "Sources/DiskStewardCore/ProductIdentity.swift"
+      ]
+    },
+    {
+      "id": "ASSET-BUILD",
+      "kind": "deployment",
+      "name": "Swift/Xcode build and isolated CI",
+      "locators": [
+        "Package.swift",
+        "Scripts/Development/**",
+        "DiskSteward.xcodeproj/**",
+        ".github/**"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Package.swift",
+        "Config/Packaging/project.yml"
+      ]
+    },
+    {
+      "id": "ASSET-DISTRIBUTION",
+      "kind": "deployment",
+      "name": "Signing and Homebrew verification boundary",
+      "locators": [
+        "Config/**",
+        "Scripts/Distribution/**",
+        "Tests/Distribution/**",
+        "Tests/IncrementTests/Distribution/**",
+        "Casks/**",
+        "docs/operations/distribution.md",
+        "docs/operations/permissions.md",
+        "docs/operations/uninstall.md"
+      ],
+      "owner": "KMerdan (repository maintainer; no separate component owner recorded)",
+      "criticality": "high",
+      "confidence": "high",
+      "evidence": [
+        "Config/Packaging/project.yml",
+        "Scripts/Distribution/verify-release",
+        "docs/operations/distribution.md"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "ASSET-BOOT",
+      "to": "ASSET-LIFECYCLE",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift::init"
+      ]
+    },
+    {
+      "from": "ASSET-BOOT",
+      "to": "ASSET-SETTINGS",
+      "type": "reads",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift::init"
+      ]
+    },
+    {
+      "from": "ASSET-BOOT",
+      "to": "ASSET-ACCESS",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift::init"
+      ]
+    },
+    {
+      "from": "ASSET-BOOT",
+      "to": "ASSET-CLIENTS",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift::init"
+      ]
+    },
+    {
+      "from": "ASSET-BOOT",
+      "to": "ASSET-UI",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift::init"
+      ]
+    },
+    {
+      "from": "ASSET-LIFECYCLE",
+      "to": "ASSET-SCANNER",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift::sample"
+      ]
+    },
+    {
+      "from": "ASSET-LIFECYCLE",
+      "to": "ASSET-STORE",
+      "type": "writes",
+      "evidence": [
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift::sample"
+      ]
+    },
+    {
+      "from": "ASSET-LIFECYCLE",
+      "to": "ASSET-RESOURCE",
+      "type": "guarded-by",
+      "evidence": [
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift::enforceResourceBudget"
+      ]
+    },
+    {
+      "from": "ASSET-LIFECYCLE",
+      "to": "ASSET-SETTINGS",
+      "type": "reads",
+      "evidence": [
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift::sampleNow"
+      ]
+    },
+    {
+      "from": "ASSET-UI",
+      "to": "ASSET-LIFECYCLE",
+      "type": "reads",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift"
+      ]
+    },
+    {
+      "from": "ASSET-ACCESS",
+      "to": "ASSET-IPC",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift::startService"
+      ]
+    },
+    {
+      "from": "ASSET-IPC",
+      "to": "ASSET-QUERY",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift::init"
+      ]
+    },
+    {
+      "from": "ASSET-QUERY",
+      "to": "ASSET-STORE",
+      "type": "reads",
+      "evidence": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift::rawQuery"
+      ]
+    },
+    {
+      "from": "ASSET-QUERY",
+      "to": "ASSET-ATTRIBUTION",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift::registerSession"
+      ]
+    },
+    {
+      "from": "ASSET-QUERY",
+      "to": "ASSET-EXPORT",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift::inlineBundle"
+      ]
+    },
+    {
+      "from": "ASSET-QUERY",
+      "to": "ASSET-SETTINGS",
+      "type": "reads",
+      "evidence": [
+        "Sources/DiskStewardApp/StatusItemController.swift::retentionPolicyProvider"
+      ]
+    },
+    {
+      "from": "ASSET-MCP",
+      "to": "ASSET-IPC",
+      "type": "calls",
+      "evidence": [
+        "Sources/DiskStewardMCP/main.swift"
+      ]
+    },
+    {
+      "from": "ASSET-CLIENTS",
+      "to": "ASSET-MCP",
+      "type": "deployed-with",
+      "evidence": [
+        "Config/Packaging/project.yml"
+      ]
+    },
+    {
+      "from": "ASSET-EXPORT",
+      "to": "ASSET-STORE",
+      "type": "reads",
+      "evidence": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift::export"
+      ]
+    },
+    {
+      "from": "ASSET-EXPORT",
+      "to": "ASSET-PRIVACY",
+      "type": "depends-on",
+      "evidence": [
+        "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift"
+      ]
+    },
+    {
+      "from": "ASSET-ATTRIBUTION",
+      "to": "ASSET-STORE",
+      "type": "writes",
+      "evidence": [
+        "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift::persist"
+      ]
+    },
+    {
+      "from": "ASSET-SCANNER",
+      "to": "ASSET-CONTRACTS",
+      "type": "depends-on",
+      "evidence": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift"
+      ]
+    },
+    {
+      "from": "ASSET-BUILD",
+      "to": "ASSET-DISTRIBUTION",
+      "type": "deployed-with",
+      "evidence": [
+        "Config/Packaging/project.yml"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "id": "HIST-OOM",
+      "kind": "incident",
+      "summary": "User reported Disk Steward growth to 40 GB in 98 seconds and historical 78–81 GB memory pressure; this assessment does not independently re-establish those system-log measurements.",
+      "asset_ids": [
+        "ASSET-SCANNER",
+        "ASSET-STORE",
+        "ASSET-RESOURCE",
+        "ASSET-LIFECYCLE"
+      ],
+      "evidence": [
+        "docs/reliability/evidence/CONTRACT-510/safety-contract.md"
+      ],
+      "date": "2026-09-14 (reported)",
+      "controls": [
+        "No deliberate OOM reproduction",
+        "150 MiB measured runtime ceiling",
+        "100k/1M and overnight acceptance required"
+      ]
+    },
+    {
+      "id": "HIST-CAP",
+      "kind": "incident",
+      "summary": "Release 1.1.0 evidence DB grew to 1638 MiB with 4,398,152 history rows; FK errors and pre-retention budget checks impeded recovery.",
+      "asset_ids": [
+        "ASSET-STORE",
+        "ASSET-LIFECYCLE"
+      ],
+      "evidence": [
+        "docs/incidents/evidence-database-budget-deadlock-2026-09-16.json",
+        "git:3825a2e"
+      ],
+      "date": "2026-09-16",
+      "controls": [
+        "Retain authoritative current state",
+        "Bound retention batches",
+        "Do not raise caps to hide growth"
+      ]
+    },
+    {
+      "id": "HIST-REVIEW",
+      "kind": "defect",
+      "summary": "213 passing tests coexisted with isolated false-present, socket replacement, pipe backpressure, malformed config and empty-export failures.",
+      "asset_ids": [
+        "ASSET-BOOT",
+        "ASSET-IPC",
+        "ASSET-SCANNER",
+        "ASSET-STORE",
+        "ASSET-CLIENTS",
+        "ASSET-EXPORT"
+      ],
+      "evidence": [
+        "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+      ],
+      "date": "2026-09-16",
+      "controls": [
+        "New failing regressions and sentinel tests",
+        "Scoped audits rather than inherited completion claims"
+      ]
+    },
+    {
+      "id": "HIST-PARTIAL",
+      "kind": "change",
+      "summary": "Current dirty source includes first-pass correctness patches and the audited MCP repair, with 238 passing tests. Large-scale convergence, complete cancellation and overnight stability remain unverified.",
+      "asset_ids": [
+        "ASSET-BOOT",
+        "ASSET-LIFECYCLE",
+        "ASSET-SCANNER",
+        "ASSET-STORE",
+        "ASSET-IPC",
+        "ASSET-QUERY",
+        "ASSET-MCP",
+        "ASSET-CLIENTS",
+        "ASSET-EXPORT"
+      ],
+      "evidence": [
+        "docs/reliability/repair-log.md",
+        ".pyramid/archives/PLAN-DISK-STEWARD-004-R1-G35-20260916T233322Z/docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+      ],
+      "date": "2026-09-17",
+      "controls": [
+        "Revalidate existing patches in PLAN-005",
+        "No product state changed during foundation"
+      ]
+    },
+    {
+      "id": "HIST-MIGRATION",
+      "kind": "migration",
+      "summary": "Current schema version 6 uses a capacity-checked shadow copy and atomic switch; future schema rejection exists. No final-candidate downgrade rehearsal has yet been performed.",
+      "asset_ids": [
+        "ASSET-STORE"
+      ],
+      "evidence": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::prepareDatabaseForOpen"
+      ],
+      "date": "2026-09-17 assessment",
+      "controls": [
+        "Synthetic old-schema stores only",
+        "Consistent backup with rollback binary compatibility validation"
+      ]
+    },
+    {
+      "id": "HIST-MODE",
+      "kind": "decision",
+      "summary": "Completed greenfield metadata was transitioned to brownfield through the documented temporary explicit-mode compatibility patch. Installed runtime validates the new plan and 11-record history.",
+      "asset_ids": [
+        "ASSET-ASSURANCE"
+      ],
+      "evidence": [
+        "docs/reliability/planning/pyramid-mode-compatibility.md",
+        "docs/reliability/planning/transition-authorization.md"
+      ],
+      "date": "2026-09-17",
+      "controls": [
+        "No installed plugin changes",
+        "Return to unmodified runtime",
+        "Preserve archives and pending Git-binding warning"
+      ]
+    },
+    {
+      "id": "HIST-DIST-DOC",
+      "kind": "defect",
+      "summary": "Old distribution runbook still requires a granted Endpoint Security extension for all releases, while standard Config/Packaging/project.yml builds the app and MCP helper. Treat the runbook as stale, not release authority.",
+      "asset_ids": [
+        "ASSET-DISTRIBUTION",
+        "ASSET-ATTRIBUTION"
+      ],
+      "evidence": [
+        "docs/operations/distribution.md",
+        "Config/Packaging/project.yml"
+      ],
+      "date": "2026-09-17 assessment",
+      "controls": [
+        "Retain release verifier signature/notary checks",
+        "Correct runbook before release"
+      ]
+    }
+  ],
+  "unknowns": [
+    "Observed criticality derives from data/config ownership and incidents; component maintainers beyond repository owner are unrecorded.",
+    "Default 150 MiB runtime budget has not been demonstrated for full 100k/1M monitoring + queries + retention; existing name-selector and accelerated-hour tests do not establish it.",
+    "Native Cursor/VS Code approval UI and Claude Desktop launch remain outside executed acceptance evidence.",
+    "Production database schema/content, installed binary and client configurations were intentionally not inspected or altered in this assessment.",
+    "Immediate exclusion visibility, session queue limits, cancellation inside DB work, and manual-export pre-materialization caps require explicit inspections.",
+    "Sources, tests and build config are hash-bound; exact Git binding remains pending until a separately authorized commit."
+  ]
+}

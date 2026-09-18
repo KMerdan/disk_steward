@@ -1,0 +1,44 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-522-RECEIPT-CORE",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-22D0081DF53D051CF5A58CA0A88D3A0D",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:0bc06c388195bfb255a75ddd985ee39d51f3047c6c89df55b82d0f1976ad2b0d",
+    "immutable": true
+  },
+  "read_scope": [
+    "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift",
+    "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+    "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift"
+  ],
+  "purpose": "Reconcile the cancellation finding and inspect bounded native FSEvents ingress/context ownership. Limited core candidate, not complete TASK-522.",
+  "questions": [
+    "Does the guarded COMMIT catch now preserve CancellationError on a failed operation, and does the SQLite commit-hook regression really execute cancellation within native COMMIT?",
+    "Does the production callback reject oversized native batches before bridging/copying their contents, preserve explicit uncertainty, and correctly retain/release callback context?",
+    "Any new actionable correctness regression in the six scoped files? Qualify limitations: app still has per-batch tasks and no shared permit wiring, OS allocations and configured root count are not bounded here, concurrent start/stop usage is not claimed as tested."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-522-02"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 8,
+    "max_output_chars": 7000
+  }
+}

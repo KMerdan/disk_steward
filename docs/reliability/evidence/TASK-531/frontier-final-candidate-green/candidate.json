@@ -1,0 +1,1883 @@
+{
+  "artifacts": [
+    {
+      "bytes": 9379088,
+      "configuration": "debug",
+      "distributionReady": false,
+      "product": "DiskStewardApp",
+      "sha256": "03b024f43da3a105b6c499c2063c1d86d75d8e015e0f6d6a1d0c2a1f25c0261c"
+    },
+    {
+      "bytes": 6069216,
+      "configuration": "debug",
+      "distributionReady": false,
+      "product": "disk-witness-mcp",
+      "sha256": "f37f8ccbc9c3e3292b0d92a454b17ca9e8cbeaf55f4bb02fc294ec1182b87815"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "Scripts/Testing",
+        "-p",
+        "test_*.py"
+      ],
+      "exitCode": 0,
+      "log": "harness.log",
+      "logSHA256": "9a9d5479c09b7bf03f2c93a79abb26383403f8310ee57c957bbce70fe6f5c320",
+      "passed": true,
+      "seconds": 0.48881670899999996,
+      "stage": "harness",
+      "stopReason": null
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "--version"
+      ],
+      "exitCode": 0,
+      "log": "toolchain.log",
+      "logSHA256": "355986b284d60fc60e4b3c24d2bc54ff2562ee37b60ef688917cf2e531315105",
+      "passed": true,
+      "seconds": 0.3762420000000001,
+      "stage": "toolchain",
+      "stopReason": null
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "package",
+        "--cache-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-cache",
+        "--config-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-config",
+        "--security-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-security",
+        "dump-package"
+      ],
+      "exitCode": 0,
+      "log": "manifest.log",
+      "logSHA256": "d23dba1891cc3582cb491bcfb6ff036f64671fa2fa0ca68f78492c2dd3a64106",
+      "passed": true,
+      "seconds": 1.180352917,
+      "stage": "manifest",
+      "stopReason": null
+    },
+    {
+      "command": [
+        "/usr/bin/plutil",
+        "-lint",
+        "Config/Entitlements/DiskStewardApp.entitlements",
+        "Config/Entitlements/DiskStewardEndpoint.entitlements"
+      ],
+      "exitCode": 0,
+      "log": "entitlements.log",
+      "logSHA256": "05da5e337651d1627ef99bc4f0a8a9b43375797b6273c8298e1884370f716400",
+      "passed": true,
+      "seconds": 0.007516832999999945,
+      "stage": "entitlements",
+      "stopReason": null
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "build",
+        "--cache-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-cache",
+        "--config-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-config",
+        "--security-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-security",
+        "--disable-sandbox",
+        "--jobs",
+        "2"
+      ],
+      "exitCode": 0,
+      "log": "build.log",
+      "logSHA256": "34165455fcf3d3328597e17909b1ceb65078eb405345a214f52610a55c1592de",
+      "passed": true,
+      "seconds": 19.693534833,
+      "stage": "build",
+      "stopReason": null
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "test",
+        "--cache-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-cache",
+        "--config-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-config",
+        "--security-path",
+        "/private/tmp/ds-ci-x3uw5bdl/swift-security",
+        "--disable-sandbox",
+        "--jobs",
+        "2"
+      ],
+      "exitCode": 0,
+      "log": "tests.log",
+      "logSHA256": "a780d7b01414d2b6ea16b66b7fc788978a944974fafec94d943c504bf8cd2fce",
+      "passed": true,
+      "seconds": 65.84224045799999,
+      "stage": "tests",
+      "stopReason": null
+    }
+  ],
+  "compatibility": {
+    "declaredMacOSMajorVersions": [
+      "13"
+    ],
+    "interpretation": "Source declarations only; not a backwards-compatibility guarantee.",
+    "rollbackPrerequisites": [
+      "Consistent old-schema backup with measured free-space headroom.",
+      "Exact old and new binary hashes and supported schema contract.",
+      "Interruption, failed conversion and old-binary restore rehearsals on synthetic stores.",
+      "Never open a new schema with an old binary absent verified compatibility."
+    ],
+    "rollbackStatus": "not-verified",
+    "schemaVersionAssignments": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ]
+  },
+  "dirtyWorktree": true,
+  "inputManifest": [
+    {
+      "bytes": 1773,
+      "mode": 420,
+      "path": ".github/workflows/ci.yml",
+      "sha256": "43789e47fcfc9c42357b8ff45705d9329a7a543c665fdba253a652c7eb82141c"
+    },
+    {
+      "bytes": 307,
+      "mode": 420,
+      "path": "Config/Entitlements/DiskStewardApp.entitlements",
+      "sha256": "cc763a9516e4b2708e338f6fc65e227346160a2ad83f6c6f679d172fccc8bfe7"
+    },
+    {
+      "bytes": 372,
+      "mode": 420,
+      "path": "Config/Entitlements/DiskStewardEndpoint.entitlements",
+      "sha256": "09b69afc600a761232bc2c009d20b8a3fefcfbcc44148ca7f38bafd34794a6e5"
+    },
+    {
+      "bytes": 510,
+      "mode": 420,
+      "path": "Config/ExportOptions/DeveloperID.plist",
+      "sha256": "d8b03985966d7aad9382daa7301fb809087088e003dca2c5b0593e946907fcda"
+    },
+    {
+      "bytes": 1597,
+      "mode": 420,
+      "path": "Config/Packaging/DiskSteward-Info.plist",
+      "sha256": "e4c7049534dc1695368f7bffd40e084be5b2b7c13d5928ebc67fdd0c9fd21c22"
+    },
+    {
+      "bytes": 5111,
+      "mode": 420,
+      "path": "Config/Packaging/project.yml",
+      "sha256": "7ff5dea8c300d8ae788a8cced9125d42bea4175b7d6c226f4428c89dc460d12c"
+    },
+    {
+      "bytes": 360,
+      "mode": 420,
+      "path": "Config/Signing/Development.xcconfig",
+      "sha256": "47740fc7b5faed2e924fd45cdaa1abdaf9c8477f3cc863ccaa154228e4037d43"
+    },
+    {
+      "bytes": 394,
+      "mode": 420,
+      "path": "Config/Signing/Release.xcconfig",
+      "sha256": "c25fe6ca06d3b2bb0678b787332b0ef9f89c3b7ee3e7095ba2f7c945a1fa8891"
+    },
+    {
+      "bytes": 39708,
+      "mode": 420,
+      "path": "DiskSteward.xcodeproj/project.pbxproj",
+      "sha256": "2f84773441d96f1f95558cec3b16460a18af108da181818b8888e27e58db03f1"
+    },
+    {
+      "bytes": 135,
+      "mode": 420,
+      "path": "DiskSteward.xcodeproj/project.xcworkspace/contents.xcworkspacedata",
+      "sha256": "7f3b00b5c3fdb45242d7b87e1e5c4e25d1fa8129a16c94295ecc4e8ea2235c5f"
+    },
+    {
+      "bytes": 4110,
+      "mode": 420,
+      "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward-Release.xcscheme",
+      "sha256": "7023c31f2e7bc71b9a6ba11d8a62d6d407ce65b324d103bc9727c6f6e9bf4c76"
+    },
+    {
+      "bytes": 4104,
+      "mode": 420,
+      "path": "DiskSteward.xcodeproj/xcshareddata/xcschemes/DiskSteward.xcscheme",
+      "sha256": "647dc03c338ac43ae8ad1d09b9e9b9ccd2241f70871fd72fa94fbe6d18e42ca2"
+    },
+    {
+      "bytes": 11387,
+      "mode": 420,
+      "path": "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+      "sha256": "b594fcb9b136f56775350cb1d0488935aed26e243fd935790000213fb30afcfa"
+    },
+    {
+      "bytes": 542,
+      "mode": 420,
+      "path": "Extensions/DiskStewardEndpoint/Info.plist",
+      "sha256": "7fa4b4541d3618a4e8a97c52320d7b47009d962aafc129f818577278f86b45ac"
+    },
+    {
+      "bytes": 2243,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/abc-complete-deletion.json",
+      "sha256": "ba045b0ac3b0826919e338bcbba1f70c70dcf5bb324c143cec5dc690c1b964df"
+    },
+    {
+      "bytes": 2141,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/abc-partial-observation.json",
+      "sha256": "66df31ad52f106b708ba87fefd1e49aab392b083fa8ab2375b256edccde9af43"
+    },
+    {
+      "bytes": 2715,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/actionable-export-false-complete.json",
+      "sha256": "eaf19c2fca44d3c2e55a02e8eaf5a45798fb5de8cff3e1960e678944e7c0f815"
+    },
+    {
+      "bytes": 1412,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/actionable-export-missing-roles.json",
+      "sha256": "7f032ec1ff4c4c106d1e9475e34ab8c95a36378c5187810a30f5cadacdd23b3f"
+    },
+    {
+      "bytes": 3069,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/actionable-export-valid.json",
+      "sha256": "59c43fa9814a99bb1c0e3d1eecfb31ed798a3ae68b238d5c1353db34be7668c8"
+    },
+    {
+      "bytes": 1095,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/scan-generation-multi-slice.json",
+      "sha256": "f719386de2dd8c7201705fac10ad4b6661f4fa50d58615f1138d145a2b059a08"
+    },
+    {
+      "bytes": 1098,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/scan-generation-restart.json",
+      "sha256": "43e438a5c90ae035f8afb836228858721a66044fadea502b07cda9349c678e71"
+    },
+    {
+      "bytes": 1283,
+      "mode": 420,
+      "path": "Fixtures/Contracts/Evidence/scan-generation-scope-change.json",
+      "sha256": "3e46f46f1df12666566493c2180c6fde79892c375625a364e9396e02e53d44cc"
+    },
+    {
+      "bytes": 843,
+      "mode": 420,
+      "path": "Fixtures/Contracts/invalid-evidence-missing-confidence.json",
+      "sha256": "466b499fdd58b4ced5c71b661ab90021857a4eaf72036333128945b46f538e9c"
+    },
+    {
+      "bytes": 816,
+      "mode": 420,
+      "path": "Fixtures/Contracts/invalid-evidence-with-content.json",
+      "sha256": "eb0b55c940a349cb0e8917d62592dcd26c244fd9fea42fecfc6870b7fd61775f"
+    },
+    {
+      "bytes": 495,
+      "mode": 420,
+      "path": "Fixtures/Contracts/invalid-export-manifest.json",
+      "sha256": "87652ea30b7f52bf1f327b66edd0de6e1598acb69341d5e294e63cbbb9eef0a1"
+    },
+    {
+      "bytes": 217,
+      "mode": 420,
+      "path": "Fixtures/Contracts/invalid-retention-unbounded.json",
+      "sha256": "597dc09e1ca8f9c3350d69d39c2032d6daec2fb12d08d6d2c5db481bd9e3f492"
+    },
+    {
+      "bytes": 962,
+      "mode": 420,
+      "path": "Fixtures/Contracts/valid-evidence-event.json",
+      "sha256": "3bacd6f78fc6cd9e3fa5e1bf4dca6bad6690056eb1e9446333824e9249cc8311"
+    },
+    {
+      "bytes": 2068,
+      "mode": 420,
+      "path": "Fixtures/Contracts/valid-export-manifest.json",
+      "sha256": "62c1dd8ffb4d2748c14fddcfc3a0ccc0d4cb3635fc55e87240cd4991f8c281a5"
+    },
+    {
+      "bytes": 200,
+      "mode": 420,
+      "path": "Fixtures/Contracts/valid-retention-policy.json",
+      "sha256": "2a75e5f798a8374bbe4971e576b9e8ca450c17c8ecf296803cf831bf0260a45e"
+    },
+    {
+      "bytes": 1208,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/exact-close-coalesced.json",
+      "sha256": "84f01629ad9c3a659807bcd7a2b65e635388a674545f8b10758eac8392000b62"
+    },
+    {
+      "bytes": 1201,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/exact-create.json",
+      "sha256": "91edc2ba60a56a48c2642b36e3750d8656414815e1340956cd5d669f292e2c7e"
+    },
+    {
+      "bytes": 1239,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/exact-rename.json",
+      "sha256": "9297f5b7d5627a2e62492c89bc7f768e40ca85fe27d240758774e913e817ca8f"
+    },
+    {
+      "bytes": 1106,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/invalid-exact-incomplete.json",
+      "sha256": "8a3d6c58cffefbe9ca19e0d477ce64c3f571ba8cca1d05871804e264fe0e4121"
+    },
+    {
+      "bytes": 1133,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/pid-reuse-first.json",
+      "sha256": "5b528c01150979793fe5bfe484213f7c5ba5db0fb6ddd02bc5494ecd23db018e"
+    },
+    {
+      "bytes": 1133,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/pid-reuse-second.json",
+      "sha256": "1bd697345cc9665c27c2faf5f59d35ee2be6e3973b911e50fcb725cfa36e43c3"
+    },
+    {
+      "bytes": 490,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/privacy-filter-cases.json",
+      "sha256": "d42e5ed38a80b072472cc6a12cfb124c4dfeef347f5c2683f9e71acf0d83edd5"
+    },
+    {
+      "bytes": 2101,
+      "mode": 420,
+      "path": "Fixtures/EndpointSecurity/status-cases.json",
+      "sha256": "6f36f2a8f2379f5c8c26cf8931de638693361502f363f2602e0d01525d05a06f"
+    },
+    {
+      "bytes": 1010,
+      "mode": 420,
+      "path": "Fixtures/Exports/golden-codex-brief.md",
+      "sha256": "73e0b0d80ff26783ceee66cfa758899a682f679397524e503181b662fbbba330"
+    },
+    {
+      "bytes": 194,
+      "mode": 420,
+      "path": "Fixtures/MCP/claude-stdio.json",
+      "sha256": "9cffb4d42e63e7a6155069f2623609955c54f609b2f5fbdc818293b7b4ecd3fe"
+    },
+    {
+      "bytes": 474,
+      "mode": 420,
+      "path": "Fixtures/MCP/codex-stdio.toml.txt",
+      "sha256": "1325d6c65a4730a58fa7a14f8f4d3af243dbaf767210c3750ab92d4b665dd904"
+    },
+    {
+      "bytes": 208,
+      "mode": 420,
+      "path": "Fixtures/MCP/initialize-request.json",
+      "sha256": "05dbdad9d053c2ff3315b8beee696f4ba23b171bdef232493d3180f3c2553bd3"
+    },
+    {
+      "bytes": 390,
+      "mode": 420,
+      "path": "Fixtures/MCP/initialize-response.json",
+      "sha256": "565770c92d2064bba080999f2fa19a46f3e0c689780e00fa71ce86ce25cf2022"
+    },
+    {
+      "bytes": 137,
+      "mode": 420,
+      "path": "Fixtures/MCP/protocol-error-malformed-input.json",
+      "sha256": "8475eaece21ab2c1b4978194e9a4b70d81b0d971318cda9dd24c69875f26283d"
+    },
+    {
+      "bytes": 6137,
+      "mode": 420,
+      "path": "Fixtures/MCP/readonly-inventory.json",
+      "sha256": "dde9cd87e59f45be224492a5abb6daa26a394685fc021ac6a3fb66b43c26491f"
+    },
+    {
+      "bytes": 751,
+      "mode": 420,
+      "path": "Fixtures/MCP/sanitized-growth-response.json",
+      "sha256": "500c70c69ce9406d17063c551663c127a20fec465dabe5ee60b01946aa796149"
+    },
+    {
+      "bytes": 587,
+      "mode": 420,
+      "path": "Fixtures/MCP/tool-call-app-unavailable.json",
+      "sha256": "76f1551ce07f4413e7fbc798d045687e82d7ab08ebab27f29b42e868c8834695"
+    },
+    {
+      "bytes": 654,
+      "mode": 420,
+      "path": "Fixtures/Provenance/adversarial-scenarios.json",
+      "sha256": "167441902690b40a4d2a6448caef13a016c20146e45bcc7f717724bedfceec6b"
+    },
+    {
+      "bytes": 648,
+      "mode": 420,
+      "path": "Fixtures/Provenance/golden-scenarios.json",
+      "sha256": "1d7b78f416e1321400bd1c1c0831f81a59570ecd134ff2ffd68b6c2dc764527f"
+    },
+    {
+      "bytes": 702,
+      "mode": 420,
+      "path": "Fixtures/Session/invalid-spoofed-session.json",
+      "sha256": "156947bbab05692ea731c18b219c3b0541421b3cc58afb789c6783084f4e39bc"
+    },
+    {
+      "bytes": 1035,
+      "mode": 420,
+      "path": "Fixtures/Session/valid-active-session.json",
+      "sha256": "5d94550004e3b952a260e4eaf5eb17fd9b84ced2496196f0cfdb437274080b32"
+    },
+    {
+      "bytes": 967,
+      "mode": 420,
+      "path": "Fixtures/Session/valid-ended-session.json",
+      "sha256": "9cdeac2c69fa0bd32c9881f38b9a9ff62c30f6f04223a75c01d21d1fb17a629f"
+    },
+    {
+      "bytes": 988,
+      "mode": 420,
+      "path": "Integrations/Claude/README.md",
+      "sha256": "7951117ab53dfb9f82ea8c061e25ebc98727c5879b19a620e9ec2dd1766bc0c7"
+    },
+    {
+      "bytes": 194,
+      "mode": 420,
+      "path": "Integrations/Claude/mcp.template.json",
+      "sha256": "9cffb4d42e63e7a6155069f2623609955c54f609b2f5fbdc818293b7b4ecd3fe"
+    },
+    {
+      "bytes": 437,
+      "mode": 420,
+      "path": "Integrations/Codex/config.toml.fragment",
+      "sha256": "491d268d880e6558a8e5b6028df1cfabc496954fe31a8463ee0117ad6626403c"
+    },
+    {
+      "bytes": 792,
+      "mode": 420,
+      "path": "Integrations/Codex/disk-steward/.codex-plugin/plugin.json",
+      "sha256": "3435b8443ee337d5fd126461f536704ece5cef6c27595866cadeee5fccf4cf64"
+    },
+    {
+      "bytes": 125,
+      "mode": 420,
+      "path": "Integrations/Codex/disk-steward/.mcp.json",
+      "sha256": "c02da120e81b83dd18ca96474b5b315e6360bb59671c71139ff52de56b36bca9"
+    },
+    {
+      "bytes": 1424,
+      "mode": 420,
+      "path": "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md",
+      "sha256": "b6c59aff1eeeb0d87407339856580838b40d76742738f0de1c5265391641f5ad"
+    },
+    {
+      "bytes": 3217,
+      "mode": 420,
+      "path": "Package.swift",
+      "sha256": "84f1a11ceb9300dbd8ca08eb7104657198cc02dc52aa7265b294b7c547db85a0"
+    },
+    {
+      "bytes": 1011,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
+      "sha256": "b703aada46ad6c747053b06a62b41b9f2c9a97bc750aa7cc9a98dd3cafa1fcba"
+    },
+    {
+      "bytes": 208707,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+      "sha256": "b0259a93addbc7403b9b4e5bcc89e0de0573564bbecf8023abdd93508b31eb7b"
+    },
+    {
+      "bytes": 12057,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-128.png",
+      "sha256": "9f64cfca04312ad86449eec71a4b239b1b32211b080faa720bd997c54ac97147"
+    },
+    {
+      "bytes": 658,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-16.png",
+      "sha256": "137d613b67ede309e1585c93169ded1db75858778d390837bb88cca80b6442f8"
+    },
+    {
+      "bytes": 30759,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-256.png",
+      "sha256": "8f5fcf4dded28bde53c771984d2671b2a4a5d6d3b29a47cec4a76d8b4e217056"
+    },
+    {
+      "bytes": 1632,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-32.png",
+      "sha256": "42ea94ca093620a53817d0d49d052649518a57eb135f32eca1fc3bda0e83209f"
+    },
+    {
+      "bytes": 79193,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-512.png",
+      "sha256": "3f0c633d26cdb5a7cb90bf9b36641db2f11f9995b1252a0f7a0d82bf012394fa"
+    },
+    {
+      "bytes": 4594,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/AppIcon.appiconset/app-icon-64.png",
+      "sha256": "06a347053e848729bb57c7441846b3f515b2230e40ea89e981947d46e8cc784e"
+    },
+    {
+      "bytes": 63,
+      "mode": 420,
+      "path": "Resources/App/Assets.xcassets/Contents.json",
+      "sha256": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b"
+    },
+    {
+      "bytes": 1702,
+      "mode": 420,
+      "path": "Schemas/EndpointSecurity/privileged-bridge-status-v1.schema.json",
+      "sha256": "175ccf00e0a0c7fb869adb0a18201e3ca7522583a6afd5755ff75cfe56490763"
+    },
+    {
+      "bytes": 4188,
+      "mode": 420,
+      "path": "Schemas/EndpointSecurity/privileged-event-v1.schema.json",
+      "sha256": "11e3367b8d1fa969f41bbc2821d24161131514d12a61d543e70b22cac0acb604"
+    },
+    {
+      "bytes": 3768,
+      "mode": 420,
+      "path": "Schemas/Evidence/actionable-export-v1.schema.json",
+      "sha256": "06f2a50a42280aa9c1b064100c079d60d9c0723d211b722068d7bb2c821a8f1b"
+    },
+    {
+      "bytes": 2130,
+      "mode": 420,
+      "path": "Schemas/Evidence/agent-session-v2.schema.json",
+      "sha256": "d436162257af3cf5b178f2add804c19b2ee285bffd8aa79c3401c818e320a8cc"
+    },
+    {
+      "bytes": 1153,
+      "mode": 420,
+      "path": "Schemas/Evidence/fsevent-hint-v1.schema.json",
+      "sha256": "74794015d43b627497ff0609f5e1cdf96056b861236cc27099f79c2fe826313d"
+    },
+    {
+      "bytes": 2716,
+      "mode": 420,
+      "path": "Schemas/Evidence/provenance-claim-v2.schema.json",
+      "sha256": "f562a91b0f871a6b251c42f4af33b041c025b91ef2872c5287f679679edafaf4"
+    },
+    {
+      "bytes": 5306,
+      "mode": 420,
+      "path": "Schemas/Evidence/reconciliation-scenario-v1.schema.json",
+      "sha256": "39669899a9a5d0821fa6b22b5a20756cfa64b58831d304811811577e8f826ccc"
+    },
+    {
+      "bytes": 2582,
+      "mode": 420,
+      "path": "Schemas/Evidence/scan-generation-scenario-v1.schema.json",
+      "sha256": "6761d421393bf85bad730e0130c9915ec30fb152308532e670601786b72b9822"
+    },
+    {
+      "bytes": 1649,
+      "mode": 420,
+      "path": "Schemas/MCP/evidence-query-page-v1.schema.json",
+      "sha256": "54527c5a1fc5a9ad99fd00b6c5b324d67abcf59f4c5c8231db5135c09d64e4ff"
+    },
+    {
+      "bytes": 3973,
+      "mode": 420,
+      "path": "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+      "sha256": "bd0dc170ee515c0daaa4f7030bde9015f664e1dd67132af346f8cf0c0f4740da"
+    },
+    {
+      "bytes": 3130,
+      "mode": 420,
+      "path": "Schemas/Session/session-registration-v1.schema.json",
+      "sha256": "0358a4d4d1caea4f061b63c7fcd6b6987319ce29299658164527167cf13b5907"
+    },
+    {
+      "bytes": 3514,
+      "mode": 420,
+      "path": "Schemas/evidence-event-v1.schema.json",
+      "sha256": "295b342629d47f29029de2b963e34aaea2762c468abfecf817aaa43e449acc2b"
+    },
+    {
+      "bytes": 6196,
+      "mode": 420,
+      "path": "Schemas/evidence-event-v2.schema.json",
+      "sha256": "7af5d1547d3fb516460b72afc268cef8fff7b6138874fc72bfd38a484f63482a"
+    },
+    {
+      "bytes": 2191,
+      "mode": 420,
+      "path": "Schemas/export-manifest-v1.schema.json",
+      "sha256": "ec509136802083270ffbad25813c3c3ed75a27900a905548ec243086c7445fa6"
+    },
+    {
+      "bytes": 2985,
+      "mode": 420,
+      "path": "Schemas/export-manifest-v2.schema.json",
+      "sha256": "69c26022e9f4aaeeeb91a79b31f806b0a147e968731d9f3e128962b05132d8b5"
+    },
+    {
+      "bytes": 748,
+      "mode": 420,
+      "path": "Schemas/privacy-policy-v1.schema.json",
+      "sha256": "b565e7083d31591e27aea7e5bee11bbab8e2c0de832c755e40bb47f9d6041422"
+    },
+    {
+      "bytes": 3933,
+      "mode": 420,
+      "path": "Schemas/provenance-chain-v3.schema.json",
+      "sha256": "2c68f4b6e196d2dd2c8df2dd600f47b654614a9f5608df7ed8e8018370cfe9a5"
+    },
+    {
+      "bytes": 4009,
+      "mode": 420,
+      "path": "Schemas/provenance-claim-v3.schema.json",
+      "sha256": "3d540e340afcabf3373ed028ddb7fa8f2d7158ff4cf03643fda7d9e50c07473b"
+    },
+    {
+      "bytes": 2904,
+      "mode": 420,
+      "path": "Schemas/provenance-presentation-v3.schema.json",
+      "sha256": "1a35e6820b6212ec020622e994badedc7ec70cbb71535d7cae45aff0fab12227"
+    },
+    {
+      "bytes": 1019,
+      "mode": 420,
+      "path": "Schemas/retention-policy-v1.schema.json",
+      "sha256": "267183fdcd71495ad3e8f3038d992ecf2d39343fd04a53187e91dd3adee5fe8b"
+    },
+    {
+      "bytes": 2863,
+      "mode": 420,
+      "path": "Schemas/scan-coverage-summary-v1.schema.json",
+      "sha256": "e2ab82ba7a2632b98ba40fae24a0667f6a351defd54f665c5841d2a71676524d"
+    },
+    {
+      "bytes": 985,
+      "mode": 420,
+      "path": "Schemas/service-status-v1.schema.json",
+      "sha256": "d5fee61476b31c4d1a9dea25184d0789bad2d2a91f9b921db972fce24b4c62d8"
+    },
+    {
+      "bytes": 1320,
+      "mode": 420,
+      "path": "Schemas/storage-snapshot-v1.schema.json",
+      "sha256": "f6dec6efd456b4a2f5320c90462b6d9bbae84ded4bec957a0c33e58970c0afe8"
+    },
+    {
+      "bytes": 394,
+      "mode": 493,
+      "path": "Scripts/Development/build_xcode_project",
+      "sha256": "b0a40048bb0ad260163ba8cf594bde0702869169ed40ec283a92def9adf15f95"
+    },
+    {
+      "bytes": 3222,
+      "mode": 420,
+      "path": "Scripts/Development/generate_app_icon.swift",
+      "sha256": "e78716782b8c14d1ccdd9df422ae440ad8666722b2cd5b2dfbc40dc78e5b67e3"
+    },
+    {
+      "bytes": 1731,
+      "mode": 493,
+      "path": "Scripts/Distribution/archive-release",
+      "sha256": "3903022d7142338cc8931849d075310ed867a8fd63e3e97c22238e9f3abe2b5d"
+    },
+    {
+      "bytes": 2232,
+      "mode": 493,
+      "path": "Scripts/Distribution/finalize-archive-signatures",
+      "sha256": "8bbc4945e616b45aaa3ff19dad12a819f5f76e185ffd3b1ff32aafc8c4961da0"
+    },
+    {
+      "bytes": 2056,
+      "mode": 493,
+      "path": "Scripts/Distribution/rehearse-handoff",
+      "sha256": "c755224483e744f856b74e181c94eeed12c0b2997cbabc9412f3934101815e47"
+    },
+    {
+      "bytes": 1138,
+      "mode": 493,
+      "path": "Scripts/Distribution/release-preflight",
+      "sha256": "c45817d1a9d57d40b64cf5c532b1e55721cd3b9470d94e389d2aee58976852c4"
+    },
+    {
+      "bytes": 1488,
+      "mode": 493,
+      "path": "Scripts/Distribution/verify",
+      "sha256": "52941affefcf3332e8f9016de71d4a9a980f1f05824ab012790c7797b8422c17"
+    },
+    {
+      "bytes": 7820,
+      "mode": 493,
+      "path": "Scripts/Distribution/verify-release",
+      "sha256": "3fade372bafae2f4f65a6d7c1bf8d7807576aabd90538b891eb13757fcb1d29f"
+    },
+    {
+      "bytes": 2434,
+      "mode": 493,
+      "path": "Scripts/Integration/doctor",
+      "sha256": "ae73531b86e32a2790311735eda4df664afa507b444e38557fb1f268c5a79d24"
+    },
+    {
+      "bytes": 3572,
+      "mode": 493,
+      "path": "Scripts/Integration/install",
+      "sha256": "ed884dab7b0be46fb06c92eb2d11cccb3d5bb4222d37c88677a2e1a1e28b9305"
+    },
+    {
+      "bytes": 2709,
+      "mode": 493,
+      "path": "Scripts/Integration/json-config.swift",
+      "sha256": "e798cef9570dd8743da973bd20a2f526de6df4bc552dbc15990453e082fc4296"
+    },
+    {
+      "bytes": 7415,
+      "mode": 493,
+      "path": "Scripts/Integration/session",
+      "sha256": "ac3e7c2b7d8e3e6f24b1d434d081619bcabf2a02600e8df8733af46c4b4e67ac"
+    },
+    {
+      "bytes": 2336,
+      "mode": 493,
+      "path": "Scripts/Integration/uninstall",
+      "sha256": "e220b58f8e38605611402771a525d80cd4bc4424c8b9c299d888f2cd10557764"
+    },
+    {
+      "bytes": 7605,
+      "mode": 420,
+      "path": "Scripts/Testing/test_verify_candidate.py",
+      "sha256": "40264b37b178cd72911b56395974f2478ccf348c468f36e08ff8bfdf2161697a"
+    },
+    {
+      "bytes": 8013,
+      "mode": 420,
+      "path": "Scripts/Testing/test_verify_packaged_candidate.py",
+      "sha256": "a3701b364cdb436f6643b9a6a2c3e80a0e162e8f31bf09a84575eb7b7493f3b1"
+    },
+    {
+      "bytes": 15009,
+      "mode": 420,
+      "path": "Scripts/Testing/verify_candidate.py",
+      "sha256": "6d23a0c158b7af47ab8462a539c8941f1c25ea552cd6151ed876032591b43c16"
+    },
+    {
+      "bytes": 14015,
+      "mode": 420,
+      "path": "Scripts/Testing/verify_packaged_candidate.py",
+      "sha256": "77173d50a3534c2b4ec38675ee46f3d250a86ea26c3eb0269a78caf9ac91242b"
+    },
+    {
+      "bytes": 9203,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+      "sha256": "deb666a2aaf941b6c275277554da0d15d6f886d90438167a072b608aab2e155e"
+    },
+    {
+      "bytes": 11504,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+      "sha256": "c18f6fda63b8570fd576475c11b73b2f63e96b8e193553622be888e84887f482"
+    },
+    {
+      "bytes": 12687,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+      "sha256": "fc429a673acfc3da954b2e0b5e7a25ba1be3d9b6afd29e7c360981ee405965c1"
+    },
+    {
+      "bytes": 2929,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+      "sha256": "253db9a456ea41d2990d57153840ef9e83fae38148503fcd6b506d3cc549edd0"
+    },
+    {
+      "bytes": 733,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/ClaudeDesktopIntegrationAdapter.swift",
+      "sha256": "a6075133246e91619003989f427c183012dcfd5419ee3ad1cb627b73955e52a5"
+    },
+    {
+      "bytes": 36132,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+      "sha256": "382c1d1a25cdd14895e83b75517fe1966c0382a3b934213efb31b465cfa93a40"
+    },
+    {
+      "bytes": 18655,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+      "sha256": "54588169243fa48dc71af3eaf94c82c525e49e459d6a311e54f4493572d2a780"
+    },
+    {
+      "bytes": 3364,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/ManualIntegrationAdapter.swift",
+      "sha256": "9fc8f6bad82cc689d3b22d89c5d74cad9d8d110849656f95107b2b811b3afa48"
+    },
+    {
+      "bytes": 1501,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AgentIntegrations/VSCodeIntegrationAdapter.swift",
+      "sha256": "1aa208b01534f59e5d0297b94c81e3700d160d60a79d21a0c8ce52d0c022f894"
+    },
+    {
+      "bytes": 3650,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AppConfiguration.swift",
+      "sha256": "2384a796162cb4f29f49bbc8aa59fe9d47772a96bac6d4361fc476f02d12ffdc"
+    },
+    {
+      "bytes": 1296,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/AppSurfaces.swift",
+      "sha256": "d40f41109043736017d5d8e9bfe2884cbf6f24df521b30cfd37b0c6166362bf0"
+    },
+    {
+      "bytes": 2556,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/ApplicationDelegate.swift",
+      "sha256": "f4ab61d2bf76341e2b68da4a3aad7d6d5c836d9e0b083a1d78c223ecc0d98ae2"
+    },
+    {
+      "bytes": 70115,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "sha256": "0eae068315343cf47f562193ed3e2d3af2487195f196f1c7e208e3e413b5a389"
+    },
+    {
+      "bytes": 1006,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Lifecycle/LaunchAtLoginController.swift",
+      "sha256": "dd0a6c7a3342cb27c92b5b89cab1be104832b26ddb963db3e32236527690a2ee"
+    },
+    {
+      "bytes": 22498,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+      "sha256": "a4b530a25872280015eb45cfe039ad9fd57abb12ebb582dd1a838a03c4611465"
+    },
+    {
+      "bytes": 21561,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+      "sha256": "1c2f845c8adf4e8f831aec0ce8d5bc8879efcb4e2c944084a2655442cba16600"
+    },
+    {
+      "bytes": 3412,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift",
+      "sha256": "f725df0683fbba4f40c75848d388879fa80272be1894d9fc65418922bd20eb13"
+    },
+    {
+      "bytes": 12731,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
+      "sha256": "bf2f60605471dc6c8d879c0afea78efe3260ee35b96ce7b72e83cfdf05ca14a2"
+    },
+    {
+      "bytes": 1708,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+      "sha256": "2ba05cc5c5e82142d8ab787c7c25a0f21dbf36f6daf2794e26eaf47f4698ead4"
+    },
+    {
+      "bytes": 3082,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+      "sha256": "9f45809e9ab3b3534884af1174509d9ed278aaa344ba720f49d48a5bb02cbf29"
+    },
+    {
+      "bytes": 1313,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Onboarding/PermissionOnboarding.swift",
+      "sha256": "0230debfceb278bcd2c3675d41d83f386fdd9b20ea3b0bf16e01edc5ee83a64b"
+    },
+    {
+      "bytes": 796,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/ProvenanceUI/ProvenanceBoardItem.swift",
+      "sha256": "b301fef97cdfc41f54d39602b33ac802c3366d484b9cafc1cc084a4674df1044"
+    },
+    {
+      "bytes": 857,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Settings/AgentAccessSettingsStore.swift",
+      "sha256": "7a40c49761a24739fba6fb14fe991e1069d37a55de3245cd1146c1291e7f0e2c"
+    },
+    {
+      "bytes": 3782,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Settings/MonitoringSettings.swift",
+      "sha256": "387fe64e47a48eb8f7aae6f39f4c4233cf28ed9680ae2d5cb84b3ffc5fdd9600"
+    },
+    {
+      "bytes": 2336,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/Settings/MonitoringSettingsStore.swift",
+      "sha256": "f98838969c521ab5eaacb4d78d37922eb3ef1989389e83b5d4f94182435cde1e"
+    },
+    {
+      "bytes": 10737,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+      "sha256": "fd93bfad8042b070ce15e53016618b057e573bac83f9cc62722303cf4b1fa92d"
+    },
+    {
+      "bytes": 10293,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+      "sha256": "02d03fc7b8cad18d6f4dd8b66b4f10ec00791c46a82b904d93a2462f6b25d8da"
+    },
+    {
+      "bytes": 11760,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/StatusItemController.swift",
+      "sha256": "2d24fa0ca0f97776d18550e179669764314025dcd157add3619f1ca60a8bfdd4"
+    },
+    {
+      "bytes": 1706,
+      "mode": 420,
+      "path": "Sources/DiskStewardApp/main.swift",
+      "sha256": "8a9eab8f25ea8c9149b849e0909f6ef3ec965e03b426c4fa46cd0db4cc4e9317"
+    },
+    {
+      "bytes": 4635,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Correlation/TaskImpactCorrelation.swift",
+      "sha256": "a195ad52068276ec4e37f5cd1a77b69b4cc40aa9cefa736a6036c65043915717"
+    },
+    {
+      "bytes": 4769,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EndpointBridge/BoundedEndpointEventBuffer.swift",
+      "sha256": "e78b7adbfd1c7ee14afc2abca060d7282ad20b6642101679f2dcf5611c527007"
+    },
+    {
+      "bytes": 3575,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EndpointBridge/EndpointEventNormalizer.swift",
+      "sha256": "bc6a7a2e43ae14b7f2e24af905ff5d49ae134f4b3fa4018fe648292fdbd6ecb4"
+    },
+    {
+      "bytes": 6529,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EndpointBridge/PrivilegedEventModels.swift",
+      "sha256": "43eaf1316890ebe044adc9f2c5017e8d3e248c4fd3a5076e13e17fb3ad15eb1b"
+    },
+    {
+      "bytes": 8933,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift",
+      "sha256": "8144f71b5fb9e9648fbafadeb82ecee7d97160ca9c6d15d5818750e6f4b0d37d"
+    },
+    {
+      "bytes": 80,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/CSQLite/module.modulemap",
+      "sha256": "bbfe59a972a3e8e09e347c04bc22c0eacd2544881af8a4b6068bfc30b38466e8"
+    },
+    {
+      "bytes": 21,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/CSQLite/shim.h",
+      "sha256": "b052d8e561e942f97b503033ecd2eaa2b35213bdbf374983efe9e68eabdfc024"
+    },
+    {
+      "bytes": 1152,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceEventTiming+SQLite.swift",
+      "sha256": "71e8a59d1c02b2933f573747fabd2fd3ea021861656b90e7d898c70a06dd9fe2"
+    },
+    {
+      "bytes": 1830,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceEventTimingPresentation.swift",
+      "sha256": "a8f8339419829b07f1274cdad6361321d96bf8b861becb0e482ee475047e9266"
+    },
+    {
+      "bytes": 2938,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+      "sha256": "2d3d47751e73bcae7df3f8a5281cc7fc12c28b5c879d2602448115c77120e38b"
+    },
+    {
+      "bytes": 1314,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleSummary.swift",
+      "sha256": "d8ae8e5fc8db601c1410d95fdfe7d60832684056461106abfa031683a5882350"
+    },
+    {
+      "bytes": 7469,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceQueryModels.swift",
+      "sha256": "53ed2d2819311ddd42d728441f65c7893228dc3293d36fbd98ee574890b5d4da"
+    },
+    {
+      "bytes": 304826,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+      "sha256": "cfac45a9dd4736b47e5dfdf2c773c52f6e1e56573b95b3af6f0dc0b61133dfd0"
+    },
+    {
+      "bytes": 11556,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift",
+      "sha256": "202f5bc2df7d7adbcbe7273b57ec9aa4aaa43d49fc4bb639da9b5f597946c922"
+    },
+    {
+      "bytes": 10982,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+      "sha256": "be8f8ac8da21b47abb0fb2253f46ca56fbe1bb3592e2c5bd99ac746cebc6f8f8"
+    },
+    {
+      "bytes": 2812,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Explanation/GrowthExplanation.swift",
+      "sha256": "5e16a5f7d3f7a0f2b903f719381e33417bc92bd20a6966534b888ffd8b20f749"
+    },
+    {
+      "bytes": 72664,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+      "sha256": "68ec040bc469df0e4199f91d622a0846178e384f57e45f44fa73245c1a88d1fb"
+    },
+    {
+      "bytes": 13591,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+      "sha256": "9ba4ade46b485faa367abdf0a758dee28d7bd95a38a2496a8279027ff434be89"
+    },
+    {
+      "bytes": 708,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceTimestamp.swift",
+      "sha256": "8e564b559b35d275a484e831581aae5700674906f983cd50eab6acc003fe8b0d"
+    },
+    {
+      "bytes": 1683,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/OwnedExportDirectory.swift",
+      "sha256": "3b405b8152efa217a512132ac3be6fc483b4f7d890db8dc02ac14d2123f01d20"
+    },
+    {
+      "bytes": 6424,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/EvidenceBundle/ZlibCodec.swift",
+      "sha256": "ad12e55098d7de897be3901d84c96beb226cabd42dbb18b9d4ab1f748cc1397c"
+    },
+    {
+      "bytes": 616,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/Snapshot/SHA256Digest.swift",
+      "sha256": "355b7287b85d5160dcce0c4a3615ef003d8a019c04994b698c0d91f4c93850b6"
+    },
+    {
+      "bytes": 2466,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExportModels.swift",
+      "sha256": "db61cf667a845d38bd5a00ee3930091a22ed44bd89e6f15c225123bd49ebb37b"
+    },
+    {
+      "bytes": 4307,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Export/Snapshot/SnapshotExporter.swift",
+      "sha256": "f794d18e2195f995a05b5faa35e1a8f7ee83c61836d9eef91a32a13a2bd28ffa"
+    },
+    {
+      "bytes": 2112,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/IPC/AgentAccessStateFile.swift",
+      "sha256": "0009b82d58df2e3a8e2010a752a85af0f65d7afc52e4cad89a82f27e95b5b2dc"
+    },
+    {
+      "bytes": 10990,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+      "sha256": "9a0c76928a5e2a25a42705e590e11a952402668206e2ea3cd476fae8893dee01"
+    },
+    {
+      "bytes": 1991,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/IPC/JSONValue.swift",
+      "sha256": "d8a452bcd51cb555308138a2a3b4562c5850d819bc99f77938dcd10b621065ea"
+    },
+    {
+      "bytes": 26587,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/IPC/UnixSocketEvidenceServer.swift",
+      "sha256": "817a565068c54c7e6ab923095e04d224b762ea69a022b8407628f5d7e76d9ee9"
+    },
+    {
+      "bytes": 48802,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+      "sha256": "dfd78387ac6c9423a1885483f6fea05d681c852e6ad5f9ff895e32df57ae0840"
+    },
+    {
+      "bytes": 4579,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+      "sha256": "df8aaa026d7c20aa46061f8c5b3d7e0a2b0b925fc43b54131ed3847d6fa927a4"
+    },
+    {
+      "bytes": 2460,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+      "sha256": "a99db0723514690a156f5d4bb24a6ada9834020f7ff377ccdebfe7e6bc9cf046"
+    },
+    {
+      "bytes": 12948,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+      "sha256": "fd9b085b6504e762d24451b8a01fd8f92fe55fae405cbf6b8e9e0bd7ccbbf7b8"
+    },
+    {
+      "bytes": 1051,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+      "sha256": "61378bb06965b65cea1133a9a27fdf2849ec089cc5328a0f3561b5d9055e6bb5"
+    },
+    {
+      "bytes": 1781,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Monitoring/WriteCoalescer.swift",
+      "sha256": "052d9a14abc4765d3e6eda2846a69c9ee6bdacaa6d7b8ebd3f014bf54bf86ebe"
+    },
+    {
+      "bytes": 3833,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Privacy/EvidencePrivacyFilter.swift",
+      "sha256": "4b9e0137e3f04d1badcd81513e2385a54fdb41fce2cf380b19c8ff71f6572f6e"
+    },
+    {
+      "bytes": 656,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/ProductIdentity.swift",
+      "sha256": "ad8a31c21dbf8ddaea6ecb8c3f33a291a5eb763e426995822d2b00c1ba024f70"
+    },
+    {
+      "bytes": 15486,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift",
+      "sha256": "3679e592de19780663951c7c8135b5906faa8b6fc7d42cd646b2d7846b870f51"
+    },
+    {
+      "bytes": 16651,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Provenance/ProvenanceModels.swift",
+      "sha256": "e2c5fce844c1c8480a552d1141e69107b2ffaf7618f49298b705c4051958b4bd"
+    },
+    {
+      "bytes": 7091,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/ResourceControl/ResourceBudget.swift",
+      "sha256": "33a19d853685c49208b765f39d64ce3ed73f9f655ed5a65310608135bb85fc58"
+    },
+    {
+      "bytes": 5229,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Sessions/AgentSessionModels.swift",
+      "sha256": "829fbf5d9f0ac456fab801a58cba5ebcc71b40ff95f24c6cccc7c56efaf828ac"
+    },
+    {
+      "bytes": 11838,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+      "sha256": "116f72959903ce760be93a66adfc923480fe874a27a8b8d49db77bebd895b05b"
+    },
+    {
+      "bytes": 3058,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Sessions/ProcessAncestryTracker.swift",
+      "sha256": "5c9fce2fbf04afac99dc21d427565f35e6f12796ca798f5e6a058516f4c3d7ad"
+    },
+    {
+      "bytes": 2255,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Snapshot/StorageSnapshot.swift",
+      "sha256": "219cfef188b14fafade1fbb152c1f4eaf24052190a36f5677b6b1af9134a123a"
+    },
+    {
+      "bytes": 4184,
+      "mode": 420,
+      "path": "Sources/DiskStewardCore/Snapshot/VolumeSnapshotService.swift",
+      "sha256": "61764c3cfe0b3721a921e0f21891dc0ddd6cc0f55c0f94a110d1acf00891eb0b"
+    },
+    {
+      "bytes": 1618,
+      "mode": 420,
+      "path": "Sources/DiskStewardMCP/MCPResponseSanitizer.swift",
+      "sha256": "aea313f4e9991b304e6c8531393e55da7048fcafbab42b423e270ac883380edb"
+    },
+    {
+      "bytes": 15017,
+      "mode": 420,
+      "path": "Sources/DiskStewardMCP/MCPServer.swift",
+      "sha256": "02d8249170e4fa169285a0a4c923e8736ef676fc12094068cad259bfd74ea903"
+    },
+    {
+      "bytes": 12057,
+      "mode": 420,
+      "path": "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+      "sha256": "22395f577ddc796eceb58d015eb66f58cb58a5eadd0130409e8beb21883f8763"
+    },
+    {
+      "bytes": 9000,
+      "mode": 420,
+      "path": "Sources/DiskStewardMCP/main.swift",
+      "sha256": "5cfa74882fd30e8580c8631b3ff99413555ce5029ac78ac2beb1ef5326a572d5"
+    },
+    {
+      "bytes": 4389,
+      "mode": 420,
+      "path": "Tests/ContractTests/ContractTests.swift",
+      "sha256": "074c7c6c5ed49e6335c1642432c2ff00897d750453cbce9d6268777a8970af86"
+    },
+    {
+      "bytes": 6918,
+      "mode": 420,
+      "path": "Tests/ContractTests/EndpointSecurity/EndpointSecurityContractTests.swift",
+      "sha256": "dba05426355169bc36ef1f6dd69ef2a0038af114d70420bd690f8d1f4be129a9"
+    },
+    {
+      "bytes": 8658,
+      "mode": 420,
+      "path": "Tests/ContractTests/Evidence/EvidenceUsefulnessContractTests.swift",
+      "sha256": "86204bfa047faf5e57af1cec17d7bea5c5306478bbe55414137de8d705cfe12c"
+    },
+    {
+      "bytes": 4224,
+      "mode": 420,
+      "path": "Tests/ContractTests/JSONSchemaContractValidator.swift",
+      "sha256": "345153fae680d01382ffbb941cfe0c8ce5cb93fb9b16a50cdf765b6c3fc15f32"
+    },
+    {
+      "bytes": 6796,
+      "mode": 420,
+      "path": "Tests/ContractTests/MCP/MCPContractTests.swift",
+      "sha256": "10dfe44dd870bd53039b5dab837a988fa81cfdcd74838d1201b1771bcab9ad08"
+    },
+    {
+      "bytes": 6992,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift",
+      "sha256": "19c22fd130e1c1cba31ab8b2ab6f37f3494c21878a7c3c4fc5c6c22ccab4260c"
+    },
+    {
+      "bytes": 8337,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+      "sha256": "4d1d73abdb503a96e119d18f8f05eb8a004164bf181fffa3b33f5d7939f0300c"
+    },
+    {
+      "bytes": 6553,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+      "sha256": "51f91adc6cfe2c113a118e6ce4a447e600f81bb4a05566a426b6b0809384c318"
+    },
+    {
+      "bytes": 13172,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+      "sha256": "4a2903bdf4fc144d1f366b13f38b00567cf36b25a3a7b3da35d6a977bfecc5fa"
+    },
+    {
+      "bytes": 16737,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/CommandRunnerRegressionTests.swift",
+      "sha256": "83670ccee251b873b94f9184e2b4747beb77b5f6d41e0eff38d4520c8ab5f2cd"
+    },
+    {
+      "bytes": 3882,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift",
+      "sha256": "39f3a34c61a375b168391a6ed4613fbbb97987abfc042f7929be8521503c90d3"
+    },
+    {
+      "bytes": 13261,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+      "sha256": "b2fff2224f2b38c7b4f379127e282401453e48b9c35368ae034330ac145c8207"
+    },
+    {
+      "bytes": 1989,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/DiskStewardAppTests.swift",
+      "sha256": "5db1acfdf4d490d24dc4c45b00937cf5fdd424a1dd422fd25d5ff80ffd97b133"
+    },
+    {
+      "bytes": 904,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/EvidenceLifecycle/RetentionScheduleTests.swift",
+      "sha256": "40bd9153d70f1577a11cec5db7e33be02d24211f5c00eae7147b3e64aaeea817"
+    },
+    {
+      "bytes": 5726,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Export/StatusBoardEvidenceExportTests.swift",
+      "sha256": "d262efda41744d4331cf48b5f43c2f4b68aa36fddfc438814768ca2d75b972e7"
+    },
+    {
+      "bytes": 9686,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/AppEvidenceIPCIntegrationTests.swift",
+      "sha256": "33617cd2d72eabc178be5a1f11fdf1befce0f9d2216070caf1792d5f2fbb1a8d"
+    },
+    {
+      "bytes": 6124,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/BackendIsolationTests.swift",
+      "sha256": "a4a799a6dce2e6b55427598de7ed113d1e098cdaa72a194a96cb48ee2edbb61a"
+    },
+    {
+      "bytes": 11508,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/EventTimingIPCIntegrationTests.swift",
+      "sha256": "751323dbc27a0eb342eee12363815994f49daa853a99b125e433a02ee21609f1"
+    },
+    {
+      "bytes": 10579,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/EvidenceCardinalityIPCIntegrationTests.swift",
+      "sha256": "e93fb683ef499a07de031f9e9b68ff0bb1d55f880ef9b819ff8011311548b068"
+    },
+    {
+      "bytes": 23301,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift",
+      "sha256": "349640a071e5eb61f4cdeb7f041b58800f96c8c68e68fe58ccd30c8feb3188dc"
+    },
+    {
+      "bytes": 24492,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/EvidenceQueryScopeIPCIntegrationTests.swift",
+      "sha256": "64e206d988fa9b6b722c5bf026143b0db887d363444b84852d000235908a7c4f"
+    },
+    {
+      "bytes": 8395,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/InlineExportSafetyTests.swift",
+      "sha256": "68fa11b4156fcb2ed47892abdb4a1906370284ac5a8ac1a22d5339cc08156881"
+    },
+    {
+      "bytes": 10838,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+      "sha256": "68de8678c665282c2399af896d8a367dea0303864e28e0819357912c7ddc44d2"
+    },
+    {
+      "bytes": 15147,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/RequestCancellationTests.swift",
+      "sha256": "0cf42a97dc8f4cc35afc6e56676f9525b92f6404cda56e87e239b760bcddc876"
+    },
+    {
+      "bytes": 22971,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/SocketOwnershipRegressionTests.swift",
+      "sha256": "725d772d5bb2b8e3b4a5446b536ac50610351e942ee556185578d3911749ec94"
+    },
+    {
+      "bytes": 11475,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/TaskImpactTimingIPCIntegrationTests.swift",
+      "sha256": "328b2ea17cc25eac1f8cf03f3ca123e4f09c7d3ed944b177d95830ca34693567"
+    },
+    {
+      "bytes": 2812,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/IPC/VerificationIsolationTests.swift",
+      "sha256": "2d4b74587ac32fbffc987a733a8154d088ebc67c074bfe2d249d12642431cac0"
+    },
+    {
+      "bytes": 1505,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Lifecycle/LaunchAtLoginControllerTests.swift",
+      "sha256": "f5a9e00406b831c2b9af700f55c0282a42c3c148a012227598db4c287ef1595f"
+    },
+    {
+      "bytes": 37255,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+      "sha256": "5ed4f80ddfe75481cdc1051f1d96711f7773e4532bdc8ecdafd781f0325b3887"
+    },
+    {
+      "bytes": 9726,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+      "sha256": "7f1f71dcf515c2a080c6bd6f4caae9493f88302fc2b7bee5df51ede40b756cb9"
+    },
+    {
+      "bytes": 28278,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift",
+      "sha256": "9a63dac6cc4a464a5b1d03f901d2315864f1a0703453163d668757f0ab213916"
+    },
+    {
+      "bytes": 11258,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+      "sha256": "be8c5fdd61cf461f691d784f16a010e90f5a0eaa74dad7f80e1732382a657da5"
+    },
+    {
+      "bytes": 14073,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/MCP/AuthoritativeMCPReadModelTests.swift",
+      "sha256": "cb112290caa9e0e28fd64e71da68b5ecf9938ca80140c40877ec236bd37cdb1e"
+    },
+    {
+      "bytes": 7652,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift",
+      "sha256": "19a0df26da7087bc0784cc1a1f3bbb2c5f441ad3c6d8a09e0b9b767034628de9"
+    },
+    {
+      "bytes": 2173,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+      "sha256": "d77cafbcce828bafba83b5fe52cb32b440a97e1d2969706c2ad4783a563d09d3"
+    },
+    {
+      "bytes": 4588,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/Settings/MonitoringSettingsTests.swift",
+      "sha256": "344eb6a02da61fff05a6fdb7cef6be6e7923b85bdcf676a03b5da7e7664f4a8a"
+    },
+    {
+      "bytes": 8101,
+      "mode": 420,
+      "path": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+      "sha256": "35bb49ba48137dc7bfeca67b8c5e49b4f5a799732475877e61a7324ae5fa9945"
+    },
+    {
+      "bytes": 5612,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Correlation/TaskImpactCorrelationTests.swift",
+      "sha256": "bc0bd8d213ef0bd5fac4eea330670bf34ab0b20dc62d99abb7a5cd68ef280c47"
+    },
+    {
+      "bytes": 2155,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceEventTimingTests.swift",
+      "sha256": "c7e31a7c7a7f81111cd37731d766048f4ffc465ae2caba1cbec14b4cfc994127"
+    },
+    {
+      "bytes": 48112,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+      "sha256": "c739cecb61928d95083bcd81cdc57d22c76fc6bb82ac8ff6104dfa0ee1d72305"
+    },
+    {
+      "bytes": 6464,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceQueryReadModelTests.swift",
+      "sha256": "1c1b2a8c53aea20b1e6aa646a40432b9ca5d607228b3d46eacfcc89bb99d26dd"
+    },
+    {
+      "bytes": 17116,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceRetentionLifecycleTests.swift",
+      "sha256": "bc70d307a5479301f39b4050489c0820d2f8b79124de8b0ad3303711c617ad6a"
+    },
+    {
+      "bytes": 15272,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/EvidenceStoreTests.swift",
+      "sha256": "46db1b1eb9cf98eba351c48fefc415996f29b5ef94b5c41cfb8c3fa27326a546"
+    },
+    {
+      "bytes": 12164,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalEvidenceSchema.swift",
+      "sha256": "13050df006dff6c018acf5298c05fcea90a3fe6f23de9b4c15794f8668c0a31f"
+    },
+    {
+      "bytes": 24128,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift",
+      "sha256": "221f8270e8e4fdde7159e3d006fd5ae4966ee325128b417182dcc244cb69c217"
+    },
+    {
+      "bytes": 8772,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift",
+      "sha256": "ecba4b3e411fdc1bf2967497eae701d303c9c0f45f7263fecf7aa889adc8116d"
+    },
+    {
+      "bytes": 3085,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/EvidenceStore/TaskImpactCandidateTests.swift",
+      "sha256": "9f9b761feaa894fff7323e4a5fb9391daa9e3c5e783e603048e1203fd7c73320"
+    },
+    {
+      "bytes": 2668,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Explanation/ExplanationTests.swift",
+      "sha256": "352b87da2fa9995e270e1c68dbad364f9444d30cfc3932cbc90547d5534169ba"
+    },
+    {
+      "bytes": 24091,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/EvidenceBundleExporterTests.swift",
+      "sha256": "1a03c2329ec668d0cf225847555b9bb4715c0764bdfa2a7d285553439d5f0e86"
+    },
+    {
+      "bytes": 14366,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift",
+      "sha256": "3a5fa1bedabbac6ab718b152b30c7e55041b5071a1c15f855144cbf24b5f2caf"
+    },
+    {
+      "bytes": 1730,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Export/EvidenceBundle/ZlibRegressionTests.swift",
+      "sha256": "a5b5f6ca136085dfd46827734e17d96a05361ab6fd472574737eb0fd21eb6778"
+    },
+    {
+      "bytes": 3957,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Export/Snapshot/SnapshotExporterTests.swift",
+      "sha256": "33f49969bc71870b540decd14fc6e94abf94785299f2d1895216944d5211f4b0"
+    },
+    {
+      "bytes": 13262,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift",
+      "sha256": "a3e39b40524851cf73e9ea2121bf317038dfebba5c71b28383a9ef596785943b"
+    },
+    {
+      "bytes": 98948,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+      "sha256": "b362d3a1c1d01380a57d213fd6aa1c00de01532405a31b88f0a90c89924593de"
+    },
+    {
+      "bytes": 16545,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift",
+      "sha256": "734002dfda757b862f02c8fa1cb84571cf797206adbdbd532778db968d343e42"
+    },
+    {
+      "bytes": 13375,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift",
+      "sha256": "33feefff97f38f0fd7418c6045b40dc1611023d47ec01dd9505a53e78ddd4a7a"
+    },
+    {
+      "bytes": 18216,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Provenance/DurableProvenanceLifecycleTests.swift",
+      "sha256": "3769821aee34984167bdded938a4a2f8776c3d8cbd735072adf1d30ed37b7189"
+    },
+    {
+      "bytes": 8165,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Provenance/ProvenanceChronologyTests.swift",
+      "sha256": "220cc22e74684d1f3228432591c12db79c265e41b93c3e4b7a141b72efc8978a"
+    },
+    {
+      "bytes": 9571,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Provenance/ProvenanceEngineTests.swift",
+      "sha256": "ee816d4f7958741b89414df7ba55af3cc8fb70049afa71e14ef162fdeff99457"
+    },
+    {
+      "bytes": 7634,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Provenance/TaskAttributionClaimTests.swift",
+      "sha256": "2fa8008cb394b1dd97d10cdf3cced100c9bd7ea346275c153f8e41b0e8c6b92d"
+    },
+    {
+      "bytes": 11583,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Provenance/UnknownOccurrenceTests.swift",
+      "sha256": "25f03bb5ba9290dd5d5ba5992187cf1d128dba1ddc08ce30e41e13142a82752d"
+    },
+    {
+      "bytes": 10805,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift",
+      "sha256": "e200fb9e8078f4fa589e9c691304ade875166b1607770789e2f18a3d00d1cb78"
+    },
+    {
+      "bytes": 6817,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Sessions/AgentSessionRegistryTests.swift",
+      "sha256": "13a1b7e81d811da2d6a9b866a2964a00488a4e8f9106f89a717606a5735ab9f6"
+    },
+    {
+      "bytes": 4366,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Snapshot/JSONSchemaValidator.swift",
+      "sha256": "c8e04346522909510823e12b1a73d48620550ffe809994afb422a6ef16803baa"
+    },
+    {
+      "bytes": 2256,
+      "mode": 420,
+      "path": "Tests/DiskStewardCoreTests/Snapshot/StorageSnapshotTests.swift",
+      "sha256": "b093ac83dd69b6d1d2482c1165b2faffa28865f1fa5f632a4bbf0ce342f2074b"
+    },
+    {
+      "bytes": 6078,
+      "mode": 420,
+      "path": "Tests/DiskStewardEndpointTests/DiskStewardEndpointTests.swift",
+      "sha256": "b6e59be7620f64864e35ea39c6ed1411ea989b90a60b230008d0ab6b02a5c0d3"
+    },
+    {
+      "bytes": 19762,
+      "mode": 420,
+      "path": "Tests/DiskStewardEndpointTests/EndpointDeliveryRegressionTests.swift",
+      "sha256": "502b09c1eae514770efbc6b3928a283583ee71bc7c845417bbfceda980b0781c"
+    },
+    {
+      "bytes": 12367,
+      "mode": 420,
+      "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+      "sha256": "77a6158697c6d7efc7807e660907e068d0e78c832b070eed2a8faccaeb21e7f2"
+    },
+    {
+      "bytes": 7227,
+      "mode": 420,
+      "path": "Tests/DiskStewardMCPTests/MCPAdmissionTests.swift",
+      "sha256": "2bb240335455943a60e8bcc15463fc9bca62669ec9a2d4df1796f175bee38f00"
+    },
+    {
+      "bytes": 3095,
+      "mode": 420,
+      "path": "Tests/DiskStewardMCPTests/StdioBudgetTests.swift",
+      "sha256": "ab1ad3417e3e26857a258c6a67abe8e6d0f0724f48b15873eb4267dc7d28794a"
+    },
+    {
+      "bytes": 6239,
+      "mode": 420,
+      "path": "Tests/Distribution/release-policy-fixtures.json",
+      "sha256": "69993931a04944c2d9109802066c8648dd4cccfa82807d91d58d1fc49117f56f"
+    },
+    {
+      "bytes": 9542,
+      "mode": 420,
+      "path": "Tests/IncrementTests/Distribution/DistributionReleaseIntegrityTests.swift",
+      "sha256": "5d9e3c6bf640e057951535939d5461ad555e65139d8cbc0169f1ea889e019324"
+    },
+    {
+      "bytes": 20661,
+      "mode": 420,
+      "path": "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+      "sha256": "c3a7f6533f187c17fe498aaf192eb9cb108839141c8115ef21ffe2e829df7037"
+    },
+    {
+      "bytes": 10693,
+      "mode": 420,
+      "path": "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+      "sha256": "3ee97283195eaa1390f2fe2f70cb282956a01e0a67fb2ba51b8c00f764e3e2e2"
+    },
+    {
+      "bytes": 6171,
+      "mode": 420,
+      "path": "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+      "sha256": "9085194d6d90899112f3a642d6224e1dbd690ca1db432a30355de3f192a97eed"
+    },
+    {
+      "bytes": 5246,
+      "mode": 420,
+      "path": "Tests/IncrementTests/Monitoring/ScanContinuationIncrementTests.swift",
+      "sha256": "0de723c56ecb5b7ce396d9ac5690734435e2a0f336a92f66f3abcc633bd86a6e"
+    },
+    {
+      "bytes": 4159,
+      "mode": 420,
+      "path": "Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift",
+      "sha256": "43a545802de45667868b98843be5880c8b8e26a10b611ad5f24e40f8cfea52d5"
+    },
+    {
+      "bytes": 18618,
+      "mode": 420,
+      "path": "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+      "sha256": "50158e0ddcb48dfe603d6fe88c24ff214e13d4b2cfa5d2d356ddc6af8a59b9f7"
+    },
+    {
+      "bytes": 12417,
+      "mode": 420,
+      "path": "Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift",
+      "sha256": "e026b38c9066ed75b7193d8bf9783b4d12eeb1b5b5b0ab026311be08947c40f7"
+    },
+    {
+      "bytes": 22517,
+      "mode": 420,
+      "path": "Tests/PerformanceTests/BoundedTraversalPrototype.swift",
+      "sha256": "7bf80296346b1a31dad8087e3558125f60e5c335ee8832aa14dd4f3511eaf035"
+    },
+    {
+      "bytes": 19670,
+      "mode": 420,
+      "path": "Tests/PerformanceTests/BoundedTraversalPrototypeTests.swift",
+      "sha256": "7174be3082f19eab256fa794d0630a1859a8d3317b959ce005eac7518cabe3ce"
+    },
+    {
+      "bytes": 10930,
+      "mode": 420,
+      "path": "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+      "sha256": "e4aeb733fc2b6ec88894171b06b6a46651ccfe149af1ae299dd4e27d8a4d9924"
+    },
+    {
+      "bytes": 8519,
+      "mode": 420,
+      "path": "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+      "sha256": "4b4a60f76898a2f612ec006ab912c23e5d0bd5b156adcd1164d7ab22c5921e22"
+    },
+    {
+      "bytes": 8073,
+      "mode": 420,
+      "path": "Tests/PerformanceTests/PerformanceTests.swift",
+      "sha256": "5a9cb84d17bf8cb08cdcb4a4a3e705a0a84da6569467a8bd02d613c66074a2b1"
+    },
+    {
+      "bytes": 12188,
+      "mode": 420,
+      "path": "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+      "sha256": "2d111af21097ee3ff986474b0484b34c5552a9f2891fec654442883ab1ec0467"
+    },
+    {
+      "bytes": 4184,
+      "mode": 420,
+      "path": "Tests/SafetyTests/SafetyTests.swift",
+      "sha256": "1176454562a48d7593b09aabcf3de78e445901a89eaca87677ca8bc465ab3acc"
+    },
+    {
+      "bytes": 557,
+      "mode": 420,
+      "path": "Tests/Support/ProductIdentityTests.swift",
+      "sha256": "fd856dab8ac78eeceae140b011e562594748f6b97eeb416acaf9f9fe366628bf"
+    },
+    {
+      "bytes": 3612,
+      "mode": 420,
+      "path": "docs/architecture/distribution.md",
+      "sha256": "9f8a510cc8240917b1c90d29cd5ff5fc0a864a52bfd3bfc257e61b2ff5bb6ba4"
+    },
+    {
+      "bytes": 7504,
+      "mode": 420,
+      "path": "docs/architecture/endpoint-security.md",
+      "sha256": "e995e658bac5045a227e510c36a29c2ac6b54d377e88a77dc3ff0d3a721d8e5f"
+    },
+    {
+      "bytes": 5425,
+      "mode": 420,
+      "path": "docs/architecture/evidence-contract.md",
+      "sha256": "1ecd483fe462f1846e8fec679e14d1a46fd302854a636e007ced45eac2014d92"
+    },
+    {
+      "bytes": 6517,
+      "mode": 420,
+      "path": "docs/architecture/evidence-export.md",
+      "sha256": "97b90c130ffa135f2e137f5b3b19673430cfced0f3994cc542654c6eb8b01533"
+    },
+    {
+      "bytes": 11303,
+      "mode": 420,
+      "path": "docs/architecture/evidence-object-lifecycle.md",
+      "sha256": "187f74a4738d0af9af483e4eedc4a666bd8adf986a6d1cb2961402255019b14d"
+    },
+    {
+      "bytes": 7394,
+      "mode": 420,
+      "path": "docs/architecture/mcp.md",
+      "sha256": "dbbb99c70e2cb2938f1fb240d28eb6e43f076a23bf5f18efb9216af86c669b3f"
+    },
+    {
+      "bytes": 4161,
+      "mode": 420,
+      "path": "docs/architecture/provenance.md",
+      "sha256": "ba5193c3936df09436f68722acd5ac473d519104ad50fc6675e165005933332f"
+    },
+    {
+      "bytes": 4497,
+      "mode": 420,
+      "path": "docs/architecture/toolchain.md",
+      "sha256": "5830a6db475a9ace04287f4f2bf621216848ea4ac433e91dd6090e1fabb4a3f4"
+    },
+    {
+      "bytes": 3206,
+      "mode": 420,
+      "path": "docs/release/direct-distribution-handoff.md",
+      "sha256": "483d84d76026d7395be795513083b367d07485d6e202b203799a0dc7929f2a04"
+    },
+    {
+      "bytes": 3978,
+      "mode": 420,
+      "path": "docs/release/signing-readiness.md",
+      "sha256": "742034a33e4110fec7fc2a429516940efd6c76381276cebb597f3c4ef210f7d0"
+    }
+  ],
+  "inputSHA256": "f55627d8ff97069353588827e1d1530994723d34b46babda0fa31541dff84353",
+  "limitations": [
+    "No installation, production evidence access, native-client setup or EndpointSecurity activation.",
+    "Fixture isolation is not a security sandbox for hostile source.",
+    "Passing CI does not replace scale, overnight, native-client, packaged-app or rollback gates."
+  ],
+  "notarization": "not-tested",
+  "packagedApp": "not-tested",
+  "releaseReadiness": "not-assessed",
+  "revision": "cf313e4527a3bd30dae217d2c1ff68d7a7a87b60",
+  "schema": "disk-steward-candidate-verification-v1",
+  "scratch": "/private/tmp/ds-ci-x3uw5bdl",
+  "sentinelPreserved": true,
+  "status": "passed",
+  "syntheticUpgrade": {
+    "fixtureSourceHashes": {
+      "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalEvidenceSchema.swift": "13050df006dff6c018acf5298c05fcea90a3fe6f23de9b4c15794f8668c0a31f",
+      "Tests/DiskStewardCoreTests/EvidenceStore/HistoricalMigrationTests.swift": "221f8270e8e4fdde7159e3d006fd5ae4966ee325128b417182dcc244cb69c217"
+    },
+    "limitations": [
+      "No old executable is launched; interrupted forward recovery is not downgrade rollback.",
+      "No near-cap, real user database or large conversion is exercised by these cases.",
+      "Current migration does not itself retain the pre-upgrade database after a successful switch."
+    ],
+    "passedCases": [
+      "testHistoricalOccurrenceBoundsMigrateWithoutInventingLowerEvidence",
+      "testActualV5AndV6BackfillAcrossBatchBoundaryWithoutReplayingUnprovenMembership",
+      "testActualHistoricalSchemasRecoverAtEveryAtomicMigrationCheckpoint",
+      "testActualHistoricalSchemasRemainIntactWhenMigrationHasNoHeadroom"
+    ],
+    "rollback": "not-verified",
+    "scope": "Synthetic v5/v6 forward upgrade, 513 staged rows, four interruption boundaries, no-headroom refusal.",
+    "status": "passed"
+  }
+}

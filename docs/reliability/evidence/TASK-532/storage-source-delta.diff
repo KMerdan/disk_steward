@@ -1,0 +1,1393 @@
+--- base/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift
++++ candidate/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift
+@@ -38,6 +38,14 @@
+     private let reconciliationCheckpoint: ReconciliationCheckpoint
+     private var storageCapBytes: Int64
+     private let availableCapacitySource: AvailableCapacitySource
++    private let retentionCheckpoint: ReconciliationCheckpoint
++    private let walJournalSizeLimit: Int64
++    /// The largest demand refused since retention last ran. It is cleared only
++    /// when work of at least that size is admitted or when retention targets
++    /// it, so an unrelated small write between a refusal and the retention it
++    /// triggers cannot erase the demand. Callers that hold the refusal pass its
++    /// demand explicitly as well.
++    private var pendingStorageDemandBytes: Int64 = 0
+     // Validation is deliberately process-local: after a crash every retained
+     // directory proof is checked again, rather than trusting an old checkpoint.
+     private var validatingGenerationID: String?
+@@ -50,12 +58,17 @@
+         reconciliationCheckpoint: @escaping ReconciliationCheckpoint = { _ in },
+         migrationCheckpoint: @escaping MigrationCheckpoint = { _ in },
+         availableCapacitySource: @escaping AvailableCapacitySource = { EvidenceStore.availableCapacity(at: $0) },
+-        maximumStorageBytes: Int64 = 512 * 1_024 * 1_024
++        maximumStorageBytes: Int64 = 512 * 1_024 * 1_024,
++        retentionCheckpoint: @escaping ReconciliationCheckpoint = { _ in },
++        maximumPageCount: Int64? = nil,
++        walJournalSizeLimit: Int64 = EvidenceStore.defaultWALJournalSizeLimit
+     ) throws {
+         databaseURL = url
+         self.dateSource = dateSource
+         self.reconciliationCheckpoint = reconciliationCheckpoint
++        self.retentionCheckpoint = retentionCheckpoint
+         self.availableCapacitySource = availableCapacitySource
++        self.walJournalSizeLimit = max(4_096, walJournalSizeLimit)
+         storageCapBytes = max(1 * 1_024 * 1_024, maximumStorageBytes)
+         try Self.prepareDatabaseForOpen(
+             at: url,
+@@ -64,7 +77,12 @@
+         )
+         let connection = try SQLiteConnection(url: url)
+         do {
+-            try Self.configure(connection)
++            try Self.configure(connection, walJournalSizeLimit: self.walJournalSizeLimit)
++            if let maximumPageCount {
++                // Disk-full fixture: SQLite refuses growth beyond this page count
++                // with SQLITE_FULL, exactly as a full volume would.
++                try connection.execute("PRAGMA max_page_count=\(max(1, maximumPageCount))")
++            }
+             try Self.migrate(connection)
+             try Self.recoverInterruptedLifecycles(connection, at: dateSource())
+             self.connection = connection
+@@ -84,7 +102,7 @@
+     }
+ 
+     public func insert(_ events: [EvidenceStoreEvent]) throws {
+-        try ensureStorageAdmission(estimatedBytes: Int64(events.count * 512))
++        try admit(.generic(bytes: Int64(events.count * 512)))
+         let connection = try requireConnection()
+         try connection.transaction {
+             for event in events {
+@@ -241,7 +259,7 @@
+             }
+             return refreshed
+         }
+-        try ensureStorageAdmission(estimatedBytes: 4_096)
++        try admit(.generic(bytes: 4_096))
+ 
+         let rootsJSON = String(data: try JSONEncoder().encode(scope.rootPaths), encoding: .utf8) ?? "[]"
+         let exclusionsJSON = String(data: try JSONEncoder().encode(scope.excludedPaths), encoding: .utf8) ?? "[]"
+@@ -326,9 +344,7 @@
+         guard slice.generation.passProvenanceVersion == 2 else {
+             throw EvidenceStoreError.invalidObservation("scan generation has no current pass provenance")
+         }
+-        try ensureStorageAdmission(
+-            estimatedBytes: Int64(slice.entries.count * 768 + slice.directoryPasses.count * 1_024)
+-        )
++        try admit(.staging(rows: slice.entries.count, passes: slice.directoryPasses.count))
+ 
+         let encoder = JSONEncoder()
+         encoder.outputFormatting = [.sortedKeys]
+@@ -661,7 +677,7 @@
+         // Publication creates indexes/current-state/history in addition to the
+         // staging rows. Reserve this work before entering the atomic transaction.
+         let priorCurrentCount = try connection.scalarInt("SELECT COUNT(*) FROM current_file_state")
+-        try ensureStorageAdmission(estimatedBytes: Int64(generation.stagedFileCount) * 1_024 + priorCurrentCount * 512 + 64 * 1_024)
++        try admit(.publication(stagedRows: Int64(generation.stagedFileCount), priorCurrentRows: priorCurrentCount))
+         let previousObservedAt = try Self.latestCurrentObservationDate(connection: connection)
+         let snapshotPayload = try JSONEncoder().encode(snapshot)
+         let rootsJSON = String(data: try JSONEncoder().encode(scope.rootPaths), encoding: .utf8) ?? "[]"
+@@ -1194,7 +1210,7 @@
+ 
+         let previousScopeID = try latestScopeVersionID(connection: connection)
+         let priorCurrentCount = try connection.scalarInt("SELECT COUNT(*) FROM current_file_state")
+-        try ensureStorageAdmission(estimatedBytes: Int64(metadata.entries.count) * 1_024 + priorCurrentCount * 512 + 64 * 1_024)
++        try admit(.publication(stagedRows: Int64(metadata.entries.count), priorCurrentRows: priorCurrentCount))
+         let previousObservedAt = try Self.latestCurrentObservationDate(connection: connection)
+         let checkpoint = reconciliationCheckpoint
+         let observedAt = metadata.observedAt
+@@ -1364,7 +1380,7 @@
+ 
+     public func recordFSEvents(_ batch: TargetedChangeBatch, observationID: String) throws {
+         let connection = try requireConnection()
+-        try ensureStorageAdmission(estimatedBytes: Int64(batch.hints.count * 512 + 512))
++        try admit(.generic(bytes: Int64(batch.hints.count * 512 + 512)))
+         guard try observationExists(observationID, connection: connection) else {
+             throw EvidenceStoreError.invalidObservation("FSEvents hints require an existing observation run")
+         }
+@@ -1493,7 +1509,7 @@
+         evidenceEventID: String? = nil
+     ) throws {
+         let connection = try requireConnection()
+-        try ensureStorageAdmission(estimatedBytes: 2_048)
++        try admit(.generic(bytes: 2_048))
+         if let observationID, !(try observationExists(observationID, connection: connection)) {
+             throw EvidenceStoreError.invalidObservation("Endpoint evidence references an unknown observation run")
+         }
+@@ -1555,7 +1571,7 @@
+ 
+     public func persistProvenanceClaim(_ claim: ProvenanceClaim) throws {
+         let connection = try requireConnection()
+-        try ensureStorageAdmission(estimatedBytes: 4_096)
++        try admit(.generic(bytes: 4_096))
+         guard try containsEvent(id: claim.event.eventID) else {
+             throw EvidenceStoreError.invalidEvent("Provenance claim references an unknown event")
+         }
+@@ -1653,7 +1669,7 @@
+ 
+     public func persistAgentSession(_ registration: AgentSessionRegistration) throws {
+         let connection = try requireConnection()
+-        try ensureStorageAdmission(estimatedBytes: 2_048)
++        try admit(.generic(bytes: 2_048))
+         guard registration.registeredAt <= registration.lastHeartbeatAt,
+               registration.lastHeartbeatAt <= registration.expiresAt,
+               registration.endedAt.map({ $0 >= registration.lastHeartbeatAt && $0 <= registration.expiresAt }) ?? true
+@@ -1734,7 +1750,7 @@
+     public func recordSnapshot(_ snapshot: StorageSnapshot, observedAt: Date) throws {
+         let connection = try requireConnection()
+         let payload = try JSONEncoder().encode(snapshot)
+-        try ensureStorageAdmission(estimatedBytes: Int64(payload.count + 512))
++        try admit(.generic(bytes: Int64(payload.count + 512)))
+         try connection.withStatement(
+             "INSERT INTO snapshots (snapshot_id, observed_at, payload) VALUES (?, ?, ?)"
+         ) { statement in
+@@ -1784,9 +1800,13 @@
+         }
+     }
+ 
++    /// `demandBytes` is the demand of a refusal the caller holds; retention
++    /// targets the largest of it, any demand refused since the last run, the
++    /// publication reserve and a fixed margin.
+     public func applyRetention(
+         _ policy: EvidenceStoreRetentionPolicy,
+-        trigger: RetentionTrigger = .scheduled
++        trigger: RetentionTrigger = .scheduled,
++        demandBytes: Int64 = 0
+     ) throws -> RetentionReport {
+         let connection = try requireConnection()
+         storageCapBytes = policy.maxDatabaseBytes
+@@ -1890,14 +1910,21 @@
+             }
+ 
+             try connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+-            var bytes = storageBytes()
++            try retentionCheckpoint("after-tier-compaction")
+             var recordedForcedLoss = false
+             var evictionBatches = 0
+             let capacityEvictionBatchLimit = 10_000
+             let maximumEvictionBatches = 8
+-            let admissionTarget = policy.maxDatabaseBytes - min(16 * 1_024 * 1_024, policy.maxDatabaseBytes / 10)
+-            while bytes > admissionTarget,
+-                  try reclaimableStorageBytes(connection: connection) > admissionTarget,
++            // The target leaves room for the last refused write and for
++            // publishing whatever is staged, not just a fixed margin.
++            let staged = try storageAccounting(connection: connection, capBytes: policy.maxDatabaseBytes, probeCheckpoint: false)
++            let demand = max(min(16 * 1_024 * 1_024, policy.maxDatabaseBytes / 10), max(0, demandBytes), pendingStorageDemandBytes,
++                             staged.reservedPublicationBytes + staged.nextWorkReserveBytes)
++            pendingStorageDemandBytes = 0
++            let admissionTarget = policy.maxDatabaseBytes - demand
++            // Judged on the same live-plus-log bytes that admission counts, so
++            // a refused demand always makes this loop evict when history exists.
++            while try reclaimableStorageBytes(connection: connection) > admissionTarget,
+                   evictionBatches < maximumEvictionBatches
+             {
+                 guard try hasEvictableHistory(connection: connection) else { break }
+@@ -1910,6 +1937,7 @@
+                 evictionBatches += 1
+                 try updateRetentionGap(runID: runID, rowsRemoved: forcedEvictions, connection: connection)
+                 guard removed > 0 else { break }
++                try retentionCheckpoint("after-eviction-batch")
+                 try connection.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+             }
+             if evictionBatches == maximumEvictionBatches,
+@@ -1928,7 +1956,7 @@
+                     limitations.append("Physical compaction deferred: available temporary disk headroom is insufficient or unknown. Freed database pages remain reusable.")
+                 }
+             }
+-            bytes = storageBytes()
++            let bytes = storageBytes()
+             if bytes > policy.maxDatabaseBytes {
+                 limitations.append("The database remains above its cap because no evictable history remains; live current-state truth was preserved.")
+             }
+@@ -2306,7 +2334,8 @@
+             exportInventory: try exportRecords(refreshManualInventory: includePrivateProgress),
+             observationGaps: observationGaps,
+             retentionGaps: try retentionCoverageGaps(),
+-            scanCoverage: scanCoverage
++            scanCoverage: scanCoverage,
++            storage: try storageAccounting(connection: connection, capBytes: policy.maxDatabaseBytes, probeCheckpoint: includePrivateProgress)
+         )
+     }
+ 
+@@ -3667,6 +3696,185 @@
+             + fileSize(atPath: databaseURL.path + "-shm")
+     }
+ 
++    /// Per-row storage costs measured on the one-million-file product run
++    /// (docs/reliability/evidence/TASK-531/scale-runs/wide-1m): a 3.3 GB final
++    /// database and a 2.98 GB peak write-ahead log for 1,000,000 new files.
++    /// Republishing a row that current state already holds costs far less.
++    /// Deliberately rounded up; the accounting reports what was reserved.
++    enum StorageCostModel {
++        static let stagedRowBytes: Int64 = 1_024
++        static let newPublishedRowBytes: Int64 = 2_304
++        static let republishedRowBytes: Int64 = 768
++        static let newRowLogBytes: Int64 = 3_072
++        static let republishedRowLogBytes: Int64 = 1_024
++        static let publicationFixedBytes: Int64 = 64 * 1_024
++        static let diskReserveBytes: Int64 = 64 * 1_024 * 1_024
++        /// One nominal safety slice of file detail, staged and later published,
++        /// with the fixed publication cost and an allowance for directory passes.
++        /// A first slice's admission demand never exceeds it; slices that close
++        /// hundreds of small directories at once may, and are still judged exactly.
++        static let nextSliceBytes: Int64 = 512 * (stagedRowBytes + newPublishedRowBytes) + 2 * publicationFixedBytes
++
++        /// Durable growth and transient log for publishing `stagedRows` when
++        /// `currentRows` are already published: rows beyond the current set
++        /// are treated as new, the rest as republished.
++        static func publication(stagedRows: Int64, currentRows: Int64) -> (reserve: Int64, log: Int64) {
++            guard stagedRows > 0 else { return (0, 0) }
++            let newRows = max(0, stagedRows - currentRows)
++            let republished = stagedRows - newRows
++            return (newRows * newPublishedRowBytes + republished * republishedRowBytes + publicationFixedBytes,
++                    newRows * newRowLogBytes + republished * republishedRowLogBytes + publicationFixedBytes)
++        }
++    }
++
++    /// Work whose storage cost is estimated before any of it is written.
++    enum StorageWork {
++        case generic(bytes: Int64)
++        case staging(rows: Int, passes: Int)
++        case publication(stagedRows: Int64, priorCurrentRows: Int64)
++    }
++
++    /// One accounting of live, reusable, log and shared-memory bytes plus the
++    /// reserve the next publication of currently staged rows will need.
++    public func storageAccounting() throws -> EvidenceStorageAccounting {
++        try storageAccounting(connection: requireConnection(), capBytes: storageCapBytes, probeCheckpoint: true, demandHint: 0)
++    }
++
++    /// The persisted retention setting is the single source of truth for the
++    /// cap; the owning process syncs it before sampling so a raised cap admits
++    /// work without waiting for a retention run.
++    public func updateStorageCap(_ bytes: Int64) {
++        storageCapBytes = max(1 * 1_024 * 1_024, bytes)
++    }
++
++    /// The active scan generation, if one is open.
++    public func activeScanGeneration() throws -> MetadataScanGeneration? {
++        try Self.readScanGeneration(status: .active, connection: requireConnection())
++    }
++
++    /// `demandHint` is the work about to be admitted; a write-ahead log that is
++    /// only decisive together with that demand is probed rather than trusted.
++    private func storageAccounting(
++        connection: SQLiteConnection, capBytes: Int64, probeCheckpoint: Bool, demandHint: Int64 = 0
++    ) throws -> EvidenceStorageAccounting {
++        let pageCount = try connection.scalarInt("PRAGMA page_count")
++        let freePages = try connection.scalarInt("PRAGMA freelist_count")
++        let pageSize = try connection.scalarInt("PRAGMA page_size")
++        let staged = try connection.scalarInt("SELECT COUNT(*) FROM scan_generation_entries")
++        let current = try connection.scalarInt("SELECT COUNT(*) FROM current_file_state")
++        let liveBytes = max(0, pageCount - freePages) * pageSize
++        let reusable = freePages * pageSize
++        let shm = fileSize(atPath: databaseURL.path + "-shm")
++        let publication = StorageCostModel.publication(stagedRows: staged, currentRows: current)
++        // While a generation is active the next slice is the next unit of work;
++        // an accounting that ignored it would call a store "available" whose
++        // very next slice is refused.
++        // A scalar existence check: the public summary path must never decode
++        // the private traversal checkpoint (scan_generations.progress).
++        let generationActive = try connection.scalarInt("SELECT EXISTS(SELECT 1 FROM scan_generations WHERE status = 'active')") != 0
++        let nextWork = generationActive ? StorageCostModel.nextSliceBytes : 0
++        var walPinned = false
++        var walBytes = fileSize(atPath: databaseURL.path + "-wal")
++        // The log file keeps its size after SQLite's own checkpoints, so it is
++        // trusted only while it cannot change the decision: past its bound, or
++        // when counting it would push the demand over the cap, it is probed.
++        // PASSIVE never blocks; frames it cannot move belong to an open
++        // reader's snapshot. Once every frame is moved, TRUNCATE resets the
++        // file without waiting on anyone.
++        let decisive = walBytes > 0
++            && (walBytes > walJournalSizeLimit || liveBytes + shm + walBytes + publication.reserve + nextWork + max(0, demandHint) > capBytes)
++        if probeCheckpoint, decisive {
++            let passive = try connection.walCheckpoint("PASSIVE")
++            walPinned = passive.logFrames > 0 && passive.checkpointedFrames < passive.logFrames
++            if !walPinned, passive.busy == 0 {
++                let truncate = try connection.walCheckpoint("TRUNCATE")
++                if truncate.busy == 0 { walBytes = fileSize(atPath: databaseURL.path + "-wal") }
++            }
++        }
++        let disk = availableCapacitySource(databaseURL)
++        let evictable = try hasEvictableHistory(connection: connection)
++        let committed = liveBytes + walBytes + shm
++        var limitations: [String] = []
++        let admission: EvidenceStorageAccounting.Admission
++        let reserved = publication.reserve + nextWork
++        if walPinned, committed + reserved > capBytes {
++            admission = .walPinned
++            limitations.append("An open reader pins \(walBytes) bytes of write-ahead log; they are reclaimed when it closes, not by eviction.")
++        } else if let disk, disk < publication.log + StorageCostModel.diskReserveBytes {
++            admission = .diskSpaceLimited
++            limitations.append("The volume has \(disk) bytes free; publishing \(staged) staged rows needs about \(publication.log + StorageCostModel.diskReserveBytes). Nothing was written.")
++        } else if committed + reserved <= capBytes {
++            admission = .available
++        } else if evictable {
++            admission = .retentionRequired
++            limitations.append("Committed \(committed) bytes plus a \(reserved)-byte reserve for publication and the next slice exceed the \(capBytes)-byte cap; retention can evict history.")
++        } else {
++            admission = .capacityLimited
++            limitations.append("Authoritative current state, staged work and the next slice need \(committed + reserved) bytes against a \(capBytes)-byte cap with no evictable history; raise the cap or narrow watched roots. Nothing was evicted.")
++        }
++        return EvidenceStorageAccounting(
++            capBytes: capBytes, fileBytes: fileSize(atPath: databaseURL.path), liveBytes: liveBytes, reusableBytes: reusable,
++            walBytes: walBytes, sharedMemoryBytes: shm, stagedRowCount: staged, reservedPublicationBytes: publication.reserve,
++            nextWorkReserveBytes: nextWork, publicationLogEstimateBytes: publication.log, availableDiskBytes: disk, walPinnedByReader: walPinned,
++            evictableHistory: evictable, admission: admission, limitations: limitations)
++    }
++
++    /// Admits work only when it and the next publication's reserve fit under
++    /// the cap and the volume can hold the transient publication log. Refusal
++    /// is explicit and typed; nothing is evicted here, and the refused demand
++    /// becomes the target of the next retention run.
++    private func admit(_ work: StorageWork) throws {
++        let hint: Int64
++        switch work {
++        case .generic(let bytes): hint = max(0, bytes)
++        case .staging(let rows, let passes): hint = Int64(rows) * (StorageCostModel.stagedRowBytes + StorageCostModel.newPublishedRowBytes) + Int64(passes) * 1_024
++        case .publication(let stagedRows, let priorCurrentRows): hint = stagedRows * StorageCostModel.newPublishedRowBytes + priorCurrentRows * 512
++        }
++        let accounting = try storageAccounting(connection: requireConnection(), capBytes: storageCapBytes, probeCheckpoint: true, demandHint: hint)
++        let estimate: Int64
++        let reserveAfter: Int64
++        let logAfter: Int64
++        switch work {
++        case .generic(let bytes):
++            // Small writes must not consume the headroom held for the next slice.
++            estimate = max(0, bytes)
++            reserveAfter = accounting.reservedPublicationBytes + accounting.nextWorkReserveBytes
++            logAfter = accounting.publicationLogEstimateBytes
++        case .staging(let rows, let passes):
++            // The slice is the next work itself: its bytes plus the publication
++            // of everything staged afterwards is exactly what the accounting's
++            // next-work reserve holds for it.
++            estimate = Int64(rows) * StorageCostModel.stagedRowBytes + Int64(passes) * 1_024
++            let current = try requireConnection().scalarInt("SELECT COUNT(*) FROM current_file_state")
++            let after = StorageCostModel.publication(stagedRows: accounting.stagedRowCount + Int64(rows), currentRows: current)
++            reserveAfter = after.reserve
++            logAfter = after.log
++        case .publication(let stagedRows, let priorCurrentRows):
++            let cost = StorageCostModel.publication(stagedRows: stagedRows, currentRows: priorCurrentRows)
++            estimate = cost.reserve + priorCurrentRows * 512
++            reserveAfter = 0
++            logAfter = cost.log
++        }
++        let demand = estimate + reserveAfter
++        if accounting.walPinnedByReader, accounting.committedBytes + demand > storageCapBytes {
++            pendingStorageDemandBytes = max(pendingStorageDemandBytes, demand)
++            throw EvidenceStoreError.storageHeadroomUnavailable(reason: "wal-pinned", demandBytes: demand, accounting: accounting)
++        }
++        if let disk = accounting.availableDiskBytes, disk < logAfter + StorageCostModel.diskReserveBytes {
++            throw EvidenceStoreError.storageHeadroomUnavailable(reason: "disk-space", demandBytes: demand, accounting: accounting)
++        }
++        guard accounting.committedBytes + demand <= storageCapBytes else {
++            pendingStorageDemandBytes = max(pendingStorageDemandBytes, demand)
++            if reserveAfter > 0, accounting.committedBytes + estimate <= storageCapBytes {
++                throw EvidenceStoreError.storageHeadroomUnavailable(reason: "publication-reserve", demandBytes: demand, accounting: accounting)
++            }
++            throw EvidenceStoreError.storageCapacityExceeded(currentBytes: accounting.committedBytes, capBytes: storageCapBytes)
++        }
++        // Only work at least as large as the refused demand proves the refusal
++        // obsolete (the cap was raised or space was freed).
++        if demand >= pendingStorageDemandBytes { pendingStorageDemandBytes = 0 }
++    }
++
+     private func reclaimableStorageBytes(connection: SQLiteConnection) throws -> Int64 {
+         let pageCount = try connection.scalarInt("PRAGMA page_count")
+         let freePages = try connection.scalarInt("PRAGMA freelist_count")
+@@ -3677,19 +3885,6 @@
+             + fileSize(atPath: databaseURL.path + "-shm")
+     }
+ 
+-    private func ensureStorageAdmission(
+-        estimatedBytes: Int64,
+-        allowRecoveryWrite: Bool = false
+-    ) throws {
+-        let current = try reclaimableStorageBytes(connection: requireConnection())
+-        guard allowRecoveryWrite || current + max(0, estimatedBytes) <= storageCapBytes else {
+-            throw EvidenceStoreError.storageCapacityExceeded(
+-                currentBytes: current,
+-                capBytes: storageCapBytes
+-            )
+-        }
+-    }
+-
+     private func fileSize(atPath path: String) -> Int64 {
+         let attributes = try? FileManager.default.attributesOfItem(atPath: path)
+         return (attributes?[.size] as? NSNumber)?.int64Value ?? 0
+@@ -3714,13 +3909,19 @@
+         }
+     }
+ 
+-    private static func configure(_ connection: SQLiteConnection) throws {
++    private static func configure(_ connection: SQLiteConnection, walJournalSizeLimit: Int64 = EvidenceStore.defaultWALJournalSizeLimit) throws {
+         try connection.execute("PRAGMA busy_timeout=5000")
+         try connection.execute("PRAGMA journal_mode=WAL")
+         try connection.execute("PRAGMA synchronous=NORMAL")
+         try connection.execute("PRAGMA foreign_keys=ON")
++        // A fully checkpointed write-ahead log is truncated to this size when
++        // the next writer restarts it, so the log file never stays at its
++        // publication peak (2.98 GB at one million files) between samples.
++        try connection.execute("PRAGMA journal_size_limit=\(walJournalSizeLimit)")
+     }
+ 
++    public static let defaultWALJournalSizeLimit: Int64 = 16 * 1_024 * 1_024
++
+     public nonisolated static func availableCapacity(at databaseURL: URL) -> Int64? {
+         let directory = databaseURL.deletingLastPathComponent()
+         let values = try? directory.resourceValues(forKeys: [
+--- base/Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift
++++ candidate/Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift
+@@ -80,6 +80,61 @@
+     public let precision: String
+ }
+ 
++/// One accounting of everything that competes for the evidence store's cap:
++/// live pages, reusable free pages, the write-ahead log and shared memory,
++/// plus the headroom the next publication of staged rows will need. Admission,
++/// retention pressure and the public lifecycle DTO all read this one model.
++public struct EvidenceStorageAccounting: Codable, Equatable, Sendable {
++    public enum Admission: String, Codable, Sendable {
++        /// New work fits under the cap with the publication reserve intact.
++        case available
++        /// Committed bytes and reserve exceed the cap but evictable history exists.
++        case retentionRequired = "retention-required"
++        /// Authoritative current state alone leaves no room; nothing is evicted.
++        case capacityLimited = "capacity-limited"
++        /// An open reader keeps write-ahead-log frames from being checkpointed.
++        case walPinned = "wal-pinned"
++        /// The volume cannot hold the transient publication log.
++        case diskSpaceLimited = "disk-space-limited"
++    }
++
++    public let capBytes: Int64
++    public let fileBytes: Int64
++    public let liveBytes: Int64
++    public let reusableBytes: Int64
++    public let walBytes: Int64
++    public let sharedMemoryBytes: Int64
++    public let stagedRowCount: Int64
++    public let reservedPublicationBytes: Int64
++    /// Headroom held for the next unit of work (one nominal 512-entry slice)
++    /// while a scan generation is active; zero between generations.
++    public let nextWorkReserveBytes: Int64
++    public let publicationLogEstimateBytes: Int64
++    public let availableDiskBytes: Int64?
++    public let walPinnedByReader: Bool
++    public let evictableHistory: Bool
++    public let admission: Admission
++    public let limitations: [String]
++
++    public init(
++        capBytes: Int64, fileBytes: Int64, liveBytes: Int64, reusableBytes: Int64, walBytes: Int64, sharedMemoryBytes: Int64,
++        stagedRowCount: Int64, reservedPublicationBytes: Int64, nextWorkReserveBytes: Int64, publicationLogEstimateBytes: Int64,
++        availableDiskBytes: Int64?, walPinnedByReader: Bool, evictableHistory: Bool, admission: Admission, limitations: [String]
++    ) {
++        self.capBytes = capBytes; self.fileBytes = fileBytes; self.liveBytes = liveBytes; self.reusableBytes = reusableBytes
++        self.walBytes = walBytes; self.sharedMemoryBytes = sharedMemoryBytes; self.stagedRowCount = stagedRowCount
++        self.reservedPublicationBytes = reservedPublicationBytes; self.nextWorkReserveBytes = nextWorkReserveBytes
++        self.publicationLogEstimateBytes = publicationLogEstimateBytes
++        self.availableDiskBytes = availableDiskBytes; self.walPinnedByReader = walPinnedByReader; self.evictableHistory = evictableHistory
++        self.admission = admission; self.limitations = limitations
++    }
++
++    /// Bytes that count against the cap right now.
++    public var committedBytes: Int64 { liveBytes + walBytes + sharedMemoryBytes }
++    /// Cap headroom after the publication and next-work reserves; negative when over.
++    public var headroomBytes: Int64 { capBytes - committedBytes - reservedPublicationBytes - nextWorkReserveBytes }
++}
++
+ public struct EvidenceLifecycleStatus: Codable, Equatable, Sendable {
+     public let observedAt: Date
+     public let tiers: [EvidenceTierStatus]
+@@ -93,4 +148,6 @@
+     public let observationGaps: [EvidenceCoverageGap]
+     public let retentionGaps: [RetentionCoverageGap]
+     public var scanCoverage: EvidenceScanCoverageStatus? = nil
++    /// Unified storage accounting; nil only for projections that omit it.
++    public var storage: EvidenceStorageAccounting? = nil
+ }
+--- base/Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift
++++ candidate/Sources/DiskStewardCore/EvidenceStore/EvidenceStoreModels.swift
+@@ -288,6 +288,10 @@
+     case backupDestinationExists
+     case cursorExpired
+     case storageCapacityExceeded(currentBytes: Int64, capBytes: Int64)
++    /// Work was refused for a reason other than the cap itself: the next
++    /// publication's reserve, a reader-pinned write-ahead log, or the volume's
++    /// free space. The accounting explains exactly which.
++    case storageHeadroomUnavailable(reason: String, demandBytes: Int64, accounting: EvidenceStorageAccounting)
+     case migrationCapacityUnavailable
+     case migrationInsufficientSpace(requiredBytes: Int64, availableBytes: Int64)
+     case migrationSwitchFailed(code: Int32)
+@@ -298,6 +302,7 @@
+         case let .sqlite(code, message): return "SQLite error \(code): \(message)"
+         case let .invalidEvent(reason): return "Invalid evidence event: \(reason)"
+         case let .invalidObservation(reason): return "Invalid evidence observation: \(reason)"
++        case let .storageHeadroomUnavailable(reason, demandBytes, accounting): return "Evidence store headroom unavailable (\(reason)): \(accounting.committedBytes) committed + \(demandBytes) demanded of \(accounting.capBytes) cap; admission \(accounting.admission.rawValue)."
+         case .invalidRetentionPolicy: return "Retention policy violates the bounded version 1 contract."
+         case .backupDestinationExists: return "Backup destination already exists."
+         case .cursorExpired: return "The evidence query cursor expired because the underlying revision changed. Restart the query from the first page."
+--- base/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift
++++ candidate/Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift
+@@ -137,6 +137,17 @@
+         }
+     }
+ 
++    /// Runs a write-ahead-log checkpoint and reports what SQLite could do:
++    /// `busy` when a writer blocked it, the frame count in the log, and how
++    /// many frames were checkpointed. Frames left behind by a PASSIVE
++    /// checkpoint belong to an open reader's snapshot.
++    func walCheckpoint(_ mode: String) throws -> (busy: Int64, logFrames: Int64, checkpointedFrames: Int64) {
++        try withStatement("PRAGMA wal_checkpoint(\(mode))") { statement in
++            guard sqlite3_step(statement) == SQLITE_ROW else { throw lastError() }
++            return (sqlite3_column_int64(statement, 0), sqlite3_column_int64(statement, 1), sqlite3_column_int64(statement, 2))
++        }
++    }
++
+     func scalarText(_ sql: String) throws -> String {
+         try withStatement(sql) { statement in
+             guard sqlite3_step(statement) == SQLITE_ROW else { throw lastError() }
+--- base/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift
++++ candidate/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift
+@@ -95,6 +95,10 @@
+     public let directorySignature: String?
+     public let startedAt: Date?
+     public let passID: String?
++    /// Names the pass's in-process stream had served when this cursor was
++    /// produced. A stream that has served more was read by a slice the store
++    /// never committed; resuming from it would skip those names silently.
++    public let consumedNames: Int?
+ 
+     public init(
+         directoryPath: String,
+@@ -102,7 +106,8 @@
+         afterName: String? = nil,
+         directorySignature: String? = nil,
+         startedAt: Date? = nil,
+-        passID: String? = nil
++        passID: String? = nil,
++        consumedNames: Int? = nil
+     ) {
+         self.directoryPath = directoryPath
+         self.depth = max(0, depth)
+@@ -110,6 +115,7 @@
+         self.directorySignature = directorySignature
+         self.startedAt = startedAt
+         self.passID = passID
++        self.consumedNames = consumedNames.map { max(0, $0) }
+     }
+ }
+ 
+@@ -456,9 +462,17 @@
+                 // process, evicted stream), or when it is a legacy lexical
+                 // cursor: no native position is ever persisted or trusted.
+                 let streamLost = cursor.passID.map { !streams.contains(passID: $0) } ?? false
++                // A stream ahead of its committed cursor served names to a slice
++                // the store refused or failed; it is the in-process form of a
++                // lost stream and restarts the pass the same way.
++                let streamDesynced: Bool = {
++                    guard let passID = cursor.passID, let expected = cursor.consumedNames,
++                          let consumed = streams.consumed(passID: passID) else { return false }
++                    return consumed != expected
++                }()
+                 let signatureChanged = cursor.directorySignature != nil && cursor.directorySignature != signatureBefore
+                 let legacyCursor = cursor.passID == nil && cursor.afterName != nil
+-                if streamLost || signatureChanged || legacyCursor {
++                if streamLost || streamDesynced || signatureChanged || legacyCursor {
+                     if let passID = cursor.passID { streams.close(passID: passID) }
+                     cursor = .init(
+                         directoryPath: cursor.directoryPath,
+@@ -538,7 +552,8 @@
+                     depth: cursor.depth,
+                     directorySignature: signatureAfter,
+                     startedAt: cursor.startedAt ?? date,
+-                    passID: cursor.passID
++                    passID: cursor.passID,
++                    consumedNames: streams.consumed(passID: passID)
+                 )
+                 var frontier = root.frontier
+                 frontier[0] = cursor
+@@ -933,6 +948,8 @@
+         var bufferOffset: Int
+         var streamExhausted: Bool
+         var lastUsed: UInt64
++        /// Names served so far; the scanner persists it in the cursor.
++        var consumed: Int
+     }
+ 
+     private let lock = NSLock()
+@@ -947,6 +964,9 @@
+ 
+     func contains(passID: String) -> Bool { lock.withLock { entries[passID] != nil } }
+ 
++    /// Names the pass's stream has served, or nil when no stream is open.
++    func consumed(passID: String) -> Int? { lock.withLock { entries[passID]?.consumed } }
++
+     func read(passID: String, directoryPath: String, limit: Int) throws -> DirectoryStreamBatch {
+         try lock.withLock {
+             tick &+= 1
+@@ -960,7 +980,7 @@
+                 guard let handle = opendir(directoryPath) else {
+                     throw POSIXDirectoryError(path: directoryPath, code: errno)
+                 }
+-                var entry = Entry(handle: handle, directoryPath: directoryPath, buffer: [], bufferOffset: 0, streamExhausted: false, lastUsed: tick)
++                var entry = Entry(handle: handle, directoryPath: directoryPath, buffer: [], bufferOffset: 0, streamExhausted: false, lastUsed: tick, consumed: 0)
+                 // One bounded look-ahead read decides the mode: a directory that
+                 // ends within the limit is sorted once; anything larger streams.
+                 do {
+@@ -997,6 +1017,7 @@
+                 }
+             }
+             let exhausted = entry.streamExhausted && entry.buffer.isEmpty
++            entry.consumed += names.count
+             entries[passID] = entry
+             return DirectoryStreamBatch(names: names, exhausted: exhausted, opened: opened)
+         }
+--- base/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift
++++ candidate/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift
+@@ -246,14 +246,24 @@
+             coalescingWindow: configuredPolicy.coalescingWindow
+         )
+         let retentionPolicy = try settings.retentionPolicy()
++        await store.updateStorageCap(retentionPolicy.maxDatabaseBytes)
+         try await persistPendingChanges()
+         try Task.checkCancellation()
+         let publicationPermit = try inbox.publicationPermit()
+-        try await recoverStorageBeforeSampling(settings: settings, policy: retentionPolicy, now: now)
++        let storageLimitations = try await recoverStorageBeforeSampling(settings: settings, policy: retentionPolicy, now: now)
+         try Task.checkCancellation()
+         let (snapshot, volumeGrowth) = try volumeSampleSource(previousStorage)
+         let scope = policy.scopeVersion(at: now)
+-        let generation = try await store.beginOrResumeScanGeneration(scope: scope, at: now)
++        let generation: MetadataScanGeneration
++        switch try await withStorageRecovery(policy: retentionPolicy, { try await store.beginOrResumeScanGeneration(scope: scope, at: now) }) {
++        case .admitted(let value):
++            generation = value
++        case .refused(let refusal):
++            return try await storageRefusedObservation(
++                refusal, snapshot: snapshot, volumeGrowth: volumeGrowth, policy: policy,
++                retentionPolicy: retentionPolicy, storageLimitations: storageLimitations, now: now
++            )
++        }
+         try Task.checkCancellation()
+         let durableEventGap = try await store.hasPendingReconciliation()
+         try Task.checkCancellation()
+@@ -263,14 +273,25 @@
+         try enforceResourceBudget(settings: settings, underLoad: true)
+         try Task.checkCancellation()
+         let sampleEventGap = durableEventGap
+-        var scanCommit = try await store.recordScanSlice(
+-            snapshot: snapshot,
+-            slice: slice,
+-            scope: scope,
+-            trigger: hasSampledThisLaunch ? .scheduled : .startup,
+-            eventGap: sampleEventGap,
+-            publicationPermit: publicationPermit
+-        )
++        var scanCommit: ScanGenerationCommitResult
++        switch try await withStorageRecovery(policy: retentionPolicy, {
++            try await store.recordScanSlice(
++                snapshot: snapshot,
++                slice: slice,
++                scope: scope,
++                trigger: hasSampledThisLaunch ? .scheduled : .startup,
++                eventGap: sampleEventGap,
++                publicationPermit: publicationPermit
++            )
++        }) {
++        case .admitted(let commit):
++            scanCommit = commit
++        case .refused(let refusal):
++            return try await storageRefusedObservation(
++                refusal, snapshot: snapshot, volumeGrowth: volumeGrowth, policy: policy,
++                retentionPolicy: retentionPolicy, storageLimitations: storageLimitations, now: now
++            )
++        }
+         // A returned commit is durable even if cancellation arrives before UI
+         // publication. Preserve its baseline before any further suspension or
+         // cancellation check, so the next volume/detail interval stays aligned.
+@@ -286,6 +307,7 @@
+         var continuationSlices = 0
+         var stalledSlices = 0
+         var scanStalled = false
++        var continuationLimitations: [String] = []
+         let continuationDeadline = ProcessInfo.processInfo.systemUptime + continuationBudget
+         while scanCommit.observation == nil, scanCommit.generation.status == .active,
+               continuationSlices < Self.maximumContinuationSlices,
+@@ -301,10 +323,21 @@
+             let progressed = next.generation.processedEntryCount > before.processedEntryCount
+                 || !next.entries.isEmpty || !next.directoryPasses.isEmpty
+                 || next.generation.status != before.status
+-            scanCommit = try await store.recordScanSlice(
+-                snapshot: snapshot, slice: next, scope: scope, trigger: .scheduled,
+-                eventGap: try await store.hasPendingReconciliation(), publicationPermit: permit
+-            )
++            let continuationGap = try await store.hasPendingReconciliation()
++            do {
++                scanCommit = try await store.recordScanSlice(
++                    snapshot: snapshot, slice: next, scope: scope, trigger: .scheduled,
++                    eventGap: continuationGap, publicationPermit: permit
++                )
++            } catch let error where Self.storageRefusalReason(error) != nil {
++                // Storage refused the next slice. The committed generation stays
++                // active; the next sample's bounded recovery decides whether
++                // retention can help. Never loop on the refusal here.
++                let accounting = try await store.storageAccounting()
++                continuationLimitations = Self.refusalLimitations(reason: Self.storageRefusalReason(error) ?? "storage", accounting: accounting, retentionAttempted: false)
++                scanStalled = true
++                break
++            }
+             continuationSlices += 1
+             if scanCommit.observation != nil { hasSampledThisLaunch = true }
+             afterScanCommit()
+@@ -326,16 +359,17 @@
+                 "File-detail scan generation \(scanCommit.generation.generationID) is partial: \(scanCommit.generation.completedRootCount)/\(scanCommit.generation.rootPaths.count) roots complete and \(scanCommit.generation.processedEntryCount) entries processed."
+             )
+         }
+-        if scanStalled {
++        if scanStalled, continuationLimitations.isEmpty {
+             scanLimitations.append(
+                 "File-detail scanning made no progress for \(Self.stalledSliceThreshold) consecutive slices; continuation backed off to the regular interval."
+             )
+         }
++        scanLimitations.append(contentsOf: continuationLimitations)
+         let report = explanationEngine.explain(
+             volumeUsedDelta: volumeDelta,
+             detailedEvents: events,
+             eventGap: sampleEventGap,
+-            scopeLimitations: volumeGrowth.limitations + policy.scopeLimitations(at: now) + scanLimitations
++            scopeLimitations: volumeGrowth.limitations + policy.scopeLimitations(at: now) + storageLimitations + scanLimitations
+         )
+ 
+         let diagnostics = try await store.diagnostics()
+@@ -392,11 +426,16 @@
+     /// Storage pressure is recoverable work, unlike memory or queue pressure.
+     /// Run retention before the database circuit breaker so an over-budget
+     /// legacy store cannot permanently lock itself out of its own cleanup path.
++    /// The database dimension of the budget is judged on the store's own
++    /// accounting (live pages, log and shared memory, never reusable free
++    /// pages). When nothing evictable remains, the store refuses new work
++    /// explicitly and volume sampling continues with the reason stated, so an
++    /// over-cap store never turns into a repeating error.
+     private func recoverStorageBeforeSampling(
+         settings: MonitoringSettings,
+         policy: EvidenceStoreRetentionPolicy,
+         now: Date
+-    ) async throws {
++    ) async throws -> [String] {
+         let initial = resourceMeasurement(underLoad: false)
+         try enforceNonDatabaseBudget(initial, settings: settings)
+ 
+@@ -412,12 +451,133 @@
+             _ = try await store.applyRetention(policy, trigger: trigger)
+             lastRetentionAt = now
+             try Task.checkCancellation()
+-            try enforceResourceBudget(settings: settings, underLoad: false)
+-        } else {
+-            try enforce(initial, settings: settings)
++        }
++        let accounting = try await store.storageAccounting()
++        let measurement = resourceMeasurement(underLoad: false)
++        let accounted = ResourceMeasurement(
++            cpuPercent: measurement.cpuPercent, residentBytes: measurement.residentBytes,
++            databaseBytes: accounting.committedBytes, pendingEvents: measurement.pendingEvents,
++            receivedEvents: measurement.receivedEvents, droppedEvents: measurement.droppedEvents, underLoad: measurement.underLoad
++        )
++        switch accounting.admission {
++        case .available:
++            try enforce(accounted, settings: settings)
++            return []
++        case .retentionRequired, .capacityLimited, .walPinned, .diskSpaceLimited:
++            try enforceNonDatabaseBudget(accounted, settings: settings)
++            return accounting.limitations
++        }
++    }
++
++    private enum StorageAdmitted<Value: Sendable>: Sendable {
++        case admitted(Value)
++        case refused(StorageRefusal)
++    }
++
++    struct StorageRefusal: Sendable {
++        let reason: String
++        let accounting: EvidenceStorageAccounting
++        let retentionAttempted: Bool
++        var limitations: [String] {
++            PersistentMonitoringProbe.refusalLimitations(reason: reason, accounting: accounting, retentionAttempted: retentionAttempted)
+         }
+     }
+ 
++    /// The store's typed refusals plus SQLite's own disk-full result.
++    static func storageRefusalReason(_ error: Error) -> String? {
++        switch error as? EvidenceStoreError {
++        case .storageCapacityExceeded: return "capacity"
++        case .storageHeadroomUnavailable(let reason, _, _): return reason
++        case .sqlite(let code, _) where code == 13: return "disk-full"
++        default: return nil
++        }
++    }
++
++    /// The exact demand a refusal carried, so retention can target it without
++    /// relying on store state that other writers may have moved on from.
++    static func storageRefusalDemand(_ error: Error) -> Int64 {
++        switch error as? EvidenceStoreError {
++        case .storageHeadroomUnavailable(_, let demand, _): return demand
++        case .storageCapacityExceeded(let current, let cap): return max(0, current - cap)
++        default: return 0
++        }
++    }
++
++    static func refusalLimitations(reason: String, accounting: EvidenceStorageAccounting, retentionAttempted: Bool) -> [String] {
++        var limitations = ["Evidence storage refused new file detail (\(reason)); the scan generation stays where it committed and no evidence was lost."]
++        limitations.append(contentsOf: accounting.limitations)
++        if reason == "disk-full" {
++            limitations.append("The volume holding the evidence database is full; the refused transaction was rolled back.")
++        }
++        if retentionAttempted {
++            limitations.append("One bounded pressure retention run could not make enough room.")
++        }
++        return limitations
++    }
++
++    /// Storage refusals are recoverable work, never an error loop. When
++    /// evictable history exists, one bounded pressure retention run is tried
++    /// and the same work retried once; anything else becomes explicit
++    /// non-progress on the observation.
++    private func withStorageRecovery<Value: Sendable>(
++        policy: EvidenceStoreRetentionPolicy,
++        _ work: () async throws -> Value
++    ) async throws -> StorageAdmitted<Value> {
++        do {
++            return .admitted(try await work())
++        } catch let error where Self.storageRefusalReason(error) != nil {
++            let reason = Self.storageRefusalReason(error) ?? "storage"
++            let accounting = try await store.storageAccounting()
++            guard accounting.evictableHistory, reason != "disk-full", reason != "disk-space", reason != "wal-pinned" else {
++                return .refused(StorageRefusal(reason: reason, accounting: accounting, retentionAttempted: false))
++            }
++            _ = try await store.applyRetention(policy, trigger: .pressure, demandBytes: Self.storageRefusalDemand(error))
++            lastRetentionAt = Date()
++            try Task.checkCancellation()
++            do {
++                return .admitted(try await work())
++            } catch let retried where Self.storageRefusalReason(retried) != nil {
++                let after = try await store.storageAccounting()
++                return .refused(StorageRefusal(reason: Self.storageRefusalReason(retried) ?? reason, accounting: after, retentionAttempted: true))
++            }
++        }
++    }
++
++    /// Explicit non-progress: the volume sample is reported with the storage
++    /// reason, nothing is persisted, the active generation keeps its committed
++    /// progress, and the scheduler backs off as for a stalled scan.
++    private func storageRefusedObservation(
++        _ refusal: StorageRefusal,
++        snapshot: StorageSnapshot,
++        volumeGrowth: VolumeGrowthSample,
++        policy: MonitoringPolicy,
++        retentionPolicy: EvidenceStoreRetentionPolicy,
++        storageLimitations: [String],
++        now: Date
++    ) async throws -> MonitoringObservation {
++        try Task.checkCancellation()
++        let eventGap = try await store.hasPendingReconciliation()
++        let volumeDelta = volumeGrowth.usedByteDeltas.values.filter { $0 > 0 }.reduce(0, +)
++        var limitations = volumeGrowth.limitations + policy.scopeLimitations(at: now) + storageLimitations
++        for limitation in refusal.limitations where !limitations.contains(limitation) { limitations.append(limitation) }
++        let report = explanationEngine.explain(
++            volumeUsedDelta: volumeDelta, detailedEvents: [], eventGap: eventGap, scopeLimitations: limitations
++        )
++        let evidenceLifecycle = try await store.lifecycleStatus(retentionPolicy, at: now)
++        let active = try await store.activeScanGeneration()
++        try Task.checkCancellation()
++        return MonitoringObservation(
++            observedAt: now,
++            snapshot: snapshot,
++            detailedEvents: [],
++            growthReport: report,
++            evidenceLifecycle: evidenceLifecycle,
++            needsScanContinuation: active?.status == .active,
++            scanStalled: true,
++            continuationSlices: 0
++        )
++    }
++
+     private func enforceResourceBudget(settings: MonitoringSettings, underLoad: Bool) throws {
+         try enforce(resourceMeasurement(underLoad: underLoad), settings: settings)
+     }
+--- base/Tests/DiskStewardCoreTests/EvidenceStore/StorageHeadroomTests.swift
++++ candidate/Tests/DiskStewardCoreTests/EvidenceStore/StorageHeadroomTests.swift
+@@ -0,0 +1,365 @@
++import Foundation
++import SQLite3
++import XCTest
++@testable import DiskStewardCore
++
++/// TASK-532: one storage accounting admits or refuses work explicitly. The
++/// next publication's reserve is held back from the cap, retention targets the
++/// refused demand, authoritative current state is never evicted, a
++/// reader-pinned write-ahead log and a full volume are reported for what they
++/// are, and an interrupted retention run is recovered as an explicit failure.
++final class StorageHeadroomTests: XCTestCase {
++    private struct Fixture {
++        let directory: URL
++        let root: URL
++        let databaseURL: URL
++
++        init() throws {
++            directory = FileManager.default.temporaryDirectory.appending(path: "storage-headroom-\(UUID().uuidString)", directoryHint: .isDirectory)
++            root = directory.appending(path: "watch", directoryHint: .isDirectory)
++            databaseURL = directory.appending(path: "evidence.sqlite")
++            try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
++        }
++
++        func remove() { try? FileManager.default.removeItem(at: directory) }
++
++        func makeFiles(_ count: Int, prefix: String = "f") throws {
++            for index in 0..<count {
++                try Data([UInt8(index % 251)]).write(to: root.appending(path: String(format: "%@-%05d", prefix, index)))
++            }
++        }
++
++        var policy: MonitoringPolicy { MonitoringPolicy(watchedRoots: [root], maximumEntries: 512, maximumDepth: 8) }
++    }
++
++    private static let start = Date(timeIntervalSince1970: 2_100_000_000)
++    private static let mebibyte: Int64 = 1_024 * 1_024
++
++    private static func snapshot(_ index: Int) -> StorageSnapshot {
++        StorageSnapshot(snapshotID: "headroom-volume-\(index)", observedAt: EvidenceTimestamp.format(start.addingTimeInterval(Double(index))),
++                        volumes: [.init(mountPath: "/", totalBytes: 1_000, availableBytes: 500, isInternal: true, isReadOnly: false)])
++    }
++
++    private static func event(_ index: Int) -> EvidenceStoreEvent {
++        EvidenceStoreEvent(
++            eventID: "headroom-event-\(index)", observedAt: start.addingTimeInterval(-Double(index % 3_600)), operation: .writeSummary,
++            path: "/fixture/cache/segment-\(index % 97).bin", logicalDelta: 4_096, allocatedDelta: 4_096,
++            consumerCategory: "developer-cache", confidence: .inferred, isAnomaly: false
++        )
++    }
++
++    /// Drives slices until publication, the attempt cap, or a thrown error.
++    @discardableResult
++    private func drive(store: EvidenceStore, fixture: Fixture, attempts: Int = 200, sliceIndex: Int = 0) async throws -> ObservationCommitResult? {
++        let scanner = DirectoryMetadataScanner()
++        let scope = fixture.policy.scopeVersion(at: Self.start)
++        var generation = try await store.beginOrResumeScanGeneration(scope: scope, at: Self.start)
++        for attempt in 0..<attempts {
++            let slice = scanner.scanSlice(policy: fixture.policy, generation: generation, at: Self.start.addingTimeInterval(Double(sliceIndex + attempt + 1)))
++            let commit = try await store.recordScanSlice(snapshot: Self.snapshot(sliceIndex + attempt), slice: slice, scope: scope, trigger: .scheduled)
++            generation = commit.generation
++            if let observation = commit.observation { return observation }
++            if generation.status != .active { return nil }
++        }
++        return nil
++    }
++
++    private func fillHistory(store: EvidenceStore, untilLiveExceeds floor: Int64, batch: Int = 1_000, maximumBatches: Int = 80) async throws -> EvidenceStorageAccounting {
++        var accounting = try await store.storageAccounting()
++        var batches = 0
++        while accounting.liveBytes <= floor, batches < maximumBatches {
++            try await store.insert((0..<batch).map { Self.event(batches * batch + $0) })
++            batches += 1
++            accounting = try await store.storageAccounting()
++        }
++        XCTAssertGreaterThan(accounting.liveBytes, floor, "History filling stopped after \(batches) batches")
++        return accounting
++    }
++
++    // MARK: - Publication reserve
++
++    func testStagingIsRefusedWhenThePublicationReserveWouldExceedTheCap() async throws {
++        let fixture = try Fixture()
++        defer { fixture.remove() }
++        try fixture.makeFiles(600)
++        // Below the cap with history: a 2 MiB cap admits one 512-row slice on
++        // its own, but not together with the 1.2 MB reserve its publication needs.
++        let store = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: 2 * Self.mebibyte)
++        let reader = try SQLiteConnection(url: fixture.databaseURL)
++        try await store.insert((0..<300).map { Self.event($0) })
++        let filled = try await store.storageAccounting()
++        XCTAssertLessThan(filled.committedBytes + 512 * 1_024 + 1_024, 2 * Self.mebibyte, "Fixture premise: the slice itself fits")
++        XCTAssertEqual(filled.admission, .available, "Fixture premise: nothing is staged and no generation is open")
++
++        do {
++            try await drive(store: store, fixture: fixture, attempts: 1)
++            XCTFail("512 staged rows need a 1.2 MB publication reserve that a 2 MiB cap cannot hold")
++        } catch let EvidenceStoreError.storageHeadroomUnavailable(reason, demand, accounting) {
++            XCTAssertEqual(reason, "publication-reserve")
++            XCTAssertGreaterThan(demand, 512 * 1_024 + 512 * 2_304, "The demand carries staging, publication reserve and the next slice")
++            XCTAssertEqual(accounting.capBytes, 2 * Self.mebibyte)
++            XCTAssertEqual(accounting.stagedRowCount, 0, "The refusal happened before any row was staged")
++            XCTAssertLessThan(accounting.headroomBytes, 0, "With a generation open, the next slice is the next work and it does not fit")
++            XCTAssertEqual(accounting.admission, .retentionRequired, "The 300 events are evictable history")
++            XCTAssertTrue(accounting.limitations.contains { $0.contains("retention can evict history") }, "\(accounting.limitations)")
++        }
++        XCTAssertEqual(try reader.scalarInt("SELECT COUNT(*) FROM scan_generation_entries"), 0, "Nothing was written")
++        let generation = try await store.activeScanGeneration()
++        XCTAssertEqual(generation?.status, .active, "The generation stays open at its committed progress")
++        XCTAssertEqual(generation?.processedEntryCount, 0)
++        let integrity = try await store.integrityCheck()
++        XCTAssertEqual(integrity, "ok")
++        await store.close()
++    }
++
++    func testOneRetentionRunTargetsTheRefusedDemandAndTheScanThenCompletes() async throws {
++        let fixture = try Fixture()
++        defer { fixture.remove() }
++        try fixture.makeFiles(1_200)
++        let cap = 10 * Self.mebibyte
++        // A small log bound keeps the checkpointed log from inflating the
++        // accounting while 6 MiB of live history is written.
++        let store = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: cap, walJournalSizeLimit: 256 * 1_024)
++        let before = try await fillHistory(store: store, untilLiveExceeds: 6 * Self.mebibyte)
++        XCTAssertTrue(before.evictableHistory)
++        XCTAssertEqual(before.admission, .available)
++
++        var refusedDemand: Int64 = 0
++        do {
++            try await drive(store: store, fixture: fixture, attempts: 3)
++            XCTFail("1,200 files need about 4 MB of staging and reserve on top of 6 MiB of history")
++        } catch let EvidenceStoreError.storageHeadroomUnavailable(reason, demand, accounting) {
++            XCTAssertEqual(reason, "publication-reserve")
++            XCTAssertTrue(accounting.evictableHistory)
++            refusedDemand = demand
++        }
++        // An unrelated small write between the refusal and retention, admitted
++        // or refused, must not erase the refused demand (static review finding
++        // F1). With a generation open, a small write needs the same reserve and
++        // is refused here; the demand survives either way.
++        do { try await store.insert([Self.event(999_999)]) } catch let EvidenceStoreError.storageHeadroomUnavailable(reason, _, _) { XCTAssertEqual(reason, "publication-reserve") }
++
++        let policy = try EvidenceStoreRetentionPolicy(maxDatabaseBytes: cap)
++        let report = try await store.applyRetention(policy, trigger: .pressure)
++        XCTAssertGreaterThan(report.forcedEvictions, 0, "Retention evicted history to meet the refused demand")
++        let after = try await store.storageAccounting()
++        XCTAssertLessThan(after.committedBytes, before.committedBytes)
++        XCTAssertLessThanOrEqual(after.committedBytes + refusedDemand, cap, "Retention made room for exactly the refused demand")
++
++        let observation = try await drive(store: store, fixture: fixture, attempts: 20, sliceIndex: 10)
++        XCTAssertNotNil(observation, "The same work is admitted after retention made room")
++        let published = try await store.currentFiles()
++        XCTAssertEqual(published.count, 1_200)
++        let settled = try await store.storageAccounting()
++        XCTAssertEqual(settled.admission, .available)
++        XCTAssertEqual(settled.stagedRowCount, 0)
++        XCTAssertEqual(settled.reservedPublicationBytes, 0)
++        await store.close()
++    }
++
++    // MARK: - Above the cap with nothing to evict
++
++    func testAboveCapWithoutEvictableHistoryPreservesCurrentStateAndRefusesExplicitly() async throws {
++        let fixture = try Fixture()
++        defer { fixture.remove() }
++        let files = 8_000
++        try fixture.makeFiles(files)
++        let generous = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: 256 * Self.mebibyte)
++        let published = try await drive(store: generous, fixture: fixture, attempts: 40)
++        XCTAssertNotNil(published)
++        await generous.close()
++
++        let policy = try EvidenceStoreRetentionPolicy(maxDatabaseBytes: 10 * Self.mebibyte)
++        let store = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: policy.maxDatabaseBytes)
++        let sized = try await store.storageAccounting()
++        XCTAssertGreaterThan(sized.liveBytes, policy.maxDatabaseBytes, "8,000 published files exceed a 10 MiB cap")
++        XCTAssertEqual(sized.admission, .retentionRequired, "Volume snapshots recorded with each slice are evictable history")
++
++        let report = try await store.applyRetention(policy, trigger: .pressure)
++        XCTAssertTrue(report.limitations.contains { $0.contains("no evictable history remains") }, "\(report.limitations)")
++
++        let accounting = try await store.storageAccounting()
++        XCTAssertGreaterThan(accounting.liveBytes, policy.maxDatabaseBytes, "Compaction cannot shrink authoritative state under the cap")
++        XCTAssertEqual(accounting.admission, .capacityLimited)
++        XCTAssertFalse(accounting.evictableHistory)
++        XCTAssertTrue(accounting.limitations.contains { $0.contains("Nothing was evicted") }, "\(accounting.limitations)")
++        let current = try await store.currentFiles()
++        XCTAssertEqual(current.count, files, "Authoritative current state is never evicted")
++
++        do {
++            try await store.insert([Self.event(0)])
++            XCTFail("New history must be refused above the cap")
++        } catch let EvidenceStoreError.storageCapacityExceeded(currentBytes, capBytes) {
++            XCTAssertEqual(capBytes, policy.maxDatabaseBytes)
++            XCTAssertGreaterThan(currentBytes, capBytes)
++        }
++        let rescope = MonitoringPolicy(watchedRoots: [fixture.root], excludedRoots: [fixture.root.appending(path: "none")], maximumEntries: 512)
++        do {
++            _ = try await store.beginOrResumeScanGeneration(scope: rescope.scopeVersion(at: Self.start), at: Self.start)
++            XCTFail("A new generation must be refused above the cap")
++        } catch let EvidenceStoreError.storageCapacityExceeded(_, capBytes) {
++            XCTAssertEqual(capBytes, policy.maxDatabaseBytes)
++        }
++        let status = try await store.lifecycleStatus(policy, at: Self.start)
++        XCTAssertEqual(status.storage?.admission, .capacityLimited)
++        let survivors = try await store.currentFiles()
++        XCTAssertEqual(survivors.count, files)
++        let integrity = try await store.integrityCheck()
++        XCTAssertEqual(integrity, "ok")
++        await store.close()
++    }
++
++    // MARK: - Reader-pinned write-ahead log
++
++    func testReaderPinnedWriteAheadLogIsReportedAndReclaimedWhenTheReaderCloses() async throws {
++        let fixture = try Fixture()
++        defer { fixture.remove() }
++        let cap = 4 * Self.mebibyte
++        let store = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: cap, walJournalSizeLimit: 64 * 1_024)
++        try await store.insert([Self.event(0)])
++        let reader = try SQLiteConnection(url: fixture.databaseURL)
++        try reader.execute("BEGIN")
++        XCTAssertEqual(try reader.scalarInt("SELECT COUNT(*) FROM events"), 1, "The reader now holds a snapshot")
++
++        var accounting = try await store.storageAccounting()
++        var batches = 0
++        while accounting.walBytes < 1 * Self.mebibyte, batches < 40 {
++            try await store.insert((0..<300).map { Self.event(1 + batches * 300 + $0) })
++            batches += 1
++            accounting = try await store.storageAccounting()
++        }
++        XCTAssertGreaterThanOrEqual(accounting.walBytes, 1 * Self.mebibyte, "The log grew past its bound behind the reader")
++        XCTAssertTrue(accounting.walPinnedByReader)
++
++        let needed = Int((cap - accounting.committedBytes) / 512) + 256
++        do {
++            try await store.insert((0..<needed).map { Self.event(100_000 + $0) })
++            XCTFail("The pinned log counts against the cap")
++        } catch let EvidenceStoreError.storageHeadroomUnavailable(reason, _, refused) {
++            XCTAssertEqual(reason, "wal-pinned")
++            XCTAssertTrue(refused.walPinnedByReader)
++        }
++
++        try reader.execute("END")
++        let released = try await store.storageAccounting()
++        XCTAssertFalse(released.walPinnedByReader)
++        XCTAssertLessThan(released.walBytes, 64 * 1_024 + 4_096, "A fully checkpointed log is truncated")
++        XCTAssertLessThan(released.committedBytes, accounting.committedBytes)
++        try await store.insert((0..<needed).map { Self.event(100_000 + $0) })
++        XCTAssertEqual(try reader.scalarInt("SELECT COUNT(*) FROM events"), Int64(1 + batches * 300 + needed))
++        await store.close()
++    }
++
++    // MARK: - Interrupted retention
++
++    func testInterruptedRetentionIsRecoveredOnReopenAsAnExplicitFailure() async throws {
++        let fixture = try Fixture()
++        defer { fixture.remove() }
++        let crashImage = fixture.directory.appending(path: "crash/evidence.sqlite")
++        try FileManager.default.createDirectory(at: crashImage.deletingLastPathComponent(), withIntermediateDirectories: true)
++        let databasePath = fixture.databaseURL.path
++        let imagePath = crashImage.path
++        let store = try EvidenceStore(
++            url: fixture.databaseURL,
++            retentionCheckpoint: { stage in
++                // The process dies right after tier compaction committed and the
++                // log was truncated: the database file alone is the crash image.
++                guard stage == "after-tier-compaction" else { return }
++                try FileManager.default.copyItem(atPath: databasePath, toPath: imagePath)
++            }
++        )
++        try await store.insert((0..<500).map { Self.event($0) })
++        let policy = try EvidenceStoreRetentionPolicy()
++        _ = try await store.applyRetention(policy, trigger: .manual)
++        await store.close()
++        XCTAssertTrue(FileManager.default.fileExists(atPath: imagePath))
++
++        let image = try SQLiteConnection(url: crashImage)
++        XCTAssertEqual(try image.scalarInt("SELECT COUNT(*) FROM retention_runs WHERE result = 'started'"), 1, "The crash image holds an unfinished run")
++
++        // Reopened within the staleness window the run is still considered in flight.
++        let soon = try EvidenceStore(url: crashImage, dateSource: { Date() })
++        XCTAssertEqual(try image.scalarInt("SELECT COUNT(*) FROM retention_runs WHERE result = 'started'"), 1)
++        await soon.close()
++
++        let later = try EvidenceStore(url: crashImage, dateSource: { Date().addingTimeInterval(7 * 3_600) })
++        let status = try await later.lifecycleStatus(policy, at: Date().addingTimeInterval(7 * 3_600))
++        XCTAssertEqual(status.lastCompaction?.result, .failed)
++        XCTAssertTrue(status.lastCompaction?.limitations.contains { $0.contains("The process stopped before this retention run completed") } ?? false, "\(String(describing: status.lastCompaction?.limitations))")
++        XCTAssertEqual(status.lastCompaction?.storageBytesAfter, status.lastCompaction?.storageBytesBefore, "No completion result is inferred")
++        XCTAssertEqual(try image.scalarInt("SELECT COUNT(*) FROM events"), 500, "Tier compaction of fresh events changed nothing; the history is intact")
++        try await later.insert([Self.event(9_999)])
++        let rerun = try await later.applyRetention(policy, trigger: .startup)
++        XCTAssertTrue(rerun.limitations.allSatisfy { !$0.contains("stopped") })
++        let laterIntegrity = try await later.integrityCheck()
++        XCTAssertEqual(laterIntegrity, "ok")
++        await later.close()
++    }
++
++    // MARK: - Disk full
++
++    func testDiskFullDuringStagingRollsBackAndTheGenerationResumesOnceSpaceReturns() async throws {
++        let fixture = try Fixture()
++        defer { fixture.remove() }
++        let files = 3_000
++        try fixture.makeFiles(files)
++        let reader = try SQLiteConnection(url: fixture.databaseURL)
++        let fresh = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: 64 * Self.mebibyte)
++        await fresh.close()
++        let schemaPages = try reader.scalarInt("PRAGMA page_count")
++
++        let constrained = try EvidenceStore(
++            url: fixture.databaseURL, availableCapacitySource: { _ in 100 * 1_024 * Self.mebibyte },
++            maximumStorageBytes: 64 * Self.mebibyte, maximumPageCount: schemaPages + 400
++        )
++        var lastCommitted: Int64 = 0
++        do {
++            let scanner = DirectoryMetadataScanner()
++            let scope = fixture.policy.scopeVersion(at: Self.start)
++            var generation = try await constrained.beginOrResumeScanGeneration(scope: scope, at: Self.start)
++            for attempt in 0..<40 {
++                let slice = scanner.scanSlice(policy: fixture.policy, generation: generation, at: Self.start.addingTimeInterval(Double(attempt + 1)))
++                generation = try await constrained.recordScanSlice(snapshot: Self.snapshot(attempt), slice: slice, scope: scope, trigger: .scheduled).generation
++                lastCommitted = try reader.scalarInt("SELECT COUNT(*) FROM scan_generation_entries")
++            }
++            XCTFail("1.6 MB of pages cannot hold 3,000 staged rows")
++        } catch let EvidenceStoreError.sqlite(code, message) {
++            XCTAssertEqual(code, SQLITE_FULL, message)
++        }
++        XCTAssertEqual(try reader.scalarInt("SELECT COUNT(*) FROM scan_generation_entries"), lastCommitted, "The failed slice was rolled back whole")
++        XCTAssertGreaterThan(lastCommitted, 0)
++        let generation = try await constrained.activeScanGeneration()
++        XCTAssertEqual(generation?.status, .active)
++        let constrainedIntegrity = try await constrained.integrityCheck()
++        XCTAssertEqual(constrainedIntegrity, "ok")
++        await constrained.close()
++
++        let recovered = try EvidenceStore(url: fixture.databaseURL, maximumStorageBytes: 64 * Self.mebibyte)
++        let observation = try await drive(store: recovered, fixture: fixture, attempts: 40, sliceIndex: 100)
++        XCTAssertNotNil(observation, "The generation resumed from its committed progress")
++        let recoveredFiles = try await recovered.currentFiles()
++        XCTAssertEqual(recoveredFiles.count, files)
++        await recovered.close()
++    }
++
++    func testInsufficientVolumeSpaceIsRefusedBeforeAnyWrite() async throws {
++        let fixture = try Fixture()
++        defer { fixture.remove() }
++        try fixture.makeFiles(600)
++        let store = try EvidenceStore(url: fixture.databaseURL, availableCapacitySource: { _ in 1 * Self.mebibyte }, maximumStorageBytes: 64 * Self.mebibyte)
++        let reader = try SQLiteConnection(url: fixture.databaseURL)
++        do {
++            try await drive(store: store, fixture: fixture, attempts: 1)
++            XCTFail("A volume with 1 MiB free cannot hold the publication log")
++        } catch let EvidenceStoreError.storageHeadroomUnavailable(reason, demand, accounting) {
++            XCTAssertEqual(reason, "disk-space")
++            XCTAssertGreaterThan(demand, 0)
++            XCTAssertEqual(accounting.availableDiskBytes, 1 * Self.mebibyte)
++        }
++        XCTAssertEqual(try reader.scalarInt("SELECT COUNT(*) FROM scan_generation_entries"), 0)
++        let accounting = try await store.storageAccounting()
++        XCTAssertEqual(accounting.admission, .diskSpaceLimited, "A 64 MiB volume reserve applies before anything is staged")
++        XCTAssertTrue(accounting.limitations.contains { $0.contains("Nothing was written") }, "\(accounting.limitations)")
++        await store.close()
++    }
++}
+--- base/Tests/IncrementTests/Monitoring/StorageRecoveryIncrementTests.swift
++++ candidate/Tests/IncrementTests/Monitoring/StorageRecoveryIncrementTests.swift
+@@ -0,0 +1,105 @@
++import DiskStewardCore
++import XCTest
++@testable import DiskStewardApp
++@testable import DiskStewardCore
++
++/// TASK-532: a cap the watched tree cannot fit yields explicit non-progress
++/// on every sample, never a repeating error; one bounded pressure retention run
++/// is tried when history is evictable; raising the cap completes the scan; and
++/// an over-cap store with only authoritative current state keeps sampling
++/// volumes with the reason stated while evicting nothing.
++@MainActor
++final class StorageRecoveryIncrementTests: XCTestCase {
++    private nonisolated static func fileBytes(_ url: URL) -> Int64 {
++        [url.path, url.path + "-wal", url.path + "-shm"].reduce(0) { total, path in
++            total + (((try? FileManager.default.attributesOfItem(atPath: path))?[.size] as? NSNumber)?.int64Value ?? 0)
++        }
++    }
++
++    func testCapTooSmallForTheTreeYieldsExplicitNonProgressUntilTheCapIsRaised() async throws {
++        let directory = FileManager.default.temporaryDirectory.appending(path: "storage-recovery-\(UUID().uuidString)", directoryHint: .isDirectory)
++        let watched = directory.appending(path: "watch", directoryHint: .isDirectory)
++        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
++        defer { try? FileManager.default.removeItem(at: directory) }
++        let fileCount = 6_000
++        for index in 0..<fileCount {
++            let bucket = watched.appending(path: "bucket-\(index % 12)", directoryHint: .isDirectory)
++            if index < 12 { try FileManager.default.createDirectory(at: bucket, withIntermediateDirectories: true) }
++            try Data([7]).write(to: bucket.appending(path: String(format: "s-%05d", index)))
++        }
++        let databaseURL = directory.appending(path: "support/evidence.sqlite")
++        var settings = MonitoringSettings.defaults
++        settings.watchedRoots = [watched.path]
++        settings.excludedRoots = []
++        settings.maxDatabaseMiB = 10
++        let probe = try PersistentMonitoringProbe(
++            databaseURL: databaseURL,
++            resourceBudget: ResourceBudget(maximumResidentBytes: 2 * 1_024 * 1_024 * 1_024),
++            // The real database size feeds the circuit breaker: an over-cap
++            // store must not turn every sample into a resource-limit error.
++            resourceMeasurementSource: { url, load in
++                .init(cpuPercent: 0, residentBytes: 0, databaseBytes: Self.fileBytes(url), pendingEvents: 0, receivedEvents: 0, droppedEvents: 0, underLoad: load)
++            },
++            volumeSampleSource: { previous in
++                let snapshot = StorageSnapshot(snapshotID: UUID().uuidString, observedAt: EvidenceTimestamp.format(Date()),
++                    volumes: [.init(mountPath: "/", totalBytes: 1_000, availableBytes: 500, isInternal: true, isReadOnly: false)])
++                _ = previous
++                return (snapshot, .init(observedAt: snapshot.observedAt, usedByteDeltas: ["/": 0], limitations: []))
++            },
++            continuationBudget: 10
++        )
++
++        // 1. The first sample stages until the publication reserve no longer fits.
++        let first = try await probe.sample(settings: settings)
++        XCTAssertTrue(first.scanStalled, "Refused storage ends continuation for this sample")
++        XCTAssertTrue(first.needsScanContinuation, "The generation keeps its committed progress")
++        XCTAssertGreaterThan(first.continuationSlices, 0)
++        XCTAssertTrue(first.growthReport.limitations.contains { $0.contains("Evidence storage refused new file detail (publication-reserve)") }, "\(first.growthReport.limitations)")
++        let stagedAfterFirst = first.evidenceLifecycle?.storage?.stagedRowCount ?? 0
++        XCTAssertGreaterThan(stagedAfterFirst, 0)
++
++        // 2. The next sample tries one bounded pressure retention run, then reports.
++        let second = try await probe.sample(settings: settings)
++        XCTAssertTrue(second.scanStalled)
++        XCTAssertTrue(second.needsScanContinuation)
++        XCTAssertTrue(second.detailedEvents.isEmpty)
++        XCTAssertTrue(second.growthReport.limitations.contains { $0.contains("One bounded pressure retention run could not make enough room.") }, "\(second.growthReport.limitations)")
++        XCTAssertEqual(second.evidenceLifecycle?.storage?.admission, .capacityLimited)
++        XCTAssertEqual(second.evidenceLifecycle?.storage?.stagedRowCount, stagedAfterFirst, "Staged work is neither lost nor evicted")
++
++        // 3. With nothing left to evict, every further sample is explicit non-progress without retention.
++        let third = try await probe.sample(settings: settings)
++        XCTAssertTrue(third.scanStalled)
++        XCTAssertEqual(third.evidenceLifecycle?.storage?.admission, .capacityLimited)
++        XCTAssertTrue(third.growthReport.limitations.contains { $0.contains("raise the cap or narrow watched roots") }, "\(third.growthReport.limitations)")
++        let store = try EvidenceStore(url: databaseURL)
++        let runs = try await store.retentionRuns()
++        XCTAssertEqual(runs.filter { $0.trigger == .pressure }.count, 1, "Retention is not repeated once history is gone")
++        XCTAssertTrue(runs.allSatisfy { $0.result == .completed }, "\(runs.map(\.result))")
++
++        // 4. Raising the cap admits the staged work and the scan completes in one sample.
++        settings.maxDatabaseMiB = 64
++        let fourth = try await probe.sample(settings: settings)
++        XCTAssertFalse(fourth.needsScanContinuation, "\(fourth.growthReport.limitations)")
++        XCTAssertFalse(fourth.scanStalled)
++        XCTAssertEqual(fourth.evidenceLifecycle?.storage?.admission, .available)
++        let publishedFiles = try await store.currentFiles()
++        XCTAssertEqual(publishedFiles.count, fileCount)
++
++        // 5. Lowered again below the published size, the store is capacity-limited:
++        //    volume sampling continues, nothing is evicted, no error is thrown.
++        settings.maxDatabaseMiB = 10
++        let fifth = try await probe.sample(settings: settings)
++        XCTAssertTrue(fifth.scanStalled)
++        XCTAssertFalse(fifth.needsScanContinuation, "No generation was opened")
++        XCTAssertEqual(fifth.evidenceLifecycle?.storage?.admission, .capacityLimited)
++        XCTAssertGreaterThan(fifth.evidenceLifecycle?.storage?.liveBytes ?? 0, 10 * 1_024 * 1_024)
++        XCTAssertEqual(fifth.snapshot.volumes.count, 1)
++        let survivingFiles = try await store.currentFiles()
++        XCTAssertEqual(survivingFiles.count, fileCount, "Authoritative current state survives the cap")
++        let sixth = try await probe.sample(settings: settings)
++        XCTAssertTrue(sixth.scanStalled)
++        XCTAssertEqual(sixth.evidenceLifecycle?.storage?.admission, .capacityLimited)
++        await store.close()
++    }
++}

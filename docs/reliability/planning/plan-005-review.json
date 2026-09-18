@@ -1,0 +1,423 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-RELIABILITY-005-20260917",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 1,
+    "sha256": "6c3291fca676e2f638fdfa0f3cfb63a9e5aeb176bd66dd4589ccde84486d7cdc"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-005",
+    "revision": 1,
+    "sha256": "29076519033ea5393767fa4ac21b8a73116830456f646a02866108d10c528bac"
+  },
+  "facts": [
+    {
+      "id": "FACT-501",
+      "claim": "The 2026-09-16 review recorded passing existing tests alongside isolated reproducible correctness, configuration and export failures.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "review-2026-09-16/results.json",
+        "review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md"
+      ],
+      "supports": [
+        "CONTRACT-510",
+        "TASK-511",
+        "TASK-512",
+        "TASK-521",
+        "TASK-551",
+        "TASK-561"
+      ],
+      "freshness": "Reviewed source cf313e4; no product source changes at repair start."
+    },
+    {
+      "id": "FACT-502",
+      "claim": "PLAN-004 reclosed at graph 34 after repaired onboarding passed 238 tests and built-bundle helper checks; prior closure is preserved and exact Git binding remains pending.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        ".pyramid/reports/FINAL-PLAN-DISK-STEWARD-004-R1-G34.json",
+        "docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+      ],
+      "supports": [
+        "CONTRACT-510"
+      ],
+      "freshness": "2026-09-17 current close/readiness evidence."
+    },
+    {
+      "id": "FACT-503",
+      "claim": "This existing software requires brownfield baseline, impacts, inspections and rollback evidence; a greenfield reset would not enable those runtime safeguards.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Sources/DiskStewardApp",
+        "Sources/DiskStewardCore",
+        "Tests",
+        "pyramid_core.py::assess_project"
+      ],
+      "supports": [
+        "CONTRACT-510",
+        "GATE-579"
+      ],
+      "freshness": "Current codebase and runtime inspected."
+    },
+    {
+      "id": "FACT-504",
+      "claim": "new-intent --mode brownfield overrides the requested mode with the existing manifest mode, producing greenfield in the preview; assess refuses that mode. A scoped temporary runtime copy now honors the explicit mode and refuses assurance downgrade; disposable transition passed validation with the unmodified runtime and preserved all 10 original history records byte-for-byte.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "pyramid_core.py::_new_intent_material lines 5276-5278",
+        "pyramid_core.py::assess_project lines 2557-2558",
+        "transition-preview.json",
+        "docs/reliability/planning/pyramid-mode-compatibility.md",
+        "docs/reliability/planning/pyramid-mode-compatibility.patch"
+      ],
+      "supports": [
+        "CONTRACT-510"
+      ],
+      "freshness": "2026-09-17 compatibility test; apply real transition only with its current hash."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FINDING-501",
+      "class": "unsupported-claim",
+      "affected_nodes": [
+        "CONTRACT-510",
+        "GATE-579"
+      ],
+      "claim": "Requested brownfield new-intent mode cannot be assumed to take effect for this existing V3 greenfield manifest.",
+      "evidence": [
+        "FACT-503",
+        "FACT-504"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Use the tested temporary compatibility runtime only for explicit brownfield new-intent transition; then return to the unmodified installed runtime with enforcement enabled.",
+      "rationale": "Fixes the transition's mode routing without weakening audit, schema or history controls; installed plugin stays unchanged."
+    },
+    {
+      "id": "FINDING-502",
+      "class": "unjustified-gate",
+      "affected_nodes": [
+        "OUTCOME-510",
+        "GATE-519"
+      ],
+      "claim": "The first rung might appear to be setup-only rather than a demonstrable increment.",
+      "evidence": [
+        "FACT-501"
+      ],
+      "counterevidence": [
+        "FACT-501"
+      ],
+      "disposition": "rejected",
+      "change": "Retain the gate requiring a live sentinel app to stay queryable during test/duplicate startup.",
+      "rationale": "The existing test disturbed the real app; preserving the running service is an actor-visible reliability outcome, not ceremonial setup."
+    },
+    {
+      "id": "FINDING-503",
+      "class": "speculative-scope",
+      "affected_nodes": [
+        "TASK-562"
+      ],
+      "claim": "Automatic per-agent task registration would broaden the immediate defect repair.",
+      "evidence": [
+        "FACT-501"
+      ],
+      "counterevidence": [],
+      "disposition": "rejected",
+      "change": "Retain only repair of the existing session socket/identity contract; do not add automatic client task hooks.",
+      "rationale": "MCP connectivity is not evidence of coding-task identity; preserving explicit unknown state is safer than inventing attribution."
+    },
+    {
+      "id": "FINDING-504",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "GATE-519",
+        "GATE-529",
+        "GATE-539",
+        "GATE-549",
+        "GATE-559",
+        "GATE-569",
+        "GATE-579"
+      ],
+      "claim": "Identical gate wording could require final overnight/scale work before early prerequisite outcomes, creating an implicit circular acceptance dependency.",
+      "evidence": [
+        "FACT-501"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "Each gate acceptance criterion AND required-evidence description requires its rung and inherited scenarios; GATE-539 explicitly requires 100k/1M scale, and GATE-579 requires final-candidate real-time overnight plus migration/rollback. No final requirement is removed.",
+      "rationale": "Scopes the cumulative ladder consistently with its typed graph and preserves all final acceptance obligations."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-501",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-502",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-503",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-504",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-505",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-506",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-507",
+      "before_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "after_nodes": [
+        "INTENT-005",
+        "CONTRACT-510",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "status": "preserved"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "preserved",
+    "audit_closure": "preserved",
+    "execution_safety": "preserved"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 31,
+      "executable_nodes": 23,
+      "edges": 80,
+      "hard_dependencies": 21,
+      "audit_gates": 7
+    },
+    "after": {
+      "nodes": 31,
+      "executable_nodes": 23,
+      "edges": 80,
+      "hard_dependencies": 21,
+      "audit_gates": 7
+    }
+  },
+  "summary": "Retain the 31-node, seven-rung repair graph and all seven requirements. Refresh baseline evidence to the partial 238-test candidate, clarify gate evidence scope to avoid circular interpretation, and resolve explicit-mode routing through a tested temporary compatibility runtime. No existing patch is auto-verified. Current source, inspection, scale, migration and overnight evidence remain required before final closure.",
+  "limitations": [
+    "This is a plan review, not evidence that the remaining product repairs are complete.",
+    "Brownfield baseline and impacts must be assessed through canonical interfaces before their tasks can pass.",
+    "Exact history binding remains pending because the worktree is uncommitted.",
+    "Installed Cursor/VS Code UI approval was not exercised; client-owned contracts and native Codex/Claude temporary profiles were tested.",
+    "The installed runtime was not changed. The adjacent compatibility patch is only for the mode-changing transition."
+  ]
+}

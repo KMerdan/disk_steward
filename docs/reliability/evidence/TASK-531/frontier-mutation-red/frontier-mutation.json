@@ -1,0 +1,7 @@
+{
+ "purpose": "Disable durable frontier synchronization in the store so discovered directories beyond the window are never persisted or refilled; the fanout test must fail on window bound, durable rows and completeness.",
+ "mutations": [
+  {"file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+   "replacements": [["                persisted = try Self.synchronizeFrontier(persisted, discovered: slice.discoveredDirectories, connection: connection)\n", "                persisted = persisted\n"]]}
+ ]
+}

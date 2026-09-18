@@ -1,0 +1,96 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-522-LIFECYCLE-PREFLIGHT",
+  "parent_task": "TASK-522",
+  "task_guard": "GUARD-TASK-DA9EE5A600E3EF01E64FB53AE046A24C",
+  "kind": "review",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b9154fdc02be7a8912db7285d93eff51e9d55af44a013e0fdbb3beceb94ef555",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Static preflight only. Existing epoch guards suppress a late probe's UI result and notification starts, but do not establish cancellation, drained persistence, or terminal callback fencing.",
+  "findings": [
+    {
+      "claim": "shutdown clears the interrupted-sample marker immediately while probe.sample can still be awaited. resume also acknowledges that same marker even when the previous live sample has not finished. A quit during either interval can therefore appear clean despite unfinished work.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2",
+        "E4",
+        "E5"
+      ],
+      "recommendation": "With the existing gated probe, stop before releasing completion and assert the marker remains owned by the active sample; repeat pause/resume before release. Clear only on confirmed completion/drain, or retain an interruption marker if termination cannot wait. Distinguish acknowledging a previous-launch interruption from an active sample."
+    },
+    {
+      "claim": "Cancelling loopTask/eventSampleTask does not cancel every sampleNow caller, and PersistentMonitoringProbe has no cancellation checks before native scanning, recordScanSlice, or later retention. Its store operations can continue after a stop; the controller's epoch check runs only after persistence returns.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2",
+        "E3"
+      ],
+      "recommendation": "Define a cancel-before-publication versus drain-in-flight contract and own the active sample independently of its caller. Add deterministic gates before work/publication and injected volume/scan sources for the concrete probe; cancel at each gate and assert the allowed writes and drain completion. Do not claim rollback of an already committed transaction."
+    },
+    {
+      "claim": "shutdown is terminal for canSample, but not for lifecycle transitions: resume and resumeAfterSystemWake can still publish active status afterward; prepareForSystemSleep can also change status. Removing workspace observers does not retract Tasks already queued by their callbacks.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2",
+        "E4"
+      ],
+      "recommendation": "Guard terminal state before lifecycle/settings/marker mutations. Directly call shutdown followed by wake, resume and sleep; assert unchanged status/history/settings and zero additional probe calls. Replay a queued power callback through a small injected dispatcher, without invoking NSWorkspace."
+    },
+    {
+      "claim": "Notification delivery is fenced only before its await. An already-started delivery has no controller-owned cancellation or validity token, so a delivery suspended before its external send may finish after pause/sleep/quit. The existing late-probe test covers delivery not starting, not delivery already in progress.",
+      "confidence": "medium",
+      "evidence": [
+        "E1",
+        "E2",
+        "E5"
+      ],
+      "recommendation": "Inject a delivery fake that gates immediately before recording a send. Start an alerting sample, await that gate, stop, then release it. Require no new send after stop through a delivery-side cancellation/epoch check at the send boundary; distinguish this from a notification already handed to the OS."
+    },
+    {
+      "claim": "Collector callbacks capture no epoch and only check canSample before awaiting noteEventGap. A callback from the previous lifecycle may run after resume, or resume its await after a new callback, then cancel/replace the newer eventSampleTask. This is a lifecycle integration condition, separate from hint receipt semantics.",
+      "confidence": "high",
+      "evidence": [
+        "E2",
+        "E3"
+      ],
+      "recommendation": "Fence callback entry and post-await continuation by collector/lifecycle generation. Replace the concrete collector dependency with a narrow restart/stop protocol; retain fake callbacks and gate noteEventGap to replay old/new ordering. Inject a controllable sleeper for debounce/loop tests; also cover a busy follow-up queued across pause/resume without wall-clock sleeps."
+    }
+  ],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:113-176 (pause, resume, sleep/wake, marker ownership, untracked busy follow-up).",
+    "E2: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:192-236 (pre-await delivery fence, collector callback, shutdown marker clear); :35-62 (concrete collector dependency).",
+    "E3: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift:41-48,85-165,174-196 (no cancellation/drain interface or phase checks; awaited persistence).",
+    "E4: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardApp/ApplicationDelegate.swift:14-19,35-52 (synchronous termination callback and queued power Tasks).",
+    "E5: /private/tmp/disk-steward-521-core-final.ZAhMFh/Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift:8-35,66-137,292-305,363-367 (late-result gate; marker asserted only after finish; sleep-based follow-up tests; immediate delivery fake)."
+  ],
+  "checks": [
+    {
+      "command": "Read-only inspection of the job and scoped frozen lifecycle sources/tests; no test/build/native/database execution.",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E1-E5. Claims are source-derived; no failing fixtures were executed."
+    }
+  ],
+  "stale_if": [
+    "Parent guard or source snapshot changes.",
+    "Lifecycle, probe, notification or collector contracts change."
+  ],
+  "evidence_use": "advisory",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw helper preflight awaits coordinator reconciliation and independent reproductions; not task acceptance.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Notification implementation and StatusItemController are outside this read scope; actual external-send and forwarding behavior remain unverified.",
+    "No production/native access or nested agents; no conclusion about whole-product readiness."
+  ]
+}

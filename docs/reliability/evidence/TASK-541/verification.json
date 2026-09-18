@@ -1,0 +1,40 @@
+{
+  "schema": "disk-steward-task-verification-v1",
+  "task": "TASK-541",
+  "candidateInputSHA256": "59a1e4eefad005610def6cc04dba836d3e04f98d53a9264c8546c1fb6fdab4f0",
+  "hashCommand": "rg --files --no-ignore -0 Package.swift Sources Tests Config Scripts DiskSteward.xcodeproj Integrations Schemas Fixtures Resources | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "hashScopeLimitation": "Extensions compared separately with diff -qr; not included in aggregate hash. Documentation/evidence and .pyramid excluded from product input identity.",
+  "testedCopy": "/private/tmp/disk-steward-541-accepted.uaJBzS",
+  "sourceBaseline": "/private/tmp/disk-steward-512-final.YakDXv",
+  "sourceBaselineInputSHA256": "9546220c27852fa5ce07726087db12e855e6b9818afacc2e063ad723595ba2b2",
+  "command": "env -u DISK_STEWARD_NATIVE_CLIENT_TESTS -u DISK_STEWARD_PACKAGED_HELPER -u DISK_STEWARD_GATE_EVIDENCE -u DISK_STEWARD_CAPTURE_DIR swift test --disable-sandbox",
+  "checks": {
+    "fullSuiteTests": 291,
+    "skipped": 1,
+    "failures": 0,
+    "completedAt": "2026-09-17T01:48:25.494Z",
+    "skipReason": "NativeClientLifecycleTests requires DISK_STEWARD_NATIVE_CLIENT_TESTS=1; installed-client acceptance excluded.",
+    "targetedTests": 44,
+    "targetedFailures": 0,
+    "constrainedExecutorModes": [
+      "idle",
+      "partial",
+      "nonreading"
+    ],
+    "constrainedExecutor": "Three disposable child fixtures fail before the DispatchQueue bridge; all pass afterward while four peers remain admitted.",
+    "sqliteCancellationTests": 6,
+    "helperTransportSubprocessTests": 6,
+    "staticReviews": [
+      "HELPER-TASK-541-MCP-ACCEPTED",
+      "HELPER-TASK-541-BACKEND-ACCEPTED"
+    ]
+  },
+  "safety": "Source copies and private synthetic socket/database/pipe/process fixtures only. No installed app restart/install, real settings/configuration, production evidence, whole-disk scan, publication or safety-cap increase.",
+  "limits": [
+    "Cooperative cancellation cannot hard-preempt arbitrary synchronous filesystem/backend work; uncooperative work retains counted capacity.",
+    "Bounded whole-export materialization and orphan recovery belong to TASK-551; interrupted backup rollback is not artifact cleanup.",
+    "Child-command process-tree cleanup remains TASK-542.",
+    "Full native-client, 100k/1M, real overnight, migration/rollback and signed packaging remain later gates.",
+    "Implemented task evidence is not a passing integration/intent audit."
+  ]
+}

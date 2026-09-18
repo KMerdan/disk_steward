@@ -1,0 +1,33 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-552-CHRONOLOGY-01",
+  "parent_task": "TASK-552",
+  "task_guard": "GUARD-TASK-417206E716B72B29A2B3323487DA8C41",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {"kind": "content-hash", "id": "sha256:8e28d59130313947242d4a5a51d070b0a35af520f17f24d97458a7513dc18100", "immutable": true},
+  "status": "completed",
+  "summary": "No new actionable defect found within the bounded partial repair. Constructors preserve supplied contradictory endpoints; the engine and persistence path share finite-date and chronology validation. Workspace correlation retains partial-overlap competitors and requires full coverage before selecting a unique session. Privileged session matching uses the privileged event's timestamp.",
+  "findings": [],
+  "evidence": [
+    "/private/tmp/ds-ci-i4mxhdrm/project/Sources/DiskStewardCore/Provenance/ProvenanceModels.swift:95 — claim construction preserves supplied endpoints instead of sorting them; input construction does likewise at line 149.",
+    "/private/tmp/ds-ci-i4mxhdrm/project/Sources/DiskStewardCore/Provenance/ProvenanceModels.swift:158 — shared validation rejects non-finite start, end, detection, or observation dates, reversed intervals, and timestamps later than detection.",
+    "/private/tmp/ds-ci-i4mxhdrm/project/Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift:11 — invalid chronology exits before privileged or workspace attribution and returns no actor or session.",
+    "/private/tmp/ds-ci-i4mxhdrm/project/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1472 — chronology validation precedes claim encoding, insertion, and supersession mutation.",
+    "/private/tmp/ds-ci-i4mxhdrm/project/Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift:62 — candidate sessions include partial overlaps; unique attribution additionally requires both occurrence endpoints to be covered.",
+    "/private/tmp/ds-ci-i4mxhdrm/project/Sources/DiskStewardCore/Provenance/ProvenanceEngine.swift:135 — process-tree session correlation uses privileged.raw.observedAt; the privileged matcher also checks supplied occurrence bounds at line 198.",
+    "/private/tmp/ds-ci-i4mxhdrm/project/Tests/DiskStewardCoreTests/Provenance/ProvenanceChronologyTests.swift:8 — regression source covers endpoint preservation, invalid/non-finite engine input, rejected persistence, full-interval coverage, competing partial overlap, and privileged evidence outside explicit bounds."
+  ],
+  "checks": [
+    {"command": "Read-only source comparison between the declared base and candidate snapshots, followed by static review of candidate chronology tests and permitted supporting models.", "result": "passed", "isolation": "disposable-worktree", "evidence": "Inspected all three changed source files. No source edits, test execution, or Pyramid mutations performed."},
+    {"command": "Compilation and runtime regression tests", "result": "not-run", "isolation": "disposable-worktree", "evidence": "Explicitly prohibited for this helper; runtime reconciliation belongs to the coordinator."}
+  ],
+  "stale_if": ["Candidate sources differ from snapshot sha256:8e28d59130313947242d4a5a51d070b0a35af520f17f24d97458a7513dc18100.", "The helper identity, parent task, or task guard changes."],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Advisory static review of a partial repair, pending coordinator reconciliation; not runtime validation or TASK-552 completion evidence.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": ["Unknown lower-bound modeling, migration, production store-to-provenance wiring, and DTO/privacy budgets were explicitly excluded as unfinished planned work.", "The new persistence regression does not exercise non-finite dates directly; rejection is supported here by static inspection of the shared validation gate."]
+}

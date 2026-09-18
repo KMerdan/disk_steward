@@ -1,0 +1,35 @@
+{
+ "schema": "helper-job-v1",
+ "helper_id": "HELPER-TASK-561-OWNERSHIP-01",
+ "parent_task": "TASK-561",
+ "task_guard": "GUARD-TASK-5D18F5475F02991BF1D9639E9F9433F4",
+ "kind": "review",
+ "phase": "candidate",
+ "snapshot": {"kind": "content-hash", "id": "sha256:7f3d8527c8cf (script suites) / 5acdfddc329b (app suites); final full candidate pending", "immutable": false},
+ "read_scope": [
+  "docs/reliability/evidence/TASK-561/ownership-source-delta.diff",
+  "docs/reliability/evidence/TASK-561/base-source/**",
+  "docs/reliability/evidence/TASK-561/configuration-ownership.md",
+  "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+  "Scripts/Integration/json-config.swift",
+  "Scripts/Integration/install",
+  "Scripts/Integration/uninstall",
+  "Scripts/Integration/rollback",
+  "Scripts/Integration/backup-lib.zsh",
+  "Tests/DiskStewardAppTests/AgentIntegrations/ConfigurationOwnershipTests.swift",
+  "Tests/IntegrationInstallTests/ConfigurationRollbackTests.swift"
+ ],
+ "purpose": "Read-only static delta review of the configuration-ownership candidate against the pre-task snapshot (base copies archived). Review the check-and-swap commit (renamex_np RENAME_SWAP/RENAME_EXCL semantics, error paths, temp-file cleanup, what happens if the swap-back itself fails), backup bounding and pruning safety (only this file's backups, never foreign files), receipt compatibility (optional lastBackupPath on schema 1), the typed error messages and every mutation path in the JSON adapter (setup direct, handoff, repair, remove, restore after receipt failure), the zsh trap/undo logic in install and uninstall (ZERR/EXIT double invocation, set -e inside the trap, restore only when changed, plugin restore, exit codes), json-config.swift ownership rules (user-additions detection, args preservation, refusal codes), rollback's manifest checks (client mismatch, status, hash-after comparison, --force, saving the pre-rollback state, plugin restore), and test soundness (fault seams, vacuity, cleanup, permission changes restored). No executions, writes, Pyramid mutation or nested agents.",
+ "questions": [
+  "Can any path still overwrite or delete bytes a user wrote (concurrent writer, user additions, another profile, foreign backup files), or leave a partially applied change without an explicit report naming the backup?",
+  "Are the shell trap/undo paths correct under zsh with set -euo pipefail (double invocation, failures inside undo, exit code preservation), and can rollback restore the wrong thing or refuse the right thing?",
+  "Do the fixtures prove the claims, or could a premise (renamex_np availability, directory permissions, mktemp naming) make them pass vacuously?"
+ ],
+ "acceptance_criteria": ["AC-TASK-561-01"],
+ "execution_isolation": "read-only",
+ "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "run-tests-or-builds", "publish-or-deploy", "change-git-history"],
+ "join_before": "candidate-acceptance",
+ "result_budget": {"max_findings": 8, "max_evidence_items": 12, "max_output_chars": 8000}
+}

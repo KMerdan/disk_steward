@@ -1,0 +1,575 @@
+{
+  "schema": "pyramid-final-report-v1",
+  "plan_id": "PLAN-DISK-STEWARD-004",
+  "title": "Safe Multi-Client MCP Setup",
+  "revision": 1,
+  "graph_version": 34,
+  "completed_at": "2026-09-16T23:22:27.302063Z",
+  "completed_by": "codex",
+  "intent": {
+    "id": "INTENT-004",
+    "statement": "Disk Steward users can discover supported local AI clients, explicitly select one or more, and safely set up, verify, repair, or remove the read-only Disk Steward MCP integration without manually editing configuration files or confusing client setup with Agent Access.",
+    "success_evidence": [
+      {
+        "id": "REQ-401",
+        "description": "Settings detects supported installed clients through bounded known signals and lets the user select one or several targets without treating unknown software as supported."
+      },
+      {
+        "id": "REQ-402",
+        "description": "Setup, verification, repair, and removal are idempotent, preserve unrelated client configuration, refuse conflicting ownership, and provide recoverable evidence for every mutation."
+      },
+      {
+        "id": "REQ-403",
+        "description": "The UI distinguishes detection, configuration, client approval, verification, broken configuration, and Agent Access state with accessible text and per-client outcomes."
+      },
+      {
+        "id": "REQ-404",
+        "description": "Codex, Claude Code, Cursor, Visual Studio Code, and Claude Desktop receive an honest supported setup path, while other MCP clients receive a copyable manual configuration rather than guessed mutation."
+      },
+      {
+        "id": "REQ-405",
+        "description": "The signed application bundle exposes a stable read-only helper path, and automated tests prove install, upgrade, conflict, verification, removal, and unrelated-setting preservation behavior."
+      }
+    ],
+    "constraints": [
+      "Preserve native Swift, macOS 13 compatibility, Homebrew and Developer ID distribution, and the bundled disk-witness-mcp helper.",
+      "Use official client commands or client-owned installation flows when available; direct configuration editing is a bounded fallback only.",
+      "Never require administrator privileges, store client credentials, enable Agent Access implicitly, or add write/delete MCP tools.",
+      "Preserve unrelated client configuration and the completed crash-recovery intent and evidence.",
+      "Keep detection bounded to known bundle identifiers, executables, and configuration locations; do not search the whole disk."
+    ],
+    "non_goals": [
+      "Build a general MCP marketplace or gateway.",
+      "Configure unrecognized clients automatically.",
+      "Add remote MCP hosting, OAuth brokerage, or credential management.",
+      "Redesign monitoring, evidence retention, or cleanup behavior.",
+      "Grant agents destructive disk operations."
+    ],
+    "assumptions": [
+      {
+        "id": "ASM-401",
+        "statement": "The distributed non-sandboxed app can invoke installed client CLIs and update user-owned configuration without additional entitlements.",
+        "confidence": "medium",
+        "validation_node": "CONTRACT-401"
+      },
+      {
+        "id": "ASM-402",
+        "statement": "A helper path inside an app installed at a stable Applications location remains valid across normal Homebrew and in-place application updates.",
+        "confidence": "medium",
+        "validation_node": "TASK-502"
+      }
+    ]
+  },
+  "success_evidence": [
+    {
+      "id": "REQ-401",
+      "description": "Settings detects supported installed clients through bounded known signals and lets the user select one or several targets without treating unknown software as supported.",
+      "covered_by": [
+        "CONTRACT-401",
+        "GATE-490",
+        "GATE-590",
+        "INTENT-004",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "TASK-402",
+        "TASK-403",
+        "TASK-501"
+      ]
+    },
+    {
+      "id": "REQ-402",
+      "description": "Setup, verification, repair, and removal are idempotent, preserve unrelated client configuration, refuse conflicting ownership, and provide recoverable evidence for every mutation.",
+      "covered_by": [
+        "CONTRACT-401",
+        "GATE-490",
+        "GATE-590",
+        "INTENT-004",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "TASK-402",
+        "TASK-501",
+        "TASK-502"
+      ]
+    },
+    {
+      "id": "REQ-403",
+      "description": "The UI distinguishes detection, configuration, client approval, verification, broken configuration, and Agent Access state with accessible text and per-client outcomes.",
+      "covered_by": [
+        "CONTRACT-401",
+        "GATE-490",
+        "GATE-590",
+        "INTENT-004",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "TASK-403",
+        "TASK-502"
+      ]
+    },
+    {
+      "id": "REQ-404",
+      "description": "Codex, Claude Code, Cursor, Visual Studio Code, and Claude Desktop receive an honest supported setup path, while other MCP clients receive a copyable manual configuration rather than guessed mutation.",
+      "covered_by": [
+        "GATE-590",
+        "INTENT-004",
+        "OUTCOME-420",
+        "TASK-501",
+        "TASK-502"
+      ]
+    },
+    {
+      "id": "REQ-405",
+      "description": "The signed application bundle exposes a stable read-only helper path, and automated tests prove install, upgrade, conflict, verification, removal, and unrelated-setting preservation behavior.",
+      "covered_by": [
+        "CONTRACT-401",
+        "GATE-490",
+        "GATE-590",
+        "INTENT-004",
+        "OUTCOME-410",
+        "OUTCOME-420",
+        "TASK-402",
+        "TASK-502"
+      ]
+    }
+  ],
+  "verified_primary_nodes": [
+    {
+      "id": "INTENT-004",
+      "title": "Safe multi-client MCP onboarding",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "INTENT-004",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "AC-INTENT-401",
+            "result": "passed",
+            "evidence": [
+              "docs/tasks/evidence/GATE-590/repair-20260917-audit.json",
+              "docs/tasks/evidence/OUTCOME-420/repair-20260917-audit.json",
+              "docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "INTENT-004"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-420",
+      "title": "All supported clients have an honest onboarding path",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-420",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "AC-420-01",
+            "result": "passed",
+            "evidence": [
+              "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift",
+              "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+              "docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+            ]
+          },
+          {
+            "id": "AC-420-02",
+            "result": "passed",
+            "evidence": [
+              "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log",
+              "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-420"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "OUTCOME-410",
+      "title": "Codex and Claude Code setup works from Settings",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-410",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-410-01",
+            "result": "passed",
+            "evidence": [
+              "CONTRACT-401, TASK-402, TASK-403, and GATE-490 are verified",
+              "Codex and Claude Code lifecycle and Settings flows pass focused tests"
+            ]
+          },
+          {
+            "id": "CHECK-410-02",
+            "result": "passed",
+            "evidence": [
+              "Xcode project build succeeded",
+              "Agent Access remains opt-in and separate"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-410"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "CONTRACT-401",
+      "title": "Define the client-adapter and lifecycle contract",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "CONTRACT-401",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-401-01",
+            "result": "passed",
+            "evidence": [
+              "swift test --filter AgentIntegrationContractTests: 6 tests passed",
+              "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationContractTests.swift"
+            ]
+          },
+          {
+            "id": "CHECK-401-02",
+            "result": "passed",
+            "evidence": [
+              "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift keeps Agent Access outside integration state derivation",
+              "docs/tasks/evidence/CONTRACT-401/contract-verification.json"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "CONTRACT-401"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-402",
+      "title": "Implement Codex and Claude Code adapters",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-402",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-402-01",
+            "result": "passed",
+            "evidence": [
+              "CodexAndClaudeCodeAdapterTests: 7 tests passed",
+              "Codex add/get/remove and Claude Code user-scoped add/get/remove are asserted by fixture commands"
+            ]
+          },
+          {
+            "id": "CHECK-402-02",
+            "result": "passed",
+            "evidence": [
+              "Conflict, idempotency, repair, verification, missing-helper, failure, and owned-removal paths pass",
+              "docs/tasks/evidence/TASK-402/adapter-verification.json"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-402"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-403",
+      "title": "Build the multi-select Agent Integrations settings experience",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-403",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-403-01",
+            "result": "passed",
+            "evidence": [
+              "AgentIntegrationsPresentationTests: 4 tests passed",
+              "Rows expose client name, state text, selection state, and accessible action labels"
+            ]
+          },
+          {
+            "id": "CHECK-403-02",
+            "result": "passed",
+            "evidence": [
+              "Partial setup results persist independently per client",
+              "Agent Access separation is asserted and Xcode Debug build succeeded"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-403"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-490",
+      "title": "Audit the Codex and Claude Code onboarding increment",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-490",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-490-01",
+            "result": "passed",
+            "evidence": [
+              "16 focused and integration tests passed",
+              "Xcode Debug build succeeded with bundled signed helper"
+            ]
+          },
+          {
+            "id": "CHECK-490-02",
+            "result": "passed",
+            "evidence": [
+              "Foreign configuration and evidence preservation fixtures passed",
+              "Agent Access separation presentation test passed"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-490",
+          "OUTCOME-410"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-501",
+      "title": "Add Cursor, VS Code, Claude Desktop, and manual adapters",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-501",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-501-01",
+            "result": "passed",
+            "evidence": [
+              "Cursor and VS Code client-owned handoff tests pass",
+              "Claude Desktop documented configuration and manual copy tests pass"
+            ]
+          },
+          {
+            "id": "CHECK-501-02",
+            "result": "passed",
+            "evidence": [
+              "Conflict, approval-pending, backup, preservation, verify, repair, and owned-removal fixture paths pass"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-501"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "TASK-502",
+      "title": "Harden packaging, receipts, repair, and cross-client verification",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-502",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-502-01",
+            "result": "passed",
+            "evidence": [
+              "docs/tasks/evidence/TASK-502/repair-20260917/verification.json",
+              "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationHardeningTests.swift",
+              "Tests/IntegrationInstallTests/IntegrationInstallTests.swift"
+            ]
+          },
+          {
+            "id": "CHECK-502-02",
+            "result": "passed",
+            "evidence": [
+              "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+              "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+              "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+            ]
+          },
+          {
+            "id": "CHECK-502-03",
+            "result": "passed",
+            "evidence": [
+              "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift",
+              "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+              "docs/tasks/evidence/TASK-502/repair-20260917/verification.json"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "TASK-502"
+        ],
+        "recommended_action": "advance"
+      }
+    },
+    {
+      "id": "GATE-590",
+      "title": "Audit complete multi-client MCP onboarding",
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-590",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "AC-590-01",
+            "result": "passed",
+            "evidence": [
+              "docs/tasks/evidence/TASK-502/repair-20260917/verification.json",
+              "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+            ]
+          },
+          {
+            "id": "AC-590-02",
+            "result": "passed",
+            "evidence": [
+              "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
+              "Tests/DiskStewardAppTests/AgentIntegrations/NativeClientLifecycleTests.swift",
+              "docs/tasks/evidence/TASK-502/repair-20260917/swift-tests.log"
+            ]
+          },
+          {
+            "id": "AC-590-03",
+            "result": "passed",
+            "evidence": [
+              "Sources/DiskStewardApp/AgentIntegrations",
+              "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+              "Tests/IntegrationInstallTests/IntegrationInstallTests.swift",
+              "Tests/DiskStewardAppTests/MCPAccess/MCPAccessTests.swift"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-590"
+        ],
+        "recommended_action": "advance"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DECISION-401",
+      "question": "How should Disk Steward configure several heterogeneous MCP clients?",
+      "choice": "Use a typed client-adapter registry with explicit multi-selection, official client-owned commands or flows first, transactional fallback writes, independent per-client results, and a manual configuration escape hatch.",
+      "alternatives": [
+        "Edit every known configuration file directly",
+        "Install one central MCP gateway",
+        "Offer documentation only",
+        "Treat setup and Agent Access as one switch"
+      ],
+      "rationale": "The selected path matches mature client-connector practice, preserves client trust boundaries, remains reversible, and keeps Disk Steward's single read-only helper and evidence engine authoritative.",
+      "evidence": [
+        "EV-401",
+        "EV-402",
+        "EV-403",
+        "EV-404",
+        "EV-405"
+      ]
+    },
+    {
+      "id": "DECISION-402",
+      "question": "What is the smallest honest delivery ladder?",
+      "choice": "First deliver a runnable Codex and Claude Code setup flow in the app, then extend the same lifecycle to Cursor, VS Code, Claude Desktop, and the manual fallback while repeating the first increment's safety checks.",
+      "alternatives": [
+        "One horizontal backend phase followed by UI",
+        "Claim client detection alone as an increment",
+        "Ship every client without an earlier runnable slice"
+      ],
+      "rationale": "Codex and Claude Code have authoritative CLI lifecycles and are already present in the user's environment, so they form the smallest end-to-end actor-visible setup scenario; the second rung adds heterogeneous client-owned flows and broader regression proof.",
+      "evidence": [
+        "EV-402",
+        "EV-403",
+        "EV-404",
+        "EV-405"
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "id": "EV-401",
+      "claim": "Disk Steward already ships an executable read-only MCP helper inside the application bundle and exposes Agent Access through a private current-user socket.",
+      "source": "Config/Packaging/project.yml; Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift; Scripts/Distribution/verify-release",
+      "confidence": "high",
+      "freshness": "Repository observation on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-402",
+        "TASK-501",
+        "TASK-502"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-402",
+      "claim": "The current integration installer is repository-only, directly edits Codex TOML, and writes Claude configuration to a location that is not the current Claude Code user-scope location.",
+      "source": "Scripts/Integration/install; Tests/IntegrationInstallTests/IntegrationInstallTests.swift; Claude Code MCP documentation",
+      "confidence": "high",
+      "freshness": "Repository and official documentation reviewed on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-402"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-403",
+      "claim": "Codex and Claude Code provide official add, list/get, and remove lifecycle commands suitable for app-owned adapters.",
+      "source": "https://developers.openai.com/codex/mcp/; https://code.claude.com/docs/en/mcp",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-402"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-404",
+      "claim": "Docker MCP Toolkit models multi-client onboarding as explicit connect, disconnect, list, and per-client verification rather than universal implicit mutation.",
+      "source": "https://docs.docker.com/ai/mcp-catalog-and-toolkit/get-started/; https://docs.docker.com/reference/cli/docker/mcp/client/",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed on 2026-09-16",
+      "supports": [
+        "CONTRACT-401",
+        "TASK-403",
+        "TASK-501"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-405",
+      "claim": "Cursor and VS Code expose client-owned MCP installation paths, while Claude Desktop provides MCPB packaging with client-managed trust, updates, and auditing.",
+      "source": "https://docs.cursor.com/context/model-context-protocol; https://code.visualstudio.com/docs/agent-customization/mcp-servers; https://www.anthropic.com/engineering/desktop-extensions",
+      "confidence": "high",
+      "freshness": "Official documentation reviewed on 2026-09-16",
+      "supports": [
+        "TASK-501",
+        "TASK-502"
+      ],
+      "contradicts": []
+    }
+  ],
+  "residual_risks": [
+    "CONTRACT-401: Client-owned approval cannot always be verified from Disk Steward and must remain an explicit approvalPending state.",
+    "TASK-402: A client CLI output-format change will fail as malformed instead of guessing or editing an unknown configuration.",
+    "TASK-403: GUI clients without an installed command-line setup path remain explicitly unavailable until their adapters land in TASK-501.",
+    "TASK-501: Client-owned deep links can only be marked configured after the client writes the accepted entry; until then the state remains approval-pending.",
+    "TASK-502: No native Cursor/VS Code UI approval or Claude Desktop launch was automated; these paths are intentionally client-owned and tested through URL/document contracts.",
+    "TASK-502: No uncooperative-writer atomic compare-and-swap is supplied by native CLI APIs; immediate reads and conservative rollback refuse observed conflicts.",
+    "TASK-502: Executable stat identity detects normal updates/replacements; it is not a cryptographic authenticity check.",
+    "TASK-502: No signing, notarization, installation, commit, push, publication, or broader scanner completion is claimed."
+  ]
+}

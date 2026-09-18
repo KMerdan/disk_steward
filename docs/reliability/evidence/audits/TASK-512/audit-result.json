@@ -1,0 +1,39 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-512",
+ "result": "pass",
+ "checks": [
+  {"id": "CHECK-512-01", "result": "passed", "evidence": [
+   "docs/reliability/evidence/TASK-532/candidate/candidate.json",
+   "docs/reliability/evidence/TASK-532/candidate/tests.log",
+   "Full six-stage isolated verifier on the current integrated candidate (input 02fe77cd43a1b901285a042d07777a72daf25441fd0cabde6de5f6e7bc99a5ce): harness, toolchain, manifest, entitlements, build, tests passed; 522 tests, 4 skipped, 0 failures. The suite includes every socket-ownership, lease and transport-lifecycle test TASK-512 introduced."]},
+  {"id": "CHECK-512-02", "result": "passed", "evidence": [
+   "docs/reliability/evidence/audits/TASK-512/scoped-green/result.json",
+   "docs/reliability/evidence/audits/TASK-512/scoped-green/tests.log",
+   "Independent isolated rerun by the auditor on the same input: SocketOwnershipRegressionTests, VerificationIsolationTests and MCPTransportLifecycleTests, 25 tests, 0 failures, sourceUnchanged true. Second start refuses a live endpoint, first stop cannot unlink a successor, a failed start releases only its own resources, stale recovery works (AC-TASK-512-01)."]},
+  {"id": "CHECK-512-03", "result": "passed", "evidence": [
+   "docs/reliability/evidence/TASK-512/verification.json",
+   "docs/reliability/evidence/TASK-512/legacy-reproduction.log",
+   "docs/reliability/evidence/TASK-512/LegacyCollisionProbe.swift",
+   "docs/reliability/evidence/TASK-512/scope-review.md",
+   "docs/reliability/evidence/TASK-512/final-review-result.json",
+   "Task evidence is bound to candidate 9546220c… and reproduces the same-owner collision against the unmodified source baseline cf313e4 before the repair; the auditor re-read the reproduction log and the frozen review copy references rather than relying on the task's self-report."]},
+  {"id": "CHECK-512-04", "result": "passed", "evidence": [
+   "docs/reliability/evidence/TASK-532/assurance-findings-scale-service.json",
+   "docs/reliability/evidence/TASK-511/post-implementation-inspection.md",
+   "Assurance records reviewed: IMPACT-TASK-512-BOOT, IMPACT-TASK-512-IPC, IMPACT-TASK-512-CLIENTS (confirmed); INSPECT-TASK-512-1 (performed, pass, sufficient, re-affirmed against 02fe77cd); FIND-ISOLATION resolved through INSPECT-TASK-511-1; FIND-SERVICE resolved through INSPECT-TASK-541-1 with TASK-541/542 cancellation, revocation and child-command evidence. Predicted scope (main.swift, ApplicationDelegate.swift, IPC sources and tests, integration-install tests) matches the recorded changed files; no scope drift is recorded for TASK-512."]}
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": ["IMPACT-TASK-512-BOOT", "IMPACT-TASK-512-IPC", "IMPACT-TASK-512-CLIENTS"],
+  "inspection_ids": ["INSPECT-TASK-512-1"],
+  "finding_ids": ["FIND-ISOLATION", "FIND-SERVICE"],
+  "scope_review": "complete",
+  "limitations": [
+   "Cooperative process-lifetime ownership on this macOS host; hostile same-user path races and power-loss durability are outside the reviewed evidence (scope-review.md limits).",
+   "The auditor is the same actor that implemented later tasks on the shared candidate; independence rests on the isolated reruns and the archived task evidence rather than on a separate reviewer.",
+   "Installed-app behavior is not exercised; every scenario runs against isolated fixtures as CONTRACT-510 requires."
+  ]
+ }
+}

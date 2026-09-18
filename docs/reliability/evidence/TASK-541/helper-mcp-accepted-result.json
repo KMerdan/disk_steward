@@ -1,0 +1,53 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-541-MCP-ACCEPTED",
+  "parent_task": "TASK-541",
+  "task_guard": "GUARD-TASK-A53C0A97873C2BA7E1AB045231410260",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:59a1e4eefad005610def6cc04dba836d3e04f98d53a9264c8546c1fb6fdab4f0",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "All allowed MCP sources and tests are byte-identical to the previously reviewed final snapshot. The prior static review remains supported: no actionable MCP defects identified; frame-size correction, control-ID collision checks, bounded self-check output, eight-frame coverage and terminal-cancellation coverage are unchanged.",
+  "findings": [],
+  "evidence": [
+    "E1 Recursive comparison of Sources/DiskStewardMCP between /private/tmp/disk-steward-541-final.Qw8C8y and /private/tmp/disk-steward-541-accepted.uaJBzS returned exit 0 with no differences.",
+    "E2 Recursive comparison of Tests/DiskStewardMCPTests between the same snapshots returned exit 0 with no differences.",
+    "E3 Byte comparison of Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift between the same snapshots returned exit 0."
+  ],
+  "checks": [
+    {
+      "command": "diff -rq /private/tmp/disk-steward-541-final.Qw8C8y/Sources/DiskStewardMCP /private/tmp/disk-steward-541-accepted.uaJBzS/Sources/DiskStewardMCP",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E1: identical directory contents; exit 0."
+    },
+    {
+      "command": "diff -rq /private/tmp/disk-steward-541-final.Qw8C8y/Tests/DiskStewardMCPTests /private/tmp/disk-steward-541-accepted.uaJBzS/Tests/DiskStewardMCPTests",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E2: identical directory contents; exit 0."
+    },
+    {
+      "command": "cmp /private/tmp/disk-steward-541-final.Qw8C8y/Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift /private/tmp/disk-steward-541-accepted.uaJBzS/Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E3: byte-identical file; exit 0."
+    }
+  ],
+  "stale_if": [
+    "Allowed MCP sources/tests change or the candidate content hash differs."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw candidate static-review refresh pending coordinator reconciliation; not independent runtime validation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "No builds or tests executed. Socket-server changes and their runtime effects are outside this job's read scope and require separate review/validation."
+  ]
+}

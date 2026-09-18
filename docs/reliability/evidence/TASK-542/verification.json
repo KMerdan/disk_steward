@@ -1,0 +1,80 @@
+{
+  "schema": "disk-steward-task-verification-v1",
+  "task": "TASK-542",
+  "criterion": "AC-TASK-542-01",
+  "snapshot": {
+    "directory": "/private/tmp/disk-steward-542-accepted.xRV6DE",
+    "hash": "sha256:57dd89b23864d4115dd909bd224db2eaa0f92f0a56f55de119c205bf6f20324a",
+    "input_hash_command": "rg --files --no-ignore -0 Package.swift Sources Tests Config Scripts DiskSteward.xcodeproj Integrations Schemas Fixtures Resources | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+    "extensions": "Compared separately by diff -qr; identical to canonical worktree and TASK541 baseline."
+  },
+  "environment": {
+    "os": "macOS 15.6.1",
+    "swift": "Apple Swift 6.2.4",
+    "architecture": "arm64",
+    "isolation": "Disposable source copy/private synthetic fixtures; no real agent commands or production evidence/configuration."
+  },
+  "checks": [
+    {
+      "command": "env -u DISK_STEWARD_NATIVE_CLIENT_TESTS -u DISK_STEWARD_PACKAGED_HELPER -u DISK_STEWARD_GATE_EVIDENCE -u DISK_STEWARD_CAPTURE_DIR swift test --disable-sandbox",
+      "result": "passed",
+      "tests": 302,
+      "skipped": 1,
+      "failures": 0,
+      "finished_at": "2026-09-17T02:27:38.474Z",
+      "evidence": "full-tests.log",
+      "limitation": "A prior candidate's full suite had an intermittent endpoint confidence failure; preserved separately, not resolved by this pass."
+    },
+    {
+      "command": "swift test --disable-sandbox --skip-build --filter CommandRunnerRegressionTests (five repetitions)",
+      "result": "passed",
+      "tests_per_run": 13,
+      "runs": 5,
+      "failures": 0,
+      "evidence": [
+        "repeat-1.log",
+        "repeat-2.log",
+        "repeat-3.log",
+        "repeat-4.log",
+        "repeat-5.log"
+      ]
+    },
+    {
+      "command": "Initial six command regressions against the pre-TASK542 runner",
+      "result": "expected-failure",
+      "failures": 2,
+      "evidence": "runner-red.log",
+      "scope": "TERM-ignoring descendant and parent-exits-first orphan cases failed; 1MiB dual pipe, single pipe, output/time budget and spawn/fast-exit cases passed. Historical mutable test workspace; not the accepted snapshot."
+    },
+    {
+      "command": "Full suite on intermediate a773ef85893da401d414ab2467e411a1d1956ac7d09f5e95deb80779a5e9b382 candidate",
+      "result": "failed",
+      "tests": 302,
+      "skipped": 1,
+      "failures": 1,
+      "evidence": "endpoint-order-failure.log",
+      "scope": "Unchanged endpoint fixture: confidence unknown instead of exact. Follow-up required; scoped command runner suite passed."
+    }
+  ],
+  "acceptance": "Scoped AC542 met; overall reliability/scale/overnight/native-client/release work remains open.",
+  "budgets": {
+    "commands": 4,
+    "aggregate_output_bytes_default": 2097152,
+    "aggregate_output_bytes_maximum": 4194304,
+    "read_quantum_per_stream_bytes": 65536,
+    "timeout_default_seconds": 15,
+    "timeout_range_seconds": [
+      0.05,
+      60
+    ],
+    "term_grace_seconds": 0.15,
+    "caller_cleanup_grace_seconds": 0.75,
+    "group_probe_max_pids": 256
+  },
+  "limitations": [
+    "Process groups are not an adversarial containment boundary: deliberately escaped descendants are not guaranteed killed.",
+    "Kernel delays cannot be hard-preempted. The watchdog returns cleanupIncomplete while retaining the single lifecycle worker and its admission slot; repeated stuck workers eventually refuse further commands.",
+    "Exclusive child reaping/no SIGCHLD auto-reap is required. ECHILD ends signalling to avoid stale-ID reuse.",
+    "No macOS13 machine, Intel runtime, installed/native client, packaging, scale or overnight acceptance was established."
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/provenance-chain-v3.schema.json",
+  "title": "provenance-chain-v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "window_semantics",
+    "claims"
+  ],
+  "properties": {
+    "schema": {
+      "const": "provenance-chain-v3"
+    },
+    "window_semantics": {
+      "const": "possible-overlap"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id",
+          "event_id",
+          "path",
+          "confidence",
+          "method",
+          "detected_at",
+          "timing_basis",
+          "support",
+          "limitations",
+          "contradictions",
+          "supersedes_claim_id",
+          "superseded_by_claim_id",
+          "occurred_start",
+          "occurred_end",
+          "actor_pid",
+          "actor_executable",
+          "session_id",
+          "session_client"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "confidence": {
+            "enum": [
+              "exact",
+              "tool-linked",
+              "inferred",
+              "unknown"
+            ]
+          },
+          "method": {
+            "type": "string"
+          },
+          "detected_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timing_basis": {
+            "enum": [
+              "observation-bounds",
+              "legacy-unverified"
+            ]
+          },
+          "support": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "identifier",
+                "supports"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "endpoint-security",
+                    "fsevents",
+                    "metadata-snapshot",
+                    "process-ancestry",
+                    "agent-session",
+                    "historical-record"
+                  ]
+                },
+                "identifier": {
+                  "type": "string"
+                },
+                "supports": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "contradictions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "supersedes_claim_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "superseded_by_claim_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "occurred_start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "occurred_end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "actor_pid": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "actor_executable": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "session_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "session_client": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

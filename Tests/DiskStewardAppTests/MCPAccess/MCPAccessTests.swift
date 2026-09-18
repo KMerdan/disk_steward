@@ -40,12 +40,29 @@ final class MCPAccessTests: XCTestCase {
         XCTAssertEqual(service.startCount, 1)
         XCTAssertTrue(try stateFile.readEnabled())
         XCTAssertTrue(AgentAccessSettingsStore(stateFile: stateFile).isEnabled)
+        controller.setEnabled(true)
+        XCTAssertEqual(service.startCount, 1, "Enabling an already-running service is idempotent")
 
         controller.setEnabled(false)
         XCTAssertFalse(controller.isEnabled)
         XCTAssertEqual(controller.state, .off)
         XCTAssertEqual(service.stopCount, 1)
         XCTAssertFalse(try stateFile.readEnabled())
+    }
+
+    func testRepeatedTogglesRetainOneServiceAndItsOutstandingWorkBudget() throws {
+        let root = temporaryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        var creations = 0
+        let service = RecordingService()
+        let controller = MCPAccessController(
+            settingsStore: AgentAccessSettingsStore(stateFile: AgentAccessStateFile(url: root.appending(path: "access.json")))
+        ) { creations += 1; return service }
+        for _ in 0..<20 { controller.setEnabled(true); controller.setEnabled(false) }
+        XCTAssertEqual(creations, 1)
+        XCTAssertEqual(service.startCount, 20)
+        XCTAssertEqual(service.stopCount, 20)
+        XCTAssertEqual(controller.state, .off)
     }
 
     func testRealPrivateSocketIsQueryableOnlyWhileEnabled() throws {

@@ -1,0 +1,25 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-523-PREFLIGHT",
+  "parent_task": "TASK-523",
+  "task_guard": "GUARD-TASK-CBB365753CA4B6D2A0763DD23D3CA78C",
+  "kind": "research",
+  "phase": "preflight",
+  "snapshot": {"kind": "content-hash", "id": "sha256:a13e1f55a7beac07019ba371bfc1c5ef965c277ecd269d31da054cc839b1d024", "immutable": true},
+  "read_scope": [
+    "/private/tmp/disk-steward-542-accepted.xRV6DE/Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+    "/private/tmp/disk-steward-542-accepted.xRV6DE/Sources/DiskStewardCore/EndpointBridge/**",
+    "/private/tmp/disk-steward-542-accepted.xRV6DE/Tests/DiskStewardEndpointTests/**"
+  ],
+  "purpose": "Evaluate bounded ordered endpoint callback delivery and lifecycle fences before implementation.",
+  "questions": [
+    "Identify exact ordering, overflow/gap and lifecycle hazards in the existing observer and bridge; distinguish proven source behavior from the intermittent failure inference.",
+    "Review a proposed single persistent async consumer woken by a bufferingNewest(1) signal stream, synchronous lock-protected count/byte-bounded inbox including in-flight ownership, and epoch validation inside the bridge at commit. Which stop/start races or boundedness traps must the coordinator address?",
+    "Recommend deterministic barrier/acknowledgment tests for delayed first delivery, excluded middle events, overflow with no later event, retained old callbacks and stop/restart while delivery is held. No native EndpointSecurity activation or real user data."
+  ],
+  "acceptance_criteria": ["AC-TASK-523-01"],
+  "execution_isolation": "none",
+  "prohibited_actions": ["write-canonical-worktree", "mutate-pyramid", "spawn-agents", "publish-or-deploy", "change-git-history"],
+  "join_before": "load-bearing-decision",
+  "result_budget": {"max_findings": 5, "max_evidence_items": 7, "max_output_chars": 6500}
+}

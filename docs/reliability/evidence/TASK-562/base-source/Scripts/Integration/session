@@ -1,0 +1,176 @@
+#!/usr/bin/env swift
+
+import Darwin
+import Foundation
+
+struct Options {
+    var operation = ""
+    var client = ""
+    var sessionID = ""
+    var registrationID = ""
+    var processPID: Int32 = getppid()
+    var workspaces: [String] = []
+    var socket = FileManager.default.homeDirectoryForCurrentUser
+        .appendingPathComponent("Library/Application Support/Disk Steward/disk-steward.sock").path
+    var leaseSeconds = 7_200
+    var dryRun = false
+}
+
+enum SessionError: Error, CustomStringConvertible {
+    case usage(String)
+    case invalid(String)
+    case system(String)
+
+    var description: String {
+        switch self {
+        case let .usage(message), let .invalid(message), let .system(message): message
+        }
+    }
+}
+
+func parse() throws -> Options {
+    var options = Options()
+    var arguments = Array(CommandLine.arguments.dropFirst())
+    guard !arguments.isEmpty else { throw SessionError.usage(usage) }
+    options.operation = arguments.removeFirst()
+    while !arguments.isEmpty {
+        let flag = arguments.removeFirst()
+        if flag == "--dry-run" { options.dryRun = true; continue }
+        guard !arguments.isEmpty else { throw SessionError.usage("Missing value for \(flag).\n\(usage)") }
+        let value = arguments.removeFirst()
+        switch flag {
+        case "--client": options.client = value
+        case "--session-id": options.sessionID = value
+        case "--registration-id": options.registrationID = value
+        case "--process-pid":
+            guard let pid = Int32(value), pid > 0 else { throw SessionError.invalid("process PID must be positive") }
+            options.processPID = pid
+        case "--workspace": options.workspaces.append(URL(fileURLWithPath: value).standardizedFileURL.path)
+        case "--socket": options.socket = value
+        case "--lease-seconds":
+            guard let lease = Int(value) else { throw SessionError.invalid("lease must be an integer") }
+            options.leaseSeconds = lease
+        default: throw SessionError.usage("Unknown option: \(flag).\n\(usage)")
+        }
+    }
+    switch options.operation {
+    case "register":
+        guard ["codex", "claude", "other-local"].contains(options.client),
+              !options.sessionID.isEmpty, !options.workspaces.isEmpty
+        else { throw SessionError.usage(usage) }
+        guard (60 ... 86_400).contains(options.leaseSeconds) else {
+            throw SessionError.invalid("lease must be between 60 and 86400 seconds")
+        }
+    case "end", "heartbeat":
+        guard UUID(uuidString: options.registrationID) != nil else {
+            throw SessionError.invalid("end/heartbeat requires a valid --registration-id")
+        }
+    default: throw SessionError.usage(usage)
+    }
+    return options
+}
+
+let usage = """
+usage:
+  session register --client codex|claude --session-id ID --workspace PATH [--workspace PATH] [--lease-seconds N] [--socket PATH] [--dry-run]
+  session end --registration-id UUID [--socket PATH] [--dry-run]
+  session heartbeat --registration-id UUID [--socket PATH] [--dry-run]
+
+Registration defaults to the calling shell's PID, not the short-lived session helper.
+Use --process-pid PID to identify a longer-lived ancestor; the app validates ancestry.
+Send heartbeats while the real task is active, and end it when that task finishes.
+"""
+
+func request(for options: Options) -> [String: Any] {
+    let method: String
+    let payload: [String: Any]
+    if options.operation == "register" {
+        method = "sessions/register"
+        payload = [
+            "client": options.client,
+            "session_id": options.sessionID,
+            "workspace_roots": options.workspaces,
+            "lease_seconds": options.leaseSeconds,
+            "process_pid": options.processPID,
+        ]
+    } else {
+        method = options.operation == "heartbeat" ? "sessions/heartbeat" : "sessions/end"
+        payload = ["registration_id": options.registrationID]
+    }
+    return [
+        "schema": "ipc-request-v1",
+        "id": UUID().uuidString.lowercased(),
+        "method": method,
+        "payload": payload,
+    ]
+}
+
+func exchange(_ request: [String: Any], socketPath: String) throws -> Data {
+    var status = stat()
+    guard lstat(socketPath, &status) == 0 else {
+        throw SessionError.system("Disk Steward is unavailable at \(socketPath). Open the app and verify Monitoring is enabled.")
+    }
+    guard status.st_uid == getuid(), status.st_mode & S_IFMT == S_IFSOCK,
+          status.st_mode & 0o077 == 0
+    else { throw SessionError.system("Refusing an insecure or unowned Disk Steward socket.") }
+
+    let descriptor = Darwin.socket(AF_UNIX, SOCK_STREAM, 0)
+    guard descriptor >= 0 else { throw SessionError.system("socket failed: \(String(cString: strerror(errno)))") }
+    defer { Darwin.close(descriptor) }
+    var address = sockaddr_un()
+    address.sun_family = sa_family_t(AF_UNIX)
+    let bytes = Array(socketPath.utf8CString)
+    guard bytes.count <= MemoryLayout.size(ofValue: address.sun_path) else {
+        throw SessionError.invalid("socket path is too long")
+    }
+    withUnsafeMutablePointer(to: &address.sun_path) { pointer in
+        pointer.withMemoryRebound(to: CChar.self, capacity: bytes.count) { buffer in
+            for (index, byte) in bytes.enumerated() { buffer[index] = byte }
+        }
+    }
+    let length = socklen_t(MemoryLayout<sa_family_t>.size + bytes.count)
+    let connected = withUnsafePointer(to: &address) { pointer in
+        pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) { Darwin.connect(descriptor, $0, length) }
+    }
+    guard connected == 0 else {
+        throw SessionError.system("Unable to connect to Disk Steward: \(String(cString: strerror(errno)))")
+    }
+    var outgoing = try JSONSerialization.data(withJSONObject: request, options: [.sortedKeys])
+    outgoing.append(0x0A)
+    try outgoing.withUnsafeBytes { raw in
+        guard let base = raw.baseAddress else { return }
+        var sent = 0
+        while sent < raw.count {
+            let count = Darwin.write(descriptor, base.advanced(by: sent), raw.count - sent)
+            guard count > 0 else { throw SessionError.system("write failed") }
+            sent += count
+        }
+    }
+    var response = Data()
+    var byte: UInt8 = 0
+    while response.count <= 1_048_576 {
+        let count = Darwin.read(descriptor, &byte, 1)
+        guard count > 0 else { throw SessionError.system("Disk Steward closed the connection without a response.") }
+        if byte == 0x0A { return response }
+        response.append(byte)
+    }
+    throw SessionError.system("Disk Steward response exceeded 1 MiB.")
+}
+
+do {
+    let options = try parse()
+    let message = request(for: options)
+    if options.dryRun {
+        print(String(decoding: try JSONSerialization.data(withJSONObject: message, options: [.prettyPrinted, .sortedKeys]), as: UTF8.self))
+    } else {
+        let response = try exchange(message, socketPath: options.socket)
+        let object = try JSONSerialization.jsonObject(with: response)
+        guard let dictionary = object as? [String: Any], dictionary["error"] == nil else {
+            throw SessionError.system("Disk Steward rejected the session request: \(String(decoding: response, as: UTF8.self))")
+        }
+        print(String(decoding: response, as: UTF8.self))
+    }
+} catch {
+    FileHandle.standardError.write(Data(("disk-steward-session: \(error)\n").utf8))
+    exit(64)
+}

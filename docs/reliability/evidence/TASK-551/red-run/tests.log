@@ -1,0 +1,278 @@
+Building for debugging...
+[0/27] /private/tmp/ds551-check-1yvo6yyy/project/.build/arm64-apple-macosx/debug/DiskStewardPackageTests.derived/runner.swift
+[1/27] Write disk-witness-mcp-entitlement.plist
+[2/27] Write sources
+[16/27] Write DiskStewardApp-entitlement.plist
+[17/27] Write sources
+[18/27] Write swift-version--58304C5D6DBC2206.txt
+[20/47] Emitting module DiskStewardCore
+[21/47] Compiling DiskStewardCore TaskImpactCorrelation.swift
+[22/47] Compiling DiskStewardCore BoundedEndpointEventBuffer.swift
+[23/47] Compiling DiskStewardCore EndpointEventNormalizer.swift
+[24/47] Compiling DiskStewardCore PrivilegedEventModels.swift
+[25/47] Compiling DiskStewardCore ProtectedEndpointBridge.swift
+[26/47] Compiling DiskStewardCore EvidenceLifecycleModels.swift
+[27/47] Compiling DiskStewardCore EvidenceQueryModels.swift
+[28/47] Compiling DiskStewardCore EvidenceStore.swift
+[29/47] Compiling DiskStewardCore EvidenceStoreModels.swift
+[30/47] Compiling DiskStewardCore SQLiteConnection.swift
+[31/47] Compiling DiskStewardCore GrowthExplanation.swift
+[32/47] Compiling DiskStewardCore EvidenceBundleExporter.swift
+[33/47] Compiling DiskStewardCore EvidenceBundleModels.swift
+[34/47] Compiling DiskStewardCore ZlibCodec.swift
+[35/47] Compiling DiskStewardCore SHA256Digest.swift
+[36/47] Compiling DiskStewardCore SnapshotExportModels.swift
+[37/47] Compiling DiskStewardCore SnapshotExporter.swift
+[38/47] Compiling DiskStewardCore AgentAccessStateFile.swift
+[39/47] Compiling DiskStewardCore DiskStewardIPCClient.swift
+[40/65] Compiling DiskStewardCore JSONValue.swift
+[41/65] Compiling DiskStewardCore UnixSocketEvidenceServer.swift
+[42/65] Compiling DiskStewardCore DirectoryMetadataScanner.swift
+[43/65] Compiling DiskStewardCore MonitoringPolicy.swift
+[44/65] Compiling DiskStewardCore ScanPublicationFence.swift
+[45/65] Compiling DiskStewardCore TargetedFSEventsCollector.swift
+[46/65] Compiling DiskStewardCore WholeVolumeSampler.swift
+[47/65] Compiling DiskStewardCore WriteCoalescer.swift
+[48/65] Compiling DiskStewardCore EvidencePrivacyFilter.swift
+[49/65] Compiling DiskStewardCore ProductIdentity.swift
+[50/65] Compiling DiskStewardCore ProvenanceEngine.swift
+[51/65] Compiling DiskStewardCore ProvenanceModels.swift
+[52/65] Compiling DiskStewardCore ResourceBudget.swift
+[53/65] Compiling DiskStewardCore AgentSessionModels.swift
+[54/65] Compiling DiskStewardCore AgentSessionRegistry.swift
+[55/65] Compiling DiskStewardCore ProcessAncestryTracker.swift
+[56/65] Compiling DiskStewardCore StorageSnapshot.swift
+[57/65] Compiling DiskStewardCore VolumeSnapshotService.swift
+[58/70] Emitting module DiskStewardMCP
+[59/70] Compiling DiskStewardMCP MCPResponseSanitizer.swift
+[60/70] Compiling DiskStewardMCP MCPServer.swift
+[61/72] Compiling DiskStewardMCP MCPToolCatalog.swift
+[62/72] Compiling DiskStewardMCP main.swift
+[63/74] Compiling DiskStewardEndpoint EndpointSecurityObserver.swift
+[64/74] Emitting module DiskStewardEndpoint
+[65/86] Emitting module DiskStewardCoreTests
+[66/96] Compiling FoundationTests ProductIdentityTests.swift
+[67/96] Emitting module FoundationTests
+[68/100] Compiling PerformanceTests BoundedTraversalPrototype.swift
+[69/100] Compiling PerformanceTests BoundedTraversalPrototypeTests.swift
+[70/100] Compiling PerformanceTests BoundedTraversalResumeTests.swift
+[71/100] Emitting module PerformanceTests
+[75/103] Compiling PerformanceTests BoundedTraversalScaleTests.swift
+[76/103] Compiling PerformanceTests PerformanceTests.swift
+[77/103] Compiling PerformanceTests ScaleBenchmarkTests.swift
+[78/103] Compiling DiskStewardCoreTests HistoricalMigrationTests.swift
+[79/103] Compiling DiskStewardCoreTests ExplanationTests.swift
+[80/103] Compiling DiskStewardCoreTests EvidenceBundleExporterTests.swift
+[81/103] Compiling DiskStewardCoreTests ExportSafetyRegressionTests.swift
+[82/103] Compiling DiskStewardCoreTests ZlibRegressionTests.swift
+[86/105] Emitting module DiskStewardEndpointTests
+[87/105] Compiling DiskStewardEndpointTests DiskStewardEndpointTests.swift
+[88/106] Compiling DiskStewardEndpointTests EndpointDeliveryRegressionTests.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardEndpointTests/EndpointDeliveryRegressionTests.swift:242:18: warning: weak variable 'reference' was never mutated; consider changing to 'let' constant [#WeakMutability]
+240 |         let fixture = DeliveryFixture(), runtime = RetainedCallbackRuntime()
+241 |         var observer: EndpointSecurityObserver? = fixture.observer(runtime)
+242 |         weak var reference = observer
+    |                  `- warning: weak variable 'reference' was never mutated; consider changing to 'let' constant [#WeakMutability]
+243 |         for cycle in 0 ..< 30 {
+244 |             await observer!.start()
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[89/122] Compiling DiskStewardApp ApplicationDelegate.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[90/122] Compiling DiskStewardApp AppEvidenceQueryBackend.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[91/122] Compiling DiskStewardApp LaunchAtLoginController.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[92/122] Compiling DiskStewardApp MonitoringLifecycleController.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[93/122] Compiling DiskStewardCoreTests DurableProvenanceLifecycleTests.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[94/122] Compiling DiskStewardCoreTests ProvenanceEngineTests.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[95/122] Compiling DiskStewardCoreTests SQLiteCancellationTests.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[96/122] Compiling DiskStewardCoreTests AgentSessionRegistryTests.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[97/122] Compiling DiskStewardCoreTests JSONSchemaValidator.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[98/122] Compiling DiskStewardCoreTests StorageSnapshotTests.swift
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift:277:18: warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+275 |         defer { collector.stop() }
+276 |         var token: CollectorLifetimeToken? = CollectorLifetimeToken()
+277 |         weak var retainedToken = token
+    |                  `- warning: weak variable 'retainedToken' was never mutated; consider changing to 'let' constant [#WeakMutability]
+278 |         try autoreleasepool {
+279 |             try collector.start(policy: MonitoringPolicy(watchedRoots: [fixture.watched])) { [token = token!] _ in
+
+[#WeakMutability]: <https://docs.swift.org/compiler/documentation/diagnostics/weak-mutability>
+[99/126] Emitting module ContractTests
+[100/126] Compiling ContractTests ContractTests.swift
+[101/126] Compiling ContractTests EndpointSecurityContractTests.swift
+[102/126] Compiling ContractTests EvidenceUsefulnessContractTests.swift
+[103/128] Compiling ContractTests JSONSchemaContractValidator.swift
+[104/128] Compiling ContractTests MCPContractTests.swift
+[104/128] Write Objects.LinkFileList
+[105/128] Linking disk-witness-mcp
+[106/128] Applying disk-witness-mcp
+[108/130] Compiling IntegrationInstallTests IntegrationInstallTests.swift
+[109/130] Emitting module IntegrationInstallTests
+[110/131] Compiling IntegrationInstallTests MCPTransportLifecycleTests.swift
+[111/134] Emitting module DiskStewardMCPTests
+[112/134] Compiling DiskStewardMCPTests DiskStewardMCPTests.swift
+[113/134] Compiling DiskStewardMCPTests MCPAdmissionTests.swift
+[114/135] Compiling DiskStewardMCPTests StdioBudgetTests.swift
+[115/135] Emitting module DiskStewardApp
+[121/135] Compiling DiskStewardApp CodexClientSupport.swift
+[122/135] Compiling DiskStewardApp CursorJSONIntegrationSupport.swift
+[123/135] Compiling DiskStewardApp ManualIntegrationAdapter.swift
+[124/135] Compiling DiskStewardApp VSCodeIntegrationAdapter.swift
+[125/135] Compiling DiskStewardApp AppConfiguration.swift
+[126/135] Compiling DiskStewardApp AppSurfaces.swift
+[131/149] Compiling DiskStewardApp PersistentMonitoringProbe.swift
+[132/149] Compiling DiskStewardApp MCPAccessController.swift
+[133/149] Compiling DiskStewardApp MonitoringSettingsView.swift
+[134/149] Compiling DiskStewardApp ThresholdNotificationPolicy.swift
+[135/149] Compiling DiskStewardApp UserNotificationDelivery.swift
+[136/149] Compiling DiskStewardApp PermissionOnboarding.swift
+[137/149] Compiling DiskStewardApp ProvenanceBoardItem.swift
+[138/149] Compiling DiskStewardApp AgentAccessSettingsStore.swift
+[139/149] Compiling DiskStewardApp MonitoringSettings.swift
+[140/149] Compiling DiskStewardApp MonitoringSettingsStore.swift
+[141/149] Compiling DiskStewardApp StatusBoardView.swift
+[142/149] Compiling DiskStewardApp StatusBoardViewModel.swift
+[143/149] Compiling DiskStewardApp StatusItemController.swift
+[144/149] Compiling DiskStewardApp main.swift
+[144/149] Write Objects.LinkFileList
+[145/149] Linking DiskStewardApp
+[147/155] Emitting module SafetyTests
+[148/155] Compiling SafetyTests SafetyTests.swift
+[149/155] Emitting module IncrementTests
+[150/171] Emitting module DiskStewardAppTests
+[151/183] Compiling DiskStewardAppTests CodexAndClaudeCodeAdapterTests.swift
+[152/183] Compiling DiskStewardAppTests CommandRunnerRegressionTests.swift
+[153/183] Compiling DiskStewardAppTests AgentIntegrationContractTests.swift
+[154/183] Compiling DiskStewardAppTests AgentIntegrationHardeningTests.swift
+[155/183] Compiling DiskStewardAppTests AgentIntegrationsPresentationTests.swift
+[155/183] Applying DiskStewardApp
+[162/183] Compiling DiskStewardAppTests NativeClientLifecycleTests.swift
+[163/183] Compiling DiskStewardAppTests RemainingClientsAdapterTests.swift
+[164/183] Compiling DiskStewardAppTests DiskStewardAppTests.swift
+[165/183] Compiling DiskStewardAppTests RetentionScheduleTests.swift
+[166/183] Compiling DiskStewardAppTests StatusBoardEvidenceExportTests.swift
+[167/183] Compiling DiskStewardAppTests AppEvidenceIPCIntegrationTests.swift
+[168/183] Compiling DiskStewardAppTests BackendIsolationTests.swift
+[169/183] Compiling DiskStewardAppTests RequestCancellationTests.swift
+[170/183] Compiling DiskStewardAppTests SocketOwnershipRegressionTests.swift
+[171/183] Compiling DiskStewardAppTests VerificationIsolationTests.swift
+[172/183] Compiling DiskStewardAppTests LaunchAtLoginControllerTests.swift
+[173/183] Compiling DiskStewardAppTests MonitoringLifecycleTests.swift
+[174/183] Compiling DiskStewardAppTests MonitoringProbeCancellationTests.swift
+[175/183] Compiling DiskStewardAppTests MonitoringReceiptTests.swift
+[176/183] Compiling DiskStewardAppTests NotificationDeliveryTests.swift
+[177/183] Compiling DiskStewardAppTests AuthoritativeMCPReadModelTests.swift
+[178/183] Compiling DiskStewardAppTests MCPAccessTests.swift
+[179/183] Compiling DiskStewardAppTests ThresholdNotificationPolicyTests.swift
+[180/183] Compiling DiskStewardAppTests MonitoringSettingsTests.swift
+[181/183] Compiling DiskStewardAppTests StatusBoardPresentationTests.swift
+[182/185] Emitting module DiskStewardPackageTests
+[183/185] Compiling DiskStewardPackageTests runner.swift
+[183/185] Write Objects.LinkFileList
+[184/185] Linking DiskStewardPackageTests
+Build complete! (28.98s)
+Test Suite 'Selected tests' started at 2026-09-17 20:32:55.641.
+Test Suite 'DiskStewardPackageTests.xctest' started at 2026-09-17 20:32:55.642.
+Test Suite 'ExportSafetyRegressionTests' started at 2026-09-17 20:32:55.642.
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCancelledCodecDoesNotReturnSuccess]' started.
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift:22: error: -[DiskStewardCoreTests.ExportSafetyRegressionTests testCancelledCodecDoesNotReturnSuccess] : failed - A cancelled decoder must not publish evidence
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCancelledCodecDoesNotReturnSuccess]' failed (0.132 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCompressionDoesNotOverwriteExistingDestination]' started.
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift:35: error: -[DiskStewardCoreTests.ExportSafetyRegressionTests testCompressionDoesNotOverwriteExistingDestination] : XCTAssertThrowsError failed: did not throw an error
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift:36: error: -[DiskStewardCoreTests.ExportSafetyRegressionTests testCompressionDoesNotOverwriteExistingDestination] : XCTAssertEqual failed: ("7 bytes") is not equal to ("15 bytes")
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testCompressionDoesNotOverwriteExistingDestination]' failed (0.002 seconds).
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testMemoryCodecProducesFinalizedEmptyStreamAndRejectsMissingStream]' started.
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift:8: error: -[DiskStewardCoreTests.ExportSafetyRegressionTests testMemoryCodecProducesFinalizedEmptyStreamAndRejectsMissingStream] : XCTAssertFalse failed - Empty evidence still needs a finalized stream
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift:10: error: -[DiskStewardCoreTests.ExportSafetyRegressionTests testMemoryCodecProducesFinalizedEmptyStreamAndRejectsMissingStream] : XCTAssertThrowsError failed: did not throw an error
+/private/tmp/ds551-check-1yvo6yyy/project/Tests/DiskStewardCoreTests/Export/EvidenceBundle/ExportSafetyRegressionTests.swift:11: error: -[DiskStewardCoreTests.ExportSafetyRegressionTests testMemoryCodecProducesFinalizedEmptyStreamAndRejectsMissingStream] : XCTAssertThrowsError failed: did not throw an error
+Test Case '-[DiskStewardCoreTests.ExportSafetyRegressionTests testMemoryCodecProducesFinalizedEmptyStreamAndRejectsMissingStream]' failed (0.000 seconds).
+Test Suite 'ExportSafetyRegressionTests' failed at 2026-09-17 20:32:55.776.
+	 Executed 3 tests, with 6 failures (0 unexpected) in 0.134 (0.135) seconds
+Test Suite 'DiskStewardPackageTests.xctest' failed at 2026-09-17 20:32:55.776.
+	 Executed 3 tests, with 6 failures (0 unexpected) in 0.134 (0.135) seconds
+Test Suite 'Selected tests' failed at 2026-09-17 20:32:55.776.
+	 Executed 3 tests, with 6 failures (0 unexpected) in 0.134 (0.135) seconds
+◇ Test run started.
+↳ Testing Library Version: 1501
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

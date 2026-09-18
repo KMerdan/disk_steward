@@ -1,0 +1,77 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-571",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-571-A1",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-562/candidate-2/candidate.json",
+    "docs/reliability/evidence/TASK-562/candidate-2/tests.log",
+    "Constructability on the final candidate 5ecd49a31717: fifteen stages, 547 tests, 0 failures."
+   ]
+  },
+  {
+   "id": "CHECK-571-A2",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-571/inspection-20260918/ci-runbook-inspection.md",
+    ".github/workflows/ci.yml",
+    "Scripts/Testing/verify_candidate.py",
+    "docs/reliability/CI-AND-CANDIDATES.md",
+    "docs/reliability/evidence/TASK-562/candidate-2/candidate.json",
+    "docs/reliability/evidence/TASK-562/candidate-2/package-helper.log",
+    "docs/reliability/evidence/TASK-562/candidate-2/package-smoke.log",
+    "docs/reliability/evidence/TASK-571/inspection-20260918/actionlint.out",
+    "docs/reliability/evidence/TASK-571/inspection-20260918/ci-runbook-inspection.md",
+    "docs/reliability/evidence/TASK-571/inspection-20260918/harness-tests.log",
+    "docs/reliability/evidence/TASK-571/inspection-20260918/inputs.sha256",
+    "docs/reliability/evidence/TASK-572/rollback-rehearsal.md",
+    "Isolated CI and candidate verification workflow: pinned actionlint passes, no secrets or persisted credentials, the runner's 20 harness tests pass in isolation, the fifteen-stage verifier on the final candidate records exact hashes with sentinelPreserved: true."
+   ]
+  },
+  {
+   "id": "CHECK-571-A3",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/soak-runs/soak-3h/summary.json",
+    "docs/reliability/evidence/GATE-539/scale-runs/wide-100k/supervisor.out",
+    "Resource behaviour on the candidate: real-time soak of 112 min with 0 mismatches, peak RSS 455 MiB, plus 43 min on the exact final candidate; 100k wide full workload on the final candidate in 27.8 s."
+   ]
+  },
+  {
+   "id": "CHECK-571-A4",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/assurance-overnight-interim.json",
+    "Assurance reviewed: IMPACT-TASK-571-ASSURANCE, IMPACT-TASK-571-BUILD, IMPACT-TASK-571-DISTRIBUTION, IMPACT-TASK-571-BOOT; inspections INSPECT-TASK-571-RUNBOOK, INSPECT-TASK-571-1 performed and sufficient; findings on these assets: FIND-DISTRIBUTION-DOC, FIND-ISOLATION, FIND-OVERNIGHT, FIND-ROLLBACK (FIND-OVERNIGHT resolved under the R13 criterion)."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-571-ASSURANCE",
+   "IMPACT-TASK-571-BUILD",
+   "IMPACT-TASK-571-DISTRIBUTION",
+   "IMPACT-TASK-571-BOOT"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-571-RUNBOOK",
+   "INSPECT-TASK-571-1"
+  ],
+  "finding_ids": [
+   "FIND-DISTRIBUTION-DOC",
+   "FIND-ISOLATION",
+   "FIND-OVERNIGHT",
+   "FIND-ROLLBACK"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "FIND-OVERNIGHT resolved under the R13 criterion (bounded real-time soak evidence of at least one hour, the scale matrix and the rollback rehearsal; an overnight run is not a release requirement for this open-source project).",
+   "The auditor also implemented later tasks on the shared candidate; independence rests on isolated reruns, mutation reds, static reviews and archived hashes."
+  ]
+ }
+}

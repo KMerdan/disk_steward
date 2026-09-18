@@ -1,0 +1,53 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-521-CORE-FINAL",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-DF3C078CCDB9D39E4D2718BCC19B95FB",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b9154fdc02be7a8912db7285d93eff51e9d55af44a013e0fdbb3beceb94ef555",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "No new actionable defect found in the exact corrective delta. Both prior source mechanisms are corrected: scope return establishes a fresh baseline without phantom growth/retirement, including a historical identity whose current row yielded; all-root failure now publishes failed coverage and unknown/nonactionable prior state through the existing transaction. This is bounded static review, not runtime or whole-product acceptance.",
+  "findings": [],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:815-857 checks durable out-of-scope identity before upsert and selects scopeEnter with no prior comparison; existing present/unknown object accounting remains in the following branches.",
+    "E2: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:942-954 retains unoccupied out-of-scope history without retirement, yields occupied historical current paths, and leaves durable identity history intact;4268-4276 excludes out-of-scope fallback rows from replacement predecessors.",
+    "E3: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift:578-608 completes all terminal root attempts, including all-failed, while scope mismatch abandonment at347-359 is unchanged.",
+    "E4: /private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:332-361 routes completed traversal into publication;960-995 preserves incomplete-coverage uncertainty;1032-1055 reports all-failed completed traversal as unavailable without advancing last complete coverage.",
+    "E5: /private/tmp/disk-steward-521-core-final.ZAhMFh/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift:6-40 asserts legacy same-object/replacement/absent reentry, reopen, following-scan stability, zero phantom deltas, NULL scope-entry lower bounds and no deletion state.",
+    "E6: /private/tmp/disk-steward-521-core-final.ZAhMFh/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:6-59 exercises corresponding generation cases with real filesystem identities, plus return of the displaced historical object at B after its current row yielded to a new occupant.",
+    "E7: /private/tmp/disk-steward-521-core-final.ZAhMFh/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift:62-130 covers one/two failed roots, four publication interruptions, unchanged prior state on rollback, persisted uncertainty across reopen, unavailable status and recovery without deletion.",
+    "E8: Read-only diffs against /private/tmp/disk-steward-521-interval-candidate.D7ovMy/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift and /private/tmp/disk-steward-521-interval-candidate.D7ovMy/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift show only the scoped historical-identity/reentry handling, all-root completion and coverage-status corrections."
+  ],
+  "checks": [
+    {
+      "command": "Read-only old/new source diffs and focused inspection of affected branches and regression assertions",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Both earlier mechanisms are corrected in source; no distinct new defect found within the requested delta boundary."
+    },
+    {
+      "command": "Tests/builds, database/native/app access, edits and canonical Pyramid actions",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited. Coordinator-reported targeted results and separately running full suite were not independently verified."
+    }
+  ],
+  "stale_if": [
+    "Guard, candidate snapshot, scoped corrective code/test content or accepted core contract changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static helper review requires coordinator reconciliation and independent execution evidence; it does not approve TASK-521 or the product.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "Original broader-review limitations remain: public provenance/API bounds, ordinary app hint routing and planned resource/scale work are excluded.",
+    "Completed traversal must not be interpreted as complete coverage: all-failed attempts now intentionally complete with unavailable coverage. Historical scope identity remains dependent on retained evidence."
+  ]
+}

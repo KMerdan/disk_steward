@@ -1,0 +1,43 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-RESEARCH-530-PREFLIGHT",
+  "parent_task": "RESEARCH-530",
+  "task_guard": "GUARD-TASK-DEA8C1BE5033E463A291ACA228F5AB1C",
+  "kind": "reconnaissance",
+  "phase": "preflight",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b3b546fb1c09a77825ab564ef449fc748e216a36f03bbfe5871e85d0c8c54d21",
+    "immutable": true
+  },
+  "read_scope": [
+    "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "Sources/DiskStewardCore/Monitoring/MonitoringPolicy.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+    "Tests/PerformanceTests/**"
+  ],
+  "purpose": "Identify actual benchmark entrypoints, fairness/correctness risks and minimal alternatives before scale research.",
+  "questions": [
+    "Which available production diagnostics quantify entries re-enumerated, persisted frontier bytes, stage/publication cost, RSS and WAL without product edits?",
+    "What smallest alternatives avoid whole-directory reread and whole-frontier serialization while preserving directory-pass invalidation, restart uncertainty and atomic current-state publication?",
+    "Which wide/deep/mutation/restart fixture schedules are essential so a fast prototype cannot win by dropping required work?"
+  ],
+  "acceptance_criteria": [
+    "AC-RESEARCH-530-01"
+  ],
+  "execution_isolation": "none",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "load-bearing-decision",
+  "result_budget": {
+    "max_findings": 6,
+    "max_evidence_items": 12,
+    "max_output_chars": 8000
+  }
+}

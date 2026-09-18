@@ -1,0 +1,51 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-521-LEGACY-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-B003AB2C2E5CA83767E2EFF94C9DDF10",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:c253f99916117353c064612cecf907a0138d2955c6b855951b778479d8474c49",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "No distinct actionable defect found in the scoped d902-to-c253 delta by source/test inspection. Generation proof validation, bounded results, cleanup and absence timing remain in their original transaction; the legacy adapter uses isolated temporary SQL input and the shared reconciler with full event arrays. This is a bounded advisory review, not candidate or task acceptance.",
+  "findings": [],
+  "evidence": [
+    "E1: /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:659-714 retains producing-pass validation before reconciliation, inline-event limit/count, atomic staging/proof cleanup and generation invalidation resolution.",
+    "E2: /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:717-994 uses a closed input enum, generation-specific absence proofs versus legacy snapshot time, immutable prior-state tables, physical-object accounting and caller-selected event bounds.",
+    "E3: /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1037-1221 preserves replay/full current arrays; stages explicit or fallback sample times; wraps shared reconciliation and temporary-table cleanup in the observation transaction without modifying scan-generation inputs.",
+    "E4: /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:1064-1160 derives observation start from samples, carries durable dirty evidence into event_gap and leaves global event-drop gaps open unless complete coverage has no durable invalidation.",
+    "E5: /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift:6-119 covers uncertain/surviving aliases, path swaps, split/merge replacement accounting, move-plus-growth and explicit sample timestamps; assertions inspected, not run.",
+    "E6: /private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift:421-555 checks four rollback boundaries, retry/reopen replay, active generation identity/token, mixed-root uncertainty, scope behavior, 2053-row full arrays and gap retention; assertions inspected, not run.",
+    "E7: /private/tmp/disk-steward-521-dirty-candidate.s0tRrn/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift:682-915 is the prior generation kernel compared with the extraction; source routing, absence-date selection and optional result limit are explicit adaptations."
+  ],
+  "checks": [
+    {
+      "command": "Read-only diff plus numbered inspection of the three job-scoped immutable source/test files",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Completed the narrow extraction, adapter, envelope and test-oracle review; no distinct actionable delta defect identified."
+    },
+    {
+      "command": "Builds, tests, database/native access and live-worktree inspection",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited by the job; coordinator execution results were not treated as independently verified."
+    }
+  ],
+  "stale_if": [
+    "Candidate content hash, task guard, scoped source/test content or ingestion contract changes."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw read-only helper review requires coordinator reconciliation and independent execution; it cannot approve the candidate or TASK-521.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "No runtime verification performed. Large-scale storage, app lifecycle/hints, public interval semantics and release/schema9 compatibility remain outside this review."
+  ]
+}

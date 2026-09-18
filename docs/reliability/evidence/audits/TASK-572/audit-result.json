@@ -1,0 +1,91 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-572",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-572-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/soak.md",
+    "docs/reliability/evidence/TASK-572/soak-runs/soak-3h/summary.json",
+    "Real-time soak: 321 cycles, status external-stop, peak RSS 456 MiB, family 113 MiB, 9 descriptors, 0 mismatches, 0 forced evictions; budgets met."
+   ]
+  },
+  {
+   "id": "CHECK-572-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/GATE-539/scale-runs/wide-100k/supervisor.out",
+    "docs/reliability/evidence/TASK-531/scale-runs/wide-1m/",
+    "Scale matrix: 100k wide on the final candidate in 27.8 s, one pass; 1M wide inherited from TASK-531."
+   ]
+  },
+  {
+   "id": "CHECK-572-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/rollback-rehearsal.md",
+    "docs/reliability/evidence/TASK-572/rollback-rehearsal/report.json",
+    "Migration rollback rehearsed against the compatible baseline; negative oracle fails; release and Homebrew publication unperformed (AC-TASK-572-01)."
+   ]
+  },
+  {
+   "id": "CHECK-572-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-572/assurance-soak.json",
+    "Assurance reviewed: impacts IMPACT-TASK-572-BUILD, IMPACT-TASK-572-RESOURCE, IMPACT-TASK-572-LIFECYCLE, IMPACT-TASK-572-SCANNER, IMPACT-TASK-572-STORE, IMPACT-TASK-572-IPC, IMPACT-TASK-572-QUERY, IMPACT-TASK-572-MCP, IMPACT-TASK-572-CLIENTS, IMPACT-TASK-572-EXPORT, IMPACT-TASK-572-PRIVACY, IMPACT-TASK-572-ATTRIBUTION, IMPACT-TASK-572-DISTRIBUTION, IMPACT-TASK-572-UI, IMPACT-TASK-572-SETTINGS, IMPACT-TASK-572-CONTRACTS; inspections INSPECT-TASK-572-1, INSPECT-TASK-572-2, INSPECT-TASK-572-3, INSPECT-TASK-572-4, INSPECT-TASK-572-ROLLBACK, INSPECT-FIND-OVERNIGHT-1 performed after implementation and sufficient; findings on these assets: FIND-ATTRIBUTION, FIND-DISTRIBUTION-DOC, FIND-ENDPOINT-ORDER, FIND-EXPORT, FIND-ISOLATION, FIND-OCCURRENCE, FIND-OVERNIGHT, FIND-QUERY, FIND-ROLLBACK, FIND-SCALE, FIND-SERVICE (FIND-OVERNIGHT resolved under the R13 criterion); rollback and monitoring controls ready."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-572-BUILD",
+   "IMPACT-TASK-572-RESOURCE",
+   "IMPACT-TASK-572-LIFECYCLE",
+   "IMPACT-TASK-572-SCANNER",
+   "IMPACT-TASK-572-STORE",
+   "IMPACT-TASK-572-IPC",
+   "IMPACT-TASK-572-QUERY",
+   "IMPACT-TASK-572-MCP",
+   "IMPACT-TASK-572-CLIENTS",
+   "IMPACT-TASK-572-EXPORT",
+   "IMPACT-TASK-572-PRIVACY",
+   "IMPACT-TASK-572-ATTRIBUTION",
+   "IMPACT-TASK-572-DISTRIBUTION",
+   "IMPACT-TASK-572-UI",
+   "IMPACT-TASK-572-SETTINGS",
+   "IMPACT-TASK-572-CONTRACTS"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-572-1",
+   "INSPECT-TASK-572-2",
+   "INSPECT-TASK-572-3",
+   "INSPECT-TASK-572-4",
+   "INSPECT-TASK-572-ROLLBACK",
+   "INSPECT-FIND-OVERNIGHT-1"
+  ],
+  "finding_ids": [
+   "FIND-ATTRIBUTION",
+   "FIND-DISTRIBUTION-DOC",
+   "FIND-ENDPOINT-ORDER",
+   "FIND-EXPORT",
+   "FIND-ISOLATION",
+   "FIND-OCCURRENCE",
+   "FIND-OVERNIGHT",
+   "FIND-QUERY",
+   "FIND-ROLLBACK",
+   "FIND-SCALE",
+   "FIND-SERVICE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "Real-time runs of 112 min (product sources of candidate 019559cf) and 43 min (exact final candidate); no overnight run by the owner's R13 direction.",
+   "Synthetic fixture tree; no real user data; release and Homebrew publication unperformed by design.",
+   "The auditor also implemented the task; independence rests on the external supervisor's records, archived logs and hashes."
+  ]
+ }
+}

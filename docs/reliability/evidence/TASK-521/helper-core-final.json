@@ -1,0 +1,45 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-CORE-FINAL",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-DF3C078CCDB9D39E4D2718BCC19B95FB",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:b9154fdc02be7a8912db7285d93eff51e9d55af44a013e0fdbb3beceb94ef555",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "/private/tmp/disk-steward-521-core-final.ZAhMFh/Sources/DiskStewardCore/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-core-final.ZAhMFh/Tests/DiskStewardCoreTests/Monitoring/ConvergentScanGenerationTests.swift",
+    "/private/tmp/disk-steward-521-core-final.ZAhMFh/Tests/DiskStewardCoreTests/EvidenceStore/**",
+    "/private/tmp/disk-steward-521-interval-candidate.D7ovMy/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "/private/tmp/disk-steward-521-interval-candidate.D7ovMy/Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift"
+  ],
+  "purpose": "Bounded delta review of fixes for the two prior core-candidate findings: scope reentry/historical identity and all-root failed-coverage reconciliation.",
+  "questions": [
+    "Check both prior findings are corrected without weakening failed/mixed-root, restart, scope and object accounting invariants. Exact delta only; original broader core review remains historical context.",
+    "Check historical scoped-out objects returning after their current row yields to a new occupant remain scope entry, not create/growth. Tests cover both ingestion paths, absent reentry and following scan, and actual filesystem identity.",
+    "Check all failed roots finish the traversal but publish unavailable coverage and unknown/nonactionable old rows, retaining old sample/bytes. Test one/two roots, four publication interruptions, reopen and recovery. Genuine scope-abandon must remain separate. Flag any missed affected boundary.",
+    "No tests/builds/native/database access or edits; full suite is run by coordinator. Do not re-open unrelated planned scale/public API/app hint work."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-521-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 9,
+    "max_output_chars": 7000
+  }
+}

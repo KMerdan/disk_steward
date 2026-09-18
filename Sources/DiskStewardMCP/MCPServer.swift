@@ -1,5 +1,6 @@
 import DiskStewardCore
 import Foundation
+import CryptoKit
 
 public final class MCPServer: @unchecked Sendable {
     private let client: any DiskStewardIPCClient
@@ -7,51 +8,134 @@ public final class MCPServer: @unchecked Sendable {
     private let sanitizer = MCPResponseSanitizer()
     private let stateLock = NSLock()
     private var initialized = false
-    private var cancelledRequestIDs: Set<String> = []
+    final class Request: @unchecked Sendable {
+        let id: JSONValue
+        let key: String
+        let method: String
+        let params: JSONValue?
+        fileprivate var cancelled = false
+        fileprivate var terminal = false
+        fileprivate init(id: JSONValue, key: String, method: String, params: JSONValue?) {
+            self.id = id; self.key = key; self.method = method; self.params = params
+        }
+    }
+    enum Admission {
+        case response(String?)
+        case request(Request)
+    }
+    private var activeRequests: [String: Request] = [:]
+    private var accepting = true
+    private let beforeTerminalClaim: @Sendable () -> Void
 
-    public init(client: any DiskStewardIPCClient, maximumResponseBytes: Int = 4 * 1_024 * 1_024) {
+    var activeRequestCount: Int { stateLock.withLock { activeRequests.count } }
+
+    public convenience init(client: any DiskStewardIPCClient, maximumResponseBytes: Int = 4 * 1_024 * 1_024) {
+        self.init(client: client, maximumResponseBytes: maximumResponseBytes, beforeTerminalClaim: {})
+    }
+
+    init(client: any DiskStewardIPCClient, maximumResponseBytes: Int = 4 * 1_024 * 1_024,
+         beforeTerminalClaim: @escaping @Sendable () -> Void) {
         self.client = client
         self.maximumResponseBytes = min(max(1_024, maximumResponseBytes), 4 * 1_024 * 1_024)
+        self.beforeTerminalClaim = beforeTerminalClaim
     }
 
     public func handle(line: String) -> String? {
+        switch prepare(line: line) {
+        case .response(let response): return response
+        case .request(let request): return perform(request)
+        }
+    }
+
+    // Admission happens on stdin before work is dispatched. Cancellation can
+    // therefore find every accepted request, without future-ID tombstones.
+    func prepare(line: String) -> Admission {
+        guard line.utf8.count <= 1_024 * 1_024 else {
+            return .response(encode(protocolError(id: .null, code: -32_600, message: "Request exceeds 1 MiB")))
+        }
         guard let data = line.data(using: .utf8),
               let message = try? JSONDecoder().decode(JSONValue.self, from: data),
               let object = message.objectValue
-        else { return encode(protocolError(id: .null, code: -32_700, message: "Parse error")) }
+        else { return .response(encode(protocolError(id: .null, code: -32_700, message: "Parse error"))) }
 
         let id = object["id"] ?? .null
         guard object["jsonrpc"] == .string("2.0"), let method = object["method"]?.stringValue else {
-            return encode(protocolError(id: id, code: -32_600, message: "Invalid Request"))
+            return .response(encode(protocolError(id: id, code: -32_600, message: "Invalid Request")))
         }
 
         if method == "notifications/cancelled" {
             if let requestID = object["params"]?.objectValue?["requestId"] {
                 markCancelled(requestID)
             }
-            return nil
+            return .response(nil)
         }
         if method == "notifications/initialized" {
             stateLock.withLock { initialized = true }
-            return nil
+            return .response(nil)
         }
-        if method == "initialize" { return encode(handleInitialize(id: id, params: object["params"])) }
-        if method == "ping" { return encode(success(id: id, result: .object([:]))) }
+        // Notifications cannot invoke evidence work or generate a response.
+        guard object["id"] != nil else { return .response(nil) }
+        guard id.stringValue != nil || id.integerValue != nil else {
+            return .response(encode(protocolError(id: .null, code: -32_600, message: "Invalid request ID")))
+        }
+        if stateLock.withLock({ activeRequests[idKey(id)] != nil }) {
+            return .response(encode(protocolError(id: id, code: -32_600, message: "Duplicate active request ID")))
+        }
+        if method == "initialize" { return .response(encode(handleInitialize(id: id, params: object["params"]))) }
+        if method == "ping" { return .response(encode(success(id: id, result: .object([:])))) }
         guard stateLock.withLock({ initialized }) else {
-            return encode(protocolError(id: id, code: -32_002, message: "Server is not initialized"))
+            return .response(encode(protocolError(id: id, code: -32_002, message: "Server is not initialized")))
         }
 
         switch method {
         case "tools/list":
-            return encode(success(id: id, result: .object(["tools": .array(MCPToolCatalog.tools)])))
+            return .response(encode(success(id: id, result: .object(["tools": .array(MCPToolCatalog.tools)]))))
         case "resources/list":
-            return encode(success(id: id, result: .object(["resources": .array(MCPToolCatalog.resources)])))
-        case "resources/read":
-            return encode(handleResourceRead(id: id, params: object["params"]))
-        case "tools/call":
-            return encode(handleToolCall(id: id, params: object["params"]))
+            return .response(encode(success(id: id, result: .object(["resources": .array(MCPToolCatalog.resources)]))))
+        case "resources/read", "tools/call":
+            return stateLock.withLock {
+                let key = idKey(id)
+                guard activeRequests[key] == nil else {
+                    return .response(encode(protocolError(id: id, code: -32_600, message: "Duplicate active request ID")))
+                }
+                guard accepting, activeRequests.count < 4 else {
+                    return .response(encode(protocolError(id: id, code: -32_000, message: "Too many evidence requests in flight; retry after a response.")))
+                }
+                let request = Request(id: id, key: key, method: method, params: object["params"])
+                activeRequests[key] = request
+                return .request(request)
+            }
         default:
-            return encode(protocolError(id: id, code: -32_601, message: "Method not found: \(method)"))
+            return .response(encode(protocolError(id: id, code: -32_601, message: "Method not found: \(method)")))
+        }
+    }
+
+    func perform(_ request: Request) -> String? {
+        defer {
+            stateLock.withLock {
+                if activeRequests[request.key] === request { activeRequests.removeValue(forKey: request.key) }
+            }
+        }
+        guard !isCancelled(request) else { return nil }
+        let value = request.method == "tools/call"
+            ? handleToolCall(request: request)
+            : handleResourceRead(request: request)
+        guard !isCancelled(request) else { return nil }
+        let response = encode(value)
+        beforeTerminalClaim()
+        // This is the terminal-response boundary: a later cancel may race with
+        // transport delivery, but a cancel that wins here suppresses all output.
+        return stateLock.withLock {
+            guard !request.cancelled, !request.terminal else { return nil }
+            request.terminal = true
+            return response
+        }
+    }
+
+    func cancelAll() {
+        stateLock.withLock {
+            accepting = false
+            for request in activeRequests.values where !request.terminal { request.cancelled = true }
         }
     }
 
@@ -73,14 +157,17 @@ public final class MCPServer: @unchecked Sendable {
         ]))
     }
 
-    private func handleResourceRead(id: JSONValue, params: JSONValue?) -> JSONValue {
+    private func handleResourceRead(request: Request) -> JSONValue {
+        let id = request.id
+        let params = request.params
         guard let uri = params?.objectValue?["uri"]?.stringValue,
               MCPToolCatalog.resourceURIs.contains(uri)
         else { return protocolError(id: id, code: -32_602, message: "Unknown or missing resource URI") }
         do {
-            let value = sanitizer.sanitize(try client.readResource(uri: uri) { [weak self] in
-                self?.isCancelled(id) ?? true
-            })
+            let rawValue = try client.readResource(uri: uri) { self.isCancelled(request) }
+            guard !isCancelled(request) else { throw DiskStewardIPCError.cancelled }
+            let value = sanitizer.sanitize(rawValue)
+            guard !isCancelled(request) else { throw DiskStewardIPCError.cancelled }
             let text = try serialized(value)
             return bounded(id: id, result: .object([
                 "contents": .array([.object([
@@ -92,7 +179,9 @@ public final class MCPServer: @unchecked Sendable {
         } catch { return toolError(id: id, error: error) }
     }
 
-    private func handleToolCall(id: JSONValue, params: JSONValue?) -> JSONValue {
+    private func handleToolCall(request: Request) -> JSONValue {
+        let id = request.id
+        let params = request.params
         guard let object = params?.objectValue,
               let name = object["name"]?.stringValue,
               MCPToolCatalog.names.contains(name)
@@ -109,11 +198,12 @@ public final class MCPServer: @unchecked Sendable {
         if let error = MCPToolCatalog.validationError(tool: name, arguments: arguments) {
             return protocolError(id: id, code: -32_602, message: "Invalid params: \(error)")
         }
-        if isCancelled(id) { return toolError(id: id, code: "cancelled", message: "The evidence query was cancelled.", retryable: true, recovery: "Retry if the result is still needed.") }
+        if isCancelled(request) { return toolError(id: id, code: "cancelled", message: "The evidence query was cancelled.", retryable: true, recovery: "Retry if the result is still needed.") }
         do {
-            let value = sanitizer.sanitize(try client.call(tool: name, arguments: arguments) { [weak self] in
-                self?.isCancelled(id) ?? true
-            })
+            let rawValue = try client.call(tool: name, arguments: arguments) { self.isCancelled(request) }
+            guard !isCancelled(request) else { throw DiskStewardIPCError.cancelled }
+            let value = sanitizer.sanitize(rawValue)
+            guard !isCancelled(request) else { throw DiskStewardIPCError.cancelled }
             let text = try serialized(value)
             return bounded(id: id, result: .object([
                 "content": .array([.object(["type": .string("text"), "text": .string(text)])]),
@@ -184,15 +274,17 @@ public final class MCPServer: @unchecked Sendable {
     }
 
     private func markCancelled(_ id: JSONValue) {
-        _ = stateLock.withLock { cancelledRequestIDs.insert(idKey(id)) }
+        stateLock.withLock {
+            if let request = activeRequests[idKey(id)], !request.terminal { request.cancelled = true }
+        }
     }
 
-    private func isCancelled(_ id: JSONValue) -> Bool {
-        stateLock.withLock { cancelledRequestIDs.contains(idKey(id)) }
+    private func isCancelled(_ request: Request) -> Bool {
+        stateLock.withLock { request.cancelled }
     }
 
     private func idKey(_ id: JSONValue) -> String {
-        (try? serialized(id)) ?? "null"
+        SHA256.hash(data: (try? JSONEncoder.diskSteward.encode(id)) ?? Data()).map { String(format: "%02x", $0) }.joined()
     }
 
     private func serialized(_ value: JSONValue) throws -> String {

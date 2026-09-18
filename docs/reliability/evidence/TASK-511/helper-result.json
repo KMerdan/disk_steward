@@ -1,0 +1,96 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-511-CANDIDATE-01",
+  "parent_task": "TASK-511",
+  "task_guard": "GUARD-TASK-31A3B6779508EB003B194856BD49F7BB",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:baae0f8ab5994bc3154ce998a8dc2238b3359fb2f8112f43915f0e9189b8fb35",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Static review found no ordinary reproducible isolation fault requiring correction within TASK-511. Frozen source hash matched. No tests, applications, builds or mutations were performed.",
+  "findings": [
+    {
+      "claim": "Initialization no longer sweeps exports. Exclusive request workspaces and identity-checked deferred cleanup preserve foreign exports and sibling requests.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2"
+      ],
+      "recommendation": "Retain ownership boundaries; TASK-551 still owns crash-orphan recovery and export resource bounds."
+    },
+    {
+      "claim": "Artifact output rejects existing targets, unsafe parents and traversal before destination writes. Helper overrides reject noncanonical paths, symlinks, nonregular files and executables outside /private/tmp before invocation.",
+      "confidence": "high",
+      "evidence": [
+        "E3",
+        "E4"
+      ],
+      "recommendation": "Treat helper validation as a temporary-path/type check, not proof of build provenance or executable behavior."
+    },
+    {
+      "claim": "Smoke selects fresh support storage, ephemeral settings/safety state, empty roots, paused sampling, disabled notifications, no FSEvents collector and no integration descriptors. Normal startup retains live dependencies; non-smoke support overrides fail before mutation.",
+      "confidence": "high",
+      "evidence": [
+        "E5",
+        "E6"
+      ],
+      "recommendation": "Retain explicit dependency selection. TASK-512 duplicate-instance/socket edge scenarios remain separate."
+    },
+    {
+      "claim": "Sentinel assertions and missing/unsafe smoke-field rejection support bounded isolation, without establishing full reliability or release readiness.",
+      "confidence": "high",
+      "evidence": [
+        "E7",
+        "E8"
+      ],
+      "recommendation": "Reconcile static observations with coordinator test evidence and candidate freshness before final acceptance."
+    }
+  ],
+  "evidence": [
+    "E1: Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:21-35,542-607,885-923: no initializer sweep; mkdtemp workspace; deferred device/inode/UID/type-checked cleanup.",
+    "E2: Tests/DiskStewardAppTests/IPC/BackendIsolationTests.swift:7-100: overlapping exports, sibling/replacement preservation, unsafe parents, successful/failed initialization preserving aged foreign exports.",
+    "E3: Sources/DiskStewardApp/AppConfiguration.swift:37-64; Tests/DiskStewardAppTests/IPC/VerificationIsolationTests.swift:6-25; Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift:43-47: canonical private temporary parent and exclusive mkdir.",
+    "E4: Tests/IntegrationInstallTests/IntegrationInstallTests.swift:192-235: helper override validation throws before returning an executable URL; negative cases preserve sentinel bytes.",
+    "E5: Sources/DiskStewardApp/AppConfiguration.swift:8-31; Sources/DiskStewardApp/main.swift:7-40: fresh smoke directory, early override rejection, shutdown and scratch removal.",
+    "E6: Sources/DiskStewardApp/StatusItemController.swift:28-116; Sources/DiskStewardApp/StatusBoardViewModel.swift:114-132,255-258; Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:52-99; Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift:8-25: explicit isolated/live dependencies.",
+    "E7: Tests/IncrementTests/Final/FinalProductIncrementTests.swift:10-96: two smoke launches; fixture bytes/inodes, held lease and live socket preservation; valid/missing/unsafe report cases.",
+    "E8: Scripts/Distribution/verify-release:158-173: absent or unsafe required smoke fields reject with exit 70; release verification was not executed."
+  ],
+  "checks": [
+    {
+      "command": "rg --files -0 Sources Tests Config Scripts DiskSteward.xcodeproj | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Read-only in /private/tmp/disk-steward-511-green.qfud7j; matched job hash."
+    },
+    {
+      "command": "Static inspection of permitted candidate paths",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "E1-E8; no ordinary reproducible in-scope regression identified."
+    },
+    {
+      "command": "Independent runtime tests/builds/application launches",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Prohibited by assignment. Coordinator reports 41 scoped tests passing; not independently reproduced."
+    }
+  ],
+  "stale_if": [
+    "Source hash changes or guard/snapshot reconciliation fails."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-only result awaits coordinator freshness reconciliation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "TASK-551 crash-orphan recovery/resource bounds and TASK-512 duplicate-instance/socket edges remain outside this review.",
+    "Synthetic sentinels and smoke report checks do not prove full reliability, signed artifact validation or release readiness."
+  ]
+}

@@ -1,0 +1,52 @@
+warning: /Users/merdankiji/Library/org.swift.swiftpm/configuration is not accessible or not writable, disabling user-level cache features.
+warning: /Users/merdankiji/Library/org.swift.swiftpm/security is not accessible or not writable, disabling user-level cache features.
+warning: /Users/merdankiji/Library/Caches/org.swift.swiftpm is not accessible or not writable, disabling user-level cache features.
+warning: 'disk-steward-522-lifecycle-dev.9cyz1t': failed storing manifest for 'disk-steward-522-lifecycle-dev.9cyz1t' in cache: attempt to write a readonly database
+[0/1] Planning build
+Building for debugging...
+[0/8] Write sources
+[2/8] Write swift-version--58304C5D6DBC2206.txt
+[4/10] Compiling DiskStewardCore TargetedFSEventsCollector.swift
+[5/10] Emitting module DiskStewardCore
+[5/12] Write Objects.LinkFileList
+[7/14] Linking disk-witness-mcp
+[8/14] Applying disk-witness-mcp
+[9/14] Linking DiskStewardApp
+[10/14] Applying DiskStewardApp
+[12/14] Compiling DiskStewardCoreTests ScanPublicationFenceTests.swift
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift:183:28: warning: result of call to 'withStatement' is unused [#no-usage]
+181 |     func cancelAtCommit() -> Bool {
+182 |         do {
+183 |             try connection.withStatement("SELECT 1") { statement in
+    |                            `- warning: result of call to 'withStatement' is unused [#no-usage]
+184 |                 // SQLite invokes this inside native COMMIT, after our explicit
+185 |                 // precheck. Rejecting the commit rolls it back deterministically.
+
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift:203:24: warning: result of call to 'withStatement' is unused [#no-usage]
+201 | 
+202 |     func checkRecovery() throws -> Int64 {
+203 |         try connection.withStatement("SELECT 1") { statement in
+    |                        `- warning: result of call to 'withStatement' is unused [#no-usage]
+204 |             sqlite3_commit_hook(sqlite3_db_handle(statement), nil, nil)
+205 |         }
+[13/14] Emitting module DiskStewardCoreTests
+[14/15] Emitting module DiskStewardAppTests
+[14/16] Write Objects.LinkFileList
+[15/16] Linking DiskStewardPackageTests
+Build complete! (1.96s)
+Test Suite 'Selected tests' started at 2026-09-17 16:25:53.455.
+Test Suite 'DiskStewardPackageTests.xctest' started at 2026-09-17 16:25:53.455.
+Test Suite 'ScanPublicationFenceTests' started at 2026-09-17 16:25:53.455.
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testCancellationInsideGuardedCommitPreservesErrorAndConnectionRecovery]' started.
+/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift:12: error: -[DiskStewardCoreTests.ScanPublicationFenceTests testCancellationInsideGuardedCommitPreservesErrorAndConnectionRecovery] : XCTAssertTrue failed - An unsuccessful COMMIT in a cancelled task must still surface CancellationError
+Test Case '-[DiskStewardCoreTests.ScanPublicationFenceTests testCancellationInsideGuardedCommitPreservesErrorAndConnectionRecovery]' failed (0.066 seconds).
+Test Suite 'ScanPublicationFenceTests' failed at 2026-09-17 16:25:53.522.
+	 Executed 1 test, with 1 failure (0 unexpected) in 0.066 (0.066) seconds
+Test Suite 'DiskStewardPackageTests.xctest' failed at 2026-09-17 16:25:53.522.
+	 Executed 1 test, with 1 failure (0 unexpected) in 0.066 (0.066) seconds
+Test Suite 'Selected tests' failed at 2026-09-17 16:25:53.522.
+	 Executed 1 test, with 1 failure (0 unexpected) in 0.066 (0.067) seconds
+◇ Test run started.
+↳ Testing Library Version: 1501
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

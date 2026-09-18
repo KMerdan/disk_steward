@@ -1,0 +1,41 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-521-LEGACY-CANDIDATE",
+  "parent_task": "TASK-521",
+  "task_guard": "GUARD-TASK-B003AB2C2E5CA83767E2EFF94C9DDF10",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:c253f99916117353c064612cecf907a0138d2955c6b855951b778479d8474c49",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "/private/tmp/disk-steward-521-legacy-candidate.UwUGtK/Tests/DiskStewardCoreTests/EvidenceStore/EvidenceObjectLifecycleTests.swift",
+    "/private/tmp/disk-steward-521-dirty-candidate.s0tRrn/Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
+  ],
+  "purpose": "Review the focused legacy reconciliation consolidation and legacy coverage/timestamp corrections, not final TASK-521 acceptance.",
+  "questions": [
+    "Does extracting reconcileObjects preserve the generation path's pass validation, bounded inline results, publication cleanup, absence timing, and atomic rollback?",
+    "Does the legacy adapter preserve positive partial observations, full array results, replay, active generation isolation and rollback while correcting hard-link/replacement accounting, swaps, moves with growth, timestamps and scope uncertainty?",
+    "Inspect coverage-gap resolution and the new test oracles. Report only distinct actionable defects in this delta; large-scale storage, app lifecycle/hints, public interval semantics and release/schema9 compatibility remain separate unfinished work."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-521-01"
+  ],
+  "execution_isolation": "disposable-worktree",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 4,
+    "max_evidence_items": 7,
+    "max_output_chars": 6000
+  }
+}

@@ -1,14 +1,101 @@
 import Foundation
+import Darwin
 
 struct AgentCommand: Equatable, Sendable {
     let executableURL: URL
     let arguments: [String]
     let environment: [String: String]
+    let workingDirectoryURL: URL?
+    /// When false the child sees only `environment`: a verification must not
+    /// inherit a DISK_STEWARD_* override that points it at another socket.
+    let inheritsEnvironment: Bool
 
-    init(executableURL: URL, arguments: [String], environment: [String: String] = [:]) {
+    init(executableURL: URL, arguments: [String], environment: [String: String] = [:], workingDirectoryURL: URL? = nil, inheritsEnvironment: Bool = true) {
         self.executableURL = executableURL
         self.arguments = arguments
         self.environment = environment
+        self.workingDirectoryURL = workingDirectoryURL
+        self.inheritsEnvironment = inheritsEnvironment
+    }
+}
+
+/// The report `disk-witness-mcp --self-check` prints as its last stdout line.
+/// Verification trusts nothing else: the helper names its own executable
+/// identity, the socket it used and what it found there, so a different
+/// binary, an inherited override or a stale store cannot pass as "verified".
+struct HelperSelfCheckReport: Decodable, Equatable, Sendable {
+    struct Helper: Decodable, Equatable, Sendable { let path: String; let identity: String? }
+    struct Evidence: Decodable, Equatable, Sendable { let observedAt: String?; let ageSeconds: Double?; let persisted: Bool? }
+    let schema: String
+    let helper: Helper
+    let socket: String
+    let app: String
+    let evidence: Evidence?
+    let error: String?
+
+    static let schemaName = "disk-steward-self-check-v1"
+
+    static func parse(_ standardOutput: String) -> HelperSelfCheckReport? {
+        for line in standardOutput.split(separator: "\n").reversed() where line.contains(schemaName) {
+            guard let data = line.data(using: .utf8), let report = try? JSONDecoder().decode(HelperSelfCheckReport.self, from: data),
+                  report.schema == schemaName else { continue }
+            return report
+        }
+        return nil
+    }
+}
+
+enum HelperSelfCheck {
+    static let staleEvidenceThreshold: TimeInterval = 3_600
+
+    enum Outcome: Equatable, Sendable {
+        case verified(evidenceAge: TimeInterval?)
+        case stale(evidenceAge: TimeInterval?)
+        case failed(reason: String)
+    }
+
+    /// The command a verification runs: the exact configured executable with a
+    /// clean environment, so the helper resolves the same socket the client's
+    /// spawn would.
+    static func command(for configured: URL) -> AgentCommand {
+        AgentCommand(executableURL: configured, arguments: ["--self-check"],
+                     environment: ["PATH": "/usr/bin:/bin", "HOME": NSHomeDirectory()], inheritsEnvironment: false)
+    }
+
+    static func evaluate(_ result: AgentCommandResult, expectedIdentity: String?, configuredPath: String) -> Outcome {
+        guard let report = HelperSelfCheckReport.parse(result.standardOutput) else {
+            return .failed(reason: "The helper at \(configuredPath) did not identify itself (no self-check report, exit \(result.exitCode)). Verification does not trust an unidentified process; use Repair to reinstall the bundled helper.")
+        }
+        guard let expectedIdentity, report.helper.identity == expectedIdentity else {
+            return .failed(reason: "A different helper answered the self-check (\(report.helper.path)); the configured entry does not run this build's helper. Use Repair.")
+        }
+        switch report.app {
+        case "connected":
+            if let age = report.evidence?.ageSeconds {
+                return age > staleEvidenceThreshold ? .stale(evidenceAge: age) : .verified(evidenceAge: age)
+            }
+            // The app answered but holds no persisted observation: connectivity
+            // is proven, evidence freshness is not, and the state says so.
+            return .stale(evidenceAge: nil)
+        case "access-off":
+            return .failed(reason: "The helper reached the app's socket path, but Agent Access is off in Disk Steward. Turn it on, then test again.")
+        case "app-off":
+            return .failed(reason: "Disk Steward is not running or Monitoring is off: no socket at \(report.socket). Open the app, then test again.")
+        default:
+            return .failed(reason: "The helper could not reach Disk Steward: \(report.error ?? report.app).")
+        }
+    }
+
+    /// The clause a stale verification uses for what it found.
+    static func describeStaleness(age: TimeInterval?) -> String {
+        age.map { "the newest evidence is \(describe(age: $0)) old" } ?? "no evidence has been persisted yet"
+    }
+
+    static func describe(age: TimeInterval) -> String {
+        let minutes = Int(age / 60)
+        if minutes < 60 { return "\(max(1, minutes)) min" }
+        let hours = minutes / 60
+        return hours < 48 ? "\(hours) h" : "\(hours / 24) days"
     }
 }
 
@@ -35,6 +122,10 @@ enum AgentIntegrationCommandError: LocalizedError, Equatable {
     case executableNotFound(String)
     case exited(executable: String, code: Int32, message: String)
     case cancelled
+    case timedOut
+    case outputLimitExceeded
+    case commandLimitReached
+    case cleanupIncomplete
 
     var errorDescription: String? {
         switch self {
@@ -46,6 +137,14 @@ enum AgentIntegrationCommandError: LocalizedError, Equatable {
                 : "\(executable) exited with status \(code): \(message)"
         case .cancelled:
             "The integration operation was cancelled."
+        case .timedOut:
+            "The integration command exceeded its time limit."
+        case .outputLimitExceeded:
+            "The integration command exceeded its output limit."
+        case .commandLimitReached:
+            "Four integration commands are already running or finishing cleanup. Try again after they finish."
+        case .cleanupIncomplete:
+            "The integration command did not finish cleanup within its time limit. Disk Steward retains ownership of any still-running command group."
         }
     }
 }
@@ -89,10 +188,12 @@ final class AgentIntegrationReceiptStore {
     private let fileManager: FileManager
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
+    private let beforePersist: () throws -> Void
 
-    init(url: URL, fileManager: FileManager = .default) {
+    init(url: URL, fileManager: FileManager = .default, beforePersist: @escaping () throws -> Void = {}) {
         self.url = url
         self.fileManager = fileManager
+        self.beforePersist = beforePersist
         encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
@@ -125,8 +226,8 @@ final class AgentIntegrationReceiptStore {
     }
 
     private func load() throws -> [AgentIntegrationReceipt] {
-        guard fileManager.fileExists(atPath: url.path) else { return [] }
-        let document = try decoder.decode(Document.self, from: Data(contentsOf: url))
+        guard let data = try PrivateIntegrationFile.read(url) else { return [] }
+        let document = try decoder.decode(Document.self, from: data)
         guard document.schemaVersion == AgentIntegrationReceipt.currentSchemaVersion else {
             throw CocoaError(.fileReadCorruptFile, userInfo: [
                 NSLocalizedDescriptionKey: "Unsupported integration receipt version \(document.schemaVersion).",
@@ -136,12 +237,206 @@ final class AgentIntegrationReceiptStore {
     }
 
     private func persist(_ receipts: [AgentIntegrationReceipt]) throws {
+        try beforePersist()
         try fileManager.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         let data = try encoder.encode(Document(
             schemaVersion: AgentIntegrationReceipt.currentSchemaVersion,
             receipts: receipts
         ))
-        try data.write(to: url, options: [.atomic])
-        try fileManager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+        try PrivateIntegrationFile.write(data, to: url)
+    }
+}
+
+// File permissions are set at creation, before the atomic rename. A successful
+// rename is the commit point: no later chmod can throw after committing data.
+enum PrivateIntegrationFile {
+    // Detect normal app updates/replacements without hashing the helper on every
+    // Settings refresh. This is a freshness identity, not a signature guarantee.
+    static func executableIdentity(_ url: URL) -> String? {
+        var value = stat()
+        guard lstat(url.path, &value) == 0, value.st_mode & S_IFMT == S_IFREG,
+              value.st_mode & 0o111 != 0 else { return nil }
+        return "\(value.st_dev):\(value.st_ino):\(value.st_size):\(value.st_mtimespec.tv_sec):\(value.st_mtimespec.tv_nsec):\(value.st_ctimespec.tv_sec):\(value.st_ctimespec.tv_nsec)"
+    }
+
+    static func read(_ url: URL) throws -> Data? {
+        let fd = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
+        guard fd >= 0 else {
+            if errno == ENOENT { return nil }
+            throw CocoaError(.fileReadNoPermission)
+        }
+        defer { Darwin.close(fd) }
+        var metadata = stat()
+        let limit = 4 * 1_024 * 1_024
+        guard fstat(fd, &metadata) == 0, metadata.st_mode & S_IFMT == S_IFREG,
+              metadata.st_uid == getuid(), metadata.st_nlink == 1,
+              metadata.st_size >= 0, metadata.st_size <= limit else { throw CocoaError(.fileReadNoPermission) }
+        var result = Data(), buffer = [UInt8](repeating: 0, count: 64 * 1_024)
+        while true {
+            let count = Darwin.read(fd, &buffer, buffer.count)
+            if count == 0 { break }
+            if count < 0 {
+                if errno == EINTR { continue }
+                throw CocoaError(.fileReadUnknown)
+            }
+            guard count <= limit - result.count else { throw CocoaError(.fileReadTooLarge) }
+            result.append(contentsOf: buffer.prefix(count))
+        }
+        var after = stat()
+        guard fstat(fd, &after) == 0, metadata.st_size == after.st_size,
+              metadata.st_mtimespec.tv_sec == after.st_mtimespec.tv_sec,
+              metadata.st_mtimespec.tv_nsec == after.st_mtimespec.tv_nsec else { throw CocoaError(.fileReadUnknown) }
+        return result
+    }
+
+    static func write(_ data: Data, to url: URL) throws {
+        guard data.count <= 4 * 1_024 * 1_024 else { throw CocoaError(.fileWriteOutOfSpace) }
+        let temporary = url.deletingLastPathComponent().appending(path: ".disk-steward-\(UUID().uuidString).tmp")
+        let fd = Darwin.open(temporary.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+        guard fd >= 0 else { throw CocoaError(.fileWriteUnknown) }
+        defer { Darwin.close(fd); unlink(temporary.path) }
+        try data.withUnsafeBytes { bytes in
+            var offset = 0
+            while offset < bytes.count {
+                let count = Darwin.write(fd, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
+                if count < 0, errno == EINTR { continue }
+                guard count > 0 else { throw CocoaError(.fileWriteUnknown) }
+                offset += count
+            }
+        }
+        guard fsync(fd) == 0, rename(temporary.path, url.path) == 0 else { throw CocoaError(.fileWriteUnknown) }
+    }
+
+    /// Commits `data` to `url` only if the file still holds `expected`.
+    /// The check is not a separate compare: an atomic swap installs the new
+    /// bytes and hands back the file that was there, which is then compared;
+    /// a mismatch swaps the original straight back. A file that must not exist
+    /// yet is installed with an exclusive rename. Either way no other writer's
+    /// bytes are ever lost, and the caller learns exactly what happened.
+    static func replace(_ data: Data, at url: URL, expecting expected: Data?) throws {
+        guard data.count <= 4 * 1_024 * 1_024 else { throw CocoaError(.fileWriteOutOfSpace) }
+        let temporary = url.deletingLastPathComponent().appending(path: ".disk-steward-\(UUID().uuidString).tmp")
+        let fd = Darwin.open(temporary.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+        guard fd >= 0 else { throw CocoaError(.fileWriteUnknown) }
+        var committed = false
+        defer { Darwin.close(fd); if !committed { unlink(temporary.path) } }
+        try data.withUnsafeBytes { bytes in
+            var offset = 0
+            while offset < bytes.count {
+                let count = Darwin.write(fd, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
+                if count < 0, errno == EINTR { continue }
+                guard count > 0 else { throw CocoaError(.fileWriteUnknown) }
+                offset += count
+            }
+        }
+        guard fsync(fd) == 0 else { throw CocoaError(.fileWriteUnknown) }
+        guard let expected else {
+            guard renamex_np(temporary.path, url.path, UInt32(RENAME_EXCL)) == 0 else {
+                if errno == EEXIST { throw AgentIntegrationMutationError.concurrentEdit(path: url.path, backup: nil) }
+                throw CocoaError(.fileWriteUnknown)
+            }
+            committed = true
+            return
+        }
+        guard renamex_np(temporary.path, url.path, UInt32(RENAME_SWAP)) == 0 else {
+            if errno == ENOENT { throw AgentIntegrationMutationError.concurrentEdit(path: url.path, backup: nil) }
+            throw CocoaError(.fileWriteUnknown)
+        }
+        // The other file now sits at the temporary path; it is what was really
+        // replaced. Anything but the expected bytes means a concurrent writer
+        // won, so its file goes straight back and ours is discarded. If even
+        // that swap fails, the other writer's bytes are never deleted: they are
+        // preserved beside the file and the error names them.
+        let replaced = try? Data(contentsOf: temporary)
+        if replaced != expected {
+            let undone = undoSwapFaultForTesting ? -1 : renamex_np(temporary.path, url.path, UInt32(RENAME_SWAP))
+            guard undone == 0 else {
+                let reason = undoSwapFaultForTesting ? "injected fault" : String(cString: strerror(errno))
+                committed = true // keep the temporary file: it holds the other writer's bytes
+                let preserved = (try? preserveConcurrentBytes(at: temporary, for: url)) ?? temporary
+                throw AgentIntegrationMutationError.concurrentEditUndoFailed(path: url.path, preserved: preserved.path, reason: reason)
+            }
+            throw AgentIntegrationMutationError.concurrentEdit(path: url.path, backup: nil)
+        }
+        committed = true
+        unlink(temporary.path)
+    }
+
+    /// Test seam: makes the undo swap fail so the preservation path is proven.
+    nonisolated(unsafe) static var undoSwapFaultForTesting = false
+
+    /// Moves a concurrent writer's swapped-out file into the backups directory
+    /// under a name that says what it is; falls back to leaving it in place.
+    private static func preserveConcurrentBytes(at temporary: URL, for url: URL) throws -> URL {
+        let directory = backupDirectory(for: url)
+        var info = stat()
+        if lstat(directory.path, &info) != 0 { guard mkdir(directory.path, 0o700) == 0 else { throw CocoaError(.fileWriteUnknown) } }
+        let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "")
+        let destination = directory.appending(path: "\(url.lastPathComponent).\(stamp)-concurrent-\(UUID().uuidString.lowercased()).bak")
+        guard renamex_np(temporary.path, destination.path, UInt32(RENAME_EXCL)) == 0 else { throw CocoaError(.fileWriteUnknown) }
+        return destination
+    }
+
+    static let backupLimitPerFile = 10
+
+    /// Backups sit beside the client file in a private directory, named by the
+    /// file they protect, so they can be found, restored and bounded.
+    static func backupDirectory(for url: URL) -> URL {
+        url.deletingLastPathComponent().appending(path: ".disk-steward-backups", directoryHint: .isDirectory)
+    }
+
+    static func writeBackup(of data: Data, for url: URL) throws -> URL {
+        let directory = backupDirectory(for: url)
+        var directoryInfo = stat()
+        if lstat(directory.path, &directoryInfo) == 0 {
+            guard directoryInfo.st_mode & S_IFMT == S_IFDIR, directoryInfo.st_uid == getuid() else {
+                throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: "\(directory.path) is not a private directory")
+            }
+        } else {
+            guard mkdir(directory.path, 0o700) == 0 else {
+                throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: String(cString: strerror(errno)))
+            }
+        }
+        let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "")
+        let backup = directory.appending(path: "\(url.lastPathComponent).\(stamp)-\(UUID().uuidString.lowercased()).bak")
+        let fd = Darwin.open(backup.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+        guard fd >= 0 else { throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: String(cString: strerror(errno))) }
+        defer { Darwin.close(fd) }
+        do {
+            try data.withUnsafeBytes { bytes in
+                var offset = 0
+                while offset < bytes.count {
+                    let count = Darwin.write(fd, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
+                    if count < 0, errno == EINTR { continue }
+                    guard count > 0 else { throw CocoaError(.fileWriteUnknown) }
+                    offset += count
+                }
+            }
+            guard fsync(fd) == 0 else { throw CocoaError(.fileWriteUnknown) }
+        } catch {
+            unlink(backup.path)
+            throw AgentIntegrationMutationError.backupFailed(path: url.path, reason: error.localizedDescription)
+        }
+        pruneBackups(for: url, keeping: backupLimitPerFile)
+        return backup
+    }
+
+    /// Removes only this file's oldest backups beyond the limit; other files'
+    /// backups and anything else in the directory are never touched.
+    static func pruneBackups(for url: URL, keeping limit: Int) {
+        let directory = backupDirectory(for: url)
+        let prefix = url.lastPathComponent + "."
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
+        let own = names.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".bak") }.sorted()
+        for name in own.dropLast(limit) {
+            unlink(directory.appending(path: name).path)
+        }
+    }
+
+    static func backups(for url: URL) -> [URL] {
+        let directory = backupDirectory(for: url)
+        let prefix = url.lastPathComponent + "."
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return [] }
+        return names.filter { $0.hasPrefix(prefix) && $0.hasSuffix(".bak") }.sorted().map { directory.appending(path: $0) }
     }
 }

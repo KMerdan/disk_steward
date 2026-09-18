@@ -1,0 +1,74 @@
+{
+  "schema": "helper-result-v1",
+  "helper_id": "HELPER-TASK-511-CANDIDATE-02",
+  "parent_task": "TASK-511",
+  "task_guard": "GUARD-TASK-D083F1CF956025C5DC4746F691495425",
+  "kind": "validation",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:baae0f8ab5994bc3154ce998a8dc2238b3359fb2f8112f43915f0e9189b8fb35",
+    "immutable": true
+  },
+  "status": "completed",
+  "summary": "Refresh job read and frozen source hash reverified. Unchanged source permits reuse of prior static conclusions: no ordinary reproducible isolation fault requiring correction was identified within TASK-511. No tests, applications, builds or writes performed.",
+  "findings": [
+    {
+      "claim": "Backend initialization preserves foreign exports; exclusive request workspaces and identity-checked cleanup preserve siblings. Artifact output rejects existing targets, unsafe parents and traversal before writing. Helper overrides reject noncanonical paths, symlinks, nonregular files and executables outside /private/tmp before invocation.",
+      "confidence": "high",
+      "evidence": [
+        "E1",
+        "E2"
+      ],
+      "recommendation": "Retain ownership boundaries. Helper path/type validation is not proof of build provenance. TASK-551 still owns crash-orphan recovery and export resource bounds."
+    },
+    {
+      "claim": "Smoke selects fresh storage, ephemeral settings/safety state, empty roots, paused sampling, disabled notifications and inactive collection/integration dependencies; normal startup retains live dependencies. Sentinel and report-field tests support bounded isolation without proving complete reliability or release readiness.",
+      "confidence": "high",
+      "evidence": [
+        "E3",
+        "E4"
+      ],
+      "recommendation": "Reconcile candidate freshness and coordinator runtime evidence before acceptance. Keep TASK-512 duplicate-instance/socket edge scenarios separate."
+    }
+  ],
+  "evidence": [
+    "E1: Prior static inspection, unchanged hash: Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift:21-35,542-607,885-923; Tests/DiskStewardAppTests/IPC/BackendIsolationTests.swift:7-100. No startup sweep; exclusive workspace and identity-checked cleanup; foreign/sibling preservation assertions.",
+    "E2: Prior static inspection: Sources/DiskStewardApp/AppConfiguration.swift:37-64; Tests/DiskStewardAppTests/IPC/VerificationIsolationTests.swift:6-25; Tests/IncrementTests/Snapshot/SnapshotIncrementTests.swift:43-47; Tests/IntegrationInstallTests/IntegrationInstallTests.swift:192-235. Output and helper guards precede destination writes/execution.",
+    "E3: Prior static inspection: Sources/DiskStewardApp/AppConfiguration.swift:8-31; Sources/DiskStewardApp/main.swift:7-40; Sources/DiskStewardApp/StatusItemController.swift:28-116; Sources/DiskStewardApp/StatusBoardViewModel.swift:114-132; Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift:52-99; Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift:8-25. Explicit isolated/live dependency selection.",
+    "E4: Prior static inspection: Tests/IncrementTests/Final/FinalProductIncrementTests.swift:10-96; Scripts/Distribution/verify-release:158-173. Fixture bytes/inodes, held lease and live socket preservation assertions; missing/unsafe required smoke fields rejected."
+  ],
+  "checks": [
+    {
+      "command": "Read helper-refresh-job.json",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "New helper identity and guard recorded; source hash and bounded static contract unchanged."
+    },
+    {
+      "command": "rg --files -0 Sources Tests Config Scripts DiskSteward.xcodeproj | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+      "result": "passed",
+      "isolation": "disposable-worktree",
+      "evidence": "Reexecuted read-only in /private/tmp/disk-steward-511-green.qfud7j; exact snapshot hash matched."
+    },
+    {
+      "command": "Independent runtime tests/builds/application launches",
+      "result": "not-run",
+      "isolation": "disposable-worktree",
+      "evidence": "Static-only assignment; coordinator's reported 41 passing scoped tests were not independently reproduced."
+    }
+  ],
+  "stale_if": [
+    "Source hash changes or guard/snapshot reconciliation fails."
+  ],
+  "evidence_use": "candidate-bound",
+  "freshness": "pending",
+  "final_evidence_eligible": false,
+  "eligibility_reason": "Raw static-only refresh awaits coordinator freshness reconciliation.",
+  "changed_files": [],
+  "changed_assets": [],
+  "risks": [
+    "TASK-551 crash-orphan/resource bounds and TASK-512 duplicate-instance/socket edges remain outside this review.",
+    "Static inspection and synthetic sentinel assertions do not establish full reliability, signed artifact validation or release readiness."
+  ]
+}

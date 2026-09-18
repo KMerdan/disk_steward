@@ -1,0 +1,88 @@
+{
+ "schema": "disk-steward-checkpoint-source-delta-v1",
+ "baseInputSHA256": "c2e4ad38f0fa",
+ "baseNote": "isolated snapshot /private/tmp/ds552-check-x6c3vj6c (product sources before TASK-561, input c2e4ad38)",
+ "inputSHA256": "f987812c8ffe637ed7c21c50091587538a7fe5d97863851e2d4ee8a7fa8621a5",
+ "files": [
+  {
+   "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+   "bytes": 14463,
+   "sha256": "8c511c6f0d7f62367b80f40521f78b16a9e24f76476b1f854ff521774f12c247",
+   "base": "pre-TASK-561 isolated snapshot ds552-check-x6c3vj6c (input c2e4ad38)",
+   "baseSHA256": "c18f6fda63b8570fd576475c11b73b2f63e96b8e193553622be888e84887f482"
+  },
+  {
+   "path": "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+   "bytes": 16982,
+   "sha256": "bc864e0958ab341a1916dca86fdcb0119c53e079024fd008628a6230869327e3",
+   "base": "pre-TASK-561 isolated snapshot ds552-check-x6c3vj6c (input c2e4ad38)",
+   "baseSHA256": "deb666a2aaf941b6c275277554da0d15d6f886d90438167a072b608aab2e155e"
+  },
+  {
+   "path": "Sources/DiskStewardApp/AgentIntegrations/CursorJSONIntegrationSupport.swift",
+   "bytes": 20389,
+   "sha256": "35c9df253ac3107c1ad54588856e4fe158fba2df82899c9e150b65d350dcdcac",
+   "base": "pre-TASK-561 isolated snapshot ds552-check-x6c3vj6c (input c2e4ad38)",
+   "baseSHA256": "54588169243fa48dc71af3eaf94c82c525e49e459d6a311e54f4493572d2a780"
+  },
+  {
+   "path": "Scripts/Integration/json-config.swift",
+   "bytes": 9015,
+   "sha256": "aec8344ad1bd9a04a4dfe0459cb673cbc236a13b9107045afd6d61ed60a14b2d",
+   "base": "pre-TASK-561 isolated snapshot ds552-check-x6c3vj6c (input c2e4ad38)",
+   "baseSHA256": "e798cef9570dd8743da973bd20a2f526de6df4bc552dbc15990453e082fc4296"
+  },
+  {
+   "path": "Scripts/Integration/install",
+   "bytes": 7941,
+   "sha256": "cb75847c2794a641f47ec174dbc1bae2d8e7612491017df439f3767de14933e1",
+   "base": "pre-TASK-561 isolated snapshot ds552-check-x6c3vj6c (input c2e4ad38)",
+   "baseSHA256": "ed884dab7b0be46fb06c92eb2d11cccb3d5bb4222d37c88677a2e1a1e28b9305"
+  },
+  {
+   "path": "Scripts/Integration/uninstall",
+   "bytes": 5531,
+   "sha256": "7efcd9c99ab78cee3d77b6b5b31c93c8d4c256c4cb7f3330a4b0495f70781c84",
+   "base": "pre-TASK-561 isolated snapshot ds552-check-x6c3vj6c (input c2e4ad38)",
+   "baseSHA256": "e220b58f8e38605611402771a525d80cd4bc4424c8b9c299d888f2cd10557764"
+  },
+  {
+   "path": "Scripts/Integration/rollback",
+   "bytes": 9321,
+   "sha256": "8961334ac03d019a5b1fef130f45ad35126a938cc7344cd756345492c0ae205d",
+   "base": "new-file",
+   "baseSHA256": null
+  },
+  {
+   "path": "Scripts/Integration/backup-lib.zsh",
+   "bytes": 4884,
+   "sha256": "b0831b9d0b777d81359c9bc4761200cadd82cb5423bbb651daf86f95de96840e",
+   "base": "new-file",
+   "baseSHA256": null
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/AgentIntegrations/ConfigurationOwnershipTests.swift",
+   "bytes": 18504,
+   "sha256": "a7d677961a5ec50264aa39d3c42112bf918a8413b628f50597bd76b890727733",
+   "base": "new-file",
+   "baseSHA256": null
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClientsAdapterTests.swift",
+   "bytes": 13237,
+   "sha256": "2224f02820525c67b43e916973926a6620f970f3a0f7749341a87592cc0072a8",
+   "base": "pre-TASK-561 isolated snapshot ds552-check-x6c3vj6c (input c2e4ad38)",
+   "baseSHA256": "b2fff2224f2b38c7b4f379127e282401453e48b9c35368ae034330ac145c8207"
+  },
+  {
+   "path": "Tests/IntegrationInstallTests/ConfigurationRollbackTests.swift",
+   "bytes": 24676,
+   "sha256": "62b49dd4d1f8e3a9ffcee8d5558a77b7c681971cf02688ffe5dfc95f1b559430",
+   "base": "new-file",
+   "baseSHA256": null
+  }
+ ],
+ "snapshot": "/private/tmp/ds561-candidate-2",
+ "reviewSnapshotInputSHA256": "7f3d8527c8cf520793d83da04affb54f2119e49cd29bfe419dd64bc72d261379",
+ "postReviewDelta": "Review findings fixed: F1 owned backup directories are ordered by their embedded stamp (backup-lib.zsh owned_backups_chronological; rollback default pick and prune_backups use it); F2 a failed undo swap preserves the other writer's bytes beside the file and reports concurrentEditUndoFailed (PrivateIntegrationFile.replace, json-config.swift commit); F3 install/uninstall undo() runs with errexit off and reports restore-failed with the recovery command, rollback wraps its apply phase in a trap that puts the saved state back. Regression tests: testDefaultRollbackAndPruningFollowTheStampNotTheNamePrefix, testARestoreFailureInsideUndoIsReportedAndKeepsTheBackup, testRollbackApplyFailurePutsThePreviousStateBack, testFailedUndoSwapPreservesTheOtherWritersBytesAndSaysSo."
+}

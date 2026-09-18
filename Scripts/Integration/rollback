@@ -1,0 +1,221 @@
+#!/bin/zsh
+# Restores a backup written by install or uninstall (TASK-561 CLI rollback).
+#
+#   rollback --client codex|claude --config-root PATH [--backup NAME] [--list] [--dry-run] [--force]
+#
+# Without --backup the newest backup is used. Each file is put back only when
+# the current file is still exactly what that install/uninstall left behind
+# (the manifest's after-hash); a file the user has edited since is refused
+# unless --force is given. Before restoring, the current state is itself saved
+# into a new rollback-* backup, so a rollback can be rolled back. Nothing else
+# in the configuration root is touched.
+set -euo pipefail
+
+client=""
+config_root=""
+backup_name=""
+dry_run=0
+force=0
+list=0
+
+usage() {
+  print -u2 "usage: rollback --client codex|claude --config-root ABSOLUTE_PATH [--backup NAME] [--list] [--dry-run] [--force]"
+  exit 64
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --client) (( $# >= 2 )) || usage; client="$2"; shift 2 ;;
+    --config-root) (( $# >= 2 )) || usage; config_root="$2"; shift 2 ;;
+    --backup) (( $# >= 2 )) || usage; backup_name="$2"; shift 2 ;;
+    --dry-run) dry_run=1; shift ;;
+    --force) force=1; shift ;;
+    --list) list=1; shift ;;
+    *) usage ;;
+  esac
+done
+
+[[ "$client" == "codex" || "$client" == "claude" ]] || usage
+[[ "$config_root" == /* && "$config_root" != *$'\n'* ]] || usage
+[[ "$backup_name" != */* && "$backup_name" != .* ]] || usage
+
+script_dir=${0:A:h}
+source "$script_dir/backup-lib.zsh"
+backups_dir="$config_root/.disk-steward-backups"
+
+if (( list )); then
+  [[ -d "$backups_dir" ]] || { print "No backups under $backups_dir"; exit 0; }
+  for dir in "$backups_dir"/*(N/); do
+    [[ -f "$dir/manifest.json" ]] || continue
+    /usr/bin/python3 - "$dir" <<'PY'
+import json, sys, os
+directory = sys.argv[1]
+data = json.load(open(os.path.join(directory, "manifest.json")))
+print(f"{os.path.basename(directory)}  {data.get('operation')}  {data.get('client')}  {data.get('status')}  {data.get('createdAt')}")
+PY
+  done
+  exit 0
+fi
+
+[[ -d "$backups_dir" ]] || { print -u2 "No backups under $backups_dir"; exit 66; }
+if [[ -z "$backup_name" ]]; then
+  # Newest completed backup by embedded stamp, across install/uninstall/rollback families.
+  backup_root=""
+  for dir in "${(@f)$(owned_backups_chronological "$backups_dir")}"; do
+    [[ -n "$dir" && -f "$dir/manifest.json" ]] && backup_root="$dir"
+  done
+  [[ -n "$backup_root" ]] || { print -u2 "No backup with a manifest under $backups_dir"; exit 66; }
+  backup_name="${backup_root:t}"
+else
+  backup_root="$backups_dir/$backup_name"
+fi
+[[ -d "$backup_root" && -f "$backup_root/manifest.json" ]] || { print -u2 "Backup $backup_name has no manifest; restore it by hand from $backup_root"; exit 66; }
+
+if [[ "$client" == "codex" ]]; then
+  config_file="$config_root/config.toml"
+  plugin_target="$config_root/plugins/disk-steward"
+else
+  config_file="$config_root/.mcp.json"
+  plugin_target=""
+fi
+
+# The manifest decides whether the current files are still the ones that
+# install/uninstall wrote; the shell only carries the verdict.
+plan=$(/usr/bin/python3 - "$backup_root/manifest.json" "$client" "$config_file" "$plugin_target" "$force" <<'PY'
+import hashlib, json, os, sys
+manifest, client, config_file, plugin_target, force = sys.argv[1:]
+data = json.load(open(manifest))
+problems, actions = [], []
+if data.get("client") != client:
+    problems.append(f"backup is for client {data.get('client')}, not {client}")
+if data.get("status") not in ("installed", "uninstalled", "restored", "rollback-failed-and-restored", "failed-and-restored", "restore-failed"):
+    problems.append(f"backup status is {data.get('status')}; only completed operations can be restored")
+def digest(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for chunk in iter(lambda: stream.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+name = os.path.basename(config_file)
+record = data.get("files", {}).get(name)
+if record is None:
+    problems.append(f"manifest has no record for {name}")
+else:
+    exists = os.path.isfile(config_file)
+    current = digest(config_file) if exists else None
+    if exists != bool(record.get("existsAfter")) or current != record.get("sha256After"):
+        if force != "1":
+            problems.append(f"{config_file} changed since that backup was made; use --force to overwrite it")
+        else:
+            actions.append(f"overwrite {config_file} (changed since the backup; --force)")
+    if record.get("existedBefore"):
+        actions.append(f"restore {config_file} from backup copy")
+    else:
+        actions.append(f"remove {config_file} (it did not exist before)")
+plugin = data.get("plugin")
+if plugin_target:
+    if plugin and plugin.get("existedBefore"):
+        actions.append(f"restore {plugin_target} from backup copy")
+    elif plugin is not None:
+        actions.append(f"remove {plugin_target} (it did not exist before)")
+print(json.dumps({"problems": problems, "actions": actions, "existedBefore": bool(record and record.get("existedBefore")), "pluginExistedBefore": bool(plugin and plugin.get("existedBefore")), "pluginRecorded": plugin is not None}))
+PY
+)
+problems=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print("\n".join(json.load(sys.stdin)["problems"]))')
+if [[ -n "$problems" ]]; then
+  print -u2 "rollback refused; nothing was changed:"
+  print -u2 -- "$problems"
+  exit 65
+fi
+print "Rollback plan for $client from $backup_name:"
+print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; [print("  - " + a) for a in json.load(sys.stdin)["actions"]]'
+(( dry_run )) && { print "Dry run: nothing was changed."; exit 0; }
+
+existed_before=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print(int(json.load(sys.stdin)["existedBefore"]))')
+plugin_existed=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print(int(json.load(sys.stdin)["pluginExistedBefore"]))')
+plugin_recorded=$(print -r -- "$plan" | /usr/bin/python3 -c 'import json,sys; print(int(json.load(sys.stdin)["pluginRecorded"]))')
+
+# The current state is saved first, so this rollback is itself recoverable.
+stamp=rollback-$(date -u +%Y%m%dT%H%M%SZ)-$$
+save_root="$backups_dir/$stamp"
+mkdir -p "$save_root"
+chmod 700 "$save_root"
+manifest_begin "$save_root" "rollback" "$client" ""
+if [[ -f "$config_file" ]]; then
+  cp -p "$config_file" "$save_root/${config_file:t}"
+  manifest_file "$save_root" "${config_file:t}" "$config_file" existed
+else
+  manifest_file "$save_root" "${config_file:t}" "$config_file" absent
+fi
+if [[ -n "$plugin_target" ]]; then
+  if [[ -e "$plugin_target" ]]; then
+    cp -R "$plugin_target" "$save_root/disk-steward-plugin"
+    manifest_plugin "$save_root" existed
+  else
+    manifest_plugin "$save_root" absent
+  fi
+fi
+
+# Any failure while applying puts the just-saved state back and says so; the
+# safety backup is finished either way so a later rollback can use it.
+apply_done=0
+apply_undo() {
+  local exit_status=$?
+  trap - ZERR EXIT
+  setopt localoptions noerrexit noerrreturn
+  (( apply_done )) && exit $exit_status
+  apply_done=1
+  if (( exit_status != 0 )); then
+    local -a failures
+    failures=()
+    print -u2 "rollback: applying $backup_name failed (exit $exit_status); putting the previous state back from $save_root"
+    if [[ -f "$save_root/${config_file:t}" ]]; then
+      restore_file "$save_root/${config_file:t}" "$config_file" || failures+=("could not put back ${config_file:t} from $save_root")
+    else
+      rm -f "$config_file" || failures+=("could not remove $config_file")
+    fi
+    if [[ -n "$plugin_target" ]]; then
+      rm -rf "$plugin_target" || failures+=("could not clear $plugin_target")
+      if [[ -e "$save_root/disk-steward-plugin" ]]; then
+        cp -R "$save_root/disk-steward-plugin" "$plugin_target" || failures+=("could not put back the plugin from $save_root/disk-steward-plugin")
+      fi
+    fi
+    if (( ${#failures} > 0 )); then
+      manifest_finish "$save_root" "restore-failed"
+      local failure
+      for failure in "${failures[@]}"; do print -u2 "  - $failure"; done
+      print -u2 "rollback: the previous state stays in $save_root; restore it with --backup ${save_root:t} --force"
+      exit_status=70
+    else
+      manifest_after "$save_root" "${config_file:t}" "$config_file"
+      manifest_finish "$save_root" "rollback-failed-and-restored"
+      print -u2 "rollback: the previous state is back; nothing from this rollback remains"
+    fi
+  fi
+  exit $exit_status
+}
+trap apply_undo ZERR EXIT
+
+if (( existed_before )); then
+  restore_file "$backup_root/${config_file:t}" "$config_file"
+else
+  rm -f "$config_file"
+fi
+if [[ -n "$plugin_target" ]] && (( plugin_recorded )); then
+  if [[ "${DISK_STEWARD_INTEGRATION_FAULT:-}" == "rollback-plugin" && "$config_root" == /tmp/ds-* ]]; then
+    print -u2 "rollback: fault injected before the plugin step (test roots only)"; false
+  fi
+  rm -rf "$plugin_target"
+  if (( plugin_existed )); then
+    mkdir -p "${plugin_target:h}"
+    cp -R "$backup_root/disk-steward-plugin" "$plugin_target"
+  fi
+fi
+manifest_after "$save_root" "${config_file:t}" "$config_file"
+manifest_finish "$save_root" "restored"
+prune_backups "$backups_dir" 10
+apply_done=1
+trap - ZERR EXIT
+
+print "Restored $client configuration from $backup_name."
+print "The state before this rollback is kept in $save_root"

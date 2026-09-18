@@ -1,0 +1,139 @@
+{
+  "artifactSHA256": {
+    "baseline-supervision.json": "62f0fb79d7465c3392825fc1655bf2e7447dcb7eab3e9bf39cfb7fef453e264c",
+    "baseline.log": "60d2f5297e8bd79cd2d5a7356b46087fbe9e8b1e928db483b9fdad354d4862d0",
+    "fixture-supervision.json": "4d86042eee81515d7258eae21da98948c75518ff7b78ecfd8f826472519189d8",
+    "fixture.json": "4262ddebd72d68fcab909468232c7010736a1a6a5684abd5ab3ff82b75eada97",
+    "fixture.log": "5998388dc91158572791e8f5f49bd49b67b8cf92484ddac4dde29dfd1f549f3e"
+  },
+  "fixture": {
+    "complete": true,
+    "count": 100000,
+    "directories": 1,
+    "files": 100000,
+    "shape": "wide"
+  },
+  "label": "wide-100k-baseline",
+  "lastMeasurement": {
+    "directoryChangeRestarts": 0,
+    "directoryEntriesInspected": 18900000,
+    "directoryEnumerationPasses": 189,
+    "elapsedSeconds": 12.4295418333204,
+    "error": "",
+    "expectedFiles": 100000,
+    "finalStoreCallSecondsInclusive": 0,
+    "kind": "progress",
+    "maxScanSliceSeconds": 0.1062171249941457,
+    "maxStoreCallSeconds": 0.03099541665869765,
+    "peakFrontierCursors": 1,
+    "peakInProcessRSSBytes": 37519360,
+    "peakPersistedProgressBytes": 891,
+    "peakRetainedNames": 512,
+    "peakSampledDatabaseFamilyBytes": 124742184,
+    "peakSampledWALBytes": 4762752,
+    "processedEntries": 96768,
+    "publicationCheckpointsUptime": {},
+    "sampledPersistedProgressBytesSum": 168292,
+    "scanSeconds": 8.931796208344167,
+    "schema": "disk-steward-scale-baseline-v1",
+    "slices": 189,
+    "stagedFiles": 96768,
+    "status": "time-limit",
+    "storeSeconds": 3.4385768334032036
+  },
+  "postRunDatabase": {
+    "queries": {
+      "currentFiles": {
+        "rows": [
+          [
+            0
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM current_file_state WHERE presence='present'"
+      },
+      "generations": {
+        "rows": [
+          [
+            "active",
+            100000,
+            100000
+          ]
+        ],
+        "sql": "SELECT status,processed_entry_count,staged_file_count FROM scan_generations"
+      },
+      "integrity": {
+        "rows": [
+          [
+            "ok"
+          ]
+        ],
+        "sql": "PRAGMA quick_check"
+      },
+      "observations": {
+        "rows": [
+          [
+            0
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM observation_runs"
+      },
+      "openPathCountPlan": {
+        "rows": [
+          [
+            3,
+            0,
+            216,
+            "SCAN path_bindings"
+          ]
+        ],
+        "sql": "EXPLAIN QUERY PLAN SELECT COUNT(*) FROM path_bindings WHERE object_id='fixture' AND valid_through IS NULL"
+      },
+      "openPathPagePlan": {
+        "rows": [
+          [
+            5,
+            0,
+            204,
+            "SEARCH path_bindings USING INDEX path_bindings_path_time (path>?)"
+          ]
+        ],
+        "sql": "EXPLAIN QUERY PLAN SELECT path FROM path_bindings WHERE object_id='fixture' AND valid_through IS NULL AND path>'' ORDER BY path LIMIT 1"
+      },
+      "stagedFiles": {
+        "rows": [
+          [
+            100000
+          ]
+        ],
+        "sql": "SELECT COUNT(*) FROM scan_generation_entries"
+      }
+    },
+    "readerSQLiteVersion": "3.53.4"
+  },
+  "result": null,
+  "root": "/private/tmp/disk-steward-530-scale.d_iv8i49",
+  "supervision": {
+    "command": [
+      "/usr/bin/nice",
+      "-n",
+      "10",
+      "/usr/bin/xcrun",
+      "xctest",
+      "-XCTest",
+      "PerformanceTests.ScaleBenchmarkTests/testOptInProductionScan",
+      "/private/tmp/disk-steward-522-lifecycle-dev.9CYz1T/.build/arm64-apple-macosx/release/DiskStewardPackageTests.xctest"
+    ],
+    "exitCode": -15,
+    "peakProcessGroupRSSBytes": 103874560,
+    "peakSampledDatabaseFamilyBytes": 128678752,
+    "peakSampledWALBytes": 4738032,
+    "phase": "baseline",
+    "pollIntervalSeconds": 0.1,
+    "reason": "time-limit",
+    "root": "/private/tmp/disk-steward-530-scale.d_iv8i49",
+    "rssStopBytes": 268435456,
+    "schema": "disk-steward-scale-supervisor-v1",
+    "seconds": 60.040177500020945,
+    "timeoutSeconds": 60.0
+  }
+}

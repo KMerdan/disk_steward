@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://disk-steward.local/schemas/evidence-event-v2.schema.json",
+  "title": "Disk Steward Evidence Event v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "event_id",
+    "observed_at",
+    "operation",
+    "path",
+    "size",
+    "actor",
+    "session",
+    "attribution",
+    "classification",
+    "evidence",
+    "timing"
+  ],
+  "properties": {
+    "schema": {
+      "const": "evidence-event-v2"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observed_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operation": {
+      "enum": [
+        "create",
+        "write-summary",
+        "rename",
+        "delete",
+        "truncate",
+        "snapshot-delta",
+        "baseline",
+        "modify",
+        "replace",
+        "scope-enter",
+        "scope-exit"
+      ]
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "logical_before",
+        "logical_after",
+        "logical_delta",
+        "allocated_before",
+        "allocated_after",
+        "allocated_delta"
+      ],
+      "properties": {
+        "logical_before": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "logical_after": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "logical_delta": {
+          "type": "integer"
+        },
+        "allocated_before": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "allocated_after": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "allocated_delta": {
+          "type": "integer"
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "process_id",
+        "executable",
+        "command",
+        "working_directory",
+        "ancestor_executables"
+      ],
+      "properties": {
+        "process_id": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "executable": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "working_directory": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ancestor_executables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "session_id",
+        "title",
+        "working_directory"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "session_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "working_directory": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "confidence",
+        "method",
+        "limitations"
+      ],
+      "properties": {
+        "confidence": {
+          "enum": [
+            "exact",
+            "tool-linked",
+            "inferred",
+            "unknown"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consumer_category",
+        "reclaimability",
+        "cleanup_safety"
+      ],
+      "properties": {
+        "consumer_category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reclaimability": {
+          "enum": [
+            "active",
+            "conditional",
+            "reproducible",
+            "user-data",
+            "unknown"
+          ]
+        },
+        "cleanup_safety": {
+          "enum": [
+            "green",
+            "yellow",
+            "red",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "reference"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "basis",
+        "occurred_start",
+        "occurred_end",
+        "detected_at",
+        "limitations"
+      ],
+      "properties": {
+        "schema": {
+          "const": "event-timing-v1"
+        },
+        "basis": {
+          "enum": [
+            "measured-observation",
+            "unverified"
+          ]
+        },
+        "occurred_start": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "occurred_end": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "detected_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

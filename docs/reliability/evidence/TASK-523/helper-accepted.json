@@ -1,0 +1,42 @@
+{
+  "schema": "helper-job-v1",
+  "helper_id": "HELPER-TASK-523-ACCEPTED",
+  "parent_task": "TASK-523",
+  "task_guard": "GUARD-TASK-CBB365753CA4B6D2A0763DD23D3CA78C",
+  "kind": "review",
+  "phase": "candidate",
+  "snapshot": {
+    "kind": "content-hash",
+    "id": "sha256:e408ff149419ace16c04932147f8f635852ed011c8a8182d9126e27cf36220e8",
+    "immutable": true
+  },
+  "read_scope": [
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Sources/DiskStewardCore/EndpointBridge/**",
+    "/private/tmp/disk-steward-523-accepted.8oZqwJ/Tests/DiskStewardEndpointTests/**",
+    "/private/tmp/disk-steward-523-candidate.h457y7/Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+    "/private/tmp/disk-steward-523-candidate.h457y7/Sources/DiskStewardCore/EndpointBridge/**",
+    "/private/tmp/disk-steward-523-candidate.h457y7/Tests/DiskStewardEndpointTests/**"
+  ],
+  "purpose": "Re-review the final candidate after the deterministic coalescing timestamp correction.",
+  "questions": [
+    "Compare both immutable scoped trees. Confirm the only delta is one fixed base timestamp in the coalescing test, and review whether it resolves your finding without changing the accepted implementation reasoning. Return current snapshot identity but pending/ineligible raw review. Do not run tests; coordinator runs the full suite. Keep output below 3500 characters."
+  ],
+  "acceptance_criteria": [
+    "AC-TASK-523-01"
+  ],
+  "execution_isolation": "sandbox",
+  "prohibited_actions": [
+    "write-canonical-worktree",
+    "mutate-pyramid",
+    "spawn-agents",
+    "publish-or-deploy",
+    "change-git-history"
+  ],
+  "join_before": "candidate-acceptance",
+  "result_budget": {
+    "max_findings": 5,
+    "max_evidence_items": 7,
+    "max_output_chars": 6000
+  }
+}

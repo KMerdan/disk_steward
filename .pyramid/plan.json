@@ -1,839 +1,2748 @@
 {
   "schema_version": 1,
-  "plan_id": "PLAN-DISK-STEWARD-004",
-  "title": "Safe Multi-Client MCP Setup",
-  "revision": 1,
+  "plan_id": "PLAN-DISK-STEWARD-005",
+  "title": "Disk Steward Reliability Repairs",
+  "revision": 17,
   "intent": {
-    "id": "INTENT-004",
-    "statement": "Disk Steward users can discover supported local AI clients, explicitly select one or more, and safely set up, verify, repair, or remove the read-only Disk Steward MCP integration without manually editing configuration files or confusing client setup with Agent Access.",
+    "id": "INTENT-005",
+    "statement": "Repair the review-confirmed Disk Steward reliability defects so users receive trustworthy, bounded disk evidence and safe local MCP integrations, without tests disturbing the installed app, without loss of user files or client configuration, and with regression and recovery evidence for the exact repaired candidate.",
     "success_evidence": [
       {
-        "id": "REQ-401",
-        "description": "Settings detects supported installed clients through bounded known signals and lets the user select one or several targets without treating unknown software as supported."
+        "id": "REQ-501",
+        "description": "Tests, duplicate launches, and shutdown cannot replace or remove another live application's endpoint or modify real user state."
       },
       {
-        "id": "REQ-402",
-        "description": "Setup, verification, repair, and removal are idempotent, preserve unrelated client configuration, refuse conflicting ownership, and provide recoverable evidence for every mutation."
+        "id": "REQ-502",
+        "description": "Published file evidence distinguishes observed presence, validated absence, stale and unavailable coverage across mutation, restart and scope changes."
       },
       {
-        "id": "REQ-403",
-        "description": "The UI distinguishes detection, configuration, client approval, verification, broken configuration, and Agent Access state with accessible text and per-client outcomes."
+        "id": "REQ-503",
+        "description": "Monitoring makes measurable bounded progress and recovers database headroom without memory amplification or loss of authoritative current state."
       },
       {
-        "id": "REQ-404",
-        "description": "Codex, Claude Code, Cursor, Visual Studio Code, and Claude Desktop receive an honest supported setup path, while other MCP clients receive a copyable manual configuration rather than guessed mutation."
+        "id": "REQ-504",
+        "description": "IPC, MCP and client-command execution have bounded work, output, deadlines and effective cancellation/revocation."
       },
       {
-        "id": "REQ-405",
-        "description": "The signed application bundle exposes a stable read-only helper path, and automated tests prove install, upgrade, conflict, verification, removal, and unrelated-setting preservation behavior."
+        "id": "REQ-505",
+        "description": "All evidence tools export useful bounded and privacy-correct results with actual policy, accurate observation times and typed errors."
+      },
+      {
+        "id": "REQ-506",
+        "description": "Client setup preserves user modifications, is recoverable on partial failure, and distinguishes configuration from real app connectivity and task attribution."
+      },
+      {
+        "id": "REQ-507",
+        "description": "The repaired candidate has isolated CI, regression, scale, lifecycle and upgrade/rollback evidence; release readiness is reported separately from passing unit tests."
       }
     ],
     "constraints": [
-      "Preserve native Swift, macOS 13 compatibility, Homebrew and Developer ID distribution, and the bundled disk-witness-mcp helper.",
-      "Use official client commands or client-owned installation flows when available; direct configuration editing is a bounded fallback only.",
-      "Never require administrator privileges, store client credentials, enable Agent Access implicitly, or add write/delete MCP tools.",
-      "Preserve unrelated client configuration and the completed crash-recovery intent and evidence.",
-      "Keep detection bounded to known bundle identifiers, executables, and configuration locations; do not search the whole disk."
+      "Preserve native Swift/macOS 13, existing tool names where possible, and deliberate version/migration compatibility.",
+      "No user-file deletion or delete MCP capability. Preserve live current-state truth and distinguish unknown from absent.",
+      "Use isolated fixtures for tests; never open production defaults, safety state, watched roots or sockets in smoke/test mode.",
+      "Keep safety budgets and crash-recovery controls; do not raise caps to conceal failure.",
+      "Preserve prior completed Pyramid history; existing code is brownfield, not a greenfield project.",
+      "Use one focused regression-tested patch per bounded change; no installed-app replacement, configuration migration, commit, push or release without separate user request."
     ],
     "non_goals": [
-      "Build a general MCP marketplace or gateway.",
-      "Configure unrecognized clients automatically.",
-      "Add remote MCP hosting, OAuth brokerage, or credential management.",
-      "Redesign monitoring, evidence retention, or cleanup behavior.",
-      "Grant agents destructive disk operations."
+      "Whole-product rewrite or a new filesystem search engine.",
+      "Whole-disk scanning or deliberate OOM reproduction on the user's Mac.",
+      "General MCP marketplace, remote hosting, EndpointSecurity entitlement expansion or automatic cleanup.",
+      "Automatically registering every MCP connection as a coding task.",
+      "Guaranteeing zero bugs solely from a passing suite or publishing a release during this repair request."
     ],
     "assumptions": [
       {
-        "id": "ASM-401",
-        "statement": "The distributed non-sandboxed app can invoke installed client CLIs and update user-owned configuration without additional entitlements.",
+        "id": "ASM-501",
+        "statement": "A bounded durable traversal/publication design can meet useful progress and current resource budgets on representative 100k/1M workloads; must be measured before storage implementation.",
         "confidence": "medium",
-        "validation_node": "CONTRACT-401"
-      },
-      {
-        "id": "ASM-402",
-        "statement": "A helper path inside an app installed at a stable Applications location remains valid across normal Homebrew and in-place application updates.",
-        "confidence": "medium",
-        "validation_node": "TASK-502"
+        "validation_node": "RESEARCH-530"
       }
     ]
   },
   "evidence": [
     {
-      "id": "EV-401",
-      "claim": "Disk Steward already ships an executable read-only MCP helper inside the application bundle and exposes Agent Access through a private current-user socket.",
-      "source": "Config/Packaging/project.yml; Sources/DiskStewardApp/MCPAccess/MCPAccessController.swift; Scripts/Distribution/verify-release",
+      "id": "EV-501",
+      "claim": "The reviewed source passes 213 tests but isolated reproductions fail socket ownership, staged deletion, mixed-root coverage, empty export and configuration preservation.",
+      "source": "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
       "confidence": "high",
-      "freshness": "Repository observation on 2026-09-16",
+      "freshness": "2026-09-16 at cf313e4; source unchanged at repair start",
       "supports": [
-        "CONTRACT-401",
-        "TASK-402",
-        "TASK-501",
-        "TASK-502"
+        "TASK-511",
+        "TASK-512",
+        "TASK-521",
+        "TASK-522",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "TASK-541",
+        "TASK-542",
+        "TASK-551",
+        "TASK-552",
+        "TASK-561",
+        "TASK-562",
+        "TASK-571",
+        "TASK-572"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-402",
-      "claim": "The current integration installer is repository-only, directly edits Codex TOML, and writes Claude configuration to a location that is not the current Claude Code user-scope location.",
-      "source": "Scripts/Integration/install; Tests/IntegrationInstallTests/IntegrationInstallTests.swift; Claude Code MCP documentation",
+      "id": "EV-502",
+      "claim": "The detailed review identifies source boundaries, safety contracts, proposed repairs and unperformed scale/soak gates.",
+      "source": "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
       "confidence": "high",
-      "freshness": "Repository and official documentation reviewed on 2026-09-16",
+      "freshness": "2026-09-16 review; load-bearing source rechecked at repair start",
       "supports": [
-        "CONTRACT-401",
-        "TASK-402"
+        "CONTRACT-510",
+        "TASK-511",
+        "TASK-512",
+        "TASK-521",
+        "TASK-522",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "TASK-541",
+        "TASK-542",
+        "TASK-551",
+        "TASK-552",
+        "TASK-561",
+        "TASK-562",
+        "TASK-571",
+        "TASK-572"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-403",
-      "claim": "Codex and Claude Code provide official add, list/get, and remove lifecycle commands suitable for app-owned adapters.",
-      "source": "https://developers.openai.com/codex/mcp/; https://code.claude.com/docs/en/mcp",
+      "id": "EV-503",
+      "claim": "The prior graph is V3 completed with no active claims, greenfield metadata despite the existing product, and a pending exact history-binding warning.",
+      "source": "pyramid doctor/inspect, PLAN-DISK-STEWARD-004 G26 CTX-C31BFEAED9FD0C7464DBFAA4E13910E1",
       "confidence": "high",
-      "freshness": "Official documentation reviewed on 2026-09-16",
+      "freshness": "Historical observation at graph 26; PLAN-004 reclosed at graph 34 after repair on 2026-09-17, original cycle preserved.",
       "supports": [
-        "CONTRACT-401",
-        "TASK-402"
+        "CONTRACT-510"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-404",
-      "claim": "Docker MCP Toolkit models multi-client onboarding as explicit connect, disconnect, list, and per-client verification rather than universal implicit mutation.",
-      "source": "https://docs.docker.com/ai/mcp-catalog-and-toolkit/get-started/; https://docs.docker.com/reference/cli/docker/mcp/client/",
+      "id": "EV-504",
+      "claim": "SQLite maintenance and MCP cancellation have explicit resource and lifecycle constraints relevant to the planned fixes.",
+      "source": "https://www.sqlite.org/lang_vacuum.html ; https://www.sqlite.org/wal.html ; https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation",
       "confidence": "high",
-      "freshness": "Official documentation reviewed on 2026-09-16",
+      "freshness": "Primary sources read in 2026-09-16 review; revalidate if protocol scope changes",
       "supports": [
-        "CONTRACT-401",
-        "TASK-403",
-        "TASK-501"
+        "TASK-532",
+        "TASK-541"
       ],
       "contradicts": []
     },
     {
-      "id": "EV-405",
-      "claim": "Cursor and VS Code expose client-owned MCP installation paths, while Claude Desktop provides MCPB packaging with client-managed trust, updates, and auditing.",
-      "source": "https://docs.cursor.com/context/model-context-protocol; https://code.visualstudio.com/docs/agent-customization/mcp-servers; https://www.anthropic.com/engineering/desktop-extensions",
+      "id": "EV-505",
+      "claim": "A local correctness increment and MCP onboarding repair now pass 238 isolated tests including native Codex/Claude profiles, and an unsigned Xcode app/helper build. Scanner scaling, service stress, query bounds, and long-run acceptance remain unverified.",
+      "source": "docs/tasks/evidence/TASK-502/repair-20260917/verification.json ; docs/reliability/repair-log.md",
       "confidence": "high",
-      "freshness": "Official documentation reviewed on 2026-09-16",
+      "freshness": "2026-09-17 candidate 8c8c8aa07395c51f4e1e88bb0929e30cc772c180c72f9fd864b73d253b21a5d7",
       "supports": [
-        "TASK-501",
-        "TASK-502"
+        "CONTRACT-510",
+        "OUTCOME-510",
+        "GATE-519",
+        "TASK-511",
+        "TASK-512",
+        "OUTCOME-520",
+        "GATE-529",
+        "TASK-521",
+        "TASK-522",
+        "OUTCOME-530",
+        "GATE-539",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "OUTCOME-540",
+        "GATE-549",
+        "TASK-541",
+        "TASK-542",
+        "OUTCOME-550",
+        "GATE-559",
+        "TASK-551",
+        "TASK-552",
+        "OUTCOME-560",
+        "GATE-569",
+        "TASK-561",
+        "TASK-562",
+        "OUTCOME-570",
+        "GATE-579",
+        "TASK-571",
+        "TASK-572"
       ],
       "contradicts": []
+    },
+    {
+      "id": "EV-506",
+      "claim": "A temporary runtime compatibility patch honors explicit brownfield mode across the hash-bound transition. A disposable transition preserves old history and is validated by the unmodified installed runtime; missing baseline/impact/control evidence blocks audits, and assurance downgrade is refused.",
+      "source": "docs/reliability/planning/pyramid-mode-compatibility.md",
+      "confidence": "high",
+      "freshness": "2026-09-17 disposable transition test; installed plugin unmodified",
+      "supports": [
+        "CONTRACT-510"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-507",
+      "contradicts": [],
+      "claim": "Source inspection found shared temporary-export sweeping during fixture backend initialization and test artifact/helper escape paths. Broaden only the first isolation task's file contract to repair those existing safety defects.",
+      "source": "docs/reliability/evidence/CONTRACT-510/safety-contract.md",
+      "confidence": "high",
+      "freshness": "2026-09-17 source 8c8c8aa07395c51f4e1e88bb0929e30cc772c180c72f9fd864b73d253b21a5d7; static evidence, no live mutation",
+      "supports": [
+        "CONTRACT-510",
+        "TASK-511",
+        "GATE-519"
+      ]
+    },
+    {
+      "id": "EV-508",
+      "claim": "At G16 there are no ready tasks: foundation task audits overlap open service/query/scale findings whose repair tasks require the foundation outcome. TASK511/512 implementation and 64 current isolated tests establish a safe fixture development boundary, not broad audit approval.",
+      "source": "docs/reliability/evidence/TASK-512/post-implementation-tests.log; G16 inspect --ready; G16 inspect --audit-readiness TASK-512",
+      "confidence": "high",
+      "freshness": "2026-09-17 G16, candidate9546220c",
+      "supports": [
+        "TASK-521",
+        "TASK-522",
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532",
+        "TASK-541",
+        "TASK-542",
+        "TASK-551",
+        "TASK-552",
+        "TASK-561",
+        "TASK-562",
+        "TASK-571",
+        "TASK-572"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-509",
+      "claim": "AppEvidenceQueryBackend awaits a synchronous SQLite-backed actor with no progress/cancellation callback. Actual backend cancellation requires a boundary in both the app query handler and SQLite connection, not just socket shutdown.",
+      "source": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift::handleIPC; Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift::withStatement",
+      "confidence": "high",
+      "freshness": "2026-09-17 source inspection",
+      "supports": [
+        "TASK-541"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-510",
+      "claim": "An intermediate TASK542 candidate full suite observed endpoint confidence unknown instead of exact. EndpointSecurityObserver spawns one unstructured Task per notification, so bridge actor arrival can differ from callback order. Ten scoped repeats on the prior snapshot passed; deterministic causal reproduction remains required, not disproved by green retries.",
+      "source": "docs/reliability/evidence/TASK-542/endpoint-order-failure.log:370; docs/reliability/evidence/TASK-542/scope-review.md#discovered-endpoint-ordering-failure-unresolved; Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift:43; Sources/DiskStewardCore/EndpointBridge/ProtectedEndpointBridge.swift:28",
+      "confidence": "high",
+      "freshness": "2026-09-17 G25, failing a773ef85 candidate; source unchanged in accepted57dd89b2.",
+      "supports": [
+        "TASK-523",
+        "GATE-529"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-511",
+      "claim": "TASK521 core change_events now retains unknown/sample/absence bounds, but public ProvenanceInput/Claim independently default omitted intervals to points and swap inverted endpoints; exports and overlap use that separate pipeline. Ordinary FSEvents callbacks only call noteEventGap for loss batches, leaving the core dirty-token fence unconnected for normal changes.",
+      "source": "docs/reliability/evidence/TASK-521/integration-handoff.md; Sources/DiskStewardCore/Provenance/ProvenanceModels.swift::ProvenanceInput; Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift; Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift::restartChangeCollector",
+      "confidence": "high",
+      "freshness": "2026-09-17, inspected candidate9688186/b9154fd; these public/app boundaries remain unmodified.",
+      "supports": [
+        "TASK-522",
+        "TASK-552",
+        "GATE-529",
+        "GATE-559"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-512",
+      "claim": "The controller cancels its owned sample, but UserNotificationDelivery awaits settings and authorization then submits without checking cancellation. Its concrete adapter is outside TASK522 scope, though the existing UI asset already maps Notifications. This is required delivery-side work for existing AC52201, not a new feature.",
+      "source": "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift::deliver; Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift::performSample; docs/reliability/evidence/TASK-522/lifecycle-progress.md",
+      "confidence": "high",
+      "freshness": "2026-09-17, source hash3039895; local SDK and Apple UNUserNotificationCenter documentation inspected.",
+      "supports": [
+        "TASK-522",
+        "GATE-529"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-513",
+      "claim": "Store token equality is checked at recordScanSlice entry, whereas reconciliation later publishes in a synchronous SQLite transaction. A volatile change received during preparation needs an explicit final commit boundary. The callback currently retains one task per batch and starts streams SinceNow; unacknowledged/missed receipts need bounded ownership and restart uncertainty, not swallowed try?.",
+      "source": "docs/reliability/evidence/TASK-522/hint-publication-design-notes.md; Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::recordScanSlice,reconcileCompletedScanGeneration; Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift::transaction; Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift::callback",
+      "confidence": "high",
+      "freshness": "2026-09-17 source5da2e407; code mechanisms observed; the interleaving still requires fail-first proof.",
+      "supports": [
+        "TASK-522",
+        "GATE-529"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-RESEARCH-530-DECISION",
+      "claim": "RESEARCH-530 recorded an explicit storage implementation block with a finite four-part validation matrix and asked for a bounded replan that keeps a proof dependency before production implementation.",
+      "source": "docs/reliability/evidence/RESEARCH-530/query-and-decision.md",
+      "confidence": "high",
+      "freshness": "2026-09-17 decision at R8/G61; unchanged at R10/G89",
+      "supports": [
+        "RESEARCH-530",
+        "TASK-531",
+        "TASK-532"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-TASK-552-SCOPE",
+      "claim": "At G89 every task audit is blocked by the open high findings FIND-SCALE, FIND-ROLLBACK and FIND-SERVICE on shared assets; FIND-SCALE can only be resolved by TASK-531/532 evidence, which the graph locked behind RESEARCH-530 and OUTCOME-520 verification.",
+      "source": "docs/reliability/evidence/TASK-552/scope-and-budgets.md",
+      "confidence": "high",
+      "freshness": "2026-09-18 audit-readiness queries at G89",
+      "supports": [
+        "TASK-531",
+        "TASK-532",
+        "GATE-539"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-TASK-532-ACCEPTANCE-PATH",
+      "claim": "At G102, after TASK-531/532 resolved FIND-SCALE and TASK-541/542 evidence resolved FIND-SERVICE, every remaining task audit and the first gate GATE-519 are still blocked by FIND-ROLLBACK (migration/rollback rehearsal) and FIND-OVERNIGHT (real-time soak, 100k/1M workload proof). Both can only be produced by TASK-572, whose requires edge to OUTCOME-560 locks it behind the very gates those findings block.",
+      "source": "pyramid inspect --audit-readiness GATE-519/TASK-511/TASK-531 at G102; docs/reliability/evidence/CONTRACT-510/safety-contract.md#rollback-and-monitoring-controls; docs/reliability/evidence/TASK-532/storage-headroom.md",
+      "confidence": "high",
+      "freshness": "2026-09-18 G102 audit-readiness queries",
+      "supports": [
+        "TASK-572",
+        "GATE-519",
+        "GATE-579"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R13-OPEN-SOURCE-RELEASE-SCOPE",
+      "claim": "On 2026-09-18 the project owner directed that an overnight soak gate and a bespoke real-time watchdog are not necessary for this open-source project: users on real machines provide long-run feedback, so final acceptance should rest on the isolated end-to-end scenarios, the scale matrix, the rollback rehearsal and bounded real-time soak evidence. Evidence in hand at that point: 100k and 1M wide workloads (TASK-531/532, GATE-539 on the final candidate), the rollback rehearsal (FIND-ROLLBACK resolved), and a real-time soak of about 110 minutes with memory plateaued near 450 MiB, zero published-state mismatches, no forced evictions and flat descriptors.",
+      "confidence": "high",
+      "source": "Project owner direction in the working session of 2026-09-18 (recorded in docs/reliability/planning/replan-r13-review.json FACT-R13-003); soak archives docs/reliability/evidence/TASK-572/soak-runs/soak-3h and soak-final-candidate; docs/reliability/evidence/GATE-539/scale-runs/wide-100k",
+      "supports": [
+        "GATE-579",
+        "TASK-572"
+      ],
+      "contradicts": [],
+      "freshness": "2026-09-16 at cf313e4; source unchanged at repair start"
     }
   ],
   "decisions": [
     {
-      "id": "DECISION-401",
-      "question": "How should Disk Steward configure several heterogeneous MCP clients?",
-      "choice": "Use a typed client-adapter registry with explicit multi-selection, official client-owned commands or flows first, transactional fallback writes, independent per-client results, and a manual configuration escape hatch.",
+      "id": "DECISION-501",
+      "question": "Which repair path preserves safety and creates demonstrable progress?",
+      "choice": "Current baseline: the local correctness candidate builds; 238 isolated tests pass, including native CLI onboarding and bundled-helper checks. Original 213-test evidence and reproduced failures remain historical. Existing fixes must be re-established under brownfield inspections rather than assumed complete; no scale, soak, or release readiness is inferred. Cumulative ladder: Safe testing alongside a running application → Trustworthy current evidence across changes and lifecycle → Useful bounded monitoring progress → Responsive bounded local agent service → Useful and private evidence API → Safe reversible agent onboarding → Regression-assured repair candidate. Each later gate repeats earlier observable safety scenarios on the current candidate.",
       "alternatives": [
-        "Edit every known configuration file directly",
-        "Install one central MCP gateway",
-        "Offer documentation only",
-        "Treat setup and Agent Access as one switch"
+        "One broad rewrite followed by the existing suite",
+        "Raise resource limits and patch only exports",
+        "Automate the current unsafe tests and release first"
       ],
-      "rationale": "The selected path matches mature client-connector practice, preserves client trust boundaries, remains reversible, and keeps Disk Steward's single read-only helper and evidence engine authoritative.",
+      "rationale": "Reject the alternatives because they miss reproduced correctness/configuration failures or hide amplification. First rung has actor-visible value: a running application remains queryable while another launch/test executes. Evidence fixes, resource redesign and client configuration changes retain separate rollback and audit boundaries. Early independent fixes can start after test isolation; gate order preserves cumulative proof.",
       "evidence": [
-        "EV-401",
-        "EV-402",
-        "EV-403",
-        "EV-404",
-        "EV-405"
+        "EV-501",
+        "EV-502",
+        "EV-503",
+        "EV-504",
+        "EV-505",
+        "EV-506"
       ]
     },
     {
-      "id": "DECISION-402",
-      "question": "What is the smallest honest delivery ladder?",
-      "choice": "First deliver a runnable Codex and Claude Code setup flow in the app, then extend the same lifecycle to Cursor, VS Code, Claude Desktop, and the manual fallback while repeating the first increment's safety checks.",
+      "id": "DECISION-502",
+      "question": "How can necessary repairs proceed without falsely passing shared-asset foundation audits?",
+      "choice": "Order acceptance separately from implementation: replace only blanket OUTCOME510 start dependencies with integration-requires, and retain verified CONTRACT510 as a hard prerequisite. Preserve every gate, cumulative outcome dependency and material finding. Scoped fixture work may proceed ahead of foundation audit; no task can pass its audit before OUTCOME510.",
       "alternatives": [
-        "One horizontal backend phase followed by UI",
-        "Claim client detection alone as an increment",
-        "Ship every client without an earlier runnable slice"
+        "Mark unresolved broad findings accepted to unblock the foundation",
+        "Remove audit or outcome prerequisites",
+        "Change plugin enforcement"
       ],
-      "rationale": "Codex and Claude Code have authoritative CLI lifecycles and are already present in the user's environment, so they form the smallest end-to-end actor-visible setup scenario; the second rung adds heterogeneous client-owned flows and broader regression proof.",
+      "rationale": "All alternatives weaken assurance or expand product scope. Current isolation/ownership implementation is exercised by64 scoped fixture tests. The revision preserves all7requirements and7gates; source inspection also adds the exact backend/SQLite paths required to fulfill existing TASK541 effective-cancellation acceptance. Existing specific consumed-artifact dependencies remain hard and will be reevaluated only if evidence shows another cycle.",
       "evidence": [
-        "EV-402",
-        "EV-403",
-        "EV-404",
-        "EV-405"
+        "EV-508",
+        "EV-509"
       ]
-    }
-  ],
-  "nodes": [
-    {
-      "id": "INTENT-004",
-      "kind": "intent",
-      "title": "Safe multi-client MCP onboarding",
-      "summary": "Users can manage Disk Steward's read-only MCP connection across supported local AI clients from one honest, reversible settings experience.",
-      "level": 0,
-      "wave": 5,
-      "workstream": "intent",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-403",
-        "REQ-404",
-        "REQ-405"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-INTENT-401",
-          "description": "All supported-client lifecycle, safety, state-honesty, packaging, and regression evidence passes against the built app."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-INTENT-401",
-          "type": "end-to-end-test",
-          "description": "A built application detects representative clients and completes setup, verification, repair, and removal without unrelated mutation."
-        }
-      ],
-      "agent": {
-        "required_context": [],
-        "allowed_write_scope": [],
-        "commands": [],
-        "deliverables": [],
-        "non_goals": []
-      }
     },
     {
-      "id": "OUTCOME-420",
-      "kind": "outcome",
-      "title": "All supported clients have an honest onboarding path",
-      "summary": "The built app extends the verified Codex and Claude Code flow to Cursor, VS Code, Claude Desktop, and manual configuration with per-client lifecycle state.",
-      "level": 1,
-      "wave": 4,
-      "workstream": "integrations",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-403",
-        "REQ-404",
-        "REQ-405"
+      "id": "DECISION-503",
+      "question": "How should the observed endpoint ordering failure enter the existing reliability path?",
+      "choice": "Add one bounded ordered-delivery/lifecycle repair under OUTCOME520 and require its evidence at GATE529. Preserve every existing requirement, implementation node, cumulative gate and completed result. Do not hide the failure with a test sleep increase or infer resolution from a later green suite.",
+      "alternatives": [
+        "Only lengthen the endpoint test sleep or retry until green",
+        "Fold endpoint queue/lifecycle changes into TASK542 command process ownership",
+        "Leave the high-severity endpoint finding unmapped"
       ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-420-01",
-          "description": "Every named client is detected through bounded signals and receives either a verified adapter or an explicit client-owned/manual handoff."
-        },
-        {
-          "id": "AC-420-02",
-          "description": "Codex and Claude Code inherited setup, repair, removal, and Agent Access separation still pass against the final candidate."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-420-01",
-          "type": "integration-test",
-          "description": "Cross-client lifecycle matrix and final packaged-app verification."
-        }
-      ],
-      "agent": {
-        "required_context": [],
-        "allowed_write_scope": [],
-        "commands": [],
-        "deliverables": [],
-        "non_goals": []
-      }
+      "rationale": "An observed regression plus concrete task-per-event ordering/resource hazard belongs to existing trustworthy evidence and bounded work requirements. Endpoint bridge ownership and callback epochs form one independently testable boundary distinct from subprocess ownership and scanner lifecycle; no new system entitlement or feature is added. Test isolation remains enforced by CONTRACT510; acceptance still depends on OUTCOME510.",
+      "evidence": [
+        "EV-510"
+      ]
     },
     {
-      "id": "OUTCOME-410",
-      "kind": "outcome",
-      "title": "Codex and Claude Code setup works from Settings",
-      "summary": "A user can open Settings, detect Codex and Claude Code, select either or both, set them up, verify their state, repair stale paths, and remove only Disk Steward-owned configuration.",
-      "level": 2,
-      "wave": 2,
-      "workstream": "integrations",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-403",
-        "REQ-405"
+      "id": "DECISION-504",
+      "question": "How do core scanner timestamp/dirty-fence repairs reach the existing app and public evidence contracts?",
+      "choice": "Strengthen the existing TASK522 and TASK552 integration acceptance and required handoff, and GATE559 public interval proof. Extend TASK552 only to the exact provenance/export models and tests required to fulfill existing accurate-evidence intent. Preserve all nodes, seven requirements, seven cumulative gates and completed work; no new product capability or weaker gate.",
+      "alternatives": [
+        "Claim the core change_events correction also fixes exported provenance",
+        "Leave the ordinary hint and public timestamp handoffs only in informal progress prose",
+        "Introduce a second parallel timestamp workstream with overlapping store/export ownership"
       ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-410-01",
-          "description": "The built app completes an end-to-end Codex and Claude Code setup scenario with explicit selection and independently reported results."
-        },
-        {
-          "id": "AC-410-02",
-          "description": "Unrelated settings survive setup and removal, conflicts fail closed, and Agent Access remains independently controlled."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-410-01",
-          "type": "runnable-increment",
-          "description": "Swift tests plus a launched settings scenario using fixture client CLIs and configuration roots."
-        }
-      ],
-      "agent": {
-        "required_context": [],
-        "allowed_write_scope": [],
-        "commands": [],
-        "deliverables": [],
-        "non_goals": []
-      }
+      "rationale": "The two independent code paths are observed, not speculative. Existing lifecycle and public DTO tasks are the earliest actor-visible integration boundaries. Keeping their explicit evidence contracts avoids false completion and competing source ownership; updated impact/inspection records must cover the added attribution/export paths before audit. Scale, rollback, overnight and all prior gate obligations remain.",
+      "evidence": [
+        "EV-511"
+      ]
     },
     {
-      "id": "CONTRACT-401",
-      "kind": "contract",
-      "title": "Define the client-adapter and lifecycle contract",
-      "summary": "Specify bounded detection, state transitions, command execution, receipts, conflict handling, verification, rollback, and Agent Access separation before product mutations are implemented.",
-      "level": 3,
-      "wave": 0,
-      "workstream": "foundation",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-403",
-        "REQ-405"
+      "id": "DECISION-505",
+      "question": "How do existing lifecycle cancellation guarantees reach the notification side effect?",
+      "choice": "Extend TASK522 to its exact delivery adapter and strengthen the existing suspended-callback proof. Serialize the last cancellation check and callback-based native submission on the same main actor as lifecycle transitions. Preserve all nodes, gates, original intent, file-hint acceptance and historical proof.",
+      "alternatives": [
+        "Check cancellation only before calling the async delivery adapter",
+        "Permit a suspension between the final check and native submission",
+        "Claim already-submitted alerts can be recalled on pause"
       ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-401-01",
-          "description": "The Swift contract represents detected, configured, approval-pending, verified, broken, conflicting, and unavailable states without deriving them from Agent Access."
-        },
-        {
-          "id": "AC-401-02",
-          "description": "Mutation operations are explicit, cancellable, independently reported, idempotent, and testable with injected filesystem, workspace, and process boundaries."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-401-01",
-          "type": "contract-test",
-          "description": "Unit tests cover state derivation, bounded detection, receipt ownership, conflict refusal, and process failure mapping."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Sources/DiskStewardApp/Settings",
-          "Sources/DiskStewardApp/MCPAccess",
-          "Scripts/Integration",
-          "Tests/IntegrationInstallTests"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/AgentIntegrations/**",
-          "Tests/DiskStewardAppTests/AgentIntegrations/**",
-          "docs/tasks/evidence/CONTRACT-401/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/CONTRACT-401/**"
-        ],
-        "commands": [
-          "swift test --filter AgentIntegration"
-        ],
-        "deliverables": [
-          "Adapter protocols and models",
-          "Integration receipt store",
-          "Contract tests"
-        ],
-        "non_goals": [
-          "Concrete client UI",
-          "Changing Agent Access semantics"
-        ]
-      }
+      "rationale": "The current adapter ignores cancellation after suspended permission work. Main-actor serialization supplies a precise before/after submission boundary without blocking the main thread during asynchronous system callbacks; fake-center tests avoid real notification permission changes. No core/schema scope added; future receipt design remains separately required within TASK522.",
+      "evidence": [
+        "EV-512"
+      ]
     },
     {
-      "id": "TASK-402",
-      "kind": "implementation",
-      "title": "Implement Codex and Claude Code adapters",
-      "summary": "Use official client commands for user-scoped add, inspect, verify, repair, and remove operations, with bounded detection and recoverable fallback behavior.",
-      "level": 3,
-      "wave": 1,
-      "workstream": "client-adapters",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-405"
+      "id": "DECISION-506",
+      "question": "How can ordinary callback receipts fence publication without relying on actor timing?",
+      "choice": "Extend existing TASK522 to the exact collector/store/SQLite boundary and one package-owned publication fence. First reproduce receipt-during-preparation in a disposable store and serialize only the final commit with receipt acceptance. Then integrate bounded coalescing, per-root durable invalidation and restart/failure ownership through the concrete app path. Keep AC02 end-to-end proof mandatory.",
+      "alternatives": [
+        "Only enqueue actor invalidation or cancel a task and assume it wins before commit",
+        "Hold a callback lock across traversal and full reconciliation",
+        "Treat memory-only receipts or discarded overflow as durable evidence"
       ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-402-01",
-          "description": "Codex setup uses the official shared Codex configuration lifecycle and Claude Code setup uses official user scope rather than the obsolete repository script location."
-        },
-        {
-          "id": "AC-402-02",
-          "description": "Repeated setup does not duplicate entries; conflicting entries are not overwritten; removal touches only the owned entry; command and path failures are actionable."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-402-01",
-          "type": "automated-test",
-          "description": "Fixture CLI and configuration tests cover detection, setup, repeated setup, verification, repair, conflict, and removal."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Sources/DiskStewardApp/AgentIntegrations",
-          "Scripts/Integration",
-          "Tests/IntegrationInstallTests",
-          "Config/Packaging/project.yml"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/AgentIntegrations/Codex**",
-          "Sources/DiskStewardApp/AgentIntegrations/ClaudeCode**",
-          "Tests/DiskStewardAppTests/AgentIntegrations/Codex**",
-          "Tests/DiskStewardAppTests/AgentIntegrations/ClaudeCode**",
-          "docs/tasks/evidence/TASK-402/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-402/**"
-        ],
-        "commands": [
-          "swift test --filter AgentIntegration"
-        ],
-        "deliverables": [
-          "Codex adapter",
-          "Claude Code adapter",
-          "Adapter lifecycle tests"
-        ],
-        "non_goals": [
-          "Cursor, VS Code, or Claude Desktop setup"
-        ]
-      }
+      "rationale": "These alternatives do not establish the existing invariant or violate bounded-work safety. A final commit permit is an internal synchronization boundary, not a new filesystem snapshot promise; avoid SQLite busy retries under its lock and retain rollback checks. No schema/public API expansion, new framework dependency, or ownership overlap with another active task. All intent requirements and cumulative gates are retained; no whole-task completion from the core subpatch.",
+      "evidence": [
+        "EV-513"
+      ]
     },
     {
-      "id": "TASK-403",
-      "kind": "implementation",
-      "title": "Build the multi-select Agent Integrations settings experience",
-      "summary": "Add a native settings section that rescans known clients, supports multi-selection, executes setup with independent row results, and exposes test, repair, remove, and manual configuration actions.",
-      "level": 3,
-      "wave": 1,
-      "workstream": "experience",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-403"
+      "id": "DECISION-R11-STORAGE-PROOF-DEPENDENCY",
+      "question": "How can the bounded storage implementation start when its research prerequisite cannot be verified until that implementation resolves FIND-SCALE?",
+      "choice": "Change TASK-531/TASK-532's requires edges to RESEARCH-530 and OUTCOME-520 into integration-requires: the storage tasks may start against the recorded research decision and design candidate, but cannot pass audit until RESEARCH-530 and OUTCOME-520 are verified. No gate, acceptance criterion or finding is weakened.",
+      "alternatives": [
+        "Accept FIND-SCALE for the research rung with an accountable owner so RESEARCH-530 can be audited first; rejected because the finding is real and unresolved and acceptance would be dishonest gating.",
+        "Expand RESEARCH-530 into a proof-matrix subtree before implementation; rejected because the matrix cannot be exercised without the production candidate that TASK-531/532 produce.",
+        "Leave the graph unchanged; rejected because no storage work can ever start and the reliability intent cannot close."
       ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-403-01",
-          "description": "Detected supported clients appear as accessible selectable rows with text status independent of color; absent clients are not preselected."
-        },
-        {
-          "id": "AC-403-02",
-          "description": "Set Up Selected reports partial success per client, and setup state remains visually and semantically separate from the Agent Access toggle."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-403-01",
-          "type": "ui-test",
-          "description": "Presentation and interaction tests cover scanning, multi-selection, partial failure, repair/remove actions, and accessibility labels."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
-          "Sources/DiskStewardApp/StatusItemController.swift",
-          "Sources/DiskStewardApp/AgentIntegrations"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
-          "Sources/DiskStewardApp/MonitoringUI/MonitoringSettingsView.swift",
-          "Sources/DiskStewardApp/StatusItemController.swift",
-          "Tests/DiskStewardAppTests/AgentIntegrations/AgentIntegrationsPresentationTests.swift",
-          "docs/tasks/evidence/TASK-403/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-403/**"
-        ],
-        "commands": [
-          "swift test --filter AgentIntegration",
-          "Scripts/Development/build_xcode_project"
-        ],
-        "deliverables": [
-          "Agent Integrations settings UI",
-          "Selection and partial-result presentation tests"
-        ],
-        "non_goals": [
-          "Changing the menu bar status board"
-        ]
-      }
+      "rationale": "See choice.",
+      "evidence": [
+        "EV-RESEARCH-530-DECISION",
+        "EV-TASK-552-SCOPE"
+      ]
     },
     {
-      "id": "GATE-490",
-      "kind": "audit",
-      "title": "Audit the Codex and Claude Code onboarding increment",
-      "summary": "Independently exercise the built settings flow, adapter lifecycle, unrelated-setting preservation, conflict refusal, and Agent Access separation.",
-      "level": 3,
-      "wave": 2,
-      "workstream": "audit",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-403",
-        "REQ-405"
+      "id": "DECISION-R12-ACCEPTANCE-EVIDENCE-DEPENDENCY",
+      "question": "How can the migration/rollback rehearsal and the soak supervisor be produced when the task that owns them cannot start before the gates they unblock?",
+      "choice": "Change TASK-572's requires edge to OUTCOME-560 into integration-requires, exactly as R11 did for the storage tasks: TASK-572 may start its rehearsal tooling and measurements against the current candidate, but cannot pass audit until OUTCOME-560 is verified, and its overnight soak evidence must be re-established on the final candidate at GATE-579. No gate, acceptance criterion, finding or control is weakened; the final-candidate requirement stays in AC-TASK-572-01 and INSPECT-GATE-579-*.",
+      "alternatives": [
+        "Accept FIND-ROLLBACK and FIND-OVERNIGHT for the foundation rungs with an accountable owner; rejected because the rehearsal and soak are real, unperformed controls and acceptance would be dishonest gating.",
+        "Move the rollback rehearsal into TASK-511/512 by replan; rejected because those tasks are implemented and their contracts are unchanged, and the rehearsal is acceptance evidence, not an isolation repair.",
+        "Leave the graph unchanged; rejected because no audit can ever pass and the reliability intent cannot close."
       ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-490-01",
-          "description": "The app builds and a representative multi-select Codex plus Claude Code setup, verify, repair, and removal scenario passes with fixture client homes."
-        },
-        {
-          "id": "AC-490-02",
-          "description": "Existing MCP entries and evidence remain unchanged, conflict and unavailable states are honest, and enabling integrations does not enable Agent Access."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-490-01",
-          "type": "integration-audit",
-          "description": "Build log, focused Swift test output, configuration before/after fixtures, and settings presentation evidence."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Sources/DiskStewardApp/AgentIntegrations",
-          "Tests/DiskStewardAppTests/AgentIntegrations",
-          "Tests/IntegrationInstallTests"
-        ],
-        "allowed_write_scope": [
-          "docs/tasks/evidence/GATE-490/**"
-        ],
-        "effect": "evidence-only",
-        "evidence_outputs": [
-          "docs/tasks/evidence/GATE-490/**"
-        ],
-        "commands": [
-          "swift test --filter AgentIntegration",
-          "swift test --filter IntegrationInstallTests",
-          "Scripts/Development/build_xcode_project"
-        ],
-        "deliverables": [
-          "Increment audit result"
-        ],
-        "non_goals": [
-          "Changing product code"
-        ]
-      }
+      "rationale": "See choice.",
+      "evidence": [
+        "EV-TASK-532-ACCEPTANCE-PATH",
+        "EV-TASK-552-SCOPE"
+      ]
     },
     {
-      "id": "TASK-501",
-      "kind": "implementation",
-      "title": "Add Cursor, VS Code, Claude Desktop, and manual adapters",
-      "summary": "Extend the registry with bounded detection and client-owned installation flows or transactional configuration fallbacks for the remaining named clients.",
-      "level": 2,
-      "wave": 3,
-      "workstream": "client-adapters",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-404"
+      "id": "DECISION-R13-OPEN-SOURCE-SOAK-SCOPE",
+      "question": "Is a real-time overnight soak on the final candidate a necessary release gate for this open-source project?",
+      "choice": "No. AC-GATE-579-01 and EVREQ-GATE-579-01 now require the scale matrix, the migration/rollback rehearsal and at least one hour of real-time soak evidence on the candidate's product sources; the overnight requirement is removed and TASK-572's summary says 'a real-time soak of at least one hour'. FIND-OVERNIGHT is resolved by the existing scale matrix and the completed real-time soak rather than accepted. No node, edge, rung, gate ownership, finding severity or control is otherwise changed.",
+      "alternatives": [
+        "Keep the overnight requirement and wait for the 8-hour run; rejected by the project owner as unnecessary cost for an open-source release whose long-run feedback comes from users.",
+        "Add a development-only real-time watchdog module and review its logs later; rejected by the project owner for the same reason.",
+        "Accept FIND-OVERNIGHT with an accountable owner while keeping the criterion; rejected because a criterion nobody intends to meet is dishonest gating."
       ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-501-01",
-          "description": "Cursor and VS Code setup delegates trust to their supported installation surfaces where available; Claude Desktop uses a documented supported path; unknown clients receive a copyable stdio configuration only."
-        },
-        {
-          "id": "AC-501-02",
-          "description": "Every adapter implements inspect, setup or handoff, verify, repair, and remove semantics honestly, including approval-pending states that Disk Steward cannot complete itself."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-501-01",
-          "type": "automated-test",
-          "description": "Fixture tests cover supported client detection, generated configuration, client-owned handoff, conflict behavior, and manual fallback output."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Sources/DiskStewardApp/AgentIntegrations",
-          "Tests/DiskStewardAppTests/AgentIntegrations",
-          "Config/Packaging/project.yml"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/AgentIntegrations/Cursor**",
-          "Sources/DiskStewardApp/AgentIntegrations/VSCode**",
-          "Sources/DiskStewardApp/AgentIntegrations/ClaudeDesktop**",
-          "Sources/DiskStewardApp/AgentIntegrations/Manual**",
-          "Tests/DiskStewardAppTests/AgentIntegrations/RemainingClients**",
-          "docs/tasks/evidence/TASK-501/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-501/**"
-        ],
-        "commands": [
-          "swift test --filter AgentIntegration"
-        ],
-        "deliverables": [
-          "Remaining client adapters",
-          "Manual configuration flow",
-          "Adapter tests"
-        ],
-        "non_goals": [
-          "Publishing to external MCP registries"
-        ]
-      }
-    },
-    {
-      "id": "TASK-502",
-      "kind": "integration",
-      "title": "Harden packaging, receipts, repair, and cross-client verification",
-      "summary": "Exercise the final built app against stable helper-path, app update, receipt ownership, partial failure, and removal scenarios across all supported clients.",
-      "level": 2,
-      "wave": 3,
-      "workstream": "integration",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-402",
-        "REQ-403",
-        "REQ-404",
-        "REQ-405"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-502-01",
-          "description": "The packaged helper path is used consistently and a moved, missing, or replaced helper produces a repairable state rather than silent success."
-        },
-        {
-          "id": "AC-502-02",
-          "description": "Receipts permit removal only while the current owned entry still matches; user modifications create a conflict instead of destructive rollback."
-        },
-        {
-          "id": "AC-502-03",
-          "description": "A mixed multi-client run reports successes and failures independently and remains safe to repeat."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-502-01",
-          "type": "packaging-integration-test",
-          "description": "Built-app helper inspection, cross-client lifecycle matrix, and update/repair fixture evidence."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Config/Packaging",
-          "Scripts/Distribution",
-          "Sources/DiskStewardApp/AgentIntegrations",
-          "Tests/IntegrationInstallTests"
-        ],
-        "allowed_write_scope": [
-          "Sources/DiskStewardApp/AgentIntegrations/**",
-          "Tests/DiskStewardAppTests/AgentIntegrations/**",
-          "Tests/IntegrationInstallTests/**",
-          "Config/Packaging/**",
-          "Scripts/Distribution/**",
-          "docs/tasks/evidence/TASK-502/**"
-        ],
-        "effect": "mixed",
-        "evidence_outputs": [
-          "docs/tasks/evidence/TASK-502/**"
-        ],
-        "commands": [
-          "swift test",
-          "Scripts/Development/build_xcode_project",
-          "Scripts/Distribution/verify-release"
-        ],
-        "deliverables": [
-          "Hardened integration lifecycle",
-          "Packaging verification",
-          "Cross-client test matrix"
-        ],
-        "non_goals": [
-          "Notarizing or publishing a release"
-        ]
-      }
-    },
-    {
-      "id": "GATE-590",
-      "kind": "audit",
-      "title": "Audit complete multi-client MCP onboarding",
-      "summary": "Verify the final candidate across every named client path while repeating the accepted Codex and Claude Code scenario and checking recovery and packaging boundaries.",
-      "level": 2,
-      "wave": 4,
-      "workstream": "audit",
-      "selection": "primary",
-      "source_requirements": [
-        "REQ-401",
-        "REQ-402",
-        "REQ-403",
-        "REQ-404",
-        "REQ-405"
-      ],
-      "acceptance_criteria": [
-        {
-          "id": "AC-590-01",
-          "description": "The complete test matrix and application build pass for all supported adapters and the manual fallback."
-        },
-        {
-          "id": "AC-590-02",
-          "description": "The earlier Codex and Claude Code multi-select scenario still passes against the final candidate."
-        },
-        {
-          "id": "AC-590-03",
-          "description": "No adapter requests administrator access, stores credentials, enables Agent Access, overwrites conflicting configuration, or exposes write/delete MCP tools."
-        }
-      ],
-      "required_evidence": [
-        {
-          "id": "EVREQ-590-01",
-          "type": "final-integration-audit",
-          "description": "Full Swift test output, packaged-app verification, client lifecycle matrix, and safety inspection."
-        }
-      ],
-      "agent": {
-        "required_context": [
-          "Sources/DiskStewardApp/AgentIntegrations",
-          "Tests",
-          "Config/Packaging",
-          "Scripts/Distribution"
-        ],
-        "allowed_write_scope": [
-          "docs/tasks/evidence/GATE-590/**"
-        ],
-        "effect": "evidence-only",
-        "evidence_outputs": [
-          "docs/tasks/evidence/GATE-590/**"
-        ],
-        "commands": [
-          "swift test",
-          "Scripts/Development/build_xcode_project",
-          "Scripts/Distribution/verify-release"
-        ],
-        "deliverables": [
-          "Final multi-client onboarding audit result"
-        ],
-        "non_goals": [
-          "Changing product code",
-          "Publishing a release"
-        ]
-      }
+      "rationale": "See choice; direction recorded in EV-R13-OPEN-SOURCE-RELEASE-SCOPE.",
+      "evidence": [
+        "EV-R13-OPEN-SOURCE-RELEASE-SCOPE"
+      ]
     }
   ],
   "edges": [
     {
-      "from": "OUTCOME-420",
-      "to": "INTENT-004",
+      "from": "OUTCOME-510",
+      "to": "OUTCOME-520",
       "type": "contributes-to"
     },
     {
-      "from": "OUTCOME-410",
-      "to": "OUTCOME-420",
+      "from": "GATE-519",
+      "to": "OUTCOME-510",
       "type": "contributes-to"
     },
     {
-      "from": "CONTRACT-401",
-      "to": "OUTCOME-410",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-402",
-      "to": "OUTCOME-410",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-403",
-      "to": "OUTCOME-410",
-      "type": "contributes-to"
-    },
-    {
-      "from": "GATE-490",
-      "to": "OUTCOME-410",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-501",
-      "to": "OUTCOME-420",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-502",
-      "to": "OUTCOME-420",
-      "type": "contributes-to"
-    },
-    {
-      "from": "GATE-590",
-      "to": "OUTCOME-420",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-402",
-      "to": "CONTRACT-401",
-      "type": "contract-requires"
-    },
-    {
-      "from": "TASK-403",
-      "to": "CONTRACT-401",
-      "type": "contract-requires"
-    },
-    {
-      "from": "GATE-490",
-      "to": "CONTRACT-401",
-      "type": "validation-requires"
-    },
-    {
-      "from": "GATE-490",
-      "to": "TASK-402",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-490",
-      "to": "TASK-403",
-      "type": "integration-requires"
-    },
-    {
-      "from": "OUTCOME-410",
-      "to": "GATE-490",
+      "from": "OUTCOME-510",
+      "to": "GATE-519",
       "type": "validated-by"
     },
     {
-      "from": "TASK-501",
-      "to": "CONTRACT-401",
-      "type": "contract-requires"
+      "from": "TASK-511",
+      "to": "OUTCOME-510",
+      "type": "contributes-to"
     },
     {
-      "from": "TASK-502",
-      "to": "TASK-501",
-      "type": "integration-requires"
-    },
-    {
-      "from": "TASK-502",
-      "to": "TASK-403",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-590",
-      "to": "TASK-501",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-590",
-      "to": "TASK-502",
-      "type": "integration-requires"
-    },
-    {
-      "from": "GATE-590",
-      "to": "OUTCOME-410",
+      "from": "GATE-519",
+      "to": "TASK-511",
       "type": "validation-requires"
     },
     {
-      "from": "OUTCOME-420",
-      "to": "GATE-590",
+      "from": "TASK-511",
+      "to": "CONTRACT-510",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-512",
+      "to": "OUTCOME-510",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-519",
+      "to": "TASK-512",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-512",
+      "to": "CONTRACT-510",
+      "type": "requires"
+    },
+    {
+      "from": "OUTCOME-520",
+      "to": "OUTCOME-530",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-529",
+      "to": "OUTCOME-520",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-520",
+      "to": "GATE-529",
       "type": "validated-by"
     },
     {
-      "from": "INTENT-004",
-      "to": "OUTCOME-420",
+      "from": "GATE-529",
+      "to": "OUTCOME-510",
       "type": "validation-requires"
+    },
+    {
+      "from": "TASK-521",
+      "to": "OUTCOME-520",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-529",
+      "to": "TASK-521",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-521",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-522",
+      "to": "OUTCOME-520",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-529",
+      "to": "TASK-522",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-522",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "OUTCOME-530",
+      "to": "OUTCOME-540",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-539",
+      "to": "OUTCOME-530",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-530",
+      "to": "GATE-539",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-539",
+      "to": "OUTCOME-520",
+      "type": "validation-requires"
+    },
+    {
+      "from": "RESEARCH-530",
+      "to": "OUTCOME-530",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-539",
+      "to": "RESEARCH-530",
+      "type": "validation-requires"
+    },
+    {
+      "from": "RESEARCH-530",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-531",
+      "to": "OUTCOME-530",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-539",
+      "to": "TASK-531",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-531",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-532",
+      "to": "OUTCOME-530",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-539",
+      "to": "TASK-532",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-532",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "OUTCOME-540",
+      "to": "OUTCOME-550",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-549",
+      "to": "OUTCOME-540",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-540",
+      "to": "GATE-549",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-549",
+      "to": "OUTCOME-530",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-541",
+      "to": "OUTCOME-540",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-549",
+      "to": "TASK-541",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-541",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-542",
+      "to": "OUTCOME-540",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-549",
+      "to": "TASK-542",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-542",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "OUTCOME-550",
+      "to": "OUTCOME-560",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-559",
+      "to": "OUTCOME-550",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-550",
+      "to": "GATE-559",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-559",
+      "to": "OUTCOME-540",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-551",
+      "to": "OUTCOME-550",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-559",
+      "to": "TASK-551",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-551",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-552",
+      "to": "OUTCOME-550",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-559",
+      "to": "TASK-552",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-552",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "OUTCOME-560",
+      "to": "OUTCOME-570",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-569",
+      "to": "OUTCOME-560",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-560",
+      "to": "GATE-569",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-569",
+      "to": "OUTCOME-550",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-561",
+      "to": "OUTCOME-560",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-569",
+      "to": "TASK-561",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-561",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-562",
+      "to": "OUTCOME-560",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-569",
+      "to": "TASK-562",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-562",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "OUTCOME-570",
+      "to": "INTENT-005",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-579",
+      "to": "OUTCOME-570",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-570",
+      "to": "GATE-579",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-579",
+      "to": "OUTCOME-560",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-571",
+      "to": "OUTCOME-570",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-579",
+      "to": "TASK-571",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-571",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-572",
+      "to": "OUTCOME-570",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-579",
+      "to": "TASK-572",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-572",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "CONTRACT-510",
+      "to": "OUTCOME-510",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-519",
+      "to": "CONTRACT-510",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-531",
+      "to": "RESEARCH-530",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-531",
+      "to": "OUTCOME-520",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-532",
+      "to": "OUTCOME-520",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-561",
+      "to": "TASK-542",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-562",
+      "to": "TASK-561",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-572",
+      "to": "OUTCOME-560",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-521",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-522",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "RESEARCH-530",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-531",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-532",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-541",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-542",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-551",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-552",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-561",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-562",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-571",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-572",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-523",
+      "to": "OUTCOME-520",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-523",
+      "to": "CONTRACT-510",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-523",
+      "to": "OUTCOME-510",
+      "type": "integration-requires"
+    },
+    {
+      "from": "GATE-529",
+      "to": "TASK-523",
+      "type": "validation-requires"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "INTENT-005",
+      "kind": "intent",
+      "title": "Disk Steward Reliability Repairs",
+      "summary": "Repair the review-confirmed Disk Steward reliability defects so users receive trustworthy, bounded disk evidence and safe local MCP integrations, without tests disturbing the installed app, without loss of user files or client configuration, and with regression and recovery evidence for the exact repaired candidate.",
+      "level": 0,
+      "wave": 15,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505",
+        "REQ-506",
+        "REQ-507"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-INTENT-005-01",
+          "description": "All cumulative outcomes pass against the exact candidate with brownfield coverage, rollback controls and no open material findings."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-INTENT-005-01",
+          "type": "regression-evidence",
+          "description": "All cumulative outcomes pass against the exact candidate with brownfield coverage, rollback controls and no open material findings."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Repair the review-confirmed Disk Steward reliability defects so users receive trustworthy, bounded disk evidence and safe local MCP integrations, without tests disturbing the installed app, without loss of user files or client configuration, and with regression and recovery evidence for the exact repaired candidate."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "CONTRACT-510",
+      "kind": "contract",
+      "title": "Establish brownfield safety baseline and repair invariants",
+      "summary": "Complete baseline asset map, impact/inspection contracts, incident findings, rollback/monitoring controls and isolated-test boundary before modifying the product.",
+      "level": 9,
+      "wave": 0,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505",
+        "REQ-506",
+        "REQ-507"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-CONTRACT-510-01",
+          "description": "Baseline records app bootstrap, scanner, store, IPC/MCP, client config, export and distribution boundaries plus dependencies and the reported OOM/review failures. Every task has appropriate impact/inspection and rollback mapping; production sentinels cannot be mutated."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-CONTRACT-510-01",
+          "type": "regression-evidence",
+          "description": "Baseline records app bootstrap, scanner, store, IPC/MCP, client config, export and distribution boundaries plus dependencies and the reported OOM/review failures. Every task has appropriate impact/inspection and rollback mapping; production sentinels cannot be mutated."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "pyramid assess/impact through runtime after required skill reading"
+        ],
+        "deliverables": [
+          "Complete baseline asset map, impact/inspection contracts, incident findings, rollback/monitoring controls and isolated-test boundary before modifying the product."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-510",
+      "kind": "outcome",
+      "title": "Safe testing alongside a running application",
+      "summary": "Safe testing alongside a running application while preserving all prior accepted scenarios.",
+      "level": 7,
+      "wave": 2,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-510-01",
+          "description": "Construct a runnable candidate and pass GATE-519 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-510-01",
+          "type": "regression-evidence",
+          "description": "Construct a runnable candidate and pass GATE-519 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Safe testing alongside a running application while preserving all prior accepted scenarios."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "GATE-519",
+      "kind": "audit",
+      "title": "Audit safe testing alongside a running application",
+      "summary": "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof.",
+      "level": 8,
+      "wave": 2,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-519-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-519-01",
+          "type": "composition-audit",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "swift test --disable-sandbox (only after TASK-511 and TASK-512 pass and isolation is verified)"
+        ],
+        "deliverables": [
+          "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-511",
+      "kind": "implementation",
+      "title": "Isolate application tests and smoke startup",
+      "summary": "Introduce explicit test dependencies for support files, defaults, safety markers, roots, export paths and notifications. Test a full smoke journey beside sentinel production state without touching it. Include explicit temporary-export ownership and fail-closed artifact/helper destinations; never sweep shared export state when opening a fixture backend.",
+      "level": 8,
+      "wave": 1,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-511-01",
+          "description": "Tests verify sentinel settings/evidence/safety files and endpoint survive; missing isolation in smoke mode fails safely or uses a private fixture. Ordinary startup remains unchanged. Fixture backend initialization cannot sweep shared or foreign export directories; inherited artifact and helper overrides must fail before out-of-bound writes, deletion or execution."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-511-01",
+          "type": "regression-evidence",
+          "description": "Tests verify sentinel settings/evidence/safety files and endpoint survive; missing isolation in smoke mode fails safely or uses a private fixture. Ordinary startup remains unchanged. Fixture backend initialization cannot sweep shared or foreign export directories; inherited artifact and helper overrides must fail before out-of-bound writes, deletion or execution."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/main.swift",
+          "Sources/DiskStewardApp/AppConfiguration.swift",
+          "Sources/DiskStewardApp/StatusItemController.swift",
+          "Sources/DiskStewardApp/Settings/**",
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Tests/IncrementTests/Final/**",
+          "Tests/DiskStewardAppTests/**",
+          "Scripts/Distribution/verify-release",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "Sources/DiskStewardApp/Notifications/**",
+          "Tests/IntegrationInstallTests/**",
+          "Tests/IncrementTests/Snapshot/**",
+          "Sources/DiskStewardApp/StatusBoardViewModel.swift"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Introduce explicit test dependencies for support files, defaults, safety markers, roots, export paths and notifications. Test a full smoke journey beside sentinel production state without touching it."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-512",
+      "kind": "implementation",
+      "title": "Protect application and socket lifetime ownership",
+      "summary": "Prevent duplicate instances from replacing active endpoints using exclusive lifetime ownership, stale-owner recovery and safe per-instance unlink behavior.",
+      "level": 8,
+      "wave": 1,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-512-01",
+          "description": "Reproduce same-owner collision first; second start refuses live endpoint; first stop cannot unlink a successor; failed start releases only its own resources; stale recovery works."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-512-01",
+          "type": "regression-evidence",
+          "description": "Reproduce same-owner collision first; second start refuses live endpoint; first stop cannot unlink a successor; failed start releases only its own resources; stale recovery works."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/main.swift",
+          "Sources/DiskStewardApp/ApplicationDelegate.swift",
+          "Sources/DiskStewardCore/IPC/**",
+          "Tests/DiskStewardAppTests/IPC/**",
+          "Tests/IntegrationInstallTests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Prevent duplicate instances from replacing active endpoints using exclusive lifetime ownership, stale-owner recovery and safe per-instance unlink behavior."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-520",
+      "kind": "outcome",
+      "title": "Trustworthy current evidence across changes and lifecycle",
+      "summary": "Trustworthy current evidence across changes and lifecycle while preserving all prior accepted scenarios.",
+      "level": 6,
+      "wave": 4,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-520-01",
+          "description": "Construct a runnable candidate and pass GATE-529 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-520-01",
+          "type": "regression-evidence",
+          "description": "Construct a runnable candidate and pass GATE-529 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Trustworthy current evidence across changes and lifecycle while preserving all prior accepted scenarios."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "GATE-529",
+      "kind": "audit",
+      "title": "Audit trustworthy current evidence across changes and lifecycle",
+      "summary": "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof.",
+      "level": 7,
+      "wave": 4,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-529-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        },
+        {
+          "id": "AC-GATE-529-02",
+          "description": "Include the TASK523 ordered, bounded endpoint callback and stop/restart scenarios in the current candidate, alongside scan and monitoring lifecycle scenarios; FIND-ENDPOINT-ORDER must have evidence-backed disposition."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-529-01",
+          "type": "composition-audit",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        },
+        {
+          "id": "EVREQ-GATE-529-02",
+          "type": "composition-audit",
+          "description": "Current-candidate fixture evidence for TASK523, including held delivery, excluded-event ordering, explicit overflow and late callbacks across stop/restart."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
+          "docs/reliability/evidence/TASK-521/integration-handoff.md"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "swift test --disable-sandbox (only after TASK-511 and TASK-512 pass and isolation is verified)"
+        ],
+        "deliverables": [
+          "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-521",
+      "kind": "implementation",
+      "title": "Make scan-pass membership and observation times trustworthy",
+      "summary": "Invalidate superseded staged directory membership and retain actual observation intervals; handle per-root failures without publishing false absence or discarding healthy-root progress.",
+      "level": 7,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-502"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-521-01",
+          "description": "A/B/C deletion after staging no longer publishes deleted A as freshly present. Restart, directory mutation, failed roots, moves/replacement and scope changes preserve explicit uncertainty; old records migrate safely."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-521-01",
+          "type": "regression-evidence",
+          "description": "A/B/C deletion after staging no longer publishes deleted A as freshly present. Restart, directory mutation, failed roots, moves/replacement and scope changes preserve explicit uncertainty; old records migrate safely."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/Monitoring/**",
+          "Sources/DiskStewardCore/EvidenceStore/**",
+          "Schemas/**",
+          "Tests/DiskStewardCoreTests/Monitoring/**",
+          "Tests/DiskStewardCoreTests/EvidenceStore/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Invalidate superseded staged directory membership and retain actual observation intervals; handle per-root failures without publishing false absence or discarding healthy-root progress."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-522",
+      "kind": "implementation",
+      "title": "Fence monitoring lifecycle and honest freshness presentation",
+      "summary": "Prevent late samples from overriding Pause/Sleep/Quit, distinguish partial detail from live capacity, and preserve crash-recovery safety semantics. Route ordinary targeted change hints through the durable pass-invalidation fence.",
+      "level": 7,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-502"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-522-01",
+          "description": "Fake-clock tests prove no late Active transition/notification after pause or sleep, no sleep follow-up, orderly shutdown does not mimic a crash, and partial/failed scans never claim all evidence current. Suspend notification-settings and authorization callbacks in synthetic tests; cancellation must be rechecked at a main-actor-serialized OS submission boundary for pause, sleep, quit and settings changes. Already-submitted notifications are not retroactively revoked."
+        },
+        {
+          "id": "AC-TASK-522-02",
+          "description": "Ordinary targeted file-change hints, not only event-loss gaps, durably invalidate affected scan passes before an in-flight stale slice can publish; isolated controller/probe/store tests cover equal-time hints, pause/sleep, restart and unaffected roots without false deletion. The callback-to-store path has bounded coalescing and stream identity; pending receipt persistence failures fail closed and survive retry/restart as explicit uncertainty. A receipt accepted during transaction preparation fences final commit, not just store entry. Prove before/after commit order and rollback with no lock across traversal or reconciliation preparation."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-522-01",
+          "type": "regression-evidence",
+          "description": "Fake-clock tests prove no late Active transition/notification after pause or sleep, no sleep follow-up, orderly shutdown does not mimic a crash, and partial/failed scans never claim all evidence current. Suspend notification-settings and authorization callbacks in synthetic tests; cancellation must be rechecked at a main-actor-serialized OS submission boundary for pause, sleep, quit and settings changes. Already-submitted notifications are not retroactively revoked."
+        },
+        {
+          "id": "EVREQ-TASK-522-02",
+          "type": "regression-evidence",
+          "description": "Ordinary targeted file-change hints, not only event-loss gaps, durably invalidate affected scan passes before an in-flight stale slice can publish; isolated controller/probe/store tests cover equal-time hints, pause/sleep, restart and unaffected roots without false deletion. The callback-to-store path has bounded coalescing and stream identity; pending receipt persistence failures fail closed and survive retry/restart as explicit uncertainty. A receipt accepted during transaction preparation fences final commit, not just store entry. Prove before/after commit order and rollback with no lock across traversal or reconciliation preparation."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
+          "docs/reliability/evidence/TASK-521/integration-handoff.md",
+          "docs/reliability/evidence/TASK-522/lifecycle-progress.md",
+          "docs/reliability/evidence/TASK-522/notification-progress.md",
+          "docs/reliability/evidence/TASK-522/hint-publication-design-notes.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Sources/DiskStewardApp/ApplicationDelegate.swift",
+          "Sources/DiskStewardApp/MonitoringUI/**",
+          "Sources/DiskStewardApp/StatusItemController.swift",
+          "Tests/DiskStewardAppTests/Lifecycle/**",
+          "Tests/DiskStewardAppTests/MonitoringUI/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardApp/Notifications/UserNotificationDelivery.swift",
+          "Sources/DiskStewardCore/Monitoring/ScanPublicationFence.swift",
+          "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift",
+          "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "Tests/DiskStewardCoreTests/Monitoring/ScanPublicationFenceTests.swift",
+          "Tests/DiskStewardCoreTests/Monitoring/MonitoringTests.swift"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Prevent late samples from overriding Pause/Sleep/Quit, distinguish partial detail from live capacity, and preserve crash-recovery safety semantics.",
+          "End-to-end ordinary hint receipt and durable reconciliation invalidation, preserving root isolation and lifecycle fences."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-530",
+      "kind": "outcome",
+      "title": "Useful bounded monitoring progress",
+      "summary": "Useful bounded monitoring progress while preserving all prior accepted scenarios.",
+      "level": 5,
+      "wave": 6,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-530-01",
+          "description": "Construct a runnable candidate and pass GATE-539 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-530-01",
+          "type": "regression-evidence",
+          "description": "Construct a runnable candidate and pass GATE-539 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Useful bounded monitoring progress while preserving all prior accepted scenarios."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "GATE-539",
+      "kind": "audit",
+      "title": "Audit useful bounded monitoring progress",
+      "summary": "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof.",
+      "level": 6,
+      "wave": 6,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-539-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass. The 100k/1M bounded-progress and storage-pressure scenarios are mandatory here."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-539-01",
+          "type": "composition-audit",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass. The 100k/1M bounded-progress and storage-pressure scenarios are mandatory here."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "swift test --disable-sandbox (only after TASK-511 and TASK-512 pass and isolation is verified)"
+        ],
+        "deliverables": [
+          "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "RESEARCH-530",
+      "kind": "research",
+      "title": "Benchmark bounded enumeration and publication alternatives",
+      "summary": "Compare existing lexical batching with bounded durable frontier/enumeration alternatives; evaluate atomic publication and migration tradeoffs on synthetic wide and deep trees before selecting a storage change.",
+      "level": 6,
+      "wave": 3,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-503"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-RESEARCH-530-01",
+          "description": "Record time, entries re-enumerated, frontier bytes, RSS and WAL for representative workloads. Choose the smallest evidenced solution or explicitly block the implementation if no safe option is validated."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-RESEARCH-530-01",
+          "type": "regression-evidence",
+          "description": "Record time, entries re-enumerated, frontier bytes, RSS and WAL for representative workloads. Choose the smallest evidenced solution or explicitly block the implementation if no safe option is validated."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/**",
+          "Tests/PerformanceTests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Compare existing lexical batching with bounded durable frontier/enumeration alternatives; evaluate atomic publication and migration tradeoffs on synthetic wide and deep trees before selecting a storage change."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-531",
+      "kind": "implementation",
+      "title": "Implement bounded scan continuation and persistence",
+      "summary": "Use the benchmarked path for durable bounded frontier/reconciliation and a fair continuation scheduler separate from periodic capacity sampling; include work deadlines and stall/backoff reporting.",
+      "level": 6,
+      "wave": 6,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-503"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-531-01",
+          "description": "Representative 100k and 1M synthetic workloads converge without five-minute-per-batch pacing, unbounded frontier materialization or repeated whole-generation restarts; inherited mutation correctness and atomic publication pass."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-531-01",
+          "type": "regression-evidence",
+          "description": "Representative 100k and 1M synthetic workloads converge without five-minute-per-batch pacing, unbounded frontier materialization or repeated whole-generation restarts; inherited mutation correctness and atomic publication pass."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
+          "docs/reliability/evidence/RESEARCH-530/query-and-decision.md",
+          "docs/reliability/evidence/RESEARCH-530/design-candidate.md",
+          "docs/reliability/evidence/RESEARCH-530/recovery-and-space-progress.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/Monitoring/**",
+          "Sources/DiskStewardCore/EvidenceStore/**",
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Tests/PerformanceTests/**",
+          "Tests/DiskStewardCoreTests/Monitoring/**",
+          "Tests/DiskStewardCoreTests/EvidenceStore/**",
+          "Tests/IncrementTests/Monitoring/**",
+          "docs/reliability/evidence/**",
+          "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+          "Tests/DiskStewardAppTests/Lifecycle/MonitoringLifecycleTests.swift",
+          "Tests/DiskStewardAppTests/Lifecycle/MonitoringReceiptTests.swift"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Use the benchmarked path for durable bounded frontier/reconciliation and a fair continuation scheduler separate from periodic capacity sampling; include work deadlines and stall/backoff reporting."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-532",
+      "kind": "implementation",
+      "title": "Reserve storage headroom and make retention recovery bounded",
+      "summary": "Unify allocation/admission/maintenance accounting, reserve next-work headroom and preflight compaction space; handle live-state-too-large without silently evicting current truth.",
+      "level": 6,
+      "wave": 6,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-503"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-532-01",
+          "description": "Below-cap-but-insufficient-reserve, above-cap, no-history, WAL reader, interruption and disk-full fixtures recover or report explicit non-progress; history loss is recorded; no uncontrolled maintenance loop or authoritative-state eviction."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-532-01",
+          "type": "regression-evidence",
+          "description": "Below-cap-but-insufficient-reserve, above-cap, no-history, WAL reader, interruption and disk-full fixtures recover or report explicit non-progress; history loss is recorded; no uncontrolled maintenance loop or authoritative-state eviction."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
+          "docs/reliability/evidence/RESEARCH-530/query-and-decision.md",
+          "docs/reliability/evidence/RESEARCH-530/design-candidate.md",
+          "docs/reliability/evidence/RESEARCH-530/recovery-and-space-progress.md",
+          "Tests/DiskStewardCoreTests/Monitoring/BoundedFrontierTests.swift"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/EvidenceStore/**",
+          "Sources/DiskStewardCore/ResourceControl/**",
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "Tests/DiskStewardCoreTests/EvidenceStore/**",
+          "Tests/PerformanceTests/**",
+          "Tests/IncrementTests/Monitoring/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Unify allocation/admission/maintenance accounting, reserve next-work headroom and preflight compaction space; handle live-state-too-large without silently evicting current truth."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-540",
+      "kind": "outcome",
+      "title": "Responsive bounded local agent service",
+      "summary": "Responsive bounded local agent service while preserving all prior accepted scenarios.",
+      "level": 4,
+      "wave": 8,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-540-01",
+          "description": "Construct a runnable candidate and pass GATE-549 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-540-01",
+          "type": "regression-evidence",
+          "description": "Construct a runnable candidate and pass GATE-549 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Responsive bounded local agent service while preserving all prior accepted scenarios."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "GATE-549",
+      "kind": "audit",
+      "title": "Audit responsive bounded local agent service",
+      "summary": "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof.",
+      "level": 5,
+      "wave": 8,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-549-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-549-01",
+          "type": "composition-audit",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "swift test --disable-sandbox (only after TASK-511 and TASK-512 pass and isolation is verified)"
+        ],
+        "deliverables": [
+          "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-541",
+      "kind": "implementation",
+      "title": "Bound socket and MCP request lifecycle",
+      "summary": "Add bounded in-flight work, deadline/cancellation-aware I/O, disconnect handling and request-state cleanup with a precise Agent Access revocation boundary.",
+      "level": 5,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-504"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-541-01",
+          "description": "Slow/idle/non-reading clients and oversized input do not stall monitoring or accumulate unbounded resources; actual concurrent cancellation releases work; Off rejects further work on existing connections; disposable-process SIGPIPE tests pass."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-541-01",
+          "type": "regression-evidence",
+          "description": "Slow/idle/non-reading clients and oversized input do not stall monitoring or accumulate unbounded resources; actual concurrent cancellation releases work; Off rejects further work on existing connections; disposable-process SIGPIPE tests pass."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/IPC/**",
+          "Sources/DiskStewardMCP/**",
+          "Sources/DiskStewardApp/MCPAccess/**",
+          "Tests/DiskStewardMCPTests/**",
+          "Tests/DiskStewardAppTests/IPC/**",
+          "Tests/DiskStewardAppTests/MCPAccess/**",
+          "Tests/IntegrationInstallTests/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardApp/IPC/**",
+          "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "Tests/DiskStewardCoreTests/SQLiteCancellationTests.swift"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Add bounded in-flight work, deadline/cancellation-aware I/O, disconnect handling and request-state cleanup with a precise Agent Access revocation boundary."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-542",
+      "kind": "implementation",
+      "title": "Drain client process output safely",
+      "summary": "Drain both process pipes concurrently with output caps, completion-once state, deadlines and cancellation/termination escalation scoped to owned child processes.",
+      "level": 5,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-504"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-542-01",
+          "description": "1MiB stdout and stderr commands complete without pipe deadlock; huge output, fast exit, never-exit, cancellation races and spawn failures finish with bounded output and no orphaned child."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-542-01",
+          "type": "regression-evidence",
+          "description": "1MiB stdout and stderr commands complete without pipe deadlock; huge output, fast exit, never-exit, cancellation races and spawn failures finish with bounded output and no orphaned child."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+          "Tests/DiskStewardAppTests/AgentIntegrations/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Drain both process pipes concurrently with output caps, completion-once state, deadlines and cancellation/termination escalation scoped to owned child processes."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-550",
+      "kind": "outcome",
+      "title": "Useful and private evidence API",
+      "summary": "Useful and private evidence API while preserving all prior accepted scenarios.",
+      "level": 3,
+      "wave": 10,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-550-01",
+          "description": "Construct a runnable candidate and pass GATE-559 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-550-01",
+          "type": "regression-evidence",
+          "description": "Construct a runnable candidate and pass GATE-559 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Useful and private evidence API while preserving all prior accepted scenarios."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "GATE-559",
+      "kind": "audit",
+      "title": "Audit useful and private evidence api",
+      "summary": "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof.",
+      "level": 4,
+      "wave": 10,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-559-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        },
+        {
+          "id": "AC-GATE-559-02",
+          "description": "Through isolated real IPC and decoded exports, re-establish the public occurrence-time uncertainty and attribution contract from AC-TASK-552-02; internal change_events tests alone do not satisfy this gate."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-559-01",
+          "type": "composition-audit",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        },
+        {
+          "id": "EVREQ-GATE-559-02",
+          "type": "composition-audit",
+          "description": "Through isolated real IPC and decoded exports, re-establish the public occurrence-time uncertainty and attribution contract from AC-TASK-552-02; internal change_events tests alone do not satisfy this gate."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
+          "docs/reliability/evidence/TASK-521/integration-handoff.md"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "swift test --disable-sandbox (only after TASK-511 and TASK-512 pass and isolation is verified)"
+        ],
+        "deliverables": [
+          "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-551",
+      "kind": "implementation",
+      "title": "Repair bounded exports and decoder/date consistency",
+      "summary": "Replace divergent decoder behavior with one bounded streaming codec; reject corrupt data with throwing errors; share date parsing and preserve export lifecycle cleanup.",
+      "level": 4,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-505"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-551-01",
+          "description": "Zero/one/many-row, fractional timestamp, exact-buffer, corrupt/truncated/high-expansion stream, cancellation and output-cap tests pass; no try! on external/serialized evidence and no temporary export leftovers."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-551-01",
+          "type": "regression-evidence",
+          "description": "Zero/one/many-row, fractional timestamp, exact-buffer, corrupt/truncated/high-expansion stream, cancellation and output-cap tests pass; no try! on external/serialized evidence and no temporary export leftovers."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/Export/**",
+          "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "Tests/DiskStewardCoreTests/Export/**",
+          "Tests/DiskStewardAppTests/IPC/**",
+          "Tests/IncrementTests/MCP/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Replace divergent decoder behavior with one bounded streaming codec; reject corrupt data with throwing errors; share date parsing and preserve export lifecycle cleanup."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-552",
+      "kind": "implementation",
+      "title": "Publish compact privacy-correct evidence DTOs",
+      "summary": "Separate public summaries from scan frontiers, budget before materialization, use path-free query/revision-bound cursors and effective user policy, preserve typed errors and freshness/coverage semantics. Carry measured/unknown occurrence intervals through provenance, overlap queries and versioned exports.",
+      "level": 4,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-505"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-552-01",
+          "description": "All ten tools and two resources pass isolated real-IPC tests; basename/hashed outputs including cursors leak no path; changing policy/exclusions is immediately visible; stale/missing evidence is explicit; responses honor selected row/byte budgets."
+        },
+        {
+          "id": "AC-TASK-552-02",
+          "description": "Actual store-to-provenance-to-MCP/export evidence preserves unknown occurrence lower bounds, distinct sample/absence upper bounds and publication time. First sightings and scope entry are not exact creation times; contradictory chronology is not normalized by swapping endpoints; uncertain timing does not create false session attribution. Deliberate old-payload/schema compatibility and bounded overlap-query behavior are proven through real IPC and decoded exports."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-552-01",
+          "type": "regression-evidence",
+          "description": "All ten tools and two resources pass isolated real-IPC tests; basename/hashed outputs including cursors leak no path; changing policy/exclusions is immediately visible; stale/missing evidence is explicit; responses honor selected row/byte budgets."
+        },
+        {
+          "id": "EVREQ-TASK-552-02",
+          "type": "regression-evidence",
+          "description": "Actual store-to-provenance-to-MCP/export evidence preserves unknown occurrence lower bounds, distinct sample/absence upper bounds and publication time. First sightings and scope entry are not exact creation times; contradictory chronology is not normalized by swapping endpoints; uncertain timing does not create false session attribution. Deliberate old-payload/schema compatibility and bounded overlap-query behavior are proven through real IPC and decoded exports."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json",
+          "docs/reliability/evidence/TASK-521/integration-handoff.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/EvidenceStore/**",
+          "Sources/DiskStewardCore/Contracts/**",
+          "Sources/DiskStewardApp/IPC/**",
+          "Sources/DiskStewardApp/StatusItemController.swift",
+          "Sources/DiskStewardMCP/**",
+          "Schemas/**",
+          "Tests/DiskStewardMCPTests/**",
+          "Tests/DiskStewardAppTests/IPC/**",
+          "Tests/ContractTests/**",
+          "Tests/SafetyTests/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardCore/Provenance/**",
+          "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleModels.swift",
+          "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift",
+          "Tests/DiskStewardCoreTests/Provenance/**",
+          "Tests/DiskStewardCoreTests/EvidenceStore/**",
+          "Tests/DiskStewardCoreTests/Export/**",
+          "Fixtures/Provenance/**",
+          "Tests/IncrementTests/Monitoring/PersistentRecorderIncrementTests.swift",
+          "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Separate public summaries from scan frontiers, budget before materialization, use path-free query/revision-bound cursors and effective user policy, preserve typed errors and freshness/coverage semantics.",
+          "Coordinated public occurrence interval contract, compatibility/migration and store-to-agent/export proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-560",
+      "kind": "outcome",
+      "title": "Safe reversible agent onboarding",
+      "summary": "Safe reversible agent onboarding while preserving all prior accepted scenarios.",
+      "level": 2,
+      "wave": 12,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505",
+        "REQ-506"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-560-01",
+          "description": "Construct a runnable candidate and pass GATE-569 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-560-01",
+          "type": "regression-evidence",
+          "description": "Construct a runnable candidate and pass GATE-569 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Safe reversible agent onboarding while preserving all prior accepted scenarios."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "GATE-569",
+      "kind": "audit",
+      "title": "Audit safe reversible agent onboarding",
+      "summary": "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof.",
+      "level": 3,
+      "wave": 12,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505",
+        "REQ-506"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-569-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-569-01",
+          "type": "composition-audit",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "swift test --disable-sandbox (only after TASK-511 and TASK-512 pass and isolation is verified)"
+        ],
+        "deliverables": [
+          "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-561",
+      "kind": "implementation",
+      "title": "Make configuration ownership and mutations conflict-safe",
+      "summary": "Validate complete client entry structure, compare owned fields including user additions, preserve unrelated state and scope, detect concurrent edits and implement recoverable backups/CLI rollback.",
+      "level": 3,
+      "wave": 4,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-506"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-561-01",
+          "description": "Malformed JSON roots/args, env/cwd/unknown additions, client profiles, concurrent writes and failures at each mutation step preserve user data or return an explicit recoverable conflict. Setup/repair/remove remain idempotent and approval-aware."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-561-01",
+          "type": "regression-evidence",
+          "description": "Malformed JSON roots/args, env/cwd/unknown additions, client profiles, concurrent writes and failures at each mutation step preserve user data or return an explicit recoverable conflict. Setup/repair/remove remain idempotent and approval-aware."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/**",
+          "Scripts/Integration/**",
+          "Tests/DiskStewardAppTests/AgentIntegrations/**",
+          "Tests/IntegrationInstallTests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Validate complete client entry structure, compare owned fields including user additions, preserve unrelated state and scope, detect concurrent edits and implement recoverable backups/CLI rollback."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-562",
+      "kind": "implementation",
+      "title": "Verify actual configured connectivity and repair session contract",
+      "summary": "Verify the exact configured helper and an app-backed bounded query; distinguish approval, helper health, connectivity and evidence freshness. Correct the session socket and explicit process/lease identity contract without inferring tasks from MCP initialize.",
+      "level": 3,
+      "wave": 5,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-506"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-562-01",
+          "description": "Moved/missing helper cannot become verified from a different helper self-check; app-off/access-off/stale evidence are accurate. Session entry point uses the canonical socket and does not attribute writes to a dead short-lived registration script; automatic client task hooks remain out of scope."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-562-01",
+          "type": "regression-evidence",
+          "description": "Moved/missing helper cannot become verified from a different helper self-check; app-off/access-off/stale evidence are accurate. Session entry point uses the canonical socket and does not attribute writes to a dead short-lived registration script; automatic client task hooks remain out of scope."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/AgentIntegrations/**",
+          "Sources/DiskStewardMCP/main.swift",
+          "Sources/DiskStewardCore/IPC/**",
+          "Scripts/Integration/session",
+          "Tests/DiskStewardAppTests/AgentIntegrations/**",
+          "Tests/IntegrationInstallTests/**",
+          "docs/integrations/**",
+          "docs/reliability/evidence/**",
+          "Scripts/Integration/doctor"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Verify the exact configured helper and an app-backed bounded query; distinguish approval, helper health, connectivity and evidence freshness. Correct the session socket and explicit process/lease identity contract without inferring tasks from MCP initialize."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-570",
+      "kind": "outcome",
+      "title": "Regression-assured repair candidate",
+      "summary": "Regression-assured repair candidate while preserving all prior accepted scenarios.",
+      "level": 1,
+      "wave": 14,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505",
+        "REQ-506",
+        "REQ-507"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-570-01",
+          "description": "Construct a runnable candidate and pass GATE-579 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-570-01",
+          "type": "regression-evidence",
+          "description": "Construct a runnable candidate and pass GATE-579 including inherited behavior, explicit safety/recovery limits and brownfield inspections."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Regression-assured repair candidate while preserving all prior accepted scenarios."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "GATE-579",
+      "kind": "audit",
+      "title": "Audit regression-assured repair candidate",
+      "summary": "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof.",
+      "level": 2,
+      "wave": 14,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-501",
+        "REQ-502",
+        "REQ-503",
+        "REQ-504",
+        "REQ-505",
+        "REQ-506",
+        "REQ-507"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-579-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass. Final acceptance additionally requires the scale matrix, the migration and rollback rehearsal, and real-time soak evidence of at least one hour on the candidate's product sources; accelerated clocks do not substitute for that real-time portion. An overnight soak is not a release requirement for this open-source project: long-run behaviour on real machines is gathered from user feedback and crash reports after release, and the isolated CI workflow stays the regression proof."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-579-01",
+          "type": "composition-audit",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung, or missing evidence explicitly required by this rung, prevent pass. Final acceptance additionally requires the scale matrix, the migration and rollback rehearsal, and real-time soak evidence of at least one hour on the candidate's product sources; accelerated clocks do not substitute for that real-time portion. An overnight soak is not a release requirement for this open-source project: long-run behaviour on real machines is gathered from user feedback and crash reports after release, and the isolated CI workflow stays the regression proof."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "swift test --disable-sandbox (only after TASK-511 and TASK-512 pass and isolation is verified)"
+        ],
+        "deliverables": [
+          "Independently exercise the integrated candidate, including earlier accepted scenarios; do not use task self-report as proof."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-571",
+      "kind": "implementation",
+      "title": "Add isolated CI and candidate verification workflow",
+      "summary": "Automate credential-free build, isolated test and contract checks; provide packaged-app/upgrade verification that cannot modify production data. Keep signing/release publication separately authorized and protected.",
+      "level": 2,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-507"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-571-01",
+          "description": "CI configuration validates; fork/PR tests need no signing secrets; isolated test harness preserves sentinel production state; candidate verification records exact revision, artifact identity, compatibility and rollback prerequisites."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-571-01",
+          "type": "regression-evidence",
+          "description": "CI configuration validates; fork/PR tests need no signing secrets; isolated test harness preserves sentinel production state; candidate verification records exact revision, artifact identity, compatibility and rollback prerequisites."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          ".github/workflows/**",
+          "Scripts/Distribution/**",
+          "Scripts/Testing/**",
+          "Tests/IncrementTests/Distribution/**",
+          "docs/reliability/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Automate credential-free build, isolated test and contract checks; provide packaged-app/upgrade verification that cannot modify production data. Keep signing/release publication separately authorized and protected."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-572",
+      "kind": "implementation",
+      "title": "Collect scale, lifecycle and rollback acceptance evidence",
+      "summary": "Exercise the same candidate across scale, concurrent queries, retention, upgrade/restart, sleep/wake and a real-time soak of at least one hour in isolated state; capture limitations instead of treating virtual time as wall-clock evidence.",
+      "level": 2,
+      "wave": 13,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-507"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-572-01",
+          "description": "Record RSS/CPU/FD/queue/output/DB/WAL/staging peaks, scan convergence and mutation correctness; migration rollback rehearsed; current configured budgets met or unresolved findings block acceptance; installed-app release and Homebrew publication remain unperformed unless separately requested."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-572-01",
+          "type": "regression-evidence",
+          "description": "Record RSS/CPU/FD/queue/output/DB/WAL/staging peaks, scan convergence and mutation correctness; migration rollback rehearsed; current configured budgets met or unresolved findings block acceptance; installed-app release and Homebrew publication remain unperformed unless separately requested."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/REVIEW-AND-REPAIR-PLAN.md",
+          "/Users/merdankiji/Documents/Codex/2026-09-12/as-x20/review-2026-09-16/results.json"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/**",
+          "Tests/PerformanceTests/**",
+          "Scripts/Testing/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run scoped regression tests with temporary support/configuration/socket fixtures."
+        ],
+        "deliverables": [
+          "Exercise the same candidate across scale, concurrent queries, retention, upgrade/restart, sleep/wake and a real-time overnight soak in isolated state; capture limitations instead of treating virtual time as wall-clock evidence."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not declare a release from task completion."
+        ]
+      }
+    },
+    {
+      "id": "TASK-523",
+      "kind": "implementation",
+      "title": "Preserve bounded ordered endpoint delivery across lifecycle",
+      "summary": "Reproduce and repair the endpoint callback ordering failure with one bounded delivery owner, explicit overflow/gap behavior, and stop/restart epoch fencing.",
+      "level": 7,
+      "wave": 3,
+      "workstream": "reliability",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-502",
+        "REQ-504"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-523-01",
+          "description": "Sequential endpoint notifications, including excluded events between included events, retain order without false sequence gaps under deliberately delayed delivery. The callback-to-bridge queue and worker count are bounded before task creation; overflow exposes a truthful gap/fallback. Stop/crash/restart fence late callbacks and in-flight delivery from prior epochs. Deterministic tests use barriers/drain acknowledgments rather than fixed sleeps and preserve authentication and genuine-gap behavior."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-523-01",
+          "type": "regression-evidence",
+          "description": "Sequential endpoint notifications, including excluded events between included events, retain order without false sequence gaps under deliberately delayed delivery. The callback-to-bridge queue and worker count are bounded before task creation; overflow exposes a truthful gap/fallback. Stop/crash/restart fence late callbacks and in-flight delivery from prior epochs. Deterministic tests use barriers/drain acknowledgments rather than fixed sleeps and preserve authentication and genuine-gap behavior."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/TASK-542/scope-review.md",
+          "docs/reliability/evidence/TASK-542/endpoint-order-failure.log",
+          "docs/reliability/evidence/CONTRACT-510/safety-contract.md"
+        ],
+        "allowed_write_scope": [
+          "Extensions/DiskStewardEndpoint/EndpointSecurityObserver.swift",
+          "Sources/DiskStewardCore/EndpointBridge/**",
+          "Tests/DiskStewardEndpointTests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Run deterministic fixture-only endpoint ordering, queue-capacity, genuine-gap, authentication and lifecycle regression tests in a disposable source snapshot."
+        ],
+        "deliverables": [
+          "Bounded ordered endpoint notification delivery and deterministic regression evidence for FIND-ENDPOINT-ORDER."
+        ],
+        "non_goals": [
+          "Do not touch installed app/user evidence or real client configurations; use isolated fixtures.",
+          "Do not request or add EndpointSecurity entitlements, activate a real system extension, or claim native EndpointSecurity capture.",
+          "Do not weaken confidence/gap reporting or paper over the failure with longer sleeps.",
+          "Do not declare a release from task completion."
+        ]
+      }
     }
   ]
 }

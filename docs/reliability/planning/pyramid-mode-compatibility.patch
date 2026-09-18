@@ -1,0 +1,43 @@
+--- /Users/merdankiji/.codex/plugins/cache/kmerdan-skills/pyramid-task/3.7.1+codex.20260829235011/scripts/pyramid_core.py	2026-08-30 19:43:43
++++ /private/tmp/disk-steward-pyramid-runtime.RRD14Q/scripts/pyramid_core.py	2026-09-17 08:24:32
+@@ -5190,6 +5190,7 @@
+     reason: str,
+     expected_version: int | dict[str, Any] | None = None,
+     transition_approval: dict[str, Any] | None = None,
++    mode: str | None = None,
+ ) -> dict[str, Any]:
+     if not reason.strip():
+         raise PyramidError("reset requires a non-empty reason")
+@@ -5199,7 +5200,11 @@
+         raise PyramidError("Candidate reset plan is invalid:\n- " + "\n- ".join(errors))
+     paths, current, state = load_project(project)
+     manifest, current_baseline, _ = load_assurance_bundle(paths, current)
+-    next_mode = manifest.get("mode") if manifest else detect_repository_mode(paths["root"])
++    next_mode = mode or (manifest.get("mode") if manifest else detect_repository_mode(paths["root"]))
++    if next_mode not in {"greenfield", "brownfield"}:
++        raise PyramidError("reset mode must be greenfield or brownfield")
++    if manifest and manifest.get("mode") == "brownfield" and next_mode != "brownfield":
++        raise PyramidError("A new intent cannot discard existing brownfield assurance")
+     check_expected_version(current, state, expected_version)
+     if candidate["plan_id"] == current["plan_id"]:
+         raise PyramidError("A reset must use a new plan_id; use replan to revise the current plan")
+@@ -5274,8 +5279,10 @@
+         if candidate["plan_id"] == current_plan["plan_id"]:
+             raise PyramidError("A new intent must use a new plan_id; use replan for the current intent")
+         manifest = load_json(paths["project"]) if paths["project"].exists() else None
+-        if manifest is not None:
++        if manifest is not None and mode == "auto":
+             selected_mode = manifest["mode"]
++        if manifest and manifest.get("mode") == "brownfield" and selected_mode != "brownfield":
++            raise PyramidError("A new intent cannot discard existing brownfield assurance")
+         current = {
+             "plan_id": current_plan["plan_id"],
+             "project_format_version": (
+@@ -5415,6 +5422,7 @@
+         reason,
+         expected_version=reset_expected,
+         transition_approval=approval,
++        mode=preview["mode"],
+     )
+     return {
+         "schema": "pyramid-new-intent-result-v1",

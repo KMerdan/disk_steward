@@ -1,5 +1,15 @@
 import Foundation
 
+/// One lifecycle attempt. Revocation is synchronous, including while the bridge is busy.
+public final class EndpointDeliveryEpoch: @unchecked Sendable {
+    private let lock = NSLock()
+    private var current = true
+
+    public init() {}
+    public func invalidate() { lock.lock(); current = false; lock.unlock() }
+    public var isCurrent: Bool { lock.lock(); defer { lock.unlock() }; return current }
+}
+
 public actor ProtectedEndpointBridge {
     private let expectedTeamID: String
     private let expectedBundleID: String
@@ -11,6 +21,12 @@ public actor ProtectedEndpointBridge {
     private var streamID: String?
     private var lastSequence: UInt64?
     private var statusValue: EndpointBridgeStatus
+    private var deliveryEpoch: EndpointDeliveryEpoch?
+    private var acceptsDelivery = false
+    private var hasStarted = false
+    private var pendingGap = false
+    private var observedGap = false
+    private var ingressDrops = 0
 
     public init(expectedTeamID: String, expectedBundleID: String, expectedContainer: String, expectedChallengeDigest: String, scope: EndpointMonitoringScope, buffer: BoundedEndpointEventBuffer = .init()) {
         self.expectedTeamID = expectedTeamID
@@ -25,18 +41,84 @@ public actor ProtectedEndpointBridge {
     @discardableResult
     public func receive(_ notification: RawPrivilegedNotification, proof: EndpointBridgePeerProof) throws -> EndpointBufferResult? {
         try authenticate(proof)
-        let discontinuity = streamID != nil && (streamID != notification.streamID || lastSequence.map { $0 + 1 != notification.sequence } == true)
+        // Legacy direct fixtures may use an unmanaged bridge. Managed delivery must carry its epoch.
+        guard deliveryEpoch == nil else { throw EndpointBridgeError.unavailable(statusValue.state) }
+        return try ingest(notification)
+    }
+
+    @discardableResult
+    public func receive(_ notification: RawPrivilegedNotification, proof: EndpointBridgePeerProof, epoch: EndpointDeliveryEpoch) throws -> EndpointBufferResult? {
+        try authenticate(proof)
+        guard acceptsDelivery, deliveryEpoch === epoch, epoch.isCurrent else { return nil }
+        // No suspension between the epoch check and sequence/buffer/status mutation.
+        return try ingest(notification)
+    }
+
+    @discardableResult
+    public func setDeliveryState(_ state: EndpointBridgeState, epoch: EndpointDeliveryEpoch, proof: EndpointBridgePeerProof) throws -> Bool {
+        try authenticate(proof)
+        guard epoch.isCurrent else { return false }
+        deliveryEpoch = epoch
+        acceptsDelivery = state == .available
+        if acceptsDelivery {
+            streamID = nil
+            lastSequence = nil
+            pendingGap = hasStarted
+            observedGap = hasStarted || buffer.hasGap
+            hasStarted = true
+        }
+        statusValue = Self.status(for: state, dropped: totalDrops, gap: state != .available || pendingGap || observedGap || buffer.hasGap)
+        return true
+    }
+
+    public func recordDeliveryLoss(_ count: Int, epoch: EndpointDeliveryEpoch, proof: EndpointBridgePeerProof) throws {
+        try authenticate(proof)
+        guard acceptsDelivery, deliveryEpoch === epoch, epoch.isCurrent, count > 0 else { return }
+        ingressDrops = saturatingAdd(ingressDrops, count)
+        pendingGap = true
+        observedGap = true
+        statusValue = Self.status(for: .overloaded, dropped: totalDrops, gap: true)
+    }
+
+    private func ingest(_ notification: RawPrivilegedNotification) throws -> EndpointBufferResult? {
+        let discontinuity = streamID != nil && (streamID != notification.streamID || lastSequence.map { $0 == .max || $0 + 1 != notification.sequence } == true)
+        let gap = pendingGap || discontinuity || buffer.hasGap
+        let event: NormalizedPrivilegedEvent?
+        do {
+            event = try normalizer.normalize(notification, scope: scope, gapBefore: gap)
+        } catch {
+            pendingGap = true
+            observedGap = true
+            statusValue = Self.status(for: .droppedEvents, dropped: totalDrops, gap: true)
+            throw error
+        }
         streamID = notification.streamID
         lastSequence = notification.sequence
-        guard let event = try normalizer.normalize(notification, scope: scope, gapBefore: discontinuity || buffer.hasGap) else { return nil }
+        pendingGap = gap
+        observedGap = observedGap || gap
+        // An excluded event still advances source sequence, but cannot hide a preceding gap.
+        guard let event else {
+            if gap { statusValue = Self.status(for: .droppedEvents, dropped: totalDrops, gap: true) }
+            return nil
+        }
         let result = buffer.append(event)
         switch result {
         case .dropped:
-            statusValue = Self.status(for: .overloaded, dropped: buffer.droppedEvents, gap: true)
+            pendingGap = true
+            observedGap = true
+            statusValue = Self.status(for: .overloaded, dropped: totalDrops, gap: true)
         default:
-            statusValue = Self.status(for: .available, dropped: buffer.droppedEvents, gap: discontinuity || buffer.hasGap)
+            pendingGap = false
+            statusValue = Self.status(for: .available, dropped: totalDrops, gap: observedGap || buffer.hasGap)
         }
         return result
+    }
+
+    private var totalDrops: Int { saturatingAdd(ingressDrops, buffer.droppedEvents) }
+
+    private func saturatingAdd(_ left: Int, _ right: Int) -> Int {
+        let result = left.addingReportingOverflow(right)
+        return result.overflow ? .max : result.partialValue
     }
 
     public func drain(proof: EndpointBridgePeerProof) throws -> [NormalizedPrivilegedEvent] {
@@ -45,10 +127,17 @@ public actor ProtectedEndpointBridge {
     }
 
     public func transition(to state: EndpointBridgeState) {
-        statusValue = Self.status(for: state, dropped: buffer.droppedEvents, gap: state != .available || buffer.hasGap)
+        // Managed epochs cannot be resurrected by an unrelated legacy status update.
+        guard deliveryEpoch == nil else { return }
+        statusValue = Self.status(for: state, dropped: totalDrops, gap: state != .available || observedGap || buffer.hasGap)
     }
 
-    public func status() -> EndpointBridgeStatus { statusValue }
+    public func status() -> EndpointBridgeStatus {
+        if let deliveryEpoch, !deliveryEpoch.isCurrent {
+            return Self.status(for: .unavailable, dropped: totalDrops, gap: true)
+        }
+        return statusValue
+    }
 
     private func authenticate(_ proof: EndpointBridgePeerProof) throws {
         guard proof.teamID == expectedTeamID,
@@ -61,9 +150,10 @@ public actor ProtectedEndpointBridge {
 
     private func constantTimeEqual(_ left: String, _ right: String) -> Bool {
         let lhs = Array(left.utf8), rhs = Array(right.utf8)
-        var difference = UInt8(truncatingIfNeeded: lhs.count ^ rhs.count)
-        for index in 0 ..< max(lhs.count, rhs.count) {
-            difference |= (index < lhs.count ? lhs[index] : 0) ^ (index < rhs.count ? rhs[index] : 0)
+        guard lhs.count == rhs.count else { return false }
+        var difference: UInt8 = 0
+        for index in lhs.indices {
+            difference |= lhs[index] ^ rhs[index]
         }
         return difference == 0
     }
