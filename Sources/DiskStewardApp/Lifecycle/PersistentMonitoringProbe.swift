@@ -192,7 +192,14 @@ actor PersistentMonitoringProbe: MonitoringProbing {
     private let volumeSampleSource: @Sendable (StorageSnapshot?) throws -> (StorageSnapshot, VolumeGrowthSample)
     private let afterScanCommit: @Sendable () -> Void
     private let continuationBudget: TimeInterval
-    private let metadataScanner = DirectoryMetadataScanner()
+    private let metadataScanner: DirectoryMetadataScanner
+    private let objectClassifier: ObjectClassifier?
+    /// An installed store still holds the per-file rows earlier versions
+    /// staged inside what are now objects. They are collapsed once per launch,
+    /// in bounded batches, so a large store converges over a few samples
+    /// instead of blocking one.
+    private var objectConvergenceRemaining = true
+    static let maximumCollapsePerSample = 64
     private let writeCoalescer = WriteCoalescer()
     private let explanationEngine = GrowthExplanationEngine()
     private nonisolated let inbox = MonitoringChangeInbox()
@@ -211,7 +218,8 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         resourceMeasurementSource: (@Sendable (URL, Bool) -> ResourceMeasurement)? = nil,
         volumeSampleSource: @escaping @Sendable (StorageSnapshot?) throws -> (StorageSnapshot, VolumeGrowthSample) = { try WholeVolumeSampler().sample(after: $0) },
         afterScanCommit: @escaping @Sendable () -> Void = {},
-        continuationBudget: TimeInterval = PersistentMonitoringProbe.defaultContinuationBudget
+        continuationBudget: TimeInterval = PersistentMonitoringProbe.defaultContinuationBudget,
+        objectClassifier: ObjectClassifier? = ObjectClassifier(oracle: GitRepositoryOracle())
     ) throws {
         try FileManager.default.createDirectory(at: databaseURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         self.databaseURL = databaseURL
@@ -225,6 +233,8 @@ actor PersistentMonitoringProbe: MonitoringProbing {
             let liveSource = LiveResourceMeasurementSource()
             self.resourceMeasurementSource = { liveSource.measure(databaseURL: $0, underLoad: $1) }
         }
+        self.objectClassifier = objectClassifier
+        metadataScanner = DirectoryMetadataScanner(classifier: objectClassifier)
         store = try evidenceStore ?? EvidenceStore(url: databaseURL)
     }
 
@@ -251,6 +261,8 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         try Task.checkCancellation()
         let publicationPermit = try inbox.publicationPermit()
         let storageLimitations = try await recoverStorageBeforeSampling(settings: settings, policy: retentionPolicy, now: now)
+        try Task.checkCancellation()
+        let convergence = try await convergeStoredObjects(at: now)
         try Task.checkCancellation()
         let (snapshot, volumeGrowth) = try volumeSampleSource(previousStorage)
         let scope = policy.scopeVersion(at: now)
@@ -369,7 +381,8 @@ actor PersistentMonitoringProbe: MonitoringProbing {
             volumeUsedDelta: volumeDelta,
             detailedEvents: events,
             eventGap: sampleEventGap,
-            scopeLimitations: volumeGrowth.limitations + policy.scopeLimitations(at: now) + storageLimitations + scanLimitations
+            scopeLimitations: volumeGrowth.limitations + policy.scopeLimitations(at: now) + storageLimitations
+                + scanLimitations + convergence
         )
 
         let diagnostics = try await store.diagnostics()
@@ -421,6 +434,44 @@ actor PersistentMonitoringProbe: MonitoringProbing {
 
     func boundedResourceHistory() -> [ResourceMeasurement] {
         resourceHistory.samples
+    }
+
+    /// Collapse the per-file rows an earlier version staged inside what are
+    /// now objects. Directories are classified, not files: only a directory
+    /// that classifies as an object contributes, and each sample collapses at
+    /// most `maximumCollapsePerSample` of them, so a store with a million rows
+    /// converges over a few samples rather than stalling one.
+    private func convergeStoredObjects(at date: Date) async throws -> [String] {
+        guard objectConvergenceRemaining, let classifier = objectClassifier else { return [] }
+        let directories = try await store.currentFileStateDirectories()
+        guard !directories.isEmpty else { objectConvergenceRemaining = false; return [] }
+        var objects: [StoredObject] = []
+        var seen: Set<String> = []
+        for directory in directories where objects.count < Self.maximumCollapsePerSample {
+            try Task.checkCancellation()
+            // Walk up from the directory: the object is the outermost
+            // ancestor that classifies, not the directory the file sits in.
+            // The repository is resolved once for the whole chain.
+            let chain = classifier.ancestors(of: directory)
+            let repository = classifier.repositoryPath(for: directory)
+            var candidate: ClassifiedObject?
+            for path in chain {
+                if seen.contains(path) { break }
+                if case let .object(object) = classifier.classify(directoryPath: path, repositoryPath: repository) {
+                    candidate = object
+                }
+            }
+            if let candidate, seen.insert(candidate.path).inserted {
+                objects.append(StoredObject(classification: candidate, observedAt: date))
+            }
+        }
+        guard !objects.isEmpty else { objectConvergenceRemaining = false; return [] }
+        let report = try await store.collapsePerFileRows(into: objects)
+        if report.perFileRowsRemoved == 0, report.objectsWritten == objects.count {
+            objectConvergenceRemaining = false
+        }
+        guard report.perFileRowsRemoved > 0 else { return [] }
+        return ["Collapsed \(report.perFileRowsRemoved) file rows into \(report.objectsWritten) build-output objects; they are measured as one object from now on."]
     }
 
     /// Storage pressure is recoverable work, unlike memory or queue pressure.

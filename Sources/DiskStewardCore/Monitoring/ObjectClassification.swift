@@ -239,14 +239,40 @@ public struct ObjectClassifier: Sendable {
     }
 
     /// The nearest enclosing repository of a path, if any.
+    ///
+    /// Only an absolute path has ancestors to walk. A relative one would make
+    /// `deletingLastPathComponent` prepend `..` forever instead of reaching a
+    /// fixed point, so it decides nothing, and the walk is bounded as well.
     public func repositoryPath(for directoryPath: String) -> String? {
-        var current = URL(fileURLWithPath: directoryPath)
-        while true {
+        guard directoryPath.hasPrefix("/") else { return nil }
+        var current = URL(fileURLWithPath: directoryPath).standardizedFileURL
+        for _ in 0 ..< Self.maximumAncestorDepth {
             if isDirectory(current.appendingPathComponent(rules.repositoryMarker).path) { return current.path }
-            let parent = current.deletingLastPathComponent()
-            if parent.path == current.path || parent.path.count < 2 { return nil }
+            if current.path == "/" { return nil }
+            let parent = current.deletingLastPathComponent().standardizedFileURL
+            if parent.path == current.path { return nil }
             current = parent
         }
+        return nil
+    }
+
+    /// A filesystem path deeper than this is not walked to its root; nothing
+    /// real reaches it, and an unbounded walk is how a bad path hangs a scan.
+    public static let maximumAncestorDepth = 256
+
+    /// The ancestors of a path, outermost last, bounded the same way.
+    public func ancestors(of directoryPath: String) -> [String] {
+        guard directoryPath.hasPrefix("/") else { return [] }
+        var current = URL(fileURLWithPath: directoryPath).standardizedFileURL
+        var paths: [String] = []
+        for _ in 0 ..< Self.maximumAncestorDepth {
+            paths.append(current.path)
+            if current.path == "/" { break }
+            let parent = current.deletingLastPathComponent().standardizedFileURL
+            if parent.path == current.path { break }
+            current = parent
+        }
+        return paths
     }
 
     private func selfMarker(in directoryPath: String) -> (kind: ClassifiedObjectKind, reason: String)? {

@@ -3,6 +3,7 @@
 ## Tasks
 
 - [`TASK-612`](TASK-612-stop-descending-into-classified-objects.md) — Stop descending into classified objects
+- [`TASK-615`](TASK-615-run-objects-in-the-app-wire-the-probe-and-converge-an-installed-store.md) — Run objects in the app: wire the probe and converge an installed store
 
 ## Parallelism
 

@@ -1,16 +1,16 @@
 {
   "schema": "pyramid-graph-v1",
-  "generated_at": "2026-09-20T04:04:17.134973Z",
-  "graph_version": 23,
+  "generated_at": "2026-09-20T06:06:30.899676Z",
+  "graph_version": 32,
   "context": {
-    "id": "CTX-F3103EFA1F4435521559848388B3A760",
+    "id": "CTX-808A716F6DD60A96A826A80572FA42D3",
     "plan_id": "PLAN-DISK-STEWARD-006",
-    "plan_revision": 1,
-    "graph_version": 23
+    "plan_revision": 2,
+    "graph_version": 32
   },
   "plan_id": "PLAN-DISK-STEWARD-006",
   "title": "Reclaimable Space As Whole Objects",
-  "revision": 1,
+  "revision": 2,
   "intent": {
     "id": "INTENT-006",
     "statement": "Disk Steward treats build output, shared developer caches and repositories as single evidence objects rather than per-file rows, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and an explicit review step before anything is removed.",
@@ -92,14 +92,14 @@
     "restored_from": null
   },
   "summary": {
-    "primary_nodes": 17,
-    "verified_primary_nodes": 5,
+    "primary_nodes": 18,
+    "verified_primary_nodes": 6,
     "closure_ready": false,
     "availability": {
       "locked": 6,
       "not-executable": 4,
       "ready": 2,
-      "verified": 5
+      "verified": 6
     }
   },
   "nodes": [
@@ -168,7 +168,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -203,6 +203,7 @@
           "TASK-612",
           "TASK-613",
           "TASK-614",
+          "TASK-615",
           "TASK-621",
           "TASK-622",
           "TASK-623",
@@ -219,11 +220,16 @@
           "IMPACT-TASK-612-SCANNER",
           "IMPACT-TASK-612-STORE",
           "IMPACT-TASK-612-RESOURCE",
-          "IMPACT-TASK-612-ASSURANCE"
+          "IMPACT-TASK-612-ASSURANCE",
+          "IMPACT-TASK-615-LIFECYCLE",
+          "IMPACT-TASK-615-SCANNER",
+          "IMPACT-TASK-615-STORE",
+          "IMPACT-TASK-615-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
+          "ASSET-LIFECYCLE",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
           "ASSET-STORE"
@@ -233,7 +239,8 @@
           "INSPECT-CONTRACT-601-1",
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
-          "INSPECT-TASK-612-1"
+          "INSPECT-TASK-612-1",
+          "INSPECT-TASK-615-1"
         ],
         "finding_ids": [],
         "scope_drift_ids": [
@@ -258,13 +265,23 @@
           "DRIFT-A11C3B0A0485",
           "DRIFT-5E96AE919F3B",
           "DRIFT-36422037AA69",
-          "DRIFT-A0D544CE2405"
+          "DRIFT-A0D544CE2405",
+          "DRIFT-75F98FFED79C",
+          "DRIFT-2A450A7B41D6",
+          "DRIFT-99AD8D091D40",
+          "DRIFT-A5330DF3FAD7",
+          "DRIFT-4CAEFF010E43",
+          "DRIFT-B9146520F415",
+          "DRIFT-83868C67E8CE",
+          "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
           "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
+          "Required inspection INSPECT-TASK-612-1 is stale",
           "Required inspection INSPECT-TASK-613-1 is stale"
         ]
       },
@@ -329,7 +346,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -369,6 +386,7 @@
           "TASK-612",
           "TASK-613",
           "TASK-614",
+          "TASK-615",
           "TASK-621",
           "TASK-622",
           "TASK-623",
@@ -385,11 +403,16 @@
           "IMPACT-TASK-612-SCANNER",
           "IMPACT-TASK-612-STORE",
           "IMPACT-TASK-612-RESOURCE",
-          "IMPACT-TASK-612-ASSURANCE"
+          "IMPACT-TASK-612-ASSURANCE",
+          "IMPACT-TASK-615-LIFECYCLE",
+          "IMPACT-TASK-615-SCANNER",
+          "IMPACT-TASK-615-STORE",
+          "IMPACT-TASK-615-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
+          "ASSET-LIFECYCLE",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
           "ASSET-STORE"
@@ -399,7 +422,8 @@
           "INSPECT-CONTRACT-601-1",
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
-          "INSPECT-TASK-612-1"
+          "INSPECT-TASK-612-1",
+          "INSPECT-TASK-615-1"
         ],
         "finding_ids": [],
         "scope_drift_ids": [
@@ -424,13 +448,23 @@
           "DRIFT-A11C3B0A0485",
           "DRIFT-5E96AE919F3B",
           "DRIFT-36422037AA69",
-          "DRIFT-A0D544CE2405"
+          "DRIFT-A0D544CE2405",
+          "DRIFT-75F98FFED79C",
+          "DRIFT-2A450A7B41D6",
+          "DRIFT-99AD8D091D40",
+          "DRIFT-A5330DF3FAD7",
+          "DRIFT-4CAEFF010E43",
+          "DRIFT-B9146520F415",
+          "DRIFT-83868C67E8CE",
+          "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
           "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
+          "Required inspection INSPECT-TASK-612-1 is stale",
           "Required inspection INSPECT-TASK-613-1 is stale"
         ]
       },
@@ -496,7 +530,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -535,6 +569,7 @@
           "TASK-612",
           "TASK-613",
           "TASK-614",
+          "TASK-615",
           "TASK-621",
           "TASK-622",
           "TASK-623"
@@ -550,11 +585,16 @@
           "IMPACT-TASK-612-SCANNER",
           "IMPACT-TASK-612-STORE",
           "IMPACT-TASK-612-RESOURCE",
-          "IMPACT-TASK-612-ASSURANCE"
+          "IMPACT-TASK-612-ASSURANCE",
+          "IMPACT-TASK-615-LIFECYCLE",
+          "IMPACT-TASK-615-SCANNER",
+          "IMPACT-TASK-615-STORE",
+          "IMPACT-TASK-615-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
+          "ASSET-LIFECYCLE",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
           "ASSET-STORE"
@@ -564,7 +604,8 @@
           "INSPECT-CONTRACT-601-1",
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
-          "INSPECT-TASK-612-1"
+          "INSPECT-TASK-612-1",
+          "INSPECT-TASK-615-1"
         ],
         "finding_ids": [],
         "scope_drift_ids": [
@@ -589,13 +630,23 @@
           "DRIFT-A11C3B0A0485",
           "DRIFT-5E96AE919F3B",
           "DRIFT-36422037AA69",
-          "DRIFT-A0D544CE2405"
+          "DRIFT-A0D544CE2405",
+          "DRIFT-75F98FFED79C",
+          "DRIFT-2A450A7B41D6",
+          "DRIFT-99AD8D091D40",
+          "DRIFT-A5330DF3FAD7",
+          "DRIFT-4CAEFF010E43",
+          "DRIFT-B9146520F415",
+          "DRIFT-83868C67E8CE",
+          "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
           "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
+          "Required inspection INSPECT-TASK-612-1 is stale",
           "Required inspection INSPECT-TASK-613-1 is stale"
         ]
       },
@@ -662,7 +713,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -753,10 +804,15 @@
           "DRIFT-A0D544CE2405"
         ],
         "blockers": [
+          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
           "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-SCANNER lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
-          "Required inspection INSPECT-TASK-611-1 is stale"
+          "Required inspection INSPECT-TASK-611-1 is stale",
+          "Required inspection INSPECT-TASK-612-1 is stale"
         ]
       },
       "source_path": "docs/tasks/08-assurance/GATE-639-audit-shared-caches-in-scope.md"
@@ -812,7 +868,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -822,8 +878,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -846,13 +902,16 @@
         "TASK-614",
         "RESEARCH-601",
         "CONTRACT-601",
-        "GATE-619"
+        "GATE-619",
+        "TASK-615"
       ],
       "dependencies": [],
       "audit_gates": [
         "GATE-619"
       ],
-      "evidence": [],
+      "evidence": [
+        "EV-R1-UNWIRED-PROBE"
+      ],
       "assurance": {
         "status": "blocked",
         "task_ids": [
@@ -862,7 +921,8 @@
           "TASK-611",
           "TASK-612",
           "TASK-613",
-          "TASK-614"
+          "TASK-614",
+          "TASK-615"
         ],
         "impact_ids": [
           "IMPACT-RESEARCH-601-BUILD",
@@ -875,11 +935,16 @@
           "IMPACT-TASK-612-SCANNER",
           "IMPACT-TASK-612-STORE",
           "IMPACT-TASK-612-RESOURCE",
-          "IMPACT-TASK-612-ASSURANCE"
+          "IMPACT-TASK-612-ASSURANCE",
+          "IMPACT-TASK-615-LIFECYCLE",
+          "IMPACT-TASK-615-SCANNER",
+          "IMPACT-TASK-615-STORE",
+          "IMPACT-TASK-615-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
+          "ASSET-LIFECYCLE",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
           "ASSET-STORE"
@@ -889,7 +954,8 @@
           "INSPECT-CONTRACT-601-1",
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
-          "INSPECT-TASK-612-1"
+          "INSPECT-TASK-612-1",
+          "INSPECT-TASK-615-1"
         ],
         "finding_ids": [],
         "scope_drift_ids": [
@@ -914,13 +980,23 @@
           "DRIFT-A11C3B0A0485",
           "DRIFT-5E96AE919F3B",
           "DRIFT-36422037AA69",
-          "DRIFT-A0D544CE2405"
+          "DRIFT-A0D544CE2405",
+          "DRIFT-75F98FFED79C",
+          "DRIFT-2A450A7B41D6",
+          "DRIFT-99AD8D091D40",
+          "DRIFT-A5330DF3FAD7",
+          "DRIFT-4CAEFF010E43",
+          "DRIFT-B9146520F415",
+          "DRIFT-83868C67E8CE",
+          "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
           "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
+          "Required inspection INSPECT-TASK-612-1 is stale",
           "Required inspection INSPECT-TASK-613-1 is stale"
         ]
       },
@@ -988,7 +1064,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -1091,10 +1167,15 @@
           "DRIFT-A0D544CE2405"
         ],
         "blockers": [
+          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
           "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-SCANNER lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
-          "Required inspection INSPECT-TASK-611-1 is stale"
+          "Required inspection INSPECT-TASK-611-1 is stale",
+          "Required inspection INSPECT-TASK-612-1 is stale"
         ]
       },
       "source_path": "docs/tasks/06-assurance/GATE-629-audit-visible-reclaimable-space.md"
@@ -1152,7 +1233,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -1162,8 +1243,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -1203,6 +1284,11 @@
           "id": "TASK-614",
           "type": "validation-requires",
           "verification": "unverified"
+        },
+        {
+          "id": "TASK-615",
+          "type": "validation-requires",
+          "verification": "passed"
         }
       ],
       "audit_gates": [],
@@ -1215,7 +1301,8 @@
           "TASK-611",
           "TASK-612",
           "TASK-613",
-          "TASK-614"
+          "TASK-614",
+          "TASK-615"
         ],
         "impact_ids": [
           "IMPACT-RESEARCH-601-BUILD",
@@ -1228,11 +1315,16 @@
           "IMPACT-TASK-612-SCANNER",
           "IMPACT-TASK-612-STORE",
           "IMPACT-TASK-612-RESOURCE",
-          "IMPACT-TASK-612-ASSURANCE"
+          "IMPACT-TASK-612-ASSURANCE",
+          "IMPACT-TASK-615-LIFECYCLE",
+          "IMPACT-TASK-615-SCANNER",
+          "IMPACT-TASK-615-STORE",
+          "IMPACT-TASK-615-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
+          "ASSET-LIFECYCLE",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
           "ASSET-STORE"
@@ -1242,7 +1334,8 @@
           "INSPECT-CONTRACT-601-1",
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
-          "INSPECT-TASK-612-1"
+          "INSPECT-TASK-612-1",
+          "INSPECT-TASK-615-1"
         ],
         "finding_ids": [],
         "scope_drift_ids": [
@@ -1267,13 +1360,23 @@
           "DRIFT-A11C3B0A0485",
           "DRIFT-5E96AE919F3B",
           "DRIFT-36422037AA69",
-          "DRIFT-A0D544CE2405"
+          "DRIFT-A0D544CE2405",
+          "DRIFT-75F98FFED79C",
+          "DRIFT-2A450A7B41D6",
+          "DRIFT-99AD8D091D40",
+          "DRIFT-A5330DF3FAD7",
+          "DRIFT-4CAEFF010E43",
+          "DRIFT-B9146520F415",
+          "DRIFT-83868C67E8CE",
+          "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
           "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
+          "Required inspection INSPECT-TASK-612-1 is stale",
           "Required inspection INSPECT-TASK-613-1 is stale"
         ]
       },
@@ -1340,7 +1443,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:25:48.862965Z",
+        "updated_at": "2026-09-20T05:11:23.888159Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "CONTRACT-601",
@@ -1430,6 +1533,15 @@
               "evidence": [
                 "docs/reliability/evidence/CONTRACT-601/assurance-candidate.json",
                 "Assurance reviewed: IMPACT-CONTRACT-601-ASSURANCE confirmed; INSPECT-CONTRACT-601-1 performed after the implementation event and sufficient; drift reconciled; controls unchanged from RESEARCH-601 and still honest for an evidence-only task."
+              ]
+            },
+            {
+              "id": "CHECK-601-REAFFIRM",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/planning/plan-006-r2-review.json",
+                "docs/reliability/evidence/TASK-615/assurance-reaffirm.json",
+                "Re-audited unchanged after the R2 replan, which added TASK-615 and five edges without changing any criterion, node or source file. The inspections behind this result were re-affirmed on the same evidence."
               ]
             }
           ],
@@ -1554,7 +1666,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:24:25.786492Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "RESEARCH-601",
@@ -1810,7 +1922,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:35:11.145442Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-611",
@@ -2143,7 +2255,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T04:04:17.105813Z",
+        "updated_at": "2026-09-20T05:11:24.086068Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-612",
@@ -2347,6 +2459,15 @@
                 "docs/reliability/evidence/TASK-612/assurance-candidate.json",
                 "Assurance reviewed: IMPACT-TASK-612-SCANNER, IMPACT-TASK-612-STORE, IMPACT-TASK-612-RESOURCE, IMPACT-TASK-612-ASSURANCE confirmed; INSPECT-TASK-612-1 performed after the implementation event and sufficient; drift reconciled across scanner, store, resource and assurance."
               ]
+            },
+            {
+              "id": "CHECK-612-REAFFIRM",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/planning/plan-006-r2-review.json",
+                "docs/reliability/evidence/TASK-615/assurance-reaffirm.json",
+                "Re-audited unchanged after the R2 replan, which added TASK-615 and five edges without changing any criterion, node or source file. The inspections behind this result were re-affirmed on the same evidence."
+              ]
             }
           ],
           "affected_claims": [],
@@ -2403,7 +2524,7 @@
         "EV-601-CORPUS"
       ],
       "assurance": {
-        "status": "covered",
+        "status": "blocked",
         "task_ids": [
           "TASK-612"
         ],
@@ -2434,7 +2555,13 @@
           "DRIFT-36422037AA69",
           "DRIFT-A0D544CE2405"
         ],
-        "blockers": []
+        "blockers": [
+          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-SCANNER lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
+          "Required inspection INSPECT-TASK-612-1 is stale"
+        ]
       },
       "source_path": "docs/tasks/02-scanner/TASK-612-stop-descending-into-classified-objects.md"
     },
@@ -2503,7 +2630,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:48:40.486955Z",
+        "updated_at": "2026-09-20T05:11:24.283605Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-613",
@@ -2721,6 +2848,15 @@
                 "docs/reliability/evidence/TASK-613/assurance-candidate.json",
                 "Assurance reviewed: IMPACT-TASK-613-STORE, IMPACT-TASK-613-ASSURANCE confirmed; INSPECT-TASK-613-1 performed after the implementation event and sufficient; drift reconciled; the rollback control now carries the rehearsal this task owed."
               ]
+            },
+            {
+              "id": "CHECK-613-REAFFIRM",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/planning/plan-006-r2-review.json",
+                "docs/reliability/evidence/TASK-615/assurance-reaffirm.json",
+                "Re-audited unchanged after the R2 replan, which added TASK-615 and five edges without changing any criterion, node or source file. The inspections behind this result were re-affirmed on the same evidence."
+              ]
             }
           ],
           "affected_claims": [],
@@ -2872,7 +3008,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -2917,6 +3053,397 @@
         ]
       },
       "source_path": "docs/tasks/02-safety/TASK-614-refuse-a-scope-that-cannot-fit-and-say-so.md"
+    },
+    {
+      "id": "TASK-615",
+      "kind": "implementation",
+      "title": "Run objects in the app: wire the probe and converge an installed store",
+      "summary": "The monitoring probe builds its scanner with the object classifier and runs the collapse once against the installed store, so an existing installation stops staging per-file rows inside objects and starts finishing its scans.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "scanner",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-603",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-615-01",
+          "description": "With the probe wired, a scope whose files sit behind objects completes a generation and publishes, and no per-file row inside an object survives. A store captured from an installed app converges: the collapse runs once, is resumable if interrupted, reports what it changed, and leaves unrelated evidence untouched. The classifier is constructed with the repository oracle, and a machine without git still scans."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-615-01",
+          "type": "regression-evidence",
+          "description": "Isolated app-level run over a fixture tree plus a convergence run against a captured store copy, with before and after row counts."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+          "docs/reliability/evidence/TASK-613/object-rows.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Probe wired to the classifier",
+          "One-time collapse against an installed store",
+          "Convergence evidence with before and after counts"
+        ],
+        "non_goals": [
+          "Aggregate sizing",
+          "Ranking or presentation",
+          "Opening the user's live evidence database"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-20T06:06:30.868179Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-615",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+            "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+            "Tests/DiskStewardAppTests/Lifecycle/ObjectConvergenceTests.swift",
+            "Tests/DiskStewardCoreTests/Monitoring/ObjectClassificationTests.swift",
+            "docs/reliability/evidence/TASK-615/agent-result.json",
+            "docs/reliability/evidence/TASK-615/assurance-reaffirm.json",
+            "docs/reliability/evidence/TASK-615/candidate/build.log",
+            "docs/reliability/evidence/TASK-615/candidate/candidate.json",
+            "docs/reliability/evidence/TASK-615/candidate/harness.log",
+            "docs/reliability/evidence/TASK-615/candidate/manifest.log",
+            "docs/reliability/evidence/TASK-615/candidate/tests.log",
+            "docs/reliability/evidence/TASK-615/focused-green/result.json",
+            "docs/reliability/evidence/TASK-615/focused-green/tests.log",
+            "docs/reliability/evidence/TASK-615/hang-diagnosis/stack-sample.txt",
+            "docs/reliability/evidence/TASK-615/hang-diagnosis/timed-out-run.json",
+            "docs/reliability/evidence/TASK-615/noconverge-mutation-red/result.json",
+            "docs/reliability/evidence/TASK-615/noconverge-mutation-red/tests.log",
+            "docs/reliability/evidence/TASK-615/unbounded-walk-mutation-red/result.json",
+            "docs/reliability/evidence/TASK-615/unbounded-walk-mutation-red/tests.log",
+            "docs/reliability/evidence/TASK-615/unwired-mutation-red/result.json",
+            "docs/reliability/evidence/TASK-615/unwired-mutation-red/tests.log",
+            "docs/reliability/evidence/TASK-615/wiring-source-manifest.json",
+            "docs/reliability/evidence/TASK-615/wiring.md"
+          ],
+          "changed_assets": [
+            "ASSET-LIFECYCLE",
+            "ASSET-SCANNER",
+            "ASSET-STORE",
+            "ASSET-ASSURANCE"
+          ],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/Lifecycle/ObjectConvergenceTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardCoreTests/Monitoring/ObjectClassificationTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/agent-result.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/assurance-reaffirm.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/candidate/build.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/candidate/candidate.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/candidate/harness.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/candidate/manifest.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/candidate/tests.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/focused-green/result.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/focused-green/tests.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/hang-diagnosis/stack-sample.txt",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/hang-diagnosis/timed-out-run.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/noconverge-mutation-red/result.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/noconverge-mutation-red/tests.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/unbounded-walk-mutation-red/result.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/unbounded-walk-mutation-red/tests.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/unwired-mutation-red/result.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/unwired-mutation-red/tests.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/wiring-source-manifest.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-615/wiring.md",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "verify_candidate.py --output <new dir> --xcodegen /opt/homebrew/bin/xcodegen",
+              "result": "passed",
+              "notes": "All stages passed on input bb08ca1d7776c4af42cbf2b1118f8196ca7b321ad0f87b214912de1612cdec43: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 587 tests, 0 failures."
+            },
+            {
+              "command": "isolated run of the four object suites",
+              "result": "passed",
+              "notes": "28 tests, 0 failures (focused-green/): a wired probe publishes objects and stages nothing inside them, a store with legacy rows converges and the app says so, a probe without a classifier behaves exactly as before, and an odd path decides nothing instead of walking forever."
+            },
+            {
+              "command": "first attempt at the convergence suite",
+              "result": "failed",
+              "notes": "Hung 30 minutes with no output and was killed (hang-diagnosis/timed-out-run.json). A stack sample of the stuck process named ObjectClassifier.repositoryPath(for:); a non-absolute path made deletingLastPathComponent prepend '..' forever. Fixed by rejecting non-absolute paths and bounding the walk at 256 ancestors."
+            },
+            {
+              "command": "mutation: the probe builds its scanner without the classifier",
+              "result": "failed",
+              "notes": "Expected: both wiring tests fail (unwired-mutation-red/)."
+            },
+            {
+              "command": "mutation: an installed store is never converged",
+              "result": "failed",
+              "notes": "Expected: the convergence test fails (noconverge-mutation-red/)."
+            },
+            {
+              "command": "mutation: the ancestor walk accepts a relative path again",
+              "result": "failed",
+              "notes": "Expected: the hang regression fails (unbounded-walk-mutation-red/), which re-creates the diagnosed hang."
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-TASK-615-01",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-615/wiring.md proof table; focused-green/, candidate/, three mutation reds, hang-diagnosis/"
+            }
+          ],
+          "discovered_risks": [
+            "Convergence is exercised against stores built in the test, not a copy of this machine's installed store; that capture belongs to the rung gate.",
+            "Objects still publish without aggregates until TASK-621.",
+            "A directory that no longer exists classifies as unresolved, so its rows wait for an ordinary scan to remove them."
+          ],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-615",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "CHECK-615-01",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-615/candidate/candidate.json",
+                "docs/reliability/evidence/TASK-615/candidate/tests.log",
+                "Full isolated verifier on input bb08ca1d7776c4af42cbf2b1118f8196ca7b321ad0f87b214912de1612cdec43: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 587 tests, 0 failures."
+              ]
+            },
+            {
+              "id": "CHECK-615-02",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-615/wiring.md",
+                "docs/reliability/evidence/TASK-615/focused-green/tests.log",
+                "The probe scans with the classifier and stages nothing inside an object; a store carrying legacy rows converges in one sample and the app reports the collapse; a probe without a classifier keeps the previous behaviour (AC-TASK-615-01)."
+              ]
+            },
+            {
+              "id": "CHECK-615-03",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-615/hang-diagnosis/stack-sample.txt",
+                "docs/reliability/evidence/TASK-615/hang-diagnosis/timed-out-run.json",
+                "docs/reliability/evidence/TASK-615/unbounded-walk-mutation-red/result.json",
+                "A 30-minute hang was diagnosed from a stack sample rather than guessed at: a non-absolute path made the ancestor walk grow forever. The walk is now bounded and absolute-only, with a regression test and a mutation that re-creates the hang."
+              ]
+            },
+            {
+              "id": "CHECK-615-04",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-615/unwired-mutation-red/result.json",
+                "docs/reliability/evidence/TASK-615/noconverge-mutation-red/result.json",
+                "Non-vacuity: removing the classifier from the probe or disabling convergence each fails its cases."
+              ]
+            },
+            {
+              "id": "CHECK-615-05",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-615/assurance-candidate.json",
+                "Assurance reviewed: IMPACT-TASK-615-LIFECYCLE, IMPACT-TASK-615-SCANNER, IMPACT-TASK-615-STORE, IMPACT-TASK-615-ASSURANCE confirmed; INSPECT-TASK-615-1 performed after the implementation event and sufficient; drift reconciled; the monitoring control moves from not-applicable to ready now that classification runs in the product."
+              ]
+            }
+          ],
+          "affected_claims": [],
+          "recommended_action": "advance",
+          "assurance": {
+            "impact_ids": [
+              "IMPACT-TASK-615-LIFECYCLE",
+              "IMPACT-TASK-615-SCANNER",
+              "IMPACT-TASK-615-STORE",
+              "IMPACT-TASK-615-ASSURANCE"
+            ],
+            "inspection_ids": [
+              "INSPECT-TASK-615-1"
+            ],
+            "finding_ids": [],
+            "scope_review": "complete",
+            "limitations": [
+              "Convergence is proven against stores built in the test; a captured installed store belongs to the rung gate.",
+              "Objects publish without aggregates until TASK-621.",
+              "The auditor also implemented the task; independence rests on isolated reruns, three mutation reds and the archived hang diagnosis."
+            ]
+          }
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-615",
+        "OUTCOME-610",
+        "OUTCOME-620",
+        "OUTCOME-630",
+        "INTENT-006"
+      ],
+      "parents": [
+        "OUTCOME-610"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "CONTRACT-601",
+          "type": "contract-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-612",
+          "type": "requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-613",
+          "type": "requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [
+        "EV-R1-UNWIRED-PROBE"
+      ],
+      "assurance": {
+        "status": "covered",
+        "task_ids": [
+          "TASK-615"
+        ],
+        "impact_ids": [
+          "IMPACT-TASK-615-LIFECYCLE",
+          "IMPACT-TASK-615-SCANNER",
+          "IMPACT-TASK-615-STORE",
+          "IMPACT-TASK-615-ASSURANCE"
+        ],
+        "asset_ids": [
+          "ASSET-ASSURANCE",
+          "ASSET-LIFECYCLE",
+          "ASSET-SCANNER",
+          "ASSET-STORE"
+        ],
+        "inspection_ids": [
+          "INSPECT-TASK-615-1"
+        ],
+        "finding_ids": [],
+        "scope_drift_ids": [
+          "DRIFT-75F98FFED79C",
+          "DRIFT-2A450A7B41D6",
+          "DRIFT-99AD8D091D40",
+          "DRIFT-A5330DF3FAD7",
+          "DRIFT-4CAEFF010E43",
+          "DRIFT-B9146520F415",
+          "DRIFT-83868C67E8CE",
+          "DRIFT-9F3DCC1C6122"
+        ],
+        "blockers": []
+      },
+      "source_path": "docs/tasks/02-scanner/TASK-615-run-objects-in-the-app-wire-the-probe-and-converge-an-installed-store.md"
     },
     {
       "id": "TASK-621",
@@ -2981,7 +3508,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3094,7 +3621,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3209,7 +3736,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3323,7 +3850,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T03:04:14.155702Z",
+        "updated_at": "2026-09-20T05:10:41.100073Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3594,6 +4121,31 @@
       "from": "TASK-631",
       "to": "TASK-623",
       "type": "requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-615",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "TASK-612",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "TASK-613",
+      "type": "requires"
     }
   ],
   "evidence": [
@@ -3655,6 +4207,18 @@
         "TASK-614"
       ],
       "contradicts": []
+    },
+    {
+      "id": "EV-R1-UNWIRED-PROBE",
+      "claim": "After TASK-612 and TASK-613 were verified, PersistentMonitoringProbe.swift:195 still constructed DirectoryMetadataScanner() with no classifier, and no app path called collapsePerFileRows, so an installed app kept scanning exactly as before and an existing store kept its per-file rows inside objects.",
+      "source": "Repository inspection on 2026-09-20 after the TASK-612 audit",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-615",
+        "OUTCOME-610"
+      ],
+      "contradicts": []
     }
   ],
   "decisions": [
@@ -3712,6 +4276,19 @@
         "EV-604-STUCK-SCAN",
         "EV-605-ROW-COST"
       ]
+    },
+    {
+      "id": "DECISION-R1-WIRING-IS-ITS-OWN-TASK",
+      "question": "Which task makes the object model take effect in the running app?",
+      "choice": "A new rung-1 task, TASK-615, owns wiring the probe and converging an installed store. It is validation-required by GATE-619, so rung 1 cannot pass without it.",
+      "alternatives": [
+        "Fold the wiring into TASK-621 or TASK-623; rejected because neither criterion asks for it and the work would be proven by a gate that never named it.",
+        "Leave the wiring to a later rung; rejected because OUTCOME-610 claims scans finish on a real-sized scope, which stays false on an installed machine until the probe uses the classifier."
+      ],
+      "rationale": "See EV-R1-UNWIRED-PROBE: the capability exists in the core but nothing in the product calls it.",
+      "evidence": [
+        "EV-R1-UNWIRED-PROBE"
+      ]
     }
   ],
   "project": {
@@ -3734,21 +4311,24 @@
       "baseline_status": "current",
       "baseline_revision": 4,
       "assets": 19,
-      "impacted_assets": 5,
+      "impacted_assets": 6,
       "sufficiently_inspected_assets": 4,
       "open_scope_drift": 0,
       "open_material_findings": 0,
       "blockers": [
         "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
+        "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
         "Required inspection INSPECT-CONTRACT-601-1 is stale",
         "Required inspection INSPECT-RESEARCH-601-1 is stale",
         "Required inspection INSPECT-TASK-611-1 is stale",
+        "Required inspection INSPECT-TASK-612-1 is stale",
         "Required inspection INSPECT-TASK-613-1 is stale"
       ],
       "refresh_inspection_ids": [
         "INSPECT-CONTRACT-601-1",
         "INSPECT-RESEARCH-601-1",
         "INSPECT-TASK-611-1",
+        "INSPECT-TASK-612-1",
         "INSPECT-TASK-613-1"
       ],
       "warnings": []
@@ -4689,6 +5269,78 @@
           "TASK-612",
           "ASSET-ASSURANCE"
         ]
+      },
+      {
+        "id": "IMPACT-TASK-615-LIFECYCLE",
+        "asset_id": "ASSET-LIFECYCLE",
+        "task_ids": [
+          "TASK-615"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/TASK-615/wiring.md"
+        ],
+        "path": [
+          "TASK-615",
+          "ASSET-LIFECYCLE"
+        ]
+      },
+      {
+        "id": "IMPACT-TASK-615-SCANNER",
+        "asset_id": "ASSET-SCANNER",
+        "task_ids": [
+          "TASK-615"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/TASK-615/wiring.md"
+        ],
+        "path": [
+          "TASK-615",
+          "ASSET-SCANNER"
+        ]
+      },
+      {
+        "id": "IMPACT-TASK-615-STORE",
+        "asset_id": "ASSET-STORE",
+        "task_ids": [
+          "TASK-615"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/TASK-615/wiring.md"
+        ],
+        "path": [
+          "TASK-615",
+          "ASSET-STORE"
+        ]
+      },
+      {
+        "id": "IMPACT-TASK-615-ASSURANCE",
+        "asset_id": "ASSET-ASSURANCE",
+        "task_ids": [
+          "TASK-615"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/TASK-615/wiring.md"
+        ],
+        "path": [
+          "TASK-615",
+          "ASSET-ASSURANCE"
+        ]
       }
     ],
     "inspections": [
@@ -4710,7 +5362,7 @@
         "status": "stale",
         "result": "pass",
         "sufficiency": "sufficient",
-        "performed_at": "2026-09-20T03:24:06Z",
+        "performed_at": "2026-09-20T05:11:23Z",
         "performed_by": "claude",
         "evidence": [
           "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
@@ -4728,7 +5380,10 @@
           "Scope drift from TASK-613 invalidated this inspection.",
           "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE.",
           "Scope drift from TASK-612 invalidated this inspection.",
-          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE."
+          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
+          "Scope drift from TASK-615 invalidated this inspection.",
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE."
         ],
         "validated_through": {
           "RESEARCH-601": "EVENT-20260920T032323566863Z-71BDA108"
@@ -4752,7 +5407,7 @@
         "status": "stale",
         "result": "pass",
         "sufficiency": "sufficient",
-        "performed_at": "2026-09-20T03:25:48Z",
+        "performed_at": "2026-09-20T05:11:23Z",
         "performed_by": "claude",
         "evidence": [
           "docs/reliability/evidence/CONTRACT-601/object-contract.md",
@@ -4768,7 +5423,10 @@
           "Scope drift from TASK-613 invalidated this inspection.",
           "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE.",
           "Scope drift from TASK-612 invalidated this inspection.",
-          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE."
+          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
+          "Scope drift from TASK-615 invalidated this inspection.",
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE."
         ],
         "validated_through": {
           "CONTRACT-601": "EVENT-20260920T032547332638Z-397B9D6B"
@@ -4793,7 +5451,7 @@
         "status": "stale",
         "result": "pass",
         "sufficiency": "sufficient",
-        "performed_at": "2026-09-20T03:35:10Z",
+        "performed_at": "2026-09-20T05:11:23Z",
         "performed_by": "claude",
         "evidence": [
           "docs/reliability/evidence/TASK-611/classification.md",
@@ -4812,7 +5470,10 @@
           "Scope drift from TASK-613 invalidated this inspection.",
           "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE.",
           "Scope drift from TASK-612 invalidated this inspection.",
-          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
+          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
+          "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
+          "Scope drift from TASK-615 invalidated this inspection.",
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
         ],
         "validated_through": {
           "TASK-611": "EVENT-20260920T033509605992Z-10657775"
@@ -4837,7 +5498,7 @@
         "status": "stale",
         "result": "pass",
         "sufficiency": "sufficient",
-        "performed_at": "2026-09-20T03:48:40Z",
+        "performed_at": "2026-09-20T05:11:23Z",
         "performed_by": "claude",
         "evidence": [
           "docs/reliability/evidence/TASK-613/object-rows.md",
@@ -4854,7 +5515,10 @@
           "Aggregates are supplied by the caller; nothing measures a subtree until TASK-621.",
           "Choosing which directories are objects is TASK-612.",
           "Scope drift from TASK-612 invalidated this inspection.",
-          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+          "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+          "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
+          "Scope drift from TASK-615 invalidated this inspection.",
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
         ],
         "validated_through": {
           "TASK-613": "EVENT-20260920T034838927318Z-DEB69A91"
@@ -4878,7 +5542,7 @@
           "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
           "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
         ],
-        "status": "performed",
+        "status": "stale",
         "result": "pass",
         "sufficiency": "sufficient",
         "performed_at": "2026-09-20T04:04:16Z",
@@ -4897,10 +5561,55 @@
         "limitations": [
           "Objects publish without aggregates until TASK-621.",
           "The app's probe does not supply a classifier yet, so installed behaviour is unchanged.",
-          "The scale fixture is uniform and synthetic."
+          "The scale fixture is uniform and synthetic.",
+          "Scope drift from TASK-615 invalidated this inspection.",
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
         ],
         "validated_through": {
           "TASK-612": "EVENT-20260920T040415514037Z-2D702774"
+        }
+      },
+      {
+        "id": "INSPECT-TASK-615-1",
+        "asset_ids": [
+          "ASSET-LIFECYCLE",
+          "ASSET-SCANNER",
+          "ASSET-STORE",
+          "ASSET-ASSURANCE"
+        ],
+        "task_ids": [
+          "TASK-615"
+        ],
+        "method": "Confirm the probe constructs its scanner with the classifier and the repository oracle; confirm an existing store converges in bounded batches, stops when nothing remains, and reports what it changed; confirm a probe without a classifier behaves exactly as before; confirm the ancestor walk is bounded and refuses non-absolute paths, with the diagnosed hang reproduced by a mutation.",
+        "required": true,
+        "refresh": "per-change",
+        "invalidating_changes": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift"
+        ],
+        "status": "performed",
+        "result": "pass",
+        "sufficiency": "sufficient",
+        "performed_at": "2026-09-20T06:06:30Z",
+        "performed_by": "claude",
+        "evidence": [
+          "docs/reliability/evidence/TASK-615/wiring.md",
+          "docs/reliability/evidence/TASK-615/candidate/candidate.json",
+          "docs/reliability/evidence/TASK-615/candidate/tests.log",
+          "docs/reliability/evidence/TASK-615/focused-green/tests.log",
+          "docs/reliability/evidence/TASK-615/unwired-mutation-red/result.json",
+          "docs/reliability/evidence/TASK-615/noconverge-mutation-red/result.json",
+          "docs/reliability/evidence/TASK-615/unbounded-walk-mutation-red/result.json",
+          "docs/reliability/evidence/TASK-615/hang-diagnosis/stack-sample.txt",
+          "docs/reliability/evidence/TASK-615/wiring-source-manifest.json"
+        ],
+        "limitations": [
+          "Convergence is exercised against stores built in the test, not a copy of an installed store.",
+          "Objects publish without aggregates until TASK-621.",
+          "A vanished directory's rows wait for an ordinary scan."
+        ],
+        "validated_through": {
+          "TASK-615": "EVENT-20260920T060629279068Z-D64E7262"
         }
       }
     ],
@@ -5169,6 +5878,102 @@
         "detected_at": "2026-09-20T04:04:15.511240Z",
         "resolved_impact_id": "IMPACT-TASK-612-ASSURANCE",
         "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+      },
+      {
+        "id": "DRIFT-75F98FFED79C",
+        "task": "TASK-615",
+        "changed_file": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "matched_asset_ids": [
+          "ASSET-LIFECYCLE"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276083Z",
+        "resolved_impact_id": "IMPACT-TASK-615-LIFECYCLE",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
+      },
+      {
+        "id": "DRIFT-2A450A7B41D6",
+        "task": "TASK-615",
+        "changed_file": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+        "matched_asset_ids": [
+          "ASSET-SCANNER"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276216Z",
+        "resolved_impact_id": "IMPACT-TASK-615-SCANNER",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
+      },
+      {
+        "id": "DRIFT-99AD8D091D40",
+        "task": "TASK-615",
+        "changed_file": "Tests/DiskStewardAppTests/Lifecycle/ObjectConvergenceTests.swift",
+        "matched_asset_ids": [
+          "ASSET-LIFECYCLE"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276220Z",
+        "resolved_impact_id": "IMPACT-TASK-615-LIFECYCLE",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
+      },
+      {
+        "id": "DRIFT-A5330DF3FAD7",
+        "task": "TASK-615",
+        "changed_file": "Tests/DiskStewardCoreTests/Monitoring/ObjectClassificationTests.swift",
+        "matched_asset_ids": [
+          "ASSET-SCANNER"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276223Z",
+        "resolved_impact_id": "IMPACT-TASK-615-SCANNER",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
+      },
+      {
+        "id": "DRIFT-4CAEFF010E43",
+        "task": "TASK-615",
+        "changed_file": "asset:ASSET-LIFECYCLE",
+        "matched_asset_ids": [
+          "ASSET-LIFECYCLE"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276226Z",
+        "resolved_impact_id": "IMPACT-TASK-615-LIFECYCLE",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
+      },
+      {
+        "id": "DRIFT-B9146520F415",
+        "task": "TASK-615",
+        "changed_file": "asset:ASSET-SCANNER",
+        "matched_asset_ids": [
+          "ASSET-SCANNER"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276228Z",
+        "resolved_impact_id": "IMPACT-TASK-615-SCANNER",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
+      },
+      {
+        "id": "DRIFT-83868C67E8CE",
+        "task": "TASK-615",
+        "changed_file": "asset:ASSET-STORE",
+        "matched_asset_ids": [
+          "ASSET-STORE"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276231Z",
+        "resolved_impact_id": "IMPACT-TASK-615-STORE",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
+      },
+      {
+        "id": "DRIFT-9F3DCC1C6122",
+        "task": "TASK-615",
+        "changed_file": "asset:ASSET-ASSURANCE",
+        "matched_asset_ids": [
+          "ASSET-ASSURANCE"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-09-20T06:06:29.276233Z",
+        "resolved_impact_id": "IMPACT-TASK-615-ASSURANCE",
+        "resolution": "Probe wiring, store convergence and their evidence are the declared deliverable of TASK-615."
       }
     ],
     "controls": {
@@ -5182,11 +5987,13 @@
         "rationale": "Schema 14 to 15 rehearsed against baseline 97c3a7f15d98: the migration is interruptible at every exposed checkpoint and recovers, the baseline binary refuses the newer schema on a scratch copy rather than corrupting it, and a restored backup opens with the baseline again."
       },
       "monitoring": {
-        "status": "not-applicable",
+        "status": "ready",
         "evidence": [
-          "docs/reliability/evidence/TASK-611/classification.md"
+          "docs/reliability/evidence/TASK-615/wiring.md",
+          "docs/reliability/evidence/TASK-615/focused-green/tests.log",
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift"
         ],
-        "rationale": "The classifier compiles into the core but no product path calls it yet, so there is nothing running to monitor. TASK-612 wires it into the scanner and must replace this record with real coverage."
+        "rationale": "Object classification now runs in the product, and what it changes is observable: the convergence pass reports the rows it collapsed as a limitation on the observation the app publishes, the existing resource budgets and circuit breaker still bound the sample that carries it, and an unclassifiable machine falls back to the previous behaviour rather than failing."
       }
     },
     "legacy_bridge": {

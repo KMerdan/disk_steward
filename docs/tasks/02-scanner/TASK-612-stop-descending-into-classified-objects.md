@@ -61,12 +61,16 @@ The metadata scanner treats a classified object as a leaf: it records one object
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-TASK-612-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-TASK-612-1 is stale
 

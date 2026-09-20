@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-o673sguc/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-o673sguc/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-o673sguc/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectConvergenceTests|ObjectClassificationTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 40.716888041000004,
+ "log": "tests.log",
+ "logSHA256": "1e6d3a18eddb75e5c4c15fd2387001406209b44b1ab96b65d202f34f0218020c",
+ "passed": false,
+ "baseInputSHA256": "bb08ca1d7776c4af42cbf2b1118f8196ca7b321ad0f87b214912de1612cdec43",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "the probe builds its scanner without the classifier again",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+    "replacements": [
+     [
+      "        metadataScanner = DirectoryMetadataScanner(classifier: objectClassifier)",
+      "        metadataScanner = DirectoryMetadataScanner(classifier: nil)"
+     ]
+    ]
+   }
+  ]
+ }
+}

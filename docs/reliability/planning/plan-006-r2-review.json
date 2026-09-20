@@ -1,0 +1,88 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-PLAN-006-R2-WIRING",
+ "stage": "candidate",
+ "outcome": "revised",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 1,
+  "sha256": "33acd2a7b1d678c648d0246db7645ca20b2d13aa3cfcb87804453eecef036411"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 2,
+  "sha256": "86ee2bd43385f7c3d2f6834641702b547885d2dd4fac1258dbbd0ad5b28593ff"
+ },
+ "facts": [
+  {
+   "id": "FACT-R2-001",
+   "claim": "No acceptance criterion in revision 1 covered constructing the scanner with a classifier or running the collapse in the app; TASK-613's criterion is about the store API, which was built and audited as written.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "EV-R1-UNWIRED-PROBE",
+    ".pyramid/plan.json"
+   ]
+  },
+  {
+   "id": "FACT-R2-002",
+   "claim": "TASK-611, TASK-612 and TASK-613 are verified and their evidence states the unwired limitation explicitly, so no audited claim is contradicted by adding the wiring task.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "docs/reliability/evidence/audits/TASK-612/audit-result.json",
+    "docs/reliability/evidence/TASK-612/object-leaf-scan.md"
+   ]
+  }
+ ],
+ "findings": [
+  {
+   "id": "RF-R2-001",
+   "severity": "high",
+   "statement": "OUTCOME-610 claims scans finish on a real-sized scope, but with no task owning the wiring that claim would be false on an installed machine while the rung passed.",
+   "resolution": "TASK-615 added to rung 1, validation-required by GATE-619."
+  }
+ ],
+ "coverage": {
+  "requirements": [
+   "REQ-601",
+   "REQ-602",
+   "REQ-603",
+   "REQ-604",
+   "REQ-605",
+   "REQ-606",
+   "REQ-607"
+  ],
+  "gates": [
+   "GATE-619",
+   "GATE-629",
+   "GATE-639"
+  ],
+  "increments": [
+   "OUTCOME-610",
+   "OUTCOME-620",
+   "OUTCOME-630"
+  ],
+  "unmapped_requirements": [],
+  "gateless_increments": []
+ },
+ "invariants": [
+  "No existing node, edge, criterion or verified result is changed or removed.",
+  "The new task is validation-required by its rung's gate, so the rung cannot pass without it.",
+  "Verified work on TASK-611, TASK-612 and TASK-613 is preserved; the replan only adds."
+ ],
+ "metrics": {
+  "nodes_before": 17,
+  "nodes_after": 18,
+  "edges_added": 5,
+  "edges_removed": 0,
+  "criteria_changed": 0
+ },
+ "summary": "Adds TASK-615 so the object model actually takes effect in the running app, closing a gap between what rung 1 claims and what an installed machine would do.",
+ "limitations": [
+  "The convergence run uses a captured copy of an installed store; the live database is never opened.",
+  "Sizing, ranking and presentation remain rung 2."
+ ]
+}

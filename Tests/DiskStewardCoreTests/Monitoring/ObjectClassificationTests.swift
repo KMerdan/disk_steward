@@ -140,9 +140,34 @@ final class ObjectClassificationTests: XCTestCase {
         try makeDirectory("repo/.git")
         let classifier = ObjectClassifier()
 
-        XCTAssertEqual(classifier.repositoryPath(for: nested.path), root.appendingPathComponent("repo").path)
+        // The walk standardizes, so /private/tmp is reported as /tmp.
+        XCTAssertEqual(classifier.repositoryPath(for: nested.path),
+                       root.appendingPathComponent("repo").standardizedFileURL.path)
         let orphan = try makeDirectory("elsewhere/node_modules")
         XCTAssertNil(classifier.repositoryPath(for: orphan.path))
+    }
+
+    // A relative path has no ancestors to walk: deletingLastPathComponent
+    // prepends ".." forever instead of reaching a fixed point, which hung a
+    // scan until this was bounded.
+    func testARelativeOrOddPathDecidesNothingInsteadOfWalkingForever() throws {
+        let classifier = ObjectClassifier()
+        for path in ["", "relative/node_modules", "..", "./x"] {
+            let started = Date()
+            XCTAssertNil(classifier.repositoryPath(for: path), path)
+            XCTAssertEqual(classifier.ancestors(of: path), [], path)
+            XCTAssertLessThan(Date().timeIntervalSince(started), 1, "\(path) must not walk forever")
+        }
+    }
+
+    func testAncestorsRunOutermostLastAndStopAtTheRoot() throws {
+        let nested = try makeDirectory("a/b/c")
+        let chain = ObjectClassifier().ancestors(of: nested.path)
+
+        XCTAssertEqual(chain.first, nested.standardizedFileURL.path)
+        XCTAssertEqual(chain.last, "/")
+        XCTAssertLessThan(chain.count, ObjectClassifier.maximumAncestorDepth)
+        XCTAssertEqual(Set(chain).count, chain.count, "each ancestor appears once")
     }
 
     func testClassificationNeverWritesToTheExaminedTree() throws {

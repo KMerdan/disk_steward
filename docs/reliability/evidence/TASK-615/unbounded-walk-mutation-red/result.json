@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-h2e7dsni/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-h2e7dsni/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-h2e7dsni/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectConvergenceTests|ObjectClassificationTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 54.687968291999994,
+ "log": "tests.log",
+ "logSHA256": "ee6be7e4afbb009c3b1ccb81728cf4a1c2564cc141e0b176f827536109c1db87",
+ "passed": false,
+ "baseInputSHA256": "bb08ca1d7776c4af42cbf2b1118f8196ca7b321ad0f87b214912de1612cdec43",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "the ancestor walk accepts a relative path again",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+    "replacements": [
+     [
+      "    public func ancestors(of directoryPath: String) -> [String] {\n        guard directoryPath.hasPrefix(\"/\") else { return [] }",
+      "    public func ancestors(of directoryPath: String) -> [String] {\n        guard !directoryPath.isEmpty || directoryPath.hasPrefix(\"/\") else { return [] }"
+     ]
+    ]
+   }
+  ]
+ }
+}

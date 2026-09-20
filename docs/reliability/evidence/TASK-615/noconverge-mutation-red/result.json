@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-rqcvn5hr/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-rqcvn5hr/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-rqcvn5hr/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectConvergenceTests|ObjectClassificationTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 47.552213292,
+ "log": "tests.log",
+ "logSHA256": "e89e9bcf51e51dd7bed230004c2ef96a79b5491ace665dcae21de8d2d6869e67",
+ "passed": false,
+ "baseInputSHA256": "bb08ca1d7776c4af42cbf2b1118f8196ca7b321ad0f87b214912de1612cdec43",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "an installed store is never converged",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+    "replacements": [
+     [
+      "        guard objectConvergenceRemaining, let classifier = objectClassifier else { return [] }",
+      "        guard false, objectConvergenceRemaining, let classifier = objectClassifier else { return [] }"
+     ]
+    ]
+   }
+  ]
+ }
+}

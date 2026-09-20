@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "PLAN-DISK-STEWARD-006",
   "title": "Reclaimable Space As Whole Objects",
-  "revision": 1,
+  "revision": 2,
   "intent": {
     "id": "INTENT-006",
     "statement": "Disk Steward treats build output, shared developer caches and repositories as single evidence objects rather than per-file rows, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and an explicit review step before anything is removed.",
@@ -129,6 +129,18 @@
         "TASK-614"
       ],
       "contradicts": []
+    },
+    {
+      "id": "EV-R1-UNWIRED-PROBE",
+      "claim": "After TASK-612 and TASK-613 were verified, PersistentMonitoringProbe.swift:195 still constructed DirectoryMetadataScanner() with no classifier, and no app path called collapsePerFileRows, so an installed app kept scanning exactly as before and an existing store kept its per-file rows inside objects.",
+      "source": "Repository inspection on 2026-09-20 after the TASK-612 audit",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-615",
+        "OUTCOME-610"
+      ],
+      "contradicts": []
     }
   ],
   "decisions": [
@@ -185,6 +197,19 @@
       "evidence": [
         "EV-604-STUCK-SCAN",
         "EV-605-ROW-COST"
+      ]
+    },
+    {
+      "id": "DECISION-R1-WIRING-IS-ITS-OWN-TASK",
+      "question": "Which task makes the object model take effect in the running app?",
+      "choice": "A new rung-1 task, TASK-615, owns wiring the probe and converging an installed store. It is validation-required by GATE-619, so rung 1 cannot pass without it.",
+      "alternatives": [
+        "Fold the wiring into TASK-621 or TASK-623; rejected because neither criterion asks for it and the work would be proven by a gate that never named it.",
+        "Leave the wiring to a later rung; rejected because OUTCOME-610 claims scans finish on a real-sized scope, which stays false on an installed machine until the probe uses the classifier."
+      ],
+      "rationale": "See EV-R1-UNWIRED-PROBE: the capability exists in the core but nothing in the product calls it.",
+      "evidence": [
+        "EV-R1-UNWIRED-PROBE"
       ]
     }
   ],
@@ -1046,6 +1071,64 @@
           "Release publication"
         ]
       }
+    },
+    {
+      "id": "TASK-615",
+      "kind": "implementation",
+      "title": "Run objects in the app: wire the probe and converge an installed store",
+      "summary": "The monitoring probe builds its scanner with the object classifier and runs the collapse once against the installed store, so an existing installation stops staging per-file rows inside objects and starts finishing its scans.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "scanner",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-603",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-615-01",
+          "description": "With the probe wired, a scope whose files sit behind objects completes a generation and publishes, and no per-file row inside an object survives. A store captured from an installed app converges: the collapse runs once, is resumable if interrupted, reports what it changed, and leaves unrelated evidence untouched. The classifier is constructed with the repository oracle, and a machine without git still scans."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-615-01",
+          "type": "regression-evidence",
+          "description": "Isolated app-level run over a fixture tree plus a convergence run against a captured store copy, with before and after row counts."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+          "docs/reliability/evidence/TASK-613/object-rows.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Probe wired to the classifier",
+          "One-time collapse against an installed store",
+          "Convergence evidence with before and after counts"
+        ],
+        "non_goals": [
+          "Aggregate sizing",
+          "Ranking or presentation",
+          "Opening the user's live evidence database"
+        ]
+      }
     }
   ],
   "edges": [
@@ -1267,6 +1350,31 @@
     {
       "from": "TASK-631",
       "to": "TASK-623",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-615",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "TASK-612",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "TASK-613",
       "type": "requires"
     }
   ]
