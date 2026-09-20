@@ -1,0 +1,38 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-PLAN-006-OBJECT-MODEL",
+ "stage": "candidate",
+ "outcome": "accepted",
+ "source_plan": {"plan_id": "PLAN-DISK-STEWARD-006", "revision": 1},
+ "facts": [
+  {"id": "FACT-006-001", "claim": "The maintainer corpus holds 1,214,531 files; 888,469 of them sit inside 2,618 build-output directories totalling 65.2 GB, and collapsing those plus 338 repositories to one object each leaves 292,012 rows.", "classification": "observed", "verdict": "confirmed", "confidence": "high", "references": ["EV-601-CORPUS"]},
+  {"id": "FACT-006-002", "claim": "Name-only classification is unsafe: git reported 30 artifact-named directories as tracked source, and 1,468 of 2,615 candidates lie outside any repository, so a manifest fallback is required.", "classification": "observed", "verdict": "confirmed", "confidence": "high", "references": ["EV-602-GIT-ORACLE"]},
+  {"id": "FACT-006-003", "claim": "The installed app demonstrates the failure this intent removes: a generation active for 39 hours processed fourteen times the scope without publishing, while retention force-evicted history repeatedly.", "classification": "observed", "verdict": "confirmed", "confidence": "high", "references": ["EV-604-STUCK-SCAN"]},
+  {"id": "FACT-006-004", "claim": "At about 2,040 bytes per published row the 512 MiB default holds roughly 263,000 rows, below the 292,012 the object model needs for this corpus, so the default limit must be revisited inside rung 1.", "classification": "observed", "verdict": "confirmed", "confidence": "high", "references": ["EV-605-ROW-COST"]}
+ ],
+ "findings": [
+  {"id": "RF-006-001", "severity": "medium", "statement": "A first draft placed shared caches in rung 1, which would widen the monitored scope before classification was proven trustworthy.", "resolution": "Moved to rung 3 behind explicit opt-in (DECISION-603-CACHES-LAST)."},
+  {"id": "RF-006-002", "severity": "medium", "statement": "Sizing an object still requires walking it, so the cost of freshness was unproven.", "resolution": "Recorded as ASM-602 and bound to TASK-621, which must measure against the existing resource budgets."},
+  {"id": "RF-006-003", "severity": "high", "statement": "Collapsing per-file rows on an existing installation could lose unrelated evidence or strand a user on a new schema.", "resolution": "TASK-613 requires migration from a captured real store, interruption at every checkpoint, and a rehearsed rollback using the existing rehearsal tool."}
+ ],
+ "coverage": {
+  "requirements": ["REQ-601","REQ-602","REQ-603","REQ-604","REQ-605","REQ-606","REQ-607"],
+  "gates": ["GATE-619","GATE-629","GATE-639"],
+  "increments": ["OUTCOME-610","OUTCOME-620","OUTCOME-630"],
+  "unmapped_requirements": [],
+  "gateless_increments": []
+ },
+ "invariants": [
+  "Every increment outcome has its own audit gate, and each later gate validation-requires the previous verified outcome.",
+  "Each rung is actor-visible: scans that finish, space that is visible and explained, then caches counted the same way.",
+  "No node deletes, moves or modifies a user file; cleanup stays a reviewed user action outside this intent.",
+  "The closed reliability plan's evidence is not reused as proof for this intent; its safety and recovery guarantees are inherited as constraints."
+ ],
+ "metrics": {"nodes": 17, "edges": 44, "increments": 3, "gates": 3, "executable_tasks": 8, "research_nodes": 1, "contract_nodes": 1},
+ "summary": "Three demonstrable rungs from measured evidence: scans that finish on a real-sized scope, reclaimable space made visible and explained, then shared caches under the same contract behind opt-in.",
+ "limitations": [
+  "Sizing cost and migration reversibility are assumptions bound to TASK-621 and TASK-613; neither is proven by the corpus measurements.",
+  "The corpus is one maintainer machine; detection-rule coverage elsewhere is unmeasured and is RESEARCH-601's job to bound.",
+  "Cleanup execution, scheduling and any automatic deletion are explicit non-goals."
+ ]
+}
