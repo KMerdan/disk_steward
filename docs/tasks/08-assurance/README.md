@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`GATE-549`](GATE-549-audit-responsive-bounded-local-agent-service.md) — Audit responsive bounded local agent service
+- [`GATE-639`](GATE-639-audit-shared-caches-in-scope.md) — Audit shared caches in scope
 
 ## Parallelism
 

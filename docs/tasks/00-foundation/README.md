@@ -2,7 +2,8 @@
 
 ## Tasks
 
-- [`CONTRACT-510`](CONTRACT-510-establish-brownfield-safety-baseline-and-repair-invariants.md) — Establish brownfield safety baseline and repair invariants
+- [`CONTRACT-601`](CONTRACT-601-object-evidence-and-safety-contract.md) — Object evidence and safety contract
+- [`RESEARCH-601`](RESEARCH-601-validate-object-detection-rules-on-a-real-corpus.md) — Validate object detection rules on a real corpus
 
 ## Parallelism
 

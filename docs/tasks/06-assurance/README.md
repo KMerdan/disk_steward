@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`GATE-539`](GATE-539-audit-useful-bounded-monitoring-progress.md) — Audit useful bounded monitoring progress
+- [`GATE-629`](GATE-629-audit-visible-reclaimable-space.md) — Audit visible reclaimable space
 
 ## Parallelism
 
