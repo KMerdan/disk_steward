@@ -232,3 +232,27 @@ first action for the next session are in
 copy alongside it). The plan is completed with no owned task, so this is a
 hand-written record in the `pyramid-handoff-draft-v1` shape, not a runtime
 handoff; `pyramid pause` cannot issue one without a claim.
+
+## Current intent: PLAN-DISK-STEWARD-006
+
+Started 2026-09-20 after archiving the completed reliability plan
+(`PLAN-DISK-STEWARD-005-R17-G176-20260920T030413Z`). The brownfield baseline
+carried over at revision 4; assurance starts empty, so impact records and the
+rollback and monitoring controls are open blockers until the first task
+records them.
+
+Intent: represent build output, shared developer caches and repositories as
+single evidence objects instead of per-file rows. Three rungs: scans that
+finish on a real-sized scope, reclaimable space made visible and explained,
+then shared caches under the same contract behind an explicit opt-in.
+
+Ready now: `CONTRACT-601` (object evidence and safety contract) and
+`RESEARCH-601` (validate detection rules on a real corpus). The candidate plan
+and its review are in `docs/reliability/planning/plan-006-{candidate,review}.json`.
+
+Measured evidence behind it, all from 2026-09-20 and recorded in the plan:
+888,469 of 1,214,531 files in the watched roots sit inside 2,618 build-output
+directories holding 65.2 GB; git reported 30 artifact-named directories as
+tracked source, so name matching alone is unsafe; about 90 GB more sits in
+shared caches outside the watched roots; and the installed app's scan had
+processed fourteen times its scope without publishing.
