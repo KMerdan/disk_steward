@@ -1,0 +1,331 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260920T032425786784Z-312FEDD1",
+  "at": "2026-09-20T03:24:25.786677Z",
+  "graph_version": 5,
+  "actor": "claude",
+  "type": "audit.pass",
+  "node": "RESEARCH-601",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-20T03:23:23.566735Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-601",
+      "outcome": "implemented",
+      "changed_files": [
+        "Scripts/Testing/measure_object_detection.py",
+        "docs/reliability/evidence/RESEARCH-601/agent-result.json",
+        "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+        "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+        "docs/reliability/evidence/RESEARCH-601/corpus/candidates.jsonl",
+        "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+        "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+      ],
+      "changed_assets": [
+        "ASSET-BUILD",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Scripts/Testing/measure_object_detection.py",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus/candidates.jsonl",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "python3 Scripts/Testing/measure_object_detection.py --self-test /private/tmp/ds601-fixtures",
+          "result": "passed",
+          "notes": "8 of 8 fixture cases classify by the expected rule, including a tracked lookalike refused as source, a virtualenv with a non-standard name, a stray __pycache__ and nested node_modules collapsed to the outermost match."
+        },
+        {
+          "command": "python3 Scripts/Testing/measure_object_detection.py --roots ~/Documents/Codex ~/Downloads ~/localGit --output docs/reliability/evidence/RESEARCH-601/corpus --measure-size",
+          "result": "passed",
+          "notes": "First rule set: 1,448 of 2,615 output candidates unresolved because a parent manifest resolved only 20 outside repositories."
+        },
+        {
+          "command": "same tool after adding self-marker and content evidence, --output .../corpus-2",
+          "result": "passed",
+          "notes": "Unresolved fell to 27; 1518 objects collapse 929,727 files and 70.2 GB; 29 tracked directories refused as source."
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-RESEARCH-601-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/RESEARCH-601/detection-rules.md; corpus/ and corpus-2/ hold measurement.json and per-candidate candidates.jsonl with the deciding rule for every candidate; the fallback rule is chosen in the note from the corpus-2 comparison."
+        }
+      ],
+      "discovered_risks": [
+        "One corpus on one machine; the share that git can decide will differ elsewhere.",
+        "27 candidates stay unresolved by design and need an explicit user override rather than a guess.",
+        "Sizes are logical lstat bytes, not allocated blocks."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-20T03:24:25.786492Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "RESEARCH-601",
+      "outcome": "implemented",
+      "changed_files": [
+        "Scripts/Testing/measure_object_detection.py",
+        "docs/reliability/evidence/RESEARCH-601/agent-result.json",
+        "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+        "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+        "docs/reliability/evidence/RESEARCH-601/corpus/candidates.jsonl",
+        "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+        "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+      ],
+      "changed_assets": [
+        "ASSET-BUILD",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Scripts/Testing/measure_object_detection.py",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus/candidates.jsonl",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "python3 Scripts/Testing/measure_object_detection.py --self-test /private/tmp/ds601-fixtures",
+          "result": "passed",
+          "notes": "8 of 8 fixture cases classify by the expected rule, including a tracked lookalike refused as source, a virtualenv with a non-standard name, a stray __pycache__ and nested node_modules collapsed to the outermost match."
+        },
+        {
+          "command": "python3 Scripts/Testing/measure_object_detection.py --roots ~/Documents/Codex ~/Downloads ~/localGit --output docs/reliability/evidence/RESEARCH-601/corpus --measure-size",
+          "result": "passed",
+          "notes": "First rule set: 1,448 of 2,615 output candidates unresolved because a parent manifest resolved only 20 outside repositories."
+        },
+        {
+          "command": "same tool after adding self-marker and content evidence, --output .../corpus-2",
+          "result": "passed",
+          "notes": "Unresolved fell to 27; 1518 objects collapse 929,727 files and 70.2 GB; 29 tracked directories refused as source."
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-RESEARCH-601-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/RESEARCH-601/detection-rules.md; corpus/ and corpus-2/ hold measurement.json and per-candidate candidates.jsonl with the deciding rule for every candidate; the fallback rule is chosen in the note from the corpus-2 comparison."
+        }
+      ],
+      "discovered_risks": [
+        "One corpus on one machine; the share that git can decide will differ elsewhere.",
+        "27 candidates stay unresolved by design and need an explicit user override rather than a guess.",
+        "Sizes are logical lstat bytes, not allocated blocks."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "RESEARCH-601",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-601-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+            "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+            "Every candidate in the corpus carries its deciding rule: 986 ignored, 338 repository, 142 self-marker, 49 content, 3 manifest, 29 tracked and 27 unresolved across 47,536 directories walked."
+          ]
+        },
+        {
+          "id": "CHECK-601-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+            "Scripts/Testing/measure_object_detection.py",
+            "The tracked rule runs before every other rule and refused 29 directories with output names that the repository tracks as source, including ~/localGit/echo/scripts/build and ~/localGit/disk_steward/.swiftpm. The fixture self-test asserts this case and passes 8 of 8."
+          ]
+        },
+        {
+          "id": "CHECK-601-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+            "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+            "1,468 of 2,615 output candidates lie outside any repository. The parent-manifest fallback resolved 20 of them and left 1,448 unresolved; self-marker and content evidence reduced that to 27, and the note states why those 27 stay unclassified rather than guessed."
+          ]
+        },
+        {
+          "id": "CHECK-601-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/assurance-candidate.json",
+            "Assurance reviewed: IMPACT-RESEARCH-601-BUILD, IMPACT-RESEARCH-601-ASSURANCE confirmed; INSPECT-RESEARCH-601-1 performed after the implementation event and sufficient; scope drift reconciled to those impacts; rollback is revert-only and monitoring is not applicable for a tool that does not run in the product, both recorded with the task that must replace them."
+          ]
+        }
+      ],
+      "affected_claims": [],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-RESEARCH-601-BUILD",
+          "IMPACT-RESEARCH-601-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-RESEARCH-601-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "One corpus on one macOS machine; coverage of the rules elsewhere is unmeasured.",
+          "Measurement only: no product code consumes these rules until TASK-611.",
+          "The auditor also performed the research; independence rests on the archived per-candidate records and the fixture self-test."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "RESEARCH-601",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-601-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+            "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+            "Every candidate in the corpus carries its deciding rule: 986 ignored, 338 repository, 142 self-marker, 49 content, 3 manifest, 29 tracked and 27 unresolved across 47,536 directories walked."
+          ]
+        },
+        {
+          "id": "CHECK-601-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+            "Scripts/Testing/measure_object_detection.py",
+            "The tracked rule runs before every other rule and refused 29 directories with output names that the repository tracks as source, including ~/localGit/echo/scripts/build and ~/localGit/disk_steward/.swiftpm. The fixture self-test asserts this case and passes 8 of 8."
+          ]
+        },
+        {
+          "id": "CHECK-601-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+            "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+            "1,468 of 2,615 output candidates lie outside any repository. The parent-manifest fallback resolved 20 of them and left 1,448 unresolved; self-marker and content evidence reduced that to 27, and the note states why those 27 stay unclassified rather than guessed."
+          ]
+        },
+        {
+          "id": "CHECK-601-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/assurance-candidate.json",
+            "Assurance reviewed: IMPACT-RESEARCH-601-BUILD, IMPACT-RESEARCH-601-ASSURANCE confirmed; INSPECT-RESEARCH-601-1 performed after the implementation event and sufficient; scope drift reconciled to those impacts; rollback is revert-only and monitoring is not applicable for a tool that does not run in the product, both recorded with the task that must replace them."
+          ]
+        }
+      ],
+      "affected_claims": [],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-RESEARCH-601-BUILD",
+          "IMPACT-RESEARCH-601-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-RESEARCH-601-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "One corpus on one macOS machine; coverage of the rules elsewhere is unmeasured.",
+          "Measurement only: no product code consumes these rules until TASK-611.",
+          "The auditor also performed the research; independence rests on the archived per-candidate records and the fixture self-test."
+        ]
+      }
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 1,
+  "context_id": "CTX-218398815E35ECAFF091665CD2774153",
+  "previous_event_id": "EVENT-20260920T032406943063Z-16846851",
+  "previous_event_sha256": "c53b83c347b7e52bfd77c372bb9e27c4b874807ead44e358c5d46c4f2eec1c60"
+}

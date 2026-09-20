@@ -1,0 +1,60 @@
+{
+ "schema": "audit-result-v1",
+ "target": "RESEARCH-601",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-601-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+    "Every candidate in the corpus carries its deciding rule: 986 ignored, 338 repository, 142 self-marker, 49 content, 3 manifest, 29 tracked and 27 unresolved across 47,536 directories walked."
+   ]
+  },
+  {
+   "id": "CHECK-601-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+    "Scripts/Testing/measure_object_detection.py",
+    "The tracked rule runs before every other rule and refused 29 directories with output names that the repository tracks as source, including ~/localGit/echo/scripts/build and ~/localGit/disk_steward/.swiftpm. The fixture self-test asserts this case and passes 8 of 8."
+   ]
+  },
+  {
+   "id": "CHECK-601-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+    "1,468 of 2,615 output candidates lie outside any repository. The parent-manifest fallback resolved 20 of them and left 1,448 unresolved; self-marker and content evidence reduced that to 27, and the note states why those 27 stay unclassified rather than guessed."
+   ]
+  },
+  {
+   "id": "CHECK-601-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/assurance-candidate.json",
+    "Assurance reviewed: IMPACT-RESEARCH-601-BUILD, IMPACT-RESEARCH-601-ASSURANCE confirmed; INSPECT-RESEARCH-601-1 performed after the implementation event and sufficient; scope drift reconciled to those impacts; rollback is revert-only and monitoring is not applicable for a tool that does not run in the product, both recorded with the task that must replace them."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-RESEARCH-601-BUILD",
+   "IMPACT-RESEARCH-601-ASSURANCE"
+  ],
+  "inspection_ids": [
+   "INSPECT-RESEARCH-601-1"
+  ],
+  "finding_ids": [],
+  "scope_review": "complete",
+  "limitations": [
+   "One corpus on one macOS machine; coverage of the rules elsewhere is unmeasured.",
+   "Measurement only: no product code consumes these rules until TASK-611.",
+   "The auditor also performed the research; independence rests on the archived per-candidate records and the fixture self-test."
+  ]
+ }
+}

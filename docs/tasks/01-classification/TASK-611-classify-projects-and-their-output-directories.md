@@ -37,7 +37,7 @@ Detect project roots from repository and manifest markers, then classify their k
 ## Dependencies
 
 - `CONTRACT-601` (contract-requires, unverified)
-- `RESEARCH-601` (requires, unverified)
+- `RESEARCH-601` (requires, passed)
 
 ## Required Context
 

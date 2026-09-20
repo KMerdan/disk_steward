@@ -1,0 +1,151 @@
+{
+ "schema": "pyramid-assurance-v1",
+ "plan_id": "PLAN-DISK-STEWARD-006",
+ "baseline_id": "BASELINE-DISK-STEWARD",
+ "baseline_revision": 4,
+ "policy": "brownfield",
+ "status": "stale",
+ "updated_at": "2026-09-20T03:24:06Z",
+ "updated_by": "claude",
+ "enforce_from_graph_version": 1,
+ "impacts": [
+  {
+   "id": "IMPACT-RESEARCH-601-BUILD",
+   "asset_id": "ASSET-BUILD",
+   "task_ids": [
+    "RESEARCH-601"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "Scripts/Testing/measure_object_detection.py",
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+   ],
+   "path": [
+    "RESEARCH-601",
+    "ASSET-BUILD"
+   ]
+  },
+  {
+   "id": "IMPACT-RESEARCH-601-ASSURANCE",
+   "asset_id": "ASSET-ASSURANCE",
+   "task_ids": [
+    "RESEARCH-601"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+    "docs/reliability/evidence/RESEARCH-601/agent-result.json"
+   ],
+   "path": [
+    "RESEARCH-601",
+    "ASSET-ASSURANCE"
+   ]
+  }
+ ],
+ "inspections": [
+  {
+   "id": "INSPECT-RESEARCH-601-1",
+   "asset_ids": [
+    "ASSET-BUILD",
+    "ASSET-ASSURANCE"
+   ],
+   "task_ids": [
+    "RESEARCH-601"
+   ],
+   "method": "Confirm the measurement tool only reads: no write, move or delete in a measured corpus and no project tooling executed; confirm the fixture self-test asserts the deciding rule for every case including the tracked refusal; confirm every claim in the note resolves to measurement.json or candidates.jsonl from the archived runs.",
+   "required": true,
+   "refresh": "per-change",
+   "invalidating_changes": [
+    "Scripts/Testing/measure_object_detection.py"
+   ],
+   "status": "performed",
+   "result": "pass",
+   "sufficiency": "sufficient",
+   "performed_at": "2026-09-20T03:24:06Z",
+   "performed_by": "claude",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+    "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+    "Scripts/Testing/measure_object_detection.py"
+   ],
+   "limitations": [
+    "One corpus on one macOS machine.",
+    "Sizes are logical lstat bytes, not allocated blocks.",
+    "The rules are measured here, not yet consumed by product code."
+   ]
+  }
+ ],
+ "findings": [],
+ "scope_drift": [
+  {
+   "id": "DRIFT-1E4DB6BD548F",
+   "task": "RESEARCH-601",
+   "changed_file": "Scripts/Testing/measure_object_detection.py",
+   "matched_asset_ids": [
+    "ASSET-BUILD"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:23:23.565365Z",
+   "resolved_impact_id": "IMPACT-RESEARCH-601-BUILD",
+   "resolution": "First task of a fresh intent: the measurement tool and its evidence are the declared deliverable of RESEARCH-601, now covered by an impact record."
+  },
+  {
+   "id": "DRIFT-B70C9743610E",
+   "task": "RESEARCH-601",
+   "changed_file": "asset:ASSET-BUILD",
+   "matched_asset_ids": [
+    "ASSET-BUILD"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:23:23.565519Z",
+   "resolved_impact_id": "IMPACT-RESEARCH-601-BUILD",
+   "resolution": "First task of a fresh intent: the measurement tool and its evidence are the declared deliverable of RESEARCH-601, now covered by an impact record."
+  },
+  {
+   "id": "DRIFT-DF2ED31022E6",
+   "task": "RESEARCH-601",
+   "changed_file": "asset:ASSET-ASSURANCE",
+   "matched_asset_ids": [
+    "ASSET-ASSURANCE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:23:23.565524Z",
+   "resolved_impact_id": "IMPACT-RESEARCH-601-ASSURANCE",
+   "resolution": "First task of a fresh intent: the measurement tool and its evidence are the declared deliverable of RESEARCH-601, now covered by an impact record."
+  }
+ ],
+ "controls": {
+  "rollback": {
+   "status": "ready",
+   "evidence": [
+    "Scripts/Testing/measure_object_detection.py",
+    "docs/reliability/evidence/RESEARCH-601/agent-result.json"
+   ],
+   "rationale": "This task adds one read-only measurement script and its evidence. No product code, stored evidence or user data is touched, so rollback is reverting the commit. The migration rollback rehearsal required by the object model belongs to TASK-613 and this record must be replaced there."
+  },
+  "monitoring": {
+   "status": "not-applicable",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+   ],
+   "rationale": "Nothing from this task runs in the product: the tool is invoked by hand for measurement. Monitoring becomes applicable when TASK-611 puts classification into the scanner, and this record must be replaced then."
+  }
+ },
+ "legacy_bridge": {
+  "required": false,
+  "status": "not-required",
+  "gap_asset_ids": [],
+  "evidence": [],
+  "upgraded_from": null
+ },
+ "stale_reasons": [
+  "Unexpected implementation scope was recorded for RESEARCH-601: DRIFT-1E4DB6BD548F, DRIFT-B70C9743610E, DRIFT-DF2ED31022E6"
+ ]
+}

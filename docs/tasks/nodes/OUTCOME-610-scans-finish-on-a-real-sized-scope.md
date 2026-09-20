@@ -56,12 +56,12 @@ A user whose projects contain a million files behind build output gets a complet
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Status: `covered`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`
+- Inspections: `INSPECT-RESEARCH-601-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- None
 
