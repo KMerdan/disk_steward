@@ -36,7 +36,7 @@ Score an object from its size, how long its owning project has been idle, its re
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, unverified)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-621` (requires, unverified)
 
 ## Required Context

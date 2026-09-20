@@ -35,7 +35,7 @@ Present objects in the app and through the read-only agent API with their size, 
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, unverified)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-622` (requires, unverified)
 
 ## Required Context

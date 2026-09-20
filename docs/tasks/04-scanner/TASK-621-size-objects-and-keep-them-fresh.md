@@ -34,7 +34,7 @@ Measure an object's recursive size and file count without storing per-file rows,
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, unverified)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-612` (requires, unverified)
 
 ## Required Context

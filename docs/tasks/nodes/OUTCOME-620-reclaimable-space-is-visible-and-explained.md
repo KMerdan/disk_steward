@@ -57,9 +57,9 @@ A user opens the app and sees which objects hold the reclaimable space, how stal
 ## Brownfield Assurance
 
 - Status: `covered`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`
-- Inspections: `INSPECT-RESEARCH-601-1`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`
 
 ### Assurance Blockers
 

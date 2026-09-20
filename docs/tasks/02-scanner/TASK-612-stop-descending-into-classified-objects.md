@@ -36,7 +36,7 @@ The metadata scanner treats a classified object as a leaf: it records one object
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, unverified)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-611` (requires, unverified)
 
 ## Required Context

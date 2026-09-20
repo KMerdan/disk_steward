@@ -8,10 +8,10 @@
 - Wave: `0`
 - Workstream: `foundation`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `verified`
 - Goal trace: `CONTRACT-601` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -56,12 +56,12 @@ Define what a classified object is: its row shape, detection confidence vocabula
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Status: `covered`
+- Impact records: `IMPACT-CONTRACT-601-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`
+- Inspections: `INSPECT-CONTRACT-601-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- None
 

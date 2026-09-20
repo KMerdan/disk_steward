@@ -1,0 +1,53 @@
+{
+ "schema": "agent-result-v1",
+ "task": "CONTRACT-601",
+ "outcome": "implemented",
+ "changed_files": [
+  "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+  "docs/reliability/evidence/CONTRACT-601/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "evidence-only",
+ "changes": [
+  {
+   "path": "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-601/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "traceability review of the contract against the plan",
+   "result": "passed",
+   "notes": "Every rule names the task that proves it: row shape and no per-file rows inside an object to TASK-612/TASK-613, detection order to TASK-611, never-offer and review-required to TASK-622/TASK-623, sizing and staleness to TASK-621, migration and rollback to TASK-613, capacity honesty to TASK-614."
+  },
+  {
+   "command": "consistency check against RESEARCH-601",
+   "result": "passed",
+   "notes": "The detection order and confidence vocabulary restate the measured outcome in docs/reliability/evidence/RESEARCH-601/detection-rules.md; no rule is introduced that the corpus did not test."
+  },
+  {
+   "command": "consistency check against the closed plan's safety contract",
+   "result": "passed",
+   "notes": "Section 9 inherits bounded resources, test isolation, conflict-safe configuration and recoverable migration from docs/reliability/evidence/CONTRACT-510/safety-contract.md without re-proving them."
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-CONTRACT-601-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/CONTRACT-601/object-contract.md sections 2 to 8: row shape, confidence vocabulary, never-classify and never-offer rules, sizing and staleness, reversible migration, each naming its proving task."
+  }
+ ],
+ "discovered_risks": [
+  "The contract is a specification, not evidence; each rule stays unproven until its named task passes its gate.",
+  "Sizes are logical bytes and will read slightly under what the volume reports; every surface must say so.",
+  "The 27 unresolved candidates need an explicit override path; the contract forbids guessing but does not yet specify the override."
+ ],
+ "suggested_graph_changes": []
+}

@@ -5,15 +5,16 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `5`
+- Graph version: `9`
 - Plan revision: `1`
 - Lifecycle: `active`
-- Verified primary nodes: `1/17`
-- Ready tasks: `1`
+- Verified primary nodes: `2/17`
+- Ready tasks: `2`
 
 ## Ready Frontier
 
-- `CONTRACT-601` — Object evidence and safety contract
+- `TASK-611` — Classify projects and their output directories
+- `TASK-614` — Refuse a scope that cannot fit and say so
 
 ## Brownfield Assurance
 

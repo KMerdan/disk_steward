@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-611` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -36,7 +36,7 @@ Detect project roots from repository and manifest markers, then classify their k
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, unverified)
+- `CONTRACT-601` (contract-requires, passed)
 - `RESEARCH-601` (requires, passed)
 
 ## Required Context

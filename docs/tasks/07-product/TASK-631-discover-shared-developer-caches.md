@@ -35,7 +35,7 @@ Find the shared, tool-owned caches that live outside watched project roots, pres
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, unverified)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-623` (requires, unverified)
 
 ## Required Context

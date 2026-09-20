@@ -5,7 +5,7 @@
   "baseline_revision": 4,
   "policy": "brownfield",
   "status": "ready",
-  "updated_at": "2026-09-20T03:24:06.942177Z",
+  "updated_at": "2026-09-20T03:25:48.707472Z",
   "updated_by": "claude",
   "enforce_from_graph_version": 1,
   "impacts": [
@@ -45,6 +45,24 @@
         "RESEARCH-601",
         "ASSET-ASSURANCE"
       ]
+    },
+    {
+      "id": "IMPACT-CONTRACT-601-ASSURANCE",
+      "asset_id": "ASSET-ASSURANCE",
+      "task_ids": [
+        "CONTRACT-601"
+      ],
+      "type": "direct",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+        "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+      ],
+      "path": [
+        "CONTRACT-601",
+        "ASSET-ASSURANCE"
+      ]
     }
   ],
   "inspections": [
@@ -82,6 +100,40 @@
       ],
       "validated_through": {
         "RESEARCH-601": "EVENT-20260920T032323566863Z-71BDA108"
+      }
+    },
+    {
+      "id": "INSPECT-CONTRACT-601-1",
+      "asset_ids": [
+        "ASSET-ASSURANCE"
+      ],
+      "task_ids": [
+        "CONTRACT-601"
+      ],
+      "method": "Confirm every contract rule names the task that proves it and a check that can hold it; confirm the detection order and confidence vocabulary match the measured outcome of RESEARCH-601; confirm no rule weakens an inherited guarantee of the closed reliability plan.",
+      "required": true,
+      "refresh": "pre-audit",
+      "invalidating_changes": [
+        "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+        "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+      ],
+      "status": "performed",
+      "result": "pass",
+      "sufficiency": "sufficient",
+      "performed_at": "2026-09-20T03:25:48Z",
+      "performed_by": "claude",
+      "evidence": [
+        "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+        "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+        "docs/reliability/evidence/CONTRACT-510/safety-contract.md",
+        "docs/reliability/planning/plan-006-candidate.json"
+      ],
+      "limitations": [
+        "A contract is a specification: it states what must hold, and proves nothing on its own.",
+        "The override path for unresolved candidates is deliberately unspecified and belongs to a later task."
+      ],
+      "validated_through": {
+        "CONTRACT-601": "EVENT-20260920T032547332638Z-397B9D6B"
       }
     }
   ],
