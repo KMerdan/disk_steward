@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-613` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -36,7 +36,7 @@ Add the durable object row from the contract and migrate an existing store by co
 ## Dependencies
 
 - `CONTRACT-601` (contract-requires, passed)
-- `TASK-611` (requires, unverified)
+- `TASK-611` (requires, passed)
 
 ## Required Context
 

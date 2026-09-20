@@ -56,12 +56,13 @@ Define what a classified object is: its row shape, detection confidence vocabula
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-CONTRACT-601-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`
 - Inspections: `INSPECT-CONTRACT-601-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Required inspection INSPECT-CONTRACT-601-1 is stale
 

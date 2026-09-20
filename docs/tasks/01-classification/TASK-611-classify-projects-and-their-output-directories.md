@@ -8,10 +8,10 @@
 - Wave: `1`
 - Workstream: `classification`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `verified`
 - Goal trace: `TASK-611` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -62,12 +62,12 @@ Detect project roots from repository and manifest markers, then classify their k
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Status: `covered`
+- Impact records: `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`
+- Inspections: `INSPECT-TASK-611-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- None
 

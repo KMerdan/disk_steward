@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-z7mhef5n/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-z7mhef5n/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-z7mhef5n/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectClassificationTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 36.513316584,
+ "log": "tests.log",
+ "logSHA256": "8710135b85411172619cd6c2826754e0b1f7b925b161c156cf8b0ca46d214998",
+ "passed": false,
+ "baseInputSHA256": "a6a717c7d0b47e5ee8891ba0a49086d030087c4f80603c1c80336ac3e90bfae5",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "tracked source is no longer refused before the other rules",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+    "replacements": [
+     [
+      "        if let repositoryPath, oracle.tracksContents(ofPath: directoryPath, repositoryPath: repositoryPath) == true {",
+      "        if let repositoryPath, oracle.tracksContents(ofPath: directoryPath, repositoryPath: repositoryPath) == false {"
+     ]
+    ]
+   }
+  ]
+ }
+}

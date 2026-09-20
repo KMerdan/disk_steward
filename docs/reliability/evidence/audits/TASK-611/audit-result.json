@@ -1,0 +1,60 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-611",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-611-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-611/candidate/candidate.json",
+    "docs/reliability/evidence/TASK-611/candidate/tests.log",
+    "Full isolated verifier on input a6a717c7d0b47e5ee8891ba0a49086d030087c4f80603c1c80336ac3e90bfae5: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 569 tests, 0 failures."
+   ]
+  },
+  {
+   "id": "CHECK-611-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-611/classification.md",
+    "docs/reliability/evidence/TASK-611/focused-green/tests.log",
+    "Ten isolated cases cover AC-TASK-611-01: repositories, manifest-only projects, nested and orphan candidates, tracked lookalikes refused as source, an unreadable repository falling through rather than deciding, and a read-only assertion over the examined tree."
+   ]
+  },
+  {
+   "id": "CHECK-611-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-611/tracked-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-611/marker-mutation-red/result.json",
+    "Non-vacuity: inverting the tracked check or disabling the self-marker rule each fails exactly its case, with the worktree unchanged."
+   ]
+  },
+  {
+   "id": "CHECK-611-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-611/assurance-candidate.json",
+    "Assurance reviewed: IMPACT-TASK-611-SCANNER, IMPACT-TASK-611-ASSURANCE confirmed; INSPECT-TASK-611-1 performed after the implementation event and sufficient; drift reconciled; controls restated honestly for code that no product path calls yet."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-611-SCANNER",
+   "IMPACT-TASK-611-ASSURANCE"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-611-1"
+  ],
+  "finding_ids": [],
+  "scope_review": "complete",
+  "limitations": [
+   "No git process runs in the unit tests; the real oracle is exercised end to end by TASK-612.",
+   "No user-visible behaviour changes until the scanner uses the classifier.",
+   "The auditor also implemented the task; independence rests on the isolated reruns, the mutation reds and the archived hashes."
+  ]
+ }
+}

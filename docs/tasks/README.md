@@ -5,22 +5,23 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `9`
+- Graph version: `13`
 - Plan revision: `1`
 - Lifecycle: `active`
-- Verified primary nodes: `2/17`
-- Ready tasks: `2`
+- Verified primary nodes: `3/17`
+- Ready tasks: `3`
 
 ## Ready Frontier
 
-- `TASK-611` — Classify projects and their output directories
+- `TASK-612` — Stop descending into classified objects
+- `TASK-613` — Store object rows and collapse existing per-file rows
 - `TASK-614` — Refuse a scope that cannot fit and say so
 
 ## Brownfield Assurance
 
-- Status: `ready`
+- Status: `blocked`
 - Baseline: `current` revision `4`
-- Impacted assets inspected sufficiently: `2/2`
+- Impacted assets inspected sufficiently: `2/3`
 - Open scope drift: `0`
 - Open material findings: `0`
 

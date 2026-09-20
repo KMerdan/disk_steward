@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-612` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -37,7 +37,7 @@ The metadata scanner treats a classified object as a leaf: it records one object
 ## Dependencies
 
 - `CONTRACT-601` (contract-requires, passed)
-- `TASK-611` (requires, unverified)
+- `TASK-611` (requires, passed)
 
 ## Required Context
 

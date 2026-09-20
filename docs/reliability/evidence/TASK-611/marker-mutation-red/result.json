@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-f4rcfo14/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-f4rcfo14/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-f4rcfo14/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectClassificationTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 39.478961292,
+ "log": "tests.log",
+ "logSHA256": "3fd69929d0ff72915909c278c4fa47300e361d6e9c5e91fa6c8e38d61aa9c1c1",
+ "passed": false,
+ "baseInputSHA256": "a6a717c7d0b47e5ee8891ba0a49086d030087c4f80603c1c80336ac3e90bfae5",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "a marker inside a directory no longer identifies it",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+    "replacements": [
+     [
+      "        if let marker = selfMarker(in: directoryPath) {",
+      "        if false, let marker = selfMarker(in: directoryPath) {"
+     ]
+    ]
+   }
+  ]
+ }
+}

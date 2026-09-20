@@ -59,12 +59,14 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 
 ## Brownfield Assurance
 
-- Status: `covered`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`
+- Status: `blocked`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-SCANNER`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
+- Required inspection INSPECT-CONTRACT-601-1 is stale
+- Required inspection INSPECT-RESEARCH-601-1 is stale
 

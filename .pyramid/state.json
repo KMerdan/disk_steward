@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "graph_version": 9,
+  "graph_version": 13,
   "created_at": "2026-09-20T03:04:14.155702Z",
-  "updated_at": "2026-09-20T03:25:48.863164Z",
+  "updated_at": "2026-09-20T03:35:11.145651Z",
   "lifecycle": {
     "status": "active",
     "completed_at": null,
@@ -320,8 +320,8 @@
       "last_reopen": null
     },
     "TASK-611": {
-      "execution": "planned",
-      "verification": "unverified",
+      "execution": "implemented",
+      "verification": "passed",
       "health": "clear",
       "owner": null,
       "lease_expires_at": null,
@@ -333,9 +333,211 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-09-20T03:04:14.155702Z",
-      "last_result": null,
-      "last_audit": null,
+      "updated_at": "2026-09-20T03:35:11.145442Z",
+      "last_result": {
+        "schema": "agent-result-v1",
+        "task": "TASK-611",
+        "outcome": "implemented",
+        "changed_files": [
+          "Sources/DiskStewardCore/Monitoring/GitRepositoryOracle.swift",
+          "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+          "Tests/DiskStewardCoreTests/Monitoring/ObjectClassificationTests.swift",
+          "docs/reliability/evidence/TASK-611/agent-result.json",
+          "docs/reliability/evidence/TASK-611/candidate/build.log",
+          "docs/reliability/evidence/TASK-611/candidate/candidate.json",
+          "docs/reliability/evidence/TASK-611/candidate/entitlements.log",
+          "docs/reliability/evidence/TASK-611/candidate/harness.log",
+          "docs/reliability/evidence/TASK-611/candidate/manifest.log",
+          "docs/reliability/evidence/TASK-611/candidate/tests.log",
+          "docs/reliability/evidence/TASK-611/candidate/toolchain.log",
+          "docs/reliability/evidence/TASK-611/classification-source-manifest.json",
+          "docs/reliability/evidence/TASK-611/classification.md",
+          "docs/reliability/evidence/TASK-611/focused-green/result.json",
+          "docs/reliability/evidence/TASK-611/focused-green/tests.log",
+          "docs/reliability/evidence/TASK-611/marker-mutation-red/result.json",
+          "docs/reliability/evidence/TASK-611/marker-mutation-red/tests.log",
+          "docs/reliability/evidence/TASK-611/tracked-mutation-red/result.json",
+          "docs/reliability/evidence/TASK-611/tracked-mutation-red/tests.log"
+        ],
+        "changed_assets": [
+          "ASSET-SCANNER",
+          "ASSET-ASSURANCE"
+        ],
+        "change_effect": "mixed",
+        "changes": [
+          {
+            "path": "Sources/DiskStewardCore/Monitoring/GitRepositoryOracle.swift",
+            "class": "source"
+          },
+          {
+            "path": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+            "class": "source"
+          },
+          {
+            "path": "Tests/DiskStewardCoreTests/Monitoring/ObjectClassificationTests.swift",
+            "class": "source"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/agent-result.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/candidate/build.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/candidate/candidate.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/candidate/entitlements.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/candidate/harness.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/candidate/manifest.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/candidate/tests.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/candidate/toolchain.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/classification-source-manifest.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/classification.md",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/focused-green/result.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/focused-green/tests.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/marker-mutation-red/result.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/marker-mutation-red/tests.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/tracked-mutation-red/result.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/TASK-611/tracked-mutation-red/tests.log",
+            "class": "evidence"
+          }
+        ],
+        "checks": [
+          {
+            "command": "verify_candidate.py --output <new dir> --xcodegen /opt/homebrew/bin/xcodegen",
+            "result": "passed",
+            "notes": "All stages passed on input a6a717c7d0b47e5ee8891ba0a49086d030087c4f80603c1c80336ac3e90bfae5: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 569 tests, 0 failures."
+          },
+          {
+            "command": "isolated run of ObjectClassificationTests",
+            "result": "passed",
+            "notes": "10 tests, 0 failures (focused-green/), including the tracked-source refusal, the non-standard virtualenv, content evidence with no project, and a read-only assertion over the examined tree."
+          },
+          {
+            "command": "mutation: invert the tracked check",
+            "result": "failed",
+            "notes": "Expected: testTrackedSourceIsRefusedBeforeEveryOtherRule fails (tracked-mutation-red/), repositoryUnchanged true."
+          },
+          {
+            "command": "mutation: disable the self-marker rule",
+            "result": "failed",
+            "notes": "Expected: testMarkerInsideADirectoryIdentifiesItWhateverItIsNamed fails (marker-mutation-red/), repositoryUnchanged true."
+          }
+        ],
+        "acceptance_evidence": [
+          {
+            "criterion": "AC-TASK-611-01",
+            "result": "passed",
+            "reference": "docs/reliability/evidence/TASK-611/classification.md proof table; focused-green/, candidate/, tracked- and marker-mutation-red/"
+          }
+        ],
+        "discovered_risks": [
+          "GitRepositoryOracle is compiled but not exercised against a real repository by these tests; TASK-612 wires and exercises it.",
+          "Content evidence reads one directory level, so an unusual layout falls through to a weaker rule rather than a wrong one.",
+          "Nothing in the product calls the classifier yet, so no user-visible behaviour changed."
+        ],
+        "suggested_graph_changes": []
+      },
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "TASK-611",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "CHECK-611-01",
+            "result": "passed",
+            "evidence": [
+              "docs/reliability/evidence/TASK-611/candidate/candidate.json",
+              "docs/reliability/evidence/TASK-611/candidate/tests.log",
+              "Full isolated verifier on input a6a717c7d0b47e5ee8891ba0a49086d030087c4f80603c1c80336ac3e90bfae5: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 569 tests, 0 failures."
+            ]
+          },
+          {
+            "id": "CHECK-611-02",
+            "result": "passed",
+            "evidence": [
+              "docs/reliability/evidence/TASK-611/classification.md",
+              "docs/reliability/evidence/TASK-611/focused-green/tests.log",
+              "Ten isolated cases cover AC-TASK-611-01: repositories, manifest-only projects, nested and orphan candidates, tracked lookalikes refused as source, an unreadable repository falling through rather than deciding, and a read-only assertion over the examined tree."
+            ]
+          },
+          {
+            "id": "CHECK-611-03",
+            "result": "passed",
+            "evidence": [
+              "docs/reliability/evidence/TASK-611/tracked-mutation-red/result.json",
+              "docs/reliability/evidence/TASK-611/marker-mutation-red/result.json",
+              "Non-vacuity: inverting the tracked check or disabling the self-marker rule each fails exactly its case, with the worktree unchanged."
+            ]
+          },
+          {
+            "id": "CHECK-611-04",
+            "result": "passed",
+            "evidence": [
+              "docs/reliability/evidence/TASK-611/assurance-candidate.json",
+              "Assurance reviewed: IMPACT-TASK-611-SCANNER, IMPACT-TASK-611-ASSURANCE confirmed; INSPECT-TASK-611-1 performed after the implementation event and sufficient; drift reconciled; controls restated honestly for code that no product path calls yet."
+            ]
+          }
+        ],
+        "affected_claims": [],
+        "recommended_action": "advance",
+        "assurance": {
+          "impact_ids": [
+            "IMPACT-TASK-611-SCANNER",
+            "IMPACT-TASK-611-ASSURANCE"
+          ],
+          "inspection_ids": [
+            "INSPECT-TASK-611-1"
+          ],
+          "finding_ids": [],
+          "scope_review": "complete",
+          "limitations": [
+            "No git process runs in the unit tests; the real oracle is exercised end to end by TASK-612.",
+            "No user-visible behaviour changes until the scanner uses the classifier.",
+            "The auditor also implemented the task; independence rests on the isolated reruns, the mutation reds and the archived hashes."
+          ]
+        }
+      },
       "last_reopen": null
     },
     "TASK-612": {
@@ -586,5 +788,5 @@
       "last_reopen": null
     }
   },
-  "context_id": "CTX-2F540415D4638DDD62CDCB639ABA5D2E"
+  "context_id": "CTX-C8FCF0A24CF5D5D64CCCBA71EB4AC813"
 }
