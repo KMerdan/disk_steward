@@ -18,6 +18,7 @@ final class ObjectScanScaleTests: XCTestCase {
         guard environment["DISK_STEWARD_OBJECT_SCALE"] == "v1" else {
             throw XCTSkip("Opt-in scale case; a supervisor sets DISK_STEWARD_OBJECT_SCALE.")
         }
+        try requireScaleSupervisor()
         let path = try XCTUnwrap(environment["DISK_STEWARD_OBJECT_SCALE_ROOT"])
         let root = URL(fileURLWithPath: path)
         // A supervisor-owned leaf, named without traversal. /private/tmp is the

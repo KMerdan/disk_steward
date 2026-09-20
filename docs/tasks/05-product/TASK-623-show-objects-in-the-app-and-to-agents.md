@@ -10,7 +10,7 @@
 - Selection: `primary`
 - Execution: `planned`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `locked`
 - Goal trace: `TASK-623` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
@@ -37,6 +37,7 @@ Present objects in the app and through the read-only agent API with their size, 
 
 - `CONTRACT-601` (contract-requires, passed)
 - `TASK-622` (requires, unverified)
+- `TASK-617` (requires, passed)
 
 ## Required Context
 
@@ -50,6 +51,7 @@ Present objects in the app and through the read-only agent API with their size, 
 ## Acceptance Criteria
 
 - `AC-TASK-623-01` — The app and the agent read models list objects with the contract's fields, a repository appears as measured and is refused as a candidate, no response invents confidence, and bounded response limits are preserved.
+- `AC-TASK-623-02` — Integrate object presentation without regressing TASK-617: successive observations still update the visible board, volume and file-detail freshness remain distinct, and latest-alert context survives later sample updates within its bounded session lifetime.
 
 ## Required Evidence
 
@@ -62,11 +64,19 @@ Present objects in the app and through the read-only agent API with their size, 
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Impact records: `IMPACT-R3-TASK-623-UI`, `IMPACT-R3-TASK-623-QUERY`, `IMPACT-R3-TASK-623-MCP`, `IMPACT-R3-TASK-623-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-MCP`, `ASSET-QUERY`, `ASSET-UI`
+- Inspections: `INSPECT-R3-623-INTEGRATION`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
+- Impact IMPACT-R3-TASK-623-MCP remains hypothesis
+- Impact IMPACT-R3-TASK-623-QUERY remains hypothesis
+- Impact IMPACT-R3-TASK-623-UI remains hypothesis
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-MCP lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
+- Impacted asset ASSET-UI lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-623-INTEGRATION is planned
 

@@ -9,6 +9,7 @@ final class BoundedTraversalScaleTests: XCTestCase {
         guard env["DISK_STEWARD_SCALE_BENCHMARK"] == "supervised-v1" else {
             throw XCTSkip("Requires explicit scale supervisor")
         }
+        try requireScaleSupervisor()
         let path = try XCTUnwrap(env["DISK_STEWARD_SCALE_ROOT"])
         let root = URL(fileURLWithPath: path)
         guard root.deletingLastPathComponent().path == "/private/tmp",

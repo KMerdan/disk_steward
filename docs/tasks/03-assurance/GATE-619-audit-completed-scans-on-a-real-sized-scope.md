@@ -16,7 +16,7 @@
 
 ## Goal
 
-Independently exercise the integrated candidate: a scope of the shape that stalls today completes a scan under the configured limit, objects hold no per-file rows, tracked source is never classified, and an over-large scope refuses explicitly.
+Independently exercise the integrated candidate: a scope of the shape that stalls today completes a scan under the configured limit, objects hold no per-file rows, tracked source is never classified, and an over-large scope refuses explicitly. Re-establish test-process containment and observe the dashboard across successive samples, not just a static render.
 
 ## Deliverables
 
@@ -37,6 +37,8 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 - `TASK-613` (validation-requires, passed)
 - `TASK-614` (validation-requires, unverified)
 - `TASK-615` (validation-requires, passed)
+- `TASK-616` (validation-requires, passed)
+- `TASK-617` (validation-requires, passed)
 
 ## Required Context
 
@@ -49,10 +51,12 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 ## Acceptance Criteria
 
 - `AC-GATE-619-01` — Build and run isolated end-to-end scenarios for this rung; record the exact candidate, commands, fixture identity, budgets and actual results. A migration from a captured real store is included. Open material findings affecting this rung prevent pass.
+- `AC-GATE-619-02` — Require passing TASK-616 and TASK-617 evidence on the integrated candidate: finite-resource verification leaves no owned descendants; rendered capacity, signed change, freshness and last alert remain coherent across the full sequential-observation matrix. Resolve FIND-R3-ORPHANED-TEST and FIND-R3-DASHBOARD with current evidence before pass.
 
 ## Required Evidence
 
 - `EVREQ-GATE-619-01` (composition-audit) — Rung scenario note bound to the exact candidate hash.
+- `EVREQ-GATE-619-02` (composition-audit) — Integrated supervision-cleanup report and hosted sequential-dashboard/fake-notification trace; refresh stale inspections and cover build/resource/UI/lifecycle impact.
 
 ## Audit Gates
 
@@ -61,17 +65,17 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-TASK-615-LIFECYCLE`, `IMPACT-TASK-615-SCANNER`, `IMPACT-TASK-615-STORE`, `IMPACT-TASK-615-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-613-1`, `INSPECT-TASK-612-1`, `INSPECT-TASK-615-1`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-TASK-615-LIFECYCLE`, `IMPACT-TASK-615-SCANNER`, `IMPACT-TASK-615-STORE`, `IMPACT-TASK-615-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-613-1`, `INSPECT-TASK-612-1`, `INSPECT-TASK-615-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 - Required inspection INSPECT-TASK-612-1 is stale
 - Required inspection INSPECT-TASK-613-1 is stale
+- Required inspection INSPECT-TASK-615-1 is stale
 

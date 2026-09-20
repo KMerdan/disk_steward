@@ -11,6 +11,7 @@ final class BoundedTraversalResumeTests: XCTestCase {
         guard env["DISK_STEWARD_SCALE_BENCHMARK"] == "resume-supervised-v1" else {
             throw XCTSkip("Requires the dedicated collected-fixture resume supervisor")
         }
+        try requireScaleSupervisor()
         let path = try XCTUnwrap(env["DISK_STEWARD_SCALE_ROOT"])
         let root = URL(fileURLWithPath: path)
         guard root.deletingLastPathComponent().path == "/private/tmp",

@@ -1,5 +1,11 @@
 # Disk Steward handoff — 20 September 2026, object model
 
+> Historical snapshot, superseded by [the R3 continuation note](HANDOFF-DISK-STEWARD-20260920-R3.md).
+> The old "no verifier ... active" assertion below was disproved by an orphaned
+> XCTest process. It has been stopped, but runner containment must be repaired
+> under TASK-616 before further candidate execution. Retain this document as
+> history, not current readiness or permission to run tests.
+
 Development paused mid-plan. `PLAN-DISK-STEWARD-006` is **active** at revision 2,
 graph 32, with no task claimed, so the runtime cannot issue a canonical handoff.
 This follows the same contract by hand; the machine-readable copy sits beside it.

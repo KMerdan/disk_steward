@@ -1,16 +1,16 @@
 {
   "schema": "pyramid-graph-v1",
-  "generated_at": "2026-09-20T06:06:30.899676Z",
-  "graph_version": 32,
+  "generated_at": "2026-09-20T10:54:07.448404Z",
+  "graph_version": 42,
   "context": {
-    "id": "CTX-808A716F6DD60A96A826A80572FA42D3",
+    "id": "CTX-CD35F8DDB6418F99E1866BFE82150EA6",
     "plan_id": "PLAN-DISK-STEWARD-006",
-    "plan_revision": 2,
-    "graph_version": 32
+    "plan_revision": 3,
+    "graph_version": 42
   },
   "plan_id": "PLAN-DISK-STEWARD-006",
   "title": "Reclaimable Space As Whole Objects",
-  "revision": 2,
+  "revision": 3,
   "intent": {
     "id": "INTENT-006",
     "statement": "Disk Steward treats build output, shared developer caches and repositories as single evidence objects rather than per-file rows, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and an explicit review step before anything is removed.",
@@ -92,14 +92,14 @@
     "restored_from": null
   },
   "summary": {
-    "primary_nodes": 18,
-    "verified_primary_nodes": 6,
+    "primary_nodes": 20,
+    "verified_primary_nodes": 8,
     "closure_ready": false,
     "availability": {
       "locked": 6,
       "not-executable": 4,
       "ready": 2,
-      "verified": 6
+      "verified": 8
     }
   },
   "nodes": [
@@ -168,7 +168,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -204,6 +204,8 @@
           "TASK-613",
           "TASK-614",
           "TASK-615",
+          "TASK-616",
+          "TASK-617",
           "TASK-621",
           "TASK-622",
           "TASK-623",
@@ -224,15 +226,47 @@
           "IMPACT-TASK-615-LIFECYCLE",
           "IMPACT-TASK-615-SCANNER",
           "IMPACT-TASK-615-STORE",
-          "IMPACT-TASK-615-ASSURANCE"
+          "IMPACT-TASK-615-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-623-UI",
+          "IMPACT-R3-TASK-623-QUERY",
+          "IMPACT-R3-TASK-623-MCP",
+          "IMPACT-R3-TASK-623-ASSURANCE",
+          "IMPACT-R3-GATE-619-BUILD",
+          "IMPACT-R3-GATE-619-RESOURCE",
+          "IMPACT-R3-GATE-619-UI",
+          "IMPACT-R3-GATE-619-LIFECYCLE",
+          "IMPACT-R3-GATE-619-SCANNER",
+          "IMPACT-R3-GATE-619-ASSURANCE",
+          "IMPACT-R3-GATE-629-BUILD",
+          "IMPACT-R3-GATE-629-RESOURCE",
+          "IMPACT-R3-GATE-629-UI",
+          "IMPACT-R3-GATE-629-LIFECYCLE",
+          "IMPACT-R3-GATE-629-SCANNER",
+          "IMPACT-R3-GATE-629-ASSURANCE",
+          "IMPACT-R3-GATE-639-BUILD",
+          "IMPACT-R3-GATE-639-RESOURCE",
+          "IMPACT-R3-GATE-639-UI",
+          "IMPACT-R3-GATE-639-LIFECYCLE",
+          "IMPACT-R3-GATE-639-SCANNER",
+          "IMPACT-R3-GATE-639-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
           "ASSET-LIFECYCLE",
+          "ASSET-MCP",
+          "ASSET-QUERY",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
-          "ASSET-STORE"
+          "ASSET-STORE",
+          "ASSET-UI"
         ],
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1",
@@ -240,9 +274,23 @@
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
           "INSPECT-TASK-612-1",
-          "INSPECT-TASK-615-1"
+          "INSPECT-TASK-615-1",
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-623-INTEGRATION",
+          "INSPECT-R3-GATE-619-SAFETY",
+          "INSPECT-R3-GATE-619-DISPLAY",
+          "INSPECT-R3-GATE-629-SAFETY",
+          "INSPECT-R3-GATE-629-DISPLAY",
+          "INSPECT-R3-GATE-639-SAFETY",
+          "INSPECT-R3-GATE-639-DISPLAY"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -276,13 +324,44 @@
           "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impact IMPACT-R3-GATE-619-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-UI remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-UI remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-UI remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-MCP remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-QUERY remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-UI remains hypothesis",
+          "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
+          "Required inspection INSPECT-R3-623-INTEGRATION is planned",
+          "Required inspection INSPECT-R3-GATE-619-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-619-SAFETY is planned",
+          "Required inspection INSPECT-R3-GATE-629-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-629-SAFETY is planned",
+          "Required inspection INSPECT-R3-GATE-639-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-639-SAFETY is planned",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
           "Required inspection INSPECT-TASK-612-1 is stale",
-          "Required inspection INSPECT-TASK-613-1 is stale"
+          "Required inspection INSPECT-TASK-613-1 is stale",
+          "Required inspection INSPECT-TASK-615-1 is stale"
         ]
       },
       "source_path": "docs/tasks/nodes/INTENT-006-reclaimable-space-as-whole-objects.md"
@@ -346,7 +425,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -387,6 +466,8 @@
           "TASK-613",
           "TASK-614",
           "TASK-615",
+          "TASK-616",
+          "TASK-617",
           "TASK-621",
           "TASK-622",
           "TASK-623",
@@ -407,15 +488,47 @@
           "IMPACT-TASK-615-LIFECYCLE",
           "IMPACT-TASK-615-SCANNER",
           "IMPACT-TASK-615-STORE",
-          "IMPACT-TASK-615-ASSURANCE"
+          "IMPACT-TASK-615-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-623-UI",
+          "IMPACT-R3-TASK-623-QUERY",
+          "IMPACT-R3-TASK-623-MCP",
+          "IMPACT-R3-TASK-623-ASSURANCE",
+          "IMPACT-R3-GATE-619-BUILD",
+          "IMPACT-R3-GATE-619-RESOURCE",
+          "IMPACT-R3-GATE-619-UI",
+          "IMPACT-R3-GATE-619-LIFECYCLE",
+          "IMPACT-R3-GATE-619-SCANNER",
+          "IMPACT-R3-GATE-619-ASSURANCE",
+          "IMPACT-R3-GATE-629-BUILD",
+          "IMPACT-R3-GATE-629-RESOURCE",
+          "IMPACT-R3-GATE-629-UI",
+          "IMPACT-R3-GATE-629-LIFECYCLE",
+          "IMPACT-R3-GATE-629-SCANNER",
+          "IMPACT-R3-GATE-629-ASSURANCE",
+          "IMPACT-R3-GATE-639-BUILD",
+          "IMPACT-R3-GATE-639-RESOURCE",
+          "IMPACT-R3-GATE-639-UI",
+          "IMPACT-R3-GATE-639-LIFECYCLE",
+          "IMPACT-R3-GATE-639-SCANNER",
+          "IMPACT-R3-GATE-639-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
           "ASSET-LIFECYCLE",
+          "ASSET-MCP",
+          "ASSET-QUERY",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
-          "ASSET-STORE"
+          "ASSET-STORE",
+          "ASSET-UI"
         ],
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1",
@@ -423,9 +536,23 @@
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
           "INSPECT-TASK-612-1",
-          "INSPECT-TASK-615-1"
+          "INSPECT-TASK-615-1",
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-623-INTEGRATION",
+          "INSPECT-R3-GATE-619-SAFETY",
+          "INSPECT-R3-GATE-619-DISPLAY",
+          "INSPECT-R3-GATE-629-SAFETY",
+          "INSPECT-R3-GATE-629-DISPLAY",
+          "INSPECT-R3-GATE-639-SAFETY",
+          "INSPECT-R3-GATE-639-DISPLAY"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -459,13 +586,44 @@
           "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impact IMPACT-R3-GATE-619-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-UI remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-UI remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-639-UI remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-MCP remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-QUERY remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-UI remains hypothesis",
+          "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
+          "Required inspection INSPECT-R3-623-INTEGRATION is planned",
+          "Required inspection INSPECT-R3-GATE-619-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-619-SAFETY is planned",
+          "Required inspection INSPECT-R3-GATE-629-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-629-SAFETY is planned",
+          "Required inspection INSPECT-R3-GATE-639-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-639-SAFETY is planned",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
           "Required inspection INSPECT-TASK-612-1 is stale",
-          "Required inspection INSPECT-TASK-613-1 is stale"
+          "Required inspection INSPECT-TASK-613-1 is stale",
+          "Required inspection INSPECT-TASK-615-1 is stale"
         ]
       },
       "source_path": "docs/tasks/nodes/OUTCOME-630-shared-caches-counted-the-same-way.md"
@@ -530,7 +688,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -570,6 +728,8 @@
           "TASK-613",
           "TASK-614",
           "TASK-615",
+          "TASK-616",
+          "TASK-617",
           "TASK-621",
           "TASK-622",
           "TASK-623"
@@ -589,15 +749,41 @@
           "IMPACT-TASK-615-LIFECYCLE",
           "IMPACT-TASK-615-SCANNER",
           "IMPACT-TASK-615-STORE",
-          "IMPACT-TASK-615-ASSURANCE"
+          "IMPACT-TASK-615-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-623-UI",
+          "IMPACT-R3-TASK-623-QUERY",
+          "IMPACT-R3-TASK-623-MCP",
+          "IMPACT-R3-TASK-623-ASSURANCE",
+          "IMPACT-R3-GATE-619-BUILD",
+          "IMPACT-R3-GATE-619-RESOURCE",
+          "IMPACT-R3-GATE-619-UI",
+          "IMPACT-R3-GATE-619-LIFECYCLE",
+          "IMPACT-R3-GATE-619-SCANNER",
+          "IMPACT-R3-GATE-619-ASSURANCE",
+          "IMPACT-R3-GATE-629-BUILD",
+          "IMPACT-R3-GATE-629-RESOURCE",
+          "IMPACT-R3-GATE-629-UI",
+          "IMPACT-R3-GATE-629-LIFECYCLE",
+          "IMPACT-R3-GATE-629-SCANNER",
+          "IMPACT-R3-GATE-629-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
           "ASSET-LIFECYCLE",
+          "ASSET-MCP",
+          "ASSET-QUERY",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
-          "ASSET-STORE"
+          "ASSET-STORE",
+          "ASSET-UI"
         ],
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1",
@@ -605,9 +791,21 @@
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
           "INSPECT-TASK-612-1",
-          "INSPECT-TASK-615-1"
+          "INSPECT-TASK-615-1",
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-623-INTEGRATION",
+          "INSPECT-R3-GATE-619-SAFETY",
+          "INSPECT-R3-GATE-619-DISPLAY",
+          "INSPECT-R3-GATE-629-SAFETY",
+          "INSPECT-R3-GATE-629-DISPLAY"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -641,13 +839,36 @@
           "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impact IMPACT-R3-GATE-619-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-UI remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-629-UI remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-MCP remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-QUERY remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-UI remains hypothesis",
+          "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
+          "Required inspection INSPECT-R3-623-INTEGRATION is planned",
+          "Required inspection INSPECT-R3-GATE-619-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-619-SAFETY is planned",
+          "Required inspection INSPECT-R3-GATE-629-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-629-SAFETY is planned",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
           "Required inspection INSPECT-TASK-612-1 is stale",
-          "Required inspection INSPECT-TASK-613-1 is stale"
+          "Required inspection INSPECT-TASK-613-1 is stale",
+          "Required inspection INSPECT-TASK-615-1 is stale"
         ]
       },
       "source_path": "docs/tasks/nodes/OUTCOME-620-reclaimable-space-is-visible-and-explained.md"
@@ -669,6 +890,10 @@
         {
           "id": "AC-GATE-639-01",
           "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record the exact candidate, commands, fixture identity, budgets and actual results. Final acceptance additionally requires the migration and rollback rehearsal and bounded real-time evidence on the final candidate. Open material findings prevent pass."
+        },
+        {
+          "id": "AC-GATE-639-02",
+          "description": "Re-run inherited TASK-616 descendant-containment and TASK-617 sequential dashboard/alert/freshness scenarios against this gate's exact integrated candidate. Earlier task passes alone do not establish current safety or rendered-update behavior."
         }
       ],
       "required_evidence": [
@@ -702,7 +927,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -712,8 +937,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -754,6 +979,8 @@
           "RESEARCH-601",
           "TASK-611",
           "TASK-612",
+          "TASK-616",
+          "TASK-617",
           "TASK-621",
           "TASK-622",
           "TASK-623",
@@ -768,22 +995,45 @@
           "IMPACT-TASK-612-SCANNER",
           "IMPACT-TASK-612-STORE",
           "IMPACT-TASK-612-RESOURCE",
-          "IMPACT-TASK-612-ASSURANCE"
+          "IMPACT-TASK-612-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-623-UI",
+          "IMPACT-R3-TASK-623-QUERY",
+          "IMPACT-R3-TASK-623-MCP",
+          "IMPACT-R3-TASK-623-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
+          "ASSET-LIFECYCLE",
+          "ASSET-MCP",
+          "ASSET-QUERY",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
-          "ASSET-STORE"
+          "ASSET-STORE",
+          "ASSET-UI"
         ],
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1",
           "INSPECT-CONTRACT-601-1",
           "INSPECT-TASK-611-1",
-          "INSPECT-TASK-612-1"
+          "INSPECT-TASK-612-1",
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-623-INTEGRATION"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -804,12 +1054,15 @@
           "DRIFT-A0D544CE2405"
         ],
         "blockers": [
-          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-SCANNER lacks a sufficient passing inspection",
+          "Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-MCP remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-QUERY remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-UI remains hypothesis",
+          "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
           "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
+          "Required inspection INSPECT-R3-623-INTEGRATION is planned",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
           "Required inspection INSPECT-TASK-612-1 is stale"
@@ -821,7 +1074,7 @@
       "id": "OUTCOME-610",
       "kind": "outcome",
       "title": "Scans finish on a real-sized scope",
-      "summary": "A user whose projects contain a million files behind build output gets a completed scan and published current state inside the configured limit, instead of a generation that never finishes.",
+      "summary": "A user whose projects contain a million files behind build output gets a completed scan and published current state inside the configured limit, instead of a generation that never finishes. The same safely supervised candidate presents live, signed, interval-labelled capacity changes and a distinguishable latest alert instead of stale dashboard values.",
       "level": 3,
       "wave": 3,
       "workstream": "product",
@@ -837,6 +1090,10 @@
         {
           "id": "AC-OUTCOME-610-01",
           "description": "Construct a runnable candidate and pass GATE-619, including the inherited safety and recovery limits of the closed reliability plan."
+        },
+        {
+          "id": "AC-OUTCOME-610-02",
+          "description": "The first runnable increment includes TASK-616 containment and TASK-617 sequential dashboard/alert behavior; no live user database or installed-app replacement is used for acceptance."
         }
       ],
       "required_evidence": [
@@ -879,7 +1136,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -903,7 +1160,9 @@
         "RESEARCH-601",
         "CONTRACT-601",
         "GATE-619",
-        "TASK-615"
+        "TASK-615",
+        "TASK-616",
+        "TASK-617"
       ],
       "dependencies": [],
       "audit_gates": [
@@ -922,7 +1181,9 @@
           "TASK-612",
           "TASK-613",
           "TASK-614",
-          "TASK-615"
+          "TASK-615",
+          "TASK-616",
+          "TASK-617"
         ],
         "impact_ids": [
           "IMPACT-RESEARCH-601-BUILD",
@@ -939,7 +1200,20 @@
           "IMPACT-TASK-615-LIFECYCLE",
           "IMPACT-TASK-615-SCANNER",
           "IMPACT-TASK-615-STORE",
-          "IMPACT-TASK-615-ASSURANCE"
+          "IMPACT-TASK-615-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-GATE-619-BUILD",
+          "IMPACT-R3-GATE-619-RESOURCE",
+          "IMPACT-R3-GATE-619-UI",
+          "IMPACT-R3-GATE-619-LIFECYCLE",
+          "IMPACT-R3-GATE-619-SCANNER",
+          "IMPACT-R3-GATE-619-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
@@ -947,7 +1221,8 @@
           "ASSET-LIFECYCLE",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
-          "ASSET-STORE"
+          "ASSET-STORE",
+          "ASSET-UI"
         ],
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1",
@@ -955,9 +1230,18 @@
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
           "INSPECT-TASK-612-1",
-          "INSPECT-TASK-615-1"
+          "INSPECT-TASK-615-1",
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-GATE-619-SAFETY",
+          "INSPECT-R3-GATE-619-DISPLAY"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -991,13 +1275,21 @@
           "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impact IMPACT-R3-GATE-619-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-BUILD remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-LIFECYCLE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-RESOURCE remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-SCANNER remains hypothesis",
+          "Impact IMPACT-R3-GATE-619-UI remains hypothesis",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
+          "Required inspection INSPECT-R3-GATE-619-DISPLAY is planned",
+          "Required inspection INSPECT-R3-GATE-619-SAFETY is planned",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
           "Required inspection INSPECT-TASK-612-1 is stale",
-          "Required inspection INSPECT-TASK-613-1 is stale"
+          "Required inspection INSPECT-TASK-613-1 is stale",
+          "Required inspection INSPECT-TASK-615-1 is stale"
         ]
       },
       "source_path": "docs/tasks/nodes/OUTCOME-610-scans-finish-on-a-real-sized-scope.md"
@@ -1020,6 +1312,10 @@
         {
           "id": "AC-GATE-629-01",
           "description": "Build and run isolated end-to-end scenarios for this rung and rung 1; record the exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-629-02",
+          "description": "Re-run inherited TASK-616 descendant-containment and TASK-617 sequential dashboard/alert/freshness scenarios against this gate's exact integrated candidate. Earlier task passes alone do not establish current safety or rendered-update behavior."
         }
       ],
       "required_evidence": [
@@ -1053,7 +1349,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -1063,8 +1359,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -1118,6 +1414,8 @@
           "RESEARCH-601",
           "TASK-611",
           "TASK-612",
+          "TASK-616",
+          "TASK-617",
           "TASK-621",
           "TASK-622",
           "TASK-623"
@@ -1131,22 +1429,45 @@
           "IMPACT-TASK-612-SCANNER",
           "IMPACT-TASK-612-STORE",
           "IMPACT-TASK-612-RESOURCE",
-          "IMPACT-TASK-612-ASSURANCE"
+          "IMPACT-TASK-612-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-623-UI",
+          "IMPACT-R3-TASK-623-QUERY",
+          "IMPACT-R3-TASK-623-MCP",
+          "IMPACT-R3-TASK-623-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
           "ASSET-BUILD",
+          "ASSET-LIFECYCLE",
+          "ASSET-MCP",
+          "ASSET-QUERY",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
-          "ASSET-STORE"
+          "ASSET-STORE",
+          "ASSET-UI"
         ],
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1",
           "INSPECT-CONTRACT-601-1",
           "INSPECT-TASK-611-1",
-          "INSPECT-TASK-612-1"
+          "INSPECT-TASK-612-1",
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-623-INTEGRATION"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -1167,12 +1488,15 @@
           "DRIFT-A0D544CE2405"
         ],
         "blockers": [
-          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-SCANNER lacks a sufficient passing inspection",
+          "Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-MCP remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-QUERY remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-UI remains hypothesis",
+          "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
           "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
+          "Required inspection INSPECT-R3-623-INTEGRATION is planned",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
           "Required inspection INSPECT-TASK-612-1 is stale"
@@ -1184,7 +1508,7 @@
       "id": "GATE-619",
       "kind": "audit",
       "title": "Audit completed scans on a real-sized scope",
-      "summary": "Independently exercise the integrated candidate: a scope of the shape that stalls today completes a scan under the configured limit, objects hold no per-file rows, tracked source is never classified, and an over-large scope refuses explicitly.",
+      "summary": "Independently exercise the integrated candidate: a scope of the shape that stalls today completes a scan under the configured limit, objects hold no per-file rows, tracked source is never classified, and an over-large scope refuses explicitly. Re-establish test-process containment and observe the dashboard across successive samples, not just a static render.",
       "level": 4,
       "wave": 3,
       "workstream": "assurance",
@@ -1200,6 +1524,10 @@
         {
           "id": "AC-GATE-619-01",
           "description": "Build and run isolated end-to-end scenarios for this rung; record the exact candidate, commands, fixture identity, budgets and actual results. A migration from a captured real store is included. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-619-02",
+          "description": "Require passing TASK-616 and TASK-617 evidence on the integrated candidate: finite-resource verification leaves no owned descendants; rendered capacity, signed change, freshness and last alert remain coherent across the full sequential-observation matrix. Resolve FIND-R3-ORPHANED-TEST and FIND-R3-DASHBOARD with current evidence before pass."
         }
       ],
       "required_evidence": [
@@ -1207,6 +1535,11 @@
           "id": "EVREQ-GATE-619-01",
           "type": "composition-audit",
           "description": "Rung scenario note bound to the exact candidate hash."
+        },
+        {
+          "id": "EVREQ-GATE-619-02",
+          "type": "composition-audit",
+          "description": "Integrated supervision-cleanup report and hosted sequential-dashboard/fake-notification trace; refresh stale inspections and cover build/resource/UI/lifecycle impact."
         }
       ],
       "agent": {
@@ -1244,7 +1577,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -1289,10 +1622,23 @@
           "id": "TASK-615",
           "type": "validation-requires",
           "verification": "passed"
+        },
+        {
+          "id": "TASK-616",
+          "type": "validation-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-617",
+          "type": "validation-requires",
+          "verification": "passed"
         }
       ],
       "audit_gates": [],
-      "evidence": [],
+      "evidence": [
+        "EV-R3-ORPHANED-XCTEST",
+        "EV-R3-DASHBOARD-REFRESH"
+      ],
       "assurance": {
         "status": "blocked",
         "task_ids": [
@@ -1302,7 +1648,9 @@
           "TASK-612",
           "TASK-613",
           "TASK-614",
-          "TASK-615"
+          "TASK-615",
+          "TASK-616",
+          "TASK-617"
         ],
         "impact_ids": [
           "IMPACT-RESEARCH-601-BUILD",
@@ -1319,7 +1667,14 @@
           "IMPACT-TASK-615-LIFECYCLE",
           "IMPACT-TASK-615-SCANNER",
           "IMPACT-TASK-615-STORE",
-          "IMPACT-TASK-615-ASSURANCE"
+          "IMPACT-TASK-615-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
@@ -1327,7 +1682,8 @@
           "ASSET-LIFECYCLE",
           "ASSET-RESOURCE",
           "ASSET-SCANNER",
-          "ASSET-STORE"
+          "ASSET-STORE",
+          "ASSET-UI"
         ],
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1",
@@ -1335,9 +1691,16 @@
           "INSPECT-TASK-611-1",
           "INSPECT-TASK-613-1",
           "INSPECT-TASK-612-1",
-          "INSPECT-TASK-615-1"
+          "INSPECT-TASK-615-1",
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -1371,13 +1734,13 @@
           "DRIFT-9F3DCC1C6122"
         ],
         "blockers": [
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
           "Required inspection INSPECT-CONTRACT-601-1 is stale",
           "Required inspection INSPECT-RESEARCH-601-1 is stale",
           "Required inspection INSPECT-TASK-611-1 is stale",
           "Required inspection INSPECT-TASK-612-1 is stale",
-          "Required inspection INSPECT-TASK-613-1 is stale"
+          "Required inspection INSPECT-TASK-613-1 is stale",
+          "Required inspection INSPECT-TASK-615-1 is stale"
         ]
       },
       "source_path": "docs/tasks/03-assurance/GATE-619-audit-completed-scans-on-a-real-sized-scope.md"
@@ -1443,7 +1806,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:11:23.888159Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "CONTRACT-601",
@@ -1666,7 +2029,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "RESEARCH-601",
@@ -1842,7 +2205,9 @@
         "inspection_ids": [
           "INSPECT-RESEARCH-601-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST"
+        ],
         "scope_drift_ids": [
           "DRIFT-1E4DB6BD548F",
           "DRIFT-B70C9743610E",
@@ -1922,7 +2287,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-611",
@@ -2174,7 +2539,9 @@
         "inspection_ids": [
           "INSPECT-TASK-611-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-DE86BD5F4C05",
           "DRIFT-6A6437213A8B",
@@ -2189,6 +2556,426 @@
         ]
       },
       "source_path": "docs/tasks/01-classification/TASK-611-classify-projects-and-their-output-directories.md"
+    },
+    {
+      "id": "TASK-616",
+      "kind": "risk-control",
+      "title": "Contain verification descendants and enforce resource budgets",
+      "summary": "Repair the verification boundary exposed by a timed-out Swift test leaving an orphaned XCTest using 86.9G footprint. Account for owned descendants even after group/session changes or early parent exit, enforce finite budgets, and prove cleanup before candidate, mutation or scale execution resumes.",
+      "level": 5,
+      "wave": 1,
+      "workstream": "safety",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-616-01",
+          "description": "Establish evidence-backed ownership of every launched test descendant before relying on termination: cover Swift-to-XCTest launch behavior, parent exit, group/session escape, identity/PID reuse and unrelated-process sentinels. Stop admission and report failure when ownership or measurement cannot be established. Never use broad name/path pkill or signal unrelated apps/tests."
+        },
+        {
+          "id": "AC-TASK-616-02",
+          "description": "Enforce explicit finite per-stage wall time, aggregate owned-process memory, output and termination-grace limits. Memory accounting must not silently equate RSS with total macOS physical footprint or omit escaped children. Record the measured metric, limitations, thresholds, peak, stop reason and cleanup result; retain the existing bounded log and credential-free environment."
+        },
+        {
+          "id": "AC-TASK-616-03",
+          "description": "On timeout, memory/output breach, cancellation, supervisor-handled error or early launcher exit, stop owned descendants, escalate within the bounded grace period as needed, and independently verify their exit. A report cannot claim success or completed cleanup while any owned process remains; include remaining identities if cleanup fails."
+        },
+        {
+          "id": "AC-TASK-616-04",
+          "description": "First exercise supervisor logic with small synthetic fixtures and an independent safety watchdog: each pathological fixture has a <=30-second outer deadline, <=256 MiB allocation ceiling, finite process count and its own terminal deadline. Cover a detached child, retained stdout, TERM refusal, measurement failure, PID-identity mismatch and an unrelated-process sentinel. Do not recreate multi-GB pressure or the old unbounded Swift hang."
+        },
+        {
+          "id": "AC-TASK-616-05",
+          "description": "Route focused, mutation, full-candidate, packaged-candidate, rollback and soak/scale test entry points through the proven supervision contract or fail closed before launching an unsupported path. Inventory bypasses, choose and justify finite build/test defaults, then run a bounded real Swift/XCTest smoke case and verify no descendant remains. Refresh safety documentation; no product changes or live-store access."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-616-01",
+          "type": "regression-evidence",
+          "description": "Identity-bound process lifecycle reports for every synthetic failure case and the bounded real Swift/XCTest smoke, including thresholds, exact commands, exit verification and untouched sentinels."
+        },
+        {
+          "id": "EVREQ-TASK-616-02",
+          "type": "regression-evidence",
+          "description": "Before/after regression evidence demonstrating the original cleanup gap without unbounded memory or hangs; snapshot hashes and an inventory of all covered entry points. Historical green suites are not containment proof."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "Scripts/Testing/verify_candidate.py",
+          "Scripts/Testing/verify_packaged_candidate.py",
+          "Scripts/Testing/supervise_soak.py",
+          "Scripts/Testing/rehearse_migration_rollback.py",
+          "docs/reliability/handoffs/harness/**",
+          "Tests/PerformanceTests/**"
+        ],
+        "allowed_write_scope": [
+          "Scripts/Testing/**",
+          "docs/reliability/handoffs/harness/**",
+          "Tests/PerformanceTests/**",
+          "docs/reliability/evidence/TASK-616/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/TASK-616/**"
+        ],
+        "commands": [
+          "Bootstrap only bounded synthetic supervision fixtures under an independent watchdog; do not start existing Swift/mutation/scale runners before containment is proven.",
+          "After synthetic acceptance, execute a snapshot-isolated bounded Swift/XCTest smoke through the repaired supervisor, then the focused supervisor regression suite."
+        ],
+        "deliverables": [
+          "One enforced supervision contract across test entry points",
+          "Machine-readable cleanup/resource evidence and regression fixtures",
+          "A documented safe bootstrap and rerun procedure"
+        ],
+        "non_goals": [
+          "No broad process termination, production app restart, user-file cleanup, installation or release.",
+          "No rerun of an unbounded memory/hang mutation to prove the guard works."
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-20T10:23:52.526893Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-616",
+          "outcome": "implemented",
+          "changed_files": [
+            "Scripts/Testing/measure_object_detection.py",
+            "Scripts/Testing/rehearse_migration_rollback.py",
+            "Scripts/Testing/supervise_soak.py",
+            "Scripts/Testing/verify_candidate.py",
+            "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+            "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+            "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+            "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+            "Tests/PerformanceTests/SoakBenchmarkTests.swift",
+            "docs/reliability/handoffs/harness/README.md",
+            "docs/reliability/handoffs/harness/object-scale.py",
+            "docs/reliability/handoffs/harness/run-mutation.py",
+            "Scripts/Testing/SUPERVISION.md",
+            "Scripts/Testing/bootstrap_supervision.py",
+            "Scripts/Testing/process_supervisor.py",
+            "Scripts/Testing/test_process_supervisor.py",
+            "Tests/PerformanceTests/ScaleAdmission.swift",
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/TASK-616/harness.log",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.log",
+            "docs/reliability/evidence/TASK-616/agent-result.json"
+          ],
+          "changed_assets": [
+            "ASSET-BUILD",
+            "ASSET-RESOURCE",
+            "ASSET-ASSURANCE"
+          ],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Scripts/Testing/measure_object_detection.py",
+              "class": "source"
+            },
+            {
+              "path": "Scripts/Testing/rehearse_migration_rollback.py",
+              "class": "source"
+            },
+            {
+              "path": "Scripts/Testing/supervise_soak.py",
+              "class": "source"
+            },
+            {
+              "path": "Scripts/Testing/verify_candidate.py",
+              "class": "source"
+            },
+            {
+              "path": "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/PerformanceTests/SoakBenchmarkTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/reliability/handoffs/harness/README.md",
+              "class": "configuration"
+            },
+            {
+              "path": "docs/reliability/handoffs/harness/object-scale.py",
+              "class": "source"
+            },
+            {
+              "path": "docs/reliability/handoffs/harness/run-mutation.py",
+              "class": "source"
+            },
+            {
+              "path": "Scripts/Testing/SUPERVISION.md",
+              "class": "configuration"
+            },
+            {
+              "path": "Scripts/Testing/bootstrap_supervision.py",
+              "class": "source"
+            },
+            {
+              "path": "Scripts/Testing/process_supervisor.py",
+              "class": "source"
+            },
+            {
+              "path": "Scripts/Testing/test_process_supervisor.py",
+              "class": "source"
+            },
+            {
+              "path": "Tests/PerformanceTests/ScaleAdmission.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/README.md",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/bootstrap.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/harness.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/harness.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/review.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/swift-smoke.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/swift-smoke.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-616/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "PYTHONDONTWRITEBYTECODE=1 python3 Scripts/Testing/bootstrap_supervision.py",
+              "result": "passed: 13 bounded independent-watchdog cases"
+            },
+            {
+              "command": "snapshot run-focused.py AboutVersionTests 240",
+              "result": "passed: 8 XCTest cases, cleanup verified, source unchanged"
+            },
+            {
+              "command": "snapshot supervised python3 -m unittest discover -s Scripts/Testing -p test_*.py",
+              "result": "passed: 31 tests, cleanup verified"
+            },
+            {
+              "command": "git diff --check",
+              "result": "passed"
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-TASK-616-01",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-616/README.md"
+            },
+            {
+              "criterion": "AC-TASK-616-02",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-616/README.md"
+            },
+            {
+              "criterion": "AC-TASK-616-03",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-616/README.md"
+            },
+            {
+              "criterion": "AC-TASK-616-04",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-616/README.md"
+            },
+            {
+              "criterion": "AC-TASK-616-05",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-616/README.md"
+            }
+          ],
+          "discovered_risks": [
+            "Not hostile-code or launchd/XPC containment",
+            "Sampled stop thresholds can overshoot",
+            "PID signal checks are not an atomic kernel birth-ID kill",
+            "Legacy scale/soak/corpus/rollback entry points refuse execution rather than claim a passing rerun"
+          ],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-616",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "AC-TASK-616-01",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-616/README.md",
+                "docs/reliability/evidence/TASK-616/review.json",
+                "docs/reliability/evidence/TASK-616/bootstrap.json",
+                "docs/reliability/evidence/TASK-616/swift-smoke.json",
+                "docs/reliability/evidence/TASK-616/harness.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-616-02",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-616/README.md",
+                "docs/reliability/evidence/TASK-616/review.json",
+                "docs/reliability/evidence/TASK-616/bootstrap.json",
+                "docs/reliability/evidence/TASK-616/swift-smoke.json",
+                "docs/reliability/evidence/TASK-616/harness.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-616-03",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-616/README.md",
+                "docs/reliability/evidence/TASK-616/review.json",
+                "docs/reliability/evidence/TASK-616/bootstrap.json",
+                "docs/reliability/evidence/TASK-616/swift-smoke.json",
+                "docs/reliability/evidence/TASK-616/harness.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-616-04",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-616/README.md",
+                "docs/reliability/evidence/TASK-616/review.json",
+                "docs/reliability/evidence/TASK-616/bootstrap.json",
+                "docs/reliability/evidence/TASK-616/swift-smoke.json",
+                "docs/reliability/evidence/TASK-616/harness.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-616-05",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-616/README.md",
+                "docs/reliability/evidence/TASK-616/review.json",
+                "docs/reliability/evidence/TASK-616/bootstrap.json",
+                "docs/reliability/evidence/TASK-616/swift-smoke.json",
+                "docs/reliability/evidence/TASK-616/harness.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-616"
+          ],
+          "recommended_action": "advance",
+          "assurance": {
+            "impact_ids": [
+              "IMPACT-R3-TASK-616-ASSURANCE",
+              "IMPACT-R3-TASK-616-BUILD",
+              "IMPACT-R3-TASK-616-RESOURCE"
+            ],
+            "inspection_ids": [
+              "INSPECT-R3-616-CONTAINMENT",
+              "INSPECT-R3-616-EVIDENCE"
+            ],
+            "finding_ids": [
+              "FIND-R3-ORPHANED-TEST"
+            ],
+            "scope_review": "complete",
+            "limitations": [
+              "Scope is reviewed cooperative direct-process verification; not hostile programs or system-service delegation.",
+              "Legacy workloads that bypass setup/storage quotas are refused; no scale, soak, rollback, package or release execution claimed."
+            ]
+          }
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-616",
+        "OUTCOME-610",
+        "OUTCOME-620",
+        "OUTCOME-630",
+        "INTENT-006"
+      ],
+      "parents": [
+        "OUTCOME-610"
+      ],
+      "children": [],
+      "dependencies": [],
+      "audit_gates": [],
+      "evidence": [
+        "EV-R3-ORPHANED-XCTEST"
+      ],
+      "assurance": {
+        "status": "covered",
+        "task_ids": [
+          "TASK-616"
+        ],
+        "impact_ids": [
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-616-ASSURANCE"
+        ],
+        "asset_ids": [
+          "ASSET-ASSURANCE",
+          "ASSET-BUILD",
+          "ASSET-RESOURCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE"
+        ],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST"
+        ],
+        "scope_drift_ids": [],
+        "blockers": []
+      },
+      "source_path": "docs/tasks/01-safety/TASK-616-contain-verification-descendants-and-enforce-resource-budgets.md"
     },
     {
       "id": "TASK-612",
@@ -2255,7 +3042,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:11:24.086068Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-612",
@@ -2543,7 +3330,10 @@
         "inspection_ids": [
           "INSPECT-TASK-612-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-497AB977AFB1",
           "DRIFT-DF97C093715B",
@@ -2630,7 +3420,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:11:24.283605Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-613",
@@ -2997,7 +3787,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -3007,8 +3797,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3030,6 +3820,11 @@
         {
           "id": "CONTRACT-601",
           "type": "contract-requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-616",
+          "type": "requires",
           "verification": "passed"
         }
       ],
@@ -3125,7 +3920,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T06:06:30.868179Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-615",
@@ -3411,7 +4206,7 @@
         "EV-R1-UNWIRED-PROBE"
       ],
       "assurance": {
-        "status": "covered",
+        "status": "blocked",
         "task_ids": [
           "TASK-615"
         ],
@@ -3430,7 +4225,9 @@
         "inspection_ids": [
           "INSPECT-TASK-615-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [
           "DRIFT-75F98FFED79C",
           "DRIFT-2A450A7B41D6",
@@ -3441,9 +4238,446 @@
           "DRIFT-83868C67E8CE",
           "DRIFT-9F3DCC1C6122"
         ],
-        "blockers": []
+        "blockers": [
+          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-SCANNER lacks a sufficient passing inspection",
+          "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
+          "Required inspection INSPECT-TASK-615-1 is stale"
+        ]
       },
       "source_path": "docs/tasks/02-scanner/TASK-615-run-objects-in-the-app-wire-the-probe-and-converge-an-installed-store.md"
+    },
+    {
+      "id": "TASK-617",
+      "kind": "implementation",
+      "title": "Keep dashboard measurements and growth alerts consistent",
+      "summary": "Repair the observed dashboard update path with one observation-bound presentation: live capacity, signed selected-volume change, explicit baseline and sample interval, real refresh, separate evidence freshness and a bounded latest-alert record. Prove rendering across sequential samples rather than a single static fixture.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-603",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-617-01",
+          "description": "First reproduce and qualify the reported freeze with a snapshot-isolated hosted SwiftUI view driven by successive synthetic observations. The visible capacity, change, time and status must update without reopening the popover or clicking refresh; test both an open board and reopening. A changing model getter or one static screenshot is not sufficient evidence."
+        },
+        {
+          "id": "AC-TASK-617-02",
+          "description": "Capacity, health and signed delta derive from the same identified volume and observation. Preserve decreases instead of positive-only aggregation; show no baseline/unknown until two comparable observations exist. Volume changes, restart, pause/resume and stale/failed samples have explicit baseline and freshness behavior; do not invent zero change or use a fresh volume timestamp as detailed-file freshness."
+        },
+        {
+          "id": "AC-TASK-617-03",
+          "description": "The refresh action requests actual new bounded sampling through the existing lifecycle single-flight/cancellation boundary, exposes pending/failure/stale state, and publishes the resulting presentation coherently. Repeated refresh cannot overlap scans, bypass pause/sleep/shutdown controls or turn a cached read into a claimed fresh sample."
+        },
+        {
+          "id": "AC-TASK-617-04",
+          "description": "Display the comparison interval and sample time. Retain at most one latest growth-alert record per app session with its triggering observation/volume, signed amount and interval; subsequent small or negative samples update Recent change without rewriting that alert. Alert retention/restart behavior is explicit. Notifications and dashboard use the same amount/units for the same observation, but different sample intervals are not forced to match. Do not add unbounded alert history or a database migration."
+        },
+        {
+          "id": "AC-TASK-617-05",
+          "description": "Regression coverage includes no baseline, +5.6 GB alert followed by +2.1 MB and a decrease, zero change, delayed/incomplete detail, failure/recovery, pause/resume, single-flight refresh, reopen, volume identity and clean shutdown. Test notification delivery with a fake sink and render the UI in an isolated snapshot under TASK-616 budgets; never send real notifications, open the live database or install a candidate."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-617-01",
+          "type": "regression-evidence",
+          "description": "A reproducible before/after hosted-view regression that checks visible updates across multiple observations and a fake-notification trace bound to matching observation/interval IDs."
+        },
+        {
+          "id": "EVREQ-TASK-617-02",
+          "type": "regression-evidence",
+          "description": "Bounded lifecycle, signed-volume-delta and presentation test reports covering the acceptance matrix, with candidate hashes, cleanup verification and separate capacity/detail freshness assertions."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "Sources/DiskStewardApp/StatusBoardView.swift",
+          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "Sources/DiskStewardApp/Notifications/**",
+          "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "Tests/DiskStewardAppTests/StatusBoard/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/StatusBoardView.swift",
+          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Sources/DiskStewardApp/Notifications/**",
+          "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "Sources/DiskStewardCore/Explanation/**",
+          "Tests/DiskStewardAppTests/StatusBoard/**",
+          "Tests/DiskStewardAppTests/Monitoring/**",
+          "Tests/DiskStewardAppTests/Lifecycle/**",
+          "Tests/DiskStewardCoreTests/Monitoring/**",
+          "Tests/DiskStewardCoreTests/Explanation/**",
+          "docs/reliability/evidence/TASK-617/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/TASK-617/**"
+        ],
+        "commands": [
+          "After TASK-616 passes, run snapshot-isolated focused lifecycle/notification/hosted-view tests through the hardened supervisor with finite resource limits.",
+          "Record sequential rendered assertions and observation-bound notification evidence; no live app or notification-center mutation."
+        ],
+        "deliverables": [
+          "Observation-bound live dashboard and real refresh",
+          "Signed interval change and bounded latest-alert presentation",
+          "Rendered-update and lifecycle regression evidence"
+        ],
+        "non_goals": [
+          "No object-ranking implementation (TASK-622) or replacement of TASK-623 object presentation.",
+          "No automatic cleanup, new MCP tools, alert-history database, installation, signing or release."
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-09-20T10:54:07.414740Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-617",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+            "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+            "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+            "Sources/DiskStewardApp/StatusBoardView.swift",
+            "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+            "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+            "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+            "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+            "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+            "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+            "Tests/DiskStewardAppTests/StatusBoard/LiveStatusBoardTests.swift",
+            "Tests/DiskStewardAppTests/StatusBoard/VolumePresentationTests.swift",
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/TASK-617/after-small.png",
+            "docs/reliability/evidence/TASK-617/after-reopened-dark.png",
+            "docs/reliability/evidence/TASK-617/after-first-failure.png",
+            "docs/reliability/evidence/TASK-617/agent-result.json"
+          ],
+          "changed_assets": [
+            "ASSET-UI",
+            "ASSET-LIFECYCLE",
+            "ASSET-SCANNER",
+            "ASSET-ASSURANCE"
+          ],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/StatusBoard/LiveStatusBoardTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/DiskStewardAppTests/StatusBoard/VolumePresentationTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/README.md",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/before.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/before.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/after.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/after.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/review.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/after-small.png",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/after-reopened-dark.png",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/after-first-failure.png",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-617/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "snapshot run-focused.py LiveStatusBoardTests 150 (pre-fix)",
+              "result": "Expected failure: same mounted UI retained 420 GB / No change despite two new observations; 4 visible-text assertions failed; cleanup verified."
+            },
+            {
+              "command": "snapshot run-focused.py '.' 300 (final candidate qubaxlgo)",
+              "result": "Passed: 604 tests, 6 intentional skips, 0 failures; 125.96s; peak 926737888 bytes; cleanup verified; source unchanged."
+            },
+            {
+              "command": "independent read-only source review reconciled to final snapshot",
+              "result": "No actionable findings remain; execution proof is separately parent-owned."
+            },
+            {
+              "command": "git diff --check",
+              "result": "passed"
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-TASK-617-01",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-617/README.md"
+            },
+            {
+              "criterion": "AC-TASK-617-02",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-617/README.md"
+            },
+            {
+              "criterion": "AC-TASK-617-03",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-617/README.md"
+            },
+            {
+              "criterion": "AC-TASK-617-04",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-617/README.md"
+            },
+            {
+              "criterion": "AC-TASK-617-05",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-617/README.md"
+            }
+          ],
+          "discovered_risks": [
+            "Installed app and live evidence unchanged; no package/notarization/release or large-scope gate is claimed.",
+            "File attribution can cover a different interval than capacity; notifications explicitly qualify it.",
+            "UUID-unavailable filesystems cannot establish a comparable growth baseline.",
+            "Other plan-006 object/scope tasks and increment gates remain unfinished."
+          ],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-617",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "AC-TASK-617-01",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-617/README.md",
+                "docs/reliability/evidence/TASK-617/before.json",
+                "docs/reliability/evidence/TASK-617/before.log",
+                "docs/reliability/evidence/TASK-617/after.json",
+                "docs/reliability/evidence/TASK-617/after.log",
+                "docs/reliability/evidence/TASK-617/review.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-617-02",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-617/README.md",
+                "docs/reliability/evidence/TASK-617/before.json",
+                "docs/reliability/evidence/TASK-617/before.log",
+                "docs/reliability/evidence/TASK-617/after.json",
+                "docs/reliability/evidence/TASK-617/after.log",
+                "docs/reliability/evidence/TASK-617/review.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-617-03",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-617/README.md",
+                "docs/reliability/evidence/TASK-617/before.json",
+                "docs/reliability/evidence/TASK-617/before.log",
+                "docs/reliability/evidence/TASK-617/after.json",
+                "docs/reliability/evidence/TASK-617/after.log",
+                "docs/reliability/evidence/TASK-617/review.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-617-04",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-617/README.md",
+                "docs/reliability/evidence/TASK-617/before.json",
+                "docs/reliability/evidence/TASK-617/before.log",
+                "docs/reliability/evidence/TASK-617/after.json",
+                "docs/reliability/evidence/TASK-617/after.log",
+                "docs/reliability/evidence/TASK-617/review.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-617-05",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-617/README.md",
+                "docs/reliability/evidence/TASK-617/before.json",
+                "docs/reliability/evidence/TASK-617/before.log",
+                "docs/reliability/evidence/TASK-617/after.json",
+                "docs/reliability/evidence/TASK-617/after.log",
+                "docs/reliability/evidence/TASK-617/review.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-617"
+          ],
+          "recommended_action": "advance",
+          "assurance": {
+            "impact_ids": [
+              "IMPACT-R3-TASK-617-UI",
+              "IMPACT-R3-TASK-617-LIFECYCLE",
+              "IMPACT-R3-TASK-617-SCANNER",
+              "IMPACT-R3-TASK-617-ASSURANCE"
+            ],
+            "inspection_ids": [
+              "INSPECT-R3-617-PRESENTATION",
+              "INSPECT-R3-617-MEASUREMENT"
+            ],
+            "finding_ids": [
+              "FIND-R3-DASHBOARD"
+            ],
+            "scope_review": "complete",
+            "limitations": [
+              "Source/isolated functional assurance only; installed application, live store, OS notification display and release not assessed.",
+              "604-case ordinary suite has six intentional opt-in skips; large-scope/overnight/native-client/rollback gates remain separate.",
+              "Current object-model/schema changes from other tasks remain unreleased; this audit does not authorize live migration."
+            ]
+          }
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-617",
+        "OUTCOME-610",
+        "OUTCOME-620",
+        "OUTCOME-630",
+        "INTENT-006"
+      ],
+      "parents": [
+        "OUTCOME-610"
+      ],
+      "children": [],
+      "dependencies": [
+        {
+          "id": "TASK-616",
+          "type": "requires",
+          "verification": "passed"
+        }
+      ],
+      "audit_gates": [],
+      "evidence": [
+        "EV-R3-DASHBOARD-REFRESH"
+      ],
+      "assurance": {
+        "status": "covered",
+        "task_ids": [
+          "TASK-617"
+        ],
+        "impact_ids": [
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE"
+        ],
+        "asset_ids": [
+          "ASSET-ASSURANCE",
+          "ASSET-LIFECYCLE",
+          "ASSET-SCANNER",
+          "ASSET-UI"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD"
+        ],
+        "scope_drift_ids": [],
+        "blockers": []
+      },
+      "source_path": "docs/tasks/02-product/TASK-617-keep-dashboard-measurements-and-growth-alerts-consistent.md"
     },
     {
       "id": "TASK-621",
@@ -3497,7 +4731,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -3507,8 +4741,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3533,6 +4767,11 @@
         },
         {
           "id": "TASK-612",
+          "type": "requires",
+          "verification": "passed"
+        },
+        {
+          "id": "TASK-616",
           "type": "requires",
           "verification": "passed"
         }
@@ -3621,7 +4860,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3688,6 +4927,10 @@
         {
           "id": "AC-TASK-623-01",
           "description": "The app and the agent read models list objects with the contract's fields, a repository appears as measured and is refused as a candidate, no response invents confidence, and bounded response limits are preserved."
+        },
+        {
+          "id": "AC-TASK-623-02",
+          "description": "Integrate object presentation without regressing TASK-617: successive observations still update the visible board, volume and file-detail freshness remain distinct, and latest-alert context survives later sample updates within its bounded session lifetime."
         }
       ],
       "required_evidence": [
@@ -3725,7 +4968,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -3735,8 +4978,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -3765,22 +5008,51 @@
           "id": "TASK-622",
           "type": "requires",
           "verification": "unverified"
+        },
+        {
+          "id": "TASK-617",
+          "type": "requires",
+          "verification": "passed"
         }
       ],
       "audit_gates": [],
-      "evidence": [],
+      "evidence": [
+        "EV-R3-DASHBOARD-REFRESH"
+      ],
       "assurance": {
         "status": "blocked",
         "task_ids": [
           "TASK-623"
         ],
-        "impact_ids": [],
-        "asset_ids": [],
-        "inspection_ids": [],
-        "finding_ids": [],
+        "impact_ids": [
+          "IMPACT-R3-TASK-623-UI",
+          "IMPACT-R3-TASK-623-QUERY",
+          "IMPACT-R3-TASK-623-MCP",
+          "IMPACT-R3-TASK-623-ASSURANCE"
+        ],
+        "asset_ids": [
+          "ASSET-ASSURANCE",
+          "ASSET-MCP",
+          "ASSET-QUERY",
+          "ASSET-UI"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-623-INTEGRATION"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD"
+        ],
         "scope_drift_ids": [],
         "blockers": [
-          "No impact records cover the audited change scope"
+          "Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-MCP remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-QUERY remains hypothesis",
+          "Impact IMPACT-R3-TASK-623-UI remains hypothesis",
+          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
+          "Impacted asset ASSET-UI lacks a sufficient passing inspection",
+          "Required inspection INSPECT-R3-623-INTEGRATION is planned"
         ]
       },
       "source_path": "docs/tasks/05-product/TASK-623-show-objects-in-the-app-and-to-agents.md"
@@ -3850,7 +5122,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-09-20T05:10:41.100073Z",
+        "updated_at": "2026-09-20T07:03:19.826672Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -4146,6 +5418,46 @@
       "from": "TASK-615",
       "to": "TASK-613",
       "type": "requires"
+    },
+    {
+      "from": "TASK-616",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-616",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-617",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-617",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-614",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-621",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-617",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-623",
+      "to": "TASK-617",
+      "type": "requires"
     }
   ],
   "evidence": [
@@ -4219,6 +5531,31 @@
         "OUTCOME-610"
       ],
       "contradicts": []
+    },
+    {
+      "id": "EV-R3-ORPHANED-XCTEST",
+      "claim": "The isolated verifier recorded a 300-second timeout, but its XCTest child survived with parent launchd for over 51 minutes. A live sample reported 86.9G physical footprint and an ancestor-walk hot stack. The exact PID was terminated with user approval. Current source already bounds that walk; supervisor containment remains unproven.",
+      "source": "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#test-runner-incident",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-616",
+        "GATE-619"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R3-DASHBOARD-REFRESH",
+      "claim": "User reported a +5.6 GB alert with a dashboard stuck at +2.1 MB. Source inspection found non-observing growth/capacity subviews, a separately cached snapshot, refresh copying rather than requesting a sample, and positive-only delta aggregation. Different notification and latest-sample intervals may legitimately differ; exact frozen-view reproduction remains required.",
+      "source": "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#dashboard-evidence",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-617",
+        "GATE-619",
+        "TASK-623"
+      ],
+      "contradicts": []
     }
   ],
   "decisions": [
@@ -4289,6 +5626,37 @@
       "evidence": [
         "EV-R1-UNWIRED-PROBE"
       ]
+    },
+    {
+      "id": "DECISION-R3-REPAIR-BEFORE-ACCEPTANCE",
+      "question": "How do the orphaned verification process and stale dashboard change the delivery path?",
+      "choice": "Keep the three cumulative increments and all six verified task contracts. TASK-616 establishes safe descendant supervision before any further candidate execution. TASK-617 repairs live dashboard/alert consistency in the first increment. GATE-619 accepts neither increment-1 safety nor its visible behavior until both repairs pass; later gates inherit both scenarios.",
+      "alternatives": [
+        "Assume killpg proves cleanup; rejected because the observed XCTest child survived its recorded timeout.",
+        "Fold the dashboard defect silently into TASK-623; rejected because object presentation has no live-update, refresh, signed-change or alert-interval contract and comes too late.",
+        "Reopen all six verified tasks; rejected because their specific functional proofs are not contradicted by this old-snapshot orphan, but historical suite passes are not new containment evidence.",
+        "Add a separate demonstration rung for tooling alone; rejected because supervision is a safety prerequisite of the existing runnable increments, not independent product value."
+      ],
+      "rationale": "User approved the two-task repair replan. The final object-model intent, success evidence and non-goals remain unchanged; no signing, installation or release is authorized.",
+      "evidence": [
+        "EV-R3-ORPHANED-XCTEST",
+        "EV-R3-DASHBOARD-REFRESH"
+      ]
+    },
+    {
+      "id": "DECISION-R3-INCREMENT-LADDER",
+      "question": "What is the current demonstrable baseline and the ordered, cumulative delivery ladder?",
+      "choice": "Baseline: installed 1.2.1 still samples capacity but has an incomplete detail scan and a reported frozen dashboard. Source at b7e3675 has six verified object-model tasks; no increment gate has passed. Rung 1: a safely supervised runnable candidate completes a representative scan or honestly refuses an over-budget scope, and its capacity/growth/last-alert display updates coherently. Rung 2: add measured, fresh and explained reclaimable objects in app/MCP. Rung 3: add shared caches only after opt-in. Each rung retains its own existing gate and repeats earlier proofs on the same candidate.",
+      "alternatives": [
+        "Treat completed core tasks or the earlier 587-test report as a released increment; rejected because GATE-619 and the captured-store scenario are still pending.",
+        "Use the live installed store for acceptance; rejected by the existing isolation constraint."
+      ],
+      "rationale": "OUTCOME-610 -> OUTCOME-620 -> OUTCOME-630 -> INTENT-006 remains the cumulative hierarchy. Dependencies order acceptance; independently scoped object sizing can proceed after supervision is verified, without claiming rung 1 has passed.",
+      "evidence": [
+        "EV-604-STUCK-SCAN",
+        "EV-R3-ORPHANED-XCTEST",
+        "EV-R3-DASHBOARD-REFRESH"
+      ]
     }
   ],
   "project": {
@@ -4311,25 +5679,58 @@
       "baseline_status": "current",
       "baseline_revision": 4,
       "assets": 19,
-      "impacted_assets": 6,
-      "sufficiently_inspected_assets": 4,
+      "impacted_assets": 9,
+      "sufficiently_inspected_assets": 6,
       "open_scope_drift": 0,
       "open_material_findings": 0,
       "blockers": [
-        "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-        "Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection",
+        "Impact IMPACT-R3-GATE-619-ASSURANCE remains hypothesis",
+        "Impact IMPACT-R3-GATE-619-BUILD remains hypothesis",
+        "Impact IMPACT-R3-GATE-619-LIFECYCLE remains hypothesis",
+        "Impact IMPACT-R3-GATE-619-RESOURCE remains hypothesis",
+        "Impact IMPACT-R3-GATE-619-SCANNER remains hypothesis",
+        "Impact IMPACT-R3-GATE-619-UI remains hypothesis",
+        "Impact IMPACT-R3-GATE-629-ASSURANCE remains hypothesis",
+        "Impact IMPACT-R3-GATE-629-BUILD remains hypothesis",
+        "Impact IMPACT-R3-GATE-629-LIFECYCLE remains hypothesis",
+        "Impact IMPACT-R3-GATE-629-RESOURCE remains hypothesis",
+        "Impact IMPACT-R3-GATE-629-SCANNER remains hypothesis",
+        "Impact IMPACT-R3-GATE-629-UI remains hypothesis",
+        "Impact IMPACT-R3-GATE-639-ASSURANCE remains hypothesis",
+        "Impact IMPACT-R3-GATE-639-BUILD remains hypothesis",
+        "Impact IMPACT-R3-GATE-639-LIFECYCLE remains hypothesis",
+        "Impact IMPACT-R3-GATE-639-RESOURCE remains hypothesis",
+        "Impact IMPACT-R3-GATE-639-SCANNER remains hypothesis",
+        "Impact IMPACT-R3-GATE-639-UI remains hypothesis",
+        "Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis",
+        "Impact IMPACT-R3-TASK-623-MCP remains hypothesis",
+        "Impact IMPACT-R3-TASK-623-QUERY remains hypothesis",
+        "Impact IMPACT-R3-TASK-623-UI remains hypothesis",
+        "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+        "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
+        "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
+        "Monitoring control is missing",
         "Required inspection INSPECT-CONTRACT-601-1 is stale",
+        "Required inspection INSPECT-R3-623-INTEGRATION is planned",
+        "Required inspection INSPECT-R3-GATE-619-DISPLAY is planned",
+        "Required inspection INSPECT-R3-GATE-619-SAFETY is planned",
+        "Required inspection INSPECT-R3-GATE-629-DISPLAY is planned",
+        "Required inspection INSPECT-R3-GATE-629-SAFETY is planned",
+        "Required inspection INSPECT-R3-GATE-639-DISPLAY is planned",
+        "Required inspection INSPECT-R3-GATE-639-SAFETY is planned",
         "Required inspection INSPECT-RESEARCH-601-1 is stale",
         "Required inspection INSPECT-TASK-611-1 is stale",
         "Required inspection INSPECT-TASK-612-1 is stale",
-        "Required inspection INSPECT-TASK-613-1 is stale"
+        "Required inspection INSPECT-TASK-613-1 is stale",
+        "Required inspection INSPECT-TASK-615-1 is stale"
       ],
       "refresh_inspection_ids": [
         "INSPECT-CONTRACT-601-1",
         "INSPECT-RESEARCH-601-1",
         "INSPECT-TASK-611-1",
         "INSPECT-TASK-612-1",
-        "INSPECT-TASK-613-1"
+        "INSPECT-TASK-613-1",
+        "INSPECT-TASK-615-1"
       ],
       "warnings": []
     },
@@ -5341,6 +6742,589 @@
           "TASK-615",
           "ASSET-ASSURANCE"
         ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-616-BUILD",
+        "asset_id": "ASSET-BUILD",
+        "task_ids": [
+          "TASK-616"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/TASK-616/agent-result.json",
+          "docs/reliability/evidence/TASK-616/README.md"
+        ],
+        "path": [
+          "TASK-616",
+          "ASSET-BUILD"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-616-RESOURCE",
+        "asset_id": "ASSET-RESOURCE",
+        "task_ids": [
+          "TASK-616"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/TASK-616/agent-result.json",
+          "docs/reliability/evidence/TASK-616/README.md"
+        ],
+        "path": [
+          "TASK-616",
+          "ASSET-RESOURCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-616-ASSURANCE",
+        "asset_id": "ASSET-ASSURANCE",
+        "task_ids": [
+          "TASK-616"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/TASK-616/agent-result.json",
+          "docs/reliability/evidence/TASK-616/README.md"
+        ],
+        "path": [
+          "TASK-616",
+          "ASSET-ASSURANCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-617-UI",
+        "asset_id": "ASSET-UI",
+        "task_ids": [
+          "TASK-617"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/before.json",
+          "docs/reliability/evidence/TASK-617/before.log",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "path": [
+          "TASK-617",
+          "ASSET-UI"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-617-LIFECYCLE",
+        "asset_id": "ASSET-LIFECYCLE",
+        "task_ids": [
+          "TASK-617"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/before.json",
+          "docs/reliability/evidence/TASK-617/before.log",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "path": [
+          "TASK-617",
+          "ASSET-LIFECYCLE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-617-SCANNER",
+        "asset_id": "ASSET-SCANNER",
+        "task_ids": [
+          "TASK-617"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/before.json",
+          "docs/reliability/evidence/TASK-617/before.log",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "path": [
+          "TASK-617",
+          "ASSET-SCANNER"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-617-ASSURANCE",
+        "asset_id": "ASSET-ASSURANCE",
+        "task_ids": [
+          "TASK-617"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/before.json",
+          "docs/reliability/evidence/TASK-617/before.log",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "path": [
+          "TASK-617",
+          "ASSET-ASSURANCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-623-UI",
+        "asset_id": "ASSET-UI",
+        "task_ids": [
+          "TASK-623"
+        ],
+        "type": "direct",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::TASK-623"
+        ],
+        "path": [
+          "TASK-623",
+          "ASSET-UI"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-623-QUERY",
+        "asset_id": "ASSET-QUERY",
+        "task_ids": [
+          "TASK-623"
+        ],
+        "type": "direct",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::TASK-623"
+        ],
+        "path": [
+          "TASK-623",
+          "ASSET-QUERY"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-623-MCP",
+        "asset_id": "ASSET-MCP",
+        "task_ids": [
+          "TASK-623"
+        ],
+        "type": "direct",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::TASK-623"
+        ],
+        "path": [
+          "TASK-623",
+          "ASSET-MCP"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-TASK-623-ASSURANCE",
+        "asset_id": "ASSET-ASSURANCE",
+        "task_ids": [
+          "TASK-623"
+        ],
+        "type": "direct",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::TASK-623"
+        ],
+        "path": [
+          "TASK-623",
+          "ASSET-ASSURANCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-619-BUILD",
+        "asset_id": "ASSET-BUILD",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-619"
+        ],
+        "path": [
+          "GATE-619",
+          "TASK-616",
+          "ASSET-BUILD"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-619-RESOURCE",
+        "asset_id": "ASSET-RESOURCE",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-619"
+        ],
+        "path": [
+          "GATE-619",
+          "TASK-616",
+          "ASSET-RESOURCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-619-UI",
+        "asset_id": "ASSET-UI",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-619"
+        ],
+        "path": [
+          "GATE-619",
+          "TASK-617",
+          "ASSET-UI"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-619-LIFECYCLE",
+        "asset_id": "ASSET-LIFECYCLE",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-619"
+        ],
+        "path": [
+          "GATE-619",
+          "TASK-617",
+          "ASSET-LIFECYCLE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-619-SCANNER",
+        "asset_id": "ASSET-SCANNER",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-619"
+        ],
+        "path": [
+          "GATE-619",
+          "TASK-617",
+          "ASSET-SCANNER"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-619-ASSURANCE",
+        "asset_id": "ASSET-ASSURANCE",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "type": "direct",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-619"
+        ],
+        "path": [
+          "GATE-619",
+          "ASSET-ASSURANCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-629-BUILD",
+        "asset_id": "ASSET-BUILD",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-629"
+        ],
+        "path": [
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-616",
+          "ASSET-BUILD"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-629-RESOURCE",
+        "asset_id": "ASSET-RESOURCE",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-629"
+        ],
+        "path": [
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-616",
+          "ASSET-RESOURCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-629-UI",
+        "asset_id": "ASSET-UI",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-629"
+        ],
+        "path": [
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-617",
+          "ASSET-UI"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-629-LIFECYCLE",
+        "asset_id": "ASSET-LIFECYCLE",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-629"
+        ],
+        "path": [
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-617",
+          "ASSET-LIFECYCLE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-629-SCANNER",
+        "asset_id": "ASSET-SCANNER",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-629"
+        ],
+        "path": [
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-617",
+          "ASSET-SCANNER"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-629-ASSURANCE",
+        "asset_id": "ASSET-ASSURANCE",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "type": "direct",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-629"
+        ],
+        "path": [
+          "GATE-629",
+          "ASSET-ASSURANCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-639-BUILD",
+        "asset_id": "ASSET-BUILD",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-639"
+        ],
+        "path": [
+          "GATE-639",
+          "OUTCOME-620",
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-616",
+          "ASSET-BUILD"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-639-RESOURCE",
+        "asset_id": "ASSET-RESOURCE",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-639"
+        ],
+        "path": [
+          "GATE-639",
+          "OUTCOME-620",
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-616",
+          "ASSET-RESOURCE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-639-UI",
+        "asset_id": "ASSET-UI",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-639"
+        ],
+        "path": [
+          "GATE-639",
+          "OUTCOME-620",
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-617",
+          "ASSET-UI"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-639-LIFECYCLE",
+        "asset_id": "ASSET-LIFECYCLE",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-639"
+        ],
+        "path": [
+          "GATE-639",
+          "OUTCOME-620",
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-617",
+          "ASSET-LIFECYCLE"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-639-SCANNER",
+        "asset_id": "ASSET-SCANNER",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "type": "transitive",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-639"
+        ],
+        "path": [
+          "GATE-639",
+          "OUTCOME-620",
+          "GATE-629",
+          "OUTCOME-610",
+          "GATE-619",
+          "TASK-617",
+          "ASSET-SCANNER"
+        ]
+      },
+      {
+        "id": "IMPACT-R3-GATE-639-ASSURANCE",
+        "asset_id": "ASSET-ASSURANCE",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "type": "direct",
+        "status": "hypothesis",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "docs/reliability/planning/plan-006-r3-candidate.json::GATE-639"
+        ],
+        "path": [
+          "GATE-639",
+          "ASSET-ASSURANCE"
+        ]
       }
     ],
     "inspections": [
@@ -5383,7 +7367,9 @@
           "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE.",
           "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
           "Scope drift from TASK-615 invalidated this inspection.",
-          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE."
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE."
         ],
         "validated_through": {
           "RESEARCH-601": "EVENT-20260920T032323566863Z-71BDA108"
@@ -5426,7 +7412,9 @@
           "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE.",
           "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
           "Scope drift from TASK-615 invalidated this inspection.",
-          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE."
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE."
         ],
         "validated_through": {
           "CONTRACT-601": "EVENT-20260920T032547332638Z-397B9D6B"
@@ -5473,7 +7461,9 @@
           "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
           "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
           "Scope drift from TASK-615 invalidated this inspection.",
-          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
         ],
         "validated_through": {
           "TASK-611": "EVENT-20260920T033509605992Z-10657775"
@@ -5518,7 +7508,9 @@
           "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
           "Re-affirmed after the R2 replan added TASK-615; the replan only added a node and five edges, changed no criterion, and touched no source file, so the evidence behind this inspection is unchanged.",
           "Scope drift from TASK-615 invalidated this inspection.",
-          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE."
         ],
         "validated_through": {
           "TASK-613": "EVENT-20260920T034838927318Z-DEB69A91"
@@ -5563,7 +7555,9 @@
           "The app's probe does not supply a classifier yet, so installed behaviour is unchanged.",
           "The scale fixture is uniform and synthetic.",
           "Scope drift from TASK-615 invalidated this inspection.",
-          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
+          "Implementation result for TASK-615 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
         ],
         "validated_through": {
           "TASK-612": "EVENT-20260920T040415514037Z-2D702774"
@@ -5587,7 +7581,7 @@
           "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
           "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift"
         ],
-        "status": "performed",
+        "status": "stale",
         "result": "pass",
         "sufficiency": "sufficient",
         "performed_at": "2026-09-20T06:06:30Z",
@@ -5606,14 +7600,464 @@
         "limitations": [
           "Convergence is exercised against stores built in the test, not a copy of an installed store.",
           "Objects publish without aggregates until TASK-621.",
-          "A vanished directory's rows wait for an ordinary scan."
+          "A vanished directory's rows wait for an ordinary scan.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-SCANNER."
         ],
         "validated_through": {
           "TASK-615": "EVENT-20260920T060629279068Z-D64E7262"
         }
+      },
+      {
+        "id": "INSPECT-R3-616-CONTAINMENT",
+        "task_ids": [
+          "TASK-616"
+        ],
+        "asset_ids": [
+          "ASSET-BUILD",
+          "ASSET-RESOURCE"
+        ],
+        "method": "Verify the task's complete owned-descendant bootstrap matrix, aggregate-memory metric, finite budgets, identity/PID reuse protections, retained-stdout/parent-exit/group-escape paths, unrelated-process sentinel and independent exit checks. Confirm all focused/mutation/candidate/package/rollback/soak entry points enforce the same safety contract or refuse launch. Only after small bounded fixtures pass, inspect a bounded real Swift/XCTest smoke report.",
+        "required": true,
+        "status": "performed",
+        "result": "pass",
+        "sufficiency": "sufficient",
+        "evidence": [
+          "docs/reliability/evidence/TASK-616/bootstrap.json",
+          "docs/reliability/evidence/TASK-616/harness.json",
+          "docs/reliability/evidence/TASK-616/swift-smoke.json",
+          "docs/reliability/evidence/TASK-616/review.json"
+        ],
+        "limitations": [
+          "Cooperative direct-process scope only; no hostile lineage hiding or launchd/XPC delegation.",
+          "Sampled quotas and non-atomic PID signaling limitations documented; unsupported legacy workloads are refused."
+        ],
+        "performed_at": "2026-09-20T10:23:27.297Z",
+        "performed_by": "codex-safety-dashboard",
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {
+          "TASK-616": "EVENT-20260920T102254632121Z-77B8F77C"
+        }
+      },
+      {
+        "id": "INSPECT-R3-616-EVIDENCE",
+        "task_ids": [
+          "TASK-616"
+        ],
+        "asset_ids": [
+          "ASSET-ASSURANCE"
+        ],
+        "method": "Check reproducible commands, baseline/candidate hashes, stop reasons, metrics and zero-owned-survivor evidence. Verify no unsafe bootstrap or production-state access and that documentation no longer equates top-level timeout with cleanup.",
+        "required": true,
+        "status": "performed",
+        "result": "pass",
+        "sufficiency": "sufficient",
+        "evidence": [
+          "docs/reliability/evidence/TASK-616/bootstrap.json",
+          "docs/reliability/evidence/TASK-616/harness.json",
+          "docs/reliability/evidence/TASK-616/swift-smoke.json",
+          "docs/reliability/evidence/TASK-616/review.json",
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "limitations": [
+          "TASK-616 supervisor source is byte-identical between xgcbz0bm and qubaxlgo (diff -qr Scripts/Testing produced no differences). Its prior bootstrap proof is retained; the final 604-case suite adds integrated cleanup/metric evidence.",
+          "Cooperative direct-process scope only; sampled quotas/non-atomic PID checks and fail-closed legacy workload limitations remain."
+        ],
+        "performed_at": "2026-09-20T10:52:29Z",
+        "performed_by": "codex-safety-dashboard",
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {
+          "TASK-616": "EVENT-20260920T102254632121Z-77B8F77C"
+        }
+      },
+      {
+        "id": "INSPECT-R3-617-PRESENTATION",
+        "task_ids": [
+          "TASK-617"
+        ],
+        "asset_ids": [
+          "ASSET-UI",
+          "ASSET-LIFECYCLE"
+        ],
+        "method": "Exercise successive hosted-view updates with fake lifecycle/notification fixtures: +5.6 GB alert then +2.1 MB then decrease, real bounded single-flight refresh, pause/restart/error/reopen and separate capacity/detail freshness. Compare visibly rendered state and event IDs/intervals; do not accept model-only getters.",
+        "required": true,
+        "status": "performed",
+        "result": "pass",
+        "sufficiency": "sufficient",
+        "evidence": [
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/before.json",
+          "docs/reliability/evidence/TASK-617/before.log",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "limitations": [
+          "Isolated synthetic observations/fake notifications; not installed-app, OS notification display or release proof.",
+          "Hosted visible-text regression uses OCR and direct synthetic samples; existing lifecycle tests separately cover scheduling.",
+          "No persistent migration or scale/overnight/real-store gate is claimed. Unknown UUID refuses a baseline; OS metadata/UUID reads are not atomic against hot-swap."
+        ],
+        "performed_at": "2026-09-20T10:52:29Z",
+        "performed_by": "codex-safety-dashboard",
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {
+          "TASK-617": "EVENT-20260920T105157094135Z-A3B3C052"
+        }
+      },
+      {
+        "id": "INSPECT-R3-617-MEASUREMENT",
+        "task_ids": [
+          "TASK-617"
+        ],
+        "asset_ids": [
+          "ASSET-SCANNER",
+          "ASSET-ASSURANCE"
+        ],
+        "method": "Verify signed per-volume delta/baseline selection and ordinary/refusal paths with synthetic samples, matching alert/presentation intervals, bounded one-record session lifetime, no live files/notifications and no schema migration. Confirm TASK-616 resource and cleanup receipts accompany all runs.",
+        "required": true,
+        "status": "performed",
+        "result": "pass",
+        "sufficiency": "sufficient",
+        "evidence": [
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/before.json",
+          "docs/reliability/evidence/TASK-617/before.log",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "limitations": [
+          "Isolated synthetic observations/fake notifications; not installed-app, OS notification display or release proof.",
+          "Hosted visible-text regression uses OCR and direct synthetic samples; existing lifecycle tests separately cover scheduling.",
+          "No persistent migration or scale/overnight/real-store gate is claimed. Unknown UUID refuses a baseline; OS metadata/UUID reads are not atomic against hot-swap."
+        ],
+        "performed_at": "2026-09-20T10:52:29Z",
+        "performed_by": "codex-safety-dashboard",
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {
+          "TASK-617": "EVENT-20260920T105157094135Z-A3B3C052"
+        }
+      },
+      {
+        "id": "INSPECT-R3-623-INTEGRATION",
+        "task_ids": [
+          "TASK-623"
+        ],
+        "asset_ids": [
+          "ASSET-UI",
+          "ASSET-QUERY",
+          "ASSET-MCP",
+          "ASSET-ASSURANCE"
+        ],
+        "method": "Verify object presentation and read-only API contract without regressing TASK-617's rendered sequential updates, separate freshness or bounded latest alert. Retain existing response limits, privacy and repository non-candidate behavior.",
+        "required": true,
+        "status": "planned",
+        "result": "not-run",
+        "sufficiency": "unknown",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+        ],
+        "limitations": [
+          "Repair/inspection has not run; planning evidence is not a passing implementation test.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-UI."
+        ],
+        "performed_at": null,
+        "performed_by": null,
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {}
+      },
+      {
+        "id": "INSPECT-R3-GATE-619-SAFETY",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "asset_ids": [
+          "ASSET-BUILD",
+          "ASSET-RESOURCE",
+          "ASSET-ASSURANCE"
+        ],
+        "method": "Independently re-establish inherited TASK-616 safe-runner and no-owned-descendant proofs on this gate's exact candidate. Recheck old-suite limitations, current impact/inspection frontier and unresolved material findings. Combine with the gate's original build/scan/migration/rollback requirements; no installed app replacement.",
+        "required": true,
+        "status": "planned",
+        "result": "not-run",
+        "sufficiency": "unknown",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+        ],
+        "limitations": [
+          "Repair/inspection has not run; planning evidence is not a passing implementation test.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD, ASSET-RESOURCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE."
+        ],
+        "performed_at": null,
+        "performed_by": null,
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {}
+      },
+      {
+        "id": "INSPECT-R3-GATE-619-DISPLAY",
+        "task_ids": [
+          "GATE-619"
+        ],
+        "asset_ids": [
+          "ASSET-UI",
+          "ASSET-LIFECYCLE",
+          "ASSET-SCANNER"
+        ],
+        "method": "Re-run inherited TASK-617 sequential hosted rendering, same-observation notification agreement, signed selected-volume changes, real refresh single-flight and capacity/detail freshness on this gate's integrated candidate. Later object/caches changes must preserve all earlier visible behavior.",
+        "required": true,
+        "status": "planned",
+        "result": "not-run",
+        "sufficiency": "unknown",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+        ],
+        "limitations": [
+          "Repair/inspection has not run; planning evidence is not a passing implementation test.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI."
+        ],
+        "performed_at": null,
+        "performed_by": null,
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {}
+      },
+      {
+        "id": "INSPECT-R3-GATE-629-SAFETY",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "asset_ids": [
+          "ASSET-BUILD",
+          "ASSET-RESOURCE",
+          "ASSET-ASSURANCE"
+        ],
+        "method": "Independently re-establish inherited TASK-616 safe-runner and no-owned-descendant proofs on this gate's exact candidate. Recheck old-suite limitations, current impact/inspection frontier and unresolved material findings. Combine with the gate's original build/scan/migration/rollback requirements; no installed app replacement.",
+        "required": true,
+        "status": "planned",
+        "result": "not-run",
+        "sufficiency": "unknown",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+        ],
+        "limitations": [
+          "Repair/inspection has not run; planning evidence is not a passing implementation test.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD, ASSET-RESOURCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE."
+        ],
+        "performed_at": null,
+        "performed_by": null,
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {}
+      },
+      {
+        "id": "INSPECT-R3-GATE-629-DISPLAY",
+        "task_ids": [
+          "GATE-629"
+        ],
+        "asset_ids": [
+          "ASSET-UI",
+          "ASSET-LIFECYCLE",
+          "ASSET-SCANNER"
+        ],
+        "method": "Re-run inherited TASK-617 sequential hosted rendering, same-observation notification agreement, signed selected-volume changes, real refresh single-flight and capacity/detail freshness on this gate's integrated candidate. Later object/caches changes must preserve all earlier visible behavior.",
+        "required": true,
+        "status": "planned",
+        "result": "not-run",
+        "sufficiency": "unknown",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+        ],
+        "limitations": [
+          "Repair/inspection has not run; planning evidence is not a passing implementation test.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI."
+        ],
+        "performed_at": null,
+        "performed_by": null,
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {}
+      },
+      {
+        "id": "INSPECT-R3-GATE-639-SAFETY",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "asset_ids": [
+          "ASSET-BUILD",
+          "ASSET-RESOURCE",
+          "ASSET-ASSURANCE"
+        ],
+        "method": "Independently re-establish inherited TASK-616 safe-runner and no-owned-descendant proofs on this gate's exact candidate. Recheck old-suite limitations, current impact/inspection frontier and unresolved material findings. Combine with the gate's original build/scan/migration/rollback requirements; no installed app replacement.",
+        "required": true,
+        "status": "planned",
+        "result": "not-run",
+        "sufficiency": "unknown",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+        ],
+        "limitations": [
+          "Repair/inspection has not run; planning evidence is not a passing implementation test.",
+          "Implementation result for TASK-616 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD, ASSET-RESOURCE.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-ASSURANCE."
+        ],
+        "performed_at": null,
+        "performed_by": null,
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {}
+      },
+      {
+        "id": "INSPECT-R3-GATE-639-DISPLAY",
+        "task_ids": [
+          "GATE-639"
+        ],
+        "asset_ids": [
+          "ASSET-UI",
+          "ASSET-LIFECYCLE",
+          "ASSET-SCANNER"
+        ],
+        "method": "Re-run inherited TASK-617 sequential hosted rendering, same-observation notification agreement, signed selected-volume changes, real refresh single-flight and capacity/detail freshness on this gate's integrated candidate. Later object/caches changes must preserve all earlier visible behavior.",
+        "required": true,
+        "status": "planned",
+        "result": "not-run",
+        "sufficiency": "unknown",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+        ],
+        "limitations": [
+          "Repair/inspection has not run; planning evidence is not a passing implementation test.",
+          "Implementation result for TASK-617 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI."
+        ],
+        "performed_at": null,
+        "performed_by": null,
+        "invalidated_by": [
+          "source",
+          "generated",
+          "runtime",
+          "configuration",
+          "unknown"
+        ],
+        "refresh_policy": "pre-audit",
+        "validated_through": {}
       }
     ],
-    "findings": [],
+    "findings": [
+      {
+        "id": "FIND-R3-ORPHANED-TEST",
+        "asset_ids": [
+          "ASSET-BUILD",
+          "ASSET-RESOURCE"
+        ],
+        "inspection_id": null,
+        "title": "TASK-616: verifier timeout left an orphaned XCTest with 86.9G footprint; descendant containment must be proven before further candidate runs",
+        "severity": "critical",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#test-runner-incident",
+          "docs/reliability/evidence/REPLAN-006-R3/orphaned-run-result.json",
+          "docs/reliability/evidence/TASK-616/README.md",
+          "docs/reliability/evidence/TASK-616/review.json"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": null
+      },
+      {
+        "id": "FIND-R3-DASHBOARD",
+        "asset_ids": [
+          "ASSET-UI",
+          "ASSET-LIFECYCLE",
+          "ASSET-SCANNER"
+        ],
+        "inspection_id": "INSPECT-R3-617-PRESENTATION",
+        "title": "TASK-617: reported frozen dashboard, cached refresh, discarded decreases and missing alert interval context need rendered regression proof",
+        "severity": "high",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#dashboard-evidence",
+          "docs/reliability/evidence/REPLAN-006-R3/dashboard.png",
+          "docs/reliability/evidence/TASK-617/README.md",
+          "docs/reliability/evidence/TASK-617/before.json",
+          "docs/reliability/evidence/TASK-617/before.log",
+          "docs/reliability/evidence/TASK-617/after.json",
+          "docs/reliability/evidence/TASK-617/after.log",
+          "docs/reliability/evidence/TASK-617/review.json"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": "Frozen rendered reproduction repaired and final 604-case suite passed; source review reconciled to exact candidate. Installation and later increment gates remain separate."
+      }
+    ],
     "scope_drift": [
       {
         "id": "DRIFT-1E4DB6BD548F",
@@ -5982,18 +8426,20 @@
         "evidence": [
           "docs/reliability/evidence/TASK-613/rollback-rehearsal/report.json",
           "docs/reliability/evidence/TASK-613/rollback-rehearsal/rehearsal.log",
-          "Scripts/Testing/rehearse_migration_rollback.py"
+          "Scripts/Testing/rehearse_migration_rollback.py",
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
         ],
-        "rationale": "Schema 14 to 15 rehearsed against baseline 97c3a7f15d98: the migration is interruptible at every exposed checkpoint and recovers, the baseline binary refuses the newer schema on a scratch copy rather than corrupting it, and a restored backup opens with the baseline again."
+        "rationale": "Schema 14 to 15 rehearsed against baseline 97c3a7f15d98: the migration is interruptible at every exposed checkpoint and recovers, the baseline binary refuses the newer schema on a scratch copy rather than corrupting it, and a restored backup opens with the baseline again. Historical synthetic schema rollback scope is retained; this replan changes no product code or live store. TASK-616 and TASK-617 must document source-only rollback/stop behavior for their candidate changes; do not re-enable an unsafe runner as rollback. Captured-real-store and integrated-candidate rollback remain gate obligations."
       },
       "monitoring": {
-        "status": "ready",
+        "status": "missing",
         "evidence": [
           "docs/reliability/evidence/TASK-615/wiring.md",
           "docs/reliability/evidence/TASK-615/focused-green/tests.log",
-          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift"
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
         ],
-        "rationale": "Object classification now runs in the product, and what it changes is observable: the convergence pass reports the rows it collapsed as a limitation on the observation the app publishes, the existing resource budgets and circuit breaker still bound the sample that carries it, and an unclassifiable machine falls back to the previous behaviour rather than failing."
+        "rationale": "Historical monitoring evidence remains, but the orphaned test and frozen/ambiguous dashboard contradict an unconditional safety/visibility-ready claim. TASK-616 must establish external descendant-aware memory/time/output monitoring and confirmed cleanup; TASK-617 must establish coherent observation/freshness/alert visibility. GATE-619 and later gates require both findings resolved with current evidence. No such proof is claimed by this replan."
       }
     },
     "legacy_bridge": {

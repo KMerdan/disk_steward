@@ -17,6 +17,7 @@ final class SoakBenchmarkTests: XCTestCase, @unchecked Sendable {
         guard environment["DISK_STEWARD_SOAK_BENCHMARK"] == "supervised-v1" else {
             throw XCTSkip("Run only through Scripts/Testing/supervise_soak.py")
         }
+        try requireScaleSupervisor()
         let path = try XCTUnwrap(environment["DISK_STEWARD_SOAK_ROOT"])
         let root = URL(fileURLWithPath: path)
         guard root.deletingLastPathComponent().path == "/private/tmp",

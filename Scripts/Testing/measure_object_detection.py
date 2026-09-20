@@ -332,6 +332,7 @@ def self_test(base: Path) -> int:
 
 
 def main() -> int:
+    raise SystemExit("Corpus measurement admission closed by TASK-616: legacy enumeration and helper commands lack one bounded supervisor. See Scripts/Testing/SUPERVISION.md")
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--roots", nargs="*", type=Path, default=[])
     parser.add_argument("--output", type=Path)

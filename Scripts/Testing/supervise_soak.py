@@ -105,6 +105,7 @@ def terminate_owned_group(process):
 
 
 def supervise(command, environment, root, phase, seconds, rss_cap, family_cap, stop_file):
+    raise RuntimeError("Soak admission closed by TASK-616: legacy group/RSS supervision is not containment proof. See Scripts/Testing/SUPERVISION.md")
     started = time.monotonic()
     peak_rss = peak_wal = peak_family = peak_exports = 0
     reason = "exited"
@@ -180,6 +181,7 @@ def supervise(command, environment, root, phase, seconds, rss_cap, family_cap, s
 
 
 def main():
+    raise SystemExit("Soak admission closed by TASK-616 before fixture creation; migrate storage/stop-file quotas to process_supervisor before re-enabling.")
     parser = argparse.ArgumentParser()
     parser.add_argument("--workspace", type=Path, help="Built package copy holding .build/arm64-apple-macosx/release/DiskStewardPackageTests.xctest")
     parser.add_argument("--files", type=int, default=10_000)

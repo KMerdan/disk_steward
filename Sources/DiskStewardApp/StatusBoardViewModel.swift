@@ -48,7 +48,7 @@ struct StatusBoardPresentation: Equatable, Sendable {
             return .init(
                 state: .noBaseline,
                 title: "Building a baseline",
-                detail: "Capacity is available. A second complete sample is needed for growth.",
+                detail: "Capacity is available. Growth needs a second comparable capacity sample, not a completed file scan.",
                 symbol: "clock.badge.questionmark",
                 action: .refresh,
                 actionTitle: "Refresh"
@@ -99,8 +99,9 @@ final class StatusBoardViewModel: ObservableObject {
     typealias Exporter = (StorageSnapshot, URL) throws -> SnapshotExportResult
     typealias EvidenceExporter = @Sendable (URL) async throws -> EvidenceBundleExportResult
 
-    @Published private(set) var snapshot: StorageSnapshot?
-    @Published private(set) var errorMessage: String?
+    @Published private(set) var observation: MonitoringObservation?
+    @Published private var standaloneSnapshot: StorageSnapshot?
+    @Published private var standaloneError: String?
     @Published private(set) var exportMessage: String?
     @Published private(set) var isExporting = false
 
@@ -109,6 +110,8 @@ final class StatusBoardViewModel: ObservableObject {
     private let evidenceExporter: EvidenceExporter?
     private let exportParent: () -> URL
     private let exportCompletion: (URL) -> Void
+    private let usesMonitoring: Bool
+    private var observationSubscription: AnyCancellable?
     let lifecycle: MonitoringLifecycleController
 
     init(
@@ -124,15 +127,27 @@ final class StatusBoardViewModel: ObservableObject {
         self.evidenceExporter = evidenceExporter
         self.exportParent = exportParent
         self.exportCompletion = exportCompletion
+        self.usesMonitoring = lifecycle != nil
         self.lifecycle = lifecycle ?? MonitoringLifecycleController(
             settingsStore: MonitoringSettingsStore(persistence: EphemeralSettingsPersistence()),
             probe: UnavailableMonitoringProbe(reason: "Background monitoring is not attached to this view model."),
             notificationDelivery: DisabledNotificationDelivery(),
             changeCollector: nil
         )
+        observationSubscription = self.lifecycle.$latestObservation.sink { [weak self] observation in
+            // Receive the new value, not the publisher's willSet-era old value.
+            // Capacity, comparison and timestamp now move together.
+            self?.observation = observation
+        }
     }
 
-    var primaryVolume: VolumeCapacity? { snapshot?.volumes.first }
+    var snapshot: StorageSnapshot? { observation?.snapshot ?? standaloneSnapshot }
+    var errorMessage: String? {
+        if usesMonitoring, observation == nil, lifecycle.status.kind == .degraded, lifecycle.canRequestSample { return lifecycle.status.detail }
+        return standaloneError
+    }
+    var primaryVolume: VolumeCapacity? { snapshot.flatMap(selectedCapacityVolume) }
+    var growthDelta: Int64? { observation?.capacity?.comparison?.usedByteDelta }
 
     var usedFraction: Double {
         guard let volume = primaryVolume, volume.totalBytes > 0 else { return 0 }
@@ -163,31 +178,45 @@ final class StatusBoardViewModel: ObservableObject {
     }
 
     func refresh() {
-        if let monitored = lifecycle.latestObservation?.snapshot {
-            snapshot = monitored
-            errorMessage = nil
+        if usesMonitoring {
+            lifecycle.requestSample()
             return
         }
         do {
-            snapshot = try snapshotLoader()
-            errorMessage = nil
+            standaloneSnapshot = try snapshotLoader()
+            standaloneError = nil
         } catch {
-            snapshot = nil
-            errorMessage = error.localizedDescription
+            standaloneSnapshot = nil
+            standaloneError = error.localizedDescription
         }
     }
 
+    func prepareIfNeeded() {
+        if snapshot == nil && !lifecycle.isSampling && errorMessage == nil { refresh() }
+    }
+
     var growthSummary: String {
-        guard let delta = lifecycle.latestObservation?.growthReport.volumeUsedDelta else { return "Awaiting growth baseline" }
-        if delta > 0 { return "+\(Self.byteCount(delta))" }
-        if delta < 0 { return "−\(Self.byteCount(abs(delta)))" }
-        return "No change"
+        observation?.capacity?.comparison?.amountText ?? "Awaiting growth baseline"
     }
 
     var growthDetail: String {
-        lifecycle.latestObservation?.growthReport.volumeUsedDelta == nil
-            ? "Needs another complete sample"
-            : "Since the previous sample"
+        if let comparison = observation?.capacity?.comparison { return comparison.intervalText }
+        if let capacity = observation?.capacity, capacity.identity == nil { return "Volume identity unavailable; growth is unknown" }
+        return "Needs another comparable capacity sample"
+    }
+
+    var capacityFreshnessSummary: String {
+        guard let date = observation?.capacity?.observedAt ?? snapshot.flatMap({ Self.parseTimestamp($0.observedAt) })
+        else { return "Capacity not yet sampled" }
+        return "Capacity sampled \(date.formatted(date: .abbreviated, time: .standard))"
+    }
+
+    var sampleStateSummary: String {
+        if lifecycle.status.kind == .paused { return "Paused · showing the last sample" }
+        if !lifecycle.canRequestSample { return "Sampling stopped · showing the last sample" }
+        if lifecycle.isSampling { return "Sampling… · showing the last completed capacity sample" }
+        if lifecycle.status.kind == .degraded { return "Needs attention · values may be stale" }
+        return "Last successful capacity sample"
     }
 
     var presentation: StatusBoardPresentation {
@@ -195,16 +224,14 @@ final class StatusBoardViewModel: ObservableObject {
             hasSnapshot: primaryVolume != nil,
             snapshotError: errorMessage,
             monitoring: lifecycle.status,
-            hasGrowthBaseline: lifecycle.latestObservation?.growthReport.volumeUsedDelta != nil
+            hasGrowthBaseline: observation?.capacity?.comparison != nil
         )
     }
 
     var evidenceFreshnessSummary: String {
-        guard let date = lifecycle.latestObservation?.evidenceLifecycle?.observedAt
-            ?? lifecycle.latestObservation?.observedAt
-            ?? snapshot.flatMap({ Self.parseTimestamp($0.observedAt) })
-        else { return "Evidence time unavailable" }
-        return "Evidence \(date.formatted(date: .abbreviated, time: .shortened))"
+        guard let date = observation?.evidenceLifecycle?.scanCoverage?.lastCompleteGenerationAt
+        else { return "File detail: no complete scan recorded" }
+        return "Last complete file scan \(date.formatted(date: .abbreviated, time: .shortened))"
     }
 
     var evidenceStorageSummary: String {

@@ -133,6 +133,7 @@ def family_hashes(database):
 
 
 def run(command, cwd, env, log, timeout):
+    raise RuntimeError("Rollback runner admission closed by TASK-616: migrate all commands and bounded output through process_supervisor first.")
     started = time.monotonic()
     with open(log, "ab") as stream:
         stream.write(("$ " + " ".join(command) + "\n").encode())
@@ -177,6 +178,7 @@ def build_probe(package_dir, scratch, env, log):
 
 
 def main():
+    raise SystemExit("Rollback rehearsal admission closed by TASK-616 before any writes; see Scripts/Testing/SUPERVISION.md")
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True)
     parser.add_argument("--baseline-ref", default="HEAD")

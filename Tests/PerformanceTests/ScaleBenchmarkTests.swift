@@ -12,6 +12,7 @@ final class ScaleBenchmarkTests: XCTestCase, @unchecked Sendable {
         guard environment["DISK_STEWARD_SCALE_BENCHMARK"] == "supervised-v1" else {
             throw XCTSkip("Run only through docs/reliability/benchmarks/supervise_scale.py")
         }
+        try requireScaleSupervisor()
         let path = try XCTUnwrap(environment["DISK_STEWARD_SCALE_ROOT"])
         let root = URL(fileURLWithPath: path)
         guard root.deletingLastPathComponent().path == "/private/tmp",

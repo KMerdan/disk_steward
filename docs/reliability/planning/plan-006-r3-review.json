@@ -1,0 +1,399 @@
+{
+  "schema": "pyramid-plan-review-v1",
+  "review_id": "REVIEW-PLAN-006-R3-REPAIR",
+  "stage": "candidate",
+  "outcome": "retained",
+  "source_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-006",
+    "revision": 2,
+    "sha256": "6c883a4b43773e1e9812de666b72b0d8eb0308e23544bb367f4c1593527a4b8e"
+  },
+  "revised_plan": {
+    "plan_id": "PLAN-DISK-STEWARD-006",
+    "revision": 3,
+    "sha256": "96dfc2c91e1bb44e16ccd65ae7f223a62db23bcc767c6a87eaaec5a2493b8c0b"
+  },
+  "facts": [
+    {
+      "id": "FACT-R3-ORPHAN",
+      "claim": "The runner reported a 300-second timeout while an owned old-snapshot XCTest survived for over 51 minutes with parent launchd and an 86.9G sampled footprint. Exact escape mechanics remain unknown.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#test-runner-incident",
+        "docs/reliability/evidence/REPLAN-006-R3/orphaned-run-result.json",
+        "Scripts/Testing/verify_candidate.py::run_command"
+      ],
+      "supports": [
+        "TASK-616",
+        "GATE-619"
+      ],
+      "freshness": "2026-09-20; source b7e3675 and retained diagnosis evidence."
+    },
+    {
+      "id": "FACT-R3-EXISTING-FIX",
+      "claim": "The hot unbounded ancestor walk belongs to the old snapshot; a4ebfe6 already bounded current ObjectClassifier traversal. Rewriting that fix or invalidating unrelated functional contracts is unjustified.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift::repositoryPath",
+        "Tests/DiskStewardCoreTests/Monitoring/ObjectClassificationTests.swift",
+        "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+      ],
+      "supports": [
+        "TASK-616"
+      ],
+      "freshness": "2026-09-20; source b7e3675 and retained diagnosis evidence."
+    },
+    {
+      "id": "FACT-R3-DASHBOARD",
+      "claim": "Source supports missing direct subview observation, separately cached capacity, non-sampling refresh and discarded negative deltas. User observed a frozen +2.1 MB display; exact hosted-render reproduction is still pending, and differently timed +5.6 GB and +2.1 MB values need not be contradictory.",
+      "classification": "observed",
+      "verdict": "qualified",
+      "confidence": "high",
+      "references": [
+        "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#dashboard-evidence",
+        "Sources/DiskStewardApp/StatusBoardView.swift::GrowthSection",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift::refresh",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift"
+      ],
+      "supports": [
+        "TASK-617",
+        "GATE-619"
+      ],
+      "freshness": "2026-09-20; source b7e3675 and retained diagnosis evidence."
+    },
+    {
+      "id": "FACT-R3-NO-OWNER",
+      "claim": "TASK-623 owns object presentation, not the reported dashboard/alert lifecycle. No current task or material finding names either new defect.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        ".pyramid/plan.json::TASK-623 (revision 2)",
+        ".pyramid/assurance.json (graph 32)",
+        "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md"
+      ],
+      "supports": [
+        "TASK-616",
+        "TASK-617",
+        "TASK-623"
+      ],
+      "freshness": "2026-09-20; source b7e3675 and retained diagnosis evidence."
+    },
+    {
+      "id": "FACT-R3-HISTORICAL",
+      "claim": "Six primary tasks are verified and all three increment gates remain unverified at graph 32. Their exact contracts and evidence can be preserved while new safety and presentation proofs block future gate acceptance.",
+      "classification": "observed",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        "Pyramid inspect --summary at CTX-808A716F6DD60A96A826A80572FA42D3",
+        "docs/reliability/handoffs/HANDOFF-DISK-STEWARD-20260920-OBJECTS.md"
+      ],
+      "supports": [
+        "GATE-619",
+        "GATE-629",
+        "GATE-639"
+      ],
+      "freshness": "2026-09-20; source b7e3675 and retained diagnosis evidence."
+    },
+    {
+      "id": "FACT-R3-INDEPENDENCE",
+      "claim": "After safe supervision, sizing and capacity work do not consume the dashboard implementation. The later object presentation does share its presentation boundary. Readiness must not serialize unrelated work behind dashboard repair.",
+      "classification": "sourced",
+      "verdict": "confirmed",
+      "confidence": "high",
+      "references": [
+        ".pyramid/plan.json::TASK-614,TASK-621,TASK-623 (revision 2)"
+      ],
+      "supports": [
+        "TASK-614",
+        "TASK-621",
+        "TASK-623"
+      ],
+      "freshness": "2026-09-20; source b7e3675 and retained diagnosis evidence."
+    }
+  ],
+  "findings": [
+    {
+      "id": "RF-R3-CONTAINMENT",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "TASK-616",
+        "GATE-619"
+      ],
+      "claim": "A direct-child exit or process-group kill cannot stand in for verified descendant cleanup.",
+      "evidence": [
+        "FACT-R3-ORPHAN"
+      ],
+      "counterevidence": [
+        "FACT-R3-EXISTING-FIX",
+        "FACT-R3-HISTORICAL"
+      ],
+      "disposition": "applied",
+      "change": "Add TASK-616 with safe bootstrap, finite resource limits, identity-bound descendant ownership/exit proof and covered-entry-point inventory; require it before remaining first-wave execution.",
+      "rationale": "This addresses the independent verification boundary without pretending to repair the already-fixed old source again."
+    },
+    {
+      "id": "RF-R3-DASHBOARD",
+      "class": "under-decomposition",
+      "affected_nodes": [
+        "TASK-617",
+        "TASK-623",
+        "GATE-619"
+      ],
+      "claim": "Object presentation alone cannot establish live dashboard correctness or reconcile an old alert with a new sample.",
+      "evidence": [
+        "FACT-R3-DASHBOARD",
+        "FACT-R3-NO-OWNER"
+      ],
+      "counterevidence": [
+        "FACT-R3-HISTORICAL"
+      ],
+      "disposition": "applied",
+      "change": "Add TASK-617 as one vertical measurement/lifecycle/notification/rendering repair with explicit signed intervals, refresh, baseline/freshness and one bounded session-local alert.",
+      "rationale": "It owns one user-visible defect family and a hosted regression matrix; no speculative alert-history service or new persistence tier."
+    },
+    {
+      "id": "RF-R3-GATES",
+      "class": "ambiguous-acceptance",
+      "affected_nodes": [
+        "OUTCOME-610",
+        "GATE-619",
+        "GATE-629",
+        "GATE-639"
+      ],
+      "claim": "Historical static renders and suite passes do not prove containment and live updates on later integrated candidates.",
+      "evidence": [
+        "FACT-R3-ORPHAN",
+        "FACT-R3-DASHBOARD",
+        "FACT-R3-HISTORICAL"
+      ],
+      "counterevidence": [],
+      "disposition": "applied",
+      "change": "First increment gate requires both repairs; later gates repeat these inherited proofs; add an explicit current-baseline/ladder decision and open material findings.",
+      "rationale": "No new ceremonial rung or gate is needed; existing cumulative acceptance now covers the discovered failure boundaries."
+    },
+    {
+      "id": "RF-R3-SERIALIZATION",
+      "class": "unjustified-dependency",
+      "affected_nodes": [
+        "TASK-614",
+        "TASK-621",
+        "TASK-617"
+      ],
+      "claim": "Putting all remaining implementation behind the dashboard would add ordering without a consumed artifact.",
+      "evidence": [
+        "FACT-R3-INDEPENDENCE"
+      ],
+      "counterevidence": [
+        "FACT-R3-ORPHAN"
+      ],
+      "disposition": "rejected",
+      "change": "Gate all execution on supervision, but do not require TASK-617 before TASK-614 or TASK-621; recommend dashboard priority operationally.",
+      "rationale": "TASK-623 requires the repaired presentation boundary; other conflicts are handled by actual file scopes, not invented hard dependencies."
+    }
+  ],
+  "coverage": [
+    {
+      "requirement": "REQ-601",
+      "before_nodes": [
+        "INTENT-006",
+        "TASK-612",
+        "TASK-614",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-615"
+      ],
+      "after_nodes": [
+        "INTENT-006",
+        "TASK-612",
+        "TASK-614",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-615",
+        "TASK-616",
+        "TASK-617"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-602",
+      "before_nodes": [
+        "INTENT-006",
+        "RESEARCH-601",
+        "CONTRACT-601",
+        "TASK-611",
+        "GATE-619",
+        "OUTCOME-610"
+      ],
+      "after_nodes": [
+        "INTENT-006",
+        "RESEARCH-601",
+        "CONTRACT-601",
+        "TASK-611",
+        "GATE-619",
+        "OUTCOME-610"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-603",
+      "before_nodes": [
+        "INTENT-006",
+        "CONTRACT-601",
+        "TASK-611",
+        "TASK-612",
+        "TASK-613",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-621",
+        "TASK-622",
+        "TASK-623",
+        "GATE-629",
+        "OUTCOME-620",
+        "TASK-615"
+      ],
+      "after_nodes": [
+        "INTENT-006",
+        "CONTRACT-601",
+        "TASK-611",
+        "TASK-612",
+        "TASK-613",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-621",
+        "TASK-622",
+        "TASK-623",
+        "GATE-629",
+        "OUTCOME-620",
+        "TASK-615",
+        "TASK-617"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-604",
+      "before_nodes": [
+        "INTENT-006",
+        "TASK-631",
+        "GATE-639",
+        "OUTCOME-630"
+      ],
+      "after_nodes": [
+        "INTENT-006",
+        "TASK-631",
+        "GATE-639",
+        "OUTCOME-630"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-605",
+      "before_nodes": [
+        "INTENT-006",
+        "CONTRACT-601",
+        "TASK-623",
+        "GATE-629",
+        "OUTCOME-620"
+      ],
+      "after_nodes": [
+        "INTENT-006",
+        "CONTRACT-601",
+        "TASK-623",
+        "GATE-629",
+        "OUTCOME-620"
+      ],
+      "status": "preserved"
+    },
+    {
+      "requirement": "REQ-606",
+      "before_nodes": [
+        "INTENT-006",
+        "CONTRACT-601",
+        "TASK-613",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-615"
+      ],
+      "after_nodes": [
+        "INTENT-006",
+        "CONTRACT-601",
+        "TASK-613",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-615",
+        "TASK-616"
+      ],
+      "status": "strengthened"
+    },
+    {
+      "requirement": "REQ-607",
+      "before_nodes": [
+        "INTENT-006",
+        "TASK-614",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-621",
+        "TASK-622",
+        "TASK-623",
+        "GATE-629",
+        "OUTCOME-620",
+        "TASK-631",
+        "GATE-639",
+        "OUTCOME-630"
+      ],
+      "after_nodes": [
+        "INTENT-006",
+        "TASK-614",
+        "GATE-619",
+        "OUTCOME-610",
+        "TASK-621",
+        "TASK-622",
+        "TASK-623",
+        "GATE-629",
+        "OUTCOME-620",
+        "TASK-631",
+        "GATE-639",
+        "OUTCOME-630",
+        "TASK-617"
+      ],
+      "status": "strengthened"
+    }
+  ],
+  "invariants": {
+    "intent": "preserved",
+    "success_evidence": "preserved",
+    "constraints": "preserved",
+    "non_goals": "preserved",
+    "assurance": "strengthened",
+    "audit_closure": "strengthened",
+    "execution_safety": "strengthened"
+  },
+  "metrics": {
+    "before": {
+      "nodes": 18,
+      "executable_nodes": 14,
+      "edges": 49,
+      "hard_dependencies": 18,
+      "audit_gates": 3
+    },
+    "after": {
+      "nodes": 20,
+      "executable_nodes": 16,
+      "edges": 57,
+      "hard_dependencies": 22,
+      "audit_gates": 3
+    }
+  },
+  "summary": "Retain the reviewed two-task repair candidate: add two independently justified tasks and eight edges to the existing three-rung ladder, preserve the six verified contracts, and make live presentation and safe verification explicit acceptance obligations. No reduction was justified by evidence.",
+  "limitations": [
+    "Planning and source/incident evidence only; no repair implementation or new test pass is claimed.",
+    "Exact Swift/XCTest escape mechanics and hosted dashboard redraw reproduction are owned by TASK-616 and TASK-617 respectively.",
+    "No live database inspection, installation, release, remote write or new agent delegation.",
+    "Assurance candidate preserves historical inspections as history and adds planned inspections/open findings; it does not mark them resolved."
+  ]
+}

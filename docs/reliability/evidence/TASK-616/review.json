@@ -1,0 +1,28 @@
+{
+  "schema": "helper-reconciliation-v1",
+  "parent_task": "TASK-616",
+  "task_guard": "GUARD-TASK-52D3A82DB0F074E4F77DA5A6450E42FC",
+  "helper_id": "HELPER-616-CANDIDATE-FINAL",
+  "snapshot": "9fd30592af86d021a4b661cafad65f6564798c89e8b416ac2a0312a7c6fdf4da",
+  "freshness": "current",
+  "final_evidence_eligible": true,
+  "scope": "Read-only source review of cooperative direct-process supervision; parent reconciled the matching Swift smoke and Python execution reports.",
+  "resolved_findings": [
+    "C1: bracket marker and metadata reads with birth identity checks, with mocked replacement coverage",
+    "C2: signal cancellation is a flag; idempotent resource closure cannot bypass descendant cleanup; gate-close fault injected",
+    "C3: baseline birth IDs, not wall timestamps, distinguish pre-run processes"
+  ],
+  "new_actionable_findings": [],
+  "checks": [
+    "13 bounded bootstrap cases passed with independent watchdog and unrelated sentinel",
+    "31 Python harness tests passed",
+    "8 AboutVersion XCTest cases passed in 44.85 seconds; peak aggregate footprint 886614192 bytes; cleanupVerified true; remaining []",
+    "Source snapshot digest equals smoke inputSHA256; repositoryUnchanged true"
+  ],
+  "limitations": [
+    "Not hostile-code or launchd/XPC containment",
+    "Sampled stop thresholds can overshoot",
+    "PID signal checks are not an atomic kernel birth-ID kill",
+    "Legacy scale/soak/corpus/rollback entry points refuse execution rather than claim a passing rerun"
+  ]
+}

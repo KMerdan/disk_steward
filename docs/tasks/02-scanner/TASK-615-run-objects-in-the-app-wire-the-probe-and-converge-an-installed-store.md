@@ -67,12 +67,16 @@ The monitoring probe builds its scanner with the object classifier and runs the 
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-TASK-615-LIFECYCLE`, `IMPACT-TASK-615-SCANNER`, `IMPACT-TASK-615-STORE`, `IMPACT-TASK-615-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-LIFECYCLE`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-TASK-615-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-TASK-615-1 is stale
 

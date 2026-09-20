@@ -16,7 +16,7 @@
 
 ## Goal
 
-A user whose projects contain a million files behind build output gets a completed scan and published current state inside the configured limit, instead of a generation that never finishes.
+A user whose projects contain a million files behind build output gets a completed scan and published current state inside the configured limit, instead of a generation that never finishes. The same safely supervised candidate presents live, signed, interval-labelled capacity changes and a distinguishable latest alert instead of stale dashboard values.
 
 ## Deliverables
 
@@ -45,6 +45,7 @@ A user whose projects contain a million files behind build output gets a complet
 ## Acceptance Criteria
 
 - `AC-OUTCOME-610-01` — Construct a runnable candidate and pass GATE-619, including the inherited safety and recovery limits of the closed reliability plan.
+- `AC-OUTCOME-610-02` — The first runnable increment includes TASK-616 containment and TASK-617 sequential dashboard/alert behavior; no live user database or installed-app replacement is used for acceptance.
 
 ## Required Evidence
 
@@ -57,17 +58,25 @@ A user whose projects contain a million files behind build output gets a complet
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-TASK-615-LIFECYCLE`, `IMPACT-TASK-615-SCANNER`, `IMPACT-TASK-615-STORE`, `IMPACT-TASK-615-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-613-1`, `INSPECT-TASK-612-1`, `INSPECT-TASK-615-1`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-TASK-615-LIFECYCLE`, `IMPACT-TASK-615-SCANNER`, `IMPACT-TASK-615-STORE`, `IMPACT-TASK-615-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R3-GATE-619-BUILD`, `IMPACT-R3-GATE-619-RESOURCE`, `IMPACT-R3-GATE-619-UI`, `IMPACT-R3-GATE-619-LIFECYCLE`, `IMPACT-R3-GATE-619-SCANNER`, `IMPACT-R3-GATE-619-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-613-1`, `INSPECT-TASK-612-1`, `INSPECT-TASK-615-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R3-GATE-619-SAFETY`, `INSPECT-R3-GATE-619-DISPLAY`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impact IMPACT-R3-GATE-619-ASSURANCE remains hypothesis
+- Impact IMPACT-R3-GATE-619-BUILD remains hypothesis
+- Impact IMPACT-R3-GATE-619-LIFECYCLE remains hypothesis
+- Impact IMPACT-R3-GATE-619-RESOURCE remains hypothesis
+- Impact IMPACT-R3-GATE-619-SCANNER remains hypothesis
+- Impact IMPACT-R3-GATE-619-UI remains hypothesis
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
+- Required inspection INSPECT-R3-GATE-619-DISPLAY is planned
+- Required inspection INSPECT-R3-GATE-619-SAFETY is planned
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 - Required inspection INSPECT-TASK-612-1 is stale
 - Required inspection INSPECT-TASK-613-1 is stale
+- Required inspection INSPECT-TASK-615-1 is stale
 

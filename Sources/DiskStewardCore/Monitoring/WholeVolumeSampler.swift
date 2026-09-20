@@ -4,6 +4,13 @@ public struct VolumeGrowthSample: Equatable, Sendable {
     public let observedAt: String
     public let usedByteDeltas: [String: Int64]
     public let limitations: [String]
+    /// A mount path can be reused by a different disk. Unknown UUIDs must not
+    /// create a dashboard growth baseline. No persistent schema change needed.
+    public var selectedVolumeIdentity: String? = nil
+}
+
+public func selectedCapacityVolume(in snapshot: StorageSnapshot) -> VolumeCapacity? {
+    snapshot.volumes.first { $0.isInternal && !$0.isReadOnly } ?? snapshot.volumes.first
 }
 
 public struct WholeVolumeSampler: Sendable {
@@ -19,9 +26,11 @@ public struct WholeVolumeSampler: Sendable {
         let deltas = Dictionary(uniqueKeysWithValues: current.volumes.map { volume in
             (volume.mountPath, volume.usedBytes - (oldByPath[volume.mountPath]?.usedBytes ?? volume.usedBytes))
         })
-        return (
-            current,
-            VolumeGrowthSample(observedAt: current.observedAt, usedByteDeltas: deltas, limitations: current.limitations)
-        )
+        var growth = VolumeGrowthSample(observedAt: current.observedAt, usedByteDeltas: deltas, limitations: current.limitations)
+        if let volume = selectedCapacityVolume(in: current) {
+            growth.selectedVolumeIdentity = try? URL(fileURLWithPath: volume.mountPath)
+                .resourceValues(forKeys: [.volumeUUIDStringKey]).volumeUUIDString
+        }
+        return (current, growth)
     }
 }

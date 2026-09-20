@@ -2,6 +2,7 @@
 # scale case against it in an isolated snapshot. Usage: object-scale.py <objects> <files-per-object>
 import importlib.util, json, os, sys, tempfile, uuid, time
 from pathlib import Path
+raise SystemExit('Object-scale admission closed by TASK-616 before fixture creation: fixture construction needs its own supervised quotas. See Scripts/Testing/SUPERVISION.md')
 repo = Path('/Users/merdankiji/localGit/disk_steward')
 objects, per_object = int(sys.argv[1]), int(sys.argv[2])
 root = Path(tempfile.mkdtemp(prefix='ds612-scale.', dir='/private/tmp'))

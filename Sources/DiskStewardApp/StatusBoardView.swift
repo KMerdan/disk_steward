@@ -30,6 +30,7 @@ struct StatusBoardView: View {
                     Image(systemName: "arrow.clockwise")
                 }
                 .buttonStyle(.borderless)
+                .disabled(!lifecycle.canRequestSample || lifecycle.isSampling)
                 .accessibilityLabel("Refresh disk snapshot")
                 .accessibilityHint("Reads current capacity without deleting or changing files.")
             }
@@ -38,14 +39,30 @@ struct StatusBoardView: View {
                 CapacitySection(viewModel: viewModel)
             } else if let error = viewModel.errorMessage {
                 UnavailableCapacitySection(message: error)
-            } else {
+            } else if lifecycle.isSampling {
                 ProgressView("Reading volume capacity…")
                     .accessibilityLabel("Reading volume capacity")
+            } else {
+                Text("No capacity sample yet").font(.subheadline).foregroundStyle(.secondary)
             }
 
             Divider()
 
             GrowthSection(viewModel: viewModel)
+
+            Text(viewModel.sampleStateSummary)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+
+            if let alert = lifecycle.latestGrowthAlert {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Latest growth alert · this session").font(.caption).foregroundStyle(.secondary)
+                    Text("\(alert.amountText) · \(ObservedVolume.name(for: alert.mountPath))")
+                        .font(.subheadline.weight(.semibold))
+                    Text(alert.intervalText).font(.caption2).foregroundStyle(.secondary)
+                }
+                .accessibilityElement(children: .combine)
+            }
 
             MonitoringSection(
                 presentation: viewModel.presentation,
@@ -81,7 +98,7 @@ struct StatusBoardView: View {
         .padding(18)
         .frame(width: 352)
         .background(.regularMaterial)
-        .task { viewModel.refresh() }
+        .task { viewModel.prepareIfNeeded() }
     }
 
     private func performMonitoringAction(_ action: StatusBoardPrimaryAction) {
@@ -95,7 +112,7 @@ struct StatusBoardView: View {
 }
 
 private struct CapacitySection: View {
-    let viewModel: StatusBoardViewModel
+    @ObservedObject var viewModel: StatusBoardViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -119,6 +136,9 @@ private struct CapacitySection: View {
                 .accessibilityValue(viewModel.capacitySummary)
             Text(viewModel.capacitySummary)
                 .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(viewModel.capacityFreshnessSummary)
+                .font(.caption2)
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .contain)
@@ -153,7 +173,7 @@ private struct UnavailableCapacitySection: View {
 }
 
 private struct GrowthSection: View {
-    let viewModel: StatusBoardViewModel
+    @ObservedObject var viewModel: StatusBoardViewModel
 
     var body: some View {
         HStack(spacing: 11) {
@@ -177,7 +197,7 @@ private struct GrowthSection: View {
         .accessibilityLabel("Recent disk change: \(viewModel.growthSummary). \(viewModel.growthDetail)")
     }
 
-    private var delta: Int64? { viewModel.lifecycle.latestObservation?.growthReport.volumeUsedDelta }
+    private var delta: Int64? { viewModel.growthDelta }
     private var growthSymbol: String {
         guard let delta else { return "chart.line.uptrend.xyaxis" }
         if delta > 0 { return "arrow.up.right" }

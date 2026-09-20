@@ -1,6 +1,78 @@
 import DiskStewardCore
 import Foundation
 
+/// Session-local capacity evidence. Never borrows file-detail timestamps or
+/// aggregates deltas from unrelated mounted volumes.
+struct ObservedVolume: Equatable, Sendable {
+    let observationID: String
+    let observedAt: Date?
+    let identity: String?
+    let volume: VolumeCapacity
+    private(set) var comparison: VolumeComparison?
+
+    init?(snapshot: StorageSnapshot, identity: String?) {
+        guard let volume = selectedCapacityVolume(in: snapshot) else { return nil }
+        self.volume = volume
+        self.observationID = snapshot.snapshotID
+        self.observedAt = Self.parseDate(snapshot.observedAt)
+        self.identity = identity.flatMap { $0.isEmpty ? nil : $0 }
+    }
+
+    func comparing(after previous: ObservedVolume?) -> ObservedVolume {
+        var result = self
+        result.comparison = nil
+        guard let previous, let identity, previous.identity == identity,
+              volume.totalBytes > 0,
+              previous.observationID != observationID,
+              previous.volume.mountPath == volume.mountPath,
+              previous.volume.totalBytes == volume.totalBytes,
+              previous.volume.isInternal == volume.isInternal,
+              previous.volume.isReadOnly == volume.isReadOnly,
+              let start = previous.observedAt, let end = observedAt, end > start
+        else { return result }
+        result.comparison = VolumeComparison(
+            observationID: observationID, baselineObservationID: previous.observationID,
+            volumeIdentity: identity, mountPath: volume.mountPath,
+            start: start, end: end, usedByteDelta: volume.usedBytes - previous.volume.usedBytes
+        )
+        return result
+    }
+
+    static func parseDate(_ value: String) -> Date? {
+        let fractional = ISO8601DateFormatter()
+        fractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return fractional.date(from: value) ?? ISO8601DateFormatter().date(from: value)
+    }
+
+    static func name(for mountPath: String) -> String {
+        mountPath == "/" ? "Macintosh HD" : URL(fileURLWithPath: mountPath).lastPathComponent
+    }
+}
+
+/// The same bounded value is used for Recent change, notification text and the
+/// one latest alert. Later samples cannot rewrite a previous alert's interval.
+struct VolumeComparison: Equatable, Sendable {
+    let observationID: String
+    let baselineObservationID: String
+    let volumeIdentity: String
+    let mountPath: String
+    let start: Date
+    let end: Date
+    let usedByteDelta: Int64
+
+    var amountText: String {
+        if usedByteDelta == 0 { return "No change" }
+        let bytes = ByteCountFormatter.string(fromByteCount: abs(usedByteDelta), countStyle: .file)
+        return (usedByteDelta > 0 ? "+" : "−") + bytes
+    }
+
+    var intervalText: String {
+        // Include seconds and both dates: cross-midnight and multi-day gaps are
+        // explicit, and rapid continuation samples don't appear simultaneous.
+        "\(start.formatted(date: .abbreviated, time: .standard)) – \(end.formatted(date: .abbreviated, time: .standard))"
+    }
+}
+
 struct MonitoringObservation: Sendable {
     let observedAt: Date
     let snapshot: StorageSnapshot
@@ -12,6 +84,7 @@ struct MonitoringObservation: Sendable {
     /// to its regular interval instead of spinning on a stalled generation.
     let scanStalled: Bool
     let continuationSlices: Int
+    private(set) var capacity: ObservedVolume?
 
     init(
         observedAt: Date,
@@ -21,7 +94,8 @@ struct MonitoringObservation: Sendable {
         evidenceLifecycle: EvidenceLifecycleStatus? = nil,
         needsScanContinuation: Bool = false,
         scanStalled: Bool = false,
-        continuationSlices: Int = 0
+        continuationSlices: Int = 0,
+        volumeIdentity: String? = nil
     ) {
         self.observedAt = observedAt
         self.snapshot = snapshot
@@ -31,6 +105,13 @@ struct MonitoringObservation: Sendable {
         self.needsScanContinuation = needsScanContinuation
         self.scanStalled = scanStalled
         self.continuationSlices = continuationSlices
+        self.capacity = ObservedVolume(snapshot: snapshot, identity: volumeIdentity)
+    }
+
+    func comparingCapacity(after previous: MonitoringObservation?) -> MonitoringObservation {
+        var result = self
+        result.capacity = capacity?.comparing(after: previous?.capacity)
+        return result
     }
 }
 
@@ -364,7 +445,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         // Do not start subsequent maintenance or publish UI after a stop.
         try Task.checkCancellation()
         let events = writeCoalescer.coalesce(scanCommit.observation?.events ?? [], within: policy.coalescingWindow)
-        let volumeDelta = volumeGrowth.usedByteDeltas.values.filter { $0 > 0 }.reduce(0, +)
+        let volumeDelta = selectedCapacityVolume(in: snapshot).flatMap { volumeGrowth.usedByteDeltas[$0.mountPath] } ?? 0
         var scanLimitations = scanCommit.generation.limitations
         if scanCommit.observation == nil, scanCommit.generation.status == .active {
             scanLimitations.append(
@@ -410,7 +491,8 @@ actor PersistentMonitoringProbe: MonitoringProbing {
             evidenceLifecycle: evidenceLifecycle,
             needsScanContinuation: scanCommit.generation.status == .active,
             scanStalled: scanStalled,
-            continuationSlices: continuationSlices
+            continuationSlices: continuationSlices,
+            volumeIdentity: volumeGrowth.selectedVolumeIdentity
         )
     }
 
@@ -608,7 +690,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
     ) async throws -> MonitoringObservation {
         try Task.checkCancellation()
         let eventGap = try await store.hasPendingReconciliation()
-        let volumeDelta = volumeGrowth.usedByteDeltas.values.filter { $0 > 0 }.reduce(0, +)
+        let volumeDelta = selectedCapacityVolume(in: snapshot).flatMap { volumeGrowth.usedByteDeltas[$0.mountPath] } ?? 0
         var limitations = volumeGrowth.limitations + policy.scopeLimitations(at: now) + storageLimitations
         for limitation in refusal.limitations where !limitations.contains(limitation) { limitations.append(limitation) }
         let report = explanationEngine.explain(
@@ -625,7 +707,8 @@ actor PersistentMonitoringProbe: MonitoringProbing {
             evidenceLifecycle: evidenceLifecycle,
             needsScanContinuation: active?.status == .active,
             scanStalled: true,
-            continuationSlices: 0
+            continuationSlices: 0,
+            volumeIdentity: volumeGrowth.selectedVolumeIdentity
         )
     }
 

@@ -10,7 +10,7 @@
 - Selection: `primary`
 - Execution: `planned`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `locked`
 - Goal trace: `GATE-629` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
@@ -48,6 +48,7 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 ## Acceptance Criteria
 
 - `AC-GATE-629-01` — Build and run isolated end-to-end scenarios for this rung and rung 1; record the exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung prevent pass.
+- `AC-GATE-629-02` — Re-run inherited TASK-616 descendant-containment and TASK-617 sequential dashboard/alert/freshness scenarios against this gate's exact integrated candidate. Earlier task passes alone do not establish current safety or rendered-update behavior.
 
 ## Required Evidence
 
@@ -60,18 +61,21 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-612-1`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R3-TASK-623-UI`, `IMPACT-R3-TASK-623-QUERY`, `IMPACT-R3-TASK-623-MCP`, `IMPACT-R3-TASK-623-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-MCP`, `ASSET-QUERY`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-612-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R3-623-INTEGRATION`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
+- Impact IMPACT-R3-TASK-623-MCP remains hypothesis
+- Impact IMPACT-R3-TASK-623-QUERY remains hypothesis
+- Impact IMPACT-R3-TASK-623-UI remains hypothesis
+- Impacted asset ASSET-MCP lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
+- Required inspection INSPECT-R3-623-INTEGRATION is planned
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 - Required inspection INSPECT-TASK-612-1 is stale

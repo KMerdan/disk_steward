@@ -12,6 +12,8 @@ base = candidate.input_manifest(repo)
 candidate.copy_inputs(repo, snapshot, base)
 for mutation in spec['mutations']:
     target = snapshot / mutation['file']
+    if target.resolve() != target or snapshot not in target.parents or not target.is_file():
+        raise ValueError('Mutation target must be a regular file within the isolated snapshot')
     source = target.read_text()
     for old, new in mutation['replacements']:
         assert source.count(old) == 1, (mutation['file'], old[:70])

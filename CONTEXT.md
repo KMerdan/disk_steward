@@ -246,20 +246,48 @@ single evidence objects instead of per-file rows. Three rungs: scans that
 finish on a real-sized scope, reclaimable space made visible and explained,
 then shared caches under the same contract behind an explicit opt-in.
 
-Progress at revision 2 (graph 32): RESEARCH-601, CONTRACT-601, TASK-611,
-TASK-612, TASK-613 and TASK-615 are verified. Replan R2 added TASK-615 because
-nothing owned wiring the object model into the running app. **TASK-614**, the
-capacity guard, is the last task before GATE-619 closes rung 1.
+Progress at revision 3 (graph 42): RESEARCH-601, CONTRACT-601, TASK-611,
+TASK-612, TASK-613, TASK-615, **TASK-616** (test-process supervision) and
+**TASK-617** (live dashboard/alert consistency) are verified. No increment
+gate has passed. TASK-614 (capacity guard) and TASK-621 (object sizing) are
+the next ready nodes; no worker is left claimed. Wider object-model,
+real-scope and rollback assurance remains unfinished. Node verification
+does not authorize a release of the schema-15 main branch.
 
-State, decisions, the hang that was found and fixed, and the first action for
-the next session are in
-`docs/reliability/handoffs/HANDOFF-DISK-STEWARD-20260920-OBJECTS.md`. The
-isolated test harness that produced every suite and mutation red lives in
-`docs/reliability/handoffs/harness/`; never run `swift test` in the worktree.
+Current continuation instructions and evidence limits are in
+`docs/reliability/handoffs/HANDOFF-DISK-STEWARD-20260920-R3.md`. The earlier
+OBJECTS handoff is historical: its assertion that no verifier was active was
+disproved by orphaned XCTest PID 60334, which survived a recorded 300-second
+timeout, reached an 86.9G sampled footprint, and was stopped with user approval.
+Current source fixes that old snapshot's ancestor loop. TASK-616 established
+birth-identity-bound descendant supervision with independently bounded
+bootstrap fixtures and a 2 GiB aggregate physical-footprint default limit.
+Use only the supervised snapshot verifier; legacy scale/soak/rollback entry
+points remain fail-closed. Never run `swift test` in the worktree or open
+the live evidence database from tests. See `Scripts/Testing/SUPERVISION.md`
+for containment boundaries, including launchd/XPC delegation limitations.
 
-The candidate plans and reviews are in
-`docs/reliability/planning/plan-006-{candidate,review}.json` and
-`plan-006-r2-{candidate,review}.json`.
+The two R3 material findings are resolved in the audited scope. TASK-617's
+final isolated source candidate passed 604 tests (6 intentional skips), with
+zero failures and verified process cleanup. Its hosted-view tests prove live
+rendered updates, single-flight refresh, signed per-volume deltas, explicit
+baseline/interval, distinct file/capacity freshness, and one bounded latest
+growth alert. A historical alert and the newest sample can show different
+numbers. See `docs/reliability/evidence/TASK-617/README.md` and `after.json`.
+
+On September 20 the user separately authorized a local replacement build,
+removal of the old installed copy, and commit/push. The hotfix is prepared on
+`hotfix/dashboard-1.2.2` from `v1.2.1`, backporting TASK-617 and the supervised
+test harness without the unfinished schema-15/object changes. The installed
+1.2.1 and the read-only inspected live store both use schema 14. Keep that
+format for this replacement. This authorization does not publish a GitHub
+release, update Homebrew, or submit to Apple's notary service.
+
+Candidate plans, reviews and R3 assurance are in
+`docs/reliability/planning/plan-006-{candidate,review}.json`,
+`plan-006-r2-{candidate,review}.json`, and
+`plan-006-r3-{candidate,review,assurance}.json`. Incident evidence and the user
+screenshot are retained in `docs/reliability/evidence/REPLAN-006-R3/`.
 
 Measured evidence behind it, all from 2026-09-20 and recorded in the plan:
 888,469 of 1,214,531 files in the watched roots sit inside 2,618 build-output

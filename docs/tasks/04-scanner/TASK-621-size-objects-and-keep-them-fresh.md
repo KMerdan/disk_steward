@@ -10,7 +10,7 @@
 - Selection: `primary`
 - Execution: `planned`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `ready`
 - Goal trace: `TASK-621` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
@@ -36,6 +36,7 @@ Measure an object's recursive size and file count without storing per-file rows,
 
 - `CONTRACT-601` (contract-requires, passed)
 - `TASK-612` (requires, passed)
+- `TASK-616` (requires, passed)
 
 ## Required Context
 

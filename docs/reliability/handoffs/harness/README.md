@@ -1,5 +1,10 @@
 # Isolated test harness used by PLAN-DISK-STEWARD-006
 
+Current safety boundary: read [SUPERVISION.md](../../../../Scripts/Testing/SUPERVISION.md)
+and pass its bounded bootstrap first. TASK-616 replaces group-only cleanup.
+`object-scale.py` is currently refused before fixture creation; the historical
+description below is not authorization to bypass that guard.
+
 These scripts ran every focused suite and every mutation red in this plan. They
 lived in a session scratchpad under `/private/tmp` and were lost once to a
 cleanup, so they are kept here with the evidence they produced.
