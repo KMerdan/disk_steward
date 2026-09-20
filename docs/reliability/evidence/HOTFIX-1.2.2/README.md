@@ -43,3 +43,8 @@ extracts the authorization enum inside the native callback instead of passing
 a non-Sendable settings object across actors. Ten isolated notification tests
 passed. This repair is not included in the already installed hotfix; main and
 the hotfix branch must not be treated as identical release inputs.
+
+The CI rerun still fails on two further older-toolchain concurrency diagnostics:
+the unfinished object-store collapse callback and the native async permission
+request. CI is **not green**. These require follow-up; no claim of automated
+release readiness is made by the local installation or passing local tests.

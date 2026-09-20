@@ -300,6 +300,14 @@ Ten isolated notification tests passed under the supervisor, with unchanged
 source inputs and verified cleanup. This change is not in the installed
 hotfix's recorded source digest; do not conflate main with the hotfix branch.
 
+CI rerun 35508618140 still fails on the older toolchain: the object-store
+collapse callback is non-Sendable across actors, and the native async
+notification-authorization request sends a main-actor-owned center into a
+nonisolated call. The first settings-result diagnostic is gone, but CI is not
+green. Do not describe the compatibility follow-up or automated release as
+complete. These are recorded follow-up blockers, separate from the tested,
+installed Xcode-26 local hotfix. Both CI reports remain in local build evidence.
+
 Candidate plans, reviews and R3 assurance are in
 `docs/reliability/planning/plan-006-{candidate,review}.json`,
 `plan-006-r2-{candidate,review}.json`, and
