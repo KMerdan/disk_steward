@@ -85,6 +85,9 @@ using that interface.
 1. Set the intended version/build in `Config/Packaging/project.yml`. XcodeGen
    generates `Config/Packaging/DiskSteward-Info.plist` from those properties;
    keep them synchronized. Check the built bundle's plist, not only source.
+   Quote the build number in YAML (for example `CFBundleVersion: "8"`):
+   both version keys must be plist strings, not integers. Notarization alone
+   does not detect the integer-type error that breaks Homebrew version parsing.
    Use a new build number when rebuilding a submitted candidate with changes.
 2. Verify source in isolation, with a new output directory outside the repo:
 
@@ -226,6 +229,9 @@ second poll; zip SHA-256 `494348588a2b6207898f53aae3a015ee607db601130275557080cc
 
 ## 1.2.2 release record (2026-09-20)
 
+- Historical release, now superseded by **1.2.3** below. Its ZIP remains
+  immutable; a final Homebrew version-inspection check exposed an integer
+  `CFBundleVersion` despite the passing notarization and cask audit.
 - After separate user authorization, released **1.2.2 (7)** from
   `hotfix/dashboard-1.2.2`, not unfinished schema-15 `main`. Tag `v1.2.2`
   points to `303fdfbad69d99ca4f87114cb22bd3535f840fcd`; the archive is the
@@ -259,6 +265,53 @@ second poll; zip SHA-256 `494348588a2b6207898f53aae3a015ee607db601130275557080cc
 - Older-Xcode development CI errors and the earlier archive-worker warning
   remain separate follow-up work. Do not claim main/CI or object-model increment
   gates passed merely because this focused binary release was notarized.
+
+## 1.2.3 release record (2026-09-20)
+
+- Current published release: **1.2.3 (8)** from `hotfix/dashboard-1.2.3`.
+  Tag `v1.2.3` points to `b29ece380bac770ba0c27035ec53985537f422b3`.
+  https://github.com/KMerdan/disk_steward/releases/tag/v1.2.3
+- **Homebrew metadata repair:** unquoted YAML generated an integer build
+  number. Homebrew 7's `BundleVersion` parser then raised `no implicit
+  conversion of Integer into String` when inspecting the installed app.
+  Quoted YAML and string plist metadata fix this. `verify-release` now rejects
+  non-string version keys before distribution; the new
+  `test_bundle_version_metadata.py` prevents source/generator drift. Never edit
+  an installed signed app's plist in place to work around this error.
+- The application Swift sources are unchanged from v1.2.2 (575 Swift tests,
+  5 intentional skips, zero failures). Fresh verification for this packaging
+  revision passed all **34 Python packaging/verifier tests**, the actual
+  Homebrew `BundleVersion` parser, strict signatures, notarization staple,
+  Gatekeeper and isolated startup for both the exported and ZIP-extracted app.
+  This is not a claim that the full Swift suite was rerun for 1.2.3.
+- Built a fresh universal archive and submitted it once using the established
+  Xcode account upload route and export-time provisioning-profile mapping.
+  `xcodebuild -exportNotarizedApp` succeeded on the first check. No named
+  `notarytool` profile, new certificate or account credential was required.
+- The first archive attempt failed closed on a transient process-inspection
+  error and verified cleanup. The unchanged-source retry with one build job
+  completed Xcode archiving, but supervision correctly reported a retained
+  owned `ibtoold` worker and cleaned it up. Both original failed receipts are
+  retained, not relabeled as passing. Independent signing/notarization/artifact
+  checks support this manually reviewed release; unattended archive-worker
+  lifecycle and older-SDK main-branch CI are still separate follow-ups.
+- Frozen build input SHA-256:
+  `458b6f38ba27224968a5f67b3ac81d8fc2707a71b49c9e4d030897e473e7b178`.
+  Exact asset `Disk-Steward-1.2.3.zip`, SHA-256:
+  `cec8ad08f15319d1acba71dc7df42c9dd3fa6e875e1ac9d52da2403cb0ee185d`.
+  The uploaded GitHub asset was downloaded and matched before publication.
+- Homebrew style and strict online audit passed. The project cask and public
+  `KMerdan/homebrew-disk-steward` tap pin that asset; tap commit
+  `ecba21fed27b94d014126255d5d0084043dd5a2f`. A Homebrew upgrade dry run passed.
+  This publication did not replace the running local 1.2.2 app or reset any
+  evidence/settings. Upgrade the entire bundle, never patch its signed contents.
+- Raw account/build/process records, the submitted archive and notarized app
+  are kept locally under ignored `build/releases/1.2.3/`. Only sanitized notes
+  and the app ZIP are public. See `docs/reliability/releases/1.2.3.md`.
+- Main carries the same metadata guard and regression tests, but still has
+  unfinished schema-15/object work and its older development version settings.
+  Do not build a release directly from main or claim Pyramid increment gates
+  are complete based on this focused schema-14 hotfix publication.
 
 ## Handoff
 
@@ -325,8 +378,10 @@ are retained locally in ignored `build/local-1.2.2/evidence/`; a sanitized
 summary is in `docs/reliability/evidence/HOTFIX-1.2.2/README.md`. This is not a clean
 automated release gate or completion of object-scanner work. Native UI
 inspection timed out; hosted-view regression tests provide the rendering proof.
-The archive is retained in ignored `build/local-1.2.2/`. No GitHub release,
-Homebrew update or Apple notarization submission was performed.
+The archive is retained in ignored `build/local-1.2.2/`. At that local-installation
+checkpoint no GitHub release, Homebrew update or Apple notarization submission
+had been performed. The separately authorized 1.2.2/1.2.3 publication records
+above supersede that historical distribution status, not the plan's open gates.
 
 The first pushed-main CI run (35508020675) failed with the older macOS 15.5
 SDK's non-Sendable UNNotificationSettings crossing the main actor. A separate

@@ -2,7 +2,9 @@
 
 **Subsequent release:** the user later authorized publication. The same focused
 hotfix was notarized and published as v1.2.2, with the matching Homebrew update.
-See [release notes](../../releases/1.2.2.md) and the 1.2.2 record in CONTEXT.md.
+The current release is [1.2.3](../../releases/1.2.3.md), which corrects
+Homebrew's build-number metadata parsing without changing application Swift
+sources. See the 1.2.2/1.2.3 records in CONTEXT.md.
 The local-installation and CI observations below remain historical evidence;
 they do not describe the later artifact's notarization status.
 
