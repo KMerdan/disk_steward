@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+raise SystemExit("Legacy soak admission is closed; see Scripts/Testing/SUPERVISION.md")
 """Fixture-only wall-clock soak supervisor (TASK-572 / FIND-OVERNIGHT).
 
 Creates one disposable fixture tree in a new /private/tmp leaf it owns, then

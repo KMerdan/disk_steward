@@ -52,6 +52,11 @@ final class MonitoringLifecycleController: ObservableObject {
     @Published private(set) var status: MonitoringStatus
     @Published private(set) var latestObservation: MonitoringObservation?
     @Published private(set) var history: [MonitoringStatus] = []
+    @Published private(set) var isSampling = false
+    /// One threshold event, not an unbounded history or a delivery receipt.
+    /// Cleared on process restart; retained across pause and later small changes.
+    @Published private(set) var latestGrowthAlert: VolumeComparison?
+    private var needsCapacityBaseline = true
 
     private let settingsStore: MonitoringSettingsStore
     private let probe: MonitoringProbing
@@ -82,6 +87,8 @@ final class MonitoringLifecycleController: ObservableObject {
     private var canSample: Bool {
         !stopped && !suspendedForSystemSleep && !settingsStore.settings.monitoringPaused && !requiresRecoveryConfirmation
     }
+
+    var canRequestSample: Bool { canSample }
 
     init(
         settingsStore: MonitoringSettingsStore,
@@ -117,6 +124,7 @@ final class MonitoringLifecycleController: ObservableObject {
             self.settingsResumeTask?.cancel()
             self.settingsResumeTask = nil
             self.epoch &+= 1
+            self.needsCapacityBaseline = true
             self.sampleTask?.cancel()
             if settings.monitoringPaused {
                 self.sampleRequestedWhileBusy = false
@@ -231,6 +239,7 @@ final class MonitoringLifecycleController: ObservableObject {
         settingsResumeTask?.cancel()
         settingsResumeTask = nil
         epoch &+= 1
+        needsCapacityBaseline = true
         sampleRequestedWhileBusy = false
         suspendedForSystemSleep = true
         loopTask?.cancel()
@@ -270,6 +279,14 @@ final class MonitoringLifecycleController: ObservableObject {
         }
     }
 
+    /// Synchronous UI entry: one owned sample and at most one coalesced request.
+    /// No detached per-click tasks and no bypass of pause/sleep/quit fencing.
+    func requestSample() {
+        guard canSample else { return }
+        if sampleTask != nil { sampleRequestedWhileBusy = true }
+        else { launchSample() }
+    }
+
     /// Every caller (timer, debounce or manual refresh) shares one owned task.
     /// Cancelling it stops new phases; already-submitted atomic store work may
     /// finish. The safety marker is released only after the probe returns.
@@ -281,6 +298,7 @@ final class MonitoringLifecycleController: ObservableObject {
             guard let self else { return }
             await self.performSample(settings: settings, epoch: sampleEpoch)
             self.sampleTask = nil
+            self.isSampling = false
             self.finishShutdownDrainIfIdle()
             if self.sampleRequestedWhileBusy, self.canSample {
                 self.sampleRequestedWhileBusy = false
@@ -288,6 +306,7 @@ final class MonitoringLifecycleController: ObservableObject {
             }
         }
         sampleTask = task
+        isSampling = true
         return task
     }
 
@@ -298,15 +317,15 @@ final class MonitoringLifecycleController: ObservableObject {
             endSafetyWork()
         }
         do {
-            let observation = try await probe.sample(settings: settings)
+            let sampled = try await probe.sample(settings: settings)
             guard sampleEpoch == epoch, canSample, !Task.isCancelled else { return }
+            let observation = sampled.comparingCapacity(after: needsCapacityBaseline ? nil : latestObservation)
+            needsCapacityBaseline = false
             latestObservation = observation
+            let recovering = status.kind == .degraded
             if probe.changeInbox?.hasPendingChanges == true {
                 transition(.degraded, title: "Reconciling", detail: "New file changes are awaiting durable reconciliation. Retained evidence may be older.")
-                return
-            }
-            let recovering = status.kind == .degraded
-            if let collectorLimitation {
+            } else if let collectorLimitation {
                 transition(.degraded, title: "Degraded", detail: "Scheduled sampling is active, but targeted change hints are unavailable: \(collectorLimitation)")
             } else if !observation.needsScanContinuation, let coverage = observation.evidenceLifecycle?.scanCoverage, coverage.detailCoverage != "complete" {
                 transition(.degraded, title: "Partial coverage", detail: "Volume sampling finished, but some watched locations could not be fully observed. Last-known files remain uncertain, not deleted.")
@@ -319,12 +338,19 @@ final class MonitoringLifecycleController: ObservableObject {
                         : (recovering ? "Disk sampling is healthy again after a degraded sample." : "Volume sampling finished. Check file-detail coverage and observation times before using retained evidence.")
                 )
             }
-            for notification in notificationPolicy.evaluate(observation: observation, settings: settingsStore.settings) {
+            // Capacity alerts describe the measured volume, not dirty file
+            // attribution, so detail reconciliation does not consume/drop them.
+            let notifications = notificationPolicy.evaluate(observation: observation, settings: settingsStore.settings)
+            // Record before permission/delivery suspension: a threshold fact,
+            // not a promise that macOS displayed it.
+            if let comparison = notifications.compactMap(\.growthComparison).last { latestGrowthAlert = comparison }
+            for notification in notifications {
                 guard sampleEpoch == epoch, canSample, !Task.isCancelled else { return }
                 await notificationDelivery.deliver(notification)
             }
         } catch {
             guard sampleEpoch == epoch, canSample, !Task.isCancelled else { return }
+            needsCapacityBaseline = true
             transition(.degraded, title: "Degraded", detail: "Sampling failed: \(error.localizedDescription)")
         }
     }

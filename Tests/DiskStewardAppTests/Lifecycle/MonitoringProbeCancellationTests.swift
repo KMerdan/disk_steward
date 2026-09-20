@@ -5,6 +5,39 @@ import XCTest
 
 @MainActor
 final class MonitoringProbeCancellationTests: XCTestCase {
+    func testProbePreservesSelectedVolumeDecreaseInsteadOfSummingOtherDisks() async throws {
+        for refuseStorage in [false, true] {
+        let fixture = try ProbeCancellationFixture()
+        defer { fixture.remove() }
+        let space = ProbeFixtureFreeSpace()
+        try FileManager.default.createDirectory(at: fixture.database.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let store = try EvidenceStore(url: fixture.database, availableCapacitySource: { _ in space.available })
+        let probe = try PersistentMonitoringProbe(databaseURL: fixture.database, evidenceStore: store,
+            resourceMeasurementSource: { _, underLoad in
+                ResourceMeasurement(cpuPercent: 0, residentBytes: 0, databaseBytes: 0, pendingEvents: 0, receivedEvents: 0, droppedEvents: 0, underLoad: underLoad)
+            }, volumeSampleSource: { _ in
+                if refuseStorage { space.refuse() }
+                let snapshot = StorageSnapshot(snapshotID: "signed-fixture", observedAt: "2026-09-20T00:00:00Z", volumes: [
+                    .init(mountPath: "/", totalBytes: 1_000_000_000_000, availableBytes: 400_000_000_000, isInternal: true, isReadOnly: false),
+                    .init(mountPath: "/other", totalBytes: 100_000_000_000, availableBytes: 50_000_000_000, isInternal: false, isReadOnly: false),
+                ])
+                var growth = VolumeGrowthSample(observedAt: snapshot.observedAt,
+                    usedByteDeltas: ["/": -3_000_000_000, "/other": 9_000_000_000], limitations: [])
+                growth.selectedVolumeIdentity = "UUID-fixture"
+                return (snapshot, growth)
+            })
+        let observation = try await probe.sample(settings: fixture.settings)
+        XCTAssertEqual(observation.growthReport.volumeUsedDelta, -3_000_000_000)
+        XCTAssertEqual(observation.capacity?.identity, "UUID-fixture")
+        XCTAssertEqual(observation.capacity?.volume.mountPath, "/")
+        XCTAssertEqual(observation.scanStalled, refuseStorage)
+        if refuseStorage {
+            XCTAssertTrue(observation.growthReport.limitations.contains { $0.contains("Evidence storage refused new file detail") })
+        }
+        await store.close()
+        }
+    }
+
     func testCommittedCancelledSampleStillAdvancesTheNextVolumeBaseline() async throws {
         for cancelledCommit in [1, 2] {
             let fixture = try ProbeCancellationFixture()
@@ -117,6 +150,13 @@ final class MonitoringProbeCancellationTests: XCTestCase {
             lifecycle.shutdown()
         }
     }
+}
+
+private final class ProbeFixtureFreeSpace: @unchecked Sendable {
+    private let lock = NSLock()
+    private var full = false
+    var available: Int64 { lock.withLock { full ? 0 : 100_000_000_000 } }
+    func refuse() { lock.withLock { full = true } }
 }
 
 private final class CommitCancellationSource: @unchecked Sendable {

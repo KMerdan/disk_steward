@@ -30,8 +30,8 @@ final class ThresholdNotificationPolicyTests: XCTestCase {
     }
 
     private func observation(percent: Int, growthMiB: Int64 = 0) -> MonitoringObservation {
-        let total: Int64 = 1_000
-        let used = Int64(percent) * 10
+        let total: Int64 = 1_000_000_000_000
+        let used = Int64(percent) * (total / 100)
         let snapshot = StorageSnapshot(
             snapshotID: UUID().uuidString,
             observedAt: "2026-09-13T00:00:00.000Z",
@@ -41,6 +41,12 @@ final class ThresholdNotificationPolicyTests: XCTestCase {
             volumeUsedDelta: growthMiB * 1_024 * 1_024,
             detailedEvents: []
         )
-        return MonitoringObservation(observedAt: Date(), snapshot: snapshot, detailedEvents: [], growthReport: report)
+        let previous = MonitoringObservation(observedAt: Date(), snapshot: StorageSnapshot(
+            snapshotID: "previous", observedAt: "2026-09-12T23:59:00.000Z",
+            volumes: [.init(mountPath: "/", totalBytes: total,
+                availableBytes: total - used + growthMiB * 1_024 * 1_024, isInternal: true, isReadOnly: false)]
+        ), detailedEvents: [], growthReport: report, volumeIdentity: "fixture-volume")
+        return MonitoringObservation(observedAt: Date(), snapshot: snapshot, detailedEvents: [], growthReport: report,
+            volumeIdentity: "fixture-volume").comparingCapacity(after: previous)
     }
 }

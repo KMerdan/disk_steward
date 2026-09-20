@@ -11,14 +11,16 @@ import os
 from pathlib import Path
 import pwd
 import re
-import selectors
 import shutil
 import signal
 import stat
-import subprocess
 import sys
 import tempfile
 import time
+
+# Also support the handoff harness's importlib loading from another directory.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from process_supervisor import run_command
 
 
 INPUTS = ("Package.swift", "Sources", "Tests", "Config", "Scripts", "DiskSteward.xcodeproj",
@@ -100,57 +102,6 @@ def clean_environment(scratch):
             "DISK_STEWARD_SOCKET_PATH": str(scratch / "never-listening.sock")}
 
 
-def run_command(command, cwd, environment, log, seconds, maximum_log_bytes=8 * 1024**2, stdin_path=None):
-    started = time.monotonic()
-    reason = None
-    retained = 0
-    with log.open("xb") as output:
-        # Small owned transcript files avoid a blocking pipe write before output
-        # draining starts. The helper receives EOF after the transcript.
-        source = stdin_path.open("rb") if stdin_path else None
-        try:
-            child = subprocess.Popen(command, cwd=cwd, env=environment,
-                                     stdin=source if source else subprocess.DEVNULL,
-                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
-        finally:
-            if source:
-                source.close()
-        selector = selectors.DefaultSelector()
-        selector.register(child.stdout, selectors.EVENT_READ)
-        try:
-            while True:
-                if time.monotonic() - started >= seconds:
-                    reason = "timeout"
-                    break
-                if selector.select(timeout=0.05):
-                    data = os.read(child.stdout.fileno(), 65536)
-                    if not data:
-                        break
-                    remaining = maximum_log_bytes - retained
-                    output.write(data[:remaining])
-                    retained += min(len(data), remaining)
-                    if len(data) > remaining:
-                        reason = "output-limit"
-                        break
-            if reason is None:
-                try:
-                    child.wait(timeout=max(0.01, seconds - (time.monotonic() - started)))
-                except subprocess.TimeoutExpired:
-                    reason = "timeout"
-        finally:
-            selector.close()
-            child.stdout.close()
-            # Own session only, including an accidentally retained descendant.
-            try:
-                os.killpg(child.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            child.wait(timeout=5)
-    return {"command": command, "exitCode": child.returncode, "stopReason": reason,
-            "seconds": time.monotonic() - started, "log": log.name,
-            "logSHA256": sha256(log), "passed": child.returncode == 0 and reason is None}
-
-
 def sentinel_passed(log):
     # A discovered/skipped test name is not evidence that the scenario ran.
     return re.search(r"Test Case [^\n]*\b" + SENTINEL_TEST + r"(?:\]'|') passed\b", log.read_text()) is not None
@@ -211,10 +162,14 @@ def verify(repository, output, xcodegen=None):
         manifest = input_manifest(repository)
         report["inputManifest"] = manifest
         report["inputSHA256"] = manifest_digest(manifest)
-        report["revision"] = subprocess.check_output(["/usr/bin/git", "rev-parse", "HEAD"], cwd=repository,
-                                                     env=environment, text=True, timeout=5).strip()
-        report["dirtyWorktree"] = bool(subprocess.check_output(["/usr/bin/git", "status", "--porcelain", "--untracked-files=normal"],
-                                                              cwd=repository, env=environment, timeout=5))
+        for label, arguments in (("revision", ["rev-parse", "HEAD"]),
+                                 ("worktree", ["status", "--porcelain", "--untracked-files=normal"])):
+            check = run_command(["/usr/bin/git", *arguments], repository, environment, output / (label + ".log"), 10)
+            report["checks"].append({**check, "stage": label})
+            if not check["passed"]:
+                raise ValueError("Source metadata inspection failed: " + label)
+        report["revision"] = (output / "revision.log").read_text().strip()
+        report["dirtyWorktree"] = bool((output / "worktree.log").read_text().strip())
         snapshot = scratch / "project"
         copy_inputs(repository, snapshot, manifest)
         report["compatibility"] = compatibility_notes(snapshot)

@@ -1,3 +1,5 @@
+raise SystemExit("Legacy rollback admission is closed; see Scripts/Testing/SUPERVISION.md")
+
 """Migration and compatible-binary rollback rehearsal (TASK-572 / FIND-ROLLBACK).
 
 Everything happens inside one fresh private directory under /private/tmp. The

@@ -41,14 +41,14 @@ final class StatusBoardPresentationTests: XCTestCase {
         )
         await lifecycle.sampleNow()
         let model = StatusBoardViewModel(snapshotLoader: { fixture.snapshot }, lifecycle: lifecycle)
-        model.refresh()
 
         XCTAssertEqual(model.capacityHealth, .healthy)
         XCTAssertTrue(model.availableSummary.hasSuffix("free"))
         XCTAssertTrue(model.capacitySummary.contains("used of"))
-        XCTAssertTrue(model.growthSummary.hasPrefix("−"))
-        XCTAssertEqual(model.growthDetail, "Since the previous sample")
-        XCTAssertTrue(model.evidenceFreshnessSummary.hasPrefix("Evidence "))
+        // An injected explanation delta alone is not a measured UI baseline.
+        XCTAssertEqual(model.growthSummary, "Awaiting growth baseline")
+        XCTAssertEqual(model.growthDetail, "Needs another comparable capacity sample")
+        XCTAssertEqual(model.evidenceFreshnessSummary, "File detail: no complete scan recorded")
         XCTAssertTrue(model.evidenceStorageSummary.hasPrefix("Database "))
     }
 
@@ -62,7 +62,6 @@ final class StatusBoardPresentationTests: XCTestCase {
         )
         await lifecycle.sampleNow()
         let model = StatusBoardViewModel(snapshotLoader: { fixture.snapshot }, lifecycle: lifecycle)
-        model.refresh()
 
         let temporary = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString, directoryHint: .isDirectory)
         try FileManager.default.createDirectory(at: temporary, withIntermediateDirectories: true)
@@ -164,6 +163,7 @@ private func fixtureObservation(growth: Int64) -> MonitoringObservation {
         snapshot: snapshot,
         detailedEvents: [],
         growthReport: GrowthExplanationEngine().explain(volumeUsedDelta: growth, detailedEvents: []),
-        evidenceLifecycle: evidence
+        evidenceLifecycle: evidence,
+        volumeIdentity: "fixture-volume-uuid"
     )
 }

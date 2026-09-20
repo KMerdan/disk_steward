@@ -6,6 +6,15 @@ import XCTest
 
 @MainActor
 final class NotificationDeliveryTests: XCTestCase {
+    func testUncancelledComparablePairDeliversBothThresholdAlerts() async throws {
+        let fixture = makeFixture(status: .authorized)
+        let run = fixture.sample()
+        try await eventually { run.finished }
+        XCTAssertEqual(fixture.center.requests.count, 2)
+        XCTAssertTrue(fixture.center.requests.contains { $0.content.title == "Material disk growth detected" })
+        XCTAssertNotNil(fixture.lifecycle.latestGrowthAlert)
+    }
+
     func testStopDuringSettingsReadPreventsPromptAndSubmission() async throws {
         for action in StopAction.allCases {
             for status in [UNAuthorizationStatus.authorized, .notDetermined] {
@@ -175,7 +184,12 @@ private final class NotificationLifecycleFixture {
 
     func sample() -> NotificationSampleRun {
         let run = NotificationSampleRun()
-        Task { await lifecycle.sampleNow(); run.finished = true }
+        Task {
+            // Establish a real comparable baseline before both thresholds cross.
+            await lifecycle.sampleNow()
+            await lifecycle.sampleNow()
+            run.finished = true
+        }
         return run
     }
 
@@ -185,10 +199,13 @@ private final class NotificationLifecycleFixture {
     }
 }
 
-private struct NotificationThresholdProbe: MonitoringProbing {
+private actor NotificationThresholdProbe: MonitoringProbing {
+    private var index = 0
     func sample(settings: MonitoringSettings) async throws -> MonitoringObservation {
-        let snapshot = StorageSnapshot(snapshotID: UUID().uuidString, observedAt: "2026-09-17T00:00:00.000Z", volumes: [.init(mountPath: "/", totalBytes: 1_000, availableBytes: 100, isInternal: true, isReadOnly: false)])
-        return MonitoringObservation(observedAt: Date(timeIntervalSince1970: 1_789_603_200), snapshot: snapshot, detailedEvents: [], growthReport: GrowthExplanationEngine().explain(volumeUsedDelta: 2 * 1_024 * 1_024, detailedEvents: []))
+        index += 1
+        let date = Date(timeIntervalSince1970: 1_789_603_200 + Double(index) * 60)
+        let snapshot = StorageSnapshot(snapshotID: "notification-\(index)", observedAt: VolumeSnapshotService.timestamp(date), volumes: [.init(mountPath: "/", totalBytes: 1_000_000_000, availableBytes: index == 1 ? 600_000_000 : 100_000_000, isInternal: true, isReadOnly: false)])
+        return MonitoringObservation(observedAt: date, snapshot: snapshot, detailedEvents: [], growthReport: GrowthExplanationEngine().explain(volumeUsedDelta: 500_000_000, detailedEvents: []), volumeIdentity: "notification-volume-uuid")
     }
 }
 
