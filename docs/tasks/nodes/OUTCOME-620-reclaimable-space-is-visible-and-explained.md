@@ -57,13 +57,15 @@ A user opens the app and sees which objects hold the reclaimable space, how stal
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-SCANNER`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-SCANNER`, `ASSET-STORE`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-613-1`
 
 ### Assurance Blockers
 
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
+- Required inspection INSPECT-TASK-611-1 is stale
 

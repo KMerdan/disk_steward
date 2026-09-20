@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-gd2zuqdb/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-gd2zuqdb/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-gd2zuqdb/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectRowCollapseTests|ObjectClassificationTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 36.42539225,
+ "log": "tests.log",
+ "logSHA256": "359f447cf3791b0a0b17ae6f9b0028483d5b0f876069a2d8376b6a59f9c20583",
+ "passed": false,
+ "baseInputSHA256": "ff1fb5e6d8ed0cb7575dff16c57e8cde8e6711b22340ed7bdb2059e60f6c29cc",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "a repository is offered as a cleanup candidate",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+    "replacements": [
+     [
+      "    public var isCleanupCandidate: Bool { kind != .repository }",
+      "    public var isCleanupCandidate: Bool { true }"
+     ]
+    ]
+   }
+  ]
+ }
+}

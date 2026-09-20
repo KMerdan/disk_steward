@@ -5,7 +5,7 @@ import Foundation
 public actor EvidenceStore {
     /// Highest schema this build understands; migrations run up to it and a
     /// newer on-disk schema is refused rather than partially interpreted.
-    static let currentSchemaVersion: Int64 = 14
+    static let currentSchemaVersion: Int64 = 15
 
     public typealias DateSource = @Sendable () -> Date
     public typealias ReconciliationCheckpoint = @Sendable (String) throws -> Void
@@ -3890,7 +3890,8 @@ public actor EvidenceStore {
         return (attributes?[.size] as? NSNumber)?.int64Value ?? 0
     }
 
-    private func requireConnection() throws -> SQLiteConnection {
+    /// `internal` so the object-row extension in this module can reach it.
+    func requireConnection() throws -> SQLiteConnection {
         guard let connection else { throw EvidenceStoreError.closed }
         return connection
     }
@@ -4620,6 +4621,40 @@ public actor EvidenceStore {
                     """)
             }
         }
+        if version < 15 {
+            try connection.transaction {
+                // One row per classified object: a build-output directory, a
+                // shared cache or a repository. Per-file rows inside an object
+                // are collapsed into it by an explicit, interruptible pass;
+                // this step only makes the row available.
+                try connection.execute("""
+                    CREATE TABLE IF NOT EXISTS current_objects (
+                        path TEXT PRIMARY KEY NOT NULL,
+                        kind TEXT NOT NULL CHECK(kind IN ('artifact', 'cache', 'repository')),
+                        detection_rule TEXT NOT NULL,
+                        confidence TEXT NOT NULL CHECK(confidence IN ('high', 'medium')),
+                        reason TEXT NOT NULL,
+                        owning_project_path TEXT,
+                        owning_project_marker TEXT,
+                        logical_bytes INTEGER NOT NULL DEFAULT 0 CHECK(logical_bytes >= 0),
+                        file_count INTEGER NOT NULL DEFAULT 0 CHECK(file_count >= 0),
+                        measured_at REAL,
+                        dirty INTEGER NOT NULL DEFAULT 1 CHECK(dirty IN (0, 1)),
+                        project_last_activity REAL,
+                        rebuild_command TEXT,
+                        -- A candidate always requires review, and a repository
+                        -- is never a candidate at all.
+                        review_required INTEGER NOT NULL DEFAULT 1 CHECK(review_required = 1),
+                        observed_at REAL NOT NULL,
+                        -- An aggregate without the time it was measured is not
+                        -- publishable, so the two are constrained together.
+                        CHECK((logical_bytes = 0 AND file_count = 0) OR measured_at IS NOT NULL)
+                    ) WITHOUT ROWID;
+                    CREATE INDEX IF NOT EXISTS current_objects_kind_bytes ON current_objects(kind, logical_bytes DESC);
+                    PRAGMA user_version=15;
+                    """)
+            }
+        }
         guard try connection.scalarText("PRAGMA quick_check") == "ok" else {
             throw EvidenceStoreError.sqlite(code: SQLITE_CORRUPT, message: "Database integrity check failed")
         }
@@ -5341,7 +5376,7 @@ public actor EvidenceStore {
         }
     }
 
-    private static func columnString(_ statement: OpaquePointer, column: Int32) -> String? {
+    static func columnString(_ statement: OpaquePointer, column: Int32) -> String? {
         guard sqlite3_column_type(statement, column) != SQLITE_NULL,
               let value = sqlite3_column_text(statement, column)
         else { return nil }

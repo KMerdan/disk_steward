@@ -1,0 +1,69 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-613",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "CHECK-613-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/candidate/candidate.json",
+    "docs/reliability/evidence/TASK-613/candidate/tests.log",
+    "Full isolated verifier on input ff1fb5e6d8ed0cb7575dff16c57e8cde8e6711b22340ed7bdb2059e60f6c29cc: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 577 tests, 0 failures."
+   ]
+  },
+  {
+   "id": "CHECK-613-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/object-rows.md",
+    "docs/reliability/evidence/TASK-613/focused-green/tests.log",
+    "Eight isolated cases: the collapse removes only rows inside the object and leaves other evidence identical, an interrupted collapse commits what it finished and resumes, a second pass changes nothing, a repository is stored but never a candidate, and a size without its measurement time cannot be written."
+   ]
+  },
+  {
+   "id": "CHECK-613-03",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/rollback-rehearsal/report.json",
+    "Migration 14 to 15 rehearsed against baseline 97c3a7f15d98, interrupted at each checkpoint and recovered, with the baseline binary refusing the newer schema and the restored backup opening again (AC-TASK-613-01)."
+   ]
+  },
+  {
+   "id": "CHECK-613-04",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/collapse-scope-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-613/measured-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-613/repository-offered-mutation-red/result.json",
+    "Non-vacuity: unbounding the delete, removing the measurement-time constraint, or offering a repository each fails its cases. A fourth mutation changed nothing observable and was discarded rather than counted."
+   ]
+  },
+  {
+   "id": "CHECK-613-05",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/assurance-candidate.json",
+    "Assurance reviewed: IMPACT-TASK-613-STORE, IMPACT-TASK-613-ASSURANCE confirmed; INSPECT-TASK-613-1 performed after the implementation event and sufficient; drift reconciled; the rollback control now carries the rehearsal this task owed."
+   ]
+  }
+ ],
+ "affected_claims": [],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-TASK-613-STORE",
+   "IMPACT-TASK-613-ASSURANCE"
+  ],
+  "inspection_ids": [
+   "INSPECT-TASK-613-1"
+  ],
+  "finding_ids": [],
+  "scope_review": "complete",
+  "limitations": [
+   "The rehearsal store is synthetic rather than a copy of an installed one.",
+   "Nothing measures subtree sizes until TASK-621, so most rows carry no aggregate.",
+   "The auditor also implemented the task; independence rests on isolated reruns, three mutation reds and the archived rehearsal."
+  ]
+ }
+}

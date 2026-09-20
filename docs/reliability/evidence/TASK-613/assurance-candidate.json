@@ -1,0 +1,491 @@
+{
+ "schema": "pyramid-assurance-v1",
+ "plan_id": "PLAN-DISK-STEWARD-006",
+ "baseline_id": "BASELINE-DISK-STEWARD",
+ "baseline_revision": 4,
+ "policy": "brownfield",
+ "status": "stale",
+ "updated_at": "2026-09-20T03:48:40Z",
+ "updated_by": "claude",
+ "enforce_from_graph_version": 1,
+ "impacts": [
+  {
+   "id": "IMPACT-RESEARCH-601-BUILD",
+   "asset_id": "ASSET-BUILD",
+   "task_ids": [
+    "RESEARCH-601"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "Scripts/Testing/measure_object_detection.py",
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+   ],
+   "path": [
+    "RESEARCH-601",
+    "ASSET-BUILD"
+   ]
+  },
+  {
+   "id": "IMPACT-RESEARCH-601-ASSURANCE",
+   "asset_id": "ASSET-ASSURANCE",
+   "task_ids": [
+    "RESEARCH-601"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+    "docs/reliability/evidence/RESEARCH-601/agent-result.json"
+   ],
+   "path": [
+    "RESEARCH-601",
+    "ASSET-ASSURANCE"
+   ]
+  },
+  {
+   "id": "IMPACT-CONTRACT-601-ASSURANCE",
+   "asset_id": "ASSET-ASSURANCE",
+   "task_ids": [
+    "CONTRACT-601"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+   ],
+   "path": [
+    "CONTRACT-601",
+    "ASSET-ASSURANCE"
+   ]
+  },
+  {
+   "id": "IMPACT-TASK-611-SCANNER",
+   "asset_id": "ASSET-SCANNER",
+   "task_ids": [
+    "TASK-611"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+    "Sources/DiskStewardCore/Monitoring/GitRepositoryOracle.swift",
+    "docs/reliability/evidence/TASK-611/classification.md"
+   ],
+   "path": [
+    "TASK-611",
+    "ASSET-SCANNER"
+   ]
+  },
+  {
+   "id": "IMPACT-TASK-611-ASSURANCE",
+   "asset_id": "ASSET-ASSURANCE",
+   "task_ids": [
+    "TASK-611"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "docs/reliability/evidence/TASK-611/classification.md",
+    "docs/reliability/evidence/TASK-611/candidate/candidate.json"
+   ],
+   "path": [
+    "TASK-611",
+    "ASSET-ASSURANCE"
+   ]
+  },
+  {
+   "id": "IMPACT-TASK-613-STORE",
+   "asset_id": "ASSET-STORE",
+   "task_ids": [
+    "TASK-613"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::migrate",
+    "docs/reliability/evidence/TASK-613/object-rows.md"
+   ],
+   "path": [
+    "TASK-613",
+    "ASSET-STORE"
+   ]
+  },
+  {
+   "id": "IMPACT-TASK-613-ASSURANCE",
+   "asset_id": "ASSET-ASSURANCE",
+   "task_ids": [
+    "TASK-613"
+   ],
+   "type": "direct",
+   "status": "confirmed",
+   "confidence": "high",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/object-rows.md",
+    "docs/reliability/evidence/TASK-613/rollback-rehearsal/report.json"
+   ],
+   "path": [
+    "TASK-613",
+    "ASSET-ASSURANCE"
+   ]
+  }
+ ],
+ "inspections": [
+  {
+   "id": "INSPECT-RESEARCH-601-1",
+   "asset_ids": [
+    "ASSET-BUILD",
+    "ASSET-ASSURANCE"
+   ],
+   "task_ids": [
+    "RESEARCH-601"
+   ],
+   "method": "Confirm the measurement tool only reads: no write, move or delete in a measured corpus and no project tooling executed; confirm the fixture self-test asserts the deciding rule for every case including the tracked refusal; confirm every claim in the note resolves to measurement.json or candidates.jsonl from the archived runs.",
+   "required": true,
+   "refresh": "per-change",
+   "invalidating_changes": [
+    "Scripts/Testing/measure_object_detection.py"
+   ],
+   "status": "stale",
+   "result": "pass",
+   "sufficiency": "sufficient",
+   "performed_at": "2026-09-20T03:24:06Z",
+   "performed_by": "claude",
+   "evidence": [
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+    "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
+    "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+    "Scripts/Testing/measure_object_detection.py"
+   ],
+   "limitations": [
+    "One corpus on one macOS machine.",
+    "Sizes are logical lstat bytes, not allocated blocks.",
+    "The rules are measured here, not yet consumed by product code.",
+    "Scope drift from TASK-611 invalidated this inspection.",
+    "Implementation result for TASK-611 changed covered assets after this inspection: ASSET-ASSURANCE.",
+    "Scope drift from TASK-613 invalidated this inspection.",
+    "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE."
+   ],
+   "validated_through": {
+    "RESEARCH-601": "EVENT-20260920T032323566863Z-71BDA108"
+   }
+  },
+  {
+   "id": "INSPECT-CONTRACT-601-1",
+   "asset_ids": [
+    "ASSET-ASSURANCE"
+   ],
+   "task_ids": [
+    "CONTRACT-601"
+   ],
+   "method": "Confirm every contract rule names the task that proves it and a check that can hold it; confirm the detection order and confidence vocabulary match the measured outcome of RESEARCH-601; confirm no rule weakens an inherited guarantee of the closed reliability plan.",
+   "required": true,
+   "refresh": "pre-audit",
+   "invalidating_changes": [
+    "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md"
+   ],
+   "status": "stale",
+   "result": "pass",
+   "sufficiency": "sufficient",
+   "performed_at": "2026-09-20T03:25:48Z",
+   "performed_by": "claude",
+   "evidence": [
+    "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+    "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+    "docs/reliability/evidence/CONTRACT-510/safety-contract.md",
+    "docs/reliability/planning/plan-006-candidate.json"
+   ],
+   "limitations": [
+    "A contract is a specification: it states what must hold, and proves nothing on its own.",
+    "The override path for unresolved candidates is deliberately unspecified and belongs to a later task.",
+    "Scope drift from TASK-611 invalidated this inspection.",
+    "Implementation result for TASK-611 changed covered assets after this inspection: ASSET-ASSURANCE.",
+    "Scope drift from TASK-613 invalidated this inspection.",
+    "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE."
+   ],
+   "validated_through": {
+    "CONTRACT-601": "EVENT-20260920T032547332638Z-397B9D6B"
+   }
+  },
+  {
+   "id": "INSPECT-TASK-611-1",
+   "asset_ids": [
+    "ASSET-SCANNER",
+    "ASSET-ASSURANCE"
+   ],
+   "task_ids": [
+    "TASK-611"
+   ],
+   "method": "Confirm the rule order matches CONTRACT-601 and RESEARCH-601; confirm tracked source is refused before any other rule and that an optional oracle answer cannot decide by accident; confirm classification performs no write and executes no project tooling; confirm each acceptance case has a test and that disabling a load-bearing rule fails it.",
+   "required": true,
+   "refresh": "per-change",
+   "invalidating_changes": [
+    "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+    "Sources/DiskStewardCore/Monitoring/GitRepositoryOracle.swift"
+   ],
+   "status": "stale",
+   "result": "pass",
+   "sufficiency": "sufficient",
+   "performed_at": "2026-09-20T03:35:10Z",
+   "performed_by": "claude",
+   "evidence": [
+    "docs/reliability/evidence/TASK-611/classification.md",
+    "docs/reliability/evidence/TASK-611/candidate/candidate.json",
+    "docs/reliability/evidence/TASK-611/candidate/tests.log",
+    "docs/reliability/evidence/TASK-611/focused-green/tests.log",
+    "docs/reliability/evidence/TASK-611/tracked-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-611/marker-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-611/classification-source-manifest.json",
+    "docs/reliability/evidence/CONTRACT-601/object-contract.md"
+   ],
+   "limitations": [
+    "The unit tests script the repository's answers; no git process runs in them.",
+    "Nothing in the product calls the classifier until TASK-612 wires it.",
+    "Detection covers the ecosystems the RESEARCH-601 corpus contained.",
+    "Scope drift from TASK-613 invalidated this inspection.",
+    "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE."
+   ],
+   "validated_through": {
+    "TASK-611": "EVENT-20260920T033509605992Z-10657775"
+   }
+  },
+  {
+   "id": "INSPECT-TASK-613-1",
+   "asset_ids": [
+    "ASSET-STORE",
+    "ASSET-ASSURANCE"
+   ],
+   "task_ids": [
+    "TASK-613"
+   ],
+   "method": "Confirm the object row carries the contract's fields and that review-required and the measurement-time rule are enforced by the schema, not by convention; confirm a collapse is transactional per object, bounded to its own subtree, closes bindings rather than deleting them, is idempotent and resumes after interruption; confirm the migration from the previous schema is rehearsed with a working rollback to the baseline binary.",
+   "required": true,
+   "refresh": "per-change",
+   "invalidating_changes": [
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+    "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
+   ],
+   "status": "performed",
+   "result": "pass",
+   "sufficiency": "sufficient",
+   "performed_at": "2026-09-20T03:48:40Z",
+   "performed_by": "claude",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/object-rows.md",
+    "docs/reliability/evidence/TASK-613/candidate/candidate.json",
+    "docs/reliability/evidence/TASK-613/focused-green/tests.log",
+    "docs/reliability/evidence/TASK-613/collapse-scope-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-613/measured-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-613/repository-offered-mutation-red/result.json",
+    "docs/reliability/evidence/TASK-613/rollback-rehearsal/report.json",
+    "docs/reliability/evidence/TASK-613/object-rows-source-manifest.json"
+   ],
+   "limitations": [
+    "The rehearsal store is synthetic, written by the baseline library, not a copy of an installed store.",
+    "Aggregates are supplied by the caller; nothing measures a subtree until TASK-621.",
+    "Choosing which directories are objects is TASK-612."
+   ]
+  }
+ ],
+ "findings": [],
+ "scope_drift": [
+  {
+   "id": "DRIFT-1E4DB6BD548F",
+   "task": "RESEARCH-601",
+   "changed_file": "Scripts/Testing/measure_object_detection.py",
+   "matched_asset_ids": [
+    "ASSET-BUILD"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:23:23.565365Z",
+   "resolved_impact_id": "IMPACT-RESEARCH-601-BUILD",
+   "resolution": "First task of a fresh intent: the measurement tool and its evidence are the declared deliverable of RESEARCH-601, now covered by an impact record."
+  },
+  {
+   "id": "DRIFT-B70C9743610E",
+   "task": "RESEARCH-601",
+   "changed_file": "asset:ASSET-BUILD",
+   "matched_asset_ids": [
+    "ASSET-BUILD"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:23:23.565519Z",
+   "resolved_impact_id": "IMPACT-RESEARCH-601-BUILD",
+   "resolution": "First task of a fresh intent: the measurement tool and its evidence are the declared deliverable of RESEARCH-601, now covered by an impact record."
+  },
+  {
+   "id": "DRIFT-DF2ED31022E6",
+   "task": "RESEARCH-601",
+   "changed_file": "asset:ASSET-ASSURANCE",
+   "matched_asset_ids": [
+    "ASSET-ASSURANCE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:23:23.565524Z",
+   "resolved_impact_id": "IMPACT-RESEARCH-601-ASSURANCE",
+   "resolution": "First task of a fresh intent: the measurement tool and its evidence are the declared deliverable of RESEARCH-601, now covered by an impact record."
+  },
+  {
+   "id": "DRIFT-DE86BD5F4C05",
+   "task": "TASK-611",
+   "changed_file": "Sources/DiskStewardCore/Monitoring/GitRepositoryOracle.swift",
+   "matched_asset_ids": [
+    "ASSET-SCANNER"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:35:09.603949Z",
+   "resolved_impact_id": "IMPACT-TASK-611-SCANNER",
+   "resolution": "Classification engine and its evidence are the declared deliverable of TASK-611."
+  },
+  {
+   "id": "DRIFT-6A6437213A8B",
+   "task": "TASK-611",
+   "changed_file": "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+   "matched_asset_ids": [
+    "ASSET-SCANNER"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:35:09.604088Z",
+   "resolved_impact_id": "IMPACT-TASK-611-SCANNER",
+   "resolution": "Classification engine and its evidence are the declared deliverable of TASK-611."
+  },
+  {
+   "id": "DRIFT-7770857F3778",
+   "task": "TASK-611",
+   "changed_file": "Tests/DiskStewardCoreTests/Monitoring/ObjectClassificationTests.swift",
+   "matched_asset_ids": [
+    "ASSET-SCANNER"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:35:09.604092Z",
+   "resolved_impact_id": "IMPACT-TASK-611-SCANNER",
+   "resolution": "Classification engine and its evidence are the declared deliverable of TASK-611."
+  },
+  {
+   "id": "DRIFT-D9EA26A9DDBF",
+   "task": "TASK-611",
+   "changed_file": "asset:ASSET-SCANNER",
+   "matched_asset_ids": [
+    "ASSET-SCANNER"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:35:09.604094Z",
+   "resolved_impact_id": "IMPACT-TASK-611-SCANNER",
+   "resolution": "Classification engine and its evidence are the declared deliverable of TASK-611."
+  },
+  {
+   "id": "DRIFT-47A61BF35F9B",
+   "task": "TASK-611",
+   "changed_file": "asset:ASSET-ASSURANCE",
+   "matched_asset_ids": [
+    "ASSET-ASSURANCE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:35:09.604096Z",
+   "resolved_impact_id": "IMPACT-TASK-611-ASSURANCE",
+   "resolution": "Classification engine and its evidence are the declared deliverable of TASK-611."
+  },
+  {
+   "id": "DRIFT-B1B4793EC155",
+   "task": "TASK-613",
+   "changed_file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+   "matched_asset_ids": [
+    "ASSET-STORE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:48:38.925071Z",
+   "resolved_impact_id": "IMPACT-TASK-613-STORE",
+   "resolution": "Object row, collapse and their evidence are the declared deliverable of TASK-613."
+  },
+  {
+   "id": "DRIFT-8FA7456411BC",
+   "task": "TASK-613",
+   "changed_file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+   "matched_asset_ids": [
+    "ASSET-STORE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:48:38.925213Z",
+   "resolved_impact_id": "IMPACT-TASK-613-STORE",
+   "resolution": "Object row, collapse and their evidence are the declared deliverable of TASK-613."
+  },
+  {
+   "id": "DRIFT-24E73A31319B",
+   "task": "TASK-613",
+   "changed_file": "Tests/DiskStewardCoreTests/EvidenceStore/ObjectRowCollapseTests.swift",
+   "matched_asset_ids": [
+    "ASSET-STORE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:48:38.925217Z",
+   "resolved_impact_id": "IMPACT-TASK-613-STORE",
+   "resolution": "Object row, collapse and their evidence are the declared deliverable of TASK-613."
+  },
+  {
+   "id": "DRIFT-1016C496D17C",
+   "task": "TASK-613",
+   "changed_file": "asset:ASSET-STORE",
+   "matched_asset_ids": [
+    "ASSET-STORE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:48:38.925220Z",
+   "resolved_impact_id": "IMPACT-TASK-613-STORE",
+   "resolution": "Object row, collapse and their evidence are the declared deliverable of TASK-613."
+  },
+  {
+   "id": "DRIFT-7F9C2EAD26CD",
+   "task": "TASK-613",
+   "changed_file": "asset:ASSET-ASSURANCE",
+   "matched_asset_ids": [
+    "ASSET-ASSURANCE"
+   ],
+   "status": "resolved",
+   "detected_at": "2026-09-20T03:48:38.925222Z",
+   "resolved_impact_id": "IMPACT-TASK-613-ASSURANCE",
+   "resolution": "Object row, collapse and their evidence are the declared deliverable of TASK-613."
+  }
+ ],
+ "controls": {
+  "rollback": {
+   "status": "ready",
+   "evidence": [
+    "docs/reliability/evidence/TASK-613/rollback-rehearsal/report.json",
+    "docs/reliability/evidence/TASK-613/rollback-rehearsal/rehearsal.log",
+    "Scripts/Testing/rehearse_migration_rollback.py"
+   ],
+   "rationale": "Schema 14 to 15 rehearsed against baseline 97c3a7f15d98: the migration is interruptible at every exposed checkpoint and recovers, the baseline binary refuses the newer schema on a scratch copy rather than corrupting it, and a restored backup opens with the baseline again."
+  },
+  "monitoring": {
+   "status": "not-applicable",
+   "evidence": [
+    "docs/reliability/evidence/TASK-611/classification.md"
+   ],
+   "rationale": "The classifier compiles into the core but no product path calls it yet, so there is nothing running to monitor. TASK-612 wires it into the scanner and must replace this record with real coverage."
+  }
+ },
+ "legacy_bridge": {
+  "required": false,
+  "status": "not-required",
+  "gap_asset_ids": [],
+  "evidence": [],
+  "upgraded_from": null
+ },
+ "stale_reasons": [
+  "Unexpected implementation scope was recorded for TASK-611: DRIFT-DE86BD5F4C05, DRIFT-6A6437213A8B, DRIFT-7770857F3778, DRIFT-D9EA26A9DDBF, DRIFT-47A61BF35F9B",
+  "Implementation for TASK-611 changed assets ASSET-ASSURANCE; post-change inspection is required.",
+  "Unexpected implementation scope was recorded for TASK-613: DRIFT-B1B4793EC155, DRIFT-8FA7456411BC, DRIFT-24E73A31319B, DRIFT-1016C496D17C, DRIFT-7F9C2EAD26CD",
+  "Implementation for TASK-613 changed assets ASSET-ASSURANCE; post-change inspection is required."
+ ]
+}

@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-ij2gfut3/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-ij2gfut3/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-ij2gfut3/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectRowCollapseTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 34.31045725,
+ "log": "tests.log",
+ "logSHA256": "89aca4aba8626d22dafddf4857afaa42dc63cdf1bbc536c76b58f139f23cb4fb",
+ "passed": false,
+ "baseInputSHA256": "ff1fb5e6d8ed0cb7575dff16c57e8cde8e6711b22340ed7bdb2059e60f6c29cc",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "collapse deletes by prefix without the upper bound, so it can reach rows outside the object",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+    "replacements": [
+     [
+      "        try connection.withStatement(\"DELETE FROM current_file_state WHERE path >= ? AND path < ?\") { statement in\n            try connection.bind(prefix, at: 1, in: statement)\n            try connection.bind(prefix + \"\\u{10FFFF}\", at: 2, in: statement)",
+      "        try connection.withStatement(\"DELETE FROM current_file_state WHERE path >= ? AND path < ?\") { statement in\n            try connection.bind(prefix, at: 1, in: statement)\n            try connection.bind(\"\\u{10FFFF}\", at: 2, in: statement)"
+     ]
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-m5ngmu4f/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-m5ngmu4f/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-m5ngmu4f/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectRowCollapseTests|ObjectClassificationTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 35.479546541000005,
+ "log": "tests.log",
+ "logSHA256": "0df202098b3735273096d1586efb20625cf59ce56053c734b0453df51dba0f8e",
+ "passed": false,
+ "baseInputSHA256": "ff1fb5e6d8ed0cb7575dff16c57e8cde8e6711b22340ed7bdb2059e60f6c29cc",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "a size without the time it was measured becomes publishable",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+    "replacements": [
+     [
+      "                        CHECK((logical_bytes = 0 AND file_count = 0) OR measured_at IS NOT NULL)",
+      "                        CHECK(1 = 1)"
+     ]
+    ]
+   }
+  ]
+ }
+}
