@@ -1,0 +1,3 @@
+{"name": "an interrupted collapse loses the object row it already wrote",
+ "mutations": [{"file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+  "replacements": [["                try checkpoint(\"before-object-\\(object.path)\")\n                try connection.transaction {\n                    try Self.upsertObject(object, connection: connection)", "                try connection.transaction {\n                    try checkpoint(\"before-object-\\(object.path)\")\n                    try Self.upsertObject(object, connection: connection)"]]}]}

@@ -1,0 +1,3 @@
+{"name": "collapse deletes by prefix without the upper bound, so it can reach rows outside the object",
+ "mutations": [{"file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+  "replacements": [["        try connection.withStatement(\"DELETE FROM current_file_state WHERE path >= ? AND path < ?\") { statement in\n            try connection.bind(prefix, at: 1, in: statement)\n            try connection.bind(prefix + \"\\u{10FFFF}\", at: 2, in: statement)", "        try connection.withStatement(\"DELETE FROM current_file_state WHERE path >= ? AND path < ?\") { statement in\n            try connection.bind(prefix, at: 1, in: statement)\n            try connection.bind(\"\\u{10FFFF}\", at: 2, in: statement)"]]}]}
