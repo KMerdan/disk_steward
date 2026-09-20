@@ -1,0 +1,68 @@
+{
+ "schema": "pyramid-handoff-draft-v1",
+ "issued_by": "claude, by hand",
+ "issued_at": "2026-09-20T02:15:00Z",
+ "not_a_runtime_record": "PLAN-DISK-STEWARD-005 is completed with no owned task, so `pyramid pause` cannot issue a canonical handoff. This file follows the same contract so the next session can resume from it.",
+ "plan": {
+  "id": "PLAN-DISK-STEWARD-005",
+  "title": "Disk Steward Reliability Repairs",
+  "revision": 17,
+  "graph_version": 175,
+  "lifecycle": "completed",
+  "completed_at": "2026-09-18T07:32:26Z",
+  "final_report": ".pyramid/reports/FINAL-PLAN-DISK-STEWARD-005-R17-G175.json",
+  "change_dossier": ".pyramid/dossiers/DOSSIER-PLAN-DISK-STEWARD-005-R17-G175.json"
+ },
+ "summary": "The reliability plan is closed (all 32 nodes verified) and two releases shipped after it: 1.2.0 and 1.2.1. Development is paused at a clean, pushed worktree with nothing claimed and no ready work.",
+ "progress": [
+  "PLAN-DISK-STEWARD-005 closed at revision 17 / graph 175; replan R13 replaced the overnight-soak gate with bounded real-time soak evidence at the owner's direction.",
+  "1.2.0 (build 5) released: reliability repairs plus the About-version fix.",
+  "1.2.1 (build 6) released: recovers the socket 1.1.x left behind, and judges the in-sample database budget on store accounting instead of raw file size.",
+  "Homebrew tap KMerdan/homebrew-disk-steward points at the notarized v1.2.1 asset; the installed app is 1.2.1 and passes Gatekeeper.",
+  "All Disk Steward scratch under /private/tmp was deleted (about 76 GB); other projects' entries were left alone."
+ ],
+ "changed_files": [],
+ "changed_assets": [],
+ "checks": [
+  {"command": "python3 Scripts/Testing/verify_candidate.py --output <new dir> --xcodegen /opt/homebrew/bin/xcodegen", "result": "passed", "notes": "1.2.1 candidate input ab220436864e: fifteen stages, 559 tests, 0 failures. Evidence directory was under /private/tmp and has since been deleted; the release artifact hashes live in CONTEXT.md."},
+  {"command": "Scripts/Distribution/verify-release '<notarized>/Disk Steward.app' and on the app unpacked from the zip", "result": "passed", "notes": "Developer ID, hardened runtime, timestamps, entitlements, stapled ticket, Gatekeeper, launch."},
+  {"command": "mutation reds for both 1.2.1 fixes", "result": "failed as intended", "notes": "Reverting either fix fails exactly its new regression test."}
+ ],
+ "decisions": [
+  {"decision": "No overnight soak gate for this open-source project.", "rationale": "Owner direction on 2026-09-18: long-run behaviour on real machines comes from user feedback and crash reports; bounded real-time soak plus scale matrix and rollback rehearsal are the final resource criteria.", "reference": "docs/reliability/planning/replan-r13-review.json"},
+  {"decision": "Post-closure fixes were shipped outside Pyramid.", "rationale": "The closed plan's evidence must not be presented as covering later changes; the fixes carry their own tests, verifier runs and CONTEXT.md record.", "reference": "CONTEXT.md"},
+  {"decision": "Notarize through the Xcode upload route, not notarytool credentials.", "rationale": "The Apple ID app-specific password failed with HTTP 401; the Xcode route needs no stored credential and Apple accepted both releases within about two minutes.", "reference": "CONTEXT.md, section 'Repeatable release workflow'"}
+ ],
+ "assumptions": [
+  "Signing stays with Developer ID Application for Team G3P6TU385Y and the profile named 'Disk Steward Developer ID Distribution'.",
+  "The next release bumps CFBundleVersion to 7 in Config/Packaging/project.yml and keeps DiskSteward-Info.plist synchronized."
+ ],
+ "blockers": [],
+ "risks": [
+  "The installed app's scan generation started 2026-09-18T11:01Z and is still active on 2026-09-20T02:09Z. It reports 16,805,758 processed entries for about 100,000 files with 1,568 directories pending, and retention has now forced one eviction. No complete generation exists since 2026-09-13, so 'last complete scan' stays stale. This is an open observation about the live store, not a regression proven by any test.",
+  "FIND-ATTRIBUTION and FIND-DISTRIBUTION-DOC remain open medium findings inside the closed plan, documented and not material to its gates.",
+  "Isolated-verifier evidence directories for the 1.2.x releases lived under /private/tmp and were deleted; only the archived evidence inside docs/reliability/evidence and the release hashes remain."
+ ],
+ "next_steps": [
+  "If the stale 'last complete scan' matters, investigate why the generation re-enumerates so many entries before completing; start from MetadataScanDirectoryCursor and DirectoryStreamRegistry restart handling and the retention pressure path.",
+  "If the post-closure fixes need a Pyramid record, start a new intent with `pyramid-task:new-intent`; never reopen the closed plan for them.",
+  "For the next release, follow CONTEXT.md: bump the build, verify in isolation, archive, upload, poll `xcodebuild -exportNotarizedApp`, then publish."
+ ],
+ "recommended_first_action": "Read CONTEXT.md, then run `python3 /Users/merdankiji/localGit/pyramid-task/plugins/pyramid-task/scripts/pyramid.py lifecycle --project . --json` to confirm the plan is still completed with no claims before planning any new work.",
+ "context_references": [
+  "CONTEXT.md",
+  ".pyramid/reports/FINAL-PLAN-DISK-STEWARD-005-R17-G175.md",
+  ".pyramid/dossiers/DOSSIER-PLAN-DISK-STEWARD-005-R17-G175.md",
+  "docs/reliability/planning/replan-r13-review.json",
+  "docs/release/direct-distribution-handoff.md",
+  "docs/reliability/evidence/"
+ ],
+ "external_session_refs": [
+  "GitHub releases v1.2.0 and v1.2.1 in KMerdan/disk_steward",
+  "Homebrew tap KMerdan/homebrew-disk-steward at commit de40f13"
+ ],
+ "running_resources": [
+  "Disk Steward 1.2.1 is installed and running from /Applications with Agent Access on; its evidence database is live and must not be opened by tests.",
+  "No background verifier, soak or scale run is active; all /private/tmp scratch was removed."
+ ]
+}

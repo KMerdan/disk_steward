@@ -223,3 +223,12 @@ Evidence: focused suites 74 tests green; mutation reds revert each fix and fail
 exactly the new test; full verifier `/private/tmp/disk-steward-check.byToyo`
 (input `ab220436864e…`) 559 tests, 0 failures. 1.2.1 (6) notarized on the
 second poll; zip SHA-256 `494348588a2b6207898f53aae3a015ee607db601130275557080cc6a1d0d6812`.
+
+## Handoff
+
+Development paused on 2026-09-20. State, decisions, open observations and the
+first action for the next session are in
+`docs/reliability/handoffs/HANDOFF-DISK-STEWARD-20260920.md` (machine-readable
+copy alongside it). The plan is completed with no owned task, so this is a
+hand-written record in the `pyramid-handoff-draft-v1` shape, not a runtime
+handoff; `pyramid pause` cannot issue one without a claim.
