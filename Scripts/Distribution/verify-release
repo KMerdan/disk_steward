@@ -43,6 +43,13 @@ verify_universal_binary() {
   fi
 }
 
+for version_key in CFBundleShortVersionString CFBundleVersion; do
+  if [[ "$(/usr/bin/plutil -type "$version_key" "$app/Contents/Info.plist" 2>/dev/null)" != "string" ]]; then
+    print -u2 "Release rejected: ${version_key} must be a string; quote the value in the XcodeGen specification."
+    exit 67
+  fi
+done
+
 app_bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist" 2>/dev/null || true)
 if [[ "$app_bundle_id" != "com.marudankiji.disksteward" ]]; then
   print -u2 "Release rejected: application bundle identifier is '${app_bundle_id:-missing}', expected 'com.marudankiji.disksteward'."
