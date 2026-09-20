@@ -1,0 +1,39 @@
+{
+ "command": [
+  "/usr/bin/swift",
+  "test",
+  "--cache-path",
+  "/private/tmp/ds-mutation-zewmmsqs/cache",
+  "--config-path",
+  "/private/tmp/ds-mutation-zewmmsqs/config",
+  "--security-path",
+  "/private/tmp/ds-mutation-zewmmsqs/security",
+  "--disable-sandbox",
+  "--jobs",
+  "2",
+  "--filter",
+  "ObjectLeafScanTests"
+ ],
+ "exitCode": 1,
+ "stopReason": null,
+ "seconds": 37.100680833,
+ "log": "tests.log",
+ "logSHA256": "86e1a98712b0bcae1230f5f2c81ce32ab1f81b789aaa51217c71caf453e17e07",
+ "passed": false,
+ "baseInputSHA256": "a23a2c0522e3e47a376c261331b75714b2e6b0cfe4de471e2382ce3874ef6240",
+ "repositoryUnchanged": true,
+ "mutation": {
+  "name": "the scanner enters classified objects again instead of recording them whole",
+  "mutations": [
+   {
+    "file": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+    "replacements": [
+     [
+      "                                case let .object(object):\n                                    objects.append(object)\n                                    continue",
+      "                                case let .object(object):\n                                    objects.append(object)"
+     ]
+    ]
+   }
+  ]
+ }
+}

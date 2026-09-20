@@ -1,0 +1,507 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20260920T040417106173Z-A8C3BFA0",
+  "at": "2026-09-20T04:04:17.106009Z",
+  "graph_version": 23,
+  "actor": "claude",
+  "type": "audit.pass",
+  "node": "TASK-612",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-20T04:04:15.513902Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-612",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ObjectLeafScanTests.swift",
+        "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+        "docs/reliability/evidence/TASK-612/agent-result.json",
+        "docs/reliability/evidence/TASK-612/candidate/build.log",
+        "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+        "docs/reliability/evidence/TASK-612/candidate/harness.log",
+        "docs/reliability/evidence/TASK-612/candidate/manifest.log",
+        "docs/reliability/evidence/TASK-612/candidate/tests.log",
+        "docs/reliability/evidence/TASK-612/focused-green/result.json",
+        "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+        "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+        "docs/reliability/evidence/TASK-612/object-leaf-source-manifest.json",
+        "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+        "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/tests.log",
+        "docs/reliability/evidence/TASK-612/scale-run/scale-result.json",
+        "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+        "docs/reliability/evidence/TASK-612/scale-run/tests.log"
+      ],
+      "changed_assets": [
+        "ASSET-SCANNER",
+        "ASSET-STORE",
+        "ASSET-RESOURCE",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ObjectLeafScanTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/build.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/harness.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/manifest.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/focused-green/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/object-leaf-source-manifest.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/scale-run/scale-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/scale-run/tests.log",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "verify_candidate.py --output <new dir> --xcodegen /opt/homebrew/bin/xcodegen",
+          "result": "passed",
+          "notes": "All stages passed on input a23a2c0522e3e47a376c261331b75714b2e6b0cfe4de471e2382ce3874ef6240: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 582 tests, 0 failures, 6 opt-in skips."
+        },
+        {
+          "command": "isolated run of ObjectLeafScanTests",
+          "result": "passed",
+          "notes": "5 tests, 0 failures (focused-green/): an object is recorded whole and never entered, scan work does not grow with its contents, tracked source and unresolved candidates are still scanned, and a generation completes and publishes its objects."
+        },
+        {
+          "command": "object-scale.py 12 90000 (opt-in ObjectScanScaleTests)",
+          "result": "passed",
+          "notes": "1,080,000 entries behind 12 objects: status completed, 1 slice, 0.7s, 288 entries processed, 252 per-file rows, 0 inside an object."
+        },
+        {
+          "command": "mutation: the scanner enters objects again",
+          "result": "failed",
+          "notes": "Expected: three tests fail including the cost-independence case (enter-objects-mutation-red/)."
+        },
+        {
+          "command": "mutation: a committed slice no longer publishes its objects",
+          "result": "failed",
+          "notes": "Expected: testAGenerationCompletesAndPublishesItsObjects fails (publish-objects-mutation-red/)."
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-612-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-612/object-leaf-scan.md; scale-run/scan-result.json (1,080,000 entries behind objects, one generation completed and published, zero per-file rows inside an object); focused-green/; candidate/"
+        }
+      ],
+      "discovered_risks": [
+        "Objects publish without aggregates until TASK-621; a reader must not read a missing size as zero.",
+        "The app's monitoring probe does not construct the scanner with a classifier yet, so installed behaviour is unchanged.",
+        "The scale fixture is uniform and synthetic; it proves cost independence, not the variety of a real disk."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-09-20T04:04:17.105813Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-612",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Tests/DiskStewardCoreTests/Monitoring/ObjectLeafScanTests.swift",
+        "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+        "docs/reliability/evidence/TASK-612/agent-result.json",
+        "docs/reliability/evidence/TASK-612/candidate/build.log",
+        "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+        "docs/reliability/evidence/TASK-612/candidate/harness.log",
+        "docs/reliability/evidence/TASK-612/candidate/manifest.log",
+        "docs/reliability/evidence/TASK-612/candidate/tests.log",
+        "docs/reliability/evidence/TASK-612/focused-green/result.json",
+        "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+        "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+        "docs/reliability/evidence/TASK-612/object-leaf-source-manifest.json",
+        "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+        "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/tests.log",
+        "docs/reliability/evidence/TASK-612/scale-run/scale-result.json",
+        "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+        "docs/reliability/evidence/TASK-612/scale-run/tests.log"
+      ],
+      "changed_assets": [
+        "ASSET-SCANNER",
+        "ASSET-STORE",
+        "ASSET-RESOURCE",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/Monitoring/ObjectLeafScanTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/agent-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/build.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/harness.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/manifest.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/candidate/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/focused-green/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/object-leaf-source-manifest.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/scale-run/scale-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-612/scale-run/tests.log",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "verify_candidate.py --output <new dir> --xcodegen /opt/homebrew/bin/xcodegen",
+          "result": "passed",
+          "notes": "All stages passed on input a23a2c0522e3e47a376c261331b75714b2e6b0cfe4de471e2382ce3874ef6240: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 582 tests, 0 failures, 6 opt-in skips."
+        },
+        {
+          "command": "isolated run of ObjectLeafScanTests",
+          "result": "passed",
+          "notes": "5 tests, 0 failures (focused-green/): an object is recorded whole and never entered, scan work does not grow with its contents, tracked source and unresolved candidates are still scanned, and a generation completes and publishes its objects."
+        },
+        {
+          "command": "object-scale.py 12 90000 (opt-in ObjectScanScaleTests)",
+          "result": "passed",
+          "notes": "1,080,000 entries behind 12 objects: status completed, 1 slice, 0.7s, 288 entries processed, 252 per-file rows, 0 inside an object."
+        },
+        {
+          "command": "mutation: the scanner enters objects again",
+          "result": "failed",
+          "notes": "Expected: three tests fail including the cost-independence case (enter-objects-mutation-red/)."
+        },
+        {
+          "command": "mutation: a committed slice no longer publishes its objects",
+          "result": "failed",
+          "notes": "Expected: testAGenerationCompletesAndPublishesItsObjects fails (publish-objects-mutation-red/)."
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-612-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-612/object-leaf-scan.md; scale-run/scan-result.json (1,080,000 entries behind objects, one generation completed and published, zero per-file rows inside an object); focused-green/; candidate/"
+        }
+      ],
+      "discovered_risks": [
+        "Objects publish without aggregates until TASK-621; a reader must not read a missing size as zero.",
+        "The app's monitoring probe does not construct the scanner with a classifier yet, so installed behaviour is unchanged.",
+        "The scale fixture is uniform and synthetic; it proves cost independence, not the variety of a real disk."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-612",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-612-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+            "docs/reliability/evidence/TASK-612/candidate/tests.log",
+            "Full isolated verifier on input a23a2c0522e3e47a376c261331b75714b2e6b0cfe4de471e2382ce3874ef6240: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 582 tests, 0 failures, 6 opt-in skips."
+          ]
+        },
+        {
+          "id": "CHECK-612-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+            "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+            "A fixture with 1,080,000 entries behind 12 objects completed one generation in 0.7s with 1 slice, published its objects, and staged 0 per-file rows inside an object (AC-TASK-612-01)."
+          ]
+        },
+        {
+          "id": "CHECK-612-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+            "Interruption and scope handling are unchanged: tracked source and unresolved candidates are still scanned, and a scope change still abandons a generation, which the same suite exercises through the store."
+          ]
+        },
+        {
+          "id": "CHECK-612-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/enter-objects-mutation-red/result.json",
+            "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+            "Non-vacuity: entering objects again or dropping their publication each fails its cases, with the worktree unchanged."
+          ]
+        },
+        {
+          "id": "CHECK-612-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/assurance-candidate.json",
+            "Assurance reviewed: IMPACT-TASK-612-SCANNER, IMPACT-TASK-612-STORE, IMPACT-TASK-612-RESOURCE, IMPACT-TASK-612-ASSURANCE confirmed; INSPECT-TASK-612-1 performed after the implementation event and sufficient; drift reconciled across scanner, store, resource and assurance."
+          ]
+        }
+      ],
+      "affected_claims": [],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-TASK-612-SCANNER",
+          "IMPACT-TASK-612-STORE",
+          "IMPACT-TASK-612-RESOURCE",
+          "IMPACT-TASK-612-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-TASK-612-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "Objects publish without aggregates until TASK-621.",
+          "The installed app is unchanged until its probe supplies a classifier.",
+          "The scale fixture is uniform and synthetic; RESEARCH-601 measured the variety of a real disk separately.",
+          "The auditor also implemented the task; independence rests on isolated reruns, two mutation reds and the archived scale record."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-612",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-612-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+            "docs/reliability/evidence/TASK-612/candidate/tests.log",
+            "Full isolated verifier on input a23a2c0522e3e47a376c261331b75714b2e6b0cfe4de471e2382ce3874ef6240: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 582 tests, 0 failures, 6 opt-in skips."
+          ]
+        },
+        {
+          "id": "CHECK-612-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+            "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+            "A fixture with 1,080,000 entries behind 12 objects completed one generation in 0.7s with 1 slice, published its objects, and staged 0 per-file rows inside an object (AC-TASK-612-01)."
+          ]
+        },
+        {
+          "id": "CHECK-612-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+            "Interruption and scope handling are unchanged: tracked source and unresolved candidates are still scanned, and a scope change still abandons a generation, which the same suite exercises through the store."
+          ]
+        },
+        {
+          "id": "CHECK-612-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/enter-objects-mutation-red/result.json",
+            "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+            "Non-vacuity: entering objects again or dropping their publication each fails its cases, with the worktree unchanged."
+          ]
+        },
+        {
+          "id": "CHECK-612-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-612/assurance-candidate.json",
+            "Assurance reviewed: IMPACT-TASK-612-SCANNER, IMPACT-TASK-612-STORE, IMPACT-TASK-612-RESOURCE, IMPACT-TASK-612-ASSURANCE confirmed; INSPECT-TASK-612-1 performed after the implementation event and sufficient; drift reconciled across scanner, store, resource and assurance."
+          ]
+        }
+      ],
+      "affected_claims": [],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-TASK-612-SCANNER",
+          "IMPACT-TASK-612-STORE",
+          "IMPACT-TASK-612-RESOURCE",
+          "IMPACT-TASK-612-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-TASK-612-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "Objects publish without aggregates until TASK-621.",
+          "The installed app is unchanged until its probe supplies a classifier.",
+          "The scale fixture is uniform and synthetic; RESEARCH-601 measured the variety of a real disk separately.",
+          "The auditor also implemented the task; independence rests on isolated reruns, two mutation reds and the archived scale record."
+        ]
+      }
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 1,
+  "context_id": "CTX-F3103EFA1F4435521559848388B3A760",
+  "previous_event_id": "EVENT-20260920T040416931598Z-0AC61D76",
+  "previous_event_sha256": "60a0ae481e4af51e21aafe15c435568f67d0c83b0c599952f70f19dfe94ef77d"
+}

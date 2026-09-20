@@ -5,22 +5,22 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `19`
+- Graph version: `23`
 - Plan revision: `1`
 - Lifecycle: `active`
-- Verified primary nodes: `4/17`
+- Verified primary nodes: `5/17`
 - Ready tasks: `2`
 
 ## Ready Frontier
 
-- `TASK-612` — Stop descending into classified objects
 - `TASK-614` — Refuse a scope that cannot fit and say so
+- `TASK-621` — Size objects and keep them fresh
 
 ## Brownfield Assurance
 
 - Status: `blocked`
 - Baseline: `current` revision `4`
-- Impacted assets inspected sufficiently: `2/4`
+- Impacted assets inspected sufficiently: `4/5`
 - Open scope drift: `0`
 - Open material findings: `0`
 

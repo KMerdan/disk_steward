@@ -5,7 +5,7 @@
   "baseline_revision": 4,
   "policy": "brownfield",
   "status": "incomplete",
-  "updated_at": "2026-09-20T03:48:40.322854Z",
+  "updated_at": "2026-09-20T04:04:16.930131Z",
   "updated_by": "claude",
   "enforce_from_graph_version": 1,
   "impacts": [
@@ -137,6 +137,78 @@
         "TASK-613",
         "ASSET-ASSURANCE"
       ]
+    },
+    {
+      "id": "IMPACT-TASK-612-SCANNER",
+      "asset_id": "ASSET-SCANNER",
+      "task_ids": [
+        "TASK-612"
+      ],
+      "type": "direct",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "docs/reliability/evidence/TASK-612/object-leaf-scan.md"
+      ],
+      "path": [
+        "TASK-612",
+        "ASSET-SCANNER"
+      ]
+    },
+    {
+      "id": "IMPACT-TASK-612-STORE",
+      "asset_id": "ASSET-STORE",
+      "task_ids": [
+        "TASK-612"
+      ],
+      "type": "direct",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift::recordScanSlice",
+        "docs/reliability/evidence/TASK-612/object-leaf-scan.md"
+      ],
+      "path": [
+        "TASK-612",
+        "ASSET-STORE"
+      ]
+    },
+    {
+      "id": "IMPACT-TASK-612-RESOURCE",
+      "asset_id": "ASSET-RESOURCE",
+      "task_ids": [
+        "TASK-612"
+      ],
+      "type": "direct",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+        "docs/reliability/evidence/TASK-612/object-leaf-scan.md"
+      ],
+      "path": [
+        "TASK-612",
+        "ASSET-RESOURCE"
+      ]
+    },
+    {
+      "id": "IMPACT-TASK-612-ASSURANCE",
+      "asset_id": "ASSET-ASSURANCE",
+      "task_ids": [
+        "TASK-612"
+      ],
+      "type": "direct",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+        "docs/reliability/evidence/TASK-612/candidate/candidate.json"
+      ],
+      "path": [
+        "TASK-612",
+        "ASSET-ASSURANCE"
+      ]
     }
   ],
   "inspections": [
@@ -174,7 +246,9 @@
         "Scope drift from TASK-611 invalidated this inspection.",
         "Implementation result for TASK-611 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Scope drift from TASK-613 invalidated this inspection.",
-        "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-612 invalidated this inspection.",
+        "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "validated_through": {
         "RESEARCH-601": "EVENT-20260920T032323566863Z-71BDA108"
@@ -212,7 +286,9 @@
         "Scope drift from TASK-611 invalidated this inspection.",
         "Implementation result for TASK-611 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Scope drift from TASK-613 invalidated this inspection.",
-        "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-612 invalidated this inspection.",
+        "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "validated_through": {
         "CONTRACT-601": "EVENT-20260920T032547332638Z-397B9D6B"
@@ -254,7 +330,9 @@
         "Nothing in the product calls the classifier until TASK-612 wires it.",
         "Detection covers the ecosystems the RESEARCH-601 corpus contained.",
         "Scope drift from TASK-613 invalidated this inspection.",
-        "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-613 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-612 invalidated this inspection.",
+        "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
       ],
       "validated_through": {
         "TASK-611": "EVENT-20260920T033509605992Z-10657775"
@@ -276,7 +354,7 @@
         "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
         "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
       ],
-      "status": "performed",
+      "status": "stale",
       "result": "pass",
       "sufficiency": "sufficient",
       "performed_at": "2026-09-20T03:48:40Z",
@@ -294,10 +372,55 @@
       "limitations": [
         "The rehearsal store is synthetic, written by the baseline library, not a copy of an installed store.",
         "Aggregates are supplied by the caller; nothing measures a subtree until TASK-621.",
-        "Choosing which directories are objects is TASK-612."
+        "Choosing which directories are objects is TASK-612.",
+        "Scope drift from TASK-612 invalidated this inspection.",
+        "Implementation result for TASK-612 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
       ],
       "validated_through": {
         "TASK-613": "EVENT-20260920T034838927318Z-DEB69A91"
+      }
+    },
+    {
+      "id": "INSPECT-TASK-612-1",
+      "asset_ids": [
+        "ASSET-SCANNER",
+        "ASSET-STORE",
+        "ASSET-RESOURCE",
+        "ASSET-ASSURANCE"
+      ],
+      "task_ids": [
+        "TASK-612"
+      ],
+      "method": "Confirm a classified object is recorded and never entered, that an unresolved candidate and tracked source are still scanned, that scan work is independent of an object's contents, that a generation completes and publishes its objects with no per-file row inside one, and that the pre-object behaviour survives when no classifier is supplied.",
+      "required": true,
+      "refresh": "per-change",
+      "invalidating_changes": [
+        "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
+      ],
+      "status": "performed",
+      "result": "pass",
+      "sufficiency": "sufficient",
+      "performed_at": "2026-09-20T04:04:16Z",
+      "performed_by": "claude",
+      "evidence": [
+        "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+        "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+        "docs/reliability/evidence/TASK-612/candidate/tests.log",
+        "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+        "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+        "docs/reliability/evidence/TASK-612/scale-run/tests.log",
+        "docs/reliability/evidence/TASK-612/enter-objects-mutation-red/result.json",
+        "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+        "docs/reliability/evidence/TASK-612/object-leaf-source-manifest.json"
+      ],
+      "limitations": [
+        "Objects publish without aggregates until TASK-621.",
+        "The app's probe does not supply a classifier yet, so installed behaviour is unchanged.",
+        "The scale fixture is uniform and synthetic."
+      ],
+      "validated_through": {
+        "TASK-612": "EVENT-20260920T040415514037Z-2D702774"
       }
     }
   ],
@@ -458,6 +581,114 @@
       "detected_at": "2026-09-20T03:48:38.925222Z",
       "resolved_impact_id": "IMPACT-TASK-613-ASSURANCE",
       "resolution": "Object row, collapse and their evidence are the declared deliverable of TASK-613."
+    },
+    {
+      "id": "DRIFT-497AB977AFB1",
+      "task": "TASK-612",
+      "changed_file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+      "matched_asset_ids": [
+        "ASSET-STORE"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511030Z",
+      "resolved_impact_id": "IMPACT-TASK-612-STORE",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-DF97C093715B",
+      "task": "TASK-612",
+      "changed_file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+      "matched_asset_ids": [
+        "ASSET-STORE"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511220Z",
+      "resolved_impact_id": "IMPACT-TASK-612-STORE",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-021F128B11C4",
+      "task": "TASK-612",
+      "changed_file": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+      "matched_asset_ids": [
+        "ASSET-SCANNER"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511225Z",
+      "resolved_impact_id": "IMPACT-TASK-612-SCANNER",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-C6CDA6AD8251",
+      "task": "TASK-612",
+      "changed_file": "Tests/DiskStewardCoreTests/Monitoring/ObjectLeafScanTests.swift",
+      "matched_asset_ids": [
+        "ASSET-SCANNER"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511228Z",
+      "resolved_impact_id": "IMPACT-TASK-612-SCANNER",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-55D4D06ECC3D",
+      "task": "TASK-612",
+      "changed_file": "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+      "matched_asset_ids": [
+        "ASSET-RESOURCE"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511231Z",
+      "resolved_impact_id": "IMPACT-TASK-612-RESOURCE",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-A11C3B0A0485",
+      "task": "TASK-612",
+      "changed_file": "asset:ASSET-SCANNER",
+      "matched_asset_ids": [
+        "ASSET-SCANNER"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511233Z",
+      "resolved_impact_id": "IMPACT-TASK-612-SCANNER",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-5E96AE919F3B",
+      "task": "TASK-612",
+      "changed_file": "asset:ASSET-STORE",
+      "matched_asset_ids": [
+        "ASSET-STORE"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511236Z",
+      "resolved_impact_id": "IMPACT-TASK-612-STORE",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-36422037AA69",
+      "task": "TASK-612",
+      "changed_file": "asset:ASSET-RESOURCE",
+      "matched_asset_ids": [
+        "ASSET-RESOURCE"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511238Z",
+      "resolved_impact_id": "IMPACT-TASK-612-RESOURCE",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
+    },
+    {
+      "id": "DRIFT-A0D544CE2405",
+      "task": "TASK-612",
+      "changed_file": "asset:ASSET-ASSURANCE",
+      "matched_asset_ids": [
+        "ASSET-ASSURANCE"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-09-20T04:04:15.511240Z",
+      "resolved_impact_id": "IMPACT-TASK-612-ASSURANCE",
+      "resolution": "Scanner leaf semantics, object publication and their evidence are the declared deliverable of TASK-612."
     }
   ],
   "controls": {
@@ -489,6 +720,8 @@
     "Unexpected implementation scope was recorded for TASK-611: DRIFT-DE86BD5F4C05, DRIFT-6A6437213A8B, DRIFT-7770857F3778, DRIFT-D9EA26A9DDBF, DRIFT-47A61BF35F9B",
     "Implementation for TASK-611 changed assets ASSET-ASSURANCE; post-change inspection is required.",
     "Unexpected implementation scope was recorded for TASK-613: DRIFT-B1B4793EC155, DRIFT-8FA7456411BC, DRIFT-24E73A31319B, DRIFT-1016C496D17C, DRIFT-7F9C2EAD26CD",
-    "Implementation for TASK-613 changed assets ASSET-ASSURANCE; post-change inspection is required."
+    "Implementation for TASK-613 changed assets ASSET-ASSURANCE; post-change inspection is required.",
+    "Unexpected implementation scope was recorded for TASK-612: DRIFT-497AB977AFB1, DRIFT-DF97C093715B, DRIFT-021F128B11C4, DRIFT-C6CDA6AD8251, DRIFT-55D4D06ECC3D, DRIFT-A11C3B0A0485, DRIFT-5E96AE919F3B, DRIFT-36422037AA69, DRIFT-A0D544CE2405",
+    "Implementation for TASK-612 changed assets ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE; post-change inspection is required."
   ]
 }

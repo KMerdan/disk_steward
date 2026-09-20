@@ -270,6 +270,11 @@ public struct MetadataScanSlice: Equatable, Sendable {
     public var invalidatedDirectories: [String] { invalidatedDirectoryPasses.map(\.directoryPath) }
     public let directoryPasses: [MetadataScanDirectoryPass]
     public let discoveredDirectories: [MetadataScanDiscoveredDirectory]
+    /// Directories this slice recorded as one object and did not enter.
+    public let objects: [ClassifiedObject]
+    /// Directories that carry a known output name but no project evidence.
+    /// They are scanned normally; they are reported so a person can decide.
+    public let unresolvedCandidates: [UnresolvedCandidate]
 
     public init(
         generation: MetadataScanGeneration,
@@ -277,7 +282,9 @@ public struct MetadataScanSlice: Equatable, Sendable {
         diagnostics: MetadataScanDiagnostics = .init(),
         invalidatedDirectoryPasses: [MetadataScanDirectoryInvalidation] = [],
         directoryPasses: [MetadataScanDirectoryPass] = [],
-        discoveredDirectories: [MetadataScanDiscoveredDirectory] = []
+        discoveredDirectories: [MetadataScanDiscoveredDirectory] = [],
+        objects: [ClassifiedObject] = [],
+        unresolvedCandidates: [UnresolvedCandidate] = []
     ) {
         self.generation = generation
         self.entries = entries.sorted { $0.path < $1.path }
@@ -285,6 +292,8 @@ public struct MetadataScanSlice: Equatable, Sendable {
         self.invalidatedDirectoryPasses = invalidatedDirectoryPasses
         self.directoryPasses = directoryPasses
         self.discoveredDirectories = discoveredDirectories
+        self.objects = objects.sorted { $0.path < $1.path }
+        self.unresolvedCandidates = unresolvedCandidates.sorted { $0.path < $1.path }
     }
 }
 
@@ -366,12 +375,17 @@ public struct DirectoryMetadataScanner: Sendable {
     public static let frontierWindowSize = 64
 
     private let streams: DirectoryStreamRegistry
+    /// Decides whether a child directory is an object to record whole rather
+    /// than a directory to enter. `nil` keeps the pre-object behaviour of
+    /// entering everything, which the scale fixtures use as their baseline.
+    private let classifier: ObjectClassifier?
 
     /// Streams default to the process-wide registry so any scanner instance
     /// in this process can continue a pass another instance began. A fresh
     /// registry models a new process: unfinished passes restart.
-    public init(streams: DirectoryStreamRegistry = .shared) {
+    public init(streams: DirectoryStreamRegistry = .shared, classifier: ObjectClassifier? = nil) {
         self.streams = streams
+        self.classifier = classifier
     }
 
     /// Advances one durable generation by at most `maximumEntries` filesystem
@@ -402,6 +416,7 @@ public struct DirectoryMetadataScanner: Sendable {
         }
 
         let manager = FileManager.default
+        let rules = ObjectDetectionRules.default
         var roots = generation.roots
         var entries: [FileMetadata] = []
         var remaining = max(1, policy.maximumEntries)
@@ -410,6 +425,11 @@ public struct DirectoryMetadataScanner: Sendable {
         var invalidatedDirectories: [MetadataScanDirectoryInvalidation] = []
         var directoryPasses: [MetadataScanDirectoryPass] = []
         var discovered: [MetadataScanDiscoveredDirectory] = []
+        var objects: [ClassifiedObject] = []
+        var unresolved: [UnresolvedCandidate] = []
+        // The repository that owns a directory changes rarely and costs a walk
+        // up the tree to find, so each slice remembers what it has resolved.
+        var repositories: [String: String?] = [:]
         var nextSchedulerCursor = generation.schedulerCursor ?? 0
 
         let activeRootIndices = roots.indices.filter {
@@ -573,6 +593,30 @@ public struct DirectoryMetadataScanner: Sendable {
                         let values = try child.resourceValues(forKeys: Self.keys)
                         if values.isSymbolicLink == true { continue }
                         if values.isDirectory == true {
+                            let childPath = child.standardizedFileURL.path
+                            // An object is recorded whole and never entered, so
+                            // everything beneath it stops being scan work.
+                            if let classifier, rules.isCandidateName(childName) {
+                                let parent = child.deletingLastPathComponent().path
+                                let repository: String?
+                                if let known = repositories[parent] {
+                                    repository = known
+                                } else {
+                                    repository = classifier.repositoryPath(for: parent)
+                                    repositories[parent] = repository
+                                }
+                                switch classifier.classify(directoryPath: childPath, repositoryPath: repository) {
+                                case let .object(object):
+                                    objects.append(object)
+                                    continue
+                                case let .unresolved(candidate):
+                                    // No evidence either way: scan it as an
+                                    // ordinary directory and report the doubt.
+                                    unresolved.append(candidate)
+                                case .source:
+                                    break
+                                }
+                            }
                             let childDepth = cursor.depth + 1
                             if childDepth > policy.maximumDepth {
                                 let limitation = "Configured depth limit prevented complete coverage below \(child.path)."
@@ -676,7 +720,8 @@ public struct DirectoryMetadataScanner: Sendable {
         )
         return MetadataScanSlice(generation: updated, entries: entries, diagnostics: diagnostics,
                                  invalidatedDirectoryPasses: invalidatedDirectories, directoryPasses: directoryPasses,
-                                 discoveredDirectories: discovered)
+                                 discoveredDirectories: discovered, objects: objects,
+                                 unresolvedCandidates: unresolved)
     }
 
     public func scan(policy: MonitoringPolicy, at date: Date = Date()) -> MetadataSnapshot {

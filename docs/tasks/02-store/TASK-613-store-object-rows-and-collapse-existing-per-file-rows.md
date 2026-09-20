@@ -61,12 +61,14 @@ Add the durable object row from the contract and migrate an existing store by co
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-STORE`
 - Inspections: `INSPECT-TASK-613-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-TASK-613-1 is stale
 

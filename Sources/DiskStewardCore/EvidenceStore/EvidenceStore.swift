@@ -401,6 +401,15 @@ public actor EvidenceStore {
                     try connection.stepDone(statement)
                 }
             }
+            // A classified object is published as its own row the moment the
+            // slice that found it commits. It is one row, and no per-file row
+            // beneath it is ever staged, so publication does not wait for the
+            // generation to finish.
+            for object in slice.objects {
+                try Self.upsertObject(
+                    StoredObject(classification: object, observedAt: slice.generation.updatedAt),
+                    connection: connection)
+            }
             for pass in slice.directoryPasses {
                 guard !slice.generation.roots.contains(where: { $0.rootPath == pass.rootPath && $0.status == .failed }) else { continue }
                 // A new pass replaces only this root's immediate-directory

@@ -1,0 +1,156 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-612",
+ "outcome": "implemented",
+ "changed_files": [
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+  "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+  "Tests/DiskStewardCoreTests/Monitoring/ObjectLeafScanTests.swift",
+  "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+  "docs/reliability/evidence/TASK-612/agent-result.json",
+  "docs/reliability/evidence/TASK-612/candidate/build.log",
+  "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+  "docs/reliability/evidence/TASK-612/candidate/harness.log",
+  "docs/reliability/evidence/TASK-612/candidate/manifest.log",
+  "docs/reliability/evidence/TASK-612/candidate/tests.log",
+  "docs/reliability/evidence/TASK-612/focused-green/result.json",
+  "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+  "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+  "docs/reliability/evidence/TASK-612/object-leaf-source-manifest.json",
+  "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+  "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/tests.log",
+  "docs/reliability/evidence/TASK-612/scale-run/scale-result.json",
+  "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+  "docs/reliability/evidence/TASK-612/scale-run/tests.log"
+ ],
+ "changed_assets": [
+  "ASSET-SCANNER",
+  "ASSET-STORE",
+  "ASSET-RESOURCE",
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore+Objects.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Monitoring/DirectoryMetadataScanner.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardCoreTests/Monitoring/ObjectLeafScanTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/agent-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/candidate/build.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/candidate/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/candidate/harness.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/candidate/manifest.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/candidate/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/focused-green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/focused-green/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/object-leaf-source-manifest.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/publish-objects-mutation-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/scale-run/scale-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/scale-run/scan-result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-612/scale-run/tests.log",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "verify_candidate.py --output <new dir> --xcodegen /opt/homebrew/bin/xcodegen",
+   "result": "passed",
+   "notes": "All stages passed on input a23a2c0522e3e47a376c261331b75714b2e6b0cfe4de471e2382ce3874ef6240: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 582 tests, 0 failures, 6 opt-in skips."
+  },
+  {
+   "command": "isolated run of ObjectLeafScanTests",
+   "result": "passed",
+   "notes": "5 tests, 0 failures (focused-green/): an object is recorded whole and never entered, scan work does not grow with its contents, tracked source and unresolved candidates are still scanned, and a generation completes and publishes its objects."
+  },
+  {
+   "command": "object-scale.py 12 90000 (opt-in ObjectScanScaleTests)",
+   "result": "passed",
+   "notes": "1,080,000 entries behind 12 objects: status completed, 1 slice, 0.7s, 288 entries processed, 252 per-file rows, 0 inside an object."
+  },
+  {
+   "command": "mutation: the scanner enters objects again",
+   "result": "failed",
+   "notes": "Expected: three tests fail including the cost-independence case (enter-objects-mutation-red/)."
+  },
+  {
+   "command": "mutation: a committed slice no longer publishes its objects",
+   "result": "failed",
+   "notes": "Expected: testAGenerationCompletesAndPublishesItsObjects fails (publish-objects-mutation-red/)."
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-612-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-612/object-leaf-scan.md; scale-run/scan-result.json (1,080,000 entries behind objects, one generation completed and published, zero per-file rows inside an object); focused-green/; candidate/"
+  }
+ ],
+ "discovered_risks": [
+  "Objects publish without aggregates until TASK-621; a reader must not read a missing size as zero.",
+  "The app's monitoring probe does not construct the scanner with a classifier yet, so installed behaviour is unchanged.",
+  "The scale fixture is uniform and synthetic; it proves cost independence, not the variety of a real disk."
+ ],
+ "suggested_graph_changes": []
+}

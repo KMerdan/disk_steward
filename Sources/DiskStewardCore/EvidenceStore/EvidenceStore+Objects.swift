@@ -164,7 +164,7 @@ public extension EvidenceStore {
 
     // MARK: - private
 
-    private static func upsertObject(_ object: StoredObject, connection: SQLiteConnection) throws {
+    internal static func upsertObject(_ object: StoredObject, connection: SQLiteConnection) throws {
         try connection.withStatement("""
             INSERT INTO current_objects (path, kind, detection_rule, confidence, reason, owning_project_path,
                                          owning_project_marker, logical_bytes, file_count, measured_at, dirty,

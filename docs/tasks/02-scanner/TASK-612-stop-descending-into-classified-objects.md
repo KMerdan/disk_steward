@@ -8,10 +8,10 @@
 - Wave: `2`
 - Workstream: `scanner`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `verified`
 - Goal trace: `TASK-612` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -61,12 +61,12 @@ The metadata scanner treats a classified object as a leaf: it records one object
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Status: `covered`
+- Impact records: `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
+- Inspections: `INSPECT-TASK-612-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- None
 

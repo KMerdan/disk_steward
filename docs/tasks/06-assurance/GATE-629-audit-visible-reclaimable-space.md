@@ -60,15 +60,13 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-SCANNER`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-612-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
