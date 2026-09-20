@@ -1,0 +1,72 @@
+{
+ "schema": "pyramid-handoff-draft-v1",
+ "issued_by": "claude, by hand",
+ "issued_at": "2026-09-20T06:20:00Z",
+ "not_a_runtime_record": "No task is claimed, so `pyramid pause` cannot issue a canonical handoff. This follows the same contract so the next session can resume from it.",
+ "plan": {
+  "id": "PLAN-DISK-STEWARD-006",
+  "title": "Reclaimable Space As Whole Objects",
+  "revision": 2,
+  "graph_version": 32,
+  "lifecycle": "active",
+  "active_claims": 0
+ },
+ "summary": "Rung 1 is six of seven done: build output, caches and repositories are classified, stored as single objects, never entered by the scanner, and the app now uses all of it. A scope of 1,080,000 entries behind objects scans in 0.7 seconds. TASK-614, the capacity guard, is the last task before GATE-619.",
+ "progress": [
+  "RESEARCH-601 verified: detection rules chosen from a corpus measurement, not guesses. Name matching alone would have offered 29 tracked source directories for deletion.",
+  "CONTRACT-601 verified: object row shape, confidence vocabulary, never-classify and never-offer rules, sizing and staleness, reversible migration, each naming the task that proves it.",
+  "TASK-611 verified: the classifier, with tracked source refused before any other rule and optional repository answers so an unreadable repository decides nothing.",
+  "TASK-613 verified: schema 15 `current_objects`, plus a transactional, resumable, idempotent collapse. Two contract rules are database constraints. Migration 14 to 15 rehearsed with a working rollback.",
+  "TASK-612 verified: the scanner records an object and never enters it. 1,080,000 entries behind 12 objects complete one generation in 0.7 s with zero per-file rows inside an object.",
+  "TASK-615 verified (added by replan R2): the app wires the classifier into its probe and converges an installed store in bounded batches, reporting what it collapsed.",
+  "Replan R2 added TASK-615 after the gap was found: nothing wired the object model into the running app, so rung 1's claim would have been false on a real machine."
+ ],
+ "changed_files": [],
+ "changed_assets": [],
+ "checks": [
+  {"command": "Scripts/Testing/verify_candidate.py --output <new dir> --xcodegen /opt/homebrew/bin/xcodegen", "result": "passed", "notes": "Last full run on input bb08ca1d7776: 587 tests, 0 failures. Archived under docs/reliability/evidence/TASK-615/candidate/."},
+  {"command": "docs/reliability/handoffs/harness/run-focused.py '<suites>'", "result": "passed", "notes": "28 tests across the four object suites, 0 failures."},
+  {"command": "docs/reliability/handoffs/harness/run-mutation.py", "result": "failed as intended", "notes": "Ten mutation reds across the plan; each fails exactly the case it targets, with repositoryUnchanged true."},
+  {"command": "Scripts/Testing/rehearse_migration_rollback.py", "result": "passed", "notes": "Schema 14 to 15 against baseline 97c3a7f15d98, interrupted at every checkpoint and recovered."}
+ ],
+ "decisions": [
+  {"decision": "TASK-612 was released and TASK-613 done first.", "rationale": "TASK-612's criterion requires object rows to be published, which needs the durable row that belongs to TASK-613. Doing them in that order kept both criteria honest.", "reference": "docs/reliability/evidence/TASK-613/object-rows.md"},
+  {"decision": "Wiring became its own task rather than being folded into an existing one.", "rationale": "No criterion covered constructing the scanner with a classifier or running the collapse in the app. Folding it in would have made a gate prove something it never named.", "reference": "docs/reliability/planning/plan-006-r2-review.json"},
+  {"decision": "The ancestor walk rejects non-absolute paths and is bounded at 256.", "rationale": "A non-absolute path made deletingLastPathComponent prepend '..' forever and hung a test for 30 minutes. Diagnosed from a stack sample, not guessed at.", "reference": "docs/reliability/evidence/TASK-615/hang-diagnosis/stack-sample.txt"},
+  {"decision": "A discarded mutation was recorded rather than counted as a red.", "rationale": "Moving a checkpoint inside a transaction changed nothing observable; presenting it as a passing red would have overstated the evidence.", "reference": "docs/reliability/evidence/TASK-613/object-rows.md"}
+ ],
+ "assumptions": [
+  "Objects publish without aggregates until TASK-621 measures them; a missing size must never be read as zero.",
+  "The maintainer corpus is one machine; detection coverage elsewhere is unmeasured, which RESEARCH-601 states."
+ ],
+ "blockers": [],
+ "risks": [
+  "The installed app on this machine is still 1.2.1 and still has the stuck scan. Nothing in this plan has been released; the fix exists only in the repository.",
+  "GATE-619 must converge a copy of a real installed store end to end. Every proof so far uses stores built in tests or synthetic fixtures.",
+  "Assurance currently reports ASSET-BUILD and ASSET-RESOURCE without a sufficient inspection, and four inspections stale from the last updates. Both are expected before a gate and are the gate's work to clear.",
+  "The opt-in scale case builds a million files. It refuses to run without a supervisor-owned fixture and its ownership token, but it is heavy: run it deliberately, never as part of an ordinary suite."
+ ],
+ "next_steps": [
+  "Take TASK-614: compute whether the configured scope can fit the configured limit, refuse once with the shortfall and the remedies instead of looping, and justify the default limit against the object model's measured cost.",
+  "Then GATE-619 and OUTCOME-610: re-affirm the stale inspections, add the ASSET-BUILD and ASSET-RESOURCE inspections the gate needs, and converge a captured copy of the installed store as the rung's end-to-end scenario.",
+  "Rung 2 follows: TASK-621 sizing and freshness, TASK-622 reclaim ranking, TASK-623 app and agent surfaces, then GATE-629 and OUTCOME-620.",
+  "Rung 3: TASK-631 shared caches behind opt-in, GATE-639, OUTCOME-630, then the intent audit and closure."
+ ],
+ "recommended_first_action": "Read CONTEXT.md and docs/reliability/evidence/CONTRACT-601/object-contract.md, then `pyramid inspect --ready` and take TASK-614.",
+ "context_references": [
+  "CONTEXT.md",
+  "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+  "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+  "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+  "docs/reliability/evidence/TASK-615/wiring.md",
+  "docs/reliability/planning/plan-006-r2-review.json",
+  "docs/reliability/handoffs/harness/README.md"
+ ],
+ "external_session_refs": [
+  "Repository at commit 8dca762 on main, pushed; worktree clean"
+ ],
+ "running_resources": [
+  "Disk Steward 1.2.1 is installed and running from /Applications. Its evidence database is live and must never be opened by tests or measurements.",
+  "No background verifier, scale or soak run is active. Scale fixtures from this session were removed."
+ ]
+}

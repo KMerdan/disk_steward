@@ -246,9 +246,20 @@ single evidence objects instead of per-file rows. Three rungs: scans that
 finish on a real-sized scope, reclaimable space made visible and explained,
 then shared caches under the same contract behind an explicit opt-in.
 
-Ready now: `CONTRACT-601` (object evidence and safety contract) and
-`RESEARCH-601` (validate detection rules on a real corpus). The candidate plan
-and its review are in `docs/reliability/planning/plan-006-{candidate,review}.json`.
+Progress at revision 2 (graph 32): RESEARCH-601, CONTRACT-601, TASK-611,
+TASK-612, TASK-613 and TASK-615 are verified. Replan R2 added TASK-615 because
+nothing owned wiring the object model into the running app. **TASK-614**, the
+capacity guard, is the last task before GATE-619 closes rung 1.
+
+State, decisions, the hang that was found and fixed, and the first action for
+the next session are in
+`docs/reliability/handoffs/HANDOFF-DISK-STEWARD-20260920-OBJECTS.md`. The
+isolated test harness that produced every suite and mutation red lives in
+`docs/reliability/handoffs/harness/`; never run `swift test` in the worktree.
+
+The candidate plans and reviews are in
+`docs/reliability/planning/plan-006-{candidate,review}.json` and
+`plan-006-r2-{candidate,review}.json`.
 
 Measured evidence behind it, all from 2026-09-20 and recorded in the plan:
 888,469 of 1,214,531 files in the watched roots sit inside 2,618 build-output
