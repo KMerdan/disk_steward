@@ -1,5 +1,11 @@
 # Local dashboard hotfix 1.2.2 (build 7)
 
+**Subsequent release:** the user later authorized publication. The same focused
+hotfix was notarized and published as v1.2.2, with the matching Homebrew update.
+See [release notes](../../releases/1.2.2.md) and the 1.2.2 record in CONTEXT.md.
+The local-installation and CI observations below remain historical evidence;
+they do not describe the later artifact's notarization status.
+
 This is a local installation record, not a public release or completion of the
 object-scanner plan. No notarization, Homebrew update or release upload occurred.
 

@@ -1,6 +1,6 @@
 # Disk Steward development and release context
 
-Last updated: 2026-09-18. This is a continuation guide, not proof that the
+Last updated: 2026-09-20. This is a continuation guide, not proof that the
 current source or a newly built artifact is already notarized or released.
 
 ## Project and safety boundaries
@@ -223,6 +223,42 @@ Evidence: focused suites 74 tests green; mutation reds revert each fix and fail
 exactly the new test; full verifier `/private/tmp/disk-steward-check.byToyo`
 (input `ab220436864e…`) 559 tests, 0 failures. 1.2.1 (6) notarized on the
 second poll; zip SHA-256 `494348588a2b6207898f53aae3a015ee607db601130275557080cc6a1d0d6812`.
+
+## 1.2.2 release record (2026-09-20)
+
+- After separate user authorization, released **1.2.2 (7)** from
+  `hotfix/dashboard-1.2.2`, not unfinished schema-15 `main`. Tag `v1.2.2`
+  points to `303fdfbad69d99ca4f87114cb22bd3535f840fcd`; the archive is the
+  previously tested schema-14 hotfix (575 tests, 5 intentional skips, zero
+  failures). Release metadata changes do not change its compiled source.
+- **The notarization problem is solved.** Reused the documented Xcode account
+  route and the existing manual export template with its provisioning-profile
+  mapping. No new certificate, account password, or named `notarytool` profile
+  was needed. Uploaded once using `xcodebuild -exportArchive`, then exported
+  the accepted/stapled app with `xcodebuild -exportNotarizedApp` on the first
+  status check. Do not confuse this established working path with unrelated
+  CI compiler or build-worker supervision follow-ups.
+- `Scripts/Distribution/verify-release` passed for both the exported app and
+  the app extracted from the final ZIP: universal architectures, Developer ID
+  and helper signatures, production entitlements, timestamp, hardened runtime,
+  valid staple, Gatekeeper acceptance and isolated startup. Upload, export and
+  verification commands ran under the bounded supervisor with verified cleanup.
+- Downloaded the uploaded GitHub draft asset and confirmed its SHA-256 before
+  publishing it as the latest release. Public release:
+  https://github.com/KMerdan/disk_steward/releases/tag/v1.2.2
+- Exact asset: `Disk-Steward-1.2.2.zip`, SHA-256
+  `f7cf38fe52a81f6f96fee84b297d24de2426ca80a62c5c4b65960fc091565a26`.
+- The project cask and `KMerdan/homebrew-disk-steward` pin that exact asset.
+  Homebrew style and strict online audit passed, including the public download.
+  Tap publication commit: `79cb95c`. No uninstall/zap or user evidence reset
+  was performed. This release step did not replace the already-running local
+  app again; use the published Homebrew upgrade to install the stapled artifact.
+- Raw upload/account/build records stay local under ignored
+  `build/releases/1.2.2/`. Publish only the app ZIP and sanitized notes, never
+  the raw diagnostic logs. Public notes: `docs/reliability/releases/1.2.2.md`.
+- Older-Xcode development CI errors and the earlier archive-worker warning
+  remain separate follow-up work. Do not claim main/CI or object-model increment
+  gates passed merely because this focused binary release was notarized.
 
 ## Handoff
 
