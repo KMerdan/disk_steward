@@ -276,12 +276,29 @@ growth alert. A historical alert and the newest sample can show different
 numbers. See `docs/reliability/evidence/TASK-617/README.md` and `after.json`.
 
 On September 20 the user separately authorized a local replacement build,
-removal of the old installed copy, and commit/push. The hotfix is prepared on
+removal of the old installed copy, and commit/push. The hotfix was built on
 `hotfix/dashboard-1.2.2` from `v1.2.1`, backporting TASK-617 and the supervised
-test harness without the unfinished schema-15/object changes. The installed
-1.2.1 and the read-only inspected live store both use schema 14. Keep that
-format for this replacement. This authorization does not publish a GitHub
-release, update Homebrew, or submit to Apple's notary service.
+test harness without the unfinished schema-15/object changes. Developer ID
+signed universal **1.2.2 (7)** is installed and running from Applications;
+1.2.1 is recoverable from Trash. Evidence/settings were preserved, the live
+store remains schema 14, and MCP storage-summary succeeds. The hotfix passed
+575 tests (5 intentional skips), signed-app smoke and helper protocol checks.
+The archive runner detected and cleaned up a retained Xcode ibtoold worker;
+the original failed supervisor receipt and independent artifact acceptance
+are retained locally in ignored `build/local-1.2.2/evidence/`; a sanitized
+summary is in `docs/reliability/evidence/HOTFIX-1.2.2/README.md`. This is not a clean
+automated release gate or completion of object-scanner work. Native UI
+inspection timed out; hosted-view regression tests provide the rendering proof.
+The archive is retained in ignored `build/local-1.2.2/`. No GitHub release,
+Homebrew update or Apple notarization submission was performed.
+
+The first pushed-main CI run (35508020675) failed with the older macOS 15.5
+SDK's non-Sendable UNNotificationSettings crossing the main actor. A separate
+main-only compatibility fix extracts UNAuthorizationStatus within the native
+callback; it does not alter permissions or suppress Swift concurrency checks.
+Ten isolated notification tests passed under the supervisor, with unchanged
+source inputs and verified cleanup. This change is not in the installed
+hotfix's recorded source digest; do not conflate main with the hotfix branch.
 
 Candidate plans, reviews and R3 assurance are in
 `docs/reliability/planning/plan-006-{candidate,review}.json`,

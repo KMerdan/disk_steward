@@ -63,7 +63,14 @@ private struct SystemMonitoringUserNotificationCenter: MonitoringUserNotificatio
     private let center = UNUserNotificationCenter.current()
 
     func authorizationStatus() async -> UNAuthorizationStatus {
-        await center.notificationSettings().authorizationStatus
+        // Older SDKs do not mark UNNotificationSettings as Sendable. Extract
+        // the value inside the callback instead of moving the settings object
+        // across the main-actor boundary via the generated async overload.
+        await withCheckedContinuation { continuation in
+            center.getNotificationSettings { settings in
+                continuation.resume(returning: settings.authorizationStatus)
+            }
+        }
     }
 
     func requestAuthorization() async throws -> Bool {
