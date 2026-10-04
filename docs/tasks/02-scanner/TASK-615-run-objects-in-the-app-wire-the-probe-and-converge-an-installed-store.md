@@ -78,6 +78,5 @@ The monitoring probe builds its scanner with the object classifier and runs the 
 - Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-615-1 is stale
 
 

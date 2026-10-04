@@ -9,9 +9,9 @@
 - Workstream: `product`
 - Selection: `primary`
 - Execution: `planned`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `not-executable`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `INTENT-006`
 
 ## Goal

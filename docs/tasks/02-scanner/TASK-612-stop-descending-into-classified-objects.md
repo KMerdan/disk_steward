@@ -72,6 +72,5 @@ The metadata scanner treats a classified object as a leaf: it records one object
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-612-1 is stale
 
 

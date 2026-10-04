@@ -70,6 +70,5 @@ Add the durable object row from the contract and migrate an existing store by co
 
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-613-1 is stale
 
 
