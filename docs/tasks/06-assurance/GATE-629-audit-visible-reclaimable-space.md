@@ -69,8 +69,6 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 
 - Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
 - Impact IMPACT-R3-TASK-623-UI remains hypothesis
-- Impact IMPACT-R4-CONTRACT-602-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-CONTRACT-602-STORE remains hypothesis
 - Impact IMPACT-R4-TASK-621-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-621-RESOURCE remains hypothesis
 - Impact IMPACT-R4-TASK-621-SCANNER remains hypothesis
@@ -82,11 +80,12 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 - Impact IMPACT-R4-TASK-631-SCANNER remains hypothesis
 - Impact IMPACT-R4-TASK-631-SETTINGS remains hypothesis
 - Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R3-617-MEASUREMENT is stale
 - Required inspection INSPECT-R3-623-INTEGRATION is planned
-- Required inspection INSPECT-R4-CONTRACT-602-1 is planned
 - Required inspection INSPECT-R4-TASK-621-1 is planned
 - Required inspection INSPECT-R4-TASK-622-1 is planned
 - Required inspection INSPECT-R4-TASK-631-1 is planned

@@ -33,7 +33,7 @@ Exercise the packaged candidate: capacity history, reserve alert, changed-direct
 
 ## Dependencies
 
-- `CONTRACT-602` (validation-requires, unverified)
+- `CONTRACT-602` (validation-requires, passed)
 - `OUTCOME-640` (validation-requires, passed)
 - `TASK-651` (validation-requires, unverified)
 - `TASK-652` (validation-requires, unverified)
@@ -71,8 +71,6 @@ Exercise the packaged candidate: capacity history, reserve alert, changed-direct
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-CONTRACT-602-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-CONTRACT-602-STORE remains hypothesis
 - Impact IMPACT-R4-TASK-651-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-651-CONTRACTS remains hypothesis
 - Impact IMPACT-R4-TASK-651-LIFECYCLE remains hypothesis
@@ -96,7 +94,10 @@ Exercise the packaged candidate: capacity history, reserve alert, changed-direct
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
 - Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-CONTRACT-602-1 is planned
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R4-TASK-614-1 is stale
+- Required inspection INSPECT-R4-TASK-641-1 is stale
+- Required inspection INSPECT-R4-TASK-642-2 is stale
 - Required inspection INSPECT-R4-TASK-651-1 is planned
 - Required inspection INSPECT-R4-TASK-651-2 is planned
 - Required inspection INSPECT-R4-TASK-652-1 is planned

@@ -8,10 +8,10 @@
 - Wave: `2`
 - Workstream: `store`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `verified`
 - Goal trace: `CONTRACT-602` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -66,17 +66,13 @@ Define the storage rules every new store follows: a cap table, insert-time evict
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-CONTRACT-602-STORE`, `IMPACT-R4-CONTRACT-602-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-CONTRACT-602-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-CONTRACT-602-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-CONTRACT-602-STORE remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-CONTRACT-602-1 is planned
+- None
 
 

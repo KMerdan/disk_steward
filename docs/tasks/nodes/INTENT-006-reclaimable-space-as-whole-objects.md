@@ -66,8 +66,6 @@ Disk Steward reports build output, shared developer caches and repositories as s
 
 - Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
 - Impact IMPACT-R3-TASK-623-UI remains hypothesis
-- Impact IMPACT-R4-CONTRACT-602-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-CONTRACT-602-STORE remains hypothesis
 - Impact IMPACT-R4-GATE-659-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-GATE-659-BUILD remains hypothesis
 - Impact IMPACT-R4-GATE-659-LIFECYCLE remains hypothesis
@@ -128,19 +126,25 @@ Disk Steward reports build output, shared developer caches and repositories as s
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-MCP lacks a sufficient passing inspection
 - Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R3-617-MEASUREMENT is stale
 - Required inspection INSPECT-R3-623-INTEGRATION is planned
-- Required inspection INSPECT-R4-CONTRACT-602-1 is planned
+- Required inspection INSPECT-R4-GATE-649-SAFETY is stale
 - Required inspection INSPECT-R4-GATE-659-DISPLAY is planned
 - Required inspection INSPECT-R4-GATE-659-SAFETY is planned
 - Required inspection INSPECT-R4-GATE-669-DISPLAY is planned
 - Required inspection INSPECT-R4-GATE-669-SAFETY is planned
 - Required inspection INSPECT-R4-GATE-679-DISPLAY is planned
 - Required inspection INSPECT-R4-GATE-679-SAFETY is planned
+- Required inspection INSPECT-R4-TASK-614-1 is stale
 - Required inspection INSPECT-R4-TASK-621-1 is planned
 - Required inspection INSPECT-R4-TASK-622-1 is planned
 - Required inspection INSPECT-R4-TASK-631-1 is planned
+- Required inspection INSPECT-R4-TASK-641-1 is stale
+- Required inspection INSPECT-R4-TASK-642-2 is stale
 - Required inspection INSPECT-R4-TASK-651-1 is planned
 - Required inspection INSPECT-R4-TASK-651-2 is planned
 - Required inspection INSPECT-R4-TASK-652-1 is planned

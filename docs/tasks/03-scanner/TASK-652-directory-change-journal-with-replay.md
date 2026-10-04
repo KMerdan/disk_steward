@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-652` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -38,7 +38,7 @@ Replace the per-file targeted stream with one directory-level FSEvents stream wh
 
 ## Dependencies
 
-- `CONTRACT-602` (contract-requires, unverified)
+- `CONTRACT-602` (contract-requires, passed)
 
 ## Required Context
 

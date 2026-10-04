@@ -1,0 +1,314 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261004T102612518979Z-8E312A26",
+  "at": "2026-10-04T10:26:12.518755Z",
+  "graph_version": 75,
+  "actor": "claude",
+  "type": "task.implemented",
+  "node": "CONTRACT-602",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "clear",
+    "owner": "claude",
+    "lease_expires_at": "2026-10-04T12:18:06.654642Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T10:18:06.654652Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T10:26:12.518716Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-602",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/BoundedStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/BoundedStoreContractTests.swift",
+        "docs/reliability/evidence/CONTRACT-602/README.md",
+        "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md",
+        "docs/reliability/evidence/CONTRACT-602/focused-green/result.json",
+        "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/mut-no-eviction.json",
+        "docs/reliability/evidence/CONTRACT-602/mut-no-index-term.json",
+        "docs/reliability/evidence/CONTRACT-602/mut-no-size-refusal.json",
+        "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
+        "docs/reliability/evidence/CONTRACT-602/no-eviction-red/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+        "docs/reliability/evidence/CONTRACT-602/no-index-term-red/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
+        "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-STORE",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/BoundedStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/BoundedStoreContractTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/focused-green/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/mut-no-eviction.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/mut-no-index-term.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/mut-no-size-refusal.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-eviction-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-index-term-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "run-focused.py BoundedStoreContract",
+          "result": "7 tests passed"
+        },
+        {
+          "command": "run-mutation.py mut-no-eviction.json / mut-no-size-refusal.json / mut-no-index-term.json",
+          "result": "each red as intended"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-CONTRACT-602-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md"
+        },
+        {
+          "criterion": "AC-CONTRACT-602-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/CONTRACT-602/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "The design document's data-model table is stale; corrected separately outside this task's assets."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": "Bounded store contract: row+byte caps at write, size refusal at write, windowed readers, static ceiling 28.44/32 MiB; 7 tests, three reds",
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-602",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardCore/EvidenceStore/BoundedStore.swift",
+        "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/BoundedStoreContractTests.swift",
+        "docs/reliability/evidence/CONTRACT-602/README.md",
+        "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md",
+        "docs/reliability/evidence/CONTRACT-602/focused-green/result.json",
+        "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/mut-no-eviction.json",
+        "docs/reliability/evidence/CONTRACT-602/mut-no-index-term.json",
+        "docs/reliability/evidence/CONTRACT-602/mut-no-size-refusal.json",
+        "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
+        "docs/reliability/evidence/CONTRACT-602/no-eviction-red/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+        "docs/reliability/evidence/CONTRACT-602/no-index-term-red/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
+        "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/tests.log",
+        "docs/reliability/evidence/CONTRACT-602/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-STORE",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/BoundedStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/BoundedStoreContractTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/focused-green/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/mut-no-eviction.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/mut-no-index-term.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/mut-no-size-refusal.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-eviction-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-index-term-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-602/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "run-focused.py BoundedStoreContract",
+          "result": "7 tests passed"
+        },
+        {
+          "command": "run-mutation.py mut-no-eviction.json / mut-no-size-refusal.json / mut-no-index-term.json",
+          "result": "each red as intended"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-CONTRACT-602-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md"
+        },
+        {
+          "criterion": "AC-CONTRACT-602-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/CONTRACT-602/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "The design document's data-model table is stale; corrected separately outside this task's assets."
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": [
+      "INSPECT-R3-616-EVIDENCE",
+      "INSPECT-R3-617-MEASUREMENT",
+      "INSPECT-R4-GATE-649-SAFETY",
+      "INSPECT-R4-TASK-614-1",
+      "INSPECT-R4-TASK-641-1",
+      "INSPECT-R4-TASK-642-2"
+    ]
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 4,
+  "context_id": "CTX-2733B88E3C892F542F62CB7E9E2F227D",
+  "previous_event_id": "EVENT-20261004T101806654871Z-86EADDE8",
+  "previous_event_sha256": "f77cfb80c800b9dc9727beec64360808b183dd7a6e20f030c0d86d24b727d061"
+}

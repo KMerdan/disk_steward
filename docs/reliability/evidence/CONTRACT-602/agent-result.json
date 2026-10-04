@@ -1,0 +1,125 @@
+{
+ "schema": "agent-result-v1",
+ "task": "CONTRACT-602",
+ "outcome": "implemented",
+ "changed_files": [
+  "Sources/DiskStewardCore/EvidenceStore/BoundedStore.swift",
+  "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+  "Tests/DiskStewardCoreTests/EvidenceStore/BoundedStoreContractTests.swift",
+  "docs/reliability/evidence/CONTRACT-602/README.md",
+  "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md",
+  "docs/reliability/evidence/CONTRACT-602/focused-green/result.json",
+  "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
+  "docs/reliability/evidence/CONTRACT-602/mut-no-eviction.json",
+  "docs/reliability/evidence/CONTRACT-602/mut-no-index-term.json",
+  "docs/reliability/evidence/CONTRACT-602/mut-no-size-refusal.json",
+  "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
+  "docs/reliability/evidence/CONTRACT-602/no-eviction-red/tests.log",
+  "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+  "docs/reliability/evidence/CONTRACT-602/no-index-term-red/tests.log",
+  "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
+  "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/tests.log",
+  "docs/reliability/evidence/CONTRACT-602/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-STORE",
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/BoundedStore.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/SQLiteConnection.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardCoreTests/EvidenceStore/BoundedStoreContractTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/focused-green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/mut-no-eviction.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/mut-no-index-term.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/mut-no-size-refusal.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/no-eviction-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/no-index-term-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/CONTRACT-602/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "run-focused.py BoundedStoreContract",
+   "result": "7 tests passed"
+  },
+  {
+   "command": "run-mutation.py mut-no-eviction.json / mut-no-size-refusal.json / mut-no-index-term.json",
+   "result": "each red as intended"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-CONTRACT-602-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/CONTRACT-602/bounded-store-contract.md"
+  },
+  {
+   "criterion": "AC-CONTRACT-602-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/CONTRACT-602/README.md"
+  }
+ ],
+ "discovered_risks": [
+  "The design document's data-model table is stale; corrected separately outside this task's assets."
+ ],
+ "suggested_graph_changes": []
+}

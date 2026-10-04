@@ -130,6 +130,11 @@ final class SQLiteConnection {
         }, nil)
     }
 
+    /// Rows changed by the most recent statement on this connection.
+    func changeCount() throws -> Int {
+        Int(sqlite3_changes(try requireHandle()))
+    }
+
     func scalarInt(_ sql: String) throws -> Int64 {
         try withStatement(sql) { statement in
             guard sqlite3_step(statement) == SQLITE_ROW else { throw lastError() }

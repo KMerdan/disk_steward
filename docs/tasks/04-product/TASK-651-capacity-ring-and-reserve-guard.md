@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-651` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -37,7 +37,7 @@ Keep capacity samples in their own capped ring file and alert against a user-cho
 
 ## Dependencies
 
-- `CONTRACT-602` (contract-requires, unverified)
+- `CONTRACT-602` (contract-requires, passed)
 - `TASK-642` (requires, passed)
 
 ## Required Context

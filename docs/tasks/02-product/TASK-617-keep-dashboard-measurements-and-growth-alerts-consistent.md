@@ -83,13 +83,15 @@ Repair the observed dashboard update path with one observation-bound presentatio
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-LIFECYCLE`, `ASSET-SCANNER`, `ASSET-UI`
 - Inspections: `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-617-MEASUREMENT is stale
 
 

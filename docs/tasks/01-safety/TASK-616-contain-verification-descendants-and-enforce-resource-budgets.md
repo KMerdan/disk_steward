@@ -74,13 +74,14 @@ Repair the verification boundary exposed by a timed-out Swift test leaving an or
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-RESOURCE`
 - Inspections: `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
 
 

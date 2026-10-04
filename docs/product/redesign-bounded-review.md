@@ -164,14 +164,23 @@ These rules make the September failures impossible by construction.
 
 ## Data model and budget
 
-| Store | Contents | Cap | Size |
+Each table is capped by rows **and** by payload bytes. Only short keys are
+indexed, never paths. Eviction is defined per table, and readers return
+bounded windows. The authoritative caps and rules are in the contract:
+[bounded-store-contract.md](../reliability/evidence/CONTRACT-602/bounded-store-contract.md).
+
+| Store | Contents | Rows | Worst case |
 | --- | --- | --- | --- |
-| Capacity ring (own file) | volume, time, total, available, important-available | 2,016 fine + 8,760 hourly per volume, ≤ 4 volumes | < 1 MiB |
-| Change journal | per-volume `lastEventId` and UUID; dirty set per interval | 2,000 dirty entries per interval (overflow collapses to parent), 7 days | < 2 MiB |
-| Object index | path, kind, project, recreate class, allocated bytes, file count, measured_at, last source activity | 20,000 | ~8 MiB |
-| Review reports | `ReviewReport` header and items | 20 reports × 2,000 items | ~16 MiB |
-| Sessions | agent sessions and their dirty-object impact | 500 × 200 | ~4 MiB |
-| **Total** | | | **≤ 32 MiB** |
+| Capacity ring (own file, rollback journal) | volumes; 5-minute and hourly samples | 8,064 fine + 35,040 hourly | 3.2 MiB |
+| Change journal | per-volume cursor; dirty directories per interval | 14,000 dirty (2,000 per interval) | 3.8 MiB |
+| Projects and object index | project roots; objects with size, kind, recreate class, freshness | 2,000 + 20,000 | 9.7 MiB |
+| Review reports | report headers and ranked items | 20 reports, 40,000 items | 8.9 MiB |
+| Sessions | agent sessions and their directory impact | 500 + 10,000 | 2.9 MiB |
+| **Total** | | | **28.4 MiB, under the 32 MiB ceiling** |
+
+The write-ahead log is limited to 4 MiB on top of that. An earlier version
+of this table used row caps only and underestimated sizes; CONTRACT-602
+corrected it.
 
 This replaces a 512 MiB store that cannot hold one complete scan.
 

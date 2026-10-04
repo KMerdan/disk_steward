@@ -64,13 +64,20 @@ Exercise the packaged candidate against a captured copy of the stuck live store:
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R4-TASK-641-STORE`, `IMPACT-R4-TASK-641-QUERY`, `IMPACT-R4-TASK-641-ASSURANCE`, `IMPACT-R4-TASK-642-QUERY`, `IMPACT-R4-TASK-642-IPC`, `IMPACT-R4-TASK-642-ASSURANCE`, `IMPACT-R4-TASK-614-LIFECYCLE`, `IMPACT-R4-TASK-614-STORE`, `IMPACT-R4-TASK-614-ASSURANCE`, `IMPACT-R4-TASK-641-IPC`, `IMPACT-R4-TASK-642-LIFECYCLE`, `IMPACT-R4-TASK-642-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-BUILD`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R4-TASK-641-1`, `INSPECT-R4-TASK-642-1`, `INSPECT-R4-TASK-642-2`, `INSPECT-R4-TASK-614-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R3-617-MEASUREMENT is stale
+- Required inspection INSPECT-R4-TASK-614-1 is stale
+- Required inspection INSPECT-R4-TASK-641-1 is stale
+- Required inspection INSPECT-R4-TASK-642-2 is stale
 
 
