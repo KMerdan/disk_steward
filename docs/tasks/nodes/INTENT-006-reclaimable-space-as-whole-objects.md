@@ -98,15 +98,19 @@ Disk Steward reports build output, shared developer caches and repositories as s
 - Impact IMPACT-R4-TASK-672-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-672-ATTRIBUTION remains hypothesis
 - Impact IMPACT-R4-TASK-672-QUERY remains hypothesis
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-ATTRIBUTION lacks a sufficient passing inspection
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
 - Impacted asset ASSET-DISTRIBUTION lacks a sufficient passing inspection
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-MCP lacks a sufficient passing inspection
 - Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
@@ -134,5 +138,7 @@ Disk Steward reports build output, shared developer caches and repositories as s
 - Required inspection INSPECT-R4-TASK-671-1 is stale
 - Required inspection INSPECT-R4-TASK-671-2 is stale
 - Required inspection INSPECT-R4-TASK-672-1 is stale
+- Required inspection INSPECT-RESEARCH-601-1 is stale
+- Required inspection INSPECT-TASK-611-1 is stale
 
 

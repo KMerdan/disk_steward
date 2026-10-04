@@ -1,0 +1,321 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-006-R6",
+ "stage": "candidate",
+ "outcome": "simplified",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 5,
+  "sha256": "cdd9c249798fd3aafe987886922a03b785ea4be20fb49eed5000e288fecab165"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 6,
+  "sha256": "871f14eb35dc9ebd6815bde2e2ddcf2aa04c3770ce616f98927e0a19de29145c"
+ },
+ "facts": [
+  {
+   "id": "FACT-R6-NO-DIRECTORY-SIZES",
+   "claim": "APFS keeps no subtree size for a directory, so an object's allocated size can only be measured by visiting the files inside it; AC-TASK-621-02 requires object totals within 5% of du, which visits them too.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "AC-TASK-621-02",
+    "docs/product/redesign-bounded-review.md (Walk: allocated sizes are summed in memory)"
+   ],
+   "supports": [
+    "TASK-621"
+   ],
+   "freshness": "2026-10-04"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FIND-R6-01",
+   "class": "ambiguous-acceptance",
+   "affected_nodes": [
+    "TASK-621"
+   ],
+   "claim": "R5's wording 'its size is summed without the walker enumerating inside it' cannot be met together with AC-TASK-621-02's du comparison; the guarantee intended is that nothing inside an object is classified, listed or persisted.",
+   "evidence": [
+    "FACT-R6-NO-DIRECTORY-SIZES"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "AC-TASK-621-01 states that inside an object nothing is classified, listed or persisted and its size comes from a size-only pass with hard links counted once.",
+   "rationale": "Restores the R4 meaning of pruning (no per-object-internal evidence) while keeping the size requirement achievable; no other node changes."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-601",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-602",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-603",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-604",
+   "before_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-605",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-606",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-607",
+   "before_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-608",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-609",
+   "before_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-610",
+   "before_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-611",
+   "before_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "preserved",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "preserved",
+  "audit_closure": "preserved",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 28,
+   "executable_nodes": 23,
+   "edges": 83,
+   "hard_dependencies": 32,
+   "audit_gates": 4
+  },
+  "after": {
+   "nodes": 28,
+   "executable_nodes": 23,
+   "edges": 83,
+   "hard_dependencies": 32,
+   "audit_gates": 4
+  }
+ },
+ "summary": "Wording correction of one acceptance criterion of TASK-621 (introduced in R5); topology, requirements and every other node are unchanged.",
+ "limitations": [
+  "TASK-621 was claimed but no implementation had been recorded when its acceptance wording was corrected."
+ ]
+}

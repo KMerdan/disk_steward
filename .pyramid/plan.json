@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "PLAN-DISK-STEWARD-006",
   "title": "Reclaimable Space As Whole Objects",
-  "revision": 5,
+  "revision": 6,
   "intent": {
     "id": "INTENT-006",
     "statement": "Disk Steward treats build output, shared developer caches and repositories as single evidence objects rather than per-file rows, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and an explicit review step before anything is removed.",
@@ -781,7 +781,7 @@
       "acceptance_criteria": [
         {
           "id": "AC-TASK-621-01",
-          "description": "A review prunes at objects classified by the TASK-611 rules: a classified object is one entry whose size is summed without the walker enumerating inside it. It sums allocated sizes in memory and persists no per-file rows; the object index holds at most 20,000 rows; budgets of 120 s wall, 5 M entries and 256 MiB at utility QoS are enforced in the worker; visiting more than twice the previous review's entries or revisiting a directory stops the review; a stopped review yields a partial report naming covered scope; the scope then cools down for 24 hours and nothing resumes after relaunch."
+          "description": "A review prunes at objects classified by the TASK-611 rules: a classified object is one entry; inside it nothing is classified, listed or persisted, and its allocated size is summed in memory by a size-only pass (hard links counted once). The review persists no per-file rows; the object index holds at most 20,000 rows; budgets of 120 s wall, 5 M entries and 256 MiB at utility QoS are enforced in the worker; visiting more than twice the previous review's entries or revisiting a directory stops the review; a stopped review yields a partial report naming covered scope; the scope then cools down for 24 hours and nothing resumes after relaunch."
         },
         {
           "id": "AC-TASK-621-02",

@@ -8,10 +8,10 @@
 - Wave: `3`
 - Workstream: `scanner`
 - Selection: `primary`
-- Execution: `planned`
+- Execution: `working`
 - Verification: `unverified`
-- Health: `at-risk`
-- Availability: `ready`
+- Health: `clear`
+- Availability: `working`
 - Goal trace: `TASK-621` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -55,7 +55,7 @@ Walk a review scope with getattrlistbulk, prune at classified objects, sum alloc
 
 ## Acceptance Criteria
 
-- `AC-TASK-621-01` — A review prunes at objects classified by the TASK-611 rules: a classified object is one entry whose size is summed without the walker enumerating inside it. It sums allocated sizes in memory and persists no per-file rows; the object index holds at most 20,000 rows; budgets of 120 s wall, 5 M entries and 256 MiB at utility QoS are enforced in the worker; visiting more than twice the previous review's entries or revisiting a directory stops the review; a stopped review yields a partial report naming covered scope; the scope then cools down for 24 hours and nothing resumes after relaunch.
+- `AC-TASK-621-01` — A review prunes at objects classified by the TASK-611 rules: a classified object is one entry; inside it nothing is classified, listed or persisted, and its allocated size is summed in memory by a size-only pass (hard links counted once). The review persists no per-file rows; the object index holds at most 20,000 rows; budgets of 120 s wall, 5 M entries and 256 MiB at utility QoS are enforced in the worker; visiting more than twice the previous review's entries or revisiting a directory stops the review; a stopped review yields a partial report naming covered scope; the scope then cools down for 24 hours and nothing resumes after relaunch.
 - `AC-TASK-621-02` — On the maintainer's Mac a localGit review completes in under 60 s with cold and warm cache recorded, object totals within 5% of du; a synthetic million-file tree stops within budget with a partial report. This validates ASM-602.
 
 ## Required Evidence

@@ -83,13 +83,17 @@ The user starts a review of localGit or an opted-in cache and within a minute se
 - Impact IMPACT-R4-TASK-661-QUERY remains hypothesis
 - Impact IMPACT-R4-TASK-661-SCANNER remains hypothesis
 - Impact IMPACT-R4-TASK-661-STORE remains hypothesis
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
 - Impacted asset ASSET-DISTRIBUTION lacks a sufficient passing inspection
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
@@ -112,5 +116,7 @@ The user starts a review of localGit or an opted-in cache and within a minute se
 - Required inspection INSPECT-R4-TASK-653-1 is stale
 - Required inspection INSPECT-R4-TASK-653-2 is stale
 - Required inspection INSPECT-R4-TASK-661-1 is stale
+- Required inspection INSPECT-RESEARCH-601-1 is stale
+- Required inspection INSPECT-TASK-611-1 is stale
 
 
