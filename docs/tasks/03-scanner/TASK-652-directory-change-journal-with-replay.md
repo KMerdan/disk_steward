@@ -9,9 +9,9 @@
 - Workstream: `scanner`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-652` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -38,7 +38,7 @@ Replace the per-file targeted stream with one directory-level FSEvents stream wh
 
 ## Dependencies
 
-- `CONTRACT-602` (contract-requires, pending)
+- `CONTRACT-602` (contract-requires, passed)
 
 ## Required Context
 
@@ -69,22 +69,13 @@ Replace the per-file targeted stream with one directory-level FSEvents stream wh
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-652-SCANNER`, `IMPACT-R4-TASK-652-STORE`, `IMPACT-R4-TASK-652-QUERY`, `IMPACT-R4-TASK-652-LIFECYCLE`, `IMPACT-R4-TASK-652-ASSURANCE`, `IMPACT-R4-TASK-652-BOOT`, `IMPACT-R4-TASK-652-CONTRACTS`, `IMPACT-R4-TASK-652-IPC`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-CONTRACTS`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-652-1`, `INSPECT-R4-TASK-652-2`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
-- Impacted asset ASSET-IPC lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-652-1 is stale
-- Required inspection INSPECT-R4-TASK-652-2 is stale
+- None
 
 

@@ -9,9 +9,9 @@
 - Workstream: `scanner`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-621` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -38,7 +38,7 @@ Walk a review scope with getattrlistbulk, prune at classified objects, sum alloc
 ## Dependencies
 
 - `CONTRACT-601` (contract-requires, passed)
-- `CONTRACT-602` (contract-requires, pending)
+- `CONTRACT-602` (contract-requires, passed)
 - `TASK-616` (requires, passed)
 - `TASK-611` (requires, passed)
 
@@ -69,17 +69,13 @@ Walk a review scope with getattrlistbulk, prune at classified objects, sum alloc
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-621-SCANNER`, `IMPACT-R4-TASK-621-STORE`, `IMPACT-R4-TASK-621-RESOURCE`, `IMPACT-R4-TASK-621-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-621-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-621-1 is stale
+- None
 
 

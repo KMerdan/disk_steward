@@ -1,0 +1,624 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261004T220452104408Z-3B38FF5A",
+  "at": "2026-10-04T22:04:52.104196Z",
+  "graph_version": 161,
+  "actor": "claude",
+  "type": "audit.pass",
+  "node": "GATE-649",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+    "updated_at": "2026-10-04T19:42:51.752981Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-649",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+        "docs/reliability/evidence/GATE-649/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/reliability/evidence/GATE-649/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "verify_candidate.py --xcodegen on 887d62f1",
+          "result": "618 tests, 7 skipped, 0 failures; package-build retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "build/releases/1.3.0/build-release-10.py (signed archive, smoke, helper)",
+          "result": "passed; archive retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "xcodebuild -exportArchive (upload) + -exportNotarizedApp + verify-release x2",
+          "result": "notarized and verified; SHA-256 7d1d8941...0657"
+        },
+        {
+          "command": "installed 1.3.0 (10): 15-minute CPU, self-check, MCP",
+          "result": "0.40% of one core; connected; summaries answer"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-GATE-649-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        },
+        {
+          "criterion": "AC-GATE-649-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "FIND-R4-XCODE-WORKER",
+        "FIND-R4-SUPERVISOR-RACE",
+        "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+        "FIND-R4-LIFECYCLE-RESPONSE-SIZE"
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-649",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-GATE-649-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/GATE-649/README.md",
+            "docs/reliability/evidence/GATE-649/agent-result.json",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json"
+          ]
+        },
+        {
+          "id": "AC-GATE-649-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/GATE-649/README.md",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+            "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-649"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R4-TASK-614-ASSURANCE",
+          "IMPACT-R4-TASK-614-LIFECYCLE",
+          "IMPACT-R4-TASK-614-STORE",
+          "IMPACT-R4-TASK-641-ASSURANCE",
+          "IMPACT-R4-TASK-641-IPC",
+          "IMPACT-R4-TASK-641-QUERY",
+          "IMPACT-R4-TASK-641-STORE",
+          "IMPACT-R4-TASK-642-ASSURANCE",
+          "IMPACT-R4-TASK-642-BOOT",
+          "IMPACT-R4-TASK-642-IPC",
+          "IMPACT-R4-TASK-642-LIFECYCLE",
+          "IMPACT-R4-TASK-642-QUERY"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R4-GATE-649-DISPLAY",
+          "INSPECT-R4-GATE-649-SAFETY",
+          "INSPECT-R4-TASK-614-1",
+          "INSPECT-R4-TASK-641-1",
+          "INSPECT-R4-TASK-642-1",
+          "INSPECT-R4-TASK-642-2"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD",
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R4-IDLE-CPU",
+          "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+          "FIND-R4-SUPERVISOR-RACE",
+          "FIND-R4-XCODE-WORKER"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "The first installed candidate, 1.3.0 (9), failed the idle-CPU criterion (11.4%); TASK-614 was reopened and the passing measurement is on 1.3.0 (10).",
+          "Packaged and archive builds each retained one Xcode worker (FIND-R4-XCODE-WORKER, open, medium); supervision stopped it with cleanup verified.",
+          "Idle measured for 15 minutes on one Mac with detail scanning stopped; nothing has been published."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T22:04:52.104138Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-649",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+        "docs/reliability/evidence/GATE-649/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/reliability/evidence/GATE-649/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "verify_candidate.py --xcodegen on 887d62f1",
+          "result": "618 tests, 7 skipped, 0 failures; package-build retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "build/releases/1.3.0/build-release-10.py (signed archive, smoke, helper)",
+          "result": "passed; archive retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "xcodebuild -exportArchive (upload) + -exportNotarizedApp + verify-release x2",
+          "result": "notarized and verified; SHA-256 7d1d8941...0657"
+        },
+        {
+          "command": "installed 1.3.0 (10): 15-minute CPU, self-check, MCP",
+          "result": "0.40% of one core; connected; summaries answer"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-GATE-649-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        },
+        {
+          "criterion": "AC-GATE-649-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "FIND-R4-XCODE-WORKER",
+        "FIND-R4-SUPERVISOR-RACE",
+        "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+        "FIND-R4-LIFECYCLE-RESPONSE-SIZE"
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-649",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-GATE-649-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/GATE-649/README.md",
+            "docs/reliability/evidence/GATE-649/agent-result.json",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-GATE-649-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/GATE-649/README.md",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+            "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-649"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R4-TASK-614-ASSURANCE",
+          "IMPACT-R4-TASK-614-LIFECYCLE",
+          "IMPACT-R4-TASK-614-STORE",
+          "IMPACT-R4-TASK-641-ASSURANCE",
+          "IMPACT-R4-TASK-641-IPC",
+          "IMPACT-R4-TASK-641-QUERY",
+          "IMPACT-R4-TASK-641-STORE",
+          "IMPACT-R4-TASK-642-ASSURANCE",
+          "IMPACT-R4-TASK-642-BOOT",
+          "IMPACT-R4-TASK-642-IPC",
+          "IMPACT-R4-TASK-642-LIFECYCLE",
+          "IMPACT-R4-TASK-642-QUERY"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R4-TASK-614-1",
+          "INSPECT-R4-TASK-641-1",
+          "INSPECT-R4-TASK-642-1",
+          "INSPECT-R4-TASK-642-2"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD",
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R4-IDLE-CPU",
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+          "FIND-R4-SUPERVISOR-RACE",
+          "FIND-R4-XCODE-WORKER"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "The first installed candidate, 1.3.0 (9), failed the idle-CPU criterion (11.4%); TASK-614 was reopened and the passing measurement is on 1.3.0 (10).",
+          "Packaged and archive builds each retained one Xcode worker (FIND-R4-XCODE-WORKER, open, medium); supervision stopped it with cleanup verified.",
+          "Idle measured for 15 minutes on one Mac with detail scanning stopped; nothing has been published.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "GATE-649",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-GATE-649-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/GATE-649/README.md",
+            "docs/reliability/evidence/GATE-649/agent-result.json",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+            "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-GATE-649-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/GATE-649/README.md",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+            "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "GATE-649"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE",
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R4-TASK-614-ASSURANCE",
+          "IMPACT-R4-TASK-614-LIFECYCLE",
+          "IMPACT-R4-TASK-614-STORE",
+          "IMPACT-R4-TASK-641-ASSURANCE",
+          "IMPACT-R4-TASK-641-IPC",
+          "IMPACT-R4-TASK-641-QUERY",
+          "IMPACT-R4-TASK-641-STORE",
+          "IMPACT-R4-TASK-642-ASSURANCE",
+          "IMPACT-R4-TASK-642-BOOT",
+          "IMPACT-R4-TASK-642-IPC",
+          "IMPACT-R4-TASK-642-LIFECYCLE",
+          "IMPACT-R4-TASK-642-QUERY"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE",
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R4-TASK-614-1",
+          "INSPECT-R4-TASK-641-1",
+          "INSPECT-R4-TASK-642-1",
+          "INSPECT-R4-TASK-642-2"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD",
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R4-IDLE-CPU",
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+          "FIND-R4-SUPERVISOR-RACE",
+          "FIND-R4-XCODE-WORKER"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "The first installed candidate, 1.3.0 (9), failed the idle-CPU criterion (11.4%); TASK-614 was reopened and the passing measurement is on 1.3.0 (10).",
+          "Packaged and archive builds each retained one Xcode worker (FIND-R4-XCODE-WORKER, open, medium); supervision stopped it with cleanup verified.",
+          "Idle measured for 15 minutes on one Mac with detail scanning stopped; nothing has been published.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+        ]
+      }
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 10,
+  "context_id": "CTX-2F56F67E210F294FE979CEAB2C6985F9",
+  "previous_event_id": "EVENT-20261004T220444572025Z-4DA4C7F7",
+  "previous_event_sha256": "a2450597bf8f942a4c244738ec76e74cb12d4bbdd7e57e3ead3d7e42d8ef4f05"
+}

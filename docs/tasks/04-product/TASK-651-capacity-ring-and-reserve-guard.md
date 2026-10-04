@@ -9,9 +9,9 @@
 - Workstream: `product`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-651` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -37,8 +37,8 @@ Keep capacity samples in their own capped ring file and alert against a user-cho
 
 ## Dependencies
 
-- `CONTRACT-602` (contract-requires, pending)
-- `TASK-642` (requires, pending)
+- `CONTRACT-602` (contract-requires, passed)
+- `TASK-642` (requires, passed)
 
 ## Required Context
 
@@ -67,22 +67,13 @@ Keep capacity samples in their own capped ring file and alert against a user-cho
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-651-STORE`, `IMPACT-R4-TASK-651-CONTRACTS`, `IMPACT-R4-TASK-651-LIFECYCLE`, `IMPACT-R4-TASK-651-SETTINGS`, `IMPACT-R4-TASK-651-UI`, `IMPACT-R4-TASK-651-ASSURANCE`, `IMPACT-R4-TASK-651-QUERY`, `IMPACT-R4-TASK-651-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-CONTRACTS`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SETTINGS`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R4-TASK-651-1`, `INSPECT-R4-TASK-651-2`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-651-1 is stale
-- Required inspection INSPECT-R4-TASK-651-2 is stale
+- None
 
 

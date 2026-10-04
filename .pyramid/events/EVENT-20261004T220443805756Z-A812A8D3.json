@@ -1,0 +1,572 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261004T220443805756Z-A812A8D3",
+  "at": "2026-10-04T22:04:43.805544Z",
+  "graph_version": 158,
+  "actor": "claude",
+  "type": "audit.pass",
+  "node": "TASK-641",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+    "updated_at": "2026-10-04T19:42:51.752981Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-641",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleSummary.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift",
+        "docs/reliability/evidence/TASK-641/README.md",
+        "docs/reliability/evidence/TASK-641/focused-green/result.json",
+        "docs/reliability/evidence/TASK-641/focused-green/tests.log",
+        "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+        "docs/reliability/evidence/TASK-641/gap-budget-red/tests.log",
+        "docs/reliability/evidence/TASK-641/mut-prefix-coverage-verdict.json",
+        "docs/reliability/evidence/TASK-641/mut-whole-table-gap-budget.json",
+        "docs/reliability/evidence/TASK-641/mut-whole-table-retention-budget.json",
+        "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+        "docs/reliability/evidence/TASK-641/prefix-verdict-red/tests.log",
+        "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+        "docs/reliability/evidence/TASK-641/retention-budget-red/tests.log",
+        "docs/reliability/evidence/TASK-641/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-STORE",
+        "ASSET-QUERY",
+        "ASSET-IPC",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleSummary.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/focused-green/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/focused-green/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/gap-budget-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/mut-prefix-coverage-verdict.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/mut-whole-table-gap-budget.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/mut-whole-table-retention-budget.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/prefix-verdict-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/retention-budget-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 Scripts/Testing/bootstrap_supervision.py",
+          "result": "passed on main 2026-10-04 (docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log)"
+        },
+        {
+          "command": "docs/reliability/handoffs/harness/run-focused.py 'LifecycleProjection|EvidenceStoreTests|AuthoritativeMCPReadModel|StatusBoardPresentation|VolumePresentation|HelperVerification|ExportSafety|EvidenceBundle|AppEvidenceIPC|EvidenceQuery' 1800",
+          "result": "passed: 89 tests, input 5b4e533d, repository unchanged"
+        },
+        {
+          "command": "run-mutation.py mut-whole-table-gap-budget.json LifecycleProjection",
+          "result": "red as intended: 2 failures"
+        },
+        {
+          "command": "run-mutation.py mut-prefix-coverage-verdict.json LifecycleProjection",
+          "result": "red as intended: 2 assertion failures"
+        },
+        {
+          "command": "run-mutation.py mut-whole-table-retention-budget.json ForcedEviction",
+          "result": "red as intended: 2 failures"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-641-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-641/README.md"
+        },
+        {
+          "criterion": "AC-TASK-641-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-641/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "Non-summary tools still read coverage gaps unbounded for their verdicts; TASK-671 replaces them."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-641",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-641-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-641/README.md",
+            "docs/reliability/evidence/TASK-641/agent-result.json",
+            "docs/reliability/evidence/TASK-641/focused-green/result.json",
+            "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+            "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+            "docs/reliability/evidence/TASK-641/retention-budget-red/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-641-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-641/README.md",
+            "docs/reliability/evidence/TASK-641/agent-result.json",
+            "docs/reliability/evidence/TASK-641/focused-green/result.json",
+            "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+            "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+            "docs/reliability/evidence/TASK-641/retention-budget-red/result.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-641"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R4-TASK-641-ASSURANCE",
+          "IMPACT-R4-TASK-641-IPC",
+          "IMPACT-R4-TASK-641-QUERY",
+          "IMPACT-R4-TASK-641-STORE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R4-TASK-641-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "Fixture-shaped stores only; the captured live-store scenario belongs to GATE-649.",
+          "Candidate input 5b4e533d is uncommitted; nothing installed."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T22:04:43.805484Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-641",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleSummary.swift",
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+        "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+        "Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift",
+        "docs/reliability/evidence/TASK-641/README.md",
+        "docs/reliability/evidence/TASK-641/focused-green/result.json",
+        "docs/reliability/evidence/TASK-641/focused-green/tests.log",
+        "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+        "docs/reliability/evidence/TASK-641/gap-budget-red/tests.log",
+        "docs/reliability/evidence/TASK-641/mut-prefix-coverage-verdict.json",
+        "docs/reliability/evidence/TASK-641/mut-whole-table-gap-budget.json",
+        "docs/reliability/evidence/TASK-641/mut-whole-table-retention-budget.json",
+        "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+        "docs/reliability/evidence/TASK-641/prefix-verdict-red/tests.log",
+        "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+        "docs/reliability/evidence/TASK-641/retention-budget-red/tests.log",
+        "docs/reliability/evidence/TASK-641/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-STORE",
+        "ASSET-QUERY",
+        "ASSET-IPC",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleSummary.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/focused-green/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/focused-green/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/gap-budget-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/mut-prefix-coverage-verdict.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/mut-whole-table-gap-budget.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/mut-whole-table-retention-budget.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/prefix-verdict-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/retention-budget-red/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-641/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 Scripts/Testing/bootstrap_supervision.py",
+          "result": "passed on main 2026-10-04 (docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log)"
+        },
+        {
+          "command": "docs/reliability/handoffs/harness/run-focused.py 'LifecycleProjection|EvidenceStoreTests|AuthoritativeMCPReadModel|StatusBoardPresentation|VolumePresentation|HelperVerification|ExportSafety|EvidenceBundle|AppEvidenceIPC|EvidenceQuery' 1800",
+          "result": "passed: 89 tests, input 5b4e533d, repository unchanged"
+        },
+        {
+          "command": "run-mutation.py mut-whole-table-gap-budget.json LifecycleProjection",
+          "result": "red as intended: 2 failures"
+        },
+        {
+          "command": "run-mutation.py mut-prefix-coverage-verdict.json LifecycleProjection",
+          "result": "red as intended: 2 assertion failures"
+        },
+        {
+          "command": "run-mutation.py mut-whole-table-retention-budget.json ForcedEviction",
+          "result": "red as intended: 2 failures"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-641-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-641/README.md"
+        },
+        {
+          "criterion": "AC-TASK-641-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-641/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "Non-summary tools still read coverage gaps unbounded for their verdicts; TASK-671 replaces them."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-641",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-641-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-641/README.md",
+            "docs/reliability/evidence/TASK-641/agent-result.json",
+            "docs/reliability/evidence/TASK-641/focused-green/result.json",
+            "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+            "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+            "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-641-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-641/README.md",
+            "docs/reliability/evidence/TASK-641/agent-result.json",
+            "docs/reliability/evidence/TASK-641/focused-green/result.json",
+            "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+            "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+            "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-641"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R4-TASK-641-ASSURANCE",
+          "IMPACT-R4-TASK-641-IPC",
+          "IMPACT-R4-TASK-641-QUERY",
+          "IMPACT-R4-TASK-641-STORE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R4-TASK-641-1"
+        ],
+        "finding_ids": [
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Fixture-shaped stores only; the captured live-store scenario belongs to GATE-649.",
+          "Candidate input 5b4e533d is uncommitted; nothing installed.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-641",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-641-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-641/README.md",
+            "docs/reliability/evidence/TASK-641/agent-result.json",
+            "docs/reliability/evidence/TASK-641/focused-green/result.json",
+            "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+            "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+            "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-641-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-641/README.md",
+            "docs/reliability/evidence/TASK-641/agent-result.json",
+            "docs/reliability/evidence/TASK-641/focused-green/result.json",
+            "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+            "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+            "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-641"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R4-TASK-641-ASSURANCE",
+          "IMPACT-R4-TASK-641-IPC",
+          "IMPACT-R4-TASK-641-QUERY",
+          "IMPACT-R4-TASK-641-STORE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R4-TASK-641-1"
+        ],
+        "finding_ids": [
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Fixture-shaped stores only; the captured live-store scenario belongs to GATE-649.",
+          "Candidate input 5b4e533d is uncommitted; nothing installed.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+        ]
+      }
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 10,
+  "context_id": "CTX-4841C34D0EE0497B4DA4F7DF9C0A51FF",
+  "previous_event_id": "EVENT-20261004T220443490760Z-F14099AA",
+  "previous_event_sha256": "74a554fa7e28f9a8e0c83bd89b729429c26303927260758a27d41cc52d4b907e"
+}

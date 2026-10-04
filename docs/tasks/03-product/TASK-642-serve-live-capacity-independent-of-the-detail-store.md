@@ -9,9 +9,9 @@
 - Workstream: `product`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-642` → `OUTCOME-640` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -38,7 +38,7 @@ Make capacity a separate read path: get_storage_summary, the helper self-check a
 ## Dependencies
 
 - `TASK-616` (requires, passed)
-- `TASK-641` (requires, pending)
+- `TASK-641` (requires, passed)
 
 ## Required Context
 
@@ -68,19 +68,13 @@ Make capacity a separate read path: get_storage_summary, the helper self-check a
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-642-QUERY`, `IMPACT-R4-TASK-642-IPC`, `IMPACT-R4-TASK-642-ASSURANCE`, `IMPACT-R4-TASK-642-LIFECYCLE`, `IMPACT-R4-TASK-642-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`
 - Inspections: `INSPECT-R4-TASK-642-1`, `INSPECT-R4-TASK-642-2`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-IPC lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-642-1 is stale
-- Required inspection INSPECT-R4-TASK-642-2 is stale
+- None
 
 

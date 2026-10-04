@@ -9,9 +9,9 @@
 - Workstream: `assurance`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `GATE-649` → `OUTCOME-640` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -33,11 +33,11 @@ Exercise the packaged candidate against a captured copy of the stuck live store:
 
 ## Dependencies
 
-- `TASK-614` (validation-requires, pending)
+- `TASK-614` (validation-requires, passed)
 - `TASK-616` (validation-requires, passed)
-- `TASK-617` (validation-requires, pending)
-- `TASK-641` (validation-requires, pending)
-- `TASK-642` (validation-requires, pending)
+- `TASK-617` (validation-requires, passed)
+- `TASK-641` (validation-requires, passed)
+- `TASK-642` (validation-requires, passed)
 
 ## Required Context
 
@@ -64,25 +64,13 @@ Exercise the packaged candidate against a captured copy of the stuck live store:
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R4-TASK-641-STORE`, `IMPACT-R4-TASK-641-QUERY`, `IMPACT-R4-TASK-641-ASSURANCE`, `IMPACT-R4-TASK-642-QUERY`, `IMPACT-R4-TASK-642-IPC`, `IMPACT-R4-TASK-642-ASSURANCE`, `IMPACT-R4-TASK-614-LIFECYCLE`, `IMPACT-R4-TASK-614-STORE`, `IMPACT-R4-TASK-614-ASSURANCE`, `IMPACT-R4-TASK-641-IPC`, `IMPACT-R4-TASK-642-LIFECYCLE`, `IMPACT-R4-TASK-642-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-BUILD`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R4-TASK-641-1`, `INSPECT-R4-TASK-642-1`, `INSPECT-R4-TASK-642-2`, `INSPECT-R4-TASK-614-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-IPC lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R3-617-MEASUREMENT is stale
-- Required inspection INSPECT-R3-617-PRESENTATION is stale
-- Required inspection INSPECT-R4-TASK-614-1 is stale
-- Required inspection INSPECT-R4-TASK-641-1 is stale
-- Required inspection INSPECT-R4-TASK-642-1 is stale
-- Required inspection INSPECT-R4-TASK-642-2 is stale
+- None
 
 

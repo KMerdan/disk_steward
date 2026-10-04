@@ -9,9 +9,9 @@
 - Workstream: `safety`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-614` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -67,16 +67,13 @@ Abandon an active generation that cannot converge and report one explicit state 
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-614-LIFECYCLE`, `IMPACT-R4-TASK-614-STORE`, `IMPACT-R4-TASK-614-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-LIFECYCLE`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-614-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-614-1 is stale
+- None
 
 

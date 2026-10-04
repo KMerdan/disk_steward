@@ -9,9 +9,9 @@
 - Workstream: `scanner`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-653` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -38,9 +38,9 @@ Stop continuous scanning, staging, publication and pressure retention; rename th
 
 ## Dependencies
 
-- `TASK-614` (requires, pending)
-- `TASK-651` (requires, pending)
-- `TASK-652` (requires, pending)
+- `TASK-614` (requires, passed)
+- `TASK-651` (requires, passed)
+- `TASK-652` (requires, passed)
 
 ## Required Context
 
@@ -70,25 +70,13 @@ Stop continuous scanning, staging, publication and pressure retention; rename th
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-653-LIFECYCLE`, `IMPACT-R4-TASK-653-SCANNER`, `IMPACT-R4-TASK-653-STORE`, `IMPACT-R4-TASK-653-SETTINGS`, `IMPACT-R4-TASK-653-EXPORT`, `IMPACT-R4-TASK-653-BUILD`, `IMPACT-R4-TASK-653-ASSURANCE`, `IMPACT-R4-TASK-653-BOOT`, `IMPACT-R4-TASK-653-QUERY`, `IMPACT-R4-TASK-653-UI`, `IMPACT-R4-TASK-653-DISTRIBUTION`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-BUILD`, `ASSET-DISTRIBUTION`, `ASSET-EXPORT`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-SETTINGS`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R4-TASK-653-1`, `INSPECT-R4-TASK-653-2`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-DISTRIBUTION lacks a sufficient passing inspection
-- Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-653-1 is stale
-- Required inspection INSPECT-R4-TASK-653-2 is stale
+- None
 
 

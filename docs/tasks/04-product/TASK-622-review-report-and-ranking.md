@@ -9,9 +9,9 @@
 - Workstream: `product`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-622` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -37,7 +37,7 @@ Produce the versioned ReviewReport shared by the window, MCP and export, ranking
 ## Dependencies
 
 - `CONTRACT-601` (contract-requires, passed)
-- `TASK-621` (requires, pending)
+- `TASK-621` (requires, passed)
 
 ## Required Context
 
@@ -65,16 +65,13 @@ Produce the versioned ReviewReport shared by the window, MCP and export, ranking
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-622-STORE`, `IMPACT-R4-TASK-622-ASSURANCE`, `IMPACT-R4-TASK-622-SCANNER`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-622-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-622-1 is stale
+- None
 
 

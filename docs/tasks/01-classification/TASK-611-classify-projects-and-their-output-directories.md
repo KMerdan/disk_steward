@@ -62,15 +62,13 @@ Detect project roots from repository and manifest markers, then classify their k
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`
 - Inspections: `INSPECT-TASK-611-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-611-1 is stale
+- None
 
 

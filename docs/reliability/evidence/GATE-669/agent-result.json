@@ -1,0 +1,149 @@
+{
+ "schema": "agent-result-v1",
+ "task": "GATE-669",
+ "outcome": "implemented",
+ "changed_files": [
+  "docs/reliability/evidence/GATE-669/README.md",
+  "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+  "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json",
+  "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/tests.log",
+  "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+  "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/tests.log",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-review.json",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-health.json",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/pre-install-hashes.txt",
+  "docs/reliability/evidence/GATE-669/installed-1.5.0/warm-localgit-health.json",
+  "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+  "docs/reliability/evidence/GATE-669/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "evidence-only",
+ "changes": [
+  {
+   "path": "docs/reliability/evidence/GATE-669/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-review.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-health.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/pre-install-hashes.txt",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/warm-localgit-health.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-669/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "verify_candidate.py --xcodegen on 03e80c74 (three consecutive)",
+   "result": "no supervision race; 727 tests pass in runs 1-2; packaged CI app built (Xcode worker stopped, cleanup verified); run 3 only the known ObjectConvergence flake"
+  },
+  {
+   "command": "build/releases/1.5.0/build-release-12.py",
+   "result": "passed: signed universal app and helper, smoke (Review Storage\u2026 first), helper lists the ten tools"
+  },
+  {
+   "command": "installed 1.5.0 (12), localGit review",
+   "result": "cold 54.0 s, warm 44.8 s, 2,000 items; 4,071 objects equal du (ratio 1.000001); no repository or tracked source among 2,000 items in 87 repositories"
+  },
+  {
+   "command": "installed 1.5.0 (12), opted-in caches",
+   "result": "7 caches within 5% of du (max 1.000214)"
+  },
+  {
+   "command": "synthetic million-file tree (isolated, candidate input)",
+   "result": "1,046,750 entries in 6.6 s under the default budget; stops with a partial report under an injected 300k budget"
+  },
+  {
+   "command": "legacy rehearsal (captured 405 MB store, candidate input) and installed legacy set",
+   "result": "passes; installed set byte-identical to its manifest, no evidence.sqlite"
+  },
+  {
+   "command": "installed 1.5.0 (12), one-hour idle CPU",
+   "result": "0.156% of one core"
+  },
+  {
+   "command": "bootstrap_supervision.py",
+   "result": "13 of 13 cases pass"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-GATE-669-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/GATE-669/README.md"
+  },
+  {
+   "criterion": "AC-GATE-669-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/GATE-669/README.md"
+  }
+ ],
+ "discovered_risks": [
+  "The candidate is not notarized (the user's choice); Gatekeeper acceptance is unproven for 1.5.0.",
+  "FIND-R4-OBJECT-CONVERGENCE-FLAKE recurs in full runs (retired scanner path)."
+ ],
+ "suggested_graph_changes": []
+}

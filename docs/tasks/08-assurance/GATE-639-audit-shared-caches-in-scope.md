@@ -32,7 +32,7 @@ Independently exercise the integrated candidate: shared caches appear as objects
 
 ## Dependencies
 
-- `TASK-631` (validation-requires, pending)
+- `TASK-631` (validation-requires, passed)
 - `OUTCOME-620` (validation-requires, unverified)
 
 ## Required Context
@@ -58,22 +58,13 @@ Independently exercise the integrated candidate: shared caches appear as objects
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R4-CONTRACT-602-STORE`, `IMPACT-R4-CONTRACT-602-ASSURANCE`, `IMPACT-R4-TASK-621-SCANNER`, `IMPACT-R4-TASK-621-STORE`, `IMPACT-R4-TASK-621-RESOURCE`, `IMPACT-R4-TASK-621-ASSURANCE`, `IMPACT-R4-TASK-631-SCANNER`, `IMPACT-R4-TASK-631-SETTINGS`, `IMPACT-R4-TASK-631-ASSURANCE`, `IMPACT-R4-TASK-631-STORE`, `IMPACT-R4-TASK-631-UI`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-SETTINGS`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R4-CONTRACT-602-1`, `INSPECT-R4-TASK-621-1`, `INSPECT-R4-TASK-631-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R4-CONTRACT-602-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is stale
-- Required inspection INSPECT-R4-TASK-631-1 is stale
-- Required inspection INSPECT-RESEARCH-601-1 is stale
-- Required inspection INSPECT-TASK-611-1 is stale
+- None
 
 

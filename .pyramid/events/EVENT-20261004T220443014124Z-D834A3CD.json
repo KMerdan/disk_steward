@@ -1,0 +1,846 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261004T220443014124Z-D834A3CD",
+  "at": "2026-10-04T22:04:43.013864Z",
+  "graph_version": 156,
+  "actor": "claude",
+  "type": "audit.pass",
+  "node": "TASK-617",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+    "updated_at": "2026-10-04T19:42:51.752981Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-617",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+        "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/LiveStatusBoardTests.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/VolumePresentationTests.swift",
+        "docs/reliability/evidence/TASK-617/README.md",
+        "docs/reliability/evidence/TASK-617/before.json",
+        "docs/reliability/evidence/TASK-617/before.log",
+        "docs/reliability/evidence/TASK-617/after.json",
+        "docs/reliability/evidence/TASK-617/after.log",
+        "docs/reliability/evidence/TASK-617/review.json",
+        "docs/reliability/evidence/TASK-617/after-small.png",
+        "docs/reliability/evidence/TASK-617/after-reopened-dark.png",
+        "docs/reliability/evidence/TASK-617/after-first-failure.png",
+        "docs/reliability/evidence/TASK-617/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-UI",
+        "ASSET-LIFECYCLE",
+        "ASSET-SCANNER",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/LiveStatusBoardTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/VolumePresentationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/before.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/before.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/review.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after-small.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after-reopened-dark.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after-first-failure.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "snapshot run-focused.py LiveStatusBoardTests 150 (pre-fix)",
+          "result": "Expected failure: same mounted UI retained 420 GB / No change despite two new observations; 4 visible-text assertions failed; cleanup verified."
+        },
+        {
+          "command": "snapshot run-focused.py '.' 300 (final candidate qubaxlgo)",
+          "result": "Passed: 604 tests, 6 intentional skips, 0 failures; 125.96s; peak 926737888 bytes; cleanup verified; source unchanged."
+        },
+        {
+          "command": "independent read-only source review reconciled to final snapshot",
+          "result": "No actionable findings remain; execution proof is separately parent-owned."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-617-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-03",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-04",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-05",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "Installed app and live evidence unchanged; no package/notarization/release or large-scope gate is claimed.",
+        "File attribution can cover a different interval than capacity; notifications explicitly qualify it.",
+        "UUID-unavailable filesystems cannot establish a comparable growth baseline.",
+        "Other plan-006 object/scope tasks and increment gates remain unfinished."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-617",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-617-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+            "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-617"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-617-UI",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-617-PRESENTATION",
+          "INSPECT-R3-617-MEASUREMENT"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Source/isolated functional assurance only; installed application, live store, OS notification display and release not assessed.",
+          "604-case ordinary suite has six intentional opt-in skips; large-scope/overnight/native-client/rollback gates remain separate.",
+          "Current object-model/schema changes from other tasks remain unreleased; this audit does not authorize live migration.",
+          "R4 re-audit: TASK-617 was re-attached to OUTCOME-640 without contract change. Since its audited candidate, its files changed only by the rung-1 additions (convergence stop and capacity-only fallback in the probe, two status lines in the controller) and the earlier older-SDK notification fix. LiveStatusBoardTests, NotificationDeliveryTests, ThresholdNotificationPolicyTests, StatusBoardPresentationTests, VolumePresentationTests and MonitoringProbeCancellationTests pass in the full 617-test run on committed input ce013640."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T22:04:43.013792Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-617",
+      "outcome": "implemented",
+      "changed_files": [
+        "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+        "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+        "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+        "Sources/DiskStewardApp/StatusBoardView.swift",
+        "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+        "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+        "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+        "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/LiveStatusBoardTests.swift",
+        "Tests/DiskStewardAppTests/StatusBoard/VolumePresentationTests.swift",
+        "docs/reliability/evidence/TASK-617/README.md",
+        "docs/reliability/evidence/TASK-617/before.json",
+        "docs/reliability/evidence/TASK-617/before.log",
+        "docs/reliability/evidence/TASK-617/after.json",
+        "docs/reliability/evidence/TASK-617/after.log",
+        "docs/reliability/evidence/TASK-617/review.json",
+        "docs/reliability/evidence/TASK-617/after-small.png",
+        "docs/reliability/evidence/TASK-617/after-reopened-dark.png",
+        "docs/reliability/evidence/TASK-617/after-first-failure.png",
+        "docs/reliability/evidence/TASK-617/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-UI",
+        "ASSET-LIFECYCLE",
+        "ASSET-SCANNER",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/Notifications/ThresholdNotificationPolicy.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "class": "source"
+        },
+        {
+          "path": "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/MonitoringProbeCancellationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Lifecycle/NotificationDeliveryTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/Monitoring/ThresholdNotificationPolicyTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/StatusBoardPresentationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/LiveStatusBoardTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/DiskStewardAppTests/StatusBoard/VolumePresentationTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/before.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/before.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/review.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after-small.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after-reopened-dark.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/after-first-failure.png",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-617/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "snapshot run-focused.py LiveStatusBoardTests 150 (pre-fix)",
+          "result": "Expected failure: same mounted UI retained 420 GB / No change despite two new observations; 4 visible-text assertions failed; cleanup verified."
+        },
+        {
+          "command": "snapshot run-focused.py '.' 300 (final candidate qubaxlgo)",
+          "result": "Passed: 604 tests, 6 intentional skips, 0 failures; 125.96s; peak 926737888 bytes; cleanup verified; source unchanged."
+        },
+        {
+          "command": "independent read-only source review reconciled to final snapshot",
+          "result": "No actionable findings remain; execution proof is separately parent-owned."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-617-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-03",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-04",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        },
+        {
+          "criterion": "AC-TASK-617-05",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-617/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "Installed app and live evidence unchanged; no package/notarization/release or large-scope gate is claimed.",
+        "File attribution can cover a different interval than capacity; notifications explicitly qualify it.",
+        "UUID-unavailable filesystems cannot establish a comparable growth baseline.",
+        "Other plan-006 object/scope tasks and increment gates remain unfinished."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-617",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-617-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-617"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-UI"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-617-PRESENTATION"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD",
+          "FIND-R4-IDLE-CPU",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Source/isolated functional assurance only; installed application, live store, OS notification display and release not assessed.",
+          "604-case ordinary suite has six intentional opt-in skips; large-scope/overnight/native-client/rollback gates remain separate.",
+          "Current object-model/schema changes from other tasks remain unreleased; this audit does not authorize live migration.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-617",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-617-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-617-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-617/README.md",
+            "docs/reliability/evidence/TASK-617/before.json",
+            "docs/reliability/evidence/TASK-617/before.log",
+            "docs/reliability/evidence/TASK-617/after.json",
+            "docs/reliability/evidence/TASK-617/after.log",
+            "docs/reliability/evidence/TASK-617/review.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md",
+            "docs/reliability/evidence/GATE-669/README.md",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-617"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-617-ASSURANCE",
+          "IMPACT-R3-TASK-617-LIFECYCLE",
+          "IMPACT-R3-TASK-617-SCANNER",
+          "IMPACT-R3-TASK-617-UI"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-617-MEASUREMENT",
+          "INSPECT-R3-617-PRESENTATION"
+        ],
+        "finding_ids": [
+          "FIND-R3-DASHBOARD",
+          "FIND-R4-IDLE-CPU",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Source/isolated functional assurance only; installed application, live store, OS notification display and release not assessed.",
+          "604-case ordinary suite has six intentional opt-in skips; large-scope/overnight/native-client/rollback gates remain separate.",
+          "Current object-model/schema changes from other tasks remain unreleased; this audit does not authorize live migration.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+        ]
+      }
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 10,
+  "context_id": "CTX-CFBBE4C9F6FCA926FAC420BF3B7ECC6C",
+  "previous_event_id": "EVENT-20261004T220442707022Z-75C8CBBA",
+  "previous_event_sha256": "13f594cefc2fc115469bd8b1a1d3f30e569b5583ae9ecf7321b245f2299ed33e"
+}

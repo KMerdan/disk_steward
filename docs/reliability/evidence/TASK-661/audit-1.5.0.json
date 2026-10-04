@@ -1,0 +1,101 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-661",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "AC-TASK-661-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-661/README.md",
+    "docs/reliability/evidence/TASK-661/agent-result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/tests.log",
+    "docs/reliability/evidence/TASK-661/full-suite/candidate.json",
+    "docs/reliability/evidence/TASK-661/baselines-not-advanced-red/result.json",
+    "docs/reliability/evidence/TASK-661/changed-directories-unmarked-red/result.json",
+    "docs/reliability/evidence/TASK-661/gone-ignored-red/result.json",
+    "docs/reliability/evidence/TASK-661/nested-targets-kept-red/result.json",
+    "docs/reliability/evidence/TASK-661/no-baseline-as-zero-red/result.json",
+    "docs/reliability/evidence/TASK-661/past-window-measures-red/result.json",
+    "docs/reliability/evidence/TASK-661/request-ignores-budget-red/result.json",
+    "docs/reliability/evidence/TASK-661/threshold-never-lowers-red/result.json",
+    "docs/reliability/evidence/TASK-661/under-join-dropped-red/result.json",
+    "docs/reliability/evidence/TASK-661/unexplained-ignores-attributed-red/result.json",
+    "docs/reliability/evidence/TASK-661/unmeasured-counted-red/result.json",
+    "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+    "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+    "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+    "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+    "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+    "docs/reliability/evidence/TASK-664/README.md",
+    "docs/reliability/evidence/GATE-669/README.md",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+    "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+    "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+   ]
+  },
+  {
+   "id": "AC-TASK-661-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-661/README.md",
+    "docs/reliability/evidence/TASK-661/agent-result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/tests.log",
+    "docs/reliability/evidence/TASK-661/full-suite/candidate.json",
+    "docs/reliability/evidence/TASK-661/under-join-dropped-red/result.json",
+    "docs/reliability/evidence/TASK-661/unexplained-ignores-attributed-red/result.json",
+    "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+    "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+    "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+    "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+    "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+    "docs/reliability/evidence/TASK-664/README.md",
+    "docs/reliability/evidence/GATE-669/README.md",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+    "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+    "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+    "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+   ]
+  }
+ ],
+ "affected_claims": [
+  "TASK-661"
+ ],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-R4-TASK-661-ASSURANCE",
+   "IMPACT-R4-TASK-661-BOOT",
+   "IMPACT-R4-TASK-661-LIFECYCLE",
+   "IMPACT-R4-TASK-661-QUERY",
+   "IMPACT-R4-TASK-661-SCANNER",
+   "IMPACT-R4-TASK-661-STORE"
+  ],
+  "inspection_ids": [
+   "INSPECT-R4-TASK-661-1"
+  ],
+  "finding_ids": [
+   "FIND-R3-DASHBOARD",
+   "FIND-R4-IDLE-CPU",
+   "FIND-R4-JOURNAL-LIMIT",
+   "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+   "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+   "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "AC-02 is proven on a fixture with an injected capacity change; the live volume has other writers, so GATE-669 re-checks attribution on the packaged candidate.",
+   "Attributions live in a bounded sidecar file, not a CONTRACT-602 table; no explicit MCP measure argument until TASK-671.",
+   "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+  ]
+ }
+}

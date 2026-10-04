@@ -32,9 +32,9 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 
 ## Dependencies
 
-- `TASK-621` (validation-requires, pending)
-- `TASK-622` (validation-requires, pending)
-- `TASK-623` (validation-requires, pending)
+- `TASK-621` (validation-requires, passed)
+- `TASK-622` (validation-requires, passed)
+- `TASK-623` (validation-requires, passed)
 - `OUTCOME-610` (validation-requires, unverified)
 
 ## Required Context
@@ -60,28 +60,13 @@ Independently exercise the integrated candidate: objects carry size, freshness, 
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R3-TASK-623-UI`, `IMPACT-R3-TASK-623-ASSURANCE`, `IMPACT-R4-CONTRACT-602-STORE`, `IMPACT-R4-CONTRACT-602-ASSURANCE`, `IMPACT-R4-TASK-621-SCANNER`, `IMPACT-R4-TASK-621-STORE`, `IMPACT-R4-TASK-621-RESOURCE`, `IMPACT-R4-TASK-621-ASSURANCE`, `IMPACT-R4-TASK-631-SCANNER`, `IMPACT-R4-TASK-631-SETTINGS`, `IMPACT-R4-TASK-631-ASSURANCE`, `IMPACT-R4-TASK-622-STORE`, `IMPACT-R4-TASK-622-ASSURANCE`, `IMPACT-R4-TASK-622-SCANNER`, `IMPACT-R4-TASK-631-STORE`, `IMPACT-R4-TASK-631-UI`, `IMPACT-R4-TASK-623-SCANNER`, `IMPACT-R4-TASK-623-STORE`, `IMPACT-R4-TASK-623-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-SETTINGS`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R3-623-INTEGRATION`, `INSPECT-R4-CONTRACT-602-1`, `INSPECT-R4-TASK-621-1`, `INSPECT-R4-TASK-631-1`, `INSPECT-R4-TASK-622-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R3-617-MEASUREMENT is stale
-- Required inspection INSPECT-R3-617-PRESENTATION is stale
-- Required inspection INSPECT-R3-623-INTEGRATION is stale
-- Required inspection INSPECT-R4-CONTRACT-602-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is stale
-- Required inspection INSPECT-R4-TASK-622-1 is stale
-- Required inspection INSPECT-R4-TASK-631-1 is stale
-- Required inspection INSPECT-RESEARCH-601-1 is stale
-- Required inspection INSPECT-TASK-611-1 is stale
+- None
 
 

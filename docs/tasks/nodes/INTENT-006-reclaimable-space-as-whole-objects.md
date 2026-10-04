@@ -64,45 +64,12 @@ Disk Steward reports build output, shared developer caches and repositories as s
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-GATE-669-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-GATE-669-BUILD remains hypothesis
-- Impact IMPACT-R4-GATE-669-SCANNER remains hypothesis
-- Impact IMPACT-R4-GATE-669-UI remains hypothesis
 - Impact IMPACT-R4-GATE-679-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-GATE-679-BUILD remains hypothesis
 - Impact IMPACT-R4-GATE-679-MCP remains hypothesis
 - Impact IMPACT-R4-GATE-679-QUERY remains hypothesis
-- Impacted asset ASSET-DISTRIBUTION lacks a sufficient passing inspection
-- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R3-617-MEASUREMENT is stale
-- Required inspection INSPECT-R3-617-PRESENTATION is stale
-- Required inspection INSPECT-R3-623-INTEGRATION is stale
-- Required inspection INSPECT-R4-CONTRACT-602-1 is stale
-- Required inspection INSPECT-R4-GATE-649-DISPLAY is stale
-- Required inspection INSPECT-R4-GATE-649-SAFETY is stale
-- Required inspection INSPECT-R4-GATE-659-DISPLAY is stale
-- Required inspection INSPECT-R4-GATE-659-SAFETY is stale
-- Required inspection INSPECT-R4-GATE-669-DISPLAY is stale
-- Required inspection INSPECT-R4-GATE-669-SAFETY is stale
 - Required inspection INSPECT-R4-GATE-679-DISPLAY is stale
 - Required inspection INSPECT-R4-GATE-679-SAFETY is stale
-- Required inspection INSPECT-R4-TASK-614-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is stale
-- Required inspection INSPECT-R4-TASK-622-1 is stale
-- Required inspection INSPECT-R4-TASK-631-1 is stale
-- Required inspection INSPECT-R4-TASK-641-1 is stale
-- Required inspection INSPECT-R4-TASK-642-1 is stale
-- Required inspection INSPECT-R4-TASK-642-2 is stale
-- Required inspection INSPECT-R4-TASK-651-1 is stale
-- Required inspection INSPECT-R4-TASK-651-2 is stale
-- Required inspection INSPECT-R4-TASK-652-1 is stale
-- Required inspection INSPECT-R4-TASK-652-2 is stale
-- Required inspection INSPECT-R4-TASK-653-1 is stale
-- Required inspection INSPECT-R4-TASK-653-2 is stale
-- Required inspection INSPECT-R4-TASK-661-1 is stale
 - Required inspection INSPECT-R4-TASK-672-1 is stale
-- Required inspection INSPECT-RESEARCH-601-1 is stale
-- Required inspection INSPECT-TASK-611-1 is stale
 
 

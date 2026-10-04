@@ -33,7 +33,7 @@ Exercise the packaged candidate through the real MCP helper: every tool at caps 
 
 ## Dependencies
 
-- `OUTCOME-660` (validation-requires, unverified)
+- `OUTCOME-660` (validation-requires, passed)
 - `TASK-671` (validation-requires, pending)
 - `TASK-672` (validation-requires, pending)
 
@@ -69,15 +69,6 @@ Exercise the packaged candidate through the real MCP helper: every tool at caps 
 
 ### Assurance Blockers
 
-- Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R4-CONTRACT-602-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is stale
-- Required inspection INSPECT-R4-TASK-622-1 is stale
-- Required inspection INSPECT-R4-TASK-652-1 is stale
-- Required inspection INSPECT-R4-TASK-652-2 is stale
-- Required inspection INSPECT-R4-TASK-661-1 is stale
 - Required inspection INSPECT-R4-TASK-672-1 is stale
-- Required inspection INSPECT-RESEARCH-601-1 is stale
-- Required inspection INSPECT-TASK-611-1 is stale
 
 

@@ -45,9 +45,9 @@ Rebuild the MCP catalogue on the capacity ring, change journal and ReviewReport,
 
 ## Dependencies
 
-- `CONTRACT-602` (contract-requires, pending)
-- `TASK-622` (requires, pending)
-- `TASK-661` (requires, pending)
+- `CONTRACT-602` (contract-requires, passed)
+- `TASK-622` (requires, passed)
+- `TASK-661` (requires, passed)
 
 ## Required Context
 

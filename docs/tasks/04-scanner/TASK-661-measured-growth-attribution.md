@@ -9,9 +9,9 @@
 - Workstream: `scanner`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-661` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -35,8 +35,8 @@ When free space drops past a threshold or on request, re-measure the dirty objec
 
 ## Dependencies
 
-- `TASK-621` (requires, pending)
-- `TASK-652` (requires, pending)
+- `TASK-621` (requires, passed)
+- `TASK-652` (requires, passed)
 
 ## Required Context
 
@@ -65,19 +65,13 @@ When free space drops past a threshold or on request, re-measure the dirty objec
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-661-SCANNER`, `IMPACT-R4-TASK-661-STORE`, `IMPACT-R4-TASK-661-QUERY`, `IMPACT-R4-TASK-661-ASSURANCE`, `IMPACT-R4-TASK-661-BOOT`, `IMPACT-R4-TASK-661-LIFECYCLE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-661-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-661-1 is stale
+- None
 
 

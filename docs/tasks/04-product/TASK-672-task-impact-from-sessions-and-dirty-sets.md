@@ -36,7 +36,7 @@ Compute agent-session impact by intersecting each registered session's working d
 
 ## Dependencies
 
-- `TASK-652` (requires, pending)
+- `TASK-652` (requires, passed)
 
 ## Required Context
 

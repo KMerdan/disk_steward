@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "graph_version": 150,
+  "graph_version": 189,
   "created_at": "2026-09-20T03:04:14.155702Z",
-  "updated_at": "2026-10-04T22:03:30.119217Z",
+  "updated_at": "2026-10-04T22:06:03.379571Z",
   "lifecycle": {
     "status": "active",
     "completed_at": null,
@@ -735,8 +735,8 @@
     },
     "TASK-614": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -746,8 +746,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:42.209505Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-614",
@@ -893,15 +893,25 @@
             "result": "passed",
             "evidence": [
               "docs/reliability/evidence/TASK-614/README.md",
-              "docs/reliability/evidence/TASK-614/reopen-r1/reopen.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/agent-result.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/focused-green/result.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/no-cache-red/result.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/no-event-guard-red/result.json",
+              "docs/reliability/evidence/TASK-614/agent-result.json",
               "docs/reliability/evidence/TASK-614/focused-green/result.json",
               "docs/reliability/evidence/TASK-614/ratio-verdict-red/result.json",
               "docs/reliability/evidence/TASK-614/refusal-verdict-red/result.json",
-              "docs/reliability/evidence/TASK-614/persisted-stop-red/result.json"
+              "docs/reliability/evidence/TASK-614/persisted-stop-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -909,16 +919,26 @@
             "result": "passed",
             "evidence": [
               "docs/reliability/evidence/TASK-614/README.md",
-              "docs/reliability/evidence/TASK-614/reopen-r1/reopen.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/agent-result.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/focused-green/result.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/no-cache-red/result.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/no-event-guard-red/result.json",
+              "docs/reliability/evidence/TASK-614/agent-result.json",
               "docs/reliability/evidence/TASK-614/focused-green/result.json",
               "docs/reliability/evidence/TASK-614/ratio-verdict-red/result.json",
               "docs/reliability/evidence/TASK-614/refusal-verdict-red/result.json",
               "docs/reliability/evidence/TASK-614/persisted-stop-red/result.json",
-              "docs/reliability/evidence/TASK-614/reopen-r1/focused-green/tests.log"
+              "docs/reliability/evidence/TASK-614/focused-green/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -936,12 +956,16 @@
             "INSPECT-R4-TASK-614-1"
           ],
           "finding_ids": [
-            "FIND-R3-DASHBOARD"
+            "FIND-R3-DASHBOARD",
+            "FIND-R4-IDLE-CPU",
+            "FIND-R4-OBJECT-CONVERGENCE-FLAKE"
           ],
           "scope_review": "complete",
           "limitations": [
-            "Re-audit after reopen R1 on input 887d62f1 (committed as 062a8d5 + f70c820).",
-            "'The probe returns to idle' is established here on the captured store (0.4 ms per stopped sample) and event-sample suppression; the installed-app CPU measurement is GATE-649's."
+            "Captured-store proof used a read-only backup copy in an isolated snapshot; the installed app is unchanged.",
+            "The task was claimed after implementation; recorded in the README.",
+            "FIND-R3-DASHBOARD is resolved; the new 'Detail scan stopped' status line does not reopen it, and GATE-649 re-runs the sequential dashboard proof.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -954,8 +978,8 @@
     },
     "TASK-621": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -965,8 +989,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:05:02.956114Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-621",
@@ -1222,7 +1246,21 @@
               "docs/reliability/evidence/TASK-621/no-prune-red/result.json",
               "docs/reliability/evidence/TASK-621/object-links-double-counted-red/result.json",
               "docs/reliability/evidence/TASK-621/revisit-ignored-red/result.json",
-              "docs/reliability/evidence/TASK-621/stop-sets-baseline-red/result.json"
+              "docs/reliability/evidence/TASK-621/stop-sets-baseline-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -1234,7 +1272,21 @@
               "docs/reliability/evidence/TASK-621/benchmark/localgit.json",
               "docs/reliability/evidence/TASK-621/benchmark/du-parity.json",
               "docs/reliability/evidence/TASK-621/benchmark/synthetic.json",
-              "docs/reliability/evidence/TASK-621/benchmark/tests.log"
+              "docs/reliability/evidence/TASK-621/benchmark/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -1260,7 +1312,8 @@
           "scope_review": "complete",
           "limitations": [
             "AC-02's cold-cache timing is not recorded: both localGit runs are warm, and a cold run needs sudo purge, which the maintainer can run before a re-measure.",
-            "The million-file stop uses an injected budget; the default budget completes that tree in 6.5 s."
+            "The million-file stop uses an injected budget; the default budget completes that tree in 6.5 s.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -1268,8 +1321,8 @@
     },
     "TASK-622": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -1279,8 +1332,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:05:03.749041Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-622",
@@ -1467,7 +1520,21 @@
               "docs/reliability/evidence/TASK-622/not-review-required-red/result.json",
               "docs/reliability/evidence/TASK-622/object-timestamp-red/result.json",
               "docs/reliability/evidence/TASK-622/repository-ranked-red/result.json",
-              "docs/reliability/evidence/TASK-622/unknown-hidden-red/result.json"
+              "docs/reliability/evidence/TASK-622/unknown-hidden-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -1489,7 +1556,8 @@
           ],
           "scope_review": "complete",
           "limitations": [
-            "Revalidation is a function; the window (TASK-623) calls it before showing items."
+            "Revalidation is a function; the window (TASK-623) calls it before showing items.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -1497,8 +1565,8 @@
     },
     "TASK-623": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -1508,8 +1576,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:05:05.281551Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-623",
@@ -1954,7 +2022,21 @@
               "docs/reliability/evidence/TASK-623/no-stop-red/result.json",
               "docs/reliability/evidence/TASK-623/row-label-no-freshness-red/result.json",
               "docs/reliability/evidence/TASK-623/stale-capacity-red/result.json",
-              "docs/reliability/evidence/TASK-623/summary-unlabelled-red/result.json"
+              "docs/reliability/evidence/TASK-623/summary-unlabelled-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -1989,7 +2071,21 @@
               "docs/reliability/evidence/TASK-623/screenshots/review-reopened-partial-dark.png",
               "docs/reliability/evidence/TASK-623/screenshots/review-reopened-partial-light.png",
               "docs/reliability/evidence/TASK-623/screenshots/review-reviewing-dark.png",
-              "docs/reliability/evidence/TASK-623/screenshots/review-reviewing-light.png"
+              "docs/reliability/evidence/TASK-623/screenshots/review-reviewing-light.png",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -2014,7 +2110,8 @@
           "scope_review": "complete",
           "limitations": [
             "VoiceOver labels are checked in the model and by a source check; SwiftUI's accessibility tree is empty without an assistive client, so a hands-on VoiceOver pass belongs to GATE-669.",
-            "Stored review reports keep their limitation text, not the uncovered paths."
+            "Stored review reports keep their limitation text, not the uncovered paths.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -2022,8 +2119,8 @@
     },
     "TASK-631": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2033,8 +2130,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:05:04.508954Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-631",
@@ -2284,7 +2381,21 @@
               "docs/reliability/evidence/TASK-631/ignores-opt-in-red/result.json",
               "docs/reliability/evidence/TASK-631/no-cleanup-command-red/result.json",
               "docs/reliability/evidence/TASK-631/simulators-redownload-red/result.json",
-              "docs/reliability/evidence/TASK-631/unreadable-drops-object-red/result.json"
+              "docs/reliability/evidence/TASK-631/unreadable-drops-object-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -2294,7 +2405,21 @@
               "docs/reliability/evidence/TASK-631/README.md",
               "docs/reliability/evidence/TASK-631/benchmark/catalog-du.json",
               "docs/reliability/evidence/TASK-631/benchmark/result.json",
-              "docs/reliability/evidence/TASK-631/benchmark/tests.log"
+              "docs/reliability/evidence/TASK-631/benchmark/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -2318,7 +2443,8 @@
           ],
           "scope_review": "complete",
           "limitations": [
-            "~/Library/Caches holds 11 folders unreadable under the test identity; review and du skip the same ones and the review states the count."
+            "~/Library/Caches holds 11 folders unreadable under the test identity; review and du skip the same ones and the review states the count.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -2649,8 +2775,8 @@
     },
     "TASK-617": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2660,8 +2786,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:43.013792Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-617",
@@ -2855,9 +2981,20 @@
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
               "docs/reliability/evidence/TASK-617/review.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
-              "docs/reliability/planning/replan-006-r4-review.json"
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -2870,9 +3007,20 @@
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
               "docs/reliability/evidence/TASK-617/review.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
-              "docs/reliability/planning/replan-006-r4-review.json"
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -2885,9 +3033,20 @@
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
               "docs/reliability/evidence/TASK-617/review.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
-              "docs/reliability/planning/replan-006-r4-review.json"
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -2900,9 +3059,20 @@
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
               "docs/reliability/evidence/TASK-617/review.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
-              "docs/reliability/planning/replan-006-r4-review.json"
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -2915,9 +3085,20 @@
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
               "docs/reliability/evidence/TASK-617/review.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
-              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
-              "docs/reliability/planning/replan-006-r4-review.json"
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -2927,24 +3108,26 @@
         "recommended_action": "advance",
         "assurance": {
           "impact_ids": [
-            "IMPACT-R3-TASK-617-UI",
+            "IMPACT-R3-TASK-617-ASSURANCE",
             "IMPACT-R3-TASK-617-LIFECYCLE",
             "IMPACT-R3-TASK-617-SCANNER",
-            "IMPACT-R3-TASK-617-ASSURANCE"
+            "IMPACT-R3-TASK-617-UI"
           ],
           "inspection_ids": [
-            "INSPECT-R3-617-PRESENTATION",
-            "INSPECT-R3-617-MEASUREMENT"
+            "INSPECT-R3-617-MEASUREMENT",
+            "INSPECT-R3-617-PRESENTATION"
           ],
           "finding_ids": [
-            "FIND-R3-DASHBOARD"
+            "FIND-R3-DASHBOARD",
+            "FIND-R4-IDLE-CPU",
+            "FIND-R4-OBJECT-CONVERGENCE-FLAKE"
           ],
           "scope_review": "complete",
           "limitations": [
             "Source/isolated functional assurance only; installed application, live store, OS notification display and release not assessed.",
             "604-case ordinary suite has six intentional opt-in skips; large-scope/overnight/native-client/rollback gates remain separate.",
             "Current object-model/schema changes from other tasks remain unreleased; this audit does not authorize live migration.",
-            "R4 re-audit: TASK-617 was re-attached to OUTCOME-640 without contract change. Since its audited candidate, its files changed only by the rung-1 additions (convergence stop and capacity-only fallback in the probe, two status lines in the controller) and the earlier older-SDK notification fix. LiveStatusBoardTests, NotificationDeliveryTests, ThresholdNotificationPolicyTests, StatusBoardPresentationTests, VolumePresentationTests and MonitoringProbeCancellationTests pass in the full 617-test run on committed input ce013640."
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -2952,8 +3135,8 @@
     },
     "OUTCOME-640": {
       "execution": "planned",
-      "verification": "unverified",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2963,8 +3146,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:52.863845Z",
       "last_result": null,
       "last_audit": {
         "schema": "audit-result-v1",
@@ -2978,7 +3161,21 @@
               "docs/reliability/evidence/GATE-649/audit.json",
               "docs/reliability/evidence/GATE-649/README.md",
               "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
-              "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json"
+              "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -3030,14 +3227,17 @@
             "FIND-R3-DASHBOARD",
             "FIND-R3-ORPHANED-TEST",
             "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
             "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
             "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
             "FIND-R4-SUPERVISOR-RACE",
             "FIND-R4-XCODE-WORKER"
           ],
           "scope_review": "complete",
           "limitations": [
-            "Rung 1 is demonstrated on the user's installed 1.3.0 (10); public distribution has not been performed."
+            "Rung 1 is demonstrated on the user's installed 1.3.0 (10); public distribution has not been performed.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -3045,8 +3245,8 @@
     },
     "TASK-641": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -3056,8 +3256,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:43.805484Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-641",
@@ -3221,7 +3421,21 @@
               "docs/reliability/evidence/TASK-641/focused-green/result.json",
               "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
               "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
-              "docs/reliability/evidence/TASK-641/retention-budget-red/result.json"
+              "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -3233,7 +3447,21 @@
               "docs/reliability/evidence/TASK-641/focused-green/result.json",
               "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
               "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
-              "docs/reliability/evidence/TASK-641/retention-budget-red/result.json"
+              "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -3251,11 +3479,16 @@
           "inspection_ids": [
             "INSPECT-R4-TASK-641-1"
           ],
-          "finding_ids": [],
+          "finding_ids": [
+            "FIND-R4-JOURNAL-LIMIT",
+            "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
+          ],
           "scope_review": "complete",
           "limitations": [
             "Fixture-shaped stores only; the captured live-store scenario belongs to GATE-649.",
-            "Candidate input 5b4e533d is uncommitted; nothing installed."
+            "Candidate input 5b4e533d is uncommitted; nothing installed.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -3263,8 +3496,8 @@
     },
     "TASK-642": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -3274,8 +3507,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:44.571733Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-642",
@@ -3447,7 +3680,21 @@
               "docs/reliability/evidence/TASK-642/focused-green/result.json",
               "docs/reliability/evidence/TASK-642/coupled-summary-red/result.json",
               "docs/reliability/evidence/TASK-642/probe-fallback-red/result.json",
-              "docs/reliability/evidence/TASK-642/unbounded-detail-red/result.json"
+              "docs/reliability/evidence/TASK-642/unbounded-detail-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -3460,7 +3707,21 @@
               "docs/reliability/evidence/TASK-642/coupled-summary-red/result.json",
               "docs/reliability/evidence/TASK-642/probe-fallback-red/result.json",
               "docs/reliability/evidence/TASK-642/unbounded-detail-red/result.json",
-              "docs/reliability/evidence/TASK-642/focused-green/tests.log"
+              "docs/reliability/evidence/TASK-642/focused-green/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -3481,13 +3742,19 @@
             "INSPECT-R4-TASK-642-2"
           ],
           "finding_ids": [
-            "FIND-R3-DASHBOARD"
+            "FIND-R3-DASHBOARD",
+            "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
+            "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+            "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
           ],
           "scope_review": "complete",
           "limitations": [
             "Fixture stores and the built helper in an isolated snapshot; installed app unchanged.",
             "Claimed after implementation; recorded in the README.",
-            "FIND-R3-DASHBOARD stays resolved; GATE-649 re-runs the sequential dashboard proof with the new status line."
+            "FIND-R3-DASHBOARD stays resolved; GATE-649 re-runs the sequential dashboard proof with the new status line.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -3495,8 +3762,8 @@
     },
     "GATE-649": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -3506,8 +3773,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:52.104138Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "GATE-649",
@@ -3652,7 +3919,21 @@
               "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
               "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
               "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
-              "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json"
+              "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -3662,7 +3943,21 @@
               "docs/reliability/evidence/GATE-649/README.md",
               "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
               "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-              "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json"
+              "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -3697,8 +3992,6 @@
             "INSPECT-R3-616-EVIDENCE",
             "INSPECT-R3-617-MEASUREMENT",
             "INSPECT-R3-617-PRESENTATION",
-            "INSPECT-R4-GATE-649-DISPLAY",
-            "INSPECT-R4-GATE-649-SAFETY",
             "INSPECT-R4-TASK-614-1",
             "INSPECT-R4-TASK-641-1",
             "INSPECT-R4-TASK-642-1",
@@ -3708,8 +4001,10 @@
             "FIND-R3-DASHBOARD",
             "FIND-R3-ORPHANED-TEST",
             "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
             "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
             "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
             "FIND-R4-SUPERVISOR-RACE",
             "FIND-R4-XCODE-WORKER"
           ],
@@ -3717,7 +4012,8 @@
           "limitations": [
             "The first installed candidate, 1.3.0 (9), failed the idle-CPU criterion (11.4%); TASK-614 was reopened and the passing measurement is on 1.3.0 (10).",
             "Packaged and archive builds each retained one Xcode worker (FIND-R4-XCODE-WORKER, open, medium); supervision stopped it with cleanup verified.",
-            "Idle measured for 15 minutes on one Mac with detail scanning stopped; nothing has been published."
+            "Idle measured for 15 minutes on one Mac with detail scanning stopped; nothing has been published.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -3725,8 +4021,8 @@
     },
     "OUTCOME-650": {
       "execution": "planned",
-      "verification": "unverified",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -3736,8 +4032,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:56.220534Z",
       "last_result": null,
       "last_audit": {
         "schema": "audit-result-v1",
@@ -3753,7 +4049,21 @@
               "docs/reliability/evidence/GATE-659/installed-1.4.0/cpu-1h-1.4.0-11.json",
               "docs/reliability/evidence/GATE-659/installed-1.4.0/legacy-move-check.txt",
               "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-after-relaunch.json",
-              "docs/reliability/evidence/GATE-659/installed-1.4.0/self-check.json"
+              "docs/reliability/evidence/GATE-659/installed-1.4.0/self-check.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -3847,6 +4157,7 @@
           "finding_ids": [
             "FIND-R3-DASHBOARD",
             "FIND-R3-ORPHANED-TEST",
+            "FIND-R4-DOCS-STALE",
             "FIND-R4-IDLE-CPU",
             "FIND-R4-JOURNAL-LIMIT",
             "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
@@ -3858,7 +4169,8 @@
           ],
           "scope_review": "complete",
           "limitations": [
-            "Rung 2 bound to candidate input f1dc99e2 (1.4.0 build 11); file-level answers are retired until rung 3's bounded review."
+            "Rung 2 bound to candidate input f1dc99e2 (1.4.0 build 11); file-level answers are retired until rung 3's bounded review.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -3866,8 +4178,8 @@
     },
     "CONTRACT-602": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -3877,8 +4189,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:41.404927Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "CONTRACT-602",
@@ -4019,7 +4331,21 @@
               "docs/reliability/evidence/CONTRACT-602/focused-green/result.json",
               "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
               "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
-              "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json"
+              "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -4033,7 +4359,21 @@
               "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
               "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
               "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
-              "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log"
+              "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -4052,7 +4392,8 @@
           "finding_ids": [],
           "scope_review": "complete",
           "limitations": [
-            "AC-01's ceiling is met in byte-cap form, as the contract document explains."
+            "AC-01's ceiling is met in byte-cap form, as the contract document explains.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -4060,8 +4401,8 @@
     },
     "TASK-651": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4071,8 +4412,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:53.588914Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-651",
@@ -4285,7 +4626,21 @@
               "docs/reliability/evidence/TASK-651/no-hysteresis-red/result.json",
               "docs/reliability/evidence/TASK-651/no-ring-write-red/result.json",
               "docs/reliability/evidence/TASK-651/stale-capacity-shown-red/result.json",
-              "docs/reliability/evidence/TASK-651/focused-green/tests.log"
+              "docs/reliability/evidence/TASK-651/focused-green/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -4298,7 +4653,21 @@
               "docs/reliability/evidence/TASK-651/one-sample-alerts-red/result.json",
               "docs/reliability/evidence/TASK-651/no-hysteresis-red/result.json",
               "docs/reliability/evidence/TASK-651/no-ring-write-red/result.json",
-              "docs/reliability/evidence/TASK-651/stale-capacity-shown-red/result.json"
+              "docs/reliability/evidence/TASK-651/stale-capacity-shown-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -4323,13 +4692,18 @@
           ],
           "finding_ids": [
             "FIND-R3-DASHBOARD",
+            "FIND-R4-DOCS-STALE",
             "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
             "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
-            "FIND-R4-OBJECT-CONVERGENCE-FLAKE"
+            "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+            "FIND-R4-PAGE-SCHEMA-STALE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
           ],
           "scope_review": "complete",
           "limitations": [
-            "AC-01's 'under 1 MiB' is met per volume (602 KB for a year); four volumes are bounded at 3.2 MiB by CONTRACT-602."
+            "AC-01's 'under 1 MiB' is met per volume (602 KB for a year); four volumes are bounded at 3.2 MiB by CONTRACT-602.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -4337,8 +4711,8 @@
     },
     "TASK-652": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4348,8 +4722,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:54.325343Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-652",
@@ -4671,7 +5045,21 @@
               "docs/reliability/evidence/TASK-652/growth-refuses-red/result.json",
               "docs/reliability/evidence/TASK-652/growth-swallows-cursor-red/result.json",
               "docs/reliability/evidence/TASK-652/read-creates-journal-red/result.json",
-              "docs/reliability/evidence/TASK-652/focused-green/tests.log"
+              "docs/reliability/evidence/TASK-652/focused-green/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -4691,7 +5079,21 @@
               "docs/reliability/evidence/TASK-652/growth-no-journal-red/result.json",
               "docs/reliability/evidence/TASK-652/growth-refuses-red/result.json",
               "docs/reliability/evidence/TASK-652/growth-swallows-cursor-red/result.json",
-              "docs/reliability/evidence/TASK-652/read-creates-journal-red/result.json"
+              "docs/reliability/evidence/TASK-652/read-creates-journal-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -4700,7 +5102,21 @@
             "evidence": [
               "docs/reliability/evidence/TASK-652/tcc/README.md",
               "docs/reliability/evidence/TASK-652/tcc/output.txt",
-              "docs/reliability/evidence/TASK-652/tcc/tcc-probe.swift"
+              "docs/reliability/evidence/TASK-652/tcc/tcc-probe.swift",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -4725,15 +5141,19 @@
           ],
           "finding_ids": [
             "FIND-R3-DASHBOARD",
+            "FIND-R4-DOCS-STALE",
             "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
             "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
             "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
-            "FIND-R4-PAGE-SCHEMA-STALE"
+            "FIND-R4-PAGE-SCHEMA-STALE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
           ],
           "scope_review": "complete",
           "limitations": [
             "AC-03 is observed without Full Disk Access under the Claude Code identity; the installed app's own identity is confirmed at GATE-659.",
-            "Synthetic records exercise MustScanSubDirs, dropped and wrapped events; a journal-identity change is exercised through the service."
+            "Synthetic records exercise MustScanSubDirs, dropped and wrapped events; a journal-identity change is exercised through the service.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -4741,8 +5161,8 @@
     },
     "TASK-653": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4752,8 +5172,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:55.060246Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-653",
@@ -5112,7 +5532,21 @@
               "docs/reliability/evidence/TASK-653/quiet-guard-degraded-red/result.json",
               "docs/reliability/evidence/TASK-653/restore-skips-hash-red/result.json",
               "docs/reliability/evidence/TASK-653/retired-opens-store-red/result.json",
-              "docs/reliability/evidence/TASK-653/focused-green/tests.log"
+              "docs/reliability/evidence/TASK-653/focused-green/tests.log",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -5134,7 +5568,21 @@
               "docs/reliability/evidence/TASK-653/restore-skips-hash-red/result.json",
               "docs/reliability/evidence/TASK-653/retired-opens-store-red/result.json",
               "docs/reliability/evidence/TASK-653/rehearsal-green/result.json",
-              "docs/reliability/evidence/TASK-653/rehearsal-green/report.json"
+              "docs/reliability/evidence/TASK-653/rehearsal-green/report.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -5164,8 +5612,10 @@
             "FIND-R3-DASHBOARD",
             "FIND-R3-ORPHANED-TEST",
             "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
             "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
             "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
             "FIND-R4-SUPERVISOR-RACE",
             "FIND-R4-XCODE-WORKER"
           ],
@@ -5173,7 +5623,8 @@
           "limitations": [
             "AC-01 is met by unreachability, enforced by a source scan; deletion of the retired code is rung 3.",
             "AC-02's read-only open is met strictly: SQLite never opens the legacy file; exports read an APFS clone.",
-            "The full suite's single failure is the known ObjectConvergenceTests flake in the now-unreachable scanner path; GATE-659's candidate run re-establishes the full suite."
+            "The full suite's single failure is the known ObjectConvergenceTests flake in the now-unreachable scanner path; GATE-659's candidate run re-establishes the full suite.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -5181,8 +5632,8 @@
     },
     "GATE-659": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -5192,8 +5643,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:04:55.470385Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "GATE-659",
@@ -5369,7 +5820,21 @@
               "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-live.json",
               "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-after-relaunch.json",
               "docs/reliability/evidence/GATE-659/installed-1.4.0/cpu-1h-1.4.0-11.json",
-              "docs/reliability/evidence/GATE-659/inherited-proofs.md"
+              "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -5380,7 +5845,21 @@
               "docs/reliability/evidence/GATE-659/inherited-proofs.md",
               "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
               "docs/reliability/evidence/GATE-659/installed-1.4.0/self-check.json",
-              "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary.json"
+              "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -5454,6 +5933,7 @@
           "finding_ids": [
             "FIND-R3-DASHBOARD",
             "FIND-R3-ORPHANED-TEST",
+            "FIND-R4-DOCS-STALE",
             "FIND-R4-IDLE-CPU",
             "FIND-R4-JOURNAL-LIMIT",
             "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
@@ -5467,7 +5947,8 @@
           "limitations": [
             "Installed on the maintainer's Mac at the user's request; the user's installation was not rolled back (rollback rehearsed on a capture of the same store).",
             "A journal-identity reset is proven on the candidate input; the installed app shows the same gap mechanism with journal-started.",
-            "No open finding affects a rung-2 claim; all open findings are low or medium build-infrastructure items with recorded dispositions."
+            "No open finding affects a rung-2 claim; all open findings are low or medium build-infrastructure items with recorded dispositions.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
@@ -5475,8 +5956,8 @@
     },
     "OUTCOME-660": {
       "execution": "planned",
-      "verification": "unverified",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -5486,16 +5967,195 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:06:03.379529Z",
       "last_result": null,
-      "last_audit": null,
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "OUTCOME-660",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "AC-OUTCOME-660-01",
+            "result": "passed",
+            "evidence": [
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/audit.json",
+              "docs/reliability/evidence/GATE-669/agent-result.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-679/installed-1.5.0/summary.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "OUTCOME-660"
+        ],
+        "recommended_action": "advance",
+        "assurance": {
+          "limitations": [
+            "Rung 3 bound to candidate input 03e80c74 (1.5.0 build 12), installed locally and not notarized; a localGit review finishes in 54.0 s cold and 44.8 s warm and explains every object with size, project, recreate class, reasons to keep and the cleanup command; growth is attributed to measured objects with the remainder stated.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
+          ],
+          "impact_ids": [
+            "IMPACT-CONTRACT-601-ASSURANCE",
+            "IMPACT-R3-TASK-616-ASSURANCE",
+            "IMPACT-R3-TASK-616-BUILD",
+            "IMPACT-R3-TASK-616-RESOURCE",
+            "IMPACT-R3-TASK-617-ASSURANCE",
+            "IMPACT-R3-TASK-617-LIFECYCLE",
+            "IMPACT-R3-TASK-617-SCANNER",
+            "IMPACT-R3-TASK-617-UI",
+            "IMPACT-R3-TASK-623-ASSURANCE",
+            "IMPACT-R3-TASK-623-UI",
+            "IMPACT-R4-CONTRACT-602-ASSURANCE",
+            "IMPACT-R4-CONTRACT-602-STORE",
+            "IMPACT-R4-GATE-649-ASSURANCE",
+            "IMPACT-R4-GATE-649-BUILD",
+            "IMPACT-R4-GATE-649-LIFECYCLE",
+            "IMPACT-R4-GATE-649-QUERY",
+            "IMPACT-R4-GATE-649-RESOURCE",
+            "IMPACT-R4-GATE-649-UI",
+            "IMPACT-R4-GATE-659-ASSURANCE",
+            "IMPACT-R4-GATE-659-BUILD",
+            "IMPACT-R4-GATE-659-LIFECYCLE",
+            "IMPACT-R4-GATE-659-STORE",
+            "IMPACT-R4-GATE-659-UI",
+            "IMPACT-R4-GATE-669-ASSURANCE",
+            "IMPACT-R4-GATE-669-BUILD",
+            "IMPACT-R4-GATE-669-SCANNER",
+            "IMPACT-R4-GATE-669-UI",
+            "IMPACT-R4-TASK-614-ASSURANCE",
+            "IMPACT-R4-TASK-614-LIFECYCLE",
+            "IMPACT-R4-TASK-614-STORE",
+            "IMPACT-R4-TASK-621-ASSURANCE",
+            "IMPACT-R4-TASK-621-RESOURCE",
+            "IMPACT-R4-TASK-621-SCANNER",
+            "IMPACT-R4-TASK-621-STORE",
+            "IMPACT-R4-TASK-622-ASSURANCE",
+            "IMPACT-R4-TASK-622-SCANNER",
+            "IMPACT-R4-TASK-622-STORE",
+            "IMPACT-R4-TASK-623-BOOT",
+            "IMPACT-R4-TASK-623-SCANNER",
+            "IMPACT-R4-TASK-623-STORE",
+            "IMPACT-R4-TASK-631-ASSURANCE",
+            "IMPACT-R4-TASK-631-SCANNER",
+            "IMPACT-R4-TASK-631-SETTINGS",
+            "IMPACT-R4-TASK-631-STORE",
+            "IMPACT-R4-TASK-631-UI",
+            "IMPACT-R4-TASK-641-ASSURANCE",
+            "IMPACT-R4-TASK-641-IPC",
+            "IMPACT-R4-TASK-641-QUERY",
+            "IMPACT-R4-TASK-641-STORE",
+            "IMPACT-R4-TASK-642-ASSURANCE",
+            "IMPACT-R4-TASK-642-BOOT",
+            "IMPACT-R4-TASK-642-IPC",
+            "IMPACT-R4-TASK-642-LIFECYCLE",
+            "IMPACT-R4-TASK-642-QUERY",
+            "IMPACT-R4-TASK-651-ASSURANCE",
+            "IMPACT-R4-TASK-651-BOOT",
+            "IMPACT-R4-TASK-651-CONTRACTS",
+            "IMPACT-R4-TASK-651-LIFECYCLE",
+            "IMPACT-R4-TASK-651-QUERY",
+            "IMPACT-R4-TASK-651-SETTINGS",
+            "IMPACT-R4-TASK-651-STORE",
+            "IMPACT-R4-TASK-651-UI",
+            "IMPACT-R4-TASK-652-ASSURANCE",
+            "IMPACT-R4-TASK-652-BOOT",
+            "IMPACT-R4-TASK-652-CONTRACTS",
+            "IMPACT-R4-TASK-652-IPC",
+            "IMPACT-R4-TASK-652-LIFECYCLE",
+            "IMPACT-R4-TASK-652-QUERY",
+            "IMPACT-R4-TASK-652-SCANNER",
+            "IMPACT-R4-TASK-652-STORE",
+            "IMPACT-R4-TASK-653-ASSURANCE",
+            "IMPACT-R4-TASK-653-BOOT",
+            "IMPACT-R4-TASK-653-BUILD",
+            "IMPACT-R4-TASK-653-DISTRIBUTION",
+            "IMPACT-R4-TASK-653-EXPORT",
+            "IMPACT-R4-TASK-653-LIFECYCLE",
+            "IMPACT-R4-TASK-653-QUERY",
+            "IMPACT-R4-TASK-653-SCANNER",
+            "IMPACT-R4-TASK-653-SETTINGS",
+            "IMPACT-R4-TASK-653-STORE",
+            "IMPACT-R4-TASK-653-UI",
+            "IMPACT-R4-TASK-661-ASSURANCE",
+            "IMPACT-R4-TASK-661-BOOT",
+            "IMPACT-R4-TASK-661-LIFECYCLE",
+            "IMPACT-R4-TASK-661-QUERY",
+            "IMPACT-R4-TASK-661-SCANNER",
+            "IMPACT-R4-TASK-661-STORE",
+            "IMPACT-R9-TASK-664-BUILD",
+            "IMPACT-RESEARCH-601-ASSURANCE",
+            "IMPACT-RESEARCH-601-BUILD",
+            "IMPACT-TASK-611-ASSURANCE",
+            "IMPACT-TASK-611-SCANNER"
+          ],
+          "inspection_ids": [
+            "INSPECT-CONTRACT-601-1",
+            "INSPECT-R3-616-CONTAINMENT",
+            "INSPECT-R3-616-EVIDENCE",
+            "INSPECT-R3-617-MEASUREMENT",
+            "INSPECT-R3-617-PRESENTATION",
+            "INSPECT-R3-623-INTEGRATION",
+            "INSPECT-R4-CONTRACT-602-1",
+            "INSPECT-R4-GATE-649-DISPLAY",
+            "INSPECT-R4-GATE-649-SAFETY",
+            "INSPECT-R4-GATE-659-DISPLAY",
+            "INSPECT-R4-GATE-659-SAFETY",
+            "INSPECT-R4-GATE-669-DISPLAY",
+            "INSPECT-R4-GATE-669-SAFETY",
+            "INSPECT-R4-TASK-614-1",
+            "INSPECT-R4-TASK-621-1",
+            "INSPECT-R4-TASK-622-1",
+            "INSPECT-R4-TASK-631-1",
+            "INSPECT-R4-TASK-641-1",
+            "INSPECT-R4-TASK-642-1",
+            "INSPECT-R4-TASK-642-2",
+            "INSPECT-R4-TASK-651-1",
+            "INSPECT-R4-TASK-651-2",
+            "INSPECT-R4-TASK-652-1",
+            "INSPECT-R4-TASK-652-2",
+            "INSPECT-R4-TASK-653-1",
+            "INSPECT-R4-TASK-653-2",
+            "INSPECT-R4-TASK-661-1",
+            "INSPECT-R9-TASK-664-1",
+            "INSPECT-RESEARCH-601-1",
+            "INSPECT-TASK-611-1"
+          ],
+          "finding_ids": [
+            "FIND-R3-DASHBOARD",
+            "FIND-R3-ORPHANED-TEST",
+            "FIND-R4-DOCS-STALE",
+            "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
+            "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+            "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+            "FIND-R4-PAGE-SCHEMA-STALE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+            "FIND-R4-SUPERVISOR-RACE",
+            "FIND-R4-XCODE-WORKER"
+          ],
+          "scope_review": "complete"
+        }
+      },
       "last_reopen": null
     },
     "TASK-661": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -5505,8 +6165,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T22:05:06.036508Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-661",
@@ -5811,7 +6471,21 @@
               "docs/reliability/evidence/TASK-661/threshold-never-lowers-red/result.json",
               "docs/reliability/evidence/TASK-661/under-join-dropped-red/result.json",
               "docs/reliability/evidence/TASK-661/unexplained-ignores-attributed-red/result.json",
-              "docs/reliability/evidence/TASK-661/unmeasured-counted-red/result.json"
+              "docs/reliability/evidence/TASK-661/unmeasured-counted-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           },
           {
@@ -5824,7 +6498,21 @@
               "docs/reliability/evidence/TASK-661/focused-green/tests.log",
               "docs/reliability/evidence/TASK-661/full-suite/candidate.json",
               "docs/reliability/evidence/TASK-661/under-join-dropped-red/result.json",
-              "docs/reliability/evidence/TASK-661/unexplained-ignores-attributed-red/result.json"
+              "docs/reliability/evidence/TASK-661/unexplained-ignores-attributed-red/result.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+              "docs/reliability/evidence/TASK-664/README.md",
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
             ]
           }
         ],
@@ -5855,16 +6543,17 @@
           "scope_review": "complete",
           "limitations": [
             "AC-02 is proven on a fixture with an injected capacity change; the live volume has other writers, so GATE-669 re-checks attribution on the packaged candidate.",
-            "Attributions live in a bounded sidecar file, not a CONTRACT-602 table; no explicit MCP measure argument until TASK-671."
+            "Attributions live in a bounded sidecar file, not a CONTRACT-602 table; no explicit MCP measure argument until TASK-671.",
+            "Re-audited on candidate 1.5.0 (12), input 03e80c74, after replans R8-R10 reset its verification; its claims are re-exercised by the candidate's full suite and the GATE-669/679 scenarios."
           ]
         }
       },
       "last_reopen": null
     },
     "GATE-669": {
-      "execution": "planned",
-      "verification": "unverified",
-      "health": "at-risk",
+      "execution": "implemented",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -5874,10 +6563,289 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T19:42:51.752981Z",
-      "last_result": null,
-      "last_audit": null,
+      "blocker": null,
+      "updated_at": "2026-10-04T22:05:39.121332Z",
+      "last_result": {
+        "schema": "agent-result-v1",
+        "task": "GATE-669",
+        "outcome": "implemented",
+        "changed_files": [
+          "docs/reliability/evidence/GATE-669/README.md",
+          "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+          "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json",
+          "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/tests.log",
+          "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+          "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/tests.log",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-review.json",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-health.json",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/pre-install-hashes.txt",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/warm-localgit-health.json",
+          "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+          "docs/reliability/evidence/GATE-669/agent-result.json"
+        ],
+        "changed_assets": [
+          "ASSET-ASSURANCE"
+        ],
+        "change_effect": "evidence-only",
+        "changes": [
+          {
+            "path": "docs/reliability/evidence/GATE-669/README.md",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/tests.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/tests.log",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-review.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-health.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/pre-install-hashes.txt",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/installed-1.5.0/warm-localgit-health.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "class": "evidence"
+          },
+          {
+            "path": "docs/reliability/evidence/GATE-669/agent-result.json",
+            "class": "evidence"
+          }
+        ],
+        "checks": [
+          {
+            "command": "verify_candidate.py --xcodegen on 03e80c74 (three consecutive)",
+            "result": "no supervision race; 727 tests pass in runs 1-2; packaged CI app built (Xcode worker stopped, cleanup verified); run 3 only the known ObjectConvergence flake"
+          },
+          {
+            "command": "build/releases/1.5.0/build-release-12.py",
+            "result": "passed: signed universal app and helper, smoke (Review Storage… first), helper lists the ten tools"
+          },
+          {
+            "command": "installed 1.5.0 (12), localGit review",
+            "result": "cold 54.0 s, warm 44.8 s, 2,000 items; 4,071 objects equal du (ratio 1.000001); no repository or tracked source among 2,000 items in 87 repositories"
+          },
+          {
+            "command": "installed 1.5.0 (12), opted-in caches",
+            "result": "7 caches within 5% of du (max 1.000214)"
+          },
+          {
+            "command": "synthetic million-file tree (isolated, candidate input)",
+            "result": "1,046,750 entries in 6.6 s under the default budget; stops with a partial report under an injected 300k budget"
+          },
+          {
+            "command": "legacy rehearsal (captured 405 MB store, candidate input) and installed legacy set",
+            "result": "passes; installed set byte-identical to its manifest, no evidence.sqlite"
+          },
+          {
+            "command": "installed 1.5.0 (12), one-hour idle CPU",
+            "result": "0.156% of one core"
+          },
+          {
+            "command": "bootstrap_supervision.py",
+            "result": "13 of 13 cases pass"
+          }
+        ],
+        "acceptance_evidence": [
+          {
+            "criterion": "AC-GATE-669-01",
+            "result": "passed",
+            "reference": "docs/reliability/evidence/GATE-669/README.md"
+          },
+          {
+            "criterion": "AC-GATE-669-02",
+            "result": "passed",
+            "reference": "docs/reliability/evidence/GATE-669/README.md"
+          }
+        ],
+        "discovered_risks": [
+          "The candidate is not notarized (the user's choice); Gatekeeper acceptance is unproven for 1.5.0.",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE recurs in full runs (retired scanner path)."
+        ],
+        "suggested_graph_changes": []
+      },
+      "last_audit": {
+        "schema": "audit-result-v1",
+        "target": "GATE-669",
+        "result": "pass",
+        "checks": [
+          {
+            "id": "AC-GATE-669-01",
+            "result": "passed",
+            "evidence": [
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/agent-result.json",
+              "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-du.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/caches-review.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-check.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cold-localgit-health.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/install.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/pre-install-hashes.txt",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/warm-localgit-health.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/synthetic/result.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+              "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json"
+            ]
+          },
+          {
+            "id": "AC-GATE-669-02",
+            "result": "passed",
+            "evidence": [
+              "docs/reliability/evidence/GATE-669/README.md",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/cpu-1h-1.5.0-12.json",
+              "docs/reliability/evidence/GATE-669/installed-1.5.0/legacy-check-1.5.0.txt",
+              "docs/reliability/evidence/GATE-669/candidate-03e80c74/rehearsal/result.json"
+            ]
+          }
+        ],
+        "affected_claims": [
+          "GATE-669",
+          "OUTCOME-660"
+        ],
+        "recommended_action": "advance",
+        "assurance": {
+          "impact_ids": [
+            "IMPACT-CONTRACT-601-ASSURANCE",
+            "IMPACT-R3-TASK-616-ASSURANCE",
+            "IMPACT-R3-TASK-616-BUILD",
+            "IMPACT-R3-TASK-616-RESOURCE",
+            "IMPACT-R3-TASK-617-ASSURANCE",
+            "IMPACT-R3-TASK-617-LIFECYCLE",
+            "IMPACT-R3-TASK-617-SCANNER",
+            "IMPACT-R3-TASK-617-UI",
+            "IMPACT-R3-TASK-623-ASSURANCE",
+            "IMPACT-R3-TASK-623-UI",
+            "IMPACT-R4-CONTRACT-602-ASSURANCE",
+            "IMPACT-R4-CONTRACT-602-STORE",
+            "IMPACT-R4-TASK-621-ASSURANCE",
+            "IMPACT-R4-TASK-621-RESOURCE",
+            "IMPACT-R4-TASK-621-SCANNER",
+            "IMPACT-R4-TASK-621-STORE",
+            "IMPACT-R4-TASK-622-ASSURANCE",
+            "IMPACT-R4-TASK-622-SCANNER",
+            "IMPACT-R4-TASK-622-STORE",
+            "IMPACT-R4-TASK-623-BOOT",
+            "IMPACT-R4-TASK-623-SCANNER",
+            "IMPACT-R4-TASK-623-STORE",
+            "IMPACT-R4-TASK-631-ASSURANCE",
+            "IMPACT-R4-TASK-631-SCANNER",
+            "IMPACT-R4-TASK-631-SETTINGS",
+            "IMPACT-R4-TASK-631-STORE",
+            "IMPACT-R4-TASK-631-UI",
+            "IMPACT-R4-TASK-652-ASSURANCE",
+            "IMPACT-R4-TASK-652-BOOT",
+            "IMPACT-R4-TASK-652-CONTRACTS",
+            "IMPACT-R4-TASK-652-IPC",
+            "IMPACT-R4-TASK-652-LIFECYCLE",
+            "IMPACT-R4-TASK-652-QUERY",
+            "IMPACT-R4-TASK-652-SCANNER",
+            "IMPACT-R4-TASK-652-STORE",
+            "IMPACT-R4-TASK-661-ASSURANCE",
+            "IMPACT-R4-TASK-661-BOOT",
+            "IMPACT-R4-TASK-661-LIFECYCLE",
+            "IMPACT-R4-TASK-661-QUERY",
+            "IMPACT-R4-TASK-661-SCANNER",
+            "IMPACT-R4-TASK-661-STORE",
+            "IMPACT-R9-TASK-664-BUILD",
+            "IMPACT-RESEARCH-601-ASSURANCE",
+            "IMPACT-RESEARCH-601-BUILD",
+            "IMPACT-TASK-611-ASSURANCE",
+            "IMPACT-TASK-611-SCANNER"
+          ],
+          "inspection_ids": [
+            "INSPECT-CONTRACT-601-1",
+            "INSPECT-R3-616-CONTAINMENT",
+            "INSPECT-R3-616-EVIDENCE",
+            "INSPECT-R3-617-MEASUREMENT",
+            "INSPECT-R3-617-PRESENTATION",
+            "INSPECT-R3-623-INTEGRATION",
+            "INSPECT-R4-CONTRACT-602-1",
+            "INSPECT-R4-TASK-621-1",
+            "INSPECT-R4-TASK-622-1",
+            "INSPECT-R4-TASK-631-1",
+            "INSPECT-R4-TASK-652-1",
+            "INSPECT-R4-TASK-652-2",
+            "INSPECT-R4-TASK-661-1",
+            "INSPECT-R9-TASK-664-1",
+            "INSPECT-RESEARCH-601-1",
+            "INSPECT-TASK-611-1"
+          ],
+          "finding_ids": [
+            "FIND-R3-DASHBOARD",
+            "FIND-R3-ORPHANED-TEST",
+            "FIND-R4-DOCS-STALE",
+            "FIND-R4-IDLE-CPU",
+            "FIND-R4-JOURNAL-LIMIT",
+            "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+            "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+            "FIND-R4-PAGE-SCHEMA-STALE",
+            "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+            "FIND-R4-SUPERVISOR-RACE",
+            "FIND-R4-XCODE-WORKER"
+          ],
+          "scope_review": "complete",
+          "limitations": [
+            "The candidate is not notarized (the user chose not to upload it); Gatekeeper acceptance of 1.5.0 is not shown.",
+            "No live VoiceOver pass (the user skipped it).",
+            "The synthetic tree stops with a partial report under an injected 300k-entry budget; under the default budget it completes."
+          ]
+        }
+      },
       "last_reopen": null
     },
     "OUTCOME-670": {
@@ -7663,5 +8631,5 @@
       "last_reopen": null
     }
   },
-  "context_id": "CTX-DFD58044A832988CDDC235741B3EDF5E"
+  "context_id": "CTX-CAAC266875BEF638D4BFF8CEB7666995"
 }
