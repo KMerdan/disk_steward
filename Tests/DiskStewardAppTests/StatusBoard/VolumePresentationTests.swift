@@ -6,17 +6,24 @@ import XCTest
 @MainActor
 final class VolumePresentationTests: XCTestCase {
     func testCapacityAlertsSurvivePendingFileReconciliationWithoutDuplicates() async throws {
-        let fixture = VolumeFixture(pendingChanges: true)
+        // 200 GiB reserve; 100 GB free is below it from the second sample on.
+        let fixture = VolumeFixture(pendingChanges: true, reserveGiB: 200)
         defer { fixture.lifecycle.shutdown() }
         await fixture.lifecycle.sampleNow()
         await fixture.probe.set(volumeObservation(index: 1, used: 900_000_000_000))
         await fixture.lifecycle.sampleNow()
         XCTAssertEqual(fixture.lifecycle.status.title, "Reconciling")
+        let firstBelow = await fixture.delivery.values
+        XCTAssertEqual(firstBelow.count, 1, "Growth alerts at once; the reserve alert waits for a second comparable sample")
+        XCTAssertNotNil(fixture.lifecycle.latestGrowthAlert)
+        await fixture.probe.set(volumeObservation(index: 2, used: 900_000_000_000))
+        await fixture.lifecycle.sampleNow()
+        XCTAssertEqual(fixture.lifecycle.status.title, "Reconciling")
         let pendingMessages = await fixture.delivery.values
         XCTAssertEqual(pendingMessages.count, 2, "Valid capacity alerts do not require file attribution")
-        XCTAssertNotNil(fixture.lifecycle.latestGrowthAlert)
+        XCTAssertTrue(pendingMessages.contains { $0.title.contains("reserve") })
         try await fixture.probe.persistPendingChanges()
-        await fixture.probe.set(volumeObservation(index: 2, used: 900_000_000_000))
+        await fixture.probe.set(volumeObservation(index: 3, used: 900_000_000_000))
         await fixture.lifecycle.sampleNow()
         XCTAssertEqual(fixture.lifecycle.status.kind, .recovered)
         let clearedMessages = await fixture.delivery.values
@@ -187,10 +194,10 @@ private final class VolumeFixture {
     let probe: VolumeSequenceProbe
     let delivery = VolumeRecordingDelivery()
     let lifecycle: MonitoringLifecycleController
-    init(pendingChanges: Bool = false) {
+    init(pendingChanges: Bool = false, reserveGiB: Int? = nil) {
         probe = VolumeSequenceProbe(pendingChanges: pendingChanges)
         let settings = MonitoringSettingsStore(persistence: EphemeralSettingsPersistence())
-        settings.update { $0.growthThresholdMiB = 2_000 }
+        settings.update { $0.growthThresholdMiB = 2_000; $0.comfortReserveGiB = reserveGiB }
         lifecycle = MonitoringLifecycleController(settingsStore: settings, probe: probe, notificationDelivery: delivery, changeCollector: nil)
     }
 }

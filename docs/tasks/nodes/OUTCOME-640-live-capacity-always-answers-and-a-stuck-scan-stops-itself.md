@@ -64,13 +64,21 @@ The board, the helper self-check and every MCP summary tool answer with live cap
 ### Assurance Blockers
 
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
+- Impacted asset ASSET-IPC lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
+- Required inspection INSPECT-R3-617-PRESENTATION is stale
+- Required inspection INSPECT-R4-GATE-649-DISPLAY is stale
 - Required inspection INSPECT-R4-GATE-649-SAFETY is stale
 - Required inspection INSPECT-R4-TASK-614-1 is stale
 - Required inspection INSPECT-R4-TASK-641-1 is stale
+- Required inspection INSPECT-R4-TASK-642-1 is stale
 - Required inspection INSPECT-R4-TASK-642-2 is stale
 
 

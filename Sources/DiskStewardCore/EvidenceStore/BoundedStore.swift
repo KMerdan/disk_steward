@@ -184,6 +184,9 @@ public struct BoundedWindow<Item> {
     public var truncated: Bool { items.count < total }
 }
 
+extension BoundedWindow: Sendable where Item: Sendable {}
+extension BoundedWindow: Equatable where Item: Equatable {}
+
 public enum BoundedStoreError: Error, Equatable, Sendable {
     case unknownColumn(table: String, column: String)
     /// A group batch larger than the table's caps; the writer must truncate it.

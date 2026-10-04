@@ -5,6 +5,9 @@ import Foundation
 
 actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private let databaseURL: URL
+    private let capacityRingURL: URL
+    private let reserveProvider: @Sendable (Int64) async -> Int64?
+    private var openedRing: CapacityRing?
     private var openedStore: EvidenceStore?
     /// The evidence store opens lazily and is retried on every use, so a
     /// missing, locked or corrupt store never takes the socket or live
@@ -57,8 +60,12 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         queryScopeProvider: @escaping @Sendable () async throws -> EvidenceQueryScope? = { nil },
         responseByteCeiling: Int = 1_024 * 1_024,
         taskImpactMaximumRows: Int = 100_000,
-        taskImpactMaximumBytes: Int = 8 * 1_024 * 1_024
+        taskImpactMaximumBytes: Int = 8 * 1_024 * 1_024,
+        capacityRingURL: URL? = nil,
+        reserveProvider: @escaping @Sendable (Int64) async -> Int64? = { _ in nil }
     ) throws {
+        self.capacityRingURL = capacityRingURL ?? CapacityRing.defaultURL(beside: databaseURL)
+        self.reserveProvider = reserveProvider
         self.retentionPolicyProvider = retentionPolicyProvider
         self.queryScopeProvider = queryScopeProvider
         self.responseByteCeiling = min(max(responseByteCeiling, 4 * 1_024), 4 * 1_024 * 1_024)
@@ -273,30 +280,41 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let (diagnostics, diagnosticsFailure) = try await readDetail("store diagnostics", deadline: deadline) { try await $0.diagnostics() }
         try Task.checkCancellation()
         let reasons = [observationFailure, lifecycleFailure, diagnosticsFailure].compactMap { $0 }
+        let selected = selectedCapacityVolume(in: snapshot)
+        var reserve: Int64?
+        if let selected { reserve = await reserveProvider(selected.totalBytes) }
+        let history = await capacityHistory(mountPath: selected?.mountPath)
         let lifecycle = publicLifecycle?.status
         var limitations = snapshot.limitations + ["Detailed current state covers configured roots; whole-volume capacity does not imply whole-volume file attribution."]
         if !reasons.isEmpty {
             limitations.append("File-detail evidence is partly unavailable (\(reasons.joined(separator: "; "))); the volume figures are live and do not depend on it.")
         }
-        return .object([
-            "schema": .string(StorageSummaryContract.schema),
-            StorageSummaryContract.liveVolumeObservedAt: .string(snapshot.observedAt),
-            StorageSummaryContract.persistedStateAsOf: latestObservation.flatMap { $0 }.map { .string(timestamp($0)) } ?? .null,
-            "volumes": .array(volumes),
-            "detail_status": .string(reasons.isEmpty ? "available" : "unavailable"),
-            "detail_reasons": .array(reasons.map(JSONValue.string)),
-            "current_consumer_count": lifecycle.map { .integer(Int64($0.currentStateCount)) } ?? .null,
-            "current_allocated_bytes": lifecycle.map { .integer($0.currentStateAllocatedBytes) } ?? .null,
-            "database_bytes": lifecycle.map { .integer($0.databaseBytes) } ?? .null,
-            "database_cap_bytes": lifecycle.map { .integer($0.databaseCapBytes) } ?? .null,
-            "database_file_bytes": diagnostics.map { .integer($0.databaseFileBytes) } ?? .null,
-            "wal_bytes": diagnostics.map { .integer($0.walBytes) } ?? .null,
-            "shared_memory_bytes": diagnostics.map { .integer($0.sharedMemoryBytes) } ?? .null,
-            "storage_admission": lifecycle.map { .string($0.databaseBytes < $0.databaseCapBytes ? "available" : "retention-required") } ?? .null,
-            "coverage": .string(publicLifecycle.map(lifecycleCoverage) ?? "unavailable"),
-            "freshness": .string("live-volume-plus-persisted-current-state"),
-            "limitations": .array(limitations.map(JSONValue.string)),
-        ])
+        var fields: [String: JSONValue] = [:]
+        fields["schema"] = .string(StorageSummaryContract.schema)
+        fields[StorageSummaryContract.liveVolumeObservedAt] = .string(snapshot.observedAt)
+        fields[StorageSummaryContract.persistedStateAsOf] = latestObservation.flatMap { $0 }.map { .string(timestamp($0)) } ?? .null
+        fields["volumes"] = .array(volumes)
+        fields["reserve_bytes"] = reserve.map(JSONValue.integer) ?? .null
+        if let reserve, let selected {
+            fields["free_above_reserve_bytes"] = .integer(selected.availableBytes - reserve)
+        } else {
+            fields["free_above_reserve_bytes"] = .null
+        }
+        fields["capacity_history"] = history
+        fields["detail_status"] = .string(reasons.isEmpty ? "available" : "unavailable")
+        fields["detail_reasons"] = .array(reasons.map(JSONValue.string))
+        fields["current_consumer_count"] = lifecycle.map { .integer(Int64($0.currentStateCount)) } ?? .null
+        fields["current_allocated_bytes"] = lifecycle.map { .integer($0.currentStateAllocatedBytes) } ?? .null
+        fields["database_bytes"] = lifecycle.map { .integer($0.databaseBytes) } ?? .null
+        fields["database_cap_bytes"] = lifecycle.map { .integer($0.databaseCapBytes) } ?? .null
+        fields["database_file_bytes"] = diagnostics.map { .integer($0.databaseFileBytes) } ?? .null
+        fields["wal_bytes"] = diagnostics.map { .integer($0.walBytes) } ?? .null
+        fields["shared_memory_bytes"] = diagnostics.map { .integer($0.sharedMemoryBytes) } ?? .null
+        fields["storage_admission"] = lifecycle.map { .string($0.databaseBytes < $0.databaseCapBytes ? "available" : "retention-required") } ?? .null
+        fields["coverage"] = .string(publicLifecycle.map(lifecycleCoverage) ?? "unavailable")
+        fields["freshness"] = .string("live-volume-plus-persisted-current-state")
+        fields["limitations"] = .array(limitations.map(JSONValue.string))
+        return .object(fields)
     }
 
     static let storageDetailBudget: TimeInterval = 3
@@ -354,6 +372,27 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         case let .value(value): return (value, nil)
         case let .failed(reason): return (nil, "\(part): \(reason)")
         case .timedOut: return (nil, "\(part): not read within the detail budget")
+        }
+    }
+
+    /// Capacity history from its own file, independent of the evidence store.
+    private func capacityHistory(mountPath: String?) async -> JSONValue {
+        do {
+            let ring: CapacityRing
+            if let openedRing { ring = openedRing } else { ring = try CapacityRing(url: capacityRingURL); openedRing = ring }
+            guard let mountPath, let uuid = try await ring.volumeUUID(mountPath: mountPath) else {
+                return .object(["status": .string("empty"), "sample_count": .integer(0)])
+            }
+            let summary = try await ring.summary(volumeUUID: uuid)
+            return .object([
+                "status": .string("available"),
+                "sample_count": .integer(Int64(summary.sampleCount)),
+                "oldest_sample_at": summary.oldest.map { .string(timestamp($0)) } ?? .null,
+                "newest_sample_at": summary.newest.map { .string(timestamp($0.observedAt)) } ?? .null,
+                "minimum_available_bytes_last_day": summary.minimumAvailableLastDay.map(JSONValue.integer) ?? .null,
+            ])
+        } catch {
+            return .object(["status": .string("unavailable"), "reason": .string(Self.detailFailureReason(error))])
         }
     }
 

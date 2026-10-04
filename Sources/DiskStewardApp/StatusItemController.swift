@@ -48,11 +48,16 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             // Capacity does not depend on the evidence store; keep it live.
             probe = CapacityOnlyMonitoringProbe(reason: "the evidence store could not be opened: \(error.localizedDescription)")
         }
+        // Capacity history lives in its own small file, independent of the
+        // evidence store. The isolated smoke run writes no history.
+        let capacityRingURL = supportDirectory.map { CapacityRing.defaultURL(beside: $0.appending(path: "evidence.sqlite")) }
+        let capacityRing = smoke ? nil : capacityRingURL.flatMap { try? CapacityRing(url: $0) }
         lifecycle = MonitoringLifecycleController(
             settingsStore: settingsStore, probe: probe,
             notificationDelivery: smoke ? DisabledNotificationDelivery() : UserNotificationDelivery(),
             changeCollector: smoke ? nil : TargetedFSEventsCollector(),
-            safetyState: MonitoringSafetyStateStore(persistence: persistence)
+            safetyState: MonitoringSafetyStateStore(persistence: persistence),
+            capacityRing: capacityRing
         )
         let durableExporter: StatusBoardViewModel.EvidenceExporter?
         if let databaseURL = evidenceDatabaseURL {
@@ -96,7 +101,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 retentionPolicyProvider: { try await MainActor.run { try settingsStore.settings.retentionPolicy() } },
                 // Queries apply the user's current roots and exclusions immediately;
                 // a policy change must not wait for the next scan to become visible.
-                queryScopeProvider: { await MainActor.run { EvidenceQueryScope(settingsStore.settings.monitoringPolicy(at: Date()).scopeVersion(at: Date())) } }
+                queryScopeProvider: { await MainActor.run { EvidenceQueryScope(settingsStore.settings.monitoringPolicy(at: Date()).scopeVersion(at: Date())) } },
+                capacityRingURL: capacityRingURL,
+                reserveProvider: { total in await MainActor.run { settingsStore.settings.reserveBytes(totalBytes: total) } }
             )
             return UnixSocketEvidenceServer(
                 socketPath: supportDirectory.appending(path: "disk-steward.sock").path,

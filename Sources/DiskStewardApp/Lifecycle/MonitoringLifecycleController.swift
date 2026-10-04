@@ -56,6 +56,10 @@ final class MonitoringLifecycleController: ObservableObject {
     /// One threshold event, not an unbounded history or a delivery receipt.
     /// Cleared on process restart; retained across pause and later small changes.
     @Published private(set) var latestGrowthAlert: VolumeComparison?
+    /// Set when the latest sample failed; capacity is then unavailable, not stale.
+    @Published private(set) var latestSampleFailedAt: Date?
+    private let capacityRing: CapacityRing?
+    var settings: MonitoringSettings { settingsStore.settings }
     private var needsCapacityBaseline = true
 
     private let settingsStore: MonitoringSettingsStore
@@ -97,9 +101,11 @@ final class MonitoringLifecycleController: ObservableObject {
         changeCollector: (any MonitoringChangeCollecting)?,
         safetyState: MonitoringSafetyStateStore? = nil,
         now: Date? = nil,
-        clock: MonitoringLifecycleClock = .live
+        clock: MonitoringLifecycleClock = .live,
+        capacityRing: CapacityRing? = nil
     ) {
         self.settingsStore = settingsStore
+        self.capacityRing = capacityRing
         self.probe = probe
         self.notificationDelivery = notificationDelivery
         self.changeCollector = changeCollector
@@ -322,6 +328,13 @@ final class MonitoringLifecycleController: ObservableObject {
             let observation = sampled.comparingCapacity(after: needsCapacityBaseline ? nil : latestObservation)
             needsCapacityBaseline = false
             latestObservation = observation
+            latestSampleFailedAt = nil
+            if let capacityRing, let capacity = observation.capacity, let identity = capacity.identity {
+                // History is a convenience; a failed ring write never fails the sample.
+                _ = try? await capacityRing.record(volumeUUID: identity, mountPath: capacity.volume.mountPath,
+                    totalBytes: capacity.volume.totalBytes, availableBytes: capacity.volume.availableBytes,
+                    at: capacity.observedAt ?? observation.observedAt)
+            }
             let recovering = status.kind == .degraded
             if probe.changeInbox?.hasPendingChanges == true {
                 transition(.degraded, title: "Reconciling", detail: "New file changes are awaiting durable reconciliation. Retained evidence may be older.")
@@ -355,6 +368,7 @@ final class MonitoringLifecycleController: ObservableObject {
         } catch {
             guard sampleEpoch == epoch, canSample, !Task.isCancelled else { return }
             needsCapacityBaseline = true
+            latestSampleFailedAt = clock.now()
             transition(.degraded, title: "Degraded", detail: "Sampling failed: \(error.localizedDescription)")
         }
     }

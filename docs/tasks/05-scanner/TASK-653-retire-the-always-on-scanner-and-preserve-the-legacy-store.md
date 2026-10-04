@@ -39,7 +39,7 @@ Stop continuous scanning, staging, publication and pressure retention; rename th
 ## Dependencies
 
 - `TASK-614` (requires, passed)
-- `TASK-651` (requires, unverified)
+- `TASK-651` (requires, passed)
 - `TASK-652` (requires, unverified)
 
 ## Required Context

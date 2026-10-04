@@ -154,14 +154,36 @@ final class StatusBoardViewModel: ObservableObject {
         return min(1, max(0, Double(volume.usedBytes) / Double(volume.totalBytes)))
     }
 
+    /// The last sample failed: the old figures are not shown as current.
+    var capacityUnavailable: Bool { usesMonitoring && lifecycle.latestSampleFailedAt != nil }
+
     var capacitySummary: String {
         guard let volume = primaryVolume else { return "Capacity unavailable" }
+        if capacityUnavailable {
+            let measured = observation?.capacity?.observedAt.map { " · last measured \($0.formatted(date: .abbreviated, time: .shortened))" } ?? ""
+            return "Capacity unavailable\(measured)"
+        }
         return "\(Self.byteCount(volume.usedBytes)) used of \(Self.byteCount(volume.totalBytes))"
     }
 
     var availableSummary: String {
-        guard let volume = primaryVolume else { return "Capacity unavailable" }
+        guard let volume = primaryVolume, !capacityUnavailable else { return "Capacity unavailable" }
         return "\(Self.byteCount(volume.availableBytes)) free"
+    }
+
+    /// Distance from free space to the user's comfort reserve.
+    var reserveSummary: String? {
+        guard let volume = primaryVolume, volume.totalBytes > 0, !capacityUnavailable else { return nil }
+        let reserve = lifecycle.settings.reserveBytes(totalBytes: volume.totalBytes)
+        let distance = volume.availableBytes - reserve
+        return distance >= 0
+            ? "\(Self.byteCount(distance)) above your \(Self.byteCount(reserve)) reserve"
+            : "\(Self.byteCount(-distance)) below your \(Self.byteCount(reserve)) reserve"
+    }
+
+    var belowReserve: Bool {
+        guard let volume = primaryVolume, volume.totalBytes > 0, !capacityUnavailable else { return false }
+        return volume.availableBytes < lifecycle.settings.reserveBytes(totalBytes: volume.totalBytes)
     }
 
     var volumeName: String {
@@ -170,10 +192,10 @@ final class StatusBoardViewModel: ObservableObject {
     }
 
     var capacityHealth: StatusBoardCapacityHealth {
-        guard let volume = primaryVolume, volume.totalBytes > 0 else { return .unavailable }
+        guard let volume = primaryVolume, volume.totalBytes > 0, !capacityUnavailable else { return .unavailable }
         let free = Double(volume.availableBytes) / Double(volume.totalBytes)
         if free < 0.10 { return .critical }
-        if free < 0.20 { return .attention }
+        if free < 0.20 || belowReserve { return .attention }
         return .healthy
     }
 

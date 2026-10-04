@@ -137,12 +137,17 @@ private struct CapacitySection: View {
             Text(viewModel.capacitySummary)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            if let reserve = viewModel.reserveSummary {
+                Text(reserve)
+                    .font(.caption)
+                    .foregroundStyle(viewModel.belowReserve ? Color.orange : Color.secondary)
+            }
             Text(viewModel.capacityFreshnessSummary)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("\(viewModel.volumeName), \(viewModel.availableSummary), \(viewModel.capacitySummary), \(viewModel.capacityHealth.rawValue)")
+        .accessibilityLabel("\(viewModel.volumeName), \(viewModel.availableSummary), \(viewModel.reserveSummary.map { "\($0), " } ?? "")\(viewModel.capacitySummary), \(viewModel.capacityHealth.rawValue)")
     }
 
     private var healthColor: Color {

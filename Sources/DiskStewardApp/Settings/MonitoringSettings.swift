@@ -10,7 +10,10 @@ struct MonitoringSettings: Codable, Equatable, Sendable {
     var dailySummaryDays: Int
     var maxDatabaseMiB: Int
     var writeCoalesceSeconds: Int
+    /// Legacy percentage threshold; it now only seeds the suggested reserve.
     var capacityThresholdPercent: Int
+    /// Free space the user wants to keep, in GiB; nil uses the suggestion.
+    var comfortReserveGiB: Int?
     var growthThresholdMiB: Int
     var sampleIntervalMinutes: Int
     var monitoringPaused: Bool
@@ -32,6 +35,7 @@ struct MonitoringSettings: Codable, Equatable, Sendable {
             maxDatabaseMiB: 512,
             writeCoalesceSeconds: 15,
             capacityThresholdPercent: 90,
+            comfortReserveGiB: nil,
             growthThresholdMiB: 5_120,
             sampleIntervalMinutes: 5,
             monitoringPaused: false,
@@ -49,6 +53,7 @@ struct MonitoringSettings: Codable, Equatable, Sendable {
         maxDatabaseMiB = min(10_240, max(10, maxDatabaseMiB))
         writeCoalesceSeconds = min(300, max(1, writeCoalesceSeconds))
         capacityThresholdPercent = min(99, max(50, capacityThresholdPercent))
+        comfortReserveGiB = comfortReserveGiB.map { min(65_536, max(1, $0)) }
         growthThresholdMiB = min(1_048_576, max(1, growthThresholdMiB))
         sampleIntervalMinutes = min(1_440, max(1, sampleIntervalMinutes))
         if let expiresAt = investigationExpiresAt, expiresAt <= Date() {
@@ -70,6 +75,19 @@ struct MonitoringSettings: Codable, Equatable, Sendable {
             investigations: investigation,
             coalescingWindow: TimeInterval(writeCoalesceSeconds)
         )
+    }
+
+    static let gibibyte: Int64 = 1_073_741_824
+
+    /// The suggestion for a disk of this size, migrated from the old
+    /// percentage threshold: the free space that threshold used to allow.
+    static func suggestedReserveGiB(totalBytes: Int64, capacityThresholdPercent: Int) -> Int {
+        let free = Double(max(0, totalBytes)) * Double(100 - min(99, max(50, capacityThresholdPercent))) / 100
+        return max(1, Int((free / Double(gibibyte)).rounded()))
+    }
+
+    func reserveBytes(totalBytes: Int64) -> Int64 {
+        Int64(comfortReserveGiB ?? Self.suggestedReserveGiB(totalBytes: totalBytes, capacityThresholdPercent: capacityThresholdPercent)) * Self.gibibyte
     }
 
     func retentionPolicy() throws -> EvidenceStoreRetentionPolicy {

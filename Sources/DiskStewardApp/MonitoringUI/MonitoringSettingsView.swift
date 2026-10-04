@@ -59,7 +59,11 @@ struct MonitoringSettingsView: View {
             }
 
             Section("Thresholds and retention") {
-                Stepper("Notify at \(settingsStore.settings.capacityThresholdPercent)% capacity", value: binding(\.capacityThresholdPercent), in: 50 ... 99)
+                Stepper(reserveLabel, value: reserveBinding, in: 1 ... 65_536, step: 5)
+                    .accessibilityHint("Notifies once when free space falls below this amount on two samples in a row.")
+                if settingsStore.settings.comfortReserveGiB != nil {
+                    Button("Use suggested reserve") { settingsStore.update { $0.comfortReserveGiB = nil } }
+                }
                 Stepper("Notify after \(settingsStore.settings.growthThresholdMiB) MiB growth", value: binding(\.growthThresholdMiB), in: 1 ... 1_048_576, step: 100)
                 Stepper("Sample every \(settingsStore.settings.sampleIntervalMinutes) minutes", value: binding(\.sampleIntervalMinutes), in: 1 ... 1_440)
                 Stepper("Keep raw events \(settingsStore.settings.rawEventDays) days", value: binding(\.rawEventDays), in: 1 ... 30)
@@ -99,6 +103,24 @@ struct MonitoringSettingsView: View {
                 }
             }
         }
+    }
+
+    private var startupDiskBytes: Int64 {
+        (try? URL(fileURLWithPath: "/").resourceValues(forKeys: [.volumeTotalCapacityKey]).volumeTotalCapacity).map { Int64($0) } ?? 0
+    }
+
+    private var effectiveReserveGiB: Int {
+        settingsStore.settings.comfortReserveGiB
+            ?? MonitoringSettings.suggestedReserveGiB(totalBytes: startupDiskBytes, capacityThresholdPercent: settingsStore.settings.capacityThresholdPercent)
+    }
+
+    private var reserveLabel: String {
+        let suffix = settingsStore.settings.comfortReserveGiB == nil ? " (suggested for this disk)" : ""
+        return "Keep at least \(effectiveReserveGiB) GiB free\(suffix)"
+    }
+
+    private var reserveBinding: Binding<Int> {
+        Binding(get: { effectiveReserveGiB }, set: { value in settingsStore.update { $0.comfortReserveGiB = value } })
     }
 
     private func binding(_ keyPath: WritableKeyPath<MonitoringSettings, Int>) -> Binding<Int> {

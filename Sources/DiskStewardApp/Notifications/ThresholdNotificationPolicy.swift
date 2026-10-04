@@ -8,28 +8,43 @@ struct MonitoringNotification: Equatable, Sendable {
 }
 
 struct ThresholdNotificationPolicy: Sendable {
-    private var capacityWasAbove = false
+    /// Consecutive comparable samples below the reserve.
+    private var belowReserveSamples = 0
+    /// A reserve alert may fire; re-armed only above reserve plus hysteresis.
+    private var reserveArmed = true
     private var growthWasAbove = false
     private var selectedVolumeIdentity: String?
 
     mutating func evaluate(observation: MonitoringObservation, settings: MonitoringSettings) -> [MonitoringNotification] {
         let volume = observation.capacity?.volume
         if selectedVolumeIdentity != observation.capacity?.identity {
-            capacityWasAbove = false
+            belowReserveSamples = 0
+            reserveArmed = true
             growthWasAbove = false
             selectedVolumeIdentity = observation.capacity?.identity
         }
-        let percent = volume.flatMap { $0.totalBytes > 0 ? Int((Double($0.usedBytes) / Double($0.totalBytes)) * 100) : nil } ?? 0
-        let capacityAbove = percent >= settings.capacityThresholdPercent
         let comparison = observation.capacity?.comparison
         let growthAbove = comparison.map { $0.usedByteDelta >= Int64(settings.growthThresholdMiB) * 1_024 * 1_024 } ?? false
         var notifications: [MonitoringNotification] = []
 
-        if capacityAbove && !capacityWasAbove {
-            notifications.append(.init(
-                title: "Disk usage reached \(percent)%",
-                body: "Disk Steward recorded the threshold crossing. Export evidence before deciding what to clean."
-            ))
+        if let volume, volume.totalBytes > 0 {
+            let reserve = settings.reserveBytes(totalBytes: volume.totalBytes)
+            let hysteresis = max(MonitoringSettings.gibibyte, reserve / 20)
+            if volume.availableBytes < reserve {
+                // Two comparable samples in a row: the same volume, measured
+                // again later. A first or non-comparable sample counts once.
+                belowReserveSamples = comparison != nil ? belowReserveSamples + 1 : 1
+            } else {
+                belowReserveSamples = 0
+                if volume.availableBytes >= reserve + hysteresis { reserveArmed = true }
+            }
+            if reserveArmed, belowReserveSamples >= 2 {
+                reserveArmed = false
+                notifications.append(.init(
+                    title: "Free space is below your \(Self.bytes(reserve)) reserve",
+                    body: "\(ObservedVolume.name(for: volume.mountPath)): \(Self.bytes(volume.availableBytes)) free, \(Self.bytes(reserve - volume.availableBytes)) below the reserve on two samples in a row. Review storage before deciding what to clean."
+                ))
+            }
         }
         if growthAbove && !growthWasAbove, let comparison {
             notifications.append(.init(
@@ -38,8 +53,11 @@ struct ThresholdNotificationPolicy: Sendable {
                 growthComparison: comparison
             ))
         }
-        capacityWasAbove = capacityAbove
         growthWasAbove = growthAbove
         return notifications
+    }
+
+    static func bytes(_ value: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: max(0, value), countStyle: .file)
     }
 }
