@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "PLAN-DISK-STEWARD-006",
   "title": "Reclaimable Space As Whole Objects",
-  "revision": 8,
+  "revision": 9,
   "intent": {
     "id": "INTENT-006",
     "statement": "Disk Steward treats build output, shared developer caches and repositories as single evidence objects rather than per-file rows, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and an explicit review step before anything is removed.",
@@ -2606,6 +2606,65 @@
           "Opening the user's live evidence database"
         ]
       }
+    },
+    {
+      "id": "TASK-664",
+      "kind": "risk-control",
+      "title": "Tolerate transient process inspection in the supervisor",
+      "summary": "The verification supervisor fails a run whenever any new same-user process on the Mac cannot be inspected at that instant (mid-launch, or briefly unreadable). Retry such inspections within a short bounded grace and keep failing closed when one persists, so candidate verification is not stopped by unrelated activity.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "safety",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-664-01",
+          "description": "A same-user process whose environment or identity cannot be read at one poll is retried on later polls for at most a bounded grace (2 s); the run fails with the existing error only when the failure persists while the process lives. Ownership by recorded parent lineage, the marker check, PID-identity rechecks and cleanup verification are unchanged."
+        },
+        {
+          "id": "AC-TASK-664-02",
+          "description": "Synthetic supervisor tests cover a transient classification failure, a transient unreadable identity, and a persistent failure that still fails closed; full candidate verification then completes on a Mac with ordinary background activity, recorded on the exact candidate input."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-664-01",
+          "type": "regression-evidence",
+          "description": "Supervisor unit tests for transient and persistent inspection failures, mutation reds, and consecutive full candidate verifications without a supervision race."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Scripts/Testing/process_supervisor.py",
+          "Scripts/Testing/SUPERVISION.md",
+          "Scripts/Testing/test_process_supervisor.py"
+        ],
+        "allowed_write_scope": [
+          "Scripts/Testing/process_supervisor.py",
+          "Scripts/Testing/test_process_supervisor.py",
+          "Scripts/Testing/SUPERVISION.md",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "python3 -m unittest discover -s Scripts/Testing -p 'test_*.py'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "A supervisor that retries transient inspection failures and still fails closed on persistent ones"
+        ],
+        "non_goals": [
+          "Weakening ownership, lineage or cleanup verification",
+          "Signalling processes not owned by the run"
+        ]
+      }
     }
   ],
   "edges": [
@@ -3238,6 +3297,21 @@
       "from": "TASK-653",
       "to": "TASK-612",
       "type": "invalidates"
+    },
+    {
+      "from": "TASK-664",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-664",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-664",
+      "type": "validation-requires"
     }
   ]
 }

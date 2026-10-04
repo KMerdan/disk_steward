@@ -1,0 +1,325 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-006-R9",
+ "stage": "candidate",
+ "outcome": "revised",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 8,
+  "sha256": "0f58ee39de2df58cfcd975b41a7656dcbaaf2eb1d14e269c6e66712c027d62b6"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 9,
+  "sha256": "d28d952b516e266ab526e6a244c83f7db12c1094df7fac052f2873e21ccb0f45"
+ },
+ "facts": [
+  {
+   "id": "FACT-R9-SUPERVISOR-RACE-BLOCKS-CANDIDATES",
+   "claim": "Candidate verification of 1.5.0 (12) (input 3db1f6b5) stopped on the supervisor's process-classification race in 12 of 13 attempts on 2026-10-05, at the build, tests and package-build stages; the supervisor inspects every new same-user process and fails when one is momentarily unreadable. Ordinary background activity (the desktop app polling git, rg, the user's own commands) produces about one such process every few seconds. Scripts/Testing is outside every task's write scope.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "FIND-R4-SUPERVISOR-RACE",
+    "Scripts/Testing/process_supervisor.py"
+   ],
+   "supports": [
+    "TASK-664",
+    "GATE-669"
+   ],
+   "freshness": "2026-10-05"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FIND-R9-01",
+   "class": "missing-control",
+   "affected_nodes": [
+    "TASK-664",
+    "GATE-669"
+   ],
+   "claim": "No task owns the open medium finding FIND-R4-SUPERVISOR-RACE, which now prevents producing the rung-3 candidate.",
+   "evidence": [
+    "FACT-R9-SUPERVISOR-RACE-BLOCKS-CANDIDATES"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "Add TASK-664 (risk-control): retry transient process inspection within a bounded grace, keep failing closed on persistent failures; GATE-669 validates it.",
+   "rationale": "Smallest change that unblocks candidate verification without weakening containment; every other node is unchanged."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-601",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621",
+    "TASK-664"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-602",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-603",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-604",
+   "before_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-605",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-606",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653",
+    "TASK-664"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-607",
+   "before_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-608",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-609",
+   "before_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-610",
+   "before_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-611",
+   "before_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "preserved",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "preserved",
+  "audit_closure": "preserved",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 28,
+   "executable_nodes": 23,
+   "edges": 83,
+   "hard_dependencies": 32,
+   "audit_gates": 4
+  },
+  "after": {
+   "nodes": 29,
+   "executable_nodes": 24,
+   "edges": 86,
+   "hard_dependencies": 33,
+   "audit_gates": 4
+  }
+ },
+ "summary": "Adds risk-control TASK-664 so the verification supervisor tolerates transient process inspection failures and still fails closed on persistent ones; GATE-669 validates it; every other node is unchanged.",
+ "limitations": [
+  "The race was observed on this Mac; the fix is proven with synthetic tests and consecutive full verifications, not on other machines."
+ ]
+}

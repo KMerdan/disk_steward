@@ -5,10 +5,10 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `142`
-- Plan revision: `8`
+- Graph version: `143`
+- Plan revision: `9`
 - Lifecycle: `active`
-- Verified primary nodes: `20/28`
+- Verified primary nodes: `3/29`
 - Ready tasks: `0`
 
 ## Ready Frontier
@@ -37,6 +37,7 @@ Disk Steward treats build output, shared developer caches and repositories as si
 - [`03-scanner`](03-scanner/README.md)
 - [`04-assurance`](04-assurance/README.md)
 - [`04-product`](04-product/README.md)
+- [`04-safety`](04-safety/README.md)
 - [`04-scanner`](04-scanner/README.md)
 - [`05-product`](05-product/README.md)
 - [`05-scanner`](05-scanner/README.md)
