@@ -522,3 +522,40 @@ processed fourteen times its scope without publishing.
     resolves to 1.4.0.
   - The maintainer's Mac runs the manually installed 1.4.0 (11). Its Homebrew
     record still says 1.2.3 until `brew upgrade --cask disk-steward` is run.
+
+## Rungs 3 and 4, PLAN-006 closed, and the 1.5.0 release (2026-10-05)
+
+- **Rung 3 (bounded review).** TASK-621 to TASK-623, TASK-631 and TASK-661
+  add:
+  - the review walker and object index;
+  - ranking with rebuild paths;
+  - the Review Storage window;
+  - the opt-in cache catalogue;
+  - measured growth attribution.
+- **Rung 4 (agent tools).** TASK-671 rebuilt the MCP catalogue as ten
+  read-only tools on the review. TASK-672 keeps sessions across relaunches,
+  so `get_task_impact` answers again.
+- **Harness.** TASK-664 (R9/R10) added a 2 s inspection grace to the process
+  supervisor. It had failed 12 of 13 verifications on ordinary machine
+  activity.
+- **Candidate 1.5.0 (12)** (`52c206e` and `4cdbe93`, verified input
+  `03e80c74…`).
+  - GATE-669 and OUTCOME-660 passed on the installed build: `~/localGit` in
+    54.0 s cold and 44.8 s warm, 62.68 GB in 2,000 items, sizes equal to
+    `du`; caches within 5%; 0.156% of one core over an idle hour.
+  - GATE-679 and OUTCOME-670 passed: every tool through the packaged helper,
+    `measure_path` budgeted, agent equal to window, export v2, task impact.
+  - Evidence: `docs/reliability/evidence/GATE-669/` and `GATE-679/`.
+- **PLAN-DISK-STEWARD-006 closed.** INTENT-006 passed
+  (`docs/reliability/evidence/INTENT-006/`). The maintainer accepted the
+  five remaining findings: FIND-R4-XCODE-WORKER (medium, harness only) and
+  four low ones.
+- **Released 1.5.0 (12).**
+  - Notarized from the gated archive. With signatures removed, the code is
+    byte-identical to the installed gate build
+    (`GATE-669/publication-1.5.0-12.json`).
+  - `Disk-Steward-1.5.0.zip`, SHA-256 `7515730d…198f`.
+  - Public notes: `docs/reliability/releases/1.5.0.md`.
+  - Codex users must re-run `Scripts/Integration/install` to refresh
+    `enabled_tools`.
+- **Rollback.** No store format changed, so quit 1.5.0 and reinstall 1.4.0.

@@ -1,6 +1,6 @@
 cask "disk-steward" do
-  version "1.4.0"
-  sha256 "5901eedffd7a03bd1e93109936903e6be784883e24a6779d7a0a8af6722ff2c1"
+  version "1.5.0"
+  sha256 "7515730d0bbde74b13c391f6a845fb073ea39b061b5dca160bd16f9cea79198f"
 
   url "https://github.com/KMerdan/disk_steward/releases/download/v#{version}/Disk-Steward-#{version}.zip"
   name "Disk Steward"

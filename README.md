@@ -6,7 +6,7 @@
   <p>
     <img alt="macOS 13+" src="https://img.shields.io/badge/macOS-13%2B-111111?logo=apple&logoColor=white">
     <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white">
-    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.4.0"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.4.0-2563EB"></a>
+    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.5.0"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.5.0-2563EB"></a>
     <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-2563EB"></a>
   </p>
 </div>
@@ -46,17 +46,19 @@ Disk Steward was developed through two completed Pyramid intents: first the trus
 - **Shows storage health at a glance.** Capacity, free space, distance to your free-space reserve and monitoring health stay in one compact native popover.
 - **Keeps a capacity history.** Five-minute samples for a week and hourly samples for a year live in a file of about 600 KB per disk.
 - **Warns before you run low.** One notification when free space stays below the reserve you set ("keep at least N GiB free"); no repeats until it recovers.
+- **Reviews where reclaimable space is.** **Review Storage…** walks one folder, or the developer caches you opt into, in about a minute. Build outputs, environments and caches are measured as whole objects and ranked by size, project idle time and recreate cost, each with its rebuild path and the owning tool's cleanup command as text. Repositories and git-tracked files are never offered, and nothing inside an object is stored.
 - **Names the folders that changed.** Changes inside your review scopes come from the macOS FSEvents journal, by project or build-output folder, without walking the disk. Changes made while the app was closed are replayed at launch; journal gaps are stated, never shown as "no change".
 - **Stays quiet.** No background file scanning: the idle app samples capacity and reads the change journal, at well under 1% of one core.
 - **Offers local, read-only MCP tools.** Agent Access is off by default and can be toggled independently of monitoring. The connector cannot delete files or change settings.
 
-Since 1.4.0, the earlier per-file evidence database is kept unmodified as legacy evidence: it can be exported or deleted from Settings, and file-level answers return with the bounded folder review planned for a later release.
+Since 1.4.0, the earlier per-file evidence database is kept unmodified as legacy evidence; it can be exported or deleted from Settings. Since 1.5.0, Review Storage and measured growth give object-level answers without storing a row per file.
 
 ## How it fits together
 
 ```text
 Capacity samples ────> capacity history ──┐
-FSEvents journal ────> changed folders ───┼─> native menu-bar status
+FSEvents journal ────> changed folders ───┤
+Review Storage ──────> object index ──────┼─> menu-bar status and review window
 Legacy evidence (export only) ────────────┤
                                           └─> private Unix socket
                                                └─> read-only MCP helper
@@ -64,7 +66,7 @@ Legacy evidence (export only) ────────────┤
                                                    └─> Claude Code
 ```
 
-The app owns its small history and journal files. The MCP helper communicates with the running app through a private current-user Unix socket; it never opens a database directly and never exposes a network listener.
+The app owns its small history, journal and review files. The MCP helper communicates with the running app through a private current-user Unix socket; it never opens a database directly and never exposes a network listener.
 
 ## Agent evidence, without another disk dig
 
@@ -100,7 +102,7 @@ The complete model is documented in [privacy and retention](docs/operations/priv
 
 ## Install
 
-Disk Steward 1.4.0 is Developer ID signed, hardened, notarized, and distributed as a universal macOS app through the public Homebrew tap:
+Disk Steward 1.5.0 is Developer ID signed, hardened, notarized, and distributed as a universal macOS app through the public Homebrew tap:
 
 ```sh
 brew trust KMerdan/disk-steward
@@ -108,7 +110,7 @@ brew tap KMerdan/disk-steward
 brew install --cask disk-steward
 ```
 
-The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.4.0 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.4.0).
+The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.5.0 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.5.0).
 
 ## Build and run
 
@@ -173,7 +175,7 @@ That distinction is what lets an agent choose the next investigation without tre
 
 ## Distribution status
 
-Disk Steward 1.4.0 is publicly available from the [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) and as a versioned GitHub release. The published archive has passed Developer ID identity, nested-helper signature, hardened runtime, secure timestamp, production entitlement, notarization staple, Gatekeeper, and archive round-trip checks.
+Disk Steward 1.5.0 is publicly available from the [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) and as a versioned GitHub release. The published archive has passed Developer ID identity, nested-helper signature, hardened runtime, secure timestamp, production entitlement, notarization staple, Gatekeeper, and archive round-trip checks.
 
 Release engineering is documented in [direct distribution](docs/operations/distribution.md), the [release handoff](docs/release/direct-distribution-handoff.md), and the [Homebrew activation checklist](Packaging/Homebrew/README.md).
 

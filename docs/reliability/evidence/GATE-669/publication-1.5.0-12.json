@@ -1,0 +1,81 @@
+{
+ "schema": "release-publication-v1",
+ "version": "1.5.0",
+ "build": "12",
+ "verifiedInputSHA256": "03e80c743d0ce97b1e6c5dd49d0b0670fc4cf6452d49efd421fb60815490947b",
+ "archive": "DiskSteward-1.5.0-12.xcarchive (the archive recorded in release-1.5.0-12.json and installed for the gates)",
+ "notarization": "uploaded once through the Xcode account route on 2026-10-05; -exportNotarizedApp succeeded on its first check",
+ "steps": {
+  "upload-12": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/xcodebuild -exportArchive -archivePath DiskSteward-1.5.0-12.xcarchive -exportOptionsPlist options.plist -exportPath export"
+  },
+  "export-notarized-12-1": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/xcodebuild -exportNotarizedApp -archivePath DiskSteward-1.5.0-12.xcarchive -exportPath notarized-12"
+  },
+  "verify-notarized-12": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/bin/zsh Scripts/Distribution/verify-release Disk Steward.app"
+  },
+  "package-12": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/ditto -c -k --keepParent --sequesterRsrc Disk Steward.app Disk-Steward-1.5.0.zip"
+  },
+  "unpack-12": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/ditto -x -k Disk-Steward-1.5.0.zip unpacked-12"
+  },
+  "verify-unpacked-12": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/bin/zsh Scripts/Distribution/verify-release Disk Steward.app"
+  }
+ },
+ "verifyUnpacked": "Release verification passed: universal architectures, Developer ID identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, notarization staple, Gatekeeper acceptance, and installed launch are valid.",
+ "asset": {
+  "name": "Disk-Steward-1.5.0.zip",
+  "sha256": "7515730d0bbde74b13c391f6a845fb073ea39b061b5dca160bd16f9cea79198f"
+ },
+ "sameCodeAsGated": {
+  "why": "Xcode's -exportNotarizedApp re-signs on export, so file hashes and CDHashes differ from the archive (1.4.0 behaved the same).",
+  "archive": {
+   "appSHA256": "049ae3f117393365f2bddb4690eebd3124a0520e312bc31425e5ce442dd7b547",
+   "appCDHash": "6ba66b619663406c0bec9316617e233c8303d096",
+   "helperCDHash": "3a7efbaa26025c278795079fe7070aba9c9eef65"
+  },
+  "notarized": {
+   "appSHA256": "30000bdcabdd0dcd34a97142edf842efeebea3693fe2f2e27f1a5200889f8304",
+   "appCDHash": "0a1b71000d1c80ea200bb0b28082848add884cf7",
+   "helperCDHash": "aac48baa337960c8b07b8a13e3e33dd356931218"
+  },
+  "unsignedAppSHA256": {
+   "archive": "70b3a7c76eed56206e0f1efbf6a7b04d188d625bf8bcac322df9247e393f8f0a",
+   "notarized": "70b3a7c76eed56206e0f1efbf6a7b04d188d625bf8bcac322df9247e393f8f0a"
+  },
+  "unsignedHelperSHA256": {
+   "archive": "eef8b562527c4a58326ef52b09dedb7a911ea6d3e47ee734ef08e0489d65520f",
+   "notarized": "eef8b562527c4a58326ef52b09dedb7a911ea6d3e47ee734ef08e0489d65520f"
+  },
+  "entitlements": "identical",
+  "otherFiles": "identical, except Contents/CodeResources, which only the notarized app carries (the staple)",
+  "gatekeeper": "spctl on the ZIP-unpacked app: accepted, source=Notarized Developer ID; stapler validate passes"
+ }
+}
