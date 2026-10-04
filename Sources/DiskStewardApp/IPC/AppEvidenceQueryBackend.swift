@@ -30,6 +30,8 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private let capacityRingURL: URL
     private let changeJournalURL: URL
     private var openedJournal: ChangeJournal?
+    /// TASK-661: measured attribution; nil where the app does not run it.
+    private let growthAttribution: GrowthAttributionService?
     private let reserveProvider: @Sendable (Int64) async -> Int64?
     private var openedRing: CapacityRing?
     private var openedStore: EvidenceStore?
@@ -89,9 +91,11 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         capacityRingURL: URL? = nil,
         reserveProvider: @escaping @Sendable (Int64) async -> Int64? = { _ in nil },
         changeJournalURL: URL? = nil,
-        fileDetail: FileDetailSource = .live
+        fileDetail: FileDetailSource = .live,
+        growthAttribution: GrowthAttributionService? = nil
     ) throws {
         self.fileDetail = fileDetail
+        self.growthAttribution = growthAttribution
         self.capacityRingURL = capacityRingURL ?? CapacityRing.defaultURL(beside: databaseURL)
         self.changeJournalURL = changeJournalURL ?? ChangeJournal.defaultURL(beside: databaseURL)
         self.reserveProvider = reserveProvider
@@ -613,9 +617,111 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         }
         let detail = pathDetail(arguments)
         result["capacity_change"] = await capacityChange(from: from, through: through)
-        let journal = await journalAnswer(from: from, through: through, detail: detail)
+        var journal = await journalAnswer(from: from, through: through, detail: detail)
+        let (measured, attributions) = await measuredGrowth(from: from, through: through, detail: detail)
+        result["measured_growth"] = measured
+        if let attribution = attributions.first { journal["changed_directories"] = markMeasured(journal["changed_directories"], by: attribution, detail: detail) }
         for (key, value) in journal { result[key] = value }
         return .object(result)
+    }
+
+    /// TASK-661: the volume delta attributed to measured objects. A window
+    /// reaching the present gets a fresh attribution (or one under two
+    /// minutes old) within the request budget; any window gets the stored
+    /// attributions it overlaps, newest first.
+    private func measuredGrowth(from: Date, through: Date, detail: EvidencePathDetail) async -> (JSONValue, [GrowthAttribution]) {
+        guard let growthAttribution else {
+            return (.object(["status": .string("unavailable"), "limitations": .array([.string("Growth attribution does not run in this process; changed directories are unmeasured.")])]), [])
+        }
+        var notes: [String] = []
+        if Date().timeIntervalSince(through) < GrowthAttributionService.presentSeconds {
+            do { _ = try await growthAttribution.current() } catch GrowthAttributionError.busy {
+                notes.append("An attribution was already measuring; stored attributions are shown.")
+            } catch {
+                notes.append("Measuring now failed (\(Self.detailFailureReason(error))); stored attributions are shown.")
+            }
+        }
+        let overlapping = await growthAttribution.attributions(overlapping: from, through: through)
+        guard !overlapping.isEmpty else {
+            notes.append("No attribution covers this window. One runs when free space drops by the growth threshold, or when a growth question reaches the present.")
+            return (.object(["status": .string("none"), "limitations": .array(notes.map(JSONValue.string))]), [])
+        }
+        let shown = Array(overlapping.prefix(Self.attributionsShown))
+        if overlapping.count > shown.count { notes.append("\(overlapping.count - shown.count) older attributions overlap the window and are not shown.") }
+        let known = shown.compactMap(\.volume)
+        var answer: [String: JSONValue] = [
+            "status": .string("measured"),
+            "attributed_bytes": .integer(shown.map(\.attributedBytes).reduce(0, +)),
+            "volume_delta_bytes": known.count == shown.count ? .integer(known.map(\.deltaBytes).reduce(0, +)) : .null,
+            "unexplained_bytes": known.count == shown.count ? .integer(shown.compactMap(\.unexplainedBytes).reduce(0, +)) : .null,
+            "remainder_covers": .string(GrowthAttribution.remainderCovers),
+            "complete": .bool(shown.allSatisfy(\.isComplete)),
+            "attributions": .array(shown.map { attributionValue($0, detail: detail) }),
+        ]
+        if shown.first?.from ?? from > from || (shown.last.map { $0.through < through } ?? false) || shown.contains(where: { $0.from < from || $0.through > through }) {
+            notes.append("Attribution windows do not match the requested window exactly; each attribution states its own.")
+        }
+        answer["limitations"] = .array(notes.map(JSONValue.string))
+        return (.object(answer), shown)
+    }
+
+    static let attributionsShown = 4
+    static let attributedObjectsShown = 50
+
+    private func attributionValue(_ attribution: GrowthAttribution, detail: EvidencePathDetail) -> JSONValue {
+        func date(_ value: Date?) -> JSONValue { value.map { .string(timestamp($0)) } ?? .null }
+        func bytes(_ value: Int64?) -> JSONValue { value.map(JSONValue.integer) ?? .null }
+        let objects = attribution.objects.prefix(Self.attributedObjectsShown)
+        return .object([
+            "attribution_id": .string(attribution.attributionID),
+            "trigger": .string(attribution.trigger.rawValue),
+            "from": date(attribution.from),
+            "through": date(attribution.through),
+            "volume_delta_bytes": bytes(attribution.volume?.deltaBytes),
+            "volume_first_sample_at": date(attribution.volume?.firstSampleAt),
+            "volume_last_sample_at": date(attribution.volume?.lastSampleAt),
+            "attributed_bytes": .integer(attribution.attributedBytes),
+            "unexplained_bytes": bytes(attribution.unexplainedBytes),
+            "complete": .bool(attribution.isComplete),
+            "stop_reason": attribution.stopReason.map { .string($0.rawValue) } ?? .null,
+            "objects": .array(objects.map { object in .object([
+                "path": .string(shape(path: object.path, detail: detail)),
+                "basis": .string(object.basis.rawValue),
+                "changes": .integer(object.changes),
+                "previous_bytes": bytes(object.previousBytes),
+                "previous_measured_at": date(object.previousMeasuredAt),
+                "current_bytes": bytes(object.currentBytes),
+                "delta_bytes": bytes(object.deltaBytes),
+                "unreadable_directories": .integer(Int64(object.unreadableDirectories)),
+            ]) }),
+            "objects_omitted": .integer(Int64(attribution.objectsOmitted + attribution.objects.count - objects.count)),
+            "unmeasured_directories": .object([
+                "count": .integer(Int64(attribution.unmeasuredDirectoryCount)),
+                "items": .array(attribution.unmeasuredDirectories.map { .string(shape(path: $0, detail: detail)) }),
+            ]),
+            "journal_gaps": .array(attribution.gaps.map { gap in .object([
+                "reason": .string(gap.reason), "path": .string(shape(path: gap.path, detail: detail)), "at": .string(timestamp(gap.at)),
+            ]) }),
+            "limitations": .array(attribution.limitations.map(JSONValue.string)),
+        ])
+    }
+
+    /// A changed directory at or inside a measured object, or holding
+    /// measured objects, says so; the rest stay unmeasured.
+    private func markMeasured(_ value: JSONValue?, by attribution: GrowthAttribution, detail: EvidencePathDetail) -> JSONValue? {
+        guard case var .object(changed)? = value, case let .array(items)? = changed["items"] else { return value }
+        let measured = attribution.objects.filter { $0.deltaBytes != nil }
+        let byShape = Dictionary(measured.map { (shape(path: $0.path, detail: detail), $0) }, uniquingKeysWith: { first, _ in first })
+        changed["items"] = .array(items.map { item in
+            guard case var .object(fields) = item, case let .string(path)? = fields["path"] else { return item }
+            let related = byShape.filter { path == $0.key || path.hasPrefix($0.key + "/") || $0.key.hasPrefix(path + "/") }.map(\.value)
+            guard !related.isEmpty else { return item }
+            fields["measured"] = .bool(true)
+            fields["measured_delta_bytes"] = .integer(related.compactMap(\.deltaBytes).reduce(0, +))
+            fields["measured_objects"] = .integer(Int64(related.count))
+            return .object(fields)
+        })
+        return .object(changed)
     }
 
     /// The same page shape with no file-level rows, saying why.
@@ -667,7 +773,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             }
             let window = try await journal.changes(from: from, through: through, limit: 200)
             let start = try await journal.coverageStart()
-            var limitations = ["Changed directories come from the file-system change journal; their sizes are not measured here."]
+            var limitations = ["Changed directories come from the file-system change journal. One is marked measured when an attribution measured objects at, inside or under it; measured_growth has the deltas."]
             if window.changes.truncated { limitations.append("changed_directories lists \(window.changes.items.count) of \(window.changes.total) directories, most changes first.") }
             if let start, start > from { limitations.append("The change journal starts at \(timestamp(start)); earlier changes are unknown, not absent.") }
             return [

@@ -27,6 +27,12 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private var reviewWindow: NSWindow?
     private lazy var reviewModel: ReviewWindowModel = makeReviewModel()
     private var changeJournalService: ChangeJournalService?
+    /// The steward file's review index and service, shared by the review
+    /// window and growth attribution; nil in the isolated smoke run.
+    private let reviewIndex: ReviewIndex?
+    private let reviewService: ReviewService?
+    private let growthAttribution: GrowthAttributionService?
+    private var growthTrigger: AnyCancellable?
     private var journalCheckpoint: AnyCancellable?
     private let changeJournalURL: URL?
     private let legacyEvidence: LegacyEvidenceController
@@ -65,6 +71,22 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         let changeJournalURL = supportDirectory.map { ChangeJournal.defaultURL(beside: $0.appending(path: "evidence.sqlite")) }
         self.changeJournalURL = smoke ? nil : changeJournalURL
         let capacityRing = smoke ? nil : capacityRingURL.flatMap { try? CapacityRing(url: $0) }
+        // TASK-661: growth attribution re-measures the objects the journal
+        // marks dirty; it pauses while a review is measuring.
+        let stewardURL = smoke ? nil : changeJournalURL
+        let reviewIndex = stewardURL.flatMap { try? ReviewIndex(url: $0) }
+        var reviewService: ReviewService?
+        if let stewardURL, let reviewIndex { reviewService = ReviewService(index: reviewIndex, stateURL: ReviewService.defaultStateURL(beside: stewardURL)) }
+        var growthAttribution: GrowthAttributionService?
+        if let stewardURL, let reviewIndex, let capacityRingURL, let journal = try? ChangeJournal(url: stewardURL) {
+            growthAttribution = GrowthAttributionService(
+                journal: journal, index: reviewIndex, ringURL: capacityRingURL,
+                fileURL: GrowthAttributionService.defaultFileURL(beside: stewardURL),
+                paused: { [reviewService] in await reviewService?.isRunning ?? false })
+        }
+        self.reviewIndex = reviewIndex
+        self.reviewService = reviewService
+        self.growthAttribution = growthAttribution
         lifecycle = MonitoringLifecycleController(
             settingsStore: settingsStore, probe: composition.probe,
             notificationDelivery: smoke ? DisabledNotificationDelivery() : UserNotificationDelivery(),
@@ -109,7 +131,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 capacityRingURL: capacityRingURL,
                 reserveProvider: { total in await MainActor.run { settingsStore.settings.reserveBytes(totalBytes: total) } },
                 changeJournalURL: changeJournalURL,
-                fileDetail: .retired(supportDirectory: supportDirectory)
+                fileDetail: .retired(supportDirectory: supportDirectory),
+                growthAttribution: growthAttribution
             )
             return UnixSocketEvidenceServer(
                 socketPath: supportDirectory.appending(path: "disk-steward.sock").path,
@@ -136,6 +159,20 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         configureMenu()
         lifecycle.start()
         startChangeJournal()
+        startGrowthAttribution()
+    }
+
+    /// TASK-661: each capacity sample feeds the threshold trigger, which uses
+    /// the growth threshold from Settings.
+    private func startGrowthAttribution() {
+        guard let growthAttribution else { return }
+        let settingsStore = self.settingsStore
+        growthTrigger = lifecycle.$latestObservation.dropFirst().sink { observation in
+            guard let capacity = observation?.capacity, let identity = capacity.identity else { return }
+            let used = capacity.volume.totalBytes - capacity.volume.availableBytes
+            let threshold = Int64(settingsStore.settings.growthThresholdMiB) * 1_048_576
+            Task { await growthAttribution.observe(usedBytes: used, volumeUUID: identity, thresholdBytes: threshold) }
+        }
     }
 
     /// Which directories changed, from the FSEvents journal, with no disk walk.
@@ -281,14 +318,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     /// The isolated smoke run gets a window that cannot start a review.
     private func makeReviewModel() -> ReviewWindowModel {
         let settingsStore = self.settingsStore
-        var service: ReviewService?
-        var index: ReviewIndex?
-        if !AppConfiguration.isSmoke, let stewardURL = changeJournalURL, let opened = try? ReviewIndex(url: stewardURL) {
-            index = opened
-            service = ReviewService(index: opened, stateURL: ReviewService.defaultStateURL(beside: stewardURL))
-        }
         return ReviewWindowModel(
-            service: service, index: index, scopes: reviewScopes(),
+            service: reviewService, index: reviewIndex, scopes: reviewScopes(),
             capacity: { [weak viewModel] in
                 guard let viewModel, let volume = viewModel.primaryVolume, !viewModel.capacityUnavailable else { return .unavailable }
                 return .init(availableBytes: volume.availableBytes, reserveBytes: settingsStore.settings.reserveBytes(totalBytes: volume.totalBytes))

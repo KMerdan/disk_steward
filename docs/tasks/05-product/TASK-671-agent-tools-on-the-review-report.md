@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `at-risk`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-671` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -42,7 +42,7 @@ Rebuild the MCP catalogue on the capacity ring, change journal and ReviewReport,
 
 - `CONTRACT-602` (contract-requires, passed)
 - `TASK-622` (requires, passed)
-- `TASK-661` (requires, unverified)
+- `TASK-661` (requires, passed)
 
 ## Required Context
 

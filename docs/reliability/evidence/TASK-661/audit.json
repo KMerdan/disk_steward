@@ -1,0 +1,72 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-661",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "AC-TASK-661-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-661/README.md",
+    "docs/reliability/evidence/TASK-661/agent-result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/tests.log",
+    "docs/reliability/evidence/TASK-661/full-suite/candidate.json",
+    "docs/reliability/evidence/TASK-661/baselines-not-advanced-red/result.json",
+    "docs/reliability/evidence/TASK-661/changed-directories-unmarked-red/result.json",
+    "docs/reliability/evidence/TASK-661/gone-ignored-red/result.json",
+    "docs/reliability/evidence/TASK-661/nested-targets-kept-red/result.json",
+    "docs/reliability/evidence/TASK-661/no-baseline-as-zero-red/result.json",
+    "docs/reliability/evidence/TASK-661/past-window-measures-red/result.json",
+    "docs/reliability/evidence/TASK-661/request-ignores-budget-red/result.json",
+    "docs/reliability/evidence/TASK-661/threshold-never-lowers-red/result.json",
+    "docs/reliability/evidence/TASK-661/under-join-dropped-red/result.json",
+    "docs/reliability/evidence/TASK-661/unexplained-ignores-attributed-red/result.json",
+    "docs/reliability/evidence/TASK-661/unmeasured-counted-red/result.json"
+   ]
+  },
+  {
+   "id": "AC-TASK-661-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-661/README.md",
+    "docs/reliability/evidence/TASK-661/agent-result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/result.json",
+    "docs/reliability/evidence/TASK-661/focused-green/tests.log",
+    "docs/reliability/evidence/TASK-661/full-suite/candidate.json",
+    "docs/reliability/evidence/TASK-661/under-join-dropped-red/result.json",
+    "docs/reliability/evidence/TASK-661/unexplained-ignores-attributed-red/result.json"
+   ]
+  }
+ ],
+ "affected_claims": [
+  "TASK-661"
+ ],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-R4-TASK-661-ASSURANCE",
+   "IMPACT-R4-TASK-661-BOOT",
+   "IMPACT-R4-TASK-661-LIFECYCLE",
+   "IMPACT-R4-TASK-661-QUERY",
+   "IMPACT-R4-TASK-661-SCANNER",
+   "IMPACT-R4-TASK-661-STORE"
+  ],
+  "inspection_ids": [
+   "INSPECT-R4-TASK-661-1"
+  ],
+  "finding_ids": [
+   "FIND-R3-DASHBOARD",
+   "FIND-R4-IDLE-CPU",
+   "FIND-R4-JOURNAL-LIMIT",
+   "FIND-R4-LIFECYCLE-RESPONSE-SIZE",
+   "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+   "FIND-R4-PATH-REDACTION-FALSE-POSITIVE"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "AC-02 is proven on a fixture with an injected capacity change; the live volume has other writers, so GATE-669 re-checks attribution on the packaged candidate.",
+   "Attributions live in a bounded sidecar file, not a CONTRACT-602 table; no explicit MCP measure argument until TASK-671."
+  ]
+ }
+}

@@ -24,7 +24,7 @@ extension MonitoringObservation {
 /// the change journal. It opens no evidence store, walks no directory and
 /// runs no retention.
 actor QuietGuardProbe: MonitoringProbing {
-    static let limitation = "Files are not scanned at idle. Changed directories come from the file-system change journal (explain_growth), unmeasured."
+    static let limitation = "Files are not scanned at idle. Changed directories come from the file-system change journal; explain_growth re-measures the objects among them when free space drops by the growth threshold or when asked."
     private let volumeSampleSource: @Sendable (StorageSnapshot?) throws -> (StorageSnapshot, VolumeGrowthSample)
     private var previousStorage: StorageSnapshot?
 

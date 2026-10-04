@@ -8,10 +8,10 @@
 - Wave: `4`
 - Workstream: `scanner`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `ready`
+- Execution: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-661` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -65,21 +65,13 @@ When free space drops past a threshold or on request, re-measure the dirty objec
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: `IMPACT-R4-TASK-661-SCANNER`, `IMPACT-R4-TASK-661-STORE`, `IMPACT-R4-TASK-661-QUERY`, `IMPACT-R4-TASK-661-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
+- Status: `covered`
+- Impact records: `IMPACT-R4-TASK-661-SCANNER`, `IMPACT-R4-TASK-661-STORE`, `IMPACT-R4-TASK-661-QUERY`, `IMPACT-R4-TASK-661-ASSURANCE`, `IMPACT-R4-TASK-661-BOOT`, `IMPACT-R4-TASK-661-LIFECYCLE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-661-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-661-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-661-QUERY remains hypothesis
-- Impact IMPACT-R4-TASK-661-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-661-STORE remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-661-1 is stale
+- None
 
 

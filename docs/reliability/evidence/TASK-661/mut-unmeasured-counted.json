@@ -1,0 +1,14 @@
+{
+ "name": "objects without a measured delta are counted as attributed",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Review/GrowthAttribution.swift",
+   "replacements": [
+    [
+     "        let attributed = growth.compactMap(\\.deltaBytes).reduce(0, +)",
+     "        let attributed = growth.compactMap { $0.deltaBytes ?? $0.currentBytes ?? $0.previousBytes }.reduce(0, +)"
+    ]
+   ]
+  }
+ ]
+}

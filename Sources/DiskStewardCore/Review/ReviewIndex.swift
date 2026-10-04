@@ -105,12 +105,7 @@ public actor ReviewIndex {
                 }
             }
         }
-        let objectRows: [[String: BoundedValue]] = kept.map { object in [
-            "object_id": .text(Self.key("object\u{0}" + object.path)), "project_id": .text(object.projectPath.map(Self.key) ?? ""),
-            "path_key": .text(Self.key(object.path)), "path": .text(object.path), "kind": .text(object.kind.rawValue),
-            "recreate_class": .text(object.recreateClass.rawValue), "allocated_bytes": .integer(object.allocatedBytes),
-            "file_count": .integer(Int64(object.fileCount)), "measured_at": .real(measuredAt), "last_activity": .real(object.lastActivity),
-        ] }
+        let objectRows = kept.map { Self.row($0, measuredAt: measuredAt) }
         if !objectRows.isEmpty {
             let written = try connection.insertBounded(objectTable, rows: objectRows)
             guard written.refused.isEmpty else { throw ReviewIndexError.refused(table: "object_index", reasons: written.refused) }
@@ -196,6 +191,15 @@ public actor ReviewIndex {
         }
     }
 
+    static func row(_ object: ReviewObject, measuredAt: TimeInterval) -> [String: BoundedValue] {
+        [
+            "object_id": .text(key("object\u{0}" + object.path)), "project_id": .text(object.projectPath.map(key) ?? ""),
+            "path_key": .text(key(object.path)), "path": .text(object.path), "kind": .text(object.kind.rawValue),
+            "recreate_class": .text(object.recreateClass.rawValue), "allocated_bytes": .integer(object.allocatedBytes),
+            "file_count": .integer(Int64(object.fileCount)), "measured_at": .real(measuredAt), "last_activity": .real(object.lastActivity),
+        ]
+    }
+
     /// Objects under a scope, largest first, in a bounded window.
     public func objects(under scope: String, limit: Int) throws -> BoundedWindow<IndexedObject> {
         let prefix = scope == "/" ? "/" : scope + "/"
@@ -225,6 +229,94 @@ public actor ReviewIndex {
             return rows
         }
         return BoundedWindow(items: items, total: total)
+    }
+
+    // MARK: Growth attribution (TASK-661)
+
+    private static let objectColumns = "object_id, project_id, path, kind, recreate_class, allocated_bytes, file_count, measured_at, last_activity"
+
+    private static func indexedObject(_ statement: OpaquePointer) -> IndexedObject {
+        func text(_ column: Int32) -> String { sqlite3_column_text(statement, column).map { String(cString: $0) } ?? "" }
+        return IndexedObject(objectID: text(0), projectID: text(1), path: text(2), kind: text(3), recreateClass: text(4),
+                             allocatedBytes: sqlite3_column_int64(statement, 5), fileCount: sqlite3_column_int64(statement, 6),
+                             measuredAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 7)),
+                             lastActivity: Date(timeIntervalSince1970: sqlite3_column_double(statement, 8)))
+    }
+
+    /// For each path, the deepest stored object at or above it.
+    public func objectsContaining(_ paths: [String]) throws -> [String: IndexedObject] {
+        var found: [String: IndexedObject] = [:]
+        try connection.withStatement("SELECT \(Self.objectColumns) FROM object_index WHERE path_key = ? LIMIT 1") { statement in
+            for path in Set(paths) {
+                var candidate = ChangeJournal.normalized(path)
+                while true {
+                    sqlite3_reset(statement)
+                    try connection.bind(Self.key(candidate), at: 1, in: statement)
+                    if sqlite3_step(statement) == SQLITE_ROW {
+                        let object = Self.indexedObject(statement)
+                        if object.path == candidate { found[path] = object; break }
+                    }
+                    guard candidate != "/" else { break }
+                    candidate = ChangeJournal.parent(candidate)
+                }
+            }
+        }
+        return found
+    }
+
+    /// For each path, the stored objects below it, most recently active first.
+    public func objectsUnder(_ paths: [String], limit: Int) throws -> [String: [IndexedObject]] {
+        var found: [String: [IndexedObject]] = [:]
+        try connection.withStatement("""
+            SELECT \(Self.objectColumns) FROM object_index WHERE substr(path, 1, ?) = ? ORDER BY last_activity DESC, path ASC LIMIT ?
+            """) { statement in
+            for path in Set(paths) {
+                let prefix = path == "/" ? "/" : path + "/"
+                sqlite3_reset(statement)
+                try connection.bind(Int64(prefix.utf8.count), at: 1, in: statement)
+                try connection.bind(prefix, at: 2, in: statement)
+                try connection.bind(Int64(max(1, min(limit, Self.maximumObjects))), at: 3, in: statement)
+                var rows: [IndexedObject] = []
+                while sqlite3_step(statement) == SQLITE_ROW { rows.append(Self.indexedObject(statement)) }
+                if !rows.isEmpty { found[path] = rows }
+            }
+        }
+        return found
+    }
+
+    /// Stores an attribution's measurements as the next baselines: a stored
+    /// object keeps its project and takes the new size, a new one is added,
+    /// and a gone one is removed.
+    public func updateMeasurements(_ objects: [ReviewObject], gone: [String], at date: Date) throws {
+        guard let objectTable = Self.tables["object_index"] else { throw ReviewIndexError.refused(table: "contract", reasons: ["missing table"]) }
+        var added: [[String: BoundedValue]] = []
+        try connection.withStatement("""
+            UPDATE object_index SET allocated_bytes = ?, file_count = ?, measured_at = ?, last_activity = ? WHERE path_key = ?
+            """) { statement in
+            for object in objects where object.path.utf8.count <= BoundedStoreContract.pathBytes {
+                sqlite3_reset(statement)
+                try connection.bind(object.allocatedBytes, at: 1, in: statement)
+                try connection.bind(Int64(object.fileCount), at: 2, in: statement)
+                try connection.bind(date.timeIntervalSince1970, at: 3, in: statement)
+                try connection.bind(object.lastActivity, at: 4, in: statement)
+                try connection.bind(Self.key(object.path), at: 5, in: statement)
+                try connection.stepDone(statement)
+                if try connection.changeCount() == 0 { added.append(Self.row(object, measuredAt: date.timeIntervalSince1970)) }
+            }
+        }
+        if !added.isEmpty {
+            let written = try connection.insertBounded(objectTable, rows: added)
+            guard written.refused.isEmpty else { throw ReviewIndexError.refused(table: "object_index", reasons: written.refused) }
+        }
+        if !gone.isEmpty {
+            try connection.withStatement("DELETE FROM object_index WHERE path_key = ?") { statement in
+                for path in gone {
+                    sqlite3_reset(statement)
+                    try connection.bind(Self.key(path), at: 1, in: statement)
+                    try connection.stepDone(statement)
+                }
+            }
+        }
     }
 
     public func latestReport(scope: String) throws -> StoredReviewReport? {

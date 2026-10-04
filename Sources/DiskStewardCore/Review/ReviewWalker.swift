@@ -310,14 +310,15 @@ public struct ReviewWalker: Sendable {
         var lastMemoryCheck = 0
     }
 
-    /// One cache the catalog review measures.
+    /// One object measured whole: an opted-in cache, or an object a growth
+    /// attribution re-measures.
     public struct CatalogTarget: Sendable {
         public let path: String
         public let object: ClassifiedObject
         public let recreateClass: RecreateClass
-        public let cleanupCommand: String
+        public let cleanupCommand: String?
 
-        public init(path: String, object: ClassifiedObject, recreateClass: RecreateClass, cleanupCommand: String) {
+        public init(path: String, object: ClassifiedObject, recreateClass: RecreateClass, cleanupCommand: String? = nil) {
             self.path = path
             self.object = object
             self.recreateClass = recreateClass
