@@ -1,0 +1,14 @@
+{
+ "name": "the store is checkpointed (opened) before it is moved",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/EvidenceStore/LegacyEvidence.swift",
+   "replacements": [
+    [
+     "        guard fileManager.fileExists(atPath: source.path) else { return nil }\n",
+     "        guard fileManager.fileExists(atPath: source.path) else { return nil }\n        if let connection = try? SQLiteConnection(url: source) { _ = try? connection.walCheckpoint(\"TRUNCATE\"); connection.close() }\n"
+    ]
+   ]
+  }
+ ]
+}

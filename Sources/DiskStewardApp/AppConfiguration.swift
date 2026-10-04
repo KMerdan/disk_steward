@@ -67,7 +67,7 @@ enum AppConfiguration {
 
 enum AppMenuLabels {
     static let statusItem = "Disk Steward"
-    static let generalExport = "Export Current Evidence"
+    static let generalExport = "Export Legacy Evidence"
     static let settings = "Settings…"
     static let about = "About Disk Steward"
     static let quit = "Quit Disk Steward"

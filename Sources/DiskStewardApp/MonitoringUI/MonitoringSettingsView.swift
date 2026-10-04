@@ -1,3 +1,4 @@
+import DiskStewardCore
 import Foundation
 import SwiftUI
 
@@ -7,7 +8,10 @@ struct MonitoringSettingsView: View {
     @ObservedObject var launchAtLogin: LaunchAtLoginController
     @ObservedObject var agentAccess: MCPAccessController
     @ObservedObject var agentIntegrations: AgentIntegrationManager
-    @State private var investigationHours = 1
+    @ObservedObject var legacyEvidence: LegacyEvidenceController
+    var onExportLegacy: () -> Void = {}
+    @State private var pendingDeletion: LegacyEvidenceManifest?
+    @State private var deletionError: String?
     @State private var folderSelection: FolderSelectionPurpose?
 
     var body: some View {
@@ -46,10 +50,10 @@ struct MonitoringSettingsView: View {
                 AgentIntegrationsView(manager: agentIntegrations)
             }
 
-            Section("Detailed evidence roots") {
+            Section("Review scopes") {
                 pathList(settingsStore.settings.watchedRoots, remove: settingsStore.removeWatchedRoot)
-                Button("Add Watched Folder…") { folderSelection = .watched }
-                Text("Other disk growth remains visible as unexplained whole-volume change.")
+                Button("Add Review Scope…") { folderSelection = .watched }
+                Text("Folders changed inside these scopes are journaled without scanning files. Other disk growth remains visible as unexplained whole-volume change.")
                     .font(.caption).foregroundStyle(.secondary)
             }
 
@@ -58,7 +62,7 @@ struct MonitoringSettingsView: View {
                 Button("Add Excluded Folder…") { folderSelection = .excluded }
             }
 
-            Section("Thresholds and retention") {
+            Section("Thresholds") {
                 Stepper(reserveLabel, value: reserveBinding, in: 1 ... 65_536, step: 5)
                     .accessibilityHint("Notifies once when free space falls below this amount on two samples in a row.")
                 if settingsStore.settings.comfortReserveGiB != nil {
@@ -66,23 +70,22 @@ struct MonitoringSettingsView: View {
                 }
                 Stepper("Notify after \(settingsStore.settings.growthThresholdMiB) MiB growth", value: binding(\.growthThresholdMiB), in: 1 ... 1_048_576, step: 100)
                 Stepper("Sample every \(settingsStore.settings.sampleIntervalMinutes) minutes", value: binding(\.sampleIntervalMinutes), in: 1 ... 1_440)
-                Stepper("Keep raw events \(settingsStore.settings.rawEventDays) days", value: binding(\.rawEventDays), in: 1 ... 30)
-                Stepper("Evidence database limit \(settingsStore.settings.maxDatabaseMiB) MiB", value: binding(\.maxDatabaseMiB), in: 10 ... 10_240, step: 10)
             }
 
-            Section("Investigation window") {
-                Stepper("Duration: \(investigationHours) hours", value: $investigationHours, in: 1 ... 24)
-                if let root = settingsStore.settings.watchedRoots.first {
-                    Button(settingsStore.settings.investigationRoot == nil ? "Investigate First Watched Root" : "End Investigation") {
-                        if settingsStore.settings.investigationRoot == nil {
-                            settingsStore.beginInvestigation(root: root, hours: investigationHours)
-                        } else {
-                            settingsStore.endInvestigation()
-                        }
-                    }
-                    Text(root).font(.caption2).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+            Section("Legacy evidence") {
+                if let newest = legacyEvidence.newest {
+                    Text("File evidence from before \(newest.migratedAt.formatted(date: .abbreviated, time: .omitted)) (\(ByteCountFormatter.string(fromByteCount: newest.databaseBytes, countStyle: .file))) is kept unmodified for export or rollback. Nothing reads or adds to it.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Button("Export Legacy Evidence…") { onExportLegacy() }
+                    Button("Delete Legacy Evidence…", role: .destructive) { pendingDeletion = newest }
                 } else {
-                    Text("Add a watched folder before starting an investigation.").foregroundStyle(.secondary)
+                    Text("No legacy evidence is kept.").foregroundStyle(.secondary)
+                }
+                if let error = legacyEvidence.migrationError {
+                    Text("The old evidence store could not be moved to legacy/: \(error)").foregroundStyle(.red)
+                }
+                if let deletionError {
+                    Text(deletionError).foregroundStyle(.red)
                 }
             }
         }
@@ -90,6 +93,23 @@ struct MonitoringSettingsView: View {
         .padding()
         .frame(width: 620, height: 760)
         .accessibilityLabel("Disk Steward monitoring settings")
+        .confirmationDialog(
+            "Delete legacy evidence?",
+            isPresented: Binding(get: { pendingDeletion != nil }, set: { if !$0 { pendingDeletion = nil } }),
+            presenting: pendingDeletion
+        ) { manifest in
+            Button("Move to Trash", role: .destructive) {
+                do {
+                    try legacyEvidence.delete(manifest, confirmed: true)
+                    deletionError = nil
+                } catch {
+                    deletionError = "Legacy evidence was not deleted: \(error.localizedDescription)"
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { manifest in
+            Text("The evidence from before \(manifest.migratedAt.formatted(date: .abbreviated, time: .omitted)) moves to the Trash. Export it first if you may need it; without it, rolling back to an earlier version starts with no evidence.")
+        }
         .sheet(item: $folderSelection) { purpose in
             FolderSelectionSheet(
                 purpose: purpose,

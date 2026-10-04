@@ -251,12 +251,14 @@ final class StatusBoardViewModel: ObservableObject {
     }
 
     var evidenceFreshnessSummary: String {
+        if observation?.detailRetired == true { return "Files are not scanned while idle" }
         guard let date = observation?.evidenceLifecycle?.scanCoverage?.lastCompleteGenerationAt
         else { return "File detail: no complete scan recorded" }
         return "Last complete file scan \(date.formatted(date: .abbreviated, time: .shortened))"
     }
 
     var evidenceStorageSummary: String {
+        if lifecycle.latestObservation?.detailRetired == true { return "Changed folders are journaled; legacy evidence is export-only" }
         guard let lifecycle = lifecycle.latestObservation?.evidenceLifecycle else {
             return "Evidence storage pending"
         }

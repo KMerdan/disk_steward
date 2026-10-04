@@ -1,0 +1,14 @@
+{
+ "name": "the status item composes the scanner probe and the per-file collector",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardApp/StatusItemController.swift",
+   "replacements": [
+    [
+     "        let composition = MonitoringComposition.quietGuard()",
+     "        let composition = MonitoringComposition(probe: try! PersistentMonitoringProbe(databaseURL: AppConfiguration.supportDirectory.appending(path: \"evidence.sqlite\")), changeCollector: TargetedFSEventsCollector())"
+    ]
+   ]
+  }
+ ]
+}

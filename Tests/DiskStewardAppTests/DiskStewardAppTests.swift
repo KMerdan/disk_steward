@@ -42,7 +42,7 @@ final class DiskStewardAppTests: XCTestCase {
     func testRequiredUtilityMenuLabelsRemainStable() {
         XCTAssertEqual(
             [AppMenuLabels.generalExport, AppMenuLabels.settings, AppMenuLabels.about, AppMenuLabels.quit],
-            ["Export Current Evidence", "Settings…", "About Disk Steward", "Quit Disk Steward"]
+            ["Export Legacy Evidence", "Settings…", "About Disk Steward", "Quit Disk Steward"]
         )
     }
 }

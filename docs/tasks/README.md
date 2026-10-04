@@ -5,22 +5,22 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `87`
+- Graph version: `91`
 - Plan revision: `4`
 - Lifecycle: `active`
-- Verified primary nodes: `10/29`
+- Verified primary nodes: `11/29`
 - Ready tasks: `2`
 
 ## Ready Frontier
 
 - `TASK-672` — Task impact from sessions and dirty sets
-- `TASK-653` — Retire the always-on scanner and preserve the legacy store
+- `GATE-659` — Audit rung 2: quiet guard
 
 ## Brownfield Assurance
 
 - Status: `blocked`
 - Baseline: `current` revision `4`
-- Impacted assets inspected sufficiently: `10/16`
+- Impacted assets inspected sufficiently: `11/17`
 - Open scope drift: `0`
 - Open material findings: `0`
 

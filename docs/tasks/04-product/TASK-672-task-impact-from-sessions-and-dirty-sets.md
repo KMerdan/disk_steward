@@ -77,6 +77,6 @@ Compute agent-session impact by intersecting each registered session's working d
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-ATTRIBUTION lacks a sufficient passing inspection
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-672-1 is planned
+- Required inspection INSPECT-R4-TASK-672-1 is stale
 
 

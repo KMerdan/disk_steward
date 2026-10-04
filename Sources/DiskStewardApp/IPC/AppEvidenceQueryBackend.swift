@@ -4,6 +4,28 @@ import DiskStewardCore
 import Foundation
 
 actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
+    /// Where file-level answers come from. TASK-653 retires the per-file
+    /// scanner: in `.retired` the evidence store is never opened (or created),
+    /// file-level tools say so, and `export_evidence` reads a clone of the
+    /// newest legacy set.
+    enum FileDetailSource: Sendable {
+        case live
+        case retired(supportDirectory: URL)
+    }
+
+    static let retiredDetailMessage = "File-level scanning is retired: Disk Steward no longer scans files while idle. get_storage_summary answers capacity and its history, explain_growth answers the capacity change and changed folders, and export_evidence exports the legacy evidence."
+    private static var retiredDetailError: DiskStewardIPCError {
+        .remote(code: "detail_unavailable", message: retiredDetailMessage, retryable: false)
+    }
+
+    static let legacyExportTooLargeMessage = "The legacy evidence is too large for an inline export. Export it to a file from Disk Steward: Settings, Legacy evidence, Export Legacy Evidence."
+
+    private let fileDetail: FileDetailSource
+    private var isRetired: Bool {
+        if case .retired = fileDetail { return true }
+        return false
+    }
+    private var legacyExport: (name: String, store: EvidenceStore, directory: URL)?
     private let databaseURL: URL
     private let capacityRingURL: URL
     private let changeJournalURL: URL
@@ -17,6 +39,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private var store: EvidenceStore {
         get throws {
             if let openedStore { return openedStore }
+            if case .retired = fileDetail { throw Self.retiredDetailError }
             do {
                 let opened = try EvidenceStore(url: databaseURL)
                 openedStore = opened
@@ -65,8 +88,10 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         taskImpactMaximumBytes: Int = 8 * 1_024 * 1_024,
         capacityRingURL: URL? = nil,
         reserveProvider: @escaping @Sendable (Int64) async -> Int64? = { _ in nil },
-        changeJournalURL: URL? = nil
+        changeJournalURL: URL? = nil,
+        fileDetail: FileDetailSource = .live
     ) throws {
+        self.fileDetail = fileDetail
         self.capacityRingURL = capacityRingURL ?? CapacityRing.defaultURL(beside: databaseURL)
         self.changeJournalURL = changeJournalURL ?? ChangeJournal.defaultURL(beside: databaseURL)
         self.reserveProvider = reserveProvider
@@ -80,7 +105,10 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         inlineExportBase = temporaryExportDirectory ?? databaseURL.deletingLastPathComponent()
             .appending(path: "temporary-exports", directoryHint: .isDirectory)
         self.databaseURL = databaseURL
-        let evidenceStore = try? EvidenceStore(url: databaseURL)
+        // Retired: sessions are kept in memory, and nothing opens or creates
+        // the old store path.
+        let evidenceStore: EvidenceStore?
+        if case .retired = fileDetail { evidenceStore = nil } else { evidenceStore = try? EvidenceStore(url: databaseURL) }
         openedStore = evidenceStore
         let seed = Data(UUID().uuidString.utf8)
         challengeDigest = SHA256.hash(data: seed).map { String(format: "%02x", $0) }.joined()
@@ -247,7 +275,12 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         case "list_current_consumers":
             return try await currentConsumers(arguments: arguments)
         case "export_evidence":
-            return try await inlineBundle(arguments: arguments)
+            do { return try await inlineBundle(arguments: arguments) }
+            catch DiskStewardIPCError.responseTooLarge where isRetired {
+                // A legacy store can hold far more current state than an
+                // inline answer; retrying cannot help, the file export can.
+                throw DiskStewardIPCError.remote(code: "legacy_export_too_large", message: Self.legacyExportTooLargeMessage, retryable: false)
+            }
         case "explain_growth":
             return try await explainGrowth(arguments: arguments)
         case "get_provenance":
@@ -327,6 +360,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     /// be cancelled by that task's deadline without blocking other requests.
     private nonisolated func detailStore() async throws -> EvidenceStore {
         if let cached = await openedStoreIfAny() { return cached }
+        if case .retired = fileDetail { throw Self.retiredDetailError }
         do {
             return await adopt(try EvidenceStore(url: databaseURL))
         } catch {
@@ -412,7 +446,9 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         if case EvidenceLifecycleSummaryError.budgetExceeded? = error as? EvidenceLifecycleSummaryError {
             return "lifecycle metadata exceeds the summary budget"
         }
-        if case let DiskStewardIPCError.remote(code, _, _)? = error as? DiskStewardIPCError { return code }
+        if case let DiskStewardIPCError.remote(code, message, _)? = error as? DiskStewardIPCError {
+            return message == retiredDetailMessage ? "file-level scanning is retired" : code
+        }
         if case let EvidenceStoreError.sqlite(code, _)? = error as? EvidenceStoreError { return "SQLite error \(code)" }
         return error is EvidenceStoreError ? "evidence store error" : "unexpected error"
     }
@@ -1057,6 +1093,31 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         ])
     }
 
+    /// The store an export reads: the live store, or once file scanning is
+    /// retired, a clone of the newest legacy set. The legacy files themselves
+    /// are never opened; the clone is reused until a newer set appears.
+    private func exportSource() async throws -> EvidenceStore {
+        guard case let .retired(supportDirectory) = fileDetail else { return try store }
+        guard let newest = try LegacyEvidence.sets(in: supportDirectory).first else {
+            throw DiskStewardIPCError.remote(code: "no_legacy_evidence", message: "File-level scanning is retired and there is no legacy evidence to export.", retryable: false)
+        }
+        if let legacyExport, legacyExport.name == newest.name { return legacyExport.store }
+        if let previous = legacyExport {
+            legacyExport = nil
+            await previous.store.close()
+            try? FileManager.default.removeItem(at: previous.directory)
+        }
+        let clone = try LegacyEvidence.clone(newest, supportDirectory: supportDirectory)
+        do {
+            let opened = try EvidenceStore(url: clone)
+            legacyExport = (newest.name, opened, clone.deletingLastPathComponent())
+            return opened
+        } catch {
+            try? FileManager.default.removeItem(at: clone.deletingLastPathComponent())
+            throw error
+        }
+    }
+
     private func inlineBundle(arguments: [String: JSONValue]) async throws -> JSONValue {
         guard let fromText = arguments["from"]?.stringValue,
               let throughText = arguments["through"]?.stringValue,
@@ -1073,13 +1134,13 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         defer { workspace.removeIfOwned() }
         let result: EvidenceBundleExportResult
         let scope = try await queryScopeProvider()
+        let exportStore = try await exportSource()
         do { result = try await exporter.export(
-            store: store,
+            store: exportStore,
             options: .init(from: from, through: through, pathDetail: detail, maximumEvents: min(max(maximumEvents, 1), 10_000), limits: .inline, scope: scope),
             to: workspace.directory,
             kind: .temporary
         ) } catch { throw exportFailure(error) }
-        let exportStore = try store
         var cleanup = TemporaryExportCleanup(result: result) { [exportStore] in
             try await exportStore.markTemporaryExportDestroyed(id: result.exportID)
         }

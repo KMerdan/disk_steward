@@ -89,6 +89,9 @@ struct MonitoringObservation: Sendable {
     let scanStop: ScanConvergenceStop?
     /// Set when the evidence store failed; the volume figures stay live.
     let detailUnavailableReason: String?
+    /// TASK-653: file detail is not collected by design (the quiet guard),
+    /// which is healthy, unlike `detailUnavailableReason`.
+    let detailRetired: Bool
     private(set) var capacity: ObservedVolume?
 
     init(
@@ -102,7 +105,8 @@ struct MonitoringObservation: Sendable {
         continuationSlices: Int = 0,
         volumeIdentity: String? = nil,
         scanStop: ScanConvergenceStop? = nil,
-        detailUnavailableReason: String? = nil
+        detailUnavailableReason: String? = nil,
+        detailRetired: Bool = false
     ) {
         self.observedAt = observedAt
         self.snapshot = snapshot
@@ -114,6 +118,7 @@ struct MonitoringObservation: Sendable {
         self.continuationSlices = continuationSlices
         self.scanStop = scanStop
         self.detailUnavailableReason = detailUnavailableReason
+        self.detailRetired = detailRetired
         self.capacity = ObservedVolume(snapshot: snapshot, identity: volumeIdentity)
     }
 

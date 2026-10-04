@@ -82,6 +82,9 @@ Repair the verification boundary exposed by a timed-out Swift test leaving an or
 ### Assurance Blockers
 
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
+- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 
 

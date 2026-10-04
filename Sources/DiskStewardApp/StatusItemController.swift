@@ -27,6 +27,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private var changeJournalService: ChangeJournalService?
     private var journalCheckpoint: AnyCancellable?
     private let changeJournalURL: URL?
+    private let legacyEvidence: LegacyEvidenceController
     private var aboutWindow: NSWindow?
 
     override init() {
@@ -39,19 +40,23 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         }
         self.settingsStore = settingsStore
         launchAtLogin = LaunchAtLoginController()
-        let probe: MonitoringProbing
         let supportDirectory: URL? = AppConfiguration.supportDirectory
-        var evidenceDatabaseURL: URL?
-        do {
-            let support = AppConfiguration.supportDirectory
-            try FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
-            let databaseURL = support.appending(path: "evidence.sqlite")
-            evidenceDatabaseURL = databaseURL
-            probe = try PersistentMonitoringProbe(databaseURL: databaseURL)
-        } catch {
-            // Capacity does not depend on the evidence store; keep it live.
-            probe = CapacityOnlyMonitoringProbe(reason: "the evidence store could not be opened: \(error.localizedDescription)")
+        // TASK-653: before anything else touches the support directory, the
+        // retired per-file evidence store is renamed, unmodified, into
+        // legacy/. Nothing below opens the old path again.
+        var legacyMigrationError: String?
+        if !smoke, let supportDirectory {
+            do {
+                try FileManager.default.createDirectory(at: supportDirectory, withIntermediateDirectories: true)
+                try LegacyEvidence.migrate(supportDirectory: supportDirectory, at: Date(), migratedBy: AboutView().versionDescription)
+            } catch {
+                legacyMigrationError = error.localizedDescription
+            }
         }
+        let legacyEvidence = LegacyEvidenceController(supportDirectory: smoke ? nil : supportDirectory, migrationError: legacyMigrationError)
+        self.legacyEvidence = legacyEvidence
+        // The quiet guard: capacity sampling only, no per-file collector.
+        let composition = MonitoringComposition.quietGuard()
         // Capacity history lives in its own small file, independent of the
         // evidence store. The isolated smoke run writes no history.
         let capacityRingURL = supportDirectory.map { CapacityRing.defaultURL(beside: $0.appending(path: "evidence.sqlite")) }
@@ -59,32 +64,23 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         self.changeJournalURL = smoke ? nil : changeJournalURL
         let capacityRing = smoke ? nil : capacityRingURL.flatMap { try? CapacityRing(url: $0) }
         lifecycle = MonitoringLifecycleController(
-            settingsStore: settingsStore, probe: probe,
+            settingsStore: settingsStore, probe: composition.probe,
             notificationDelivery: smoke ? DisabledNotificationDelivery() : UserNotificationDelivery(),
-            changeCollector: smoke ? nil : TargetedFSEventsCollector(),
+            changeCollector: composition.changeCollector,
             safetyState: MonitoringSafetyStateStore(persistence: persistence),
             capacityRing: capacityRing
         )
-        let durableExporter: StatusBoardViewModel.EvidenceExporter?
-        if let databaseURL = evidenceDatabaseURL {
-            durableExporter = { @Sendable destination async throws -> EvidenceBundleExportResult in
-                let store = try EvidenceStore(url: databaseURL)
-                let now = Date()
-                do {
-                    let result = try await EvidenceBundleExporter().export(
-                        store: store,
-                        options: .init(from: now.addingTimeInterval(-30 * 86_400), through: now),
-                        to: destination
-                    )
-                    await store.close()
-                    return result
-                } catch {
-                    await store.close()
-                    throw error
+        // Export reads a clone of the newest legacy set; the legacy files
+        // themselves are never opened.
+        let durableExporter: StatusBoardViewModel.EvidenceExporter? = smoke ? nil : { @Sendable destination async throws -> EvidenceBundleExportResult in
+            let (manifest, support) = try await MainActor.run { () throws -> (LegacyEvidenceManifest, URL) in
+                legacyEvidence.refresh()
+                guard let newest = legacyEvidence.newest, let support = legacyEvidence.supportDirectory else {
+                    throw LegacyEvidenceError.notFound("legacy evidence")
                 }
+                return (newest, support)
             }
-        } else {
-            durableExporter = nil
+            return try await LegacyEvidenceController.export(manifest, supportDirectory: support, to: destination)
         }
         viewModel = StatusBoardViewModel(
             evidenceExporter: durableExporter,
@@ -110,7 +106,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 queryScopeProvider: { await MainActor.run { EvidenceQueryScope(settingsStore.settings.monitoringPolicy(at: Date()).scopeVersion(at: Date())) } },
                 capacityRingURL: capacityRingURL,
                 reserveProvider: { total in await MainActor.run { settingsStore.settings.reserveBytes(totalBytes: total) } },
-                changeJournalURL: changeJournalURL
+                changeJournalURL: changeJournalURL,
+                fileDetail: .retired(supportDirectory: supportDirectory)
             )
             return UnixSocketEvidenceServer(
                 socketPath: supportDirectory.appending(path: "disk-steward.sock").path,
@@ -268,7 +265,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 lifecycle: lifecycle,
                 launchAtLogin: launchAtLogin,
                 agentAccess: agentAccess,
-                agentIntegrations: agentIntegrations
+                agentIntegrations: agentIntegrations,
+                legacyEvidence: legacyEvidence,
+                onExportLegacy: { [weak self] in self?.exportEvidence() }
             ),
             title: "Disk Steward Settings",
             existing: settingsWindow

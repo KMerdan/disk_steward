@@ -79,6 +79,6 @@ Show the review in a regular window: scope selector, start and stop, concrete pr
 - Impact IMPACT-R3-TASK-623-UI remains hypothesis
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R3-623-INTEGRATION is planned
+- Required inspection INSPECT-R3-623-INTEGRATION is stale
 
 

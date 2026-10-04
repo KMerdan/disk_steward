@@ -1,0 +1,62 @@
+#!/bin/zsh
+# Rolls the evidence store back for a previous Disk Steward version: renames
+# legacy/<name>.sqlite (and its -wal/-shm) back to evidence.sqlite after
+# checking each file against the hash recorded before it was moved.
+# Usage: restore-legacy-evidence [--support-directory DIR] [--name evidence-YYYY-MM-DD]
+# Quit Disk Steward first, then install the previous version before opening it.
+set -euo pipefail
+
+support="$HOME/Library/Application Support/Disk Steward"
+name=""
+custom_support=false
+while (( $# > 0 )); do
+  case "$1" in
+    --support-directory) support="$2"; custom_support=true; shift 2 ;;
+    --name) name="$2"; shift 2 ;;
+    *) print -u2 "Unknown argument: $1"; exit 64 ;;
+  esac
+done
+
+legacy="$support/legacy"
+if [[ "$custom_support" == false ]] && /usr/bin/pgrep -x "Disk Steward" >/dev/null; then
+  print -u2 "Quit Disk Steward before restoring legacy evidence."
+  exit 75
+fi
+if [[ -e "$support/evidence.sqlite" ]]; then
+  print -u2 "Refusing: $support/evidence.sqlite already exists. Move it aside first."
+  exit 73
+fi
+if [[ -z "$name" ]]; then
+  # The newest migrated set.
+  manifest=$(/bin/ls -t "$legacy"/evidence-*.json 2>/dev/null | /usr/bin/grep -v -- '-scan-convergence.json$' | /usr/bin/head -1 || true)
+  [[ -n "$manifest" ]] || { print -u2 "No legacy evidence in $legacy."; exit 66; }
+  name=$(/usr/bin/basename "$manifest" .json)
+fi
+manifest="$legacy/$name.json"
+[[ -f "$manifest" ]] || { print -u2 "No manifest $manifest."; exit 66; }
+field() { /usr/bin/plutil -extract "$1" raw -o - "$manifest" 2>/dev/null; }
+[[ "$(field schema)" == "legacy-evidence-v1" && "$(field status)" == "migrated" ]] || {
+  print -u2 "Refusing: $manifest is not a completed legacy-evidence-v1 move."; exit 65; }
+
+count=$(field files)
+suffixes=()
+for (( i = 0; i < count; i++ )); do
+  suffix=$(field "files.$i.suffix")
+  expected=$(field "files.$i.sha256")
+  file="$legacy/$name$suffix"
+  [[ -f "$file" ]] || { print -u2 "Missing $file."; exit 66; }
+  if [[ "$suffix" != ".sqlite-shm" ]]; then
+    actual=$(/usr/bin/shasum -a 256 "$file" | /usr/bin/cut -d' ' -f1)
+    [[ "$actual" == "$expected" ]] || { print -u2 "Refusing: $file changed since it was moved ($actual, expected $expected)."; exit 65; }
+  fi
+  suffixes+=("$suffix")
+done
+
+# Log and index first, the main file last, mirroring the forward move.
+for suffix in .sqlite-wal .sqlite-shm .sqlite-journal .sqlite; do
+  (( ${suffixes[(Ie)$suffix]} )) || continue
+  /bin/mv -n "$legacy/$name$suffix" "$support/evidence$suffix"
+done
+/bin/mv -n "$manifest" "$legacy/$name.restored.json"
+[[ -f "$legacy/$name-scan-convergence.json" ]] && /bin/mv -n "$legacy/$name-scan-convergence.json" "$support/scan-convergence.json"
+print "Restored $name to $support/evidence.sqlite. Install the previous Disk Steward version before opening it; opening this version again moves it back to legacy/."

@@ -80,6 +80,6 @@ When free space drops past a threshold or on request, re-measure the dirty objec
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-661-1 is planned
+- Required inspection INSPECT-R4-TASK-661-1 is stale
 
 

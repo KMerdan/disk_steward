@@ -347,13 +347,17 @@ final class MonitoringLifecycleController: ObservableObject {
             } else if !observation.needsScanContinuation, let coverage = observation.evidenceLifecycle?.scanCoverage, coverage.detailCoverage != "complete" {
                 transition(.degraded, title: "Partial coverage", detail: "Volume sampling finished, but some watched locations could not be fully observed. Last-known files remain uncertain, not deleted.")
             } else {
-                transition(
-                    recovering ? .recovered : .active,
-                    title: recovering ? "Recovered" : "Active",
-                    detail: observation.needsScanContinuation
-                        ? "Volume capacity is current. File-detail scanning is still in progress; retained file evidence may be older."
-                        : (recovering ? "Disk sampling is healthy again after a degraded sample." : "Volume sampling finished. Check file-detail coverage and observation times before using retained evidence.")
-                )
+                let detail: String
+                if recovering {
+                    detail = "Disk sampling is healthy again after a degraded sample."
+                } else if observation.detailRetired {
+                    detail = "Capacity is current, and changed folders are journaled. No files are scanned while idle."
+                } else if observation.needsScanContinuation {
+                    detail = "Volume capacity is current. File-detail scanning is still in progress; retained file evidence may be older."
+                } else {
+                    detail = "Volume sampling finished. Check file-detail coverage and observation times before using retained evidence."
+                }
+                transition(recovering ? .recovered : .active, title: recovering ? "Recovered" : "Active", detail: detail)
             }
             // Capacity alerts describe the measured volume, not dirty file
             // attribution, so detail reconciliation does not consume/drop them.
