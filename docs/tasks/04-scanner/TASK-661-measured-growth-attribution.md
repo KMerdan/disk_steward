@@ -36,7 +36,7 @@ When free space drops past a threshold or on request, re-measure the dirty objec
 ## Dependencies
 
 - `TASK-621` (requires, unverified)
-- `TASK-652` (requires, unverified)
+- `TASK-652` (requires, passed)
 
 ## Required Context
 

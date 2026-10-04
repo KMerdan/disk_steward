@@ -1,0 +1,14 @@
+{
+ "name": "the stored event ID is ignored on start",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Monitoring/DirectoryChangeStream.swift",
+   "replacements": [
+    [
+     "let since = eventID.map { FSEventStreamEventId($0) } ?? FSEventStreamEventId(kFSEventStreamEventIdSinceNow)",
+     "let since = FSEventStreamEventId(kFSEventStreamEventIdSinceNow)"
+    ]
+   ]
+  }
+ ]
+}

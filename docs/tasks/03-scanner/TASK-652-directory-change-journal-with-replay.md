@@ -8,10 +8,10 @@
 - Wave: `3`
 - Workstream: `scanner`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `verified`
 - Goal trace: `TASK-652` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -69,24 +69,13 @@ Replace the per-file targeted stream with one directory-level FSEvents stream wh
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: `IMPACT-R4-TASK-652-SCANNER`, `IMPACT-R4-TASK-652-STORE`, `IMPACT-R4-TASK-652-QUERY`, `IMPACT-R4-TASK-652-LIFECYCLE`, `IMPACT-R4-TASK-652-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
+- Status: `covered`
+- Impact records: `IMPACT-R4-TASK-652-SCANNER`, `IMPACT-R4-TASK-652-STORE`, `IMPACT-R4-TASK-652-QUERY`, `IMPACT-R4-TASK-652-LIFECYCLE`, `IMPACT-R4-TASK-652-ASSURANCE`, `IMPACT-R4-TASK-652-BOOT`, `IMPACT-R4-TASK-652-CONTRACTS`, `IMPACT-R4-TASK-652-IPC`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-CONTRACTS`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-652-1`, `INSPECT-R4-TASK-652-2`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-652-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-652-LIFECYCLE remains hypothesis
-- Impact IMPACT-R4-TASK-652-QUERY remains hypothesis
-- Impact IMPACT-R4-TASK-652-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-652-STORE remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-652-1 is planned
-- Required inspection INSPECT-R4-TASK-652-2 is planned
+- None
 
 

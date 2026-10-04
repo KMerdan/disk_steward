@@ -1,0 +1,14 @@
+{
+ "name": "an expired explain_growth cursor degrades instead of being refused",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "replacements": [
+    [
+     "        } catch EvidenceStoreError.cursorExpired {\n            throw EvidenceStoreError.cursorExpired\n",
+     "        } catch EvidenceStoreError.cursorExpired where false {\n            throw EvidenceStoreError.cursorExpired\n"
+    ]
+   ]
+  }
+ ]
+}

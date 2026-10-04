@@ -6,6 +6,8 @@ import Foundation
 actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private let databaseURL: URL
     private let capacityRingURL: URL
+    private let changeJournalURL: URL
+    private var openedJournal: ChangeJournal?
     private let reserveProvider: @Sendable (Int64) async -> Int64?
     private var openedRing: CapacityRing?
     private var openedStore: EvidenceStore?
@@ -62,9 +64,11 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         taskImpactMaximumRows: Int = 100_000,
         taskImpactMaximumBytes: Int = 8 * 1_024 * 1_024,
         capacityRingURL: URL? = nil,
-        reserveProvider: @escaping @Sendable (Int64) async -> Int64? = { _ in nil }
+        reserveProvider: @escaping @Sendable (Int64) async -> Int64? = { _ in nil },
+        changeJournalURL: URL? = nil
     ) throws {
         self.capacityRingURL = capacityRingURL ?? CapacityRing.defaultURL(beside: databaseURL)
+        self.changeJournalURL = changeJournalURL ?? ChangeJournal.defaultURL(beside: databaseURL)
         self.reserveProvider = reserveProvider
         self.retentionPolicyProvider = retentionPolicyProvider
         self.queryScopeProvider = queryScopeProvider
@@ -376,11 +380,18 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     }
 
     /// Capacity history from its own file, independent of the evidence store.
+    /// The capacity ring if the app has created it; a read never creates it.
+    private func existingRing() throws -> CapacityRing? {
+        if let openedRing { return openedRing }
+        guard FileManager.default.fileExists(atPath: capacityRingURL.path) else { return nil }
+        let ring = try CapacityRing(url: capacityRingURL)
+        openedRing = ring
+        return ring
+    }
+
     private func capacityHistory(mountPath: String?) async -> JSONValue {
         do {
-            let ring: CapacityRing
-            if let openedRing { ring = openedRing } else { ring = try CapacityRing(url: capacityRingURL); openedRing = ring }
-            guard let mountPath, let uuid = try await ring.volumeUUID(mountPath: mountPath) else {
+            guard let ring = try existingRing(), let mountPath, let uuid = try await ring.volumeUUID(mountPath: mountPath) else {
                 return .object(["status": .string("empty"), "sample_count": .integer(0)])
             }
             let summary = try await ring.summary(volumeUUID: uuid)
@@ -543,8 +554,111 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         return coverage(observationGaps: summary.status.observationGaps, from: from, through: through)
     }
 
+    /// Growth for a window: the capacity change and the changed directories
+    /// come from the ring and the change journal and are always answered;
+    /// file-level detail is added when the evidence store can provide it.
     private func explainGrowth(arguments: [String: JSONValue]) async throws -> JSONValue {
         let (from, through) = try requestedRange(arguments)
+        var result: [String: JSONValue]
+        do {
+            result = try await explainGrowthDetail(arguments: arguments, from: from, through: through)
+            result["detail_status"] = .string("available")
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch EvidenceStoreError.cursorExpired {
+            throw EvidenceStoreError.cursorExpired
+        } catch let error as DiskStewardIPCError {
+            // A request the client must change is still refused; only an
+            // unreadable store degrades to the journal and ring answer.
+            guard case let .remote(code, _, _) = error, code == "detail_unavailable" else { throw error }
+            result = degradedGrowth(from: from, through: through, error: error)
+        } catch {
+            result = degradedGrowth(from: from, through: through, error: error)
+        }
+        let detail = pathDetail(arguments)
+        result["capacity_change"] = await capacityChange(from: from, through: through)
+        let journal = await journalAnswer(from: from, through: through, detail: detail)
+        for (key, value) in journal { result[key] = value }
+        return .object(result)
+    }
+
+    /// The same page shape with no file-level rows, saying why.
+    private func degradedGrowth(from: Date, through: Date, error: Error) -> [String: JSONValue] {
+        var page = pageObject(
+            query: "explain_growth", observedAt: Date(), stateAsOf: nil, requestedFrom: from, requestedThrough: through,
+            retainedFrom: nil, retainedThrough: nil, coverage: "unavailable", precision: "unknown", matchedCount: nil, nextCursor: nil,
+            items: [], limitations: ["File-level detail is unavailable; the capacity change and changed directories do not depend on it."]
+        ).objectValue ?? [:]
+        page["detail_status"] = .string("unavailable")
+        page["detail_reasons"] = .array([.string(Self.detailFailureReason(error))])
+        return page
+    }
+
+    private func capacityChange(from: Date, through: Date) async -> JSONValue {
+        do {
+            guard let ring = try existingRing() else { return .object(["status": .string("no-samples")]) }
+            let snapshot = try VolumeSnapshotService().capture()
+            guard let selected = selectedCapacityVolume(in: snapshot), let uuid = try await ring.volumeUUID(mountPath: selected.mountPath),
+                  let ends = try await ring.endpoints(volumeUUID: uuid, from: from, through: through) else {
+                return .object(["status": .string("no-samples")])
+            }
+            let usedBefore = ends.first.totalBytes - ends.first.availableBytes
+            let usedAfter = ends.last.totalBytes - ends.last.availableBytes
+            return .object([
+                "status": .string("available"),
+                "first_sample_at": .string(timestamp(ends.first.observedAt)),
+                "last_sample_at": .string(timestamp(ends.last.observedAt)),
+                "used_delta_bytes": .integer(usedAfter - usedBefore),
+            ])
+        } catch {
+            return .object(["status": .string("unavailable"), "reason": .string(Self.detailFailureReason(error))])
+        }
+    }
+
+    private func journalAnswer(from: Date, through: Date, detail: EvidencePathDetail) async -> [String: JSONValue] {
+        do {
+            let journal: ChangeJournal
+            if let openedJournal {
+                journal = openedJournal
+            } else {
+                // A read never creates the journal; the app's service does.
+                guard FileManager.default.fileExists(atPath: changeJournalURL.path) else {
+                    return ["changed_directories": .null, "journal_gaps": .array([]), "journal_coverage_start": .null,
+                            "journal_limitations": .array([.string("The change journal has not started; which directories changed is unknown.")])]
+                }
+                journal = try ChangeJournal(url: changeJournalURL)
+                openedJournal = journal
+            }
+            let window = try await journal.changes(from: from, through: through, limit: 200)
+            let start = try await journal.coverageStart()
+            var limitations = ["Changed directories come from the file-system change journal; their sizes are not measured here."]
+            if window.changes.truncated { limitations.append("changed_directories lists \(window.changes.items.count) of \(window.changes.total) directories, most changes first.") }
+            if let start, start > from { limitations.append("The change journal starts at \(timestamp(start)); earlier changes are unknown, not absent.") }
+            return [
+                "changed_directories": .object([
+                    "items": .array(window.changes.items.map { change in .object([
+                        "path": .string(shape(path: change.path, detail: detail)),
+                        "changes": .integer(change.changes),
+                        "first_interval": .string(timestamp(change.firstInterval)),
+                        "last_interval": .string(timestamp(change.lastInterval)),
+                        "measured": .bool(false),
+                    ]) }),
+                    "total": .integer(Int64(window.changes.total)),
+                    "truncated": .bool(window.changes.truncated),
+                ]),
+                "journal_gaps": .array(window.gaps.map { gap in .object([
+                    "reason": .string(gap.reason), "path": .string(shape(path: gap.path, detail: detail)), "at": .string(timestamp(gap.at)),
+                ]) }),
+                "journal_coverage_start": start.map { .string(timestamp($0)) } ?? .null,
+                "journal_limitations": .array(limitations.map(JSONValue.string)),
+            ]
+        } catch {
+            return ["changed_directories": .null, "journal_gaps": .array([]), "journal_coverage_start": .null,
+                    "journal_limitations": .array([.string("The change journal is unavailable (\(Self.detailFailureReason(error))).")])]
+        }
+    }
+
+    private func explainGrowthDetail(arguments: [String: JSONValue], from: Date, through: Date) async throws -> [String: JSONValue] {
         let detail = pathDetail(arguments)
         let scope = try await queryScopeProvider()
         let budget = rowBudget(arguments, worstCaseItemBytes: 1_536)
@@ -591,7 +705,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "surviving_object_count": .integer(Int64(model.aggregate.survivingObjectCount)),
             "surviving_current_bytes": .integer(model.aggregate.survivingAllocatedBytes),
         ])
-        return .object(result)
+        return result
     }
 
     private func provenance(arguments: [String: JSONValue]) async throws -> JSONValue {

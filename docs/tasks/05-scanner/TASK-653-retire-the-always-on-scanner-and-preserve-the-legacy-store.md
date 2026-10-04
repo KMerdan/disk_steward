@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-653` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -40,7 +40,7 @@ Stop continuous scanning, staging, publication and pressure retention; rename th
 
 - `TASK-614` (requires, passed)
 - `TASK-651` (requires, passed)
-- `TASK-652` (requires, unverified)
+- `TASK-652` (requires, passed)
 
 ## Required Context
 

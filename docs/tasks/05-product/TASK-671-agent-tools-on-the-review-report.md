@@ -93,7 +93,7 @@ Rebuild the MCP catalogue on the capacity ring, change journal and ReviewReport,
 - Impacted asset ASSET-IPC lacks a sufficient passing inspection
 - Impacted asset ASSET-MCP lacks a sufficient passing inspection
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-671-1 is planned
-- Required inspection INSPECT-R4-TASK-671-2 is planned
+- Required inspection INSPECT-R4-TASK-671-1 is stale
+- Required inspection INSPECT-R4-TASK-671-2 is stale
 
 

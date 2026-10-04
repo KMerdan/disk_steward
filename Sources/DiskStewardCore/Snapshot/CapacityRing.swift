@@ -136,6 +136,29 @@ public actor CapacityRing {
                      minimumAvailableLastDay: minimum)
     }
 
+    /// The first and last samples inside [from, through], 5-minute samples
+    /// first and hourly ones when the window is older than a week.
+    public func endpoints(volumeUUID: String, from: Date, through: Date) throws -> (first: CapacitySample, last: CapacitySample)? {
+        guard let volume = try volume(uuid: volumeUUID) else { return nil }
+        for table in ["capacity_fine", "capacity_hourly"] {
+            func sample(_ order: String) throws -> CapacitySample? {
+                try connection.withStatement(
+                    "SELECT observed_at, total_bytes, available_bytes FROM \(table) WHERE volume_id = ? AND observed_at >= ? AND observed_at <= ? ORDER BY observed_at \(order) LIMIT 1"
+                ) { statement in
+                    try connection.bind(volume.id, at: 1, in: statement)
+                    try connection.bind(from.timeIntervalSince1970, at: 2, in: statement)
+                    try connection.bind(through.timeIntervalSince1970, at: 3, in: statement)
+                    guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
+                    return CapacitySample(volumeUUID: volumeUUID, mountPath: volume.mountPath,
+                                          observedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 0)),
+                                          totalBytes: sqlite3_column_int64(statement, 1), availableBytes: sqlite3_column_int64(statement, 2))
+                }
+            }
+            if let first = try sample("ASC"), let last = try sample("DESC"), last.observedAt > first.observedAt { return (first, last) }
+        }
+        return nil
+    }
+
     /// The most recently seen volume mounted at this path.
     public func volumeUUID(mountPath: String) throws -> String? {
         try connection.withStatement("SELECT volume_uuid FROM capacity_volumes WHERE mount_path = ? ORDER BY first_seen_at DESC LIMIT 1") { statement in

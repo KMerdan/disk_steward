@@ -70,16 +70,22 @@ final class LifecycleProjectionIPCIntegrationTests: XCTestCase {
         // TASK-642: capacity never depends on the lifecycle summary.
         let summary = try client.call(tool: "get_storage_summary", arguments: [:], isCancelled: { false })
         XCTAssertEqual(summary.objectValue?["detail_status"], .string("unavailable"))
-        for name in ["get_evidence_lifecycle", "explain_growth"] {
-            let arguments: [String: JSONValue] = name == "explain_growth" ? [
-                "from": .string("2026-01-01T00:00:00Z"), "through": .string("2026-01-02T00:00:00Z")
-            ] : [:]
-            do { _ = try client.call(tool: name, arguments: arguments, isCancelled: { false }); XCTFail("Expected budget refusal") }
-            catch DiskStewardIPCError.remote(let code, _, let retryable) {
-                XCTAssertEqual(code, "query_budget_exceeded")
-                XCTAssertFalse(retryable)
-            }
+        do { _ = try client.call(tool: "get_evidence_lifecycle", arguments: [:], isCancelled: { false }); XCTFail("Expected budget refusal") }
+        catch DiskStewardIPCError.remote(let code, _, let retryable) {
+            XCTAssertEqual(code, "query_budget_exceeded")
+            XCTAssertFalse(retryable)
         }
+        // TASK-652: growth still answers from the ring and the change journal,
+        // and says the file-level detail is missing instead of guessing.
+        let growth = try client.call(tool: "explain_growth", arguments: [
+            "from": .string("2026-01-01T00:00:00Z"), "through": .string("2026-01-02T00:00:00Z")
+        ], isCancelled: { false }).objectValue
+        XCTAssertEqual(growth?["detail_status"], .string("unavailable"))
+        XCTAssertEqual(growth?["detail_reasons"], .array([.string("lifecycle metadata exceeds the summary budget")]))
+        XCTAssertEqual(growth?["coverage"], .string("unavailable"))
+        XCTAssertNotNil(growth?["capacity_change"]?.objectValue?["status"])
+        XCTAssertEqual(growth?["changed_directories"], .null, "no journal yet: unknown, not an empty list")
+        XCTAssertNotNil(growth?["journal_limitations"])
     }
 
     func testForcedEvictionGapHistoryDoesNotLockOutSummaryTools() async throws {

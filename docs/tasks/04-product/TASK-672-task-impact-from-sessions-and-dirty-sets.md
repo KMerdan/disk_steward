@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-672` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -36,7 +36,7 @@ Compute agent-session impact by intersecting each registered session's working d
 
 ## Dependencies
 
-- `TASK-652` (requires, unverified)
+- `TASK-652` (requires, passed)
 
 ## Required Context
 

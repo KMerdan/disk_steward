@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import DiskStewardCore
 import SwiftUI
 
@@ -23,6 +24,9 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let agentAccess: MCPAccessController
     private let agentIntegrations: AgentIntegrationManager
     private var settingsWindow: NSWindow?
+    private var changeJournalService: ChangeJournalService?
+    private var journalCheckpoint: AnyCancellable?
+    private let changeJournalURL: URL?
     private var aboutWindow: NSWindow?
 
     override init() {
@@ -51,6 +55,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         // Capacity history lives in its own small file, independent of the
         // evidence store. The isolated smoke run writes no history.
         let capacityRingURL = supportDirectory.map { CapacityRing.defaultURL(beside: $0.appending(path: "evidence.sqlite")) }
+        let changeJournalURL = supportDirectory.map { ChangeJournal.defaultURL(beside: $0.appending(path: "evidence.sqlite")) }
+        self.changeJournalURL = smoke ? nil : changeJournalURL
         let capacityRing = smoke ? nil : capacityRingURL.flatMap { try? CapacityRing(url: $0) }
         lifecycle = MonitoringLifecycleController(
             settingsStore: settingsStore, probe: probe,
@@ -103,7 +109,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 // a policy change must not wait for the next scan to become visible.
                 queryScopeProvider: { await MainActor.run { EvidenceQueryScope(settingsStore.settings.monitoringPolicy(at: Date()).scopeVersion(at: Date())) } },
                 capacityRingURL: capacityRingURL,
-                reserveProvider: { total in await MainActor.run { settingsStore.settings.reserveBytes(totalBytes: total) } }
+                reserveProvider: { total in await MainActor.run { settingsStore.settings.reserveBytes(totalBytes: total) } },
+                changeJournalURL: changeJournalURL
             )
             return UnixSocketEvidenceServer(
                 socketPath: supportDirectory.appending(path: "disk-steward.sock").path,
@@ -128,6 +135,19 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         configurePopover()
         configureMenu()
         lifecycle.start()
+        startChangeJournal()
+    }
+
+    /// Which directories changed, from the FSEvents journal, with no disk walk.
+    /// The cursor is checkpointed with every capacity sample.
+    private func startChangeJournal() {
+        guard let changeJournalURL, let journal = try? ChangeJournal(url: changeJournalURL) else { return }
+        let service = ChangeJournalService(journal: journal)
+        service.start(settingsStore: settingsStore)
+        changeJournalService = service
+        journalCheckpoint = lifecycle.$latestObservation.dropFirst().sink { _ in
+            Task { await service.checkpoint() }
+        }
     }
 
     @objc func handleStatusItemClick(_ sender: Any?) {
