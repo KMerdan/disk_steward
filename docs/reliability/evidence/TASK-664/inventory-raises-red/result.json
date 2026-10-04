@@ -1,0 +1,22 @@
+{
+ "mutation": {
+  "name": "the inventory fails on one uninspectable process",
+  "mutations": [
+   {
+    "file": "Scripts/Testing/process_supervisor.py",
+    "replacements": [
+     [
+      "                try:\n                    identity = self.identity(pid)\n                except (OSError, RuntimeError):\n                    self.unreadable.add(pid)\n                    continue\n",
+      "                identity = self.identity(pid)\n"
+     ]
+    ]
+   }
+  ]
+ },
+ "exitCode": 1,
+ "passed": false,
+ "baseSupervisorSHA256": "c49620af6ac796b9abea9dc8c89e028007ed0e60bd491351d9403ae47744f283",
+ "failing": [
+  "test_the_inventory_reports_uninspectable_processes_instead_of_failing"
+ ]
+}

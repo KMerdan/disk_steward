@@ -79,14 +79,22 @@ class ProcessTable:
 
     def snapshot(self):
         # Bounded, same-UID inventory; no process arguments in logs/evidence.
+        # A process that cannot be inspected at this instant (mid-launch, or
+        # briefly unreadable) is listed in `unreadable` for the caller to retry
+        # within its grace; it is never counted as inspected.
         pids = (C.c_int * 16384)()
         count = self.lib.proc_listpids(4, os.getuid(), pids, C.sizeof(pids))
         if count <= 0 or count >= C.sizeof(pids):
             raise RuntimeError("Process inventory unavailable or exceeds budget")
         result = {}
+        self.unreadable = set()
         for pid in pids[:count // C.sizeof(C.c_int)]:
             if pid:
-                identity = self.identity(pid)
+                try:
+                    identity = self.identity(pid)
+                except (OSError, RuntimeError):
+                    self.unreadable.add(pid)
+                    continue
                 if identity:
                     result[identity["unique"]] = identity
         return result
@@ -135,14 +143,30 @@ class ProcessTable:
 
 
 class Family:
-    def __init__(self, table, root, marker, started, baseline=()):
+    # Any same-user process on the Mac can be momentarily uninspectable (it is
+    # mid-launch, or its metadata is briefly unreadable). Such a process is
+    # retried on later polls; the run fails closed only when the failure lasts
+    # this long while the process lives (TASK-664, FIND-R4-SUPERVISOR-RACE).
+    INSPECTION_GRACE = 2.0
+
+    def __init__(self, table, root, marker, started, baseline=(), baseline_unreadable=(), clock=time.monotonic):
         self.table, self.marker = table, marker
         self.owned = {root["unique"]: root}
         self.root = root["unique"]
         self.unrelated = set(baseline) - {self.root}
+        self.baseline_unreadable = set(baseline_unreadable)
+        self.clock = clock
+        self.unreadable = {}
+        self.unclassified = {}
 
     def discover(self):
         snapshot = self.table.snapshot()
+        now = self.clock()
+        current = set(getattr(self.table, "unreadable", ())) - self.baseline_unreadable
+        self.unreadable = {pid: self.unreadable.get(pid, now) for pid in current}
+        stuck = sorted(pid for pid, first in self.unreadable.items() if now - first >= self.INSPECTION_GRACE)
+        if stuck:
+            raise OSError(errno.EPERM, f"Cannot establish process identity for {stuck[0]}")
         self._extend_lineage(snapshot)
         # A birth chain rooted in a pre-run process cannot belong to this gated
         # launch. Do not read its environment or let unrelated system activity
@@ -157,8 +181,17 @@ class Family:
         for item in snapshot.values():
             if item["unique"] in self.owned or item["unique"] in self.unrelated:
                 continue
-            if self.table.marked(item, self.marker):
+            try:
+                marked = self.table.marked(item, self.marker)
+            except RuntimeError:
+                first = self.unclassified.setdefault(item["unique"], now)
+                if now - first >= self.INSPECTION_GRACE:
+                    raise
+                continue
+            self.unclassified.pop(item["unique"], None)
+            if marked:
                 self.owned[item["unique"]] = item
+        self.unclassified = {key: first for key, first in self.unclassified.items() if key in snapshot}
         self._extend_lineage(snapshot)
         if len(self.owned) > 4096 or len(self.unrelated) > 16384:
             raise RuntimeError("Owned identity ledger exceeds budget")
@@ -192,6 +225,7 @@ def run_command(command, cwd, environment, log, seconds, maximum_log_bytes=8 * M
     marker = str(uuid.uuid4())
     table = table_factory()  # Fail BEFORE launch when inspection is unavailable.
     baseline = table.snapshot()
+    baseline_unreadable = set(getattr(table, "unreadable", ()))
     selector = None
     old_handlers = {}
     cancellation = []
@@ -237,7 +271,7 @@ def run_command(command, cwd, environment, log, seconds, maximum_log_bytes=8 * M
             root = table.identity(child.pid)
             if root is None:
                 raise RuntimeError("Launch gate exited before identity registration")
-            family = Family(table, root, marker, wall_start, baseline)
+            family = Family(table, root, marker, wall_start, baseline, baseline_unreadable)
             if cancellation:
                 raise SupervisorCancelled("Cancelled before execution gate")
             os.write(gate_write, b"G")

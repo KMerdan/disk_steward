@@ -1,0 +1,325 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-006-R10",
+ "stage": "candidate",
+ "outcome": "revised",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 9,
+  "sha256": "a18472dfeaa1c2ef846e9a4d7856619bf88d1de029c5f466b79dbff7e58bc48a"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 10,
+  "sha256": "2976f868e87d425ce1211a68a81cbe5523061a1e0432d15b4329714d648ae0da"
+ },
+ "facts": [
+  {
+   "id": "FACT-R10-616-PENDING",
+   "claim": "TASK-616 is implemented with verification pending (re-attached in R4; its gate-time inspections are refreshed at GATE-669), so a requires edge locks TASK-664, which only extends TASK-616's supervisor.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "TASK-616",
+    "TASK-664"
+   ],
+   "supports": [
+    "TASK-664"
+   ],
+   "freshness": "2026-10-05"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FIND-R10-01",
+   "class": "over-constrained-dependency",
+   "affected_nodes": [
+    "TASK-664"
+   ],
+   "claim": "TASK-664 needs TASK-616's code, not its re-audit, to start.",
+   "evidence": [
+    "FACT-R10-616-PENDING"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "Retype TASK-664 -> TASK-616 from requires to integration-requires; GATE-669 still validates both.",
+   "rationale": "Same pattern as R11 of PLAN-005; no acceptance or coverage changes."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-601",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621",
+    "TASK-664"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621",
+    "TASK-664"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-602",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-603",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-604",
+   "before_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-605",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-606",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653",
+    "TASK-664"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653",
+    "TASK-664"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-607",
+   "before_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-608",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-609",
+   "before_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-610",
+   "before_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-611",
+   "before_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "preserved",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "preserved",
+  "audit_closure": "preserved",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 29,
+   "executable_nodes": 24,
+   "edges": 86,
+   "hard_dependencies": 33,
+   "audit_gates": 4
+  },
+  "after": {
+   "nodes": 29,
+   "executable_nodes": 24,
+   "edges": 86,
+   "hard_dependencies": 32,
+   "audit_gates": 4
+  }
+ },
+ "summary": "Retypes TASK-664 -> TASK-616 to integration-requires so the supervisor fix can start while TASK-616 awaits its gate-time re-audit; nothing else changes.",
+ "limitations": [
+  "The race was observed on this Mac; the fix is proven with synthetic tests and consecutive full verifications, not on other machines."
+ ]
+}

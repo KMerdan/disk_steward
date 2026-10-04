@@ -1,0 +1,153 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-664",
+ "outcome": "implemented",
+ "changed_files": [
+  "Scripts/Testing/process_supervisor.py",
+  "Scripts/Testing/test_process_supervisor.py",
+  "docs/reliability/evidence/TASK-664/README.md",
+  "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+  "docs/reliability/evidence/TASK-664/consecutive/run-1/tests.log",
+  "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+  "docs/reliability/evidence/TASK-664/consecutive/run-2/tests.log",
+  "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+  "docs/reliability/evidence/TASK-664/consecutive/run-3/tests.log",
+  "docs/reliability/evidence/TASK-664/inventory-raises-red/result.json",
+  "docs/reliability/evidence/TASK-664/inventory-raises-red/tests.log",
+  "docs/reliability/evidence/TASK-664/mut-inventory-raises.json",
+  "docs/reliability/evidence/TASK-664/mut-never-fails-closed.json",
+  "docs/reliability/evidence/TASK-664/mut-no-grace.json",
+  "docs/reliability/evidence/TASK-664/mut-waits-on-pre-run-processes.json",
+  "docs/reliability/evidence/TASK-664/never-fails-closed-red/result.json",
+  "docs/reliability/evidence/TASK-664/never-fails-closed-red/tests.log",
+  "docs/reliability/evidence/TASK-664/no-grace-red/result.json",
+  "docs/reliability/evidence/TASK-664/no-grace-red/tests.log",
+  "docs/reliability/evidence/TASK-664/waits-on-pre-run-processes-red/result.json",
+  "docs/reliability/evidence/TASK-664/waits-on-pre-run-processes-red/tests.log",
+  "docs/reliability/evidence/TASK-664/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-BUILD"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Scripts/Testing/process_supervisor.py",
+   "class": "source"
+  },
+  {
+   "path": "Scripts/Testing/test_process_supervisor.py",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/consecutive/run-1/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/consecutive/run-2/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/consecutive/run-3/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/consecutive/run-3/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/inventory-raises-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/inventory-raises-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/mut-inventory-raises.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/mut-never-fails-closed.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/mut-no-grace.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/mut-waits-on-pre-run-processes.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/never-fails-closed-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/never-fails-closed-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/no-grace-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/no-grace-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/waits-on-pre-run-processes-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/waits-on-pre-run-processes-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-664/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "python3 -m unittest test_process_supervisor (14 tests)",
+   "result": "passed"
+  },
+  {
+   "command": "4 mutation reds on copies",
+   "result": "each red as intended"
+  },
+  {
+   "command": "3 consecutive verify_candidate.py --xcodegen runs",
+   "result": "no supervision race; 727 tests pass in runs 1-2, run 3 only the known ObjectConvergence flake"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-664-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-664/README.md"
+  },
+  {
+   "criterion": "AC-TASK-664-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-664/README.md"
+  }
+ ],
+ "discovered_risks": [
+  "FIND-R4-OBJECT-CONVERGENCE-FLAKE recurred (3 of the last 9 full runs); it lives in the retired scanner path."
+ ],
+ "suggested_graph_changes": []
+}

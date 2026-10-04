@@ -1,0 +1,27 @@
+{
+ "mutation": {
+  "name": "a lasting inspection failure is ignored forever",
+  "mutations": [
+   {
+    "file": "Scripts/Testing/process_supervisor.py",
+    "replacements": [
+     [
+      "        if stuck:\n            raise OSError(errno.EPERM, f\"Cannot establish process identity for {stuck[0]}\")\n",
+      ""
+     ],
+     [
+      "                if now - first >= self.INSPECTION_GRACE:\n                    raise\n                continue\n",
+      "                continue\n"
+     ]
+    ]
+   }
+  ]
+ },
+ "exitCode": 1,
+ "passed": false,
+ "baseSupervisorSHA256": "c49620af6ac796b9abea9dc8c89e028007ed0e60bd491351d9403ae47744f283",
+ "failing": [
+  "test_a_briefly_unreadable_process_is_retried_and_a_lasting_one_fails",
+  "test_a_persistent_classification_failure_still_fails_closed"
+ ]
+}

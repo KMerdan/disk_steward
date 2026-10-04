@@ -1,0 +1,24 @@
+{
+ "mutation": {
+  "name": "a momentary inspection failure fails the run at once",
+  "mutations": [
+   {
+    "file": "Scripts/Testing/process_supervisor.py",
+    "replacements": [
+     [
+      "    INSPECTION_GRACE = 2.0\n",
+      "    INSPECTION_GRACE = 0.0\n"
+     ]
+    ]
+   }
+  ]
+ },
+ "exitCode": 1,
+ "passed": false,
+ "baseSupervisorSHA256": "c49620af6ac796b9abea9dc8c89e028007ed0e60bd491351d9403ae47744f283",
+ "failing": [
+  "test_a_briefly_unreadable_process_is_retried_and_a_lasting_one_fails",
+  "test_a_persistent_classification_failure_still_fails_closed",
+  "test_a_transient_classification_failure_is_retried_not_fatal"
+ ]
+}

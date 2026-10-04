@@ -1,5 +1,6 @@
 import math
 import ctypes as C
+import errno
 import os
 from pathlib import Path
 import tempfile
@@ -88,6 +89,83 @@ class SupervisorContractTests(unittest.TestCase):
             def snapshot(self): return {40: stranger}
             def marked(self, *_): raise AssertionError("Unrelated environment inspected")
         self.assertEqual(Family(Table(), root, "marker", 0, {9}).discover(), [])
+
+
+    # TASK-664: any same-user process can be momentarily uninspectable. It is
+    # retried within Family.INSPECTION_GRACE; a lasting failure fails closed.
+    def test_a_transient_classification_failure_is_retried_not_fatal(self):
+        root = {"pid": 100, "unique": 10, "parent": 9, "start": 0, "status": 2}
+        stranger = {"pid": 400, "unique": 40, "parent": 50, "start": 1, "status": 2}
+        calls = []
+        class Table:
+            def snapshot(self): return {40: stranger}
+            def marked(self, *_):
+                calls.append(1)
+                if len(calls) == 1:
+                    raise RuntimeError("Cannot classify new process 400 (errno 0)")
+                return False
+        times = iter([0.0, 0.5])
+        family = Family(Table(), root, "marker", 0, clock=lambda: next(times))
+        self.assertEqual(family.discover(), [])
+        self.assertEqual(family.discover(), [])
+        self.assertEqual(len(calls), 2, "the process was inspected again, not skipped forever")
+
+    def test_a_persistent_classification_failure_still_fails_closed(self):
+        root = {"pid": 100, "unique": 10, "parent": 9, "start": 0, "status": 2}
+        stranger = {"pid": 400, "unique": 40, "parent": 50, "start": 1, "status": 2}
+        class Table:
+            def snapshot(self): return {40: stranger}
+            def marked(self, *_): raise RuntimeError("Cannot classify new process 400 (errno 0)")
+        times = iter([0.0, 1.0, 2.5])
+        family = Family(Table(), root, "marker", 0, clock=lambda: next(times))
+        family.discover()
+        family.discover()
+        with self.assertRaisesRegex(RuntimeError, "Cannot classify"):
+            family.discover()
+
+    def test_a_briefly_unreadable_process_is_retried_and_a_lasting_one_fails(self):
+        root = {"pid": 100, "unique": 10, "parent": 9, "start": 0, "status": 2}
+        class Table:
+            def __init__(self): self.unreadable, self.rounds = set(), 0
+            def snapshot(self):
+                self.rounds += 1
+                self.unreadable = {500} if self.rounds in (1, 3, 4, 5) else set()
+                return {}
+            def marked(self, *_): return False
+        times = iter([0.0, 0.5, 1.0, 2.0, 3.5])
+        family = Family(Table(), root, "marker", 0, clock=lambda: next(times))
+        family.discover()  # first seen at 0.0
+        family.discover()  # gone: forgotten
+        family.discover()  # seen again at 1.0
+        family.discover()  # 1.0 s later: still within the grace
+        with self.assertRaisesRegex(OSError, "Cannot establish process identity for 500"):
+            family.discover()  # 2.5 s later: fails closed
+
+    def test_processes_unreadable_before_the_run_are_not_waited_on(self):
+        root = {"pid": 100, "unique": 10, "parent": 9, "start": 0, "status": 2}
+        class Table:
+            unreadable = {600}
+            def snapshot(self): return {}
+            def marked(self, *_): return False
+        times = iter([0.0, 10.0])
+        family = Family(Table(), root, "marker", 0, baseline_unreadable={600}, clock=lambda: next(times))
+        self.assertEqual(family.discover(), [])
+        self.assertEqual(family.discover(), [])
+
+    def test_the_inventory_reports_uninspectable_processes_instead_of_failing(self):
+        table = object.__new__(ProcessTable)
+        class Lib:
+            def proc_listpids(self, kind, uid, buffer, size):
+                buffer[0], buffer[1] = 100, 200
+                return 2 * C.sizeof(C.c_int)
+        table.lib = Lib()
+        def identity(pid):
+            if pid == 200:
+                raise OSError(errno.EPERM, "Cannot establish process identity for 200")
+            return {"pid": pid, "unique": 1_000 + pid, "status": 2}
+        table.identity = identity
+        self.assertEqual(list(table.snapshot()), [1_100])
+        self.assertEqual(table.unreadable, {200})
 
 
 if __name__ == "__main__":

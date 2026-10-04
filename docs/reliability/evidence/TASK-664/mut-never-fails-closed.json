@@ -1,0 +1,18 @@
+{
+ "name": "a lasting inspection failure is ignored forever",
+ "mutations": [
+  {
+   "file": "Scripts/Testing/process_supervisor.py",
+   "replacements": [
+    [
+     "        if stuck:\n            raise OSError(errno.EPERM, f\"Cannot establish process identity for {stuck[0]}\")\n",
+     ""
+    ],
+    [
+     "                if now - first >= self.INSPECTION_GRACE:\n                    raise\n                continue\n",
+     "                continue\n"
+    ]
+   ]
+  }
+ ]
+}
