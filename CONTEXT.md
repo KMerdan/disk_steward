@@ -450,9 +450,9 @@ processed fourteen times its scope without publishing.
   - The MCP summary tools and the helper self-check answer again. Evidence
     freshness is honestly reported as 21 days old.
   - Gate evidence: `docs/reliability/evidence/GATE-649/`.
-- **Not yet done.** The GitHub release, tag, push and Homebrew tap update each
-  need the user's go-ahead. The in-repo cask and README already point at
-  1.3.0.
+- **Publication (superseded by the 1.3.0 (10) record below).** The GitHub
+  release, tag, push and Homebrew tap update waited for the user's go-ahead,
+  which came on 2026-10-04.
 - **Released candidate 1.3.0 (10)** from main (`062a8d5` plus `f70c820`;
   input `887d62f1b8f5…`).
   - TASK-614 was reopened because build 9 idled at 11.4% of a core: stopped
@@ -465,4 +465,15 @@ processed fourteen times its scope without publishing.
   - Installed over (9). Both earlier apps are in the Trash. Idle CPU over 15
     minutes: 0.40% of one core.
   - GATE-649 and OUTCOME-640 passed. Rung 2 starts with CONTRACT-602.
+- **Published 2026-10-04** with the user's go-ahead.
+  - `main` was pushed through `368917d`. Tag `v1.3.0` (annotated) points to
+    `368917d`.
+  - GitHub release https://github.com/KMerdan/disk_steward/releases/tag/v1.3.0
+    is the latest release. Its public `Disk-Steward-1.3.0.zip` re-downloads
+    with SHA-256 `7d1d8941…0657`.
+  - The tap `KMerdan/homebrew-disk-steward` is at `53b699e`. `brew style` and
+    `brew audit --cask --strict --online` pass, and the upgrade dry run shows
+    1.2.3 → 1.3.0.
+  - The maintainer's Mac runs a manually installed 1.3.0 (10). Its Homebrew
+    record still says 1.2.3 until `brew upgrade --cask disk-steward` is run.
 
