@@ -70,6 +70,26 @@ public struct ReviewProject: Sendable, Equatable {
     public let marker: String
     /// Newest modification time of a file in the project outside its objects.
     public let lastSourceActivity: TimeInterval
+    /// Tools named by the files in the project folder (`pnpm`, `cargo`, …),
+    /// sorted; how its objects would be rebuilt.
+    public let tools: [String]
+
+    public init(path: String, marker: String, lastSourceActivity: TimeInterval, tools: [String] = []) {
+        self.path = path
+        self.marker = marker
+        self.lastSourceActivity = lastSourceActivity
+        self.tools = tools
+    }
+
+    /// Files that name a project's tooling, read from the project folder's own listing.
+    public static let toolFiles: [String: String] = [
+        "package-lock.json": "npm", "pnpm-lock.yaml": "pnpm", "yarn.lock": "yarn", "bun.lockb": "bun", "bun.lock": "bun",
+        "package.json": "node", "uv.lock": "uv", "poetry.lock": "poetry", "Pipfile.lock": "pipenv", "Pipfile": "pipenv",
+        "requirements.txt": "pip", "pyproject.toml": "python", "setup.py": "python", "tox.ini": "tox",
+        "Cargo.toml": "cargo", "Package.swift": "swiftpm", "go.mod": "go", "Podfile": "cocoapods", "composer.json": "composer",
+        "build.gradle": "gradle", "build.gradle.kts": "gradle", "CMakeLists.txt": "cmake", "Makefile": "make", "meson.build": "meson",
+        "next.config.js": "next", "next.config.mjs": "next", "next.config.ts": "next", "nuxt.config.ts": "nuxt", "turbo.json": "turbo",
+    ]
 }
 
 public struct ReviewReport: Sendable {
@@ -240,7 +260,7 @@ public struct ReviewWalker: Sendable {
         var scopeLinks = Set<FileIdentity>()
         var visited = Set<FileIdentity>()
         var objects: [ReviewObject] = []
-        var projects: [String: (marker: String, activity: TimeInterval)] = [:]
+        var projects: [String: (marker: String, activity: TimeInterval, tools: [String])] = [:]
         var unresolved: [UnresolvedCandidate] = []
         var unresolvedCount = 0
         var unreadableDirectories = 0
@@ -381,7 +401,10 @@ public struct ReviewWalker: Sendable {
             let repository = isRepository ? frame.path : frame.repository
             let marker = isRepository ? ".git" : listing.entries.first { $0.type == .file && decider.projectMarkerNames.contains($0.name) }?.name
             let project = marker != nil ? frame.path : frame.project
-            if let marker, state.projects[frame.path] == nil { state.projects[frame.path] = (marker, 0) }
+            if let marker, state.projects[frame.path] == nil {
+                let tools = Set(listing.entries.compactMap { $0.type == .file ? ReviewProject.toolFiles[$0.name] : nil })
+                state.projects[frame.path] = (marker, 0, tools.sorted())
+            }
             for entry in listing.entries {
                 if state.stop != nil { break }
                 let path = childPath(frame.path, entry.name)
@@ -417,7 +440,7 @@ public struct ReviewWalker: Sendable {
                         state.scopeBytes += entry.allocatedBytes
                     }
                     if let project, let current = state.projects[project] {
-                        state.projects[project] = (current.marker, max(current.activity, entry.modified))
+                        state.projects[project] = (current.marker, max(current.activity, entry.modified), current.tools)
                     }
                 }
             }
@@ -440,7 +463,7 @@ public struct ReviewWalker: Sendable {
         let projects = state.projects.map { path, value -> ReviewProject in
             // Never leave activity unknown: fall back to the project folder's own time.
             let activity = value.activity > 0 ? value.activity : ((try? FileManager.default.attributesOfItem(atPath: path)[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0)
-            return ReviewProject(path: path, marker: value.marker, lastSourceActivity: activity)
+            return ReviewProject(path: path, marker: value.marker, lastSourceActivity: activity, tools: value.tools)
         }.sorted { $0.path < $1.path }
         let elapsed = clock() - start
         return ReviewReport(

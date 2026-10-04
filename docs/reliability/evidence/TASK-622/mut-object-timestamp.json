@@ -1,0 +1,14 @@
+{
+ "name": "idleness is read from the object's own timestamp",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Review/ReviewRanking.swift",
+   "replacements": [
+    [
+     "            let idle = project.map { max(0, now.timeIntervalSince1970 - $0.lastSourceActivity) / 86_400 }",
+     "            let idle: Double? = max(0, now.timeIntervalSince1970 - object.lastActivity) / 86_400"
+    ]
+   ]
+  }
+ ]
+}

@@ -8,10 +8,10 @@
 - Wave: `4`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `ready`
+- Execution: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-622` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -65,19 +65,13 @@ Produce the versioned ReviewReport shared by the window, MCP and export, ranking
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: `IMPACT-R4-TASK-622-STORE`, `IMPACT-R4-TASK-622-PRIVACY`, `IMPACT-R4-TASK-622-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-PRIVACY`, `ASSET-STORE`
+- Status: `covered`
+- Impact records: `IMPACT-R4-TASK-622-STORE`, `IMPACT-R4-TASK-622-ASSURANCE`, `IMPACT-R4-TASK-622-SCANNER`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-622-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-622-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-622-PRIVACY remains hypothesis
-- Impact IMPACT-R4-TASK-622-STORE remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-622-1 is stale
+- None
 
 

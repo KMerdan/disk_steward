@@ -39,7 +39,7 @@ Show the review in a regular window: scope selector, start and stop, concrete pr
 
 - `CONTRACT-601` (contract-requires, passed)
 - `TASK-617` (requires, passed)
-- `TASK-622` (requires, unverified)
+- `TASK-622` (requires, passed)
 - `TASK-631` (requires, unverified)
 
 ## Required Context

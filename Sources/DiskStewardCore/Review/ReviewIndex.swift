@@ -27,6 +27,24 @@ public struct StoredReviewReport: Sendable, Equatable {
     public let limitations: [String]
 }
 
+public struct StoredReviewItem: Sendable, Equatable {
+    public struct Detail: Codable, Sendable, Equatable {
+        public let command: String
+        public let known: Bool
+        public let reasons: [String]
+    }
+
+    public let rank: Int
+    public let path: String
+    public let kind: String
+    public let recreateClass: String
+    public let allocatedBytes: Int64
+    public let reclaimableBytes: Int64
+    public let state: String
+    public let verifiedAt: Date
+    public let detail: Detail
+}
+
 public struct ReviewIndexWrite: Sendable, Equatable {
     public let objectsStored: Int
     public let objectsOmitted: Int
@@ -118,6 +136,60 @@ public actor ReviewIndex {
         ]])
         guard written.refused.isEmpty else { throw ReviewIndexError.refused(table: "review_reports", reasons: written.refused) }
         return ReviewIndexWrite(objectsStored: kept.count, objectsOmitted: omitted, projectsStored: projects.count)
+    }
+
+    /// Stores a report's ranked items as one group: at most the ranking's
+    /// limit, each with its command and reasons in the reasons column.
+    public func recordItems(_ items: [RankedReviewItem], report: ReviewReport) throws {
+        guard let table = Self.tables["review_items"], !items.isEmpty else { return }
+        let rows: [[String: BoundedValue]] = items.prefix(ReviewRanking.maximumItems)
+            .filter { $0.object.path.utf8.count <= BoundedStoreContract.pathBytes }
+            .map { item in [
+                "report_id": .text(report.reportID), "report_started_at": .real(report.startedAt.timeIntervalSince1970),
+                "rank": .integer(Int64(item.rank)), "object_id": .text(Self.key("object\u{0}" + item.object.path)),
+                "project_id": .text(item.projectPath.map(Self.key) ?? ""), "path": .text(item.object.path),
+                "kind": .text(item.object.kind.rawValue), "recreate_class": .text(item.object.recreateClass.rawValue),
+                "allocated_bytes": .integer(item.object.allocatedBytes), "reclaimable_bytes": .integer(item.reclaimableBytes),
+                "state": .text(item.state.rawValue), "verified_at": .real(item.verifiedAt.timeIntervalSince1970),
+                "reasons": .text(Self.itemDetail(item, bytes: 1_024)),
+            ] }
+        let written = try connection.insertBounded(table, rows: rows)
+        guard written.refused.isEmpty else { throw ReviewIndexError.refused(table: "review_items", reasons: written.refused) }
+    }
+
+    /// A report's items in rank order.
+    public func items(reportID: String, limit: Int) throws -> [StoredReviewItem] {
+        try connection.withStatement("""
+            SELECT rank, path, kind, recreate_class, allocated_bytes, reclaimable_bytes, state, verified_at, reasons
+            FROM review_items WHERE report_id = ? ORDER BY rank ASC LIMIT ?
+            """) { statement in
+            try connection.bind(reportID, at: 1, in: statement)
+            try connection.bind(Int64(max(1, min(limit, ReviewRanking.maximumItems))), at: 2, in: statement)
+            var rows: [StoredReviewItem] = []
+            while sqlite3_step(statement) == SQLITE_ROW {
+                func text(_ column: Int32) -> String { sqlite3_column_text(statement, column).map { String(cString: $0) } ?? "" }
+                let detail = (try? JSONDecoder().decode(StoredReviewItem.Detail.self, from: Data(text(8).utf8))) ?? .init(command: "", known: false, reasons: [])
+                rows.append(StoredReviewItem(rank: Int(sqlite3_column_int64(statement, 0)), path: text(1), kind: text(2), recreateClass: text(3),
+                                             allocatedBytes: sqlite3_column_int64(statement, 4), reclaimableBytes: sqlite3_column_int64(statement, 5),
+                                             state: text(6), verifiedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 7)), detail: detail))
+            }
+            return rows
+        }
+    }
+
+    /// Command and reasons as JSON that fits the column, dropping reasons last-first.
+    static func itemDetail(_ item: RankedReviewItem, bytes: Int) -> String {
+        var reasons = item.reasons
+        while true {
+            let detail = StoredReviewItem.Detail(command: item.rebuildCommand, known: item.rebuildCommandKnown, reasons: reasons)
+            let data = (try? JSONEncoder().encode(detail)) ?? Data()
+            if data.count <= bytes || reasons.isEmpty {
+                if data.count <= bytes { return String(decoding: data, as: UTF8.self) }
+                let short = StoredReviewItem.Detail(command: String(item.rebuildCommand.prefix(600)), known: item.rebuildCommandKnown, reasons: [])
+                return String(decoding: (try? JSONEncoder().encode(short)) ?? Data(), as: UTF8.self)
+            }
+            reasons.removeLast()
+        }
     }
 
     /// Objects under a scope, largest first, in a bounded window.
@@ -262,6 +334,7 @@ public actor ReviewService {
             }
         } onCancel: { flag.set() }
         try await index.record(report)
+        try await index.recordItems(ReviewRanking.rank(report, now: report.completedAt), report: report)
         var entry = states[scope] ?? ReviewScopeState(updatedAt: started)
         entry.updatedAt = report.completedAt
         entry.lastStatus = report.status.label

@@ -5,15 +5,14 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `112`
+- Graph version: `116`
 - Plan revision: `6`
 - Lifecycle: `active`
-- Verified primary nodes: `14/28`
-- Ready tasks: `4`
+- Verified primary nodes: `15/28`
+- Ready tasks: `3`
 
 ## Ready Frontier
 
-- `TASK-622` — Review report and ranking
 - `TASK-631` — Cache catalog with recreate classes
 - `TASK-661` — Measured growth attribution
 - `TASK-672` — Task impact from sessions and dirty sets
@@ -22,7 +21,7 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 - Status: `blocked`
 - Baseline: `current` revision `4`
-- Impacted assets inspected sufficiently: `9/17`
+- Impacted assets inspected sufficiently: `8/16`
 - Open scope drift: `0`
 - Open material findings: `0`
 

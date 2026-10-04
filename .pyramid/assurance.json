@@ -5,7 +5,7 @@
   "baseline_revision": 4,
   "policy": "brownfield",
   "status": "incomplete",
-  "updated_at": "2026-10-04T15:18:14.528364Z",
+  "updated_at": "2026-10-04T15:35:27.102530Z",
   "updated_by": "claude",
   "enforce_from_graph_version": 1,
   "impacts": [
@@ -1702,11 +1702,13 @@
         "TASK-622"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "confirmed",
       "confidence": "high",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::TASK-622",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/TASK-622/README.md",
+        "docs/reliability/evidence/TASK-622/agent-result.json"
       ],
       "path": [
         "TASK-622",
@@ -1720,11 +1722,12 @@
         "TASK-622"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "dismissed",
       "confidence": "high",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::TASK-622",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/TASK-622/README.md"
       ],
       "path": [
         "TASK-622",
@@ -1738,11 +1741,13 @@
         "TASK-622"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "confirmed",
       "confidence": "high",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::TASK-622",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/TASK-622/README.md",
+        "docs/reliability/evidence/TASK-622/agent-result.json"
       ],
       "path": [
         "TASK-622",
@@ -2590,6 +2595,26 @@
         "TASK-653",
         "ASSET-DISTRIBUTION"
       ]
+    },
+    {
+      "id": "IMPACT-R4-TASK-622-SCANNER",
+      "asset_id": "ASSET-SCANNER",
+      "task_ids": [
+        "TASK-622"
+      ],
+      "type": "direct",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        "Sources/DiskStewardCore/Review/ReviewWalker.swift",
+        "Sources/DiskStewardCore/Review/ReviewRanking.swift",
+        "docs/reliability/evidence/TASK-622/README.md",
+        "docs/reliability/evidence/TASK-622/agent-result.json"
+      ],
+      "path": [
+        "TASK-622",
+        "ASSET-SCANNER"
+      ]
     }
   ],
   "inspections": [
@@ -2650,7 +2675,9 @@
         "R5 refresh 2026-10-04: TASK-616 closed corpus measurement admission (measure_object_detection.py main() refuses), so the archived measurements stand as recorded on their date and were not re-run; every note claim still resolves to the archived measurement.json and candidates.jsonl.",
         "The chosen rules are enforced in product code by ObjectClassificationTests (passing on candidate f1dc99e2); TASK-621's localGit-versus-du acceptance re-measures them on the real corpus.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "validated_through": {
         "RESEARCH-601": "EVENT-20260920T032323566863Z-71BDA108"
@@ -2711,7 +2738,9 @@
         "R5 refresh 2026-10-04: object-contract.md is unchanged since 9190dbc; the detection order and confidence vocabulary still match RESEARCH-601 and ObjectClassification (ObjectClassificationTests pass on candidate f1dc99e2).",
         "The contract's requirement to collapse existing per-file rows is moot: TASK-653 keeps the old store unmodified and export-only instead of collapsing it (TASK-613 superseded in R4). Recorded here rather than edited in the contract.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "validated_through": {
         "CONTRACT-601": "EVENT-20260920T032547332638Z-397B9D6B"
@@ -2777,7 +2806,9 @@
         "Since R5 the classifier's consumer is the review walker (TASK-621), not the retired metadata scanner.",
         "Hazard for TASK-621: the ancestor walk uses URL.standardizedFileURL, which consults the disk and rewrites /private/tmp as /tmp; the walker must compare paths consistently (the same defect was fixed in the change journal in TASK-652).",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
       ],
       "validated_through": {
         "TASK-611": "EVENT-20260920T033509605992Z-10657775"
@@ -2836,7 +2867,9 @@
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
       ],
       "validated_through": {
         "TASK-613": "EVENT-20260920T034838927318Z-DEB69A91"
@@ -2896,7 +2929,9 @@
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE.",
         "R5: TASK-612 is superseded; the scanner it certifies was retired by TASK-653, and pruning at classified objects is TASK-621's acceptance. Its confirmed impacts stay as the record of what it changed.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE, ASSET-SCANNER, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE, ASSET-SCANNER, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
       ],
       "validated_through": {
         "TASK-612": "EVENT-20260920T040415514037Z-2D702774"
@@ -2953,7 +2988,9 @@
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-STORE.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-STORE.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
       ],
       "validated_through": {
         "TASK-615": "EVENT-20260920T060629279068Z-D64E7262"
@@ -3073,7 +3110,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -3198,7 +3237,9 @@
         "Rung-2 boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11): full suite 658 tests, 8 skipped, 0 failures; installed 1.4.0 (11) evidence in GATE-659 (byte-identical legacy move, self-check connected, one-hour idle 0.056% of one core).",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
       ],
       "performed_at": "2026-10-04T13:32:45.999Z",
       "performed_by": "claude",
@@ -3247,7 +3288,9 @@
         "Scope drift from TASK-653 invalidated this inspection.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-UI.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -3294,7 +3337,9 @@
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -3339,7 +3384,9 @@
         "Scope drift from TASK-653 invalidated this inspection.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-SCANNER."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -3386,7 +3433,9 @@
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -3431,7 +3480,9 @@
         "Scope drift from TASK-653 invalidated this inspection.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-SCANNER."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -3478,7 +3529,9 @@
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -3523,7 +3576,9 @@
         "Scope drift from TASK-653 invalidated this inspection.",
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-SCANNER."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -3588,7 +3643,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -3707,7 +3764,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -3780,7 +3839,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -3833,7 +3894,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -3885,7 +3948,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-STORE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -3938,7 +4003,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -4001,7 +4068,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-SCANNER, ASSET-STORE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -4052,7 +4121,9 @@
         "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
@@ -4109,7 +4180,9 @@
         "The installed app's idle behavior and live migration are observed at GATE-659.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-SCANNER, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-SCANNER, ASSET-STORE."
       ],
       "performed_at": "2026-10-04T12:21:01.074Z",
       "performed_by": "claude",
@@ -4152,7 +4225,9 @@
         "The rehearsal reopens with store code identical to 1.3.0's; the installed 1.3.0 binary is not relaunched against it.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": "2026-10-04T12:21:01.074Z",
       "performed_by": "claude",
@@ -4181,7 +4256,7 @@
       ],
       "method": "Review walker budgets, convergence stop, partial reports and the absence of per-file persistence; reproduce the localGit benchmark and the synthetic million-file stop.",
       "required": true,
-      "status": "performed",
+      "status": "stale",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -4204,7 +4279,9 @@
       "limitations": [
         "Both localGit runs are warm-cache; a cold run needs sudo purge.",
         "No product surface starts a review yet (TASK-623 window, TASK-671 agents).",
-        "The million-file stop uses an injected 300,000-entry budget; at default budgets the tree completes in 6.5 s."
+        "The million-file stop uses an injected 300,000-entry budget; at default budgets the tree completes in 6.5 s.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
       ],
       "performed_at": "2026-10-04T15:18:14.400Z",
       "performed_by": "claude",
@@ -4247,7 +4324,9 @@
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-SETTINGS.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -4267,31 +4346,32 @@
       ],
       "asset_ids": [
         "ASSET-STORE",
-        "ASSET-PRIVACY",
+        "ASSET-SCANNER",
         "ASSET-ASSURANCE"
       ],
       "method": "Review the ReviewReport contract, privacy shaping, revalidation, repository exclusion, ranking inputs and caps.",
       "required": true,
-      "status": "stale",
-      "result": "not-run",
-      "sufficiency": "unknown",
-      "evidence": [],
-      "limitations": [
-        "Implementation result for TASK-641 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-614 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-642 changed covered assets after this inspection: ASSET-ASSURANCE.",
-        "TASK-614 was reopened; prior change-assurance evidence is stale.",
-        "Implementation result for TASK-614 changed covered assets after this inspection: ASSET-ASSURANCE.",
-        "Implementation result for CONTRACT-602 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
-        "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+      "status": "performed",
+      "result": "pass",
+      "sufficiency": "sufficient",
+      "evidence": [
+        "docs/reliability/evidence/TASK-622/README.md",
+        "docs/reliability/evidence/TASK-622/agent-result.json",
+        "docs/reliability/evidence/TASK-622/focused-green/result.json",
+        "docs/reliability/evidence/TASK-622/focused-green/tests.log",
+        "docs/reliability/evidence/TASK-622/full-suite/candidate.json",
+        "docs/reliability/evidence/TASK-622/no-idle-factor-red/result.json",
+        "docs/reliability/evidence/TASK-622/not-review-required-red/result.json",
+        "docs/reliability/evidence/TASK-622/object-timestamp-red/result.json",
+        "docs/reliability/evidence/TASK-622/repository-ranked-red/result.json",
+        "docs/reliability/evidence/TASK-622/unknown-hidden-red/result.json"
       ],
-      "performed_at": null,
-      "performed_by": null,
+      "limitations": [
+        "Ranked items are read by the review window (TASK-623) and agents (TASK-671), which also shape paths for privacy; this task stores them locally only.",
+        "The privacy impact was dismissed: no privacy filter or path leaving the machine changed."
+      ],
+      "performed_at": "2026-10-04T15:35:26.974Z",
+      "performed_by": "claude",
       "invalidated_by": [
         "source",
         "generated",
@@ -4299,7 +4379,10 @@
         "configuration",
         "unknown"
       ],
-      "refresh_policy": "pre-audit"
+      "refresh_policy": "pre-audit",
+      "validated_through": {
+        "TASK-622": "EVENT-20261004T153500350585Z-DC13B77C"
+      }
     },
     {
       "id": "INSPECT-R4-TASK-661-1",
@@ -4331,7 +4414,9 @@
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-QUERY, ASSET-SCANNER, ASSET-STORE.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -4409,7 +4494,9 @@
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -4450,7 +4537,9 @@
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-QUERY.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -4508,7 +4597,9 @@
         "Rung-2 boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11): full suite 658 tests, 8 skipped, 0 failures; installed 1.4.0 (11) evidence in GATE-659 (byte-identical legacy move, self-check connected, one-hour idle 0.056% of one core).",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-RESOURCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": "2026-10-04T13:32:45.999Z",
       "performed_by": "claude",
@@ -4612,7 +4703,9 @@
         "A journal-identity reset is proven on the candidate input, not induced on the maintainer's volume.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
       ],
       "performed_at": "2026-10-04T13:31:23.468Z",
       "performed_by": "claude",
@@ -4694,7 +4787,9 @@
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD, ASSET-SCANNER.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -4763,7 +4858,9 @@
         "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD.",
         "Replan changed task contracts or graph relations; impact and inspection evidence require review.",
         "Scope drift from TASK-621 invalidated this inspection.",
-        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-621 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Scope drift from TASK-622 invalidated this inspection.",
+        "Implementation result for TASK-622 changed covered assets after this inspection: ASSET-ASSURANCE."
       ],
       "performed_at": null,
       "performed_by": null,
@@ -5568,6 +5665,53 @@
       "status": "resolved",
       "detected_at": "2026-10-04T15:17:57.928790Z",
       "resolved_impact_id": "IMPACT-R4-TASK-621-SCANNER"
+    },
+    {
+      "id": "DRIFT-8267E1B8B3CE",
+      "task": "TASK-622",
+      "changed_file": "Sources/DiskStewardCore/Review/ReviewRanking.swift",
+      "matched_asset_ids": [],
+      "status": "resolved",
+      "detected_at": "2026-10-04T15:35:00.343795Z",
+      "resolved_impact_id": "IMPACT-R4-TASK-622-SCANNER"
+    },
+    {
+      "id": "DRIFT-A9135797470B",
+      "task": "TASK-622",
+      "changed_file": "Sources/DiskStewardCore/Review/ReviewWalker.swift",
+      "matched_asset_ids": [],
+      "status": "resolved",
+      "detected_at": "2026-10-04T15:35:00.343806Z",
+      "resolved_impact_id": "IMPACT-R4-TASK-622-SCANNER"
+    },
+    {
+      "id": "DRIFT-27DD62DBC0FA",
+      "task": "TASK-622",
+      "changed_file": "Sources/DiskStewardCore/Review/ReviewIndex.swift",
+      "matched_asset_ids": [],
+      "status": "resolved",
+      "detected_at": "2026-10-04T15:35:00.343811Z",
+      "resolved_impact_id": "IMPACT-R4-TASK-622-STORE"
+    },
+    {
+      "id": "DRIFT-D13341CBB6B9",
+      "task": "TASK-622",
+      "changed_file": "Tests/DiskStewardCoreTests/Review/ReviewRankingTests.swift",
+      "matched_asset_ids": [],
+      "status": "resolved",
+      "detected_at": "2026-10-04T15:35:00.343815Z",
+      "resolved_impact_id": "IMPACT-R4-TASK-622-SCANNER"
+    },
+    {
+      "id": "DRIFT-12A8066F5F9E",
+      "task": "TASK-622",
+      "changed_file": "asset:ASSET-SCANNER",
+      "matched_asset_ids": [
+        "ASSET-SCANNER"
+      ],
+      "status": "resolved",
+      "detected_at": "2026-10-04T15:35:00.343819Z",
+      "resolved_impact_id": "IMPACT-R4-TASK-622-SCANNER"
     }
   ],
   "controls": {
@@ -5623,6 +5767,8 @@
     "R5 replan reconciled: TASK-612 superseded (its confirmed impacts kept as history, its inspection skipped); TASK-621 now requires TASK-611, its impacts stay hypotheses until its implementation.",
     "R6 replan reconciled: only the wording of AC-TASK-621-01 changed; TASK-621 impacts stay hypotheses and its inspection stays planned.",
     "Unexpected implementation scope was recorded for TASK-621: DRIFT-BD2A57B85BDB, DRIFT-ABFC6E935880, DRIFT-D7C7F3BC7B3E, DRIFT-F45E0A1228AB, DRIFT-5701375D232E, DRIFT-B8C34C794B58",
-    "Implementation for TASK-621 changed assets ASSET-ASSURANCE, ASSET-RESOURCE, ASSET-SCANNER, ASSET-STORE; post-change inspection is required."
+    "Implementation for TASK-621 changed assets ASSET-ASSURANCE, ASSET-RESOURCE, ASSET-SCANNER, ASSET-STORE; post-change inspection is required.",
+    "Unexpected implementation scope was recorded for TASK-622: DRIFT-8267E1B8B3CE, DRIFT-A9135797470B, DRIFT-27DD62DBC0FA, DRIFT-D13341CBB6B9, DRIFT-12A8066F5F9E",
+    "Implementation for TASK-622 changed assets ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE; post-change inspection is required."
   ]
 }
