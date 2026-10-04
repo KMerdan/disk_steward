@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "PLAN-DISK-STEWARD-006",
   "title": "Reclaimable Space As Whole Objects",
-  "revision": 4,
+  "revision": 5,
   "intent": {
     "id": "INTENT-006",
     "statement": "Disk Steward treats build output, shared developer caches and repositories as single evidence objects rather than per-file rows, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and an explicit review step before anything is removed.",
@@ -264,6 +264,19 @@
         "TASK-652"
       ],
       "contradicts": []
+    },
+    {
+      "id": "EV-R5-SCANNER-RETIRED",
+      "claim": "TASK-653 composes the quiet guard: no app source constructs DirectoryMetadataScanner, PersistentMonitoringProbe, TargetedFSEventsCollector or RetentionSchedule, enforced by a source-scan test; GATE-659 passed on the installed 1.4.0 (11). The metadata scanner whose object pruning TASK-612 certifies is therefore unreachable from the app.",
+      "source": "Tests/DiskStewardAppTests/Lifecycle/QuietGuardTests.swift (testNoAppSourceConstructsTheScannerOrThePerFileCollector); docs/reliability/evidence/TASK-653/README.md; docs/reliability/evidence/GATE-659/README.md (main f1c0fbc)",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "TASK-621"
+      ],
+      "contradicts": [
+        "TASK-612"
+      ]
     }
   ],
   "decisions": [
@@ -410,6 +423,19 @@
       "rationale": "The budget, not the absence of work, is what keeps an agent from causing an unbounded scan.",
       "evidence": [
         "EV-R4-BENCHMARK"
+      ]
+    },
+    {
+      "id": "DECISION-R5-PRUNING-IN-THE-WALKER",
+      "question": "Where does the guarantee that a classified object is never enumerated live once the always-on scanner is retired?",
+      "choice": "In the bounded review walker: TASK-621 requires TASK-611 directly and its acceptance states the leaf guarantee. TASK-612, which certifies the retired metadata scanner, is superseded with its history and evidence kept.",
+      "alternatives": [
+        "Re-audit TASK-612 as it stands; rejected because it would certify behaviour of code that TASK-653 made unreachable and present it as rung-3 evidence.",
+        "Retarget TASK-612 to the walker; rejected because it would restate TASK-621's own walker contract (over-decomposition)."
+      ],
+      "rationale": "The pruning rule still matters, but only where a walk happens; after rung 2 that is the review walker alone.",
+      "evidence": [
+        "EV-R5-SCANNER-RETIRED"
       ]
     }
   ],
@@ -628,7 +654,7 @@
       "level": 5,
       "wave": 2,
       "workstream": "scanner",
-      "selection": "primary",
+      "selection": "superseded",
       "source_requirements": [
         "REQ-601",
         "REQ-603"
@@ -755,7 +781,7 @@
       "acceptance_criteria": [
         {
           "id": "AC-TASK-621-01",
-          "description": "A review prunes at objects classified by the TASK-611/612 rules, sums allocated sizes in memory and persists no per-file rows; the object index holds at most 20,000 rows; budgets of 120 s wall, 5 M entries and 256 MiB at utility QoS are enforced in the worker; visiting more than twice the previous review's entries or revisiting a directory stops the review; a stopped review yields a partial report naming covered scope; the scope then cools down for 24 hours and nothing resumes after relaunch."
+          "description": "A review prunes at objects classified by the TASK-611 rules: a classified object is one entry whose size is summed without the walker enumerating inside it. It sums allocated sizes in memory and persists no per-file rows; the object index holds at most 20,000 rows; budgets of 120 s wall, 5 M entries and 256 MiB at utility QoS are enforced in the worker; visiting more than twice the previous review's entries or revisiting a directory stops the review; a stopped review yields a partial report naming covered scope; the scope then cools down for 24 hours and nothing resumes after relaunch."
         },
         {
           "id": "AC-TASK-621-02",
@@ -2669,11 +2695,6 @@
     },
     {
       "from": "GATE-669",
-      "to": "TASK-612",
-      "type": "validation-requires"
-    },
-    {
-      "from": "GATE-669",
       "to": "TASK-621",
       "type": "validation-requires"
     },
@@ -2784,11 +2805,6 @@
     },
     {
       "from": "TASK-612",
-      "to": "OUTCOME-660",
-      "type": "contributes-to"
-    },
-    {
-      "from": "TASK-612",
       "to": "TASK-611",
       "type": "requires"
     },
@@ -2831,11 +2847,6 @@
       "from": "TASK-621",
       "to": "OUTCOME-660",
       "type": "contributes-to"
-    },
-    {
-      "from": "TASK-621",
-      "to": "TASK-612",
-      "type": "requires"
     },
     {
       "from": "TASK-621",
@@ -3211,6 +3222,16 @@
       "from": "GATE-619",
       "to": "TASK-617",
       "type": "validation-requires"
+    },
+    {
+      "from": "TASK-621",
+      "to": "TASK-611",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-653",
+      "to": "TASK-612",
+      "type": "invalidates"
     }
   ]
 }

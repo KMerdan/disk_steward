@@ -1,0 +1,294 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261004T141115886127Z-908DE8B8",
+  "at": "2026-10-04T14:11:15.885941Z",
+  "graph_version": 103,
+  "actor": "claude",
+  "type": "audit.pass",
+  "node": "CONTRACT-601",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+    "updated_at": "2026-10-04T14:09:16.075115Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-601",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+        "docs/reliability/evidence/CONTRACT-601/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-601/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "traceability review of the contract against the plan",
+          "result": "passed",
+          "notes": "Every rule names the task that proves it: row shape and no per-file rows inside an object to TASK-612/TASK-613, detection order to TASK-611, never-offer and review-required to TASK-622/TASK-623, sizing and staleness to TASK-621, migration and rollback to TASK-613, capacity honesty to TASK-614."
+        },
+        {
+          "command": "consistency check against RESEARCH-601",
+          "result": "passed",
+          "notes": "The detection order and confidence vocabulary restate the measured outcome in docs/reliability/evidence/RESEARCH-601/detection-rules.md; no rule is introduced that the corpus did not test."
+        },
+        {
+          "command": "consistency check against the closed plan's safety contract",
+          "result": "passed",
+          "notes": "Section 9 inherits bounded resources, test isolation, conflict-safe configuration and recoverable migration from docs/reliability/evidence/CONTRACT-510/safety-contract.md without re-proving them."
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-CONTRACT-601-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/CONTRACT-601/object-contract.md sections 2 to 8: row shape, confidence vocabulary, never-classify and never-offer rules, sizing and staleness, reversible migration, each naming its proving task."
+        }
+      ],
+      "discovered_risks": [
+        "The contract is a specification, not evidence; each rule stays unproven until its named task passes its gate.",
+        "Sizes are logical bytes and will read slightly under what the volume reports; every surface must say so.",
+        "The 27 unresolved candidates need an explicit override path; the contract forbids guessing but does not yet specify the override."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-601",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "CHECK-C601-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+            "Sections 2 to 8 state the row shape, the confidence vocabulary, the never-classify and never-offer rules, sizing and staleness semantics, and the reversible migration requirement."
+          ]
+        },
+        {
+          "id": "CHECK-C601-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+            "docs/reliability/planning/plan-006-candidate.json",
+            "Each rule names its proving task: TASK-611 detection order, TASK-612 and TASK-613 no per-file rows inside an object, TASK-613 migration and rollback, TASK-614 capacity honesty, TASK-621 sizing budget, TASK-622 and TASK-623 review-required and never-offer."
+          ]
+        },
+        {
+          "id": "CHECK-C601-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+            "The detection order and confidence vocabulary restate the measured corpus outcome; no untested rule is introduced."
+          ]
+        },
+        {
+          "id": "CHECK-C601-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/CONTRACT-601/assurance-candidate.json",
+            "Assurance reviewed: IMPACT-CONTRACT-601-ASSURANCE confirmed; INSPECT-CONTRACT-601-1 performed after the implementation event and sufficient; drift reconciled; controls unchanged from RESEARCH-601 and still honest for an evidence-only task."
+          ]
+        },
+        {
+          "id": "CHECK-601-REAFFIRM",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/planning/plan-006-r2-review.json",
+            "docs/reliability/evidence/TASK-615/assurance-reaffirm.json",
+            "Re-audited unchanged after the R2 replan, which added TASK-615 and five edges without changing any criterion, node or source file. The inspections behind this result were re-affirmed on the same evidence."
+          ]
+        }
+      ],
+      "affected_claims": [],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-CONTRACT-601-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-CONTRACT-601-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "A contract proves nothing by itself; its rules are held by the tasks it names.",
+          "The override path for the 27 unresolved candidates is left to a later task.",
+          "The auditor also wrote the contract; independence rests on its traceability to RESEARCH-601 and the plan."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T14:11:15.885914Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "CONTRACT-601",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+        "docs/reliability/evidence/CONTRACT-601/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/CONTRACT-601/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "traceability review of the contract against the plan",
+          "result": "passed",
+          "notes": "Every rule names the task that proves it: row shape and no per-file rows inside an object to TASK-612/TASK-613, detection order to TASK-611, never-offer and review-required to TASK-622/TASK-623, sizing and staleness to TASK-621, migration and rollback to TASK-613, capacity honesty to TASK-614."
+        },
+        {
+          "command": "consistency check against RESEARCH-601",
+          "result": "passed",
+          "notes": "The detection order and confidence vocabulary restate the measured outcome in docs/reliability/evidence/RESEARCH-601/detection-rules.md; no rule is introduced that the corpus did not test."
+        },
+        {
+          "command": "consistency check against the closed plan's safety contract",
+          "result": "passed",
+          "notes": "Section 9 inherits bounded resources, test isolation, conflict-safe configuration and recoverable migration from docs/reliability/evidence/CONTRACT-510/safety-contract.md without re-proving them."
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-CONTRACT-601-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/CONTRACT-601/object-contract.md sections 2 to 8: row shape, confidence vocabulary, never-classify and never-offer rules, sizing and staleness, reversible migration, each naming its proving task."
+        }
+      ],
+      "discovered_risks": [
+        "The contract is a specification, not evidence; each rule stays unproven until its named task passes its gate.",
+        "Sizes are logical bytes and will read slightly under what the volume reports; every surface must say so.",
+        "The 27 unresolved candidates need an explicit override path; the contract forbids guessing but does not yet specify the override."
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-601",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-CONTRACT-601-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+            "docs/reliability/evidence/CONTRACT-601/agent-result.json",
+            "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+            "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+            "docs/reliability/planning/replan-006-r5-review.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-601"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-CONTRACT-601-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-CONTRACT-601-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "Re-audit after R4 re-attachment and R5: the contract text is unchanged since 9190dbc; its per-file collapse clause is moot because TASK-653 keeps the old store export-only."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "CONTRACT-601",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-CONTRACT-601-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/CONTRACT-601/object-contract.md",
+            "docs/reliability/evidence/CONTRACT-601/agent-result.json",
+            "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
+            "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+            "docs/reliability/planning/replan-006-r5-review.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "CONTRACT-601"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-CONTRACT-601-ASSURANCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-CONTRACT-601-1"
+        ],
+        "finding_ids": [],
+        "scope_review": "complete",
+        "limitations": [
+          "Re-audit after R4 re-attachment and R5: the contract text is unchanged since 9190dbc; its per-file collapse clause is moot because TASK-653 keeps the old store export-only."
+        ]
+      }
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 5,
+  "context_id": "CTX-D6B828E1019AA4F5C6F2CE61E3044829",
+  "previous_event_id": "EVENT-20261004T141101085486Z-2A570473",
+  "previous_event_sha256": "110a1741fd8a6d788911a3451f2ba9d5bf2720546d5720eb07697d8b886a497f"
+}

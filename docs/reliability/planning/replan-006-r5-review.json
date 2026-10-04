@@ -1,0 +1,377 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-006-R5",
+ "stage": "candidate",
+ "outcome": "simplified",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 4,
+  "sha256": "82ce0907952a10195a9ac4f96f161a91db9f53bccf3dd9c4e83794a870b11483"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 5,
+  "sha256": "3789dff3c1edece9c19937b1880726a0f0ce77e0a1c7d9b89015910c0385c5ab"
+ },
+ "facts": [
+  {
+   "id": "FACT-R5-SCANNER-RETIRED",
+   "claim": "TASK-653 composes the quiet guard: no app source constructs DirectoryMetadataScanner, PersistentMonitoringProbe, TargetedFSEventsCollector or RetentionSchedule, enforced by a source-scan test; GATE-659 passed on the installed 1.4.0 (11). The metadata scanner whose object pruning TASK-612 certifies is therefore unreachable from the app.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "EV-R5-SCANNER-RETIRED",
+    "Tests/DiskStewardAppTests/Lifecycle/QuietGuardTests.swift"
+   ],
+   "supports": [
+    "TASK-621"
+   ],
+   "freshness": "2026-10-04 (main f1c0fbc)"
+  },
+  {
+   "id": "FACT-R5-WALKER-OWNS-PRUNING",
+   "claim": "TASK-621's contract already prunes at classified objects and forbids per-file rows; it is the only planned walk after rung 2.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    ".pyramid/plan.json#TASK-621",
+    "docs/product/redesign-bounded-review.md"
+   ],
+   "supports": [
+    "TASK-621"
+   ],
+   "freshness": "plan revision 4"
+  },
+  {
+   "id": "FACT-R5-CLASSIFICATION-KEPT",
+   "claim": "ObjectClassification and GitRepositoryOracle (TASK-611, CONTRACT-601, RESEARCH-601) are independent of the retired scanner and are what the walker consumes.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "Sources/DiskStewardCore/Monitoring/ObjectClassification.swift",
+    "docs/product/redesign-bounded-review.md#keep-and-retire"
+   ],
+   "supports": [
+    "TASK-611",
+    "TASK-621"
+   ],
+   "freshness": "2026-10-04"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FIND-R5-01",
+   "class": "unsupported-claim",
+   "affected_nodes": [
+    "TASK-612",
+    "OUTCOME-660",
+    "GATE-669"
+   ],
+   "claim": "TASK-612's contribution to rung 3 (the metadata scanner treats an object as a leaf) is contradicted: TASK-653 retired that scanner and a test enforces that the app never constructs it.",
+   "evidence": [
+    "FACT-R5-SCANNER-RETIRED"
+   ],
+   "counterevidence": [
+    "FACT-R5-CLASSIFICATION-KEPT"
+   ],
+   "disposition": "applied",
+   "change": "Supersede TASK-612 (history and evidence kept); drop its contributes-to OUTCOME-660 and GATE-669 validation-requires; record TASK-653 invalidates TASK-612.",
+   "rationale": "Re-auditing it would present unreachable code as rung-3 evidence; the classification it relied on is retained through TASK-611."
+  },
+  {
+   "id": "FIND-R5-02",
+   "class": "unjustified-dependency",
+   "affected_nodes": [
+    "TASK-621",
+    "TASK-612",
+    "TASK-611"
+   ],
+   "claim": "TASK-621 required TASK-612 but consumes only the classification rules, not the scanner integration.",
+   "evidence": [
+    "FACT-R5-WALKER-OWNS-PRUNING",
+    "FACT-R5-CLASSIFICATION-KEPT"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "TASK-621 requires TASK-611 instead; AC-TASK-621-01 now states the leaf guarantee itself.",
+   "rationale": "Same consumed artifact, and the guarantee moves to the only component that walks."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-601",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-612",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-602",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-603",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-612",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-604",
+   "before_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-605",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-606",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-607",
+   "before_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-608",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-609",
+   "before_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-610",
+   "before_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-611",
+   "before_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "preserved",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "preserved",
+  "audit_closure": "preserved",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 29,
+   "executable_nodes": 24,
+   "edges": 87,
+   "hard_dependencies": 34,
+   "audit_gates": 4
+  },
+  "after": {
+   "nodes": 28,
+   "executable_nodes": 23,
+   "edges": 83,
+   "hard_dependencies": 32,
+   "audit_gates": 4
+  }
+ },
+ "summary": "One node superseded (TASK-612) and one dependency re-pointed (TASK-621 now requires TASK-611 and carries the leaf guarantee). Intent, requirements, constraints, non-goals, rungs 1 and 2 and their gate evidence are unchanged; REQ-601 and REQ-603 remain covered by TASK-621 and the rung-3 gate.",
+ "limitations": [
+  "CONTRACT-601's clause on collapsing existing per-file rows is moot since TASK-653 keeps the old store export-only; it is recorded as a re-audit limitation rather than a contract edit.",
+  "TASK-612 stays implemented in history; its evidence is not presented as current regression evidence."
+ ]
+}

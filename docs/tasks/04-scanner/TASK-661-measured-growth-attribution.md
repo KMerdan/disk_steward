@@ -10,7 +10,7 @@
 - Selection: `primary`
 - Execution: `planned`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `locked`
 - Goal trace: `TASK-661` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 

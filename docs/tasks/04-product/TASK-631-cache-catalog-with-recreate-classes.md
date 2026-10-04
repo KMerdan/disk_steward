@@ -38,7 +38,7 @@ Measure tool-owned caches as objects once the user opts each into review, labell
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, pending)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-621` (requires, unverified)
 
 ## Required Context

@@ -39,7 +39,7 @@ The monitoring probe builds its scanner with the object classifier and runs the 
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, pending)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-612` (requires, pending)
 - `TASK-613` (requires, passed)
 

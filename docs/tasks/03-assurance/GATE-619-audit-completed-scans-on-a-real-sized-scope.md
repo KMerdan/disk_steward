@@ -10,7 +10,7 @@
 - Selection: `superseded`
 - Execution: `superseded`
 - Verification: `unverified`
-- Health: `at-risk`
+- Health: `clear`
 - Availability: `not-selected`
 - Goal trace: `GATE-619` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
@@ -32,7 +32,7 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 
 ## Dependencies
 
-- `TASK-611` (validation-requires, pending)
+- `TASK-611` (validation-requires, passed)
 - `TASK-612` (validation-requires, pending)
 - `TASK-613` (validation-requires, passed)
 - `TASK-614` (validation-requires, passed)
@@ -71,10 +71,13 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 
 ### Assurance Blockers
 
-- Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-RESEARCH-601-1 is stale
-- Required inspection INSPECT-TASK-611-1 is stale
-- Required inspection INSPECT-TASK-612-1 is stale
+- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-616-CONTAINMENT is stale
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R3-617-MEASUREMENT is stale
+- Required inspection INSPECT-R4-TASK-614-1 is stale
+- Required inspection INSPECT-TASK-612-1 is skipped
 - Required inspection INSPECT-TASK-613-1 is stale
 - Required inspection INSPECT-TASK-615-1 is stale
 

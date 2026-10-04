@@ -9,9 +9,9 @@
 - Workstream: `foundation`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `RESEARCH-601` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -58,15 +58,13 @@ Measure how project markers, git ignore and git tracking classify candidate obje
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`
 - Inspections: `INSPECT-RESEARCH-601-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Required inspection INSPECT-RESEARCH-601-1 is stale
+- None
 
 

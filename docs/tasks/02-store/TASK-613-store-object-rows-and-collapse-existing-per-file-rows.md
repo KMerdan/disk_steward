@@ -35,8 +35,8 @@ Add the durable object row from the contract and migrate an existing store by co
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, pending)
-- `TASK-611` (requires, pending)
+- `CONTRACT-601` (contract-requires, passed)
+- `TASK-611` (requires, passed)
 
 ## Required Context
 

@@ -9,9 +9,9 @@
 - Workstream: `assurance`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `passed`
-- Health: `clear`
-- Availability: `verified`
+- Verification: `pending`
+- Health: `at-risk`
+- Availability: `implemented`
 - Goal trace: `GATE-659` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -37,7 +37,7 @@ Exercise the packaged candidate: capacity history, reserve alert, changed-direct
 - `OUTCOME-640` (validation-requires, passed)
 - `TASK-651` (validation-requires, passed)
 - `TASK-652` (validation-requires, passed)
-- `TASK-653` (validation-requires, passed)
+- `TASK-653` (validation-requires, pending)
 
 ## Required Context
 
@@ -64,13 +64,34 @@ Exercise the packaged candidate: capacity history, reserve alert, changed-direct
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R4-TASK-641-STORE`, `IMPACT-R4-TASK-641-QUERY`, `IMPACT-R4-TASK-641-ASSURANCE`, `IMPACT-R4-TASK-642-QUERY`, `IMPACT-R4-TASK-642-IPC`, `IMPACT-R4-TASK-642-ASSURANCE`, `IMPACT-R4-TASK-614-LIFECYCLE`, `IMPACT-R4-TASK-614-STORE`, `IMPACT-R4-TASK-614-ASSURANCE`, `IMPACT-R4-CONTRACT-602-STORE`, `IMPACT-R4-CONTRACT-602-ASSURANCE`, `IMPACT-R4-TASK-651-STORE`, `IMPACT-R4-TASK-651-CONTRACTS`, `IMPACT-R4-TASK-651-LIFECYCLE`, `IMPACT-R4-TASK-651-SETTINGS`, `IMPACT-R4-TASK-651-UI`, `IMPACT-R4-TASK-651-ASSURANCE`, `IMPACT-R4-TASK-652-SCANNER`, `IMPACT-R4-TASK-652-STORE`, `IMPACT-R4-TASK-652-QUERY`, `IMPACT-R4-TASK-652-LIFECYCLE`, `IMPACT-R4-TASK-652-ASSURANCE`, `IMPACT-R4-TASK-653-LIFECYCLE`, `IMPACT-R4-TASK-653-SCANNER`, `IMPACT-R4-TASK-653-STORE`, `IMPACT-R4-TASK-653-SETTINGS`, `IMPACT-R4-TASK-653-EXPORT`, `IMPACT-R4-TASK-653-BUILD`, `IMPACT-R4-TASK-653-ASSURANCE`, `IMPACT-R4-TASK-641-IPC`, `IMPACT-R4-TASK-642-LIFECYCLE`, `IMPACT-R4-TASK-642-BOOT`, `IMPACT-R4-TASK-651-QUERY`, `IMPACT-R4-TASK-651-BOOT`, `IMPACT-R4-TASK-652-BOOT`, `IMPACT-R4-TASK-652-CONTRACTS`, `IMPACT-R4-TASK-652-IPC`, `IMPACT-R4-TASK-653-BOOT`, `IMPACT-R4-TASK-653-QUERY`, `IMPACT-R4-TASK-653-UI`, `IMPACT-R4-TASK-653-DISTRIBUTION`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-BUILD`, `ASSET-CONTRACTS`, `ASSET-DISTRIBUTION`, `ASSET-EXPORT`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-SETTINGS`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R4-TASK-641-1`, `INSPECT-R4-TASK-642-1`, `INSPECT-R4-TASK-642-2`, `INSPECT-R4-TASK-614-1`, `INSPECT-R4-CONTRACT-602-1`, `INSPECT-R4-TASK-651-1`, `INSPECT-R4-TASK-651-2`, `INSPECT-R4-TASK-652-1`, `INSPECT-R4-TASK-652-2`, `INSPECT-R4-TASK-653-1`, `INSPECT-R4-TASK-653-2`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
+- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
+- Impacted asset ASSET-DISTRIBUTION lacks a sufficient passing inspection
+- Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
+- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Impacted asset ASSET-UI lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-616-CONTAINMENT is stale
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R4-CONTRACT-602-1 is stale
+- Required inspection INSPECT-R4-TASK-614-1 is stale
+- Required inspection INSPECT-R4-TASK-641-1 is stale
+- Required inspection INSPECT-R4-TASK-642-2 is stale
+- Required inspection INSPECT-R4-TASK-651-1 is stale
+- Required inspection INSPECT-R4-TASK-651-2 is stale
+- Required inspection INSPECT-R4-TASK-652-1 is stale
+- Required inspection INSPECT-R4-TASK-652-2 is stale
+- Required inspection INSPECT-R4-TASK-653-1 is stale
+- Required inspection INSPECT-R4-TASK-653-2 is stale
 
 

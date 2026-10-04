@@ -36,7 +36,7 @@ Produce the versioned ReviewReport shared by the window, MCP and export, ranking
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, pending)
+- `CONTRACT-601` (contract-requires, passed)
 - `TASK-621` (requires, unverified)
 
 ## Required Context

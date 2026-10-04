@@ -67,13 +67,16 @@ Abandon an active generation that cannot converge and report one explicit state 
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R4-TASK-614-LIFECYCLE`, `IMPACT-R4-TASK-614-STORE`, `IMPACT-R4-TASK-614-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-LIFECYCLE`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-614-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-R4-TASK-614-1 is stale
 
 

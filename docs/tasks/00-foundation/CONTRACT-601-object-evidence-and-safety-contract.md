@@ -9,9 +9,9 @@
 - Workstream: `foundation`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `CONTRACT-601` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -56,14 +56,13 @@ Define what a classified object is: its row shape, detection confidence vocabula
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-CONTRACT-601-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`
 - Inspections: `INSPECT-CONTRACT-601-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Required inspection INSPECT-CONTRACT-601-1 is stale
+- None
 
 

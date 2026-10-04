@@ -9,9 +9,9 @@
 - Workstream: `classification`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
-- Health: `at-risk`
-- Availability: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-611` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -36,8 +36,8 @@ Detect project roots from repository and manifest markers, then classify their k
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, pending)
-- `RESEARCH-601` (requires, pending)
+- `CONTRACT-601` (contract-requires, passed)
+- `RESEARCH-601` (requires, passed)
 
 ## Required Context
 
@@ -62,15 +62,13 @@ Detect project roots from repository and manifest markers, then classify their k
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`
 - Inspections: `INSPECT-TASK-611-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-611-1 is stale
+- None
 
 

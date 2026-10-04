@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "graph_version": 99,
+  "graph_version": 105,
   "created_at": "2026-09-20T03:04:14.155702Z",
-  "updated_at": "2026-10-04T13:38:06.603938Z",
+  "updated_at": "2026-10-04T14:11:29.750595Z",
   "lifecycle": {
     "status": "active",
     "completed_at": null,
@@ -31,15 +31,15 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
     },
     "RESEARCH-601": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -49,8 +49,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T14:11:16.157012Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "RESEARCH-601",
@@ -136,57 +136,38 @@
         "result": "pass",
         "checks": [
           {
-            "id": "CHECK-601-01",
-            "result": "passed",
-            "evidence": [
-              "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
-              "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
-              "Every candidate in the corpus carries its deciding rule: 986 ignored, 338 repository, 142 self-marker, 49 content, 3 manifest, 29 tracked and 27 unresolved across 47,536 directories walked."
-            ]
-          },
-          {
-            "id": "CHECK-601-02",
+            "id": "AC-RESEARCH-601-01",
             "result": "passed",
             "evidence": [
               "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
-              "Scripts/Testing/measure_object_detection.py",
-              "The tracked rule runs before every other rule and refused 29 directories with output names that the repository tracks as source, including ~/localGit/echo/scripts/build and ~/localGit/disk_steward/.swiftpm. The fixture self-test asserts this case and passes 8 of 8."
-            ]
-          },
-          {
-            "id": "CHECK-601-03",
-            "result": "passed",
-            "evidence": [
               "docs/reliability/evidence/RESEARCH-601/corpus/measurement.json",
               "docs/reliability/evidence/RESEARCH-601/corpus-2/measurement.json",
-              "1,468 of 2,615 output candidates lie outside any repository. The parent-manifest fallback resolved 20 of them and left 1,448 unresolved; self-marker and content evidence reduced that to 27, and the note states why those 27 stay unclassified rather than guessed."
-            ]
-          },
-          {
-            "id": "CHECK-601-04",
-            "result": "passed",
-            "evidence": [
-              "docs/reliability/evidence/RESEARCH-601/assurance-candidate.json",
-              "Assurance reviewed: IMPACT-RESEARCH-601-BUILD, IMPACT-RESEARCH-601-ASSURANCE confirmed; INSPECT-RESEARCH-601-1 performed after the implementation event and sufficient; scope drift reconciled to those impacts; rollback is revert-only and monitoring is not applicable for a tool that does not run in the product, both recorded with the task that must replace them."
+              "docs/reliability/evidence/RESEARCH-601/corpus-2/candidates.jsonl",
+              "docs/reliability/evidence/RESEARCH-601/agent-result.json",
+              "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log"
             ]
           }
         ],
-        "affected_claims": [],
+        "affected_claims": [
+          "RESEARCH-601"
+        ],
         "recommended_action": "advance",
         "assurance": {
           "impact_ids": [
-            "IMPACT-RESEARCH-601-BUILD",
-            "IMPACT-RESEARCH-601-ASSURANCE"
+            "IMPACT-RESEARCH-601-ASSURANCE",
+            "IMPACT-RESEARCH-601-BUILD"
           ],
           "inspection_ids": [
             "INSPECT-RESEARCH-601-1"
           ],
-          "finding_ids": [],
+          "finding_ids": [
+            "FIND-R3-ORPHANED-TEST",
+            "FIND-R4-SUPERVISOR-RACE",
+            "FIND-R4-XCODE-WORKER"
+          ],
           "scope_review": "complete",
           "limitations": [
-            "One corpus on one macOS machine; coverage of the rules elsewhere is unmeasured.",
-            "Measurement only: no product code consumes these rules until TASK-611.",
-            "The auditor also performed the research; independence rests on the archived per-candidate records and the fixture self-test."
+            "Re-audit after R4 re-attachment: the measurements stand as archived on their date (the corpus tool is closed by TASK-616); TASK-621 re-measures the rules on localGit against du."
           ]
         }
       },
@@ -194,8 +175,8 @@
     },
     "CONTRACT-601": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -205,8 +186,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T14:11:15.885914Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "CONTRACT-601",
@@ -266,49 +247,20 @@
         "result": "pass",
         "checks": [
           {
-            "id": "CHECK-C601-01",
+            "id": "AC-CONTRACT-601-01",
             "result": "passed",
             "evidence": [
               "docs/reliability/evidence/CONTRACT-601/object-contract.md",
-              "Sections 2 to 8 state the row shape, the confidence vocabulary, the never-classify and never-offer rules, sizing and staleness semantics, and the reversible migration requirement."
-            ]
-          },
-          {
-            "id": "CHECK-C601-02",
-            "result": "passed",
-            "evidence": [
-              "docs/reliability/evidence/CONTRACT-601/object-contract.md",
-              "docs/reliability/planning/plan-006-candidate.json",
-              "Each rule names its proving task: TASK-611 detection order, TASK-612 and TASK-613 no per-file rows inside an object, TASK-613 migration and rollback, TASK-614 capacity honesty, TASK-621 sizing budget, TASK-622 and TASK-623 review-required and never-offer."
-            ]
-          },
-          {
-            "id": "CHECK-C601-03",
-            "result": "passed",
-            "evidence": [
+              "docs/reliability/evidence/CONTRACT-601/agent-result.json",
               "docs/reliability/evidence/RESEARCH-601/detection-rules.md",
-              "The detection order and confidence vocabulary restate the measured corpus outcome; no untested rule is introduced."
-            ]
-          },
-          {
-            "id": "CHECK-C601-04",
-            "result": "passed",
-            "evidence": [
-              "docs/reliability/evidence/CONTRACT-601/assurance-candidate.json",
-              "Assurance reviewed: IMPACT-CONTRACT-601-ASSURANCE confirmed; INSPECT-CONTRACT-601-1 performed after the implementation event and sufficient; drift reconciled; controls unchanged from RESEARCH-601 and still honest for an evidence-only task."
-            ]
-          },
-          {
-            "id": "CHECK-601-REAFFIRM",
-            "result": "passed",
-            "evidence": [
-              "docs/reliability/planning/plan-006-r2-review.json",
-              "docs/reliability/evidence/TASK-615/assurance-reaffirm.json",
-              "Re-audited unchanged after the R2 replan, which added TASK-615 and five edges without changing any criterion, node or source file. The inspections behind this result were re-affirmed on the same evidence."
+              "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+              "docs/reliability/planning/replan-006-r5-review.json"
             ]
           }
         ],
-        "affected_claims": [],
+        "affected_claims": [
+          "CONTRACT-601"
+        ],
         "recommended_action": "advance",
         "assurance": {
           "impact_ids": [
@@ -320,9 +272,7 @@
           "finding_ids": [],
           "scope_review": "complete",
           "limitations": [
-            "A contract proves nothing by itself; its rules are held by the tasks it names.",
-            "The override path for the 27 unresolved candidates is left to a later task.",
-            "The auditor also wrote the contract; independence rests on its traceability to RESEARCH-601 and the plan."
+            "Re-audit after R4 re-attachment and R5: the contract text is unchanged since 9190dbc; its per-file collapse clause is moot because TASK-653 keeps the old store export-only."
           ]
         }
       },
@@ -330,8 +280,8 @@
     },
     "TASK-611": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -341,8 +291,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T14:11:29.750553Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-611",
@@ -493,66 +443,47 @@
         "result": "pass",
         "checks": [
           {
-            "id": "CHECK-611-01",
-            "result": "passed",
-            "evidence": [
-              "docs/reliability/evidence/TASK-611/candidate/candidate.json",
-              "docs/reliability/evidence/TASK-611/candidate/tests.log",
-              "Full isolated verifier on input a6a717c7d0b47e5ee8891ba0a49086d030087c4f80603c1c80336ac3e90bfae5: harness ok, toolchain ok, manifest ok, entitlements ok, build ok, tests ok, package-generator ok, package-toolchain ok, package-system-temporary ok, package-project ok, package-build ok, package-architecture-app ok, package-architecture-helper ok, package-smoke ok, package-helper ok; 569 tests, 0 failures."
-            ]
-          },
-          {
-            "id": "CHECK-611-02",
+            "id": "AC-TASK-611-01",
             "result": "passed",
             "evidence": [
               "docs/reliability/evidence/TASK-611/classification.md",
+              "docs/reliability/evidence/TASK-611/agent-result.json",
               "docs/reliability/evidence/TASK-611/focused-green/tests.log",
-              "Ten isolated cases cover AC-TASK-611-01: repositories, manifest-only projects, nested and orphan candidates, tracked lookalikes refused as source, an unreadable repository falling through rather than deciding, and a read-only assertion over the examined tree."
-            ]
-          },
-          {
-            "id": "CHECK-611-03",
-            "result": "passed",
-            "evidence": [
               "docs/reliability/evidence/TASK-611/tracked-mutation-red/result.json",
               "docs/reliability/evidence/TASK-611/marker-mutation-red/result.json",
-              "Non-vacuity: inverting the tracked check or disabling the self-marker rule each fails exactly its case, with the worktree unchanged."
-            ]
-          },
-          {
-            "id": "CHECK-611-04",
-            "result": "passed",
-            "evidence": [
-              "docs/reliability/evidence/TASK-611/assurance-candidate.json",
-              "Assurance reviewed: IMPACT-TASK-611-SCANNER, IMPACT-TASK-611-ASSURANCE confirmed; INSPECT-TASK-611-1 performed after the implementation event and sufficient; drift reconciled; controls restated honestly for code that no product path calls yet."
+              "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+              "docs/reliability/planning/replan-006-r5-review.json"
             ]
           }
         ],
-        "affected_claims": [],
+        "affected_claims": [
+          "TASK-611"
+        ],
         "recommended_action": "advance",
         "assurance": {
           "impact_ids": [
-            "IMPACT-TASK-611-SCANNER",
-            "IMPACT-TASK-611-ASSURANCE"
+            "IMPACT-TASK-611-ASSURANCE",
+            "IMPACT-TASK-611-SCANNER"
           ],
           "inspection_ids": [
             "INSPECT-TASK-611-1"
           ],
-          "finding_ids": [],
+          "finding_ids": [
+            "FIND-R3-DASHBOARD"
+          ],
           "scope_review": "complete",
           "limitations": [
-            "No git process runs in the unit tests; the real oracle is exercised end to end by TASK-612.",
-            "No user-visible behaviour changes until the scanner uses the classifier.",
-            "The auditor also implemented the task; independence rests on the isolated reruns, the mutation reds and the archived hashes."
+            "Re-audit after R4 re-attachment and R5: the only later change to ObjectClassification (a4ebfe6) bounds the ancestor walk; rule order and the tracked refusal are unchanged, and ObjectClassificationTests pass on candidate f1dc99e2.",
+            "The ancestor walk uses standardizedFileURL; TASK-621 must compare paths consistently."
           ]
         }
       },
       "last_reopen": null
     },
     "TASK-612": {
-      "execution": "implemented",
+      "execution": "superseded",
       "verification": "pending",
-      "health": "at-risk",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -563,7 +494,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-612",
@@ -816,7 +747,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T09:47:22.786043Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-614",
@@ -1035,7 +966,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -1054,7 +985,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -1073,7 +1004,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -1092,7 +1023,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -1111,7 +1042,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T06:07:25.086575Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-616",
@@ -1426,7 +1357,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T08:59:52.127898Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-617",
@@ -1729,7 +1660,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T10:07:25.737888Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": {
         "schema": "audit-result-v1",
@@ -1822,7 +1753,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T06:20:30.832811Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-641",
@@ -2040,7 +1971,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T06:55:37.524099Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-642",
@@ -2272,7 +2203,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T10:07:15.546538Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "GATE-649",
@@ -2490,8 +2421,8 @@
     },
     "OUTCOME-650": {
       "execution": "planned",
-      "verification": "passed",
-      "health": "clear",
+      "verification": "unverified",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2501,8 +2432,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T13:32:56.858675Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": {
         "schema": "audit-result-v1",
@@ -2643,7 +2574,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T10:26:28.507054Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "CONTRACT-602",
@@ -2837,7 +2768,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T10:41:45.293137Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-651",
@@ -3114,7 +3045,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T11:52:51.807409Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-652",
@@ -3506,8 +3437,8 @@
     },
     "TASK-653": {
       "execution": "implemented",
-      "verification": "passed",
-      "health": "clear",
+      "verification": "pending",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -3517,8 +3448,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T12:21:17.528553Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-653",
@@ -3946,8 +3877,8 @@
     },
     "GATE-659": {
       "execution": "implemented",
-      "verification": "passed",
-      "health": "clear",
+      "verification": "pending",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -3957,8 +3888,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T13:32:30.819491Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "GATE-659",
@@ -4241,7 +4172,7 @@
     "OUTCOME-660": {
       "execution": "planned",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4251,8 +4182,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4260,7 +4191,7 @@
     "TASK-661": {
       "execution": "planned",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4270,8 +4201,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4279,7 +4210,7 @@
     "GATE-669": {
       "execution": "planned",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4289,8 +4220,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4298,7 +4229,7 @@
     "OUTCOME-670": {
       "execution": "planned",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4308,8 +4239,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4317,7 +4248,7 @@
     "TASK-671": {
       "execution": "planned",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4327,8 +4258,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4347,7 +4278,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4355,7 +4286,7 @@
     "GATE-679": {
       "execution": "planned",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4365,8 +4296,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4385,7 +4316,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-613",
@@ -4638,7 +4569,7 @@
     "GATE-619": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "at-risk",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4649,7 +4580,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
-      "updated_at": "2026-10-04T09:34:22.827519Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4657,7 +4588,7 @@
     "OUTCOME-610": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "at-risk",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4668,7 +4599,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
-      "updated_at": "2026-10-04T09:34:22.827519Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4676,7 +4607,7 @@
     "GATE-629": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "at-risk",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4687,7 +4618,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
-      "updated_at": "2026-10-04T09:34:22.827519Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4695,7 +4626,7 @@
     "OUTCOME-620": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "at-risk",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4706,7 +4637,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
-      "updated_at": "2026-10-04T09:34:22.827519Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4714,7 +4645,7 @@
     "GATE-639": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "at-risk",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4725,7 +4656,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
-      "updated_at": "2026-10-04T09:34:22.827519Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4733,7 +4664,7 @@
     "OUTCOME-630": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "at-risk",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -4744,7 +4675,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
-      "updated_at": "2026-10-04T09:34:22.827519Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -4763,7 +4694,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "updated_at": "2026-10-04T14:09:16.075115Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-615",
@@ -5015,5 +4946,5 @@
       "last_reopen": null
     }
   },
-  "context_id": "CTX-326AD0B99A263789A9999CD0D0CDF70A"
+  "context_id": "CTX-1A51E17B646E1D6F4EB76784A53D0134"
 }

@@ -68,13 +68,14 @@ Make capacity a separate read path: get_storage_summary, the helper self-check a
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R4-TASK-642-QUERY`, `IMPACT-R4-TASK-642-IPC`, `IMPACT-R4-TASK-642-ASSURANCE`, `IMPACT-R4-TASK-642-LIFECYCLE`, `IMPACT-R4-TASK-642-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`
 - Inspections: `INSPECT-R4-TASK-642-1`, `INSPECT-R4-TASK-642-2`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Required inspection INSPECT-R4-TASK-642-2 is stale
 
 
