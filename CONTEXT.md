@@ -559,3 +559,15 @@ processed fourteen times its scope without publishing.
   - Codex users must re-run `Scripts/Integration/install` to refresh
     `enabled_tools`.
 - **Rollback.** No store format changed, so quit 1.5.0 and reinstall 1.4.0.
+- **Published 2026-10-05** at the user's request.
+  - `main` was pushed through `bda17ec`. Annotated tag `v1.5.0` points to
+    `bda17ec`, whose candidate inputs equal the verified `03e80c74…`.
+  - GitHub release https://github.com/KMerdan/disk_steward/releases/tag/v1.5.0
+    is the latest release. Its public `Disk-Steward-1.5.0.zip` re-downloads
+    with SHA-256 `7515730d…198f`.
+  - The tap `KMerdan/homebrew-disk-steward` is at `c4220a9`. `brew style` and
+    `brew audit --cask --strict --online` pass, and the upgrade dry run shows
+    1.4.0 → 1.5.0.
+  - The maintainer's Mac still runs the gated, unnotarized 1.5.0 (12), which
+    has the same code. `brew upgrade --cask disk-steward` installs the
+    notarized copy.
