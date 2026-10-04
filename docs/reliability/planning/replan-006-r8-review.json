@@ -1,0 +1,323 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-006-R8",
+ "stage": "candidate",
+ "outcome": "simplified",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 7,
+  "sha256": "3faad1f20280780b3abc1955c2a8bd9093bf1d78c0b1d90f6f44d677330ab676"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 8,
+  "sha256": "c0698fac04ac938c0afe194950da908127d963df2faa79649f12ee716f819f37"
+ },
+ "facts": [
+  {
+   "id": "FACT-R8-TOOL-LIST-IS-PINNED-OUTSIDE-SCOPE",
+   "claim": "The published MCP tool list is pinned outside TASK-671's write scope: Fixtures/MCP/readonly-inventory.json and codex-stdio.toml.txt (validated by the in-scope contract tests), Scripts/Integration/install's own hardcoded enabled_tools line, and README.md and docs/architecture/mcp.md, which FIND-R4-DOCS-STALE says to update with this rework (together with docs/operations/privacy-and-retention.md). README.md and the docs map to no baseline asset, so an amendment cannot add them.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "AC-TASK-671-01",
+    "Fixtures/MCP/readonly-inventory.json",
+    "Scripts/Integration/install",
+    "FIND-R4-DOCS-STALE"
+   ],
+   "supports": [
+    "TASK-671"
+   ],
+   "freshness": "2026-10-05"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FIND-R8-01",
+   "class": "under-decomposition",
+   "affected_nodes": [
+    "TASK-671"
+   ],
+   "claim": "TASK-671's write scope omitted the fixture, installer and documents that publish the tool list it rebuilds.",
+   "evidence": [
+    "FACT-R8-TOOL-LIST-IS-PINNED-OUTSIDE-SCOPE"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "TASK-671 may also write Fixtures/MCP/**, Scripts/Integration/install, README.md, docs/architecture/mcp.md and docs/operations/privacy-and-retention.md; acceptance, deliverables, dependencies and non-goals are unchanged.",
+   "rationale": "Smallest change that keeps the published tool list consistent and closes the stale-docs finding with the rework it names; no other node changes."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-601",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-602",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-603",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-604",
+   "before_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-605",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-606",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-607",
+   "before_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-608",
+   "before_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-609",
+   "before_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-610",
+   "before_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "after_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-611",
+   "before_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "after_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "preserved",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "preserved",
+  "audit_closure": "preserved",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 28,
+   "executable_nodes": 23,
+   "edges": 83,
+   "hard_dependencies": 32,
+   "audit_gates": 4
+  },
+  "after": {
+   "nodes": 28,
+   "executable_nodes": 23,
+   "edges": 83,
+   "hard_dependencies": 32,
+   "audit_gates": 4
+  }
+ },
+ "summary": "Write-scope addition for TASK-671 (MCP fixtures, the installer tool list, README and two docs) so the rebuilt catalogue is published consistently; topology, acceptance and every other node are unchanged.",
+ "limitations": [
+  "TASK-671 was claimed but no implementation had been recorded when its write scope was widened."
+ ]
+}
