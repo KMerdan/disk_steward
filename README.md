@@ -6,7 +6,7 @@
   <p>
     <img alt="macOS 13+" src="https://img.shields.io/badge/macOS-13%2B-111111?logo=apple&logoColor=white">
     <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white">
-    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.2.1"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.2.1-2563EB"></a>
+    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.3.0"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.3.0-2563EB"></a>
     <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-2563EB"></a>
   </p>
 </div>
@@ -104,7 +104,7 @@ brew tap KMerdan/disk-steward
 brew install --cask disk-steward
 ```
 
-The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.2.1 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.2.1).
+The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.3.0 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.3.0).
 
 ## Build and run
 

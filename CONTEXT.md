@@ -411,3 +411,58 @@ directories holding 65.2 GB; git reported 30 artifact-named directories as
 tracked source, so name matching alone is unsafe; about 90 GB more sits in
 shared caches outside the watched roots; and the installed app's scan had
 processed fourteen times its scope without publishing.
+
+## PLAN-006 replan R4 and the 1.3.0 release (2026-10-04)
+
+- **Redesign.** `docs/product/redesign-bounded-review.md` replaced the
+  always-on per-file scanner, in four installable rungs:
+  1. rung 1: live capacity always answers and a stuck scan stops itself;
+  2. rung 2: quiet guard with capacity ring and change journal;
+  3. rung 3: bounded object review;
+  4. rung 4: agent tools on the review.
+
+  Replan artifacts: `docs/reliability/planning/replan-006-r4-*`.
+- **Live failure that prompted it.** The installed 1.2.3 refused
+  `get_storage_summary`, `get_evidence_lifecycle` and `explain_growth` after
+  1,477 forced-eviction gaps. Its scan had processed about 489 M entries
+  against 123k staged since 2026-09-18, sampled at 47–67% of a core.
+- **Superseded: 1.3.0 (9) from main.** It was built, notarized and installed locally, but never published. Its idle CPU failed GATE-649. The record below is history; the release candidate is **1.3.0 (10)**, recorded in the next bullet.
+- **1.3.0 (9) build** (`022b92e` plus `eecf85c` version bump;
+  frozen input `ce01364088c6…`).
+  - The full isolated suite passed: 617 tests, 7 intentional skips, 0
+    failures.
+  - The archive stage and the packaged CI build each left one Xcode worker,
+    which the supervisor stopped with cleanup verified.
+  - The signed-app smoke and the helper protocol passed.
+  - Uploaded once through the Xcode account route.
+    `-exportNotarizedApp` succeeded on its second check.
+  - `verify-release` passed on the exported app and on the ZIP-unpacked app.
+  - Asset `Disk-Steward-1.3.0.zip`, SHA-256
+    `c6483ba1a029b0daf376afccac62392df68b6c19ed2a3744cad629f51609b965`.
+  - Raw logs are in ignored `build/releases/1.3.0/`. Public notes:
+    `docs/reliability/releases/1.3.0.md`.
+- **Installed locally after the user chose "ship main as 1.3".**
+  - The schema-14 store was backed up first, read-only, to
+    `~/Library/Application Support/Disk Steward Backups/`.
+  - The 1.2.3 app was moved to the Trash.
+  - First launch migrated the store to schema 15 and stopped the stuck
+    generation (`scan-convergence.json`).
+  - The MCP summary tools and the helper self-check answer again. Evidence
+    freshness is honestly reported as 21 days old.
+  - Gate evidence: `docs/reliability/evidence/GATE-649/`.
+- **Not yet done.** The GitHub release, tag, push and Homebrew tap update each
+  need the user's go-ahead. The in-repo cask and README already point at
+  1.3.0.
+- **Released candidate 1.3.0 (10)** from main (`062a8d5` plus `f70c820`;
+  input `887d62f1b8f5…`).
+  - TASK-614 was reopened because build 9 idled at 11.4% of a core: stopped
+    samples recomputed lifecycle status on every file-change event. Build 10
+    fixes it.
+  - Full suite: 618 tests, 7 skips, 0 failures. The signed archive, smoke,
+    helper, notarization and `verify-release` (exported and ZIP-unpacked
+    app) all pass. ZIP SHA-256
+    `7d1d894106931ed6fe34177a19aa55da0e9b90fa6549874f2b3d48004c050657`.
+  - Installed over (9). Both earlier apps are in the Trash. Idle CPU over 15
+    minutes: 0.40% of one core.
+  - GATE-649 and OUTCOME-640 passed. Rung 2 starts with CONTRACT-602.
+

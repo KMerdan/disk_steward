@@ -1,0 +1,125 @@
+{
+ "schema": "agent-result-v1",
+ "task": "GATE-649",
+ "outcome": "implemented",
+ "changed_files": [
+  "docs/reliability/evidence/GATE-649/README.md",
+  "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+  "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+  "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+  "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+  "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+  "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+  "docs/reliability/evidence/GATE-649/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "evidence-only",
+ "changes": [
+  {
+   "path": "docs/reliability/evidence/GATE-649/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/GATE-649/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "verify_candidate.py --xcodegen on 887d62f1",
+   "result": "618 tests, 7 skipped, 0 failures; package-build retained one Xcode worker (cleanup verified)"
+  },
+  {
+   "command": "build/releases/1.3.0/build-release-10.py (signed archive, smoke, helper)",
+   "result": "passed; archive retained one Xcode worker (cleanup verified)"
+  },
+  {
+   "command": "xcodebuild -exportArchive (upload) + -exportNotarizedApp + verify-release x2",
+   "result": "notarized and verified; SHA-256 7d1d8941...0657"
+  },
+  {
+   "command": "installed 1.3.0 (10): 15-minute CPU, self-check, MCP",
+   "result": "0.40% of one core; connected; summaries answer"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-GATE-649-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/GATE-649/README.md"
+  },
+  {
+   "criterion": "AC-GATE-649-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/GATE-649/README.md"
+  }
+ ],
+ "discovered_risks": [
+  "FIND-R4-XCODE-WORKER",
+  "FIND-R4-SUPERVISOR-RACE",
+  "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+  "FIND-R4-LIFECYCLE-RESPONSE-SIZE"
+ ],
+ "suggested_graph_changes": []
+}

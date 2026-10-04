@@ -74,15 +74,13 @@ Repair the verification boundary exposed by a timed-out Swift test leaving an or
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-RESOURCE`
 - Inspections: `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`
 
 ### Assurance Blockers
 
-- Assurance is stale: Unexpected implementation scope was recorded for TASK-615: DRIFT-75F98FFED79C, DRIFT-2A450A7B41D6, DRIFT-99AD8D091D40, DRIFT-A5330DF3FAD7, DRIFT-4CAEFF010E43, DRIFT-B9146520F415, DRIFT-83868C67E8CE, DRIFT-9F3DCC1C6122; Implementation for TASK-615 changed assets ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE; post-change inspection is required.; Replan changed task contracts or graph relations; impact and inspection evidence require review.; R3 records observed containment and dashboard defects; new impacts are hypotheses and inspections are planned, not passed.; Implementation for TASK-616 changed assets ASSET-ASSURANCE, ASSET-BUILD, ASSET-RESOURCE; post-change inspection is required.; TASK-616 reviewed against exact final candidate; its two inspections refreshed. Other tasks' stale/planned inspections and dashboard finding remain unresolved.; Implementation for TASK-617 changed assets ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI; post-change inspection is required.; TASK-617 inspection refreshed against exact final candidate, dashboard finding resolved, and overlapping TASK-616 evidence inspection refreshed using unchanged supervisor source plus final integrated cleanup receipts. Other planned/stale inspections and later gates remain incomplete.; R4 replan reconciled: added tasks mapped as hypotheses, superseded gate hypotheses dismissed, superseded gate inspections skipped.; Implementation for TASK-641 changed assets ASSET-ASSURANCE, ASSET-IPC, ASSET-QUERY, ASSET-STORE; post-change inspection is required.; Implementation for TASK-614 changed assets ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE; post-change inspection is required.; Implementation for TASK-642 changed assets ASSET-ASSURANCE, ASSET-IPC, ASSET-LIFECYCLE, ASSET-QUERY; post-change inspection is required.; TASK-614 was reopened; prior change-assurance evidence is stale.
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- None
 
 

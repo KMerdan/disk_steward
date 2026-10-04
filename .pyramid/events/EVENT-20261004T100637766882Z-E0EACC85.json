@@ -1,0 +1,307 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261004T100637766882Z-E0EACC85",
+  "at": "2026-10-04T10:06:37.766703Z",
+  "graph_version": 69,
+  "actor": "claude",
+  "type": "task.implemented",
+  "node": "GATE-649",
+  "before": {
+    "execution": "working",
+    "verification": "unverified",
+    "health": "at-risk",
+    "owner": "claude",
+    "lease_expires_at": "2026-10-04T17:00:17.392703Z",
+    "work_origin": "planned",
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+    "updated_at": "2026-10-04T09:34:22.827519Z",
+    "last_result": null,
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T10:06:37.766667Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-649",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+        "docs/reliability/evidence/GATE-649/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/reliability/evidence/GATE-649/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "verify_candidate.py --xcodegen on 887d62f1",
+          "result": "618 tests, 7 skipped, 0 failures; package-build retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "build/releases/1.3.0/build-release-10.py (signed archive, smoke, helper)",
+          "result": "passed; archive retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "xcodebuild -exportArchive (upload) + -exportNotarizedApp + verify-release x2",
+          "result": "notarized and verified; SHA-256 7d1d8941...0657"
+        },
+        {
+          "command": "installed 1.3.0 (10): 15-minute CPU, self-check, MCP",
+          "result": "0.40% of one core; connected; summaries answer"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-GATE-649-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        },
+        {
+          "criterion": "AC-GATE-649-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "FIND-R4-XCODE-WORKER",
+        "FIND-R4-SUPERVISOR-RACE",
+        "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+        "FIND-R4-LIFECYCLE-RESPONSE-SIZE"
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": null,
+    "last_reopen": null
+  },
+  "payload": {
+    "reason": "Rung 1 exercised on the packaged and installed 1.3.0 (10): suite green, notarized, stop fired on the live store, 0.40% idle CPU, MCP and self-check answer",
+    "result": {
+      "schema": "agent-result-v1",
+      "task": "GATE-649",
+      "outcome": "implemented",
+      "changed_files": [
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+        "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+        "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+        "docs/reliability/evidence/GATE-649/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "evidence-only",
+      "changes": [
+        {
+          "path": "docs/reliability/evidence/GATE-649/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/TASK-617-reaudit.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0-10.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-before-1.2.3.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/scan-convergence.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/GATE-649/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "verify_candidate.py --xcodegen on 887d62f1",
+          "result": "618 tests, 7 skipped, 0 failures; package-build retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "build/releases/1.3.0/build-release-10.py (signed archive, smoke, helper)",
+          "result": "passed; archive retained one Xcode worker (cleanup verified)"
+        },
+        {
+          "command": "xcodebuild -exportArchive (upload) + -exportNotarizedApp + verify-release x2",
+          "result": "notarized and verified; SHA-256 7d1d8941...0657"
+        },
+        {
+          "command": "installed 1.3.0 (10): 15-minute CPU, self-check, MCP",
+          "result": "0.40% of one core; connected; summaries answer"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-GATE-649-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        },
+        {
+          "criterion": "AC-GATE-649-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/GATE-649/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "FIND-R4-XCODE-WORKER",
+        "FIND-R4-SUPERVISOR-RACE",
+        "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+        "FIND-R4-LIFECYCLE-RESPONSE-SIZE"
+      ],
+      "suggested_graph_changes": []
+    },
+    "scope_drift": [],
+    "assurance_invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 4,
+  "context_id": "CTX-25F91D0FC38EE0CA070BDBED758A36FC",
+  "previous_event_id": "EVENT-20261004T100625149580Z-05CF88B2",
+  "previous_event_sha256": "eb53c24578692c36c53551127aaae3605927ba55988a56d3c23166061bed46f7"
+}

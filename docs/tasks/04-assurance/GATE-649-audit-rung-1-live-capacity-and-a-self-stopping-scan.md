@@ -8,10 +8,10 @@
 - Wave: `4`
 - Workstream: `assurance`
 - Selection: `primary`
-- Execution: `working`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `working`
+- Execution: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `GATE-649` → `OUTCOME-640` → `OUTCOME-650` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -33,7 +33,7 @@ Exercise the packaged candidate against a captured copy of the stuck live store:
 
 ## Dependencies
 
-- `TASK-614` (validation-requires, failed)
+- `TASK-614` (validation-requires, passed)
 - `TASK-616` (validation-requires, passed)
 - `TASK-617` (validation-requires, passed)
 - `TASK-641` (validation-requires, passed)
@@ -64,28 +64,13 @@ Exercise the packaged candidate against a captured copy of the stuck live store:
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R4-TASK-641-STORE`, `IMPACT-R4-TASK-641-QUERY`, `IMPACT-R4-TASK-641-ASSURANCE`, `IMPACT-R4-TASK-642-QUERY`, `IMPACT-R4-TASK-642-IPC`, `IMPACT-R4-TASK-642-ASSURANCE`, `IMPACT-R4-TASK-614-LIFECYCLE`, `IMPACT-R4-TASK-614-STORE`, `IMPACT-R4-TASK-614-ASSURANCE`, `IMPACT-R4-TASK-641-IPC`, `IMPACT-R4-TASK-642-LIFECYCLE`, `IMPACT-R4-TASK-642-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-BUILD`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R4-TASK-641-1`, `INSPECT-R4-TASK-642-1`, `INSPECT-R4-TASK-642-2`, `INSPECT-R4-TASK-614-1`
 
 ### Assurance Blockers
 
-- Assurance is stale: Unexpected implementation scope was recorded for TASK-615: DRIFT-75F98FFED79C, DRIFT-2A450A7B41D6, DRIFT-99AD8D091D40, DRIFT-A5330DF3FAD7, DRIFT-4CAEFF010E43, DRIFT-B9146520F415, DRIFT-83868C67E8CE, DRIFT-9F3DCC1C6122; Implementation for TASK-615 changed assets ASSET-ASSURANCE, ASSET-SCANNER, ASSET-STORE; post-change inspection is required.; Replan changed task contracts or graph relations; impact and inspection evidence require review.; R3 records observed containment and dashboard defects; new impacts are hypotheses and inspections are planned, not passed.; Implementation for TASK-616 changed assets ASSET-ASSURANCE, ASSET-BUILD, ASSET-RESOURCE; post-change inspection is required.; TASK-616 reviewed against exact final candidate; its two inspections refreshed. Other tasks' stale/planned inspections and dashboard finding remain unresolved.; Implementation for TASK-617 changed assets ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-SCANNER, ASSET-UI; post-change inspection is required.; TASK-617 inspection refreshed against exact final candidate, dashboard finding resolved, and overlapping TASK-616 evidence inspection refreshed using unchanged supervisor source plus final integrated cleanup receipts. Other planned/stale inspections and later gates remain incomplete.; R4 replan reconciled: added tasks mapped as hypotheses, superseded gate hypotheses dismissed, superseded gate inspections skipped.; Implementation for TASK-641 changed assets ASSET-ASSURANCE, ASSET-IPC, ASSET-QUERY, ASSET-STORE; post-change inspection is required.; Implementation for TASK-614 changed assets ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE; post-change inspection is required.; Implementation for TASK-642 changed assets ASSET-ASSURANCE, ASSET-IPC, ASSET-LIFECYCLE, ASSET-QUERY; post-change inspection is required.; TASK-614 was reopened; prior change-assurance evidence is stale.
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-IPC lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R3-616-EVIDENCE is stale
-- Required inspection INSPECT-R3-617-MEASUREMENT is stale
-- Required inspection INSPECT-R3-617-PRESENTATION is stale
-- Required inspection INSPECT-R4-TASK-614-1 is stale
-- Required inspection INSPECT-R4-TASK-641-1 is stale
-- Required inspection INSPECT-R4-TASK-642-1 is stale
-- Required inspection INSPECT-R4-TASK-642-2 is stale
+- None
 
 
