@@ -67,17 +67,13 @@ Port the hotfix: list the newest retention gaps inside a fixed window with a tot
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-641-STORE`, `IMPACT-R4-TASK-641-QUERY`, `IMPACT-R4-TASK-641-ASSURANCE`, `IMPACT-R4-TASK-641-IPC`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-IPC`, `ASSET-QUERY`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-641-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-IPC lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-641-1 is stale
+- None
 
 

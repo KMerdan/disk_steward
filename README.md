@@ -6,7 +6,7 @@
   <p>
     <img alt="macOS 13+" src="https://img.shields.io/badge/macOS-13%2B-111111?logo=apple&logoColor=white">
     <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white">
-    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.3.0"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.3.0-2563EB"></a>
+    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.4.0"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.4.0-2563EB"></a>
     <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-2563EB"></a>
   </p>
 </div>
@@ -43,41 +43,45 @@ Disk Steward was developed through two completed Pyramid intents: first the trus
 
 ## What it does
 
-- **Shows storage health at a glance.** Capacity, free space, recent growth, monitoring health, and evidence recency stay in one compact native popover.
-- **Monitors at two honest scopes.** Whole-volume capacity is measured separately from detailed metadata under folders you explicitly watch.
-- **Builds a durable evidence chain.** Disk Steward tracks current presence, changes, coverage gaps, provenance confidence, retention, and deleted or out-of-scope objects without pretending partial scans are complete.
-- **Exports actionable evidence.** A manual export contains a human brief plus machine-readable current state, events, snapshots, provenance, sessions, coverage, lifecycle, rollups, and integrity hashes.
+- **Shows storage health at a glance.** Capacity, free space, distance to your free-space reserve and monitoring health stay in one compact native popover.
+- **Keeps a capacity history.** Five-minute samples for a week and hourly samples for a year live in a file of about 600 KB per disk.
+- **Warns before you run low.** One notification when free space stays below the reserve you set ("keep at least N GiB free"); no repeats until it recovers.
+- **Names the folders that changed.** Changes inside your review scopes come from the macOS FSEvents journal, by project or build-output folder, without walking the disk. Changes made while the app was closed are replayed at launch; journal gaps are stated, never shown as "no change".
+- **Stays quiet.** No background file scanning: the idle app samples capacity and reads the change journal, at well under 1% of one core.
 - **Offers local, read-only MCP tools.** Agent Access is off by default and can be toggled independently of monitoring. The connector cannot delete files or change settings.
-- **Keeps its own footprint bounded.** Recent exact detail ages into summaries, retention is controlled by time and bytes, and reduced coverage is recorded rather than hidden.
+
+Since 1.4.0, the earlier per-file evidence database is kept unmodified as legacy evidence: it can be exported or deleted from Settings, and file-level answers return with the bounded folder review planned for a later release.
 
 ## How it fits together
 
 ```text
-Whole-volume samples ─┐
-Watched-folder scans ─┼─> bounded SQLite evidence ─┬─> native menu-bar status
-Filesystem hints ─────┘                            ├─> integrity-checked export
-                                                   └─> private Unix socket
-                                                        └─> read-only MCP helper
-                                                            ├─> Codex
-                                                            └─> Claude Code
+Capacity samples ────> capacity history ──┐
+FSEvents journal ────> changed folders ───┼─> native menu-bar status
+Legacy evidence (export only) ────────────┤
+                                          └─> private Unix socket
+                                               └─> read-only MCP helper
+                                                   ├─> Codex
+                                                   └─> Claude Code
 ```
 
-The app owns the evidence database. The MCP helper communicates with the running app through a private current-user Unix socket; it never opens SQLite directly and never exposes a network listener.
+The app owns its small history and journal files. The MCP helper communicates with the running app through a private current-user Unix socket; it never opens a database directly and never exposes a network listener.
 
 ## Agent evidence, without another disk dig
 
 When Agent Access is enabled, the bundled `disk-witness-mcp` helper exposes bounded read-only tools:
 
-| Question | Tool |
-| --- | --- |
-| How full is the disk, and how fresh is the evidence? | `get_storage_summary` |
-| What exact detail and time ranges are still retained? | `get_evidence_lifecycle` |
-| What is consuming space inside covered roots now? | `list_current_consumers` |
-| What grew or shrank over a trustworthy interval? | `explain_growth` |
-| What process or agent may have created a change? | `get_provenance` |
-| What did an agent session affect? | `get_task_impact` |
-| What present objects deserve human cleanup review? | `find_cleanup_candidates` |
-| Can I get a portable evidence package? | `export_evidence` |
+| Question | Tool | In 1.4.0 |
+| --- | --- | --- |
+| How full is the disk, how far from the reserve, and what is its history? | `get_storage_summary` | Answers |
+| How did capacity change, and which folders changed, over an interval? | `explain_growth` | Answers (folders are not measured) |
+| Can I get a portable evidence package? | `export_evidence` | Exports the legacy evidence |
+| What exact detail and time ranges are still retained? | `get_evidence_lifecycle` | Retired until the folder review |
+| What is consuming space inside covered roots now? | `list_current_consumers` | Retired until the folder review |
+| What process or agent may have created a change? | `get_provenance` | Retired until the folder review |
+| What did an agent session affect? | `get_task_impact` | Retired until the folder review |
+| What present objects deserve human cleanup review? | `find_cleanup_candidates` | Retired until the folder review |
+
+Retired tools answer `detail_unavailable` with the reason, so an agent never mistakes missing detail for an empty result.
 
 See [agent integration setup](docs/integrations/README.md) and the [MCP trust contract](docs/architecture/mcp.md) for Codex and Claude Code installation, session registration, limits, and failure behavior.
 
@@ -88,7 +92,7 @@ Disk Steward is an evidence tool, not a cleanup tool.
 - File **metadata** is observed; file contents and environment values are not collected.
 - Evidence stays on the Mac unless the user explicitly exports and shares it.
 - MCP is local, read-only, and disabled on a fresh install.
-- Manual exports are user-owned and are never silently deleted by retention.
+- Manual exports are user-owned. Legacy evidence is deleted only from Settings, after confirmation, to the Trash.
 - No feature deletes files, purges caches, terminates processes, or uploads telemetry.
 - Optional Endpoint Security provenance is isolated from the standard app and is not required for normal monitoring, export, or MCP access.
 
@@ -96,7 +100,7 @@ The complete model is documented in [privacy and retention](docs/operations/priv
 
 ## Install
 
-Disk Steward 1.2.1 is Developer ID signed, hardened, notarized, and distributed as a universal macOS app through the public Homebrew tap:
+Disk Steward 1.4.0 is Developer ID signed, hardened, notarized, and distributed as a universal macOS app through the public Homebrew tap:
 
 ```sh
 brew trust KMerdan/disk-steward
@@ -104,7 +108,7 @@ brew tap KMerdan/disk-steward
 brew install --cask disk-steward
 ```
 
-The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.3.0 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.3.0).
+The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.4.0 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.4.0).
 
 ## Build and run
 
@@ -169,7 +173,7 @@ That distinction is what lets an agent choose the next investigation without tre
 
 ## Distribution status
 
-Disk Steward 1.2.1 is publicly available from the [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) and as a versioned GitHub release. The published archive has passed Developer ID identity, nested-helper signature, hardened runtime, secure timestamp, production entitlement, notarization staple, Gatekeeper, and archive round-trip checks.
+Disk Steward 1.4.0 is publicly available from the [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) and as a versioned GitHub release. The published archive has passed Developer ID identity, nested-helper signature, hardened runtime, secure timestamp, production entitlement, notarization staple, Gatekeeper, and archive round-trip checks.
 
 Release engineering is documented in [direct distribution](docs/operations/distribution.md), the [release handoff](docs/release/direct-distribution-handoff.md), and the [Homebrew activation checklist](Packaging/Homebrew/README.md).
 

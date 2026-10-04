@@ -477,3 +477,37 @@ processed fourteen times its scope without publishing.
   - The maintainer's Mac runs a manually installed 1.3.0 (10). Its Homebrew
     record still says 1.2.3 until `brew upgrade --cask disk-steward` is run.
 
+
+## PLAN-006 rung 2 and the 1.4.0 release (2026-10-04)
+
+- **Rung 2 (OUTCOME-650, quiet guard) passed.** The work, each task with
+  focused tests, mutation reds and an audit:
+  - CONTRACT-602 (`de4a511`): bounded store contract.
+  - TASK-651 (`c490369`): capacity ring and free-space reserve.
+  - TASK-652 (`9e31917`): directory change journal with replay;
+    `explain_growth` reports the capacity change and the changed folders.
+  - TASK-653 (`9dbd6e7`): the always-on scanner retired, and the old store
+    kept as legacy evidence.
+- **1.4.0 (11)** (`6271b62`, verified input `f1dc99e2…`):
+  - The full isolated suite passed: 658 tests, 8 skipped, 0 failures.
+  - It was signed, notarized and verified on the exported app and on the
+    ZIP-unpacked app. `Disk-Steward-1.4.0.zip` SHA-256 `5901eedf…f2c1`.
+- **Installed on the maintainer's Mac (GATE-659).**
+  - The live 405 MB store, its uncheckpointed 4 MB WAL and its shm moved byte
+    for byte to `legacy/evidence-2026-10-04.*`.
+  - A changed folder made while the app was quit was replayed after
+    relaunch.
+  - FSEvents delivers `~/Downloads` changes to the app's own identity (TCC).
+  - The app idled at **0.056% of one core** over an hour.
+  - Gate evidence: `docs/reliability/evidence/GATE-659/`.
+  - Backup clones of the 1.3.0 store are in
+    `~/Library/Application Support/Disk Steward Backups/`.
+- **Agent-facing behaviour.**
+  - File-level MCP tools answer "file-level scanning is retired" until
+    rung 3's bounded review.
+  - `export_evidence` reads a clone of the legacy set.
+  - Sessions are kept in memory.
+- **Rollback.** Quit the app, run
+  `Scripts/Distribution/restore-legacy-evidence`, then install 1.3.0.
+- **Next on the frontier:** TASK-672 (rung 4). Rung 3's work (bounded review)
+  is not yet ready on the frontier.

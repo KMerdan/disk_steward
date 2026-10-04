@@ -5,7 +5,7 @@
   "baseline_revision": 4,
   "policy": "brownfield",
   "status": "incomplete",
-  "updated_at": "2026-10-04T12:21:01.210211Z",
+  "updated_at": "2026-10-04T13:32:46.109391Z",
   "updated_by": "claude",
   "enforce_from_graph_version": 1,
   "impacts": [
@@ -2114,11 +2114,13 @@
         "GATE-659"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "confirmed",
       "confidence": "medium",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::GATE-659",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/agent-result.json"
       ],
       "path": [
         "GATE-659",
@@ -2132,11 +2134,13 @@
         "GATE-659"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "confirmed",
       "confidence": "medium",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::GATE-659",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/agent-result.json"
       ],
       "path": [
         "GATE-659",
@@ -2150,11 +2154,13 @@
         "GATE-659"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "confirmed",
       "confidence": "medium",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::GATE-659",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/agent-result.json"
       ],
       "path": [
         "GATE-659",
@@ -2168,11 +2174,13 @@
         "GATE-659"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "confirmed",
       "confidence": "medium",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::GATE-659",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/agent-result.json"
       ],
       "path": [
         "GATE-659",
@@ -2186,11 +2194,13 @@
         "GATE-659"
       ],
       "type": "direct",
-      "status": "hypothesis",
+      "status": "confirmed",
       "confidence": "medium",
       "evidence": [
         "docs/reliability/planning/replan-006-r4-candidate.json::GATE-659",
-        "docs/product/redesign-bounded-review.md"
+        "docs/product/redesign-bounded-review.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/agent-result.json"
       ],
       "path": [
         "GATE-659",
@@ -2923,7 +2933,7 @@
       ],
       "method": "Verify the task's complete owned-descendant bootstrap matrix, aggregate-memory metric, finite budgets, identity/PID reuse protections, retained-stdout/parent-exit/group-escape paths, unrelated-process sentinel and independent exit checks. Confirm all focused/mutation/candidate/package/rollback/soak entry points enforce the same safety contract or refuse launch. Only after small bounded fixtures pass, inspect a bounded real Swift/XCTest smoke report.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -2937,16 +2947,25 @@
         "docs/reliability/evidence/REPLAN-006-R4/supervisor-source-delta.txt",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/bootstrap-supervision.txt",
+        "docs/reliability/evidence/GATE-659/bootstrap-supervision-attempt-1-race.txt",
+        "docs/reliability/evidence/GATE-659/release-1.4.0-11.json"
       ],
       "limitations": [
         "Cooperative direct-process scope only; no hostile lineage hiding or launchd/XPC delegation.",
         "Sampled quotas and non-atomic PID signaling limitations documented; unsupported legacy workloads are refused.",
         "R4 refresh: supervisor sources are unchanged since the TASK-616 candidate (only Scripts/Testing/test_bundle_version_metadata.py was added); the bootstrap matrix and a bounded snapshot Swift smoke passed again on main 345c072 on 2026-10-04. The R4 replan changed graph relations, not the containment contract.",
         "Gate-boundary refresh 2026-10-04 on committed input 887d62f1 (1.3.0 build 10): full suite 618 tests, 7 skipped, 0 failures; installed-app evidence in GATE-649.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-BUILD."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-BUILD.",
+        "Supervisor sources are unchanged since v1.3.0 (git diff v1.3.0 -- Scripts/Testing is empty); the bootstrap matrix passed again on 2026-10-04 on its second attempt after one process-classification race (FIND-R4-SUPERVISOR-RACE).",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -2970,7 +2989,7 @@
       ],
       "method": "Check reproducible commands, baseline/candidate hashes, stop reasons, metrics and zero-owned-survivor evidence. Verify no unsafe bootstrap or production-state access and that documentation no longer equates top-level timeout with cleanup.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -2990,7 +3009,13 @@
         "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/bootstrap-supervision.txt",
+        "docs/reliability/evidence/GATE-659/release-1.4.0-11.json"
       ],
       "limitations": [
         "TASK-616 supervisor source is byte-identical between xgcbz0bm and qubaxlgo (diff -qr Scripts/Testing produced no differences). Its prior bootstrap proof is retained; the final 604-case suite adds integrated cleanup/metric evidence.",
@@ -3004,9 +3029,10 @@
         "Implementation result for CONTRACT-602 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3031,7 +3057,7 @@
       ],
       "method": "Exercise successive hosted-view updates with fake lifecycle/notification fixtures: +5.6 GB alert then +2.1 MB then decrease, real bounded single-flight refresh, pause/restart/error/reopen and separate capacity/detail freshness. Compare visibly rendered state and event IDs/intervals; do not accept model-only getters.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3045,7 +3071,13 @@
         "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary-after-1h.json"
       ],
       "limitations": [
         "Isolated synthetic observations/fake notifications; not installed-app, OS notification display or release proof.",
@@ -3058,9 +3090,10 @@
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-UI.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-LIFECYCLE.",
         "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-UI."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-UI.",
+        "Rung-2 boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11): full suite 658 tests, 8 skipped, 0 failures; installed 1.4.0 (11) evidence in GATE-659 (byte-identical legacy move, self-check connected, one-hour idle 0.056% of one core)."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:45.999Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3085,7 +3118,7 @@
       ],
       "method": "Verify signed per-volume delta/baseline selection and ordinary/refusal paths with synthetic samples, matching alert/presentation intervals, bounded one-record session lifetime, no live files/notifications and no schema migration. Confirm TASK-616 resource and cleanup receipts accompany all runs.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3099,7 +3132,12 @@
         "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/cpu-1h-1.4.0-11.json"
       ],
       "limitations": [
         "Isolated synthetic observations/fake notifications; not installed-app, OS notification display or release proof.",
@@ -3113,9 +3151,10 @@
         "Implementation result for CONTRACT-602 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-SCANNER.",
+        "Rung-2 boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11): full suite 658 tests, 8 skipped, 0 failures; installed 1.4.0 (11) evidence in GATE-659 (byte-identical legacy move, self-check connected, one-hour idle 0.056% of one core)."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:45.999Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3451,7 +3490,7 @@
       ],
       "method": "Review the windowed retention and coverage gap readers, their totals and truncation limitations, the pre-decode budget on the window, and the store/IPC regressions with their snapshot mutation red; confirm no rows are deleted.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3466,7 +3505,11 @@
         "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md"
       ],
       "limitations": [
         "Fixture-shaped stores (1,500 retention gaps; 601 coverage gaps); no captured live-store run, which GATE-649 owns.",
@@ -3481,9 +3524,10 @@
         "Scope drift from TASK-652 invalidated this inspection.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-IPC, ASSET-QUERY, ASSET-STORE.",
         "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-QUERY, ASSET-STORE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-QUERY, ASSET-STORE.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3510,7 +3554,7 @@
       ],
       "method": "Fault-inject each detail-store failure through the real socket and check live capacity, detail status and the helper self-check outcome; review that no stale capacity can be presented as live.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3525,7 +3569,13 @@
         "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/self-check.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary.json"
       ],
       "limitations": [
         "Fixture stores; the user's installed app is unchanged.",
@@ -3537,9 +3587,10 @@
         "Scope drift from TASK-652 invalidated this inspection.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-BOOT, ASSET-IPC, ASSET-LIFECYCLE, ASSET-QUERY.",
         "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-BOOT, ASSET-LIFECYCLE, ASSET-QUERY."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-BOOT, ASSET-LIFECYCLE, ASSET-QUERY.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3563,7 +3614,7 @@
       ],
       "method": "Fault-inject each detail-store failure through the real socket and check live capacity, detail status and the helper self-check outcome; review that no stale capacity can be presented as live.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3574,7 +3625,12 @@
         "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/self-check.json"
       ],
       "limitations": [
         "Evidence review only.",
@@ -3584,9 +3640,10 @@
         "Implementation result for CONTRACT-602 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3612,7 +3669,7 @@
       ],
       "method": "Review the convergence-stop thresholds, the stop state and cooldown, and replay the refused-publication fixture and the captured-store run; confirm the probe goes idle and retained evidence stays readable.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3636,7 +3693,11 @@
         "docs/reliability/evidence/TASK-614/reopen-r1/installed-1.3.0-9-profile-60s-frames.txt",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/candidate.json",
         "docs/reliability/evidence/GATE-649/candidate-887d62f1/tests.log",
-        "docs/reliability/evidence/GATE-649/README.md"
+        "docs/reliability/evidence/GATE-649/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md"
       ],
       "limitations": [
         "The captured-store run used a read-only backup copy inside an isolated snapshot, migrated to schema 15 on open; the installed 1.2.3 app is unchanged.",
@@ -3649,9 +3710,10 @@
         "Implementation result for CONTRACT-602 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:07:01.015Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3676,7 +3738,7 @@
       ],
       "method": "Check the cap table and static budget proof against the design, run the contract tests and the eviction mutation red, and confirm windowed readers never refuse a whole result for row count.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3687,16 +3749,21 @@
         "docs/reliability/evidence/CONTRACT-602/focused-green/tests.log",
         "docs/reliability/evidence/CONTRACT-602/no-eviction-red/result.json",
         "docs/reliability/evidence/CONTRACT-602/no-size-refusal-red/result.json",
-        "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json"
+        "docs/reliability/evidence/CONTRACT-602/no-index-term-red/result.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md"
       ],
       "limitations": [
         "Contract and fixtures only; no consumer store exists yet (TASK-651 onward).",
         "Design-document table correction is a separate docs change.",
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:26:28.154Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3723,7 +3790,7 @@
       ],
       "method": "Review the ring file layout, caps and relaunch survival, the reserve migration, alert hysteresis with fake notifications and the board wiring.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3731,15 +3798,21 @@
         "docs/reliability/evidence/TASK-651/agent-result.json",
         "docs/reliability/evidence/TASK-651/focused-green/result.json",
         "docs/reliability/evidence/TASK-651/focused-green/tests.log",
-        "docs/reliability/evidence/TASK-651/no-ring-write-red/result.json"
+        "docs/reliability/evidence/TASK-651/no-ring-write-red/result.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary-after-1h.json"
       ],
       "limitations": [
         "Ring measured with synthetic year-long fixtures; the installed app's ring is observed at GATE-659.",
         "Scope drift from TASK-652 invalidated this inspection.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-CONTRACTS, ASSET-LIFECYCLE, ASSET-STORE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SETTINGS, ASSET-STORE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-SETTINGS, ASSET-STORE.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:41:44.934Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3766,7 +3839,7 @@
       ],
       "method": "Review the ring file layout, caps and relaunch survival, the reserve migration, alert hysteresis with fake notifications and the board wiring.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3775,15 +3848,21 @@
         "docs/reliability/evidence/TASK-651/focused-green/result.json",
         "docs/reliability/evidence/TASK-651/one-sample-alerts-red/result.json",
         "docs/reliability/evidence/TASK-651/no-hysteresis-red/result.json",
-        "docs/reliability/evidence/TASK-651/stale-capacity-shown-red/result.json"
+        "docs/reliability/evidence/TASK-651/stale-capacity-shown-red/result.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary.json"
       ],
       "limitations": [
         "Board text verified through the view model; hosted screenshots belong to GATE-659.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BOOT, ASSET-QUERY.",
         "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BOOT, ASSET-QUERY, ASSET-UI."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BOOT, ASSET-QUERY, ASSET-UI.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T10:41:44.934Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3810,7 +3889,7 @@
       ],
       "method": "Exercise real FSEvents fixtures for replay across relaunch, gap flags and dirty-set overflow; review persisted event ID handling and the TCC observation.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3828,15 +3907,22 @@
         "docs/reliability/evidence/TASK-652/growth-refuses-red/result.json",
         "docs/reliability/evidence/TASK-652/growth-swallows-cursor-red/result.json",
         "docs/reliability/evidence/TASK-652/read-creates-journal-red/result.json",
-        "docs/reliability/evidence/TASK-652/tcc/README.md"
+        "docs/reliability/evidence/TASK-652/tcc/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-after-relaunch.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-1h.json"
       ],
       "limitations": [
         "Gap flags other than a journal-identity change are exercised with synthetic records; real FSEvents cannot produce them on demand.",
         "The journal on the installed app, and TCC delivery under its own identity, are observed at GATE-659.",
         "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-QUERY, ASSET-SCANNER, ASSET-STORE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-LIFECYCLE, ASSET-QUERY, ASSET-SCANNER, ASSET-STORE.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T11:52:38.395Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -3863,7 +3949,7 @@
       ],
       "method": "Exercise real FSEvents fixtures for replay across relaunch, gap flags and dirty-set overflow; review persisted event ID handling and the TCC observation.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -3871,14 +3957,20 @@
         "docs/reliability/evidence/TASK-652/agent-result.json",
         "docs/reliability/evidence/TASK-652/full-suite/candidate.json",
         "docs/reliability/evidence/TASK-652/full-suite/tests.log",
-        "docs/reliability/evidence/TASK-652/focused-green/result.json"
+        "docs/reliability/evidence/TASK-652/focused-green/result.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-live.json"
       ],
       "limitations": [
         "The MCP page schema file is not enforced and is stale; recorded as FIND-R4-PAGE-SCHEMA-STALE for the rung-4 tool rework.",
         "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BOOT."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BOOT.",
+        "Gate-boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11, commit 6271b62): full suite 658 tests, 8 skipped, 0 failures; the suites behind this inspection pass there (inherited-proofs.md); installed-app evidence in GATE-659."
       ],
-      "performed_at": "2026-10-04T11:52:38.395Z",
+      "performed_at": "2026-10-04T13:32:16.558Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -4266,7 +4358,7 @@
       ],
       "method": "Rebuild the packaged candidate, re-run the rung scenarios and inherited proofs under supervision, and confirm cleanup, budgets and rollback for this rung.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -4277,7 +4369,16 @@
         "docs/reliability/evidence/GATE-649/installed-1.3.0/self-check.json",
         "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
         "docs/reliability/evidence/GATE-649/installed-1.3.0/cpu-after-1.3.0.json",
-        "docs/reliability/evidence/GATE-649/agent-result.json"
+        "docs/reliability/evidence/GATE-649/agent-result.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/release-1.4.0-11.json",
+        "docs/reliability/evidence/GATE-659/rehearsal-f1dc99e2/report.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/legacy-move-check.txt",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/cpu-1h-1.4.0-11.json",
+        "docs/reliability/evidence/GATE-659/bootstrap-supervision.txt"
       ],
       "limitations": [
         "Packaged and archive stages each retained one Xcode worker (FIND-R4-XCODE-WORKER), stopped with cleanup verified.",
@@ -4285,9 +4386,10 @@
         "Implementation result for CONTRACT-602 changed covered assets after this inspection: ASSET-ASSURANCE.",
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD, ASSET-LIFECYCLE."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD, ASSET-LIFECYCLE.",
+        "Rung-2 boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11): full suite 658 tests, 8 skipped, 0 failures; installed 1.4.0 (11) evidence in GATE-659 (byte-identical legacy move, self-check connected, one-hour idle 0.056% of one core)."
       ],
-      "performed_at": "2026-10-04T10:06:47.161Z",
+      "performed_at": "2026-10-04T13:32:45.999Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -4312,7 +4414,7 @@
       ],
       "method": "Observe the rung through its public entry points (board, window or MCP helper) across successive samples and compare with the recorded scenario.",
       "required": true,
-      "status": "stale",
+      "status": "performed",
       "result": "pass",
       "sufficiency": "sufficient",
       "evidence": [
@@ -4324,16 +4426,24 @@
         "docs/reliability/evidence/GATE-649/installed-1.3.0/live-store-after.txt",
         "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_storage_summary.json",
         "docs/reliability/evidence/GATE-649/installed-1.3.0/mcp-get_evidence_lifecycle-summary.json",
-        "docs/reliability/evidence/GATE-649/agent-result.json"
+        "docs/reliability/evidence/GATE-649/agent-result.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/self-check.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-after-relaunch.json"
       ],
       "limitations": [
         "Board rendering is covered by LiveStatusBoardTests in the full run; the installed app's popover was not screenshotted.",
         "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-QUERY, ASSET-UI.",
         "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-QUERY.",
         "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-QUERY, ASSET-UI."
+        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-QUERY, ASSET-UI.",
+        "Rung-2 boundary refresh 2026-10-04 on committed input f1dc99e2 (1.4.0 build 11): full suite 658 tests, 8 skipped, 0 failures; installed 1.4.0 (11) evidence in GATE-659 (byte-identical legacy move, self-check connected, one-hour idle 0.056% of one core)."
       ],
-      "performed_at": "2026-10-04T10:06:47.161Z",
+      "performed_at": "2026-10-04T13:32:45.999Z",
       "performed_by": "claude",
       "invalidated_by": [
         "source",
@@ -4360,23 +4470,28 @@
       ],
       "method": "Rebuild the packaged candidate, re-run the rung scenarios and inherited proofs under supervision, and confirm cleanup, budgets and rollback for this rung.",
       "required": true,
-      "status": "planned",
-      "result": "not-run",
-      "sufficiency": "unknown",
-      "evidence": [],
-      "limitations": [
-        "Implementation result for TASK-641 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-614 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE.",
-        "Implementation result for TASK-642 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE.",
-        "TASK-614 was reopened; prior change-assurance evidence is stale.",
-        "Implementation result for TASK-614 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE.",
-        "Implementation result for CONTRACT-602 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-STORE.",
-        "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE.",
-        "Implementation result for TASK-652 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-LIFECYCLE, ASSET-STORE.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD, ASSET-LIFECYCLE, ASSET-STORE."
+      "status": "performed",
+      "result": "pass",
+      "sufficiency": "sufficient",
+      "evidence": [
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/candidate.json",
+        "docs/reliability/evidence/GATE-659/candidate-f1dc99e2/tests.log",
+        "docs/reliability/evidence/GATE-659/release-1.4.0-11.json",
+        "docs/reliability/evidence/GATE-659/rehearsal-f1dc99e2/result.json",
+        "docs/reliability/evidence/GATE-659/rehearsal-f1dc99e2/report.json",
+        "docs/reliability/evidence/GATE-659/inherited-proofs.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/pre-install-hashes.txt",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/legacy-move-check.txt",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/legacy-manifest.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/cpu-1h-1.4.0-11.json"
       ],
-      "performed_at": null,
-      "performed_by": null,
+      "limitations": [
+        "The rollback was rehearsed on a capture of the live store and checked against the installed move's hashes; the user's installation was not rolled back.",
+        "A journal-identity reset is proven on the candidate input, not induced on the maintainer's volume."
+      ],
+      "performed_at": "2026-10-04T13:31:23.468Z",
+      "performed_by": "claude",
       "invalidated_by": [
         "source",
         "generated",
@@ -4384,7 +4499,10 @@
         "configuration",
         "unknown"
       ],
-      "refresh_policy": "pre-audit"
+      "refresh_policy": "pre-audit",
+      "validated_through": {
+        "GATE-659": "EVENT-20261004T133108228425Z-3CFDC865"
+      }
     },
     {
       "id": "INSPECT-R4-GATE-659-DISPLAY",
@@ -4396,17 +4514,23 @@
       ],
       "method": "Observe the rung through its public entry points (board, window or MCP helper) across successive samples and compare with the recorded scenario.",
       "required": true,
-      "status": "stale",
-      "result": "not-run",
-      "sufficiency": "unknown",
-      "evidence": [],
-      "limitations": [
-        "Implementation result for TASK-651 changed covered assets after this inspection: ASSET-UI.",
-        "Scope drift from TASK-653 invalidated this inspection.",
-        "Implementation result for TASK-653 changed covered assets after this inspection: ASSET-UI."
+      "status": "performed",
+      "result": "pass",
+      "sufficiency": "sufficient",
+      "evidence": [
+        "docs/reliability/evidence/GATE-659/README.md",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/self-check.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-get_storage_summary-after-1h.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-live.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-after-relaunch.json",
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-1h.json"
       ],
-      "performed_at": null,
-      "performed_by": null,
+      "limitations": [
+        "Observed through the MCP helper and self-check across successive samples; the menu-bar popover was not screenshotted (its text is covered by StatusBoard tests on the candidate input)."
+      ],
+      "performed_at": "2026-10-04T13:31:23.468Z",
+      "performed_by": "claude",
       "invalidated_by": [
         "source",
         "generated",
@@ -4414,7 +4538,10 @@
         "configuration",
         "unknown"
       ],
-      "refresh_policy": "pre-audit"
+      "refresh_policy": "pre-audit",
+      "validated_through": {
+        "GATE-659": "EVENT-20261004T133108228425Z-3CFDC865"
+      }
     },
     {
       "id": "INSPECT-R4-GATE-669-SAFETY",
@@ -4691,6 +4818,37 @@
       "status": "open",
       "evidence": [
         "docs/reliability/evidence/TASK-652/README.md"
+      ],
+      "accepted_by": null,
+      "acceptance_reason": null
+    },
+    {
+      "id": "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+      "asset_ids": [
+        "ASSET-PRIVACY",
+        "ASSET-QUERY"
+      ],
+      "inspection_id": "INSPECT-R4-GATE-659-DISPLAY",
+      "title": "The MCP path privacy filter redacts 'sk-…' inside ordinary names ('.disk-steward-gate-659' became '.di[REDACTED]'); it hides rather than leaks; pre-existing",
+      "severity": "low",
+      "status": "open",
+      "evidence": [
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-live.json"
+      ],
+      "accepted_by": null,
+      "acceptance_reason": null
+    },
+    {
+      "id": "FIND-R4-JOURNAL-LIMIT",
+      "asset_ids": [
+        "ASSET-QUERY"
+      ],
+      "inspection_id": "INSPECT-R4-GATE-659-DISPLAY",
+      "title": "explain_growth's changed_directories ignores the request limit and uses a fixed 200-item window (still bounded by the response ceiling)",
+      "severity": "low",
+      "status": "open",
+      "evidence": [
+        "docs/reliability/evidence/GATE-659/installed-1.4.0/mcp-explain_growth-1h.json"
       ],
       "accepted_by": null,
       "acceptance_reason": null

@@ -1,0 +1,21 @@
+/private/tmp/ds-supervision-bootstrap.i1zlia1z
+success: passed
+timeout: passed
+detached: passed
+early-exit: passed
+Traceback (most recent call last):
+  File "/Users/merdankiji/localGit/disk_steward/Scripts/Testing/bootstrap_supervision.py", line 180, in <module>
+    main()
+  File "/Users/merdankiji/localGit/disk_steward/Scripts/Testing/bootstrap_supervision.py", line 161, in main
+    raise RuntimeError(stderr.decode()[-6000:])
+RuntimeError: Traceback (most recent call last):
+  File "/Users/merdankiji/localGit/disk_steward/Scripts/Testing/bootstrap_supervision.py", line 180, in <module>
+    main()
+  File "/Users/merdankiji/localGit/disk_steward/Scripts/Testing/bootstrap_supervision.py", line 138, in main
+    print(json.dumps(check_case(sys.argv[2], Path(sys.argv[3]))), flush=True)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/merdankiji/localGit/disk_steward/Scripts/Testing/bootstrap_supervision.py", line 124, in check_case
+    assert result["stopReason"] == expected, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'command': ['/Users/merdankiji/.local/share/mise/installs/python/3.12/bin/python3', '/Users/merdankiji/localGit/disk_steward/Scripts/Testing/bootstrap_supervision.py', 'fixture', 'retained-stdout', '/private/tmp/ds-supervision-bootstrap.i1zlia1z/retained-stdout'], 'exitCode': -15, 'stopReason': 'supervision-error', 'error': 'RuntimeError: Cannot classify new process 6772 (errno 0)', 'seconds': 0.2718718748074025, 'log': 'run.log', 'logSHA256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'passed': False, 'supervision': {'schema': 'process-supervision-v1', 'metric': 'aggregate-ri_phys_footprint', 'peakBytes': 18563864, 'memoryLimitBytes': 268435456, 'wallLimitSeconds': 5, 'outputLimitBytes': 4096, 'retainedOutputBytes': 0, 'processLimit': 4, 'terminationGraceSeconds': 0.15, 'pollSeconds': 0.025, 'cleanupVerified': True, 'remaining': [], 'cleanupErrors': [], 'signals': [{'pid': 6770, 'unique': 30965931, 'signal': 15, 'result': 'sent'}, {'pid': 6769, 'unique': 30965930, 'signal': 15, 'result': 'sent'}], 'identities': [{'pid': 6769, 'unique': 30965930, 'parent': 30965929, 'uid': 501, 'status': 2, 'pgid': 6769, 'start': 1791120708.339655}, {'pid': 6770, 'unique': 30965931, 'parent': 30965930, 'uid': 501, 'status': 2, 'pgid': 6770, 'start': 1791120708.372089}], 'limitations': ['Trusted direct process trees only; no launchd/XPC delegation or deliberate lineage hiding.', 'Sampled footprint can overshoot between polls; it is not a kernel hard quota.', 'Identity is rechecked before each PID signal; macOS exposes no public atomic PID+birth-ID kill.']}}
+

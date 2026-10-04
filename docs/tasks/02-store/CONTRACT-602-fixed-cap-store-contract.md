@@ -66,15 +66,13 @@ Define the storage rules every new store follows: a cap table, insert-time evict
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-CONTRACT-602-STORE`, `IMPACT-R4-CONTRACT-602-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-CONTRACT-602-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-CONTRACT-602-1 is stale
+- None
 
 
