@@ -1,0 +1,149 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-641",
+ "outcome": "implemented",
+ "changed_files": [
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleSummary.swift",
+  "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+  "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+  "Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift",
+  "docs/reliability/evidence/TASK-641/README.md",
+  "docs/reliability/evidence/TASK-641/focused-green/result.json",
+  "docs/reliability/evidence/TASK-641/focused-green/tests.log",
+  "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+  "docs/reliability/evidence/TASK-641/gap-budget-red/tests.log",
+  "docs/reliability/evidence/TASK-641/mut-prefix-coverage-verdict.json",
+  "docs/reliability/evidence/TASK-641/mut-whole-table-gap-budget.json",
+  "docs/reliability/evidence/TASK-641/mut-whole-table-retention-budget.json",
+  "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+  "docs/reliability/evidence/TASK-641/prefix-verdict-red/tests.log",
+  "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+  "docs/reliability/evidence/TASK-641/retention-budget-red/tests.log",
+  "docs/reliability/evidence/TASK-641/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-STORE",
+  "ASSET-QUERY",
+  "ASSET-IPC",
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleModels.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceLifecycleSummary.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardCoreTests/EvidenceStore/LifecycleProjectionTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/focused-green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/focused-green/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/gap-budget-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/gap-budget-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/mut-prefix-coverage-verdict.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/mut-whole-table-gap-budget.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/mut-whole-table-retention-budget.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/prefix-verdict-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/prefix-verdict-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/retention-budget-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/retention-budget-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-641/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 Scripts/Testing/bootstrap_supervision.py",
+   "result": "passed on main 2026-10-04 (docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log)"
+  },
+  {
+   "command": "docs/reliability/handoffs/harness/run-focused.py 'LifecycleProjection|EvidenceStoreTests|AuthoritativeMCPReadModel|StatusBoardPresentation|VolumePresentation|HelperVerification|ExportSafety|EvidenceBundle|AppEvidenceIPC|EvidenceQuery' 1800",
+   "result": "passed: 89 tests, input 5b4e533d, repository unchanged"
+  },
+  {
+   "command": "run-mutation.py mut-whole-table-gap-budget.json LifecycleProjection",
+   "result": "red as intended: 2 failures"
+  },
+  {
+   "command": "run-mutation.py mut-prefix-coverage-verdict.json LifecycleProjection",
+   "result": "red as intended: 2 assertion failures"
+  },
+  {
+   "command": "run-mutation.py mut-whole-table-retention-budget.json ForcedEviction",
+   "result": "red as intended: 2 failures"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-641-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-641/README.md"
+  },
+  {
+   "criterion": "AC-TASK-641-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-641/README.md"
+  }
+ ],
+ "discovered_risks": [
+  "Non-summary tools still read coverage gaps unbounded for their verdicts; TASK-671 replaces them."
+ ],
+ "suggested_graph_changes": []
+}

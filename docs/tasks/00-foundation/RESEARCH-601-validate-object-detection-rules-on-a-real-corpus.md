@@ -9,10 +9,10 @@
 - Workstream: `foundation`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `passed`
-- Health: `clear`
-- Availability: `verified`
-- Goal trace: `RESEARCH-601` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
+- Verification: `pending`
+- Health: `at-risk`
+- Availability: `implemented`
+- Goal trace: `RESEARCH-601` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
 
@@ -68,4 +68,5 @@ Measure how project markers, git ignore and git tracking classify candidate obje
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Required inspection INSPECT-RESEARCH-601-1 is stale
+
 

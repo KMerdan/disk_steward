@@ -3,6 +3,7 @@
 ## Tasks
 
 - [`GATE-639`](GATE-639-audit-shared-caches-in-scope.md) — Audit shared caches in scope
+- [`GATE-679`](GATE-679-audit-rung-4-agents-on-the-review.md) — Audit rung 4: agents on the review
 
 ## Parallelism
 

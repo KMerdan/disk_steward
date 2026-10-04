@@ -2088,10 +2088,21 @@ public actor EvidenceStore {
         }
     }
 
-    public func retentionCoverageGaps() throws -> [RetentionCoverageGap] {
+    /// Lifecycle status lists only the newest retention gaps. Forced eviction
+    /// records one gap per pressure run and rows live as long as their run
+    /// (1500), so a full listing would outgrow the summary budget; the total
+    /// travels in `EvidenceLifecycleStatus.retentionGapCount`.
+    static let retentionGapProjectionLimit = 128
+    /// Observation gaps are listed the same way. Open gaps are never pruned,
+    /// so coverage verdicts come from scalar queries over every row
+    /// (`openObservationGapCount`, `observationGapsOverlapWindow`), never
+    /// from the listed prefix.
+    static let observationGapProjectionLimit = 128
+
+    public func retentionCoverageGaps(limit: Int? = nil) throws -> [RetentionCoverageGap] {
         let connection = try requireConnection()
         return try connection.withStatement(
-            "SELECT gap_id, retention_run_id, reason, affected_precision, started_at, rows_removed FROM retention_coverage_gaps ORDER BY started_at DESC, gap_id DESC"
+            "SELECT gap_id, retention_run_id, reason, affected_precision, started_at, rows_removed FROM retention_coverage_gaps ORDER BY started_at DESC, gap_id DESC LIMIT \(limit.map { max($0, 0) } ?? -1)"
         ) { statement in
             var values: [RetentionCoverageGap] = []
             while sqlite3_step(statement) == SQLITE_ROW {
@@ -2212,13 +2223,19 @@ public actor EvidenceStore {
 
     /// A coherent, bounded metadata read. In particular, this never selects
     /// scan_generations.progress, even for pre-projection databases.
-    public func lifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date = Date()) throws -> EvidenceLifecycleSummary {
+    /// `gapWindow` asks, in the same snapshot, whether any observation gap
+    /// overlaps that interval.
+    public func lifecycleSummary(
+        _ policy: EvidenceStoreRetentionPolicy,
+        at date: Date = Date(),
+        gapWindow: (from: Date, through: Date)? = nil
+    ) throws -> EvidenceLifecycleSummary {
         try requireConnection().transaction(readOnly: true) {
-            try readLifecycleSummary(policy, at: date)
+            try readLifecycleSummary(policy, at: date, gapWindow: gapWindow)
         }
     }
 
-    private func readLifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date) throws -> EvidenceLifecycleSummary {
+    private func readLifecycleSummary(_ policy: EvidenceStoreRetentionPolicy, at date: Date, gapWindow: (from: Date, through: Date)?) throws -> EvidenceLifecycleSummary {
         let connection = try requireConnection()
         try Self.validateLifecycleSummaryBudget(connection: connection)
         let latest = try Self.readScanGenerationSummary(status: nil, connection: connection)
@@ -2243,17 +2260,32 @@ public actor EvidenceStore {
             guard step == SQLITE_ROW else { throw connection.lastError(step) }
             return Self.columnString(statement, column: 0)
         }
-        return .init(status: try readLifecycleStatus(policy, at: date, includePrivateProgress: false),
+        var summary = EvidenceLifecycleSummary(status: try readLifecycleStatus(policy, at: date, includePrivateProgress: false),
                      scanCoverage: scan, detailCoverage: scan?.detailCoverage ?? latestObservationCoverage ?? "unknown")
+        if let gapWindow {
+            summary.observationGapsOverlapWindow = try connection.withStatement(
+                "SELECT EXISTS(SELECT 1 FROM coverage_gaps WHERE started_at <= ? AND (ended_at IS NULL OR ended_at >= ?))"
+            ) { statement in
+                try connection.bind(gapWindow.through.timeIntervalSince1970, at: 1, in: statement)
+                try connection.bind(gapWindow.from.timeIntervalSince1970, at: 2, in: statement)
+                guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError() }
+                return sqlite3_column_int64(statement, 0) != 0
+            }
+        }
+        return summary
     }
 
     private static func validateLifecycleSummaryBudget(connection: SQLiteConnection) throws {
         var remainingBytes: Int64 = 512 * 1_024
         // Refuse before copying strings/decoding arrays; never claim a prefix
         // of gaps is complete. This runs in the same snapshot as the reads.
+        // Gap tables are the exception: the status reads a newest-first
+        // window and reports the total, so only that window is measured.
+        let retentionGapLimit = retentionGapProjectionLimit
+        let observationGapLimit = observationGapProjectionLimit
         for (table, columns, limit, suffix) in [
-            ("coverage_gaps", ["gap_id", "observation_id", "root_path", "reason"], 512, ""),
-            ("retention_coverage_gaps", ["gap_id", "retention_run_id", "reason", "affected_precision"], 512, ""),
+            ("coverage_gaps", ["gap_id", "observation_id", "root_path", "reason"], observationGapLimit, "ORDER BY started_at DESC, gap_id DESC LIMIT \(observationGapLimit)"),
+            ("retention_coverage_gaps", ["gap_id", "retention_run_id", "reason", "affected_precision"], retentionGapLimit, "ORDER BY started_at DESC, gap_id DESC LIMIT \(retentionGapLimit)"),
             ("export_records", ["export_id", "kind", "precision", "path_detail", "path", "manifest_sha256", "status", "failure"], 512, ""),
             ("retention_runs", ["run_id", "trigger", "result", "limitations"], 1, "ORDER BY started_at DESC, run_id DESC LIMIT 1"),
         ] {
@@ -2316,9 +2348,11 @@ public actor EvidenceStore {
         ]
         let runs = try retentionRuns(limit: 1)
         let scanCoverage = includePrivateProgress ? try scanCoverageStatus() : nil
-        var observationGaps = try readCoverageGaps(connection: connection, observationID: nil)
+        var observationGaps = try readCoverageGaps(connection: connection, observationID: nil, limit: Self.observationGapProjectionLimit)
+        var observationGapCount = Int(try connection.scalarInt("SELECT COUNT(*) FROM coverage_gaps"))
+        var openObservationGapCount = Int(try connection.scalarInt("SELECT COUNT(*) FROM coverage_gaps WHERE ended_at IS NULL"))
         if let active = scanCoverage?.activeGeneration {
-            observationGaps.append(contentsOf: active.roots
+            let incomplete = active.roots
                 .filter { $0.status != .completed }
                 .map { root in
                     EvidenceCoverageGap(
@@ -2329,9 +2363,12 @@ public actor EvidenceStore {
                         startedAt: active.startedAt,
                         endedAt: nil
                     )
-                })
+                }
+            observationGaps.append(contentsOf: incomplete)
+            observationGapCount += incomplete.count
+            openObservationGapCount += incomplete.count
         }
-        return EvidenceLifecycleStatus(
+        var status = EvidenceLifecycleStatus(
             observedAt: date,
             tiers: tiers,
             databaseBytes: storageBytes(),
@@ -2342,10 +2379,14 @@ public actor EvidenceStore {
             currentStateAllocatedBytes: try connection.scalarInt("SELECT COALESCE(SUM(allocated_bytes), 0) FROM current_file_state"),
             exportInventory: try exportRecords(refreshManualInventory: includePrivateProgress),
             observationGaps: observationGaps,
-            retentionGaps: try retentionCoverageGaps(),
+            retentionGaps: try retentionCoverageGaps(limit: Self.retentionGapProjectionLimit),
             scanCoverage: scanCoverage,
-            storage: try storageAccounting(connection: connection, capBytes: policy.maxDatabaseBytes, probeCheckpoint: includePrivateProgress)
+            storage: try storageAccounting(connection: connection, capBytes: policy.maxDatabaseBytes, probeCheckpoint: includePrivateProgress),
+            retentionGapCount: Int(try connection.scalarInt("SELECT COUNT(*) FROM retention_coverage_gaps"))
         )
+        status.observationGapCount = observationGapCount
+        status.openObservationGapCount = openObservationGapCount
+        return status
     }
 
     public func queryCurrentConsumers(
@@ -2971,8 +3012,8 @@ public actor EvidenceStore {
     ) throws -> [EvidenceCoverageGap] {
         let limitClause = limit == nil ? "" : " LIMIT ?"
         let sql = observationID == nil
-            ? "SELECT gap_id, observation_id, root_path, reason, started_at, ended_at FROM coverage_gaps ORDER BY started_at DESC\(limitClause)"
-            : "SELECT gap_id, observation_id, root_path, reason, started_at, ended_at FROM coverage_gaps WHERE observation_id = ? ORDER BY started_at DESC\(limitClause)"
+            ? "SELECT gap_id, observation_id, root_path, reason, started_at, ended_at FROM coverage_gaps ORDER BY started_at DESC, gap_id DESC\(limitClause)"
+            : "SELECT gap_id, observation_id, root_path, reason, started_at, ended_at FROM coverage_gaps WHERE observation_id = ? ORDER BY started_at DESC, gap_id DESC\(limitClause)"
         return try connection.withStatement(sql) { statement in
             var index: Int32 = 1
             if let observationID { try connection.bind(observationID, at: index, in: statement); index += 1 }
@@ -3759,6 +3800,36 @@ public actor EvidenceStore {
     /// The active scan generation, if one is open.
     public func activeScanGeneration() throws -> MetadataScanGeneration? {
         try Self.readScanGeneration(status: .active, connection: requireConnection())
+    }
+
+    /// The active generation's scalar projection, without decoding its
+    /// private traversal checkpoint.
+    public func activeScanGenerationSummary() throws -> EvidenceScanGenerationSummary? {
+        let connection = try requireConnection()
+        return try connection.transaction(readOnly: true) {
+            try Self.readScanGenerationSummary(status: "active", connection: connection)
+        }
+    }
+
+    /// Abandons the active generation and discards its unpublished staging,
+    /// as a scope change does. Retained current evidence is unchanged.
+    @discardableResult
+    public func abandonActiveScanGeneration(reason: String, at date: Date = Date()) throws -> String? {
+        let connection = try requireConnection()
+        var abandonedID: String?
+        try connection.transaction {
+            guard let active = try Self.readScanGeneration(status: .active, connection: connection) else { return }
+            let abandoned = Self.copyScanGeneration(
+                active, status: .abandoned, updatedAt: date, completedAt: date,
+                limitations: active.limitations + [reason]
+            )
+            try Self.persistScanGeneration(abandoned, rowStatus: .abandoned, connection: connection)
+            try connection.execute("DELETE FROM scan_generation_entries WHERE generation_id = '\(Self.sqlLiteral(active.generationID))'")
+            try connection.execute("DELETE FROM scan_directory_passes WHERE generation_id = '\(Self.sqlLiteral(active.generationID))'")
+            try Self.deleteFrontier(generationID: active.generationID, connection: connection)
+            abandonedID = active.generationID
+        }
+        return abandonedID
     }
 
     /// `demandHint` is the work about to be admitted; a write-ahead log that is

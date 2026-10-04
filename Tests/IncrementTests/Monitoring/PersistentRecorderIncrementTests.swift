@@ -11,7 +11,9 @@ final class PersistentRecorderIncrementTests: XCTestCase {
         var settings = MonitoringSettings.defaults
         settings.watchedRoots = [fixture.watched.path]
         settings.excludedRoots = []
-        settings.capacityThresholdPercent = 50
+        // The real volume is sampled; keep the capacity alert out of the count
+        // on any machine that is not nearly full.
+        settings.capacityThresholdPercent = 99
         settings.growthThresholdMiB = 1
         settings.maxDatabaseMiB = 10
         let settingsStore = MonitoringSettingsStore(persistence: EphemeralSettingsPersistence())

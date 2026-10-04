@@ -9,9 +9,9 @@
 - Workstream: `product`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `passed`
-- Health: `clear`
-- Availability: `verified`
+- Verification: `pending`
+- Health: `at-risk`
+- Availability: `implemented`
 - Goal trace: `TASK-617` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -83,12 +83,18 @@ Repair the observed dashboard update path with one observation-bound presentatio
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-LIFECYCLE`, `ASSET-SCANNER`, `ASSET-UI`
 - Inspections: `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-UI lacks a sufficient passing inspection
+- Required inspection INSPECT-R3-617-MEASUREMENT is stale
+- Required inspection INSPECT-R3-617-PRESENTATION is stale
+
 

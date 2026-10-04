@@ -102,4 +102,58 @@ final class StorageRecoveryIncrementTests: XCTestCase {
         XCTAssertEqual(sixth.evidenceLifecycle?.storage?.admission, .capacityLimited)
         await store.close()
     }
+
+    /// TASK-614: at an unchanged cap, refusal on consecutive samples stops the
+    /// generation instead of re-staging and evicting forever; its staging is
+    /// discarded and raising the cap lifts the stop.
+    func testConsecutiveRefusalsAtTheSameCapStopTheScan() async throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "storage-stop-\(UUID().uuidString)", directoryHint: .isDirectory)
+        let watched = directory.appending(path: "watch", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        for index in 0..<6_000 {
+            let bucket = watched.appending(path: "bucket-\(index % 12)", directoryHint: .isDirectory)
+            if index < 12 { try FileManager.default.createDirectory(at: bucket, withIntermediateDirectories: true) }
+            try Data([7]).write(to: bucket.appending(path: String(format: "s-%05d", index)))
+        }
+        let databaseURL = directory.appending(path: "support/evidence.sqlite")
+        var settings = MonitoringSettings.defaults
+        settings.watchedRoots = [watched.path]
+        settings.excludedRoots = []
+        settings.maxDatabaseMiB = 10
+        let probe = try PersistentMonitoringProbe(
+            databaseURL: databaseURL,
+            resourceBudget: ResourceBudget(maximumResidentBytes: 2 * 1_024 * 1_024 * 1_024),
+            resourceMeasurementSource: { url, load in
+                .init(cpuPercent: 0, residentBytes: 0, databaseBytes: Self.fileBytes(url), pendingEvents: 0, receivedEvents: 0, droppedEvents: 0, underLoad: load)
+            },
+            volumeSampleSource: { _ in
+                let snapshot = StorageSnapshot(snapshotID: UUID().uuidString, observedAt: EvidenceTimestamp.format(Date()),
+                    volumes: [.init(mountPath: "/", totalBytes: 1_000, availableBytes: 500, isInternal: true, isReadOnly: false)])
+                return (snapshot, .init(observedAt: snapshot.observedAt, usedByteDeltas: ["/": 0], limitations: []))
+            },
+            continuationBudget: 10
+        )
+        for sample in 1...3 {
+            let refused = try await probe.sample(settings: settings)
+            XCTAssertTrue(refused.scanStalled, "sample \(sample)")
+            XCTAssertNil(refused.scanStop, "sample \(sample) is still explicit non-progress")
+        }
+        let stopped = try await probe.sample(settings: settings)
+        let stop = try XCTUnwrap(stopped.scanStop)
+        XCTAssertEqual(stop.reason, .storageRefused)
+        XCTAssertFalse(stopped.needsScanContinuation)
+        XCTAssertEqual(stopped.evidenceLifecycle?.storage?.stagedRowCount, 0, "Abandoning discards the unpublished staging")
+        let still = try await probe.sample(settings: settings)
+        XCTAssertEqual(still.scanStop, stop, "The stop holds at the same cap")
+
+        settings.maxDatabaseMiB = 64
+        let resumed = try await probe.sample(settings: settings)
+        XCTAssertNil(resumed.scanStop, "Raising the cap lifts the stop")
+        XCTAssertFalse(resumed.needsScanContinuation, "\(resumed.growthReport.limitations)")
+        let store = try EvidenceStore(url: databaseURL)
+        let published = try await store.currentFiles()
+        XCTAssertEqual(published.count, 6_000)
+        await store.close()
+    }
 }

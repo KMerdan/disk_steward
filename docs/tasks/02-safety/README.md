@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`TASK-614`](TASK-614-refuse-a-scope-that-cannot-fit-and-say-so.md) — Refuse a scope that cannot fit and say so
+- [`TASK-614`](TASK-614-stop-a-scan-that-cannot-converge-and-say-so.md) — Stop a scan that cannot converge and say so
 
 ## Parallelism
 

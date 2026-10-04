@@ -1,0 +1,519 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-006-R4",
+ "stage": "candidate",
+ "outcome": "simplified",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 3,
+  "sha256": "96dfc2c91e1bb44e16ccd65ae7f223a62db23bcc767c6a87eaaec5a2493b8c0b"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "revision": 4,
+  "sha256": "5bff98e14b4e6c53ba9623e854cbb8afac37e0991e3fe289509138280a3be174"
+ },
+ "facts": [
+  {
+   "id": "FACT-R4-ROW-COST",
+   "claim": "Per-file storage costs about 3.3 KB including staging; the watched roots hold 2.15 M entries (about 7 GB) against a 512 MiB cap, and 1.09 M entries remain outside recognized objects in localGit.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "EV-R4-ROW-COST",
+    "docs/product/redesign-bounded-review.md"
+   ],
+   "supports": [
+    "OUTCOME-660",
+    "TASK-621"
+   ],
+   "freshness": "2026-10-04"
+  },
+  {
+   "id": "FACT-R4-NONCONVERGENCE",
+   "claim": "The active generation processed 488 M entries while staging 123,280 files since 2026-09-18; app CPU sampled at 47% (09-23) and 67% (10-04).",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "EV-R4-NONCONVERGENCE"
+   ],
+   "supports": [
+    "TASK-614",
+    "OUTCOME-640"
+   ],
+   "freshness": "2026-10-04"
+  },
+  {
+   "id": "FACT-R4-LOCKOUT",
+   "claim": "Forced-eviction gap rows exceeded the 512-row summary budget and refused the summary tools and helper self-check; a windowed reader fixes it with green and mutation-red evidence on the hotfix branch.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "EV-R4-LOCKOUT",
+    "docs/reliability/evidence/HOTFIX-1.2.4/README.md (hotfix worktree)"
+   ],
+   "supports": [
+    "TASK-641",
+    "TASK-642"
+   ],
+   "freshness": "2026-10-04"
+  },
+  {
+   "id": "FACT-R4-HISTORY",
+   "claim": "Pressure eviction erased the app's capacity history to five minutes.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "EV-R4-HISTORY-EVICTED"
+   ],
+   "supports": [
+    "TASK-651"
+   ],
+   "freshness": "2026-10-04"
+  },
+  {
+   "id": "FACT-R4-BENCHMARK",
+   "claim": "A pruned metadata walk plus du covers localGit in about 30 s warm and finds about 150 GiB worth reviewing across objects and tool caches.",
+   "classification": "observed",
+   "verdict": "qualified",
+   "confidence": "medium",
+   "references": [
+    "EV-R4-BENCHMARK"
+   ],
+   "supports": [
+    "TASK-621",
+    "TASK-631",
+    "GATE-669"
+   ],
+   "freshness": "2026-10-04 (warm cache only; cold cache unmeasured)"
+  },
+  {
+   "id": "FACT-R4-COLLECTOR",
+   "claim": "The existing FSEvents collector starts SinceNow with file-level events, so it cannot replay intervals.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift"
+   ],
+   "supports": [
+    "TASK-652"
+   ],
+   "freshness": "main 345c072"
+  },
+  {
+   "id": "FACT-R4-VERIFIED-WORK",
+   "claim": "Classification, object pruning, verification containment and dashboard consistency (RESEARCH-601, CONTRACT-601, TASK-611, TASK-612, TASK-616, TASK-617) remain valid under the redesign; per-file collapse and the always-on probe (TASK-613, TASK-615) do not.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    ".pyramid/state.json",
+    "docs/product/redesign-bounded-review.md#keep-and-retire"
+   ],
+   "supports": [
+    "TASK-611",
+    "TASK-612",
+    "TASK-616",
+    "TASK-617"
+   ],
+   "freshness": "2026-10-04"
+  },
+  {
+   "id": "FACT-R4-TCC",
+   "claim": "Whether FSEvents reports changes inside TCC-protected folders without Full Disk Access is unknown.",
+   "classification": "unknown",
+   "verdict": "unsupported",
+   "confidence": "low",
+   "references": [
+    "ASM-604"
+   ],
+   "supports": [
+    "TASK-652"
+   ],
+   "freshness": "unverified"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FIND-R4-01",
+   "class": "unsupported-claim",
+   "affected_nodes": [
+    "OUTCOME-610",
+    "TASK-613",
+    "TASK-615"
+   ],
+   "claim": "Rung 1's premise that an always-on scan with object collapse finishes inside the store limit is contradicted by measured unit cost and corpus size.",
+   "evidence": [
+    "FACT-R4-ROW-COST",
+    "FACT-R4-NONCONVERGENCE"
+   ],
+   "counterevidence": [
+    "FACT-R4-VERIFIED-WORK"
+   ],
+   "disposition": "applied",
+   "change": "Supersede OUTCOME-610/620/630, their gates, TASK-613 and TASK-615; replace with the four-rung ladder OUTCOME-640 to 670 on capacity ring, change journal and bounded review.",
+   "rationale": "No cap that fits a laptop store holds 1.09 M current-state rows; verified classification and pruning work is retained and re-attached to rung 3."
+  },
+  {
+   "id": "FIND-R4-02",
+   "class": "under-decomposition",
+   "affected_nodes": [
+    "OUTCOME-640",
+    "TASK-641",
+    "TASK-642"
+   ],
+   "claim": "No task owned the summary lockout or capacity's dependence on the detail store, which disabled the user's MCP integration.",
+   "evidence": [
+    "FACT-R4-LOCKOUT"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "Add TASK-641 (windowed readers) and TASK-642 (independent capacity path) to rung 1.",
+   "rationale": "Distinct effects and write scopes; both are needed before any later rung can be exercised by an agent."
+  },
+  {
+   "id": "FIND-R4-03",
+   "class": "duplicate-work",
+   "affected_nodes": [
+    "TASK-614"
+   ],
+   "claim": "The redesign's convergence stop duplicates TASK-614's refuse-and-say-so purpose.",
+   "evidence": [
+    "FACT-R4-NONCONVERGENCE"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "Reuse TASK-614 with a convergence-stop contract instead of adding a new task.",
+   "rationale": "Same purpose, unstarted, same write scope."
+  },
+  {
+   "id": "FIND-R4-04",
+   "class": "accidental-serialization",
+   "affected_nodes": [
+    "TASK-631",
+    "TASK-623"
+   ],
+   "claim": "The cache catalog waited on the review window although it consumes only the walker.",
+   "evidence": [
+    "FACT-R4-BENCHMARK"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "TASK-631 now requires TASK-621; TASK-623 requires TASK-631 so the window shows cache items.",
+   "rationale": "Removes a false wait and keeps the window after its inputs."
+  },
+  {
+   "id": "FIND-R4-05",
+   "class": "unjustified-dependency",
+   "affected_nodes": [
+    "TASK-614"
+   ],
+   "claim": "The convergence stop does not consume the object evidence contract.",
+   "evidence": [
+    "FACT-R4-NONCONVERGENCE"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "Remove TASK-614 contract-requires CONTRACT-601.",
+   "rationale": "No consumed artifact."
+  },
+  {
+   "id": "FIND-R4-06",
+   "class": "ambiguous-acceptance",
+   "affected_nodes": [
+    "INTENT-006",
+    "TASK-621",
+    "GATE-669"
+   ],
+   "claim": "REQ-601 named a million-file scope without a time bound or the case where the budget stops the review.",
+   "evidence": [
+    "FACT-R4-BENCHMARK"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "REQ-601 now names the real localGit scope under 60 s and requires an honest partial report for larger scopes.",
+   "rationale": "Measurable on the maintainer's Mac and strictly stronger on coverage honesty."
+  },
+  {
+   "id": "FIND-R4-07",
+   "class": "speculative-scope",
+   "affected_nodes": [
+    "TASK-623",
+    "TASK-651"
+   ],
+   "claim": "The 09-23 notch island surface is not needed for any success item.",
+   "evidence": [
+    "FACT-R4-VERIFIED-WORK"
+   ],
+   "counterevidence": [],
+   "disposition": "deferred",
+   "change": "Listed as a non-goal of TASK-623 and TASK-651; revisit after rung 3.",
+   "rationale": "Large display-specific surface with no requirement depending on it."
+  },
+  {
+   "id": "FIND-R4-08",
+   "class": "unsupported-claim",
+   "affected_nodes": [
+    "TASK-652"
+   ],
+   "claim": "Change-journal coverage of TCC-protected folders is unknown.",
+   "evidence": [
+    "FACT-R4-TCC"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "Recorded as ASM-604 with TASK-652 acceptance requiring an observation; review covers those scopes if events are absent.",
+   "rationale": "Makes the load-bearing uncertainty explicit and early."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-601",
+   "before_nodes": [
+    "GATE-619",
+    "OUTCOME-610",
+    "TASK-612",
+    "TASK-614",
+    "TASK-615",
+    "TASK-616",
+    "TASK-617"
+   ],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-669",
+    "OUTCOME-640",
+    "OUTCOME-660",
+    "TASK-612",
+    "TASK-614",
+    "TASK-616",
+    "TASK-617",
+    "TASK-621"
+   ],
+   "status": "strengthened"
+  },
+  {
+   "requirement": "REQ-602",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-619",
+    "OUTCOME-610",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "RESEARCH-601",
+    "TASK-611"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-603",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-619",
+    "GATE-629",
+    "OUTCOME-610",
+    "OUTCOME-620",
+    "TASK-611",
+    "TASK-612",
+    "TASK-613",
+    "TASK-615",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-611",
+    "TASK-612",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-604",
+   "before_nodes": [
+    "GATE-639",
+    "OUTCOME-630",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-631"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-605",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-629",
+    "OUTCOME-620",
+    "TASK-623"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-669",
+    "OUTCOME-660",
+    "TASK-622",
+    "TASK-623"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-606",
+   "before_nodes": [
+    "CONTRACT-601",
+    "GATE-619",
+    "OUTCOME-610",
+    "TASK-613",
+    "TASK-615",
+    "TASK-616"
+   ],
+   "after_nodes": [
+    "CONTRACT-601",
+    "GATE-659",
+    "OUTCOME-650",
+    "TASK-616",
+    "TASK-653"
+   ],
+   "status": "strengthened"
+  },
+  {
+   "requirement": "REQ-607",
+   "before_nodes": [
+    "GATE-619",
+    "GATE-629",
+    "GATE-639",
+    "OUTCOME-610",
+    "OUTCOME-620",
+    "OUTCOME-630",
+    "TASK-614",
+    "TASK-617",
+    "TASK-621",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631"
+   ],
+   "after_nodes": [
+    "GATE-669",
+    "GATE-679",
+    "OUTCOME-660",
+    "OUTCOME-670",
+    "TASK-617",
+    "TASK-622",
+    "TASK-623",
+    "TASK-631",
+    "TASK-671"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-608",
+   "before_nodes": [],
+   "after_nodes": [
+    "GATE-649",
+    "GATE-659",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "TASK-641",
+    "TASK-642",
+    "TASK-651"
+   ],
+   "status": "strengthened"
+  },
+  {
+   "requirement": "REQ-609",
+   "before_nodes": [],
+   "after_nodes": [
+    "GATE-659",
+    "GATE-669",
+    "OUTCOME-650",
+    "OUTCOME-660",
+    "TASK-652",
+    "TASK-661",
+    "TASK-672"
+   ],
+   "status": "strengthened"
+  },
+  {
+   "requirement": "REQ-610",
+   "before_nodes": [],
+   "after_nodes": [
+    "GATE-679",
+    "OUTCOME-670",
+    "TASK-671",
+    "TASK-672"
+   ],
+   "status": "strengthened"
+  },
+  {
+   "requirement": "REQ-611",
+   "before_nodes": [],
+   "after_nodes": [
+    "CONTRACT-602",
+    "GATE-649",
+    "GATE-659",
+    "GATE-679",
+    "OUTCOME-640",
+    "OUTCOME-650",
+    "OUTCOME-670",
+    "TASK-614",
+    "TASK-621",
+    "TASK-641",
+    "TASK-651",
+    "TASK-652",
+    "TASK-653",
+    "TASK-671"
+   ],
+   "status": "strengthened"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "strengthened",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "preserved",
+  "audit_closure": "strengthened",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 20,
+   "executable_nodes": 16,
+   "edges": 57,
+   "hard_dependencies": 22,
+   "audit_gates": 3
+  },
+  "after": {
+   "nodes": 29,
+   "executable_nodes": 24,
+   "edges": 87,
+   "hard_dependencies": 34,
+   "audit_gates": 4
+  }
+ },
+ "summary": "Intent ID and statement, constraints and non-goals are unchanged. Success evidence is strengthened: REQ-601 and REQ-606 are sharpened and REQ-608 to REQ-611 add capacity independence, change attribution, bounded agent access and fixed storage caps, as approved by the user on 2026-10-04. The always-on scanner ladder is superseded by four installable rungs; six verified nodes are retained but re-attached, so the runtime marks them for re-audit at their new gates.",
+ "limitations": [
+  "The benchmark is warm-cache; cold-cache timing is an acceptance item of TASK-621.",
+  "Re-attaching verified nodes stales their verification by design; their historical evidence is retained but must be re-audited.",
+  "Brownfield impact for added tasks is mapped after apply through pyramid impact."
+ ]
+}

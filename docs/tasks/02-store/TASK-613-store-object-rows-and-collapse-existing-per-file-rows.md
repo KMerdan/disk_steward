@@ -7,8 +7,8 @@
 - Level: `5`
 - Wave: `2`
 - Workstream: `store`
-- Selection: `primary`
-- Execution: `implemented`
+- Selection: `superseded`
+- Execution: `superseded`
 - Verification: `passed`
 - Health: `clear`
 - Availability: `verified`
@@ -35,8 +35,8 @@ Add the durable object row from the contract and migrate an existing store by co
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, passed)
-- `TASK-611` (requires, passed)
+- `CONTRACT-601` (contract-requires, pending)
+- `TASK-611` (requires, pending)
 
 ## Required Context
 
@@ -71,4 +71,5 @@ Add the durable object row from the contract and migrate an existing store by co
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-TASK-613-1 is stale
+
 

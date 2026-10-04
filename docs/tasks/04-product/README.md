@@ -2,7 +2,10 @@
 
 ## Tasks
 
-- [`TASK-622`](TASK-622-rank-objects-by-reclaim-value.md) — Rank objects by reclaim value
+- [`TASK-622`](TASK-622-review-report-and-ranking.md) — Review report and ranking
+- [`TASK-631`](TASK-631-cache-catalog-with-recreate-classes.md) — Cache catalog with recreate classes
+- [`TASK-651`](TASK-651-capacity-ring-and-reserve-guard.md) — Capacity ring and reserve guard
+- [`TASK-672`](TASK-672-task-impact-from-sessions-and-dirty-sets.md) — Task impact from sessions and dirty sets
 
 ## Parallelism
 

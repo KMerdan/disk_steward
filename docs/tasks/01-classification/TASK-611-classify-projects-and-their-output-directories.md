@@ -9,10 +9,10 @@
 - Workstream: `classification`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `passed`
-- Health: `clear`
-- Availability: `verified`
-- Goal trace: `TASK-611` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
+- Verification: `pending`
+- Health: `at-risk`
+- Availability: `implemented`
+- Goal trace: `TASK-611` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
 
@@ -36,8 +36,8 @@ Detect project roots from repository and manifest markers, then classify their k
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, passed)
-- `RESEARCH-601` (requires, passed)
+- `CONTRACT-601` (contract-requires, pending)
+- `RESEARCH-601` (requires, pending)
 
 ## Required Context
 
@@ -72,4 +72,5 @@ Detect project roots from repository and manifest markers, then classify their k
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Required inspection INSPECT-TASK-611-1 is stale
+
 

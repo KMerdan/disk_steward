@@ -45,7 +45,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             evidenceDatabaseURL = databaseURL
             probe = try PersistentMonitoringProbe(databaseURL: databaseURL)
         } catch {
-            probe = UnavailableMonitoringProbe(reason: error.localizedDescription)
+            // Capacity does not depend on the evidence store; keep it live.
+            probe = CapacityOnlyMonitoringProbe(reason: "the evidence store could not be opened: \(error.localizedDescription)")
         }
         lifecycle = MonitoringLifecycleController(
             settingsStore: settingsStore, probe: probe,

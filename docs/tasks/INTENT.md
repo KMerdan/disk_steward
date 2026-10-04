@@ -5,13 +5,17 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Success Evidence
 
-- `REQ-601` — A scan of a scope containing a million files behind objects completes and publishes current state inside the configured storage limit.
+- `REQ-601` — A review of a real-sized scope (the maintainer's localGit, about 2 M entries) completes in under 60 s and persists no per-file rows; a larger scope, including a synthetic million-file tree, stops inside its time, entry and storage budgets with a partial report that states its coverage.
 - `REQ-602` — A directory is classified as build output only on project evidence; a directory tracked by its repository is never classified as an artifact.
 - `REQ-603` — Each object reports size, file count, owning project, detection confidence, measurement freshness and rebuild command, and stores no per-file rows inside itself.
 - `REQ-604` — Shared tool-owned caches outside watched roots are discoverable as objects under the same contract, only after explicit opt-in.
 - `REQ-605` — A repository is measured as one object and is never offered as a cleanup candidate.
-- `REQ-606` — An existing installation migrates by collapsing per-file rows into objects without losing unrelated evidence, with a rehearsed rollback.
+- `REQ-606` — An existing installation migrates without losing evidence: the legacy per-file store is kept unmodified, read-only and exportable, is removed only after explicit user confirmation, and rollback to the previous version is rehearsed.
 - `REQ-607` — Objects are ranked by reclaim value from recorded inputs, and cleanup candidates always require human review.
+- `REQ-608` — Live free space and the distance to the user's reserve are always answered by the board, the helper self-check and MCP, independent of the detail store's state.
+- `REQ-609` — Growth since a chosen time is attributed to changed directories and measured objects from the file-system change journal without walking the disk, with the unexplained remainder and journal gaps stated.
+- `REQ-610` — An agent reads the same review, growth and impact answers through bounded read-only MCP tools; no tool starts unbounded work.
+- `REQ-611` — Every persisted table has a fixed row cap enforced at write and every reader a bounded window, so app storage stays under 32 MiB and idle CPU stays below 0.5% of one core.
 
 ## Constraints
 
@@ -31,5 +35,6 @@ Disk Steward treats build output, shared developer caches and repositories as si
 ## Assumptions
 
 - `ASM-601` (high) — Project markers plus git ignore and tracking classify enough of a real corpus to be useful, with a manifest-anchored fallback where no repository exists.
-- `ASM-602` (medium) — Recursive sizing of objects on a bounded schedule, driven by file-system events, stays inside the existing resource budgets.
-- `ASM-603` (medium) — Collapsing existing per-file rows into objects is migratable and reversible on a real installed store.
+- `ASM-602` (medium) — A metadata-only walk that prunes at classified objects and sums allocated sizes in memory reviews the maintainer's localGit plus the cache catalog in under 60 s, cold or warm cache.
+- `ASM-603` (high) — Renaming the legacy store and opening it read-only preserves export, and renaming it back restores the previous version without evidence loss.
+- `ASM-604` (medium) — A directory-level FSEvents stream replayed from a persisted event ID covers sleep and relaunch intervals for the configured scopes, and reports drops as flags rather than silence; behaviour inside TCC-protected folders without Full Disk Access is unknown.

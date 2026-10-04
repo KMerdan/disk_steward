@@ -62,6 +62,82 @@ final class LifecycleProjectionTests: XCTestCase {
         await store.close()
     }
 
+    func testForcedEvictionGapsAtTheRunCapStayWithinTheSummaryBudget() async throws {
+        let root = try temporaryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let database = root.appending(path: "evidence.sqlite")
+        let store = try EvidenceStore(url: database)
+        _ = try await store.applyRetention(try .init(), trigger: .manual)
+        let fixture = try SQLiteConnection(url: database)
+        // One gap per pressure run, as long as runs are kept (1500): the shape
+        // a store pinned at its cap reaches. Both the old row and byte checks
+        // would refuse it.
+        try fixture.execute("""
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 1500)
+            INSERT INTO retention_runs (run_id, trigger, policy, started_at, storage_bytes_before, result, limitations)
+            SELECT printf('pressure-%036d', i), 'pressure', '{}', 1000000 + i, 0, 'completed', '[]' FROM n;
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 1500)
+            INSERT INTO retention_coverage_gaps (gap_id, retention_run_id, reason, affected_precision, started_at, rows_removed)
+            SELECT printf('gap-pressure-%036d', i), printf('pressure-%036d', i), 'database-cap-forced-eviction', 'oldest-retained-history', 1000000 + i, i FROM n;
+            """)
+        XCTAssertGreaterThan(try fixture.scalarInt("SELECT SUM(256 + length(gap_id) + length(retention_run_id) + length(reason) + length(affected_precision)) FROM retention_coverage_gaps"), 512 * 1_024)
+        let limit = EvidenceStore.retentionGapProjectionLimit
+        let summary = try await store.lifecycleSummary(try .init())
+        let full = try await store.lifecycleStatus(try .init())
+        for status in [summary.status, full] {
+            XCTAssertEqual(status.retentionGaps.count, limit)
+            XCTAssertEqual(status.retentionGapCount, 1_500)
+            XCTAssertEqual(status.retentionGaps.first?.gapID, String(format: "gap-pressure-%036d", 1_500))
+            XCTAssertEqual(status.retentionGaps.last?.gapID, String(format: "gap-pressure-%036d", 1_500 - limit + 1))
+        }
+        // The window is still measured before decode: one oversized listed gap refuses.
+        try fixture.execute("UPDATE retention_coverage_gaps SET reason = zeroblob(600000) WHERE started_at = 1001500")
+        do { _ = try await store.lifecycleSummary(try .init()); XCTFail("Expected pre-decode refusal") }
+        catch { XCTAssertEqual(error as? EvidenceLifecycleSummaryError, .budgetExceeded) }
+        fixture.close()
+        await store.close()
+    }
+
+    func testObservationGapVerdictsCoverRowsBeyondTheListedWindow() async throws {
+        let root = try temporaryRoot()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let watched = root.appending(path: "watch", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        try Data([1]).write(to: watched.appending(path: "recorded.bin"))
+        let database = root.appending(path: "evidence.sqlite")
+        let observedAt = Date(timeIntervalSince1970: 1_780_000_000)
+        let policy = MonitoringPolicy(watchedRoots: [watched])
+        let store = try EvidenceStore(url: database)
+        _ = try await store.recordObservation(
+            snapshot: .init(snapshotID: "open-gaps", observedAt: EvidenceTimestamp.format(observedAt), volumes: []),
+            metadata: DirectoryMetadataScanner().scan(policy: policy, at: observedAt),
+            scope: policy.scopeVersion(at: observedAt), trigger: .scheduled)
+        let fixture = try SQLiteConnection(url: database)
+        try fixture.execute("""
+            INSERT INTO coverage_gaps (gap_id, observation_id, root_path, reason, started_at, ended_at, state)
+            SELECT 'gap-old-open', observation_id, '/fixture', 'entry-cap', 1700000000, NULL, 'open' FROM observation_runs LIMIT 1;
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 600)
+            INSERT INTO coverage_gaps (gap_id, observation_id, root_path, reason, started_at, ended_at, state)
+            SELECT printf('gap-resolved-%04d', i), (SELECT observation_id FROM observation_runs LIMIT 1), '/fixture', 'app-offline', 1790000000 + i, 1790000000 + i + 1, 'resolved' FROM n;
+            """)
+        let total = Int(try fixture.scalarInt("SELECT COUNT(*) FROM coverage_gaps"))
+        let limit = EvidenceStore.observationGapProjectionLimit
+        let summary = try await store.lifecycleSummary(try .init(),
+            gapWindow: (Date(timeIntervalSince1970: 1_700_000_100), Date(timeIntervalSince1970: 1_700_000_200)))
+        XCTAssertEqual(summary.status.observationGaps.count, limit)
+        XCTAssertFalse(summary.status.observationGaps.contains { $0.gapID == "gap-old-open" })
+        XCTAssertEqual(summary.status.observationGapCount, total)
+        XCTAssertEqual(summary.status.openObservationGapCount, 1)
+        XCTAssertEqual(summary.observationGapsOverlapWindow, true)
+        let disjoint = try await store.lifecycleSummary(try .init(),
+            gapWindow: (Date(timeIntervalSince1970: 1_699_000_000), Date(timeIntervalSince1970: 1_699_000_100)))
+        XCTAssertEqual(disjoint.observationGapsOverlapWindow, false)
+        let unwindowed = try await store.lifecycleSummary(try .init())
+        XCTAssertNil(unwindowed.observationGapsOverlapWindow)
+        fixture.close()
+        await store.close()
+    }
+
     func testProjectionAndPrivateProgressCommitOrRollbackTogether() async throws {
         let root = try temporaryRoot()
         defer { try? FileManager.default.removeItem(at: root) }

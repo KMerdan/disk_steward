@@ -4,7 +4,26 @@ import DiskStewardCore
 import Foundation
 
 actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
-    private let store: EvidenceStore
+    private let databaseURL: URL
+    private var openedStore: EvidenceStore?
+    /// The evidence store opens lazily and is retried on every use, so a
+    /// missing, locked or corrupt store never takes the socket or live
+    /// capacity down with it.
+    private var store: EvidenceStore {
+        get throws {
+            if let openedStore { return openedStore }
+            do {
+                let opened = try EvidenceStore(url: databaseURL)
+                openedStore = opened
+                return opened
+            } catch {
+                throw DiskStewardIPCError.remote(
+                    code: "detail_unavailable",
+                    message: "File-detail evidence is unavailable: the evidence store could not be opened (\(error.localizedDescription)). Live capacity is still answered by get_storage_summary.",
+                    retryable: true)
+            }
+        }
+    }
     private let exporter = EvidenceBundleExporter()
     private let registry: AgentSessionRegistry
     private let challengeDigest: String
@@ -49,8 +68,9 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         // never sweep the shared process-user temp directory or another instance.
         inlineExportBase = temporaryExportDirectory ?? databaseURL.deletingLastPathComponent()
             .appending(path: "temporary-exports", directoryHint: .isDirectory)
-        let evidenceStore = try EvidenceStore(url: databaseURL)
-        store = evidenceStore
+        self.databaseURL = databaseURL
+        let evidenceStore = try? EvidenceStore(url: databaseURL)
+        openedStore = evidenceStore
         let seed = Data(UUID().uuidString.utf8)
         challengeDigest = SHA256.hash(data: seed).map { String(format: "%02x", $0) }.joined()
         registry = AgentSessionRegistry(
@@ -232,12 +252,11 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         }
     }
 
+    /// Live capacity never depends on the evidence store. Each detail part is
+    /// read on its own; a failing part becomes null with `detail_status`
+    /// unavailable and its reason, so freshness survives a refused summary.
     private func storageSummary() async throws -> JSONValue {
         let snapshot = try VolumeSnapshotService().capture()
-        let publicLifecycle = try await store.lifecycleSummary(retentionPolicyProvider())
-        let lifecycle = publicLifecycle.status
-        let diagnostics = try await store.diagnostics()
-        let latestObservation = try await store.latestObservationAt()
         let volumes = snapshot.volumes.map { volume in
             JSONValue.object([
                 "mount_path": .string(volume.mountPath),
@@ -246,23 +265,106 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
                 "available_bytes": .integer(volume.availableBytes),
             ])
         }
+        // A locked store must not hold capacity hostage: detail shares one
+        // short budget, and an expired read is cancelled.
+        let deadline = Date().addingTimeInterval(Self.storageDetailBudget)
+        let (latestObservation, observationFailure) = try await readDetail("persisted state", deadline: deadline) { try await $0.latestObservationAt() }
+        let (publicLifecycle, lifecycleFailure) = try await readDetail("lifecycle summary", deadline: deadline) { try await $0.lifecycleSummary(self.retentionPolicyProvider()) }
+        let (diagnostics, diagnosticsFailure) = try await readDetail("store diagnostics", deadline: deadline) { try await $0.diagnostics() }
+        try Task.checkCancellation()
+        let reasons = [observationFailure, lifecycleFailure, diagnosticsFailure].compactMap { $0 }
+        let lifecycle = publicLifecycle?.status
+        var limitations = snapshot.limitations + ["Detailed current state covers configured roots; whole-volume capacity does not imply whole-volume file attribution."]
+        if !reasons.isEmpty {
+            limitations.append("File-detail evidence is partly unavailable (\(reasons.joined(separator: "; "))); the volume figures are live and do not depend on it.")
+        }
         return .object([
             "schema": .string(StorageSummaryContract.schema),
             StorageSummaryContract.liveVolumeObservedAt: .string(snapshot.observedAt),
-            StorageSummaryContract.persistedStateAsOf: latestObservation.map { .string(timestamp($0)) } ?? .null,
+            StorageSummaryContract.persistedStateAsOf: latestObservation.flatMap { $0 }.map { .string(timestamp($0)) } ?? .null,
             "volumes": .array(volumes),
-            "current_consumer_count": .integer(Int64(lifecycle.currentStateCount)),
-            "current_allocated_bytes": .integer(lifecycle.currentStateAllocatedBytes),
-            "database_bytes": .integer(lifecycle.databaseBytes),
-            "database_cap_bytes": .integer(lifecycle.databaseCapBytes),
-            "database_file_bytes": .integer(diagnostics.databaseFileBytes),
-            "wal_bytes": .integer(diagnostics.walBytes),
-            "shared_memory_bytes": .integer(diagnostics.sharedMemoryBytes),
-            "storage_admission": .string(lifecycle.databaseBytes < lifecycle.databaseCapBytes ? "available" : "retention-required"),
-            "coverage": .string(lifecycleCoverage(publicLifecycle)),
+            "detail_status": .string(reasons.isEmpty ? "available" : "unavailable"),
+            "detail_reasons": .array(reasons.map(JSONValue.string)),
+            "current_consumer_count": lifecycle.map { .integer(Int64($0.currentStateCount)) } ?? .null,
+            "current_allocated_bytes": lifecycle.map { .integer($0.currentStateAllocatedBytes) } ?? .null,
+            "database_bytes": lifecycle.map { .integer($0.databaseBytes) } ?? .null,
+            "database_cap_bytes": lifecycle.map { .integer($0.databaseCapBytes) } ?? .null,
+            "database_file_bytes": diagnostics.map { .integer($0.databaseFileBytes) } ?? .null,
+            "wal_bytes": diagnostics.map { .integer($0.walBytes) } ?? .null,
+            "shared_memory_bytes": diagnostics.map { .integer($0.sharedMemoryBytes) } ?? .null,
+            "storage_admission": lifecycle.map { .string($0.databaseBytes < $0.databaseCapBytes ? "available" : "retention-required") } ?? .null,
+            "coverage": .string(publicLifecycle.map(lifecycleCoverage) ?? "unavailable"),
             "freshness": .string("live-volume-plus-persisted-current-state"),
-            "limitations": .array((snapshot.limitations + ["Detailed current state covers configured roots; whole-volume capacity does not imply whole-volume file attribution."]).map(JSONValue.string)),
+            "limitations": .array(limitations.map(JSONValue.string)),
         ])
+    }
+
+    static let storageDetailBudget: TimeInterval = 3
+
+    /// Opens the store in the calling task, off this actor, so a lock wait can
+    /// be cancelled by that task's deadline without blocking other requests.
+    private nonisolated func detailStore() async throws -> EvidenceStore {
+        if let cached = await openedStoreIfAny() { return cached }
+        do {
+            return await adopt(try EvidenceStore(url: databaseURL))
+        } catch {
+            throw DiskStewardIPCError.remote(code: "detail_unavailable", message: "The evidence store could not be opened.", retryable: true)
+        }
+    }
+
+    private func openedStoreIfAny() -> EvidenceStore? { openedStore }
+
+    private func adopt(_ store: EvidenceStore) async -> EvidenceStore {
+        if let openedStore {
+            await store.close()
+            return openedStore
+        }
+        openedStore = store
+        return store
+    }
+
+    private enum DetailOutcome<Value: Sendable>: Sendable {
+        case value(Value)
+        case failed(String)
+        case timedOut
+    }
+
+    /// One detail part before `deadline`: its value, or a path-free reason.
+    /// An expired read is cancelled, which also ends SQLite's busy waiting;
+    /// the caller's own cancellation still propagates.
+    private func readDetail<Value: Sendable>(
+        _ part: String, deadline: Date, _ read: @escaping @Sendable (EvidenceStore) async throws -> Value
+    ) async throws -> (Value?, String?) {
+        let remaining = deadline.timeIntervalSinceNow
+        guard remaining > 0 else { return (nil, "\(part): not read within the detail budget") }
+        let outcome = try await withThrowingTaskGroup(of: DetailOutcome<Value>.self) { group in
+            group.addTask {
+                do { return .value(try await read(self.detailStore())) }
+                catch { return .failed(Self.detailFailureReason(error)) }
+            }
+            group.addTask {
+                try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
+                return .timedOut
+            }
+            defer { group.cancelAll() }
+            return try await group.next() ?? .timedOut
+        }
+        try Task.checkCancellation()
+        switch outcome {
+        case let .value(value): return (value, nil)
+        case let .failed(reason): return (nil, "\(part): \(reason)")
+        case .timedOut: return (nil, "\(part): not read within the detail budget")
+        }
+    }
+
+    /// A short, path-free reason for a detail failure.
+    private static func detailFailureReason(_ error: Error) -> String {
+        if case EvidenceLifecycleSummaryError.budgetExceeded? = error as? EvidenceLifecycleSummaryError {
+            return "lifecycle metadata exceeds the summary budget"
+        }
+        if case let DiskStewardIPCError.remote(code, _, _)? = error as? DiskStewardIPCError { return code }
+        if case let EvidenceStoreError.sqlite(code, _)? = error as? EvidenceStoreError { return "SQLite error \(code)" }
+        return error is EvidenceStoreError ? "evidence store error" : "unexpected error"
     }
 
     private func evidenceLifecycle() async throws -> JSONValue {
@@ -270,6 +372,14 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let scope = try await queryScopeProvider()
         let status = try await store.lifecycleSummary(policy)
         var limitations = ["Actual retained intervals may be shorter than policy after startup, collection gaps, or forced capacity eviction."]
+        let listedRetentionGaps = status.status.retentionGaps.count
+        if let totalRetentionGaps = status.status.retentionGapCount, totalRetentionGaps > listedRetentionGaps {
+            limitations.append("retention_gaps lists the newest \(listedRetentionGaps) of \(totalRetentionGaps) retention coverage gaps; older gaps are counted in retention_gap_count, not listed.")
+        }
+        let listedObservationGaps = status.status.observationGaps.count
+        if let totalObservationGaps = status.status.observationGapCount, totalObservationGaps > listedObservationGaps {
+            limitations.append("observation_gaps lists the newest \(listedObservationGaps) of \(totalObservationGaps) observation coverage gaps; coverage is judged from every gap, including unlisted ones.")
+        }
         let effectiveScope: JSONValue
         if let scope {
             let latest = try await store.latestObservationScope().map(EvidenceQueryScope.init)
@@ -374,7 +484,12 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     }
 
     private func lifecycleCoverage(_ summary: EvidenceLifecycleSummary) -> String {
-        if coverage(observationGaps: summary.status.observationGaps) != "complete" { return "partial" }
+        // The gap list is a newest-first window; the open count covers every row.
+        if let open = summary.status.openObservationGapCount {
+            if open > 0 { return "partial" }
+        } else if coverage(observationGaps: summary.status.observationGaps) != "complete" {
+            return "partial"
+        }
         return summary.detailCoverage
     }
 
@@ -385,6 +500,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         if let active = summary.scanCoverage?.activeGeneration, active.startedAt <= through {
             return "partial"
         }
+        if let overlap = summary.observationGapsOverlapWindow { return overlap ? "partial" : "complete" }
         return coverage(observationGaps: summary.status.observationGaps, from: from, through: through)
     }
 
@@ -400,7 +516,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             limit: budget.applied,
             scope: scope
         )
-        let publicLifecycle = try await store.lifecycleSummary(retentionPolicyProvider())
+        let publicLifecycle = try await store.lifecycleSummary(retentionPolicyProvider(), gapWindow: (from, through))
         let lifecycle = publicLifecycle.status
         let actualDates = model.page.items.map(\.observedAt)
         let precisions = Set(model.page.items.map(\.precision))
@@ -810,8 +926,9 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             to: workspace.directory,
             kind: .temporary
         ) } catch { throw exportFailure(error) }
-        var cleanup = TemporaryExportCleanup(result: result) { [store] in
-            try await store.markTemporaryExportDestroyed(id: result.exportID)
+        let exportStore = try store
+        var cleanup = TemporaryExportCleanup(result: result) { [exportStore] in
+            try await exportStore.markTemporaryExportDestroyed(id: result.exportID)
         }
         do {
             try Task.checkCancellation()

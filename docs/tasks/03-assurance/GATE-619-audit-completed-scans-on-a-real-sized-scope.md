@@ -7,11 +7,11 @@
 - Level: `4`
 - Wave: `3`
 - Workstream: `assurance`
-- Selection: `primary`
-- Execution: `planned`
+- Selection: `superseded`
+- Execution: `superseded`
 - Verification: `unverified`
-- Health: `at-risk`
-- Availability: `locked`
+- Health: `clear`
+- Availability: `not-selected`
 - Goal trace: `GATE-619` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -32,13 +32,13 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 
 ## Dependencies
 
-- `TASK-611` (validation-requires, passed)
-- `TASK-612` (validation-requires, passed)
+- `TASK-611` (validation-requires, pending)
+- `TASK-612` (validation-requires, pending)
 - `TASK-613` (validation-requires, passed)
-- `TASK-614` (validation-requires, unverified)
+- `TASK-614` (validation-requires, passed)
 - `TASK-615` (validation-requires, passed)
 - `TASK-616` (validation-requires, passed)
-- `TASK-617` (validation-requires, passed)
+- `TASK-617` (validation-requires, pending)
 
 ## Required Context
 
@@ -65,17 +65,26 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-TASK-615-LIFECYCLE`, `IMPACT-TASK-615-SCANNER`, `IMPACT-TASK-615-STORE`, `IMPACT-TASK-615-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-613-STORE`, `IMPACT-TASK-613-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-TASK-615-LIFECYCLE`, `IMPACT-TASK-615-SCANNER`, `IMPACT-TASK-615-STORE`, `IMPACT-TASK-615-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R4-TASK-614-LIFECYCLE`, `IMPACT-R4-TASK-614-STORE`, `IMPACT-R4-TASK-614-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-613-1`, `INSPECT-TASK-612-1`, `INSPECT-TASK-615-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-613-1`, `INSPECT-TASK-612-1`, `INSPECT-TASK-615-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R4-TASK-614-1`
 
 ### Assurance Blockers
 
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R3-617-MEASUREMENT is stale
+- Required inspection INSPECT-R3-617-PRESENTATION is stale
+- Required inspection INSPECT-R4-TASK-614-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 - Required inspection INSPECT-TASK-612-1 is stale
 - Required inspection INSPECT-TASK-613-1 is stale
 - Required inspection INSPECT-TASK-615-1 is stale
+
 

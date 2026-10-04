@@ -9,10 +9,10 @@
 - Workstream: `scanner`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `passed`
-- Health: `clear`
-- Availability: `verified`
-- Goal trace: `TASK-612` → `OUTCOME-610` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
+- Verification: `pending`
+- Health: `at-risk`
+- Availability: `implemented`
+- Goal trace: `TASK-612` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
 
@@ -36,8 +36,8 @@ The metadata scanner treats a classified object as a leaf: it records one object
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, passed)
-- `TASK-611` (requires, passed)
+- `CONTRACT-601` (contract-requires, pending)
+- `TASK-611` (requires, pending)
 
 ## Required Context
 
@@ -73,4 +73,5 @@ The metadata scanner treats a classified object as a leaf: it records one object
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-TASK-612-1 is stale
+
 

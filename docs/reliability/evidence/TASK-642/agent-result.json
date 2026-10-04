@@ -1,0 +1,157 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-642",
+ "outcome": "implemented",
+ "changed_files": [
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+  "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+  "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+  "Sources/DiskStewardApp/StatusItemController.swift",
+  "Tests/DiskStewardAppTests/IPC/StorageSummaryDetailFaultTests.swift",
+  "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+  "Tests/DiskStewardAppTests/Lifecycle/CapacityOnlyObservationTests.swift",
+  "Tests/IncrementTests/MCP/SelfCheckDetailFaultIncrementTests.swift",
+  "docs/reliability/evidence/TASK-642/README.md",
+  "docs/reliability/evidence/TASK-642/coupled-summary-red/result.json",
+  "docs/reliability/evidence/TASK-642/coupled-summary-red/tests.log",
+  "docs/reliability/evidence/TASK-642/focused-green/result.json",
+  "docs/reliability/evidence/TASK-642/focused-green/tests.log",
+  "docs/reliability/evidence/TASK-642/mut-coupled-summary.json",
+  "docs/reliability/evidence/TASK-642/mut-no-probe-fallback.json",
+  "docs/reliability/evidence/TASK-642/mut-unbounded-detail.json",
+  "docs/reliability/evidence/TASK-642/probe-fallback-red/result.json",
+  "docs/reliability/evidence/TASK-642/probe-fallback-red/tests.log",
+  "docs/reliability/evidence/TASK-642/unbounded-detail-red/result.json",
+  "docs/reliability/evidence/TASK-642/unbounded-detail-red/tests.log",
+  "docs/reliability/evidence/TASK-642/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-QUERY",
+  "ASSET-IPC",
+  "ASSET-LIFECYCLE",
+  "ASSET-BOOT",
+  "ASSET-ASSURANCE"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/StatusItemController.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/IPC/StorageSummaryDetailFaultTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/IPC/LifecycleProjectionIPCIntegrationTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/Lifecycle/CapacityOnlyObservationTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/IncrementTests/MCP/SelfCheckDetailFaultIncrementTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/coupled-summary-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/coupled-summary-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/focused-green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/focused-green/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/mut-coupled-summary.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/mut-no-probe-fallback.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/mut-unbounded-detail.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/probe-fallback-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/probe-fallback-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/unbounded-detail-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/unbounded-detail-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-642/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "run-focused.py 'StorageSummaryDetailFault|SelfCheckDetailFault|CapacityOnlyObservation|LifecycleProjection|HelperVerification|AuthoritativeMCPReadModel|AppEvidenceIPC|EvidenceQuery|MCPAccess|ScanConvergenceStop|StorageRecoveryIncrement|MonitoringProbeCancellation|MonitoringLifecycle|AgentQueryableEvidence|StatusBoardPresentation|LiveStatusBoard' 1800",
+   "result": "passed: 90 tests, input ab671524, repository unchanged"
+  },
+  {
+   "command": "run-mutation.py mut-coupled-summary.json",
+   "result": "red as intended"
+  },
+  {
+   "command": "run-mutation.py mut-no-probe-fallback.json",
+   "result": "red as intended"
+  },
+  {
+   "command": "run-mutation.py mut-unbounded-detail.json",
+   "result": "red as intended: deadline_exceeded on the locked store"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-642-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-642/README.md"
+  },
+  {
+   "criterion": "AC-TASK-642-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-642/README.md"
+  }
+ ],
+ "discovered_risks": [
+  "Backend construction on a locked store still waits on SQLite locks (pre-existing).",
+  "Other detail tools return a retryable deadline error on a locked store."
+ ],
+ "suggested_graph_changes": []
+}

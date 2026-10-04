@@ -67,7 +67,10 @@ final class LifecycleProjectionIPCIntegrationTests: XCTestCase {
         try server.start()
         defer { server.stop() }
         let client = UnixSocketDiskStewardIPCClient(socketPath: socket)
-        for name in ["get_evidence_lifecycle", "get_storage_summary", "explain_growth"] {
+        // TASK-642: capacity never depends on the lifecycle summary.
+        let summary = try client.call(tool: "get_storage_summary", arguments: [:], isCancelled: { false })
+        XCTAssertEqual(summary.objectValue?["detail_status"], .string("unavailable"))
+        for name in ["get_evidence_lifecycle", "explain_growth"] {
             let arguments: [String: JSONValue] = name == "explain_growth" ? [
                 "from": .string("2026-01-01T00:00:00Z"), "through": .string("2026-01-02T00:00:00Z")
             ] : [:]
@@ -77,6 +80,113 @@ final class LifecycleProjectionIPCIntegrationTests: XCTestCase {
                 XCTAssertFalse(retryable)
             }
         }
+    }
+
+    func testForcedEvictionGapHistoryDoesNotLockOutSummaryTools() async throws {
+        let root = URL(fileURLWithPath: "/tmp/ds-summary-gaps-\(UUID().uuidString.prefix(8))", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let database = root.appending(path: "evidence.sqlite")
+        let store = try EvidenceStore(url: database)
+        _ = try await store.applyRetention(try .init(), trigger: .manual)
+        await store.close()
+        let fixture = try SQLiteConnection(url: database)
+        try fixture.execute("""
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 1500)
+            INSERT INTO retention_runs (run_id, trigger, policy, started_at, storage_bytes_before, result, limitations)
+            SELECT printf('pressure-%036d', i), 'pressure', '{}', 1000000 + i, 0, 'completed', '[]' FROM n;
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 1500)
+            INSERT INTO retention_coverage_gaps (gap_id, retention_run_id, reason, affected_precision, started_at, rows_removed)
+            SELECT printf('gap-pressure-%036d', i), printf('pressure-%036d', i), 'database-cap-forced-eviction', 'oldest-retained-history', 1000000 + i, i FROM n;
+            """)
+        fixture.close()
+        let backend = try AppEvidenceQueryBackend(databaseURL: database)
+        let socket = root.appending(path: "ipc/service.sock").path
+        let server = UnixSocketEvidenceServer(socketPath: socket, handler: backend)
+        try server.start()
+        defer { server.stop() }
+        let client = UnixSocketDiskStewardIPCClient(socketPath: socket)
+        // The helper self-check asks for this summary; it must not be refused.
+        let summary = try client.call(tool: "get_storage_summary", arguments: [:], isCancelled: { false })
+        XCTAssertEqual(summary.objectValue?["schema"], .string(StorageSummaryContract.schema))
+        let lifecycle = try client.call(tool: "get_evidence_lifecycle", arguments: [:], isCancelled: { false })
+        let status = try XCTUnwrap(lifecycle.objectValue?["status"]?.objectValue)
+        let limit = EvidenceStore.retentionGapProjectionLimit
+        guard case let .array(gaps)? = status["retention_gaps"], case let .array(notes)? = lifecycle.objectValue?["limitations"] else {
+            return XCTFail("Expected retention_gaps and limitations arrays")
+        }
+        XCTAssertEqual(gaps.count, limit)
+        XCTAssertEqual(status["retention_gap_count"], .integer(1_500))
+        let limitations = notes.compactMap(\.stringValue)
+        XCTAssertTrue(limitations.contains { $0.contains("newest \(limit) of 1500 retention coverage gaps") }, "\(limitations)")
+    }
+
+    func testCoverageCountsOpenGapsBeyondTheListedWindow() async throws {
+        let root = URL(fileURLWithPath: "/tmp/ds-summary-open-gaps-\(UUID().uuidString.prefix(8))", isDirectory: true)
+        let watched = root.appending(path: "watch", directoryHint: .isDirectory)
+        try FileManager.default.createDirectory(at: watched, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try Data([1]).write(to: watched.appending(path: "recorded.bin"))
+        let database = root.appending(path: "evidence.sqlite")
+        let observedAt = Date(timeIntervalSince1970: 1_780_000_000)
+        let policy = MonitoringPolicy(watchedRoots: [watched])
+        let store = try EvidenceStore(url: database)
+        _ = try await store.recordObservation(
+            snapshot: .init(snapshotID: "open-gaps", observedAt: EvidenceTimestamp.format(observedAt), volumes: []),
+            metadata: DirectoryMetadataScanner().scan(policy: policy, at: observedAt),
+            scope: policy.scopeVersion(at: observedAt), trigger: .scheduled)
+        await store.close()
+        // One old open gap sits behind 600 newer resolved ones, outside the
+        // listed window. Coverage must still see it.
+        let fixture = try SQLiteConnection(url: database)
+        try fixture.execute("""
+            INSERT INTO coverage_gaps (gap_id, observation_id, root_path, reason, started_at, ended_at, state)
+            SELECT 'gap-old-open', observation_id, '/fixture', 'entry-cap', 1700000000, NULL, 'open' FROM observation_runs LIMIT 1;
+            WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i + 1 FROM n WHERE i < 600)
+            INSERT INTO coverage_gaps (gap_id, observation_id, root_path, reason, started_at, ended_at, state)
+            SELECT printf('gap-resolved-%04d', i), (SELECT observation_id FROM observation_runs LIMIT 1), '/fixture', 'app-offline', 1790000000 + i, 1790000000 + i + 1, 'resolved' FROM n;
+            """)
+        let total = try fixture.scalarInt("SELECT COUNT(*) FROM coverage_gaps")
+        fixture.close()
+        let backend = try AppEvidenceQueryBackend(databaseURL: database)
+        let socket = root.appending(path: "ipc/service.sock").path
+        let server = UnixSocketEvidenceServer(socketPath: socket, handler: backend)
+        try server.start()
+        defer { server.stop() }
+        let client = UnixSocketDiskStewardIPCClient(socketPath: socket)
+        let limit = EvidenceStore.observationGapProjectionLimit
+
+        let lifecycle = try client.call(tool: "get_evidence_lifecycle", arguments: [:], isCancelled: { false })
+        XCTAssertEqual(lifecycle.objectValue?["coverage"], .string("partial"))
+        let status = try XCTUnwrap(lifecycle.objectValue?["status"]?.objectValue)
+        guard case let .array(listed)? = status["observation_gaps"], case let .array(notes)? = lifecycle.objectValue?["limitations"] else {
+            return XCTFail("Expected observation_gaps and limitations arrays")
+        }
+        XCTAssertEqual(listed.count, limit)
+        XCTAssertEqual(status["observation_gap_count"], .integer(total))
+        XCTAssertEqual(status["open_observation_gap_count"], .integer(1))
+        XCTAssertTrue(notes.compactMap(\.stringValue).contains { $0.contains("newest \(limit) of \(total) observation coverage gaps") })
+        let summary = try client.call(tool: "get_storage_summary", arguments: [:], isCancelled: { false })
+        XCTAssertEqual(summary.objectValue?["coverage"], .string("partial"))
+
+        func growthCoverage(from: TimeInterval, through: TimeInterval) throws -> JSONValue? {
+            try client.call(tool: "explain_growth", arguments: [
+                "from": .string(EvidenceTimestamp.format(Date(timeIntervalSince1970: from))),
+                "through": .string(EvidenceTimestamp.format(Date(timeIntervalSince1970: through))),
+            ], isCancelled: { false }).objectValue?["coverage"]
+        }
+        XCTAssertEqual(try growthCoverage(from: 1_700_000_100, through: 1_700_000_200), .string("partial"), "the unlisted open gap overlaps this window")
+        XCTAssertNotEqual(try growthCoverage(from: 1_699_000_000, through: 1_699_000_100), .string("partial"), "no gap overlaps this window")
+
+        // Every gap open, as on a store whose entry-cap gaps never close:
+        // the summaries still answer and count them all.
+        let reopen = try SQLiteConnection(url: database)
+        try reopen.execute("UPDATE coverage_gaps SET ended_at = NULL, state = 'open'")
+        reopen.close()
+        let allOpen = try client.call(tool: "get_evidence_lifecycle", arguments: [:], isCancelled: { false })
+        XCTAssertEqual(allOpen.objectValue?["status"]?.objectValue?["open_observation_gap_count"], .integer(total))
+        XCTAssertEqual(allOpen.objectValue?["coverage"], .string("partial"))
+        _ = try client.call(tool: "get_storage_summary", arguments: [:], isCancelled: { false })
     }
 
     func testLifecycleDoesNotDecodeThePrivateTraversalCheckpoint() async throws {

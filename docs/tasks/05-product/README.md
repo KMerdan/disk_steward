@@ -2,7 +2,8 @@
 
 ## Tasks
 
-- [`TASK-623`](TASK-623-show-objects-in-the-app-and-to-agents.md) — Show objects in the app and to agents
+- [`TASK-623`](TASK-623-review-window.md) — Review window
+- [`TASK-671`](TASK-671-agent-tools-on-the-review-report.md) — Agent tools on the review report
 
 ## Parallelism
 

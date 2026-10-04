@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`TASK-621`](TASK-621-size-objects-and-keep-them-fresh.md) — Size objects and keep them fresh
+- [`TASK-661`](TASK-661-measured-growth-attribution.md) — Measured growth attribution
 
 ## Parallelism
 

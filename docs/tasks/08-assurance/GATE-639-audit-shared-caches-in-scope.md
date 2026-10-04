@@ -7,11 +7,11 @@
 - Level: `2`
 - Wave: `8`
 - Workstream: `assurance`
-- Selection: `primary`
-- Execution: `planned`
+- Selection: `superseded`
+- Execution: `superseded`
 - Verification: `unverified`
-- Health: `at-risk`
-- Availability: `locked`
+- Health: `clear`
+- Availability: `not-selected`
 - Goal trace: `GATE-639` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -59,22 +59,32 @@ Independently exercise the integrated candidate: shared caches appear as objects
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R3-TASK-617-UI`, `IMPACT-R3-TASK-617-LIFECYCLE`, `IMPACT-R3-TASK-617-SCANNER`, `IMPACT-R3-TASK-617-ASSURANCE`, `IMPACT-R3-TASK-623-UI`, `IMPACT-R3-TASK-623-QUERY`, `IMPACT-R3-TASK-623-MCP`, `IMPACT-R3-TASK-623-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-LIFECYCLE`, `ASSET-MCP`, `ASSET-QUERY`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
-- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-612-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R3-617-PRESENTATION`, `INSPECT-R3-617-MEASUREMENT`, `INSPECT-R3-623-INTEGRATION`
+- Impact records: `IMPACT-RESEARCH-601-BUILD`, `IMPACT-RESEARCH-601-ASSURANCE`, `IMPACT-CONTRACT-601-ASSURANCE`, `IMPACT-TASK-611-SCANNER`, `IMPACT-TASK-611-ASSURANCE`, `IMPACT-TASK-612-SCANNER`, `IMPACT-TASK-612-STORE`, `IMPACT-TASK-612-RESOURCE`, `IMPACT-TASK-612-ASSURANCE`, `IMPACT-R3-TASK-616-BUILD`, `IMPACT-R3-TASK-616-RESOURCE`, `IMPACT-R3-TASK-616-ASSURANCE`, `IMPACT-R4-CONTRACT-602-STORE`, `IMPACT-R4-CONTRACT-602-ASSURANCE`, `IMPACT-R4-TASK-621-SCANNER`, `IMPACT-R4-TASK-621-STORE`, `IMPACT-R4-TASK-621-RESOURCE`, `IMPACT-R4-TASK-621-ASSURANCE`, `IMPACT-R4-TASK-631-SCANNER`, `IMPACT-R4-TASK-631-SETTINGS`, `IMPACT-R4-TASK-631-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-SETTINGS`, `ASSET-STORE`
+- Inspections: `INSPECT-RESEARCH-601-1`, `INSPECT-CONTRACT-601-1`, `INSPECT-TASK-611-1`, `INSPECT-TASK-612-1`, `INSPECT-R3-616-CONTAINMENT`, `INSPECT-R3-616-EVIDENCE`, `INSPECT-R4-CONTRACT-602-1`, `INSPECT-R4-TASK-621-1`, `INSPECT-R4-TASK-631-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
-- Impact IMPACT-R3-TASK-623-MCP remains hypothesis
-- Impact IMPACT-R3-TASK-623-QUERY remains hypothesis
-- Impact IMPACT-R3-TASK-623-UI remains hypothesis
-- Impacted asset ASSET-MCP lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
+- Impact IMPACT-R4-CONTRACT-602-ASSURANCE remains hypothesis
+- Impact IMPACT-R4-CONTRACT-602-STORE remains hypothesis
+- Impact IMPACT-R4-TASK-621-ASSURANCE remains hypothesis
+- Impact IMPACT-R4-TASK-621-RESOURCE remains hypothesis
+- Impact IMPACT-R4-TASK-621-SCANNER remains hypothesis
+- Impact IMPACT-R4-TASK-621-STORE remains hypothesis
+- Impact IMPACT-R4-TASK-631-ASSURANCE remains hypothesis
+- Impact IMPACT-R4-TASK-631-SCANNER remains hypothesis
+- Impact IMPACT-R4-TASK-631-SETTINGS remains hypothesis
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R3-623-INTEGRATION is planned
+- Required inspection INSPECT-R3-616-EVIDENCE is stale
+- Required inspection INSPECT-R4-CONTRACT-602-1 is planned
+- Required inspection INSPECT-R4-TASK-621-1 is planned
+- Required inspection INSPECT-R4-TASK-631-1 is planned
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 - Required inspection INSPECT-TASK-612-1 is stale
+
 

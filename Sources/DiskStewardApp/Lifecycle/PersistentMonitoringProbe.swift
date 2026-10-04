@@ -84,6 +84,11 @@ struct MonitoringObservation: Sendable {
     /// to its regular interval instead of spinning on a stalled generation.
     let scanStalled: Bool
     let continuationSlices: Int
+    /// Set when file-detail scanning was stopped because it cannot converge;
+    /// capacity sampling continues.
+    let scanStop: ScanConvergenceStop?
+    /// Set when the evidence store failed; the volume figures stay live.
+    let detailUnavailableReason: String?
     private(set) var capacity: ObservedVolume?
 
     init(
@@ -95,7 +100,9 @@ struct MonitoringObservation: Sendable {
         needsScanContinuation: Bool = false,
         scanStalled: Bool = false,
         continuationSlices: Int = 0,
-        volumeIdentity: String? = nil
+        volumeIdentity: String? = nil,
+        scanStop: ScanConvergenceStop? = nil,
+        detailUnavailableReason: String? = nil
     ) {
         self.observedAt = observedAt
         self.snapshot = snapshot
@@ -105,6 +112,8 @@ struct MonitoringObservation: Sendable {
         self.needsScanContinuation = needsScanContinuation
         self.scanStalled = scanStalled
         self.continuationSlices = continuationSlices
+        self.scanStop = scanStop
+        self.detailUnavailableReason = detailUnavailableReason
         self.capacity = ObservedVolume(snapshot: snapshot, identity: volumeIdentity)
     }
 
@@ -136,6 +145,49 @@ protocol MonitoringProbing: Sendable {
 extension MonitoringProbing {
     var changeInbox: MonitoringChangeInbox? { nil }
     func persistPendingChanges() async throws {}
+}
+
+extension MonitoringObservation {
+    /// Live capacity without file detail: the evidence store failed, so no
+    /// detail, coverage or event-gap claim is made beyond the stated reason.
+    static func capacityOnly(
+        snapshot: StorageSnapshot, volumeGrowth: VolumeGrowthSample, volumeDelta: Int64, reason: String, at date: Date
+    ) -> MonitoringObservation {
+        let message = "File-detail evidence is unavailable (\(reason)); the volume figures are live and do not depend on it."
+        let report = GrowthExplanationEngine().explain(
+            volumeUsedDelta: volumeDelta, detailedEvents: [], eventGap: true,
+            scopeLimitations: volumeGrowth.limitations + [message]
+        )
+        return MonitoringObservation(
+            observedAt: date, snapshot: snapshot, detailedEvents: [], growthReport: report,
+            evidenceLifecycle: nil, needsScanContinuation: false, scanStalled: true, continuationSlices: 0,
+            volumeIdentity: volumeGrowth.selectedVolumeIdentity, detailUnavailableReason: message
+        )
+    }
+}
+
+/// Used when the evidence store cannot be opened at launch: capacity sampling
+/// continues and the reason is stated on every observation.
+actor CapacityOnlyMonitoringProbe: MonitoringProbing {
+    private let reason: String
+    private let volumeSampleSource: @Sendable (StorageSnapshot?) throws -> (StorageSnapshot, VolumeGrowthSample)
+    private var previousStorage: StorageSnapshot?
+
+    init(
+        reason: String,
+        volumeSampleSource: @escaping @Sendable (StorageSnapshot?) throws -> (StorageSnapshot, VolumeGrowthSample) = { try WholeVolumeSampler().sample(after: $0) }
+    ) {
+        self.reason = reason
+        self.volumeSampleSource = volumeSampleSource
+    }
+
+    func sample(settings: MonitoringSettings) async throws -> MonitoringObservation {
+        try Task.checkCancellation()
+        let (snapshot, growth) = try volumeSampleSource(previousStorage)
+        previousStorage = snapshot
+        let delta = PersistentMonitoringProbe.selectedVolumeDelta(snapshot: snapshot, growth: growth)
+        return .capacityOnly(snapshot: snapshot, volumeGrowth: growth, volumeDelta: delta, reason: reason, at: Date())
+    }
 }
 
 /// Callback-safe cumulative receipt state. Never retains a native batch or
@@ -291,6 +343,12 @@ actor PersistentMonitoringProbe: MonitoringProbing {
     private var hasSampledThisLaunch = false
     private var isSampling = false
     private var resourceHistory = BoundedResourceHistory(capacity: 120)
+    private let convergencePolicy: ScanConvergencePolicy
+    private let convergenceURL: URL
+    /// Samples in a row whose scan work storage refused under `refusalCapBytes`;
+    /// reset by progress or a changed limit, since raising it is the remedy.
+    private var consecutiveRefusedSamples = 0
+    private var refusalCapBytes: Int64?
 
     init(
         databaseURL: URL,
@@ -300,10 +358,13 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         volumeSampleSource: @escaping @Sendable (StorageSnapshot?) throws -> (StorageSnapshot, VolumeGrowthSample) = { try WholeVolumeSampler().sample(after: $0) },
         afterScanCommit: @escaping @Sendable () -> Void = {},
         continuationBudget: TimeInterval = PersistentMonitoringProbe.defaultContinuationBudget,
-        objectClassifier: ObjectClassifier? = ObjectClassifier(oracle: GitRepositoryOracle())
+        objectClassifier: ObjectClassifier? = ObjectClassifier(oracle: GitRepositoryOracle()),
+        convergencePolicy: ScanConvergencePolicy = .init()
     ) throws {
         try FileManager.default.createDirectory(at: databaseURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         self.databaseURL = databaseURL
+        self.convergencePolicy = convergencePolicy
+        convergenceURL = ScanConvergenceRecord.url(beside: databaseURL)
         self.resourceBudget = resourceBudget
         self.volumeSampleSource = volumeSampleSource
         self.afterScanCommit = afterScanCommit
@@ -319,7 +380,22 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         store = try evidenceStore ?? EvidenceStore(url: databaseURL)
     }
 
+    /// A failing evidence store degrades to live capacity with the reason;
+    /// resource-breaker, concurrency and cancellation errors still propagate.
     func sample(settings: MonitoringSettings) async throws -> MonitoringObservation {
+        do {
+            return try await sampleWithDetail(settings: settings)
+        } catch let error where error is EvidenceStoreError || error is EvidenceLifecycleSummaryError {
+            try Task.checkCancellation()
+            let (snapshot, growth) = try volumeSampleSource(previousStorage)
+            previousStorage = snapshot
+            return .capacityOnly(snapshot: snapshot, volumeGrowth: growth,
+                                 volumeDelta: Self.selectedVolumeDelta(snapshot: snapshot, growth: growth),
+                                 reason: error.localizedDescription, at: Date())
+        }
+    }
+
+    private func sampleWithDetail(settings: MonitoringSettings) async throws -> MonitoringObservation {
         try Task.checkCancellation()
         guard !isSampling else { throw MonitoringProbeSafetyError.sampleAlreadyRunning }
         isSampling = true
@@ -340,18 +416,24 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         await store.updateStorageCap(retentionPolicy.maxDatabaseBytes)
         try await persistPendingChanges()
         try Task.checkCancellation()
+        // A scan that cannot converge is stopped before any storage recovery
+        // or slice, so a stopped scope costs one volume sample per interval.
+        let scope = policy.scopeVersion(at: now)
+        if let stop = try await convergenceStop(scope: scope, capBytes: retentionPolicy.maxDatabaseBytes, now: now) {
+            return try await stoppedObservation(stop, policy: policy, retentionPolicy: retentionPolicy, now: now)
+        }
         let publicationPermit = try inbox.publicationPermit()
         let storageLimitations = try await recoverStorageBeforeSampling(settings: settings, policy: retentionPolicy, now: now)
         try Task.checkCancellation()
         let convergence = try await convergeStoredObjects(at: now)
         try Task.checkCancellation()
         let (snapshot, volumeGrowth) = try volumeSampleSource(previousStorage)
-        let scope = policy.scopeVersion(at: now)
         let generation: MetadataScanGeneration
         switch try await withStorageRecovery(policy: retentionPolicy, { try await store.beginOrResumeScanGeneration(scope: scope, at: now) }) {
         case .admitted(let value):
             generation = value
         case .refused(let refusal):
+            consecutiveRefusedSamples += 1
             return try await storageRefusedObservation(
                 refusal, snapshot: snapshot, volumeGrowth: volumeGrowth, policy: policy,
                 retentionPolicy: retentionPolicy, storageLimitations: storageLimitations, now: now
@@ -360,6 +442,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         try Task.checkCancellation()
         let durableEventGap = try await store.hasPendingReconciliation()
         try Task.checkCancellation()
+        let scanStartedUptime = ProcessInfo.processInfo.systemUptime
         let slice = autoreleasepool {
             metadataScanner.scanSlice(policy: policy, generation: generation, at: now)
         }
@@ -380,6 +463,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         case .admitted(let commit):
             scanCommit = commit
         case .refused(let refusal):
+            consecutiveRefusedSamples += 1
             return try await storageRefusedObservation(
                 refusal, snapshot: snapshot, volumeGrowth: volumeGrowth, policy: policy,
                 retentionPolicy: retentionPolicy, storageLimitations: storageLimitations, now: now
@@ -401,6 +485,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         var stalledSlices = 0
         var scanStalled = false
         var continuationLimitations: [String] = []
+        var continuationRefused = false
         let continuationDeadline = ProcessInfo.processInfo.systemUptime + continuationBudget
         while scanCommit.observation == nil, scanCommit.generation.status == .active,
               continuationSlices < Self.maximumContinuationSlices,
@@ -429,6 +514,7 @@ actor PersistentMonitoringProbe: MonitoringProbing {
                 let accounting = try await store.storageAccounting()
                 continuationLimitations = Self.refusalLimitations(reason: Self.storageRefusalReason(error) ?? "storage", accounting: accounting, retentionAttempted: false)
                 scanStalled = true
+                continuationRefused = true
                 break
             }
             continuationSlices += 1
@@ -444,6 +530,18 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         // Submitted store transactions are atomic and may finish on cancellation.
         // Do not start subsequent maintenance or publish UI after a stop.
         try Task.checkCancellation()
+        if continuationRefused {
+            consecutiveRefusedSamples += 1
+        } else if scanCommit.generation.status != .active || scanCommit.generation.stagedFileCount > generation.stagedFileCount {
+            consecutiveRefusedSamples = 0
+        }
+        if scanCommit.generation.status == .active {
+            var record = ScanConvergenceRecord.load(from: convergenceURL)
+            record.addActiveWork(ProcessInfo.processInfo.systemUptime - scanStartedUptime, generationID: scanCommit.generation.generationID)
+            // Losing this write only delays the active-work verdict; the
+            // processed/staged and refusal verdicts do not depend on it.
+            try? record.save(to: convergenceURL)
+        }
         let events = writeCoalescer.coalesce(scanCommit.observation?.events ?? [], within: policy.coalescingWindow)
         let volumeDelta = selectedCapacityVolume(in: snapshot).flatMap { volumeGrowth.usedByteDeltas[$0.mountPath] } ?? 0
         var scanLimitations = scanCommit.generation.limitations
@@ -616,6 +714,10 @@ actor PersistentMonitoringProbe: MonitoringProbing {
         }
     }
 
+    static func selectedVolumeDelta(snapshot: StorageSnapshot, growth: VolumeGrowthSample) -> Int64 {
+        selectedCapacityVolume(in: snapshot).flatMap { growth.usedByteDeltas[$0.mountPath] } ?? 0
+    }
+
     /// The store's typed refusals plus SQLite's own disk-full result.
     static func storageRefusalReason(_ error: Error) -> String? {
         switch error as? EvidenceStoreError {
@@ -674,6 +776,75 @@ actor PersistentMonitoringProbe: MonitoringProbing {
                 return .refused(StorageRefusal(reason: Self.storageRefusalReason(retried) ?? reason, accounting: after, retentionAttempted: true))
             }
         }
+    }
+
+    /// The stop that holds for this sample. A persisted stop is honoured until
+    /// its cooldown passes or the scope or limit changes; otherwise the active
+    /// generation is judged and, if it cannot converge, abandoned and stopped.
+    private func convergenceStop(scope: EvidenceScopeVersion, capBytes: Int64, now: Date) async throws -> ScanConvergenceStop? {
+        if refusalCapBytes != capBytes {
+            refusalCapBytes = capBytes
+            consecutiveRefusedSamples = 0
+        }
+        var record = ScanConvergenceRecord.load(from: convergenceURL)
+        if let stop = record.stop {
+            if stop.applies(scopeVersionID: scope.scopeVersionID, capBytes: capBytes, at: now, policy: convergencePolicy) { return stop }
+            record.stop = nil
+            consecutiveRefusedSamples = 0
+            try record.save(to: convergenceURL)
+        }
+        // A generation for another scope is abandoned by the next resume.
+        guard let active = try await store.activeScanGenerationSummary(),
+              active.configuredRoots == scope.rootPaths, active.excludedPaths == scope.excludedPaths,
+              let reason = convergencePolicy.verdict(
+                  processed: active.processedEntryCount, staged: active.stagedFileCount,
+                  consecutiveRefusals: consecutiveRefusedSamples, activeWork: record.activeWork(for: active.generationID))
+        else { return nil }
+        // Whole seconds, so the persisted record round-trips exactly.
+        let stoppedAt = Date(timeIntervalSince1970: now.timeIntervalSince1970.rounded(.down))
+        let stop = ScanConvergenceStop(
+            generationID: active.generationID, scopeVersionID: scope.scopeVersionID, capBytes: capBytes, stoppedAt: stoppedAt,
+            reason: reason, processedEntryCount: active.processedEntryCount, stagedFileCount: active.stagedFileCount
+        )
+        try await store.abandonActiveScanGeneration(reason: stop.message, at: now)
+        record.stop = stop
+        record.activeWorkGenerationID = nil
+        record.activeWorkSeconds = 0
+        try record.save(to: convergenceURL)
+        consecutiveRefusedSamples = 0
+        return stop
+    }
+
+    /// While stopped, a sample measures the volume and reads retained evidence;
+    /// it scans nothing, runs no retention and requests no continuation.
+    private func stoppedObservation(
+        _ stop: ScanConvergenceStop,
+        policy: MonitoringPolicy,
+        retentionPolicy: EvidenceStoreRetentionPolicy,
+        now: Date
+    ) async throws -> MonitoringObservation {
+        let (snapshot, volumeGrowth) = try volumeSampleSource(previousStorage)
+        previousStorage = snapshot
+        let eventGap = try await store.hasPendingReconciliation()
+        let volumeDelta = selectedCapacityVolume(in: snapshot).flatMap { volumeGrowth.usedByteDeltas[$0.mountPath] } ?? 0
+        let report = explanationEngine.explain(
+            volumeUsedDelta: volumeDelta, detailedEvents: [], eventGap: eventGap,
+            scopeLimitations: volumeGrowth.limitations + policy.scopeLimitations(at: now) + [stop.message]
+        )
+        let evidenceLifecycle = try await store.lifecycleStatus(retentionPolicy, at: now)
+        try Task.checkCancellation()
+        return MonitoringObservation(
+            observedAt: now,
+            snapshot: snapshot,
+            detailedEvents: [],
+            growthReport: report,
+            evidenceLifecycle: evidenceLifecycle,
+            needsScanContinuation: false,
+            scanStalled: true,
+            continuationSlices: 0,
+            volumeIdentity: volumeGrowth.selectedVolumeIdentity,
+            scanStop: stop
+        )
     }
 
     /// Explicit non-progress: the volume sample is reported with the storage

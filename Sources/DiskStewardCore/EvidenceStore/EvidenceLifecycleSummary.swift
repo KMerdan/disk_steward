@@ -29,6 +29,9 @@ public struct EvidenceLifecycleSummary: Equatable, Sendable {
     public let status: EvidenceLifecycleStatus
     public let scanCoverage: EvidenceScanCoverageSummary?
     public let detailCoverage: String
+    /// Whether any observation gap overlaps the requested window; nil when no
+    /// window was requested.
+    public var observationGapsOverlapWindow: Bool? = nil
 }
 
 public enum EvidenceLifecycleSummaryError: Error, Equatable, Sendable {

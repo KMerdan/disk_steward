@@ -1,0 +1,14 @@
+{
+ "name": "a failing store fails the sample instead of degrading to capacity",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+   "replacements": [
+    [
+     "        } catch let error where error is EvidenceStoreError || error is EvidenceLifecycleSummaryError {",
+     "        } catch let error where false && error is EvidenceStoreError {"
+    ]
+   ]
+  }
+ ]
+}

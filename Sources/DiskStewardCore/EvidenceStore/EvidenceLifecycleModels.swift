@@ -145,9 +145,21 @@ public struct EvidenceLifecycleStatus: Codable, Equatable, Sendable {
     public let currentStateCount: Int
     public let currentStateAllocatedBytes: Int64
     public let exportInventory: [EvidenceExportRecord]
+    /// Newest observation gaps only; see `observationGapCount` for the total
+    /// and `openObservationGapCount` for coverage verdicts.
     public let observationGaps: [EvidenceCoverageGap]
+    /// Newest retention gaps only; see `retentionGapCount` for the total.
     public let retentionGaps: [RetentionCoverageGap]
     public var scanCoverage: EvidenceScanCoverageStatus? = nil
     /// Unified storage accounting; nil only for projections that omit it.
     public var storage: EvidenceStorageAccounting? = nil
+    /// Every retained retention gap, including those beyond `retentionGaps`;
+    /// nil only for projections that omit it.
+    public var retentionGapCount: Int? = nil
+    /// Every observation gap, including those beyond `observationGaps`;
+    /// nil only for projections that omit it.
+    public var observationGapCount: Int? = nil
+    /// Every open observation gap, listed or not; nil only for projections
+    /// that omit it.
+    public var openObservationGapCount: Int? = nil
 }

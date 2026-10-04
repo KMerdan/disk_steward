@@ -327,6 +327,10 @@ final class MonitoringLifecycleController: ObservableObject {
                 transition(.degraded, title: "Reconciling", detail: "New file changes are awaiting durable reconciliation. Retained evidence may be older.")
             } else if let collectorLimitation {
                 transition(.degraded, title: "Degraded", detail: "Scheduled sampling is active, but targeted change hints are unavailable: \(collectorLimitation)")
+            } else if let reason = observation.detailUnavailableReason {
+                transition(.degraded, title: "File detail unavailable", detail: reason)
+            } else if let stop = observation.scanStop {
+                transition(.degraded, title: "Detail scan stopped", detail: stop.message)
             } else if !observation.needsScanContinuation, let coverage = observation.evidenceLifecycle?.scanCoverage, coverage.detailCoverage != "complete" {
                 transition(.degraded, title: "Partial coverage", detail: "Volume sampling finished, but some watched locations could not be fully observed. Last-known files remain uncertain, not deleted.")
             } else {

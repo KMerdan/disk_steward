@@ -5,22 +5,21 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `42`
-- Plan revision: `3`
+- Graph version: `59`
+- Plan revision: `4`
 - Lifecycle: `active`
-- Verified primary nodes: `8/20`
-- Ready tasks: `2`
+- Verified primary nodes: `4/29`
+- Ready tasks: `1`
 
 ## Ready Frontier
 
-- `TASK-614` — Refuse a scope that cannot fit and say so
-- `TASK-621` — Size objects and keep them fresh
+- `CONTRACT-602` — Fixed-cap store contract
 
 ## Brownfield Assurance
 
 - Status: `blocked`
 - Baseline: `current` revision `4`
-- Impacted assets inspected sufficiently: `6/9`
+- Impacted assets inspected sufficiently: `7/16`
 - Open scope drift: `0`
 - Open material findings: `0`
 
@@ -34,11 +33,15 @@ Disk Steward treats build output, shared developer caches and repositories as si
 - [`02-scanner`](02-scanner/README.md)
 - [`02-store`](02-store/README.md)
 - [`03-assurance`](03-assurance/README.md)
+- [`03-product`](03-product/README.md)
+- [`03-scanner`](03-scanner/README.md)
+- [`04-assurance`](04-assurance/README.md)
 - [`04-product`](04-product/README.md)
 - [`04-scanner`](04-scanner/README.md)
 - [`05-product`](05-product/README.md)
+- [`05-scanner`](05-scanner/README.md)
 - [`06-assurance`](06-assurance/README.md)
-- [`07-product`](07-product/README.md)
+- [`07-assurance`](07-assurance/README.md)
 - [`08-assurance`](08-assurance/README.md)
 
 ## Dependency Rule

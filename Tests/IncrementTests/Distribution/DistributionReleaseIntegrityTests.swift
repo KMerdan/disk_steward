@@ -150,6 +150,10 @@ final class DistributionReleaseIntegrityTests: XCTestCase {
             "CFBundleIdentifier": bundleID,
             "CFBundleExecutable": "Disk Steward",
             "CFBundlePackageType": "APPL",
+            // String version keys, as release metadata requires, so each case
+            // reaches the check it targets rather than the metadata guard.
+            "CFBundleShortVersionString": "1.0.0",
+            "CFBundleVersion": "1",
         ]
         let plistData = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
         try plistData.write(to: app.appendingPathComponent("Contents/Info.plist"))

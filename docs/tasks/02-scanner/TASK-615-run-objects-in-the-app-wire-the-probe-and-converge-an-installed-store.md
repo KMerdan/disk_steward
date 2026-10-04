@@ -7,8 +7,8 @@
 - Level: `5`
 - Wave: `2`
 - Workstream: `scanner`
-- Selection: `primary`
-- Execution: `implemented`
+- Selection: `superseded`
+- Execution: `superseded`
 - Verification: `passed`
 - Health: `clear`
 - Availability: `verified`
@@ -39,8 +39,8 @@ The monitoring probe builds its scanner with the object classifier and runs the 
 
 ## Dependencies
 
-- `CONTRACT-601` (contract-requires, passed)
-- `TASK-612` (requires, passed)
+- `CONTRACT-601` (contract-requires, pending)
+- `TASK-612` (requires, pending)
 - `TASK-613` (requires, passed)
 
 ## Required Context
@@ -79,4 +79,5 @@ The monitoring probe builds its scanner with the object classifier and runs the 
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-TASK-615-1 is stale
+
 

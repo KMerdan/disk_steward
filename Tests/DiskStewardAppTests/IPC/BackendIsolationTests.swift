@@ -91,7 +91,18 @@ final class BackendIsolationTests: XCTestCase {
         if failDatabaseOpen {
             let blocker = fixture.appending(path: "not-a-directory")
             try Data("sentinel".utf8).write(to: blocker)
-            XCTAssertThrowsError(try AppEvidenceQueryBackend(databaseURL: blocker.appending(path: "evidence.sqlite"), temporaryExportDirectory: exportBase))
+            // TASK-642: an unopenable store no longer fails construction; detail
+            // tools report it, and nothing outside the database is touched.
+            let backend = try AppEvidenceQueryBackend(databaseURL: blocker.appending(path: "evidence.sqlite"), temporaryExportDirectory: exportBase)
+            do {
+                _ = try await backend.handleIPC(method: "tools/call",
+                    payload: .object(["name": .string("get_evidence_lifecycle"), "arguments": .object([:])]),
+                    peer: IPCPeerIdentity(uid: getuid(), gid: getgid(), pid: getpid()))
+                XCTFail("An unopenable store must be reported")
+            } catch let DiskStewardIPCError.remote(code, _, retryable) {
+                XCTAssertEqual(code, "detail_unavailable")
+                XCTAssertTrue(retryable)
+            }
         } else {
             let backend = try AppEvidenceQueryBackend(databaseURL: fixture.appending(path: "evidence.sqlite"), temporaryExportDirectory: exportBase)
             _ = backend // Initialization alone must be side-effect-free outside its database.

@@ -3,6 +3,7 @@
 ## Tasks
 
 - [`GATE-629`](GATE-629-audit-visible-reclaimable-space.md) — Audit visible reclaimable space
+- [`GATE-659`](GATE-659-audit-rung-2-quiet-guard.md) — Audit rung 2: quiet guard
 
 ## Parallelism
 
