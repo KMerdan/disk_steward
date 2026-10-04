@@ -511,3 +511,14 @@ processed fourteen times its scope without publishing.
   `Scripts/Distribution/restore-legacy-evidence`, then install 1.3.0.
 - **Next on the frontier:** TASK-672 (rung 4). Rung 3's work (bounded review)
   is not yet ready on the frontier.
+- **Published 2026-10-04** at the user's request.
+  - `main` was pushed through `f095588`. Annotated tag `v1.4.0` points to
+    `f095588`, whose candidate inputs equal the verified `f1dc99e2…`.
+  - GitHub release https://github.com/KMerdan/disk_steward/releases/tag/v1.4.0
+    is the latest release. Its public `Disk-Steward-1.4.0.zip` re-downloads
+    with SHA-256 `5901eedf…f2c1`.
+  - The tap `KMerdan/homebrew-disk-steward` is at `5e9f827`. `brew style` and
+    `brew audit --cask --strict --online` pass, and the upgrade dry run
+    resolves to 1.4.0.
+  - The maintainer's Mac runs the manually installed 1.4.0 (11). Its Homebrew
+    record still says 1.2.3 until `brew upgrade --cask disk-steward` is run.
