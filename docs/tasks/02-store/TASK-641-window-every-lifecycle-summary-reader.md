@@ -37,7 +37,7 @@ Port the hotfix: list the newest retention gaps inside a fixed window with a tot
 
 ## Dependencies
 
-- `TASK-616` (requires, pending)
+- `TASK-616` (requires, passed)
 
 ## Required Context
 

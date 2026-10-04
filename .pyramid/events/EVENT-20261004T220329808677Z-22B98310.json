@@ -1,0 +1,770 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261004T220329808677Z-22B98310",
+  "at": "2026-10-04T22:03:29.808447Z",
+  "graph_version": 149,
+  "actor": "claude",
+  "type": "audit.pass",
+  "node": "TASK-616",
+  "before": {
+    "execution": "implemented",
+    "verification": "pending",
+    "health": "at-risk",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+    "updated_at": "2026-10-04T19:42:51.752981Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-616",
+      "outcome": "implemented",
+      "changed_files": [
+        "Scripts/Testing/measure_object_detection.py",
+        "Scripts/Testing/rehearse_migration_rollback.py",
+        "Scripts/Testing/supervise_soak.py",
+        "Scripts/Testing/verify_candidate.py",
+        "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+        "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+        "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+        "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+        "Tests/PerformanceTests/SoakBenchmarkTests.swift",
+        "docs/reliability/handoffs/harness/README.md",
+        "docs/reliability/handoffs/harness/object-scale.py",
+        "docs/reliability/handoffs/harness/run-mutation.py",
+        "Scripts/Testing/SUPERVISION.md",
+        "Scripts/Testing/bootstrap_supervision.py",
+        "Scripts/Testing/process_supervisor.py",
+        "Scripts/Testing/test_process_supervisor.py",
+        "Tests/PerformanceTests/ScaleAdmission.swift",
+        "docs/reliability/evidence/TASK-616/README.md",
+        "docs/reliability/evidence/TASK-616/bootstrap.json",
+        "docs/reliability/evidence/TASK-616/harness.json",
+        "docs/reliability/evidence/TASK-616/harness.log",
+        "docs/reliability/evidence/TASK-616/review.json",
+        "docs/reliability/evidence/TASK-616/swift-smoke.json",
+        "docs/reliability/evidence/TASK-616/swift-smoke.log",
+        "docs/reliability/evidence/TASK-616/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-BUILD",
+        "ASSET-RESOURCE",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Scripts/Testing/measure_object_detection.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/rehearse_migration_rollback.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/supervise_soak.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/verify_candidate.py",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/SoakBenchmarkTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/handoffs/harness/README.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/reliability/handoffs/harness/object-scale.py",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/handoffs/harness/run-mutation.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/SUPERVISION.md",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Testing/bootstrap_supervision.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/process_supervisor.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/test_process_supervisor.py",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ScaleAdmission.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/bootstrap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/harness.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/harness.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/review.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/swift-smoke.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/swift-smoke.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 Scripts/Testing/bootstrap_supervision.py",
+          "result": "passed: 13 bounded independent-watchdog cases"
+        },
+        {
+          "command": "snapshot run-focused.py AboutVersionTests 240",
+          "result": "passed: 8 XCTest cases, cleanup verified, source unchanged"
+        },
+        {
+          "command": "snapshot supervised python3 -m unittest discover -s Scripts/Testing -p test_*.py",
+          "result": "passed: 31 tests, cleanup verified"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-616-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-03",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-04",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-05",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "Not hostile-code or launchd/XPC containment",
+        "Sampled stop thresholds can overshoot",
+        "PID signal checks are not an atomic kernel birth-ID kill",
+        "Legacy scale/soak/corpus/rollback entry points refuse execution rather than claim a passing rerun"
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-616",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-616-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log",
+            "docs/reliability/evidence/REPLAN-006-R4/swift-smoke-main-result.json",
+            "docs/reliability/evidence/REPLAN-006-R4/supervisor-source-delta.txt",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log",
+            "docs/reliability/evidence/REPLAN-006-R4/swift-smoke-main-result.json",
+            "docs/reliability/evidence/REPLAN-006-R4/supervisor-source-delta.txt",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log",
+            "docs/reliability/evidence/REPLAN-006-R4/swift-smoke-main-result.json",
+            "docs/reliability/evidence/REPLAN-006-R4/supervisor-source-delta.txt",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log",
+            "docs/reliability/evidence/REPLAN-006-R4/swift-smoke-main-result.json",
+            "docs/reliability/evidence/REPLAN-006-R4/supervisor-source-delta.txt",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/REPLAN-006-R4/bootstrap-main.log",
+            "docs/reliability/evidence/REPLAN-006-R4/swift-smoke-main-result.json",
+            "docs/reliability/evidence/REPLAN-006-R4/supervisor-source-delta.txt",
+            "docs/reliability/planning/replan-006-r4-review.json"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-616"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE"
+        ],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Scope is reviewed cooperative direct-process verification; not hostile programs or system-service delegation.",
+          "Legacy workloads that bypass setup/storage quotas are refused; no scale, soak, rollback, package or release execution claimed.",
+          "R4 re-audit: the replan re-attached TASK-616 to OUTCOME-640 without changing its contract; supervisor sources are unchanged since the audited candidate except an added release-metadata test, and the bootstrap and a supervised snapshot smoke (cleanupVerified true) passed on main 345c072 on 2026-10-04."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "after": {
+    "execution": "implemented",
+    "verification": "passed",
+    "health": "clear",
+    "owner": null,
+    "lease_expires_at": null,
+    "work_origin": null,
+    "active_handoff_id": null,
+    "paused_at": null,
+    "paused_by": null,
+    "pause_mode": null,
+    "resume_deadline": null,
+    "last_handoff": null,
+    "blocker": null,
+    "updated_at": "2026-10-04T22:03:29.808382Z",
+    "last_result": {
+      "schema": "agent-result-v1",
+      "task": "TASK-616",
+      "outcome": "implemented",
+      "changed_files": [
+        "Scripts/Testing/measure_object_detection.py",
+        "Scripts/Testing/rehearse_migration_rollback.py",
+        "Scripts/Testing/supervise_soak.py",
+        "Scripts/Testing/verify_candidate.py",
+        "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+        "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+        "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+        "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+        "Tests/PerformanceTests/SoakBenchmarkTests.swift",
+        "docs/reliability/handoffs/harness/README.md",
+        "docs/reliability/handoffs/harness/object-scale.py",
+        "docs/reliability/handoffs/harness/run-mutation.py",
+        "Scripts/Testing/SUPERVISION.md",
+        "Scripts/Testing/bootstrap_supervision.py",
+        "Scripts/Testing/process_supervisor.py",
+        "Scripts/Testing/test_process_supervisor.py",
+        "Tests/PerformanceTests/ScaleAdmission.swift",
+        "docs/reliability/evidence/TASK-616/README.md",
+        "docs/reliability/evidence/TASK-616/bootstrap.json",
+        "docs/reliability/evidence/TASK-616/harness.json",
+        "docs/reliability/evidence/TASK-616/harness.log",
+        "docs/reliability/evidence/TASK-616/review.json",
+        "docs/reliability/evidence/TASK-616/swift-smoke.json",
+        "docs/reliability/evidence/TASK-616/swift-smoke.log",
+        "docs/reliability/evidence/TASK-616/agent-result.json"
+      ],
+      "changed_assets": [
+        "ASSET-BUILD",
+        "ASSET-RESOURCE",
+        "ASSET-ASSURANCE"
+      ],
+      "change_effect": "mixed",
+      "changes": [
+        {
+          "path": "Scripts/Testing/measure_object_detection.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/rehearse_migration_rollback.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/supervise_soak.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/verify_candidate.py",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/BoundedTraversalResumeTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/BoundedTraversalScaleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ObjectScanScaleTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ScaleBenchmarkTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/SoakBenchmarkTests.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/handoffs/harness/README.md",
+          "class": "configuration"
+        },
+        {
+          "path": "docs/reliability/handoffs/harness/object-scale.py",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/handoffs/harness/run-mutation.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/SUPERVISION.md",
+          "class": "configuration"
+        },
+        {
+          "path": "Scripts/Testing/bootstrap_supervision.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/process_supervisor.py",
+          "class": "source"
+        },
+        {
+          "path": "Scripts/Testing/test_process_supervisor.py",
+          "class": "source"
+        },
+        {
+          "path": "Tests/PerformanceTests/ScaleAdmission.swift",
+          "class": "source"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/README.md",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/bootstrap.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/harness.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/harness.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/review.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/swift-smoke.json",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/swift-smoke.log",
+          "class": "evidence"
+        },
+        {
+          "path": "docs/reliability/evidence/TASK-616/agent-result.json",
+          "class": "evidence"
+        }
+      ],
+      "checks": [
+        {
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 Scripts/Testing/bootstrap_supervision.py",
+          "result": "passed: 13 bounded independent-watchdog cases"
+        },
+        {
+          "command": "snapshot run-focused.py AboutVersionTests 240",
+          "result": "passed: 8 XCTest cases, cleanup verified, source unchanged"
+        },
+        {
+          "command": "snapshot supervised python3 -m unittest discover -s Scripts/Testing -p test_*.py",
+          "result": "passed: 31 tests, cleanup verified"
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed"
+        }
+      ],
+      "acceptance_evidence": [
+        {
+          "criterion": "AC-TASK-616-01",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-02",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-03",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-04",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        },
+        {
+          "criterion": "AC-TASK-616-05",
+          "result": "passed",
+          "reference": "docs/reliability/evidence/TASK-616/README.md"
+        }
+      ],
+      "discovered_risks": [
+        "Not hostile-code or launchd/XPC containment",
+        "Sampled stop thresholds can overshoot",
+        "PID signal checks are not an atomic kernel birth-ID kill",
+        "Legacy scale/soak/corpus/rollback entry points refuse execution rather than claim a passing rerun"
+      ],
+      "suggested_graph_changes": []
+    },
+    "last_audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-616",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-616-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-616"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE"
+        ],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R4-IDLE-CPU",
+          "FIND-R4-SUPERVISOR-RACE",
+          "FIND-R4-XCODE-WORKER"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Scope is reviewed cooperative direct-process verification; not hostile programs or system-service delegation.",
+          "Legacy workloads that bypass setup/storage quotas are refused; no scale, soak, rollback, package or release execution claimed.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after TASK-664 changed how the supervisor treats momentarily uninspectable processes; containment, lineage and cleanup are unchanged and re-proven by the bootstrap."
+        ]
+      }
+    },
+    "last_reopen": null
+  },
+  "payload": {
+    "audit": {
+      "schema": "audit-result-v1",
+      "target": "TASK-616",
+      "result": "pass",
+      "checks": [
+        {
+          "id": "AC-TASK-616-01",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-02",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-03",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-04",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        },
+        {
+          "id": "AC-TASK-616-05",
+          "result": "passed",
+          "evidence": [
+            "docs/reliability/evidence/TASK-616/README.md",
+            "docs/reliability/evidence/TASK-616/review.json",
+            "docs/reliability/evidence/TASK-616/bootstrap.json",
+            "docs/reliability/evidence/TASK-616/swift-smoke.json",
+            "docs/reliability/evidence/TASK-616/harness.json",
+            "docs/reliability/evidence/GATE-669/bootstrap-supervision-1.5.0.txt",
+            "docs/reliability/evidence/GATE-669/release-1.5.0-12.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-1/candidate.json",
+            "docs/reliability/evidence/TASK-664/consecutive/run-2/candidate.json",
+            "docs/reliability/evidence/TASK-664/README.md"
+          ]
+        }
+      ],
+      "affected_claims": [
+        "TASK-616"
+      ],
+      "recommended_action": "advance",
+      "assurance": {
+        "impact_ids": [
+          "IMPACT-R3-TASK-616-ASSURANCE",
+          "IMPACT-R3-TASK-616-BUILD",
+          "IMPACT-R3-TASK-616-RESOURCE"
+        ],
+        "inspection_ids": [
+          "INSPECT-R3-616-CONTAINMENT",
+          "INSPECT-R3-616-EVIDENCE"
+        ],
+        "finding_ids": [
+          "FIND-R3-ORPHANED-TEST",
+          "FIND-R4-IDLE-CPU",
+          "FIND-R4-SUPERVISOR-RACE",
+          "FIND-R4-XCODE-WORKER"
+        ],
+        "scope_review": "complete",
+        "limitations": [
+          "Scope is reviewed cooperative direct-process verification; not hostile programs or system-service delegation.",
+          "Legacy workloads that bypass setup/storage quotas are refused; no scale, soak, rollback, package or release execution claimed.",
+          "Re-audited on candidate 1.5.0 (12), input 03e80c74, after TASK-664 changed how the supervisor treats momentarily uninspectable processes; containment, lineage and cleanup are unchanged and re-proven by the bootstrap."
+        ]
+      }
+    },
+    "invalidated": [],
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "plan_revision": 10,
+  "context_id": "CTX-56265A346BC13BE9CD15C8F3D698B01F",
+  "previous_event_id": "EVENT-20261004T220313825174Z-544CD348",
+  "previous_event_sha256": "eba70adca8cc1888ca09d0fd78a0cf6e030cf4d33376bbe208d846b67525210f"
+}

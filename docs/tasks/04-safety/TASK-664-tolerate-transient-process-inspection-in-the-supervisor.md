@@ -9,9 +9,9 @@
 - Workstream: `safety`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `implemented`
+- Availability: `verified`
 - Goal trace: `TASK-664` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -36,7 +36,7 @@ The verification supervisor fails a run whenever any new same-user process on th
 
 ## Dependencies
 
-- `TASK-616` (integration-requires, pending)
+- `TASK-616` (integration-requires, passed)
 
 ## Required Context
 

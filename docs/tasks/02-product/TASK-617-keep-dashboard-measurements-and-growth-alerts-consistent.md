@@ -46,7 +46,7 @@ Repair the observed dashboard update path with one observation-bound presentatio
 
 ## Dependencies
 
-- `TASK-616` (requires, pending)
+- `TASK-616` (requires, passed)
 
 ## Required Context
 

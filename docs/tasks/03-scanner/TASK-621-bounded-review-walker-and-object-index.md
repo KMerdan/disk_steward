@@ -39,7 +39,7 @@ Walk a review scope with getattrlistbulk, prune at classified objects, sum alloc
 
 - `CONTRACT-601` (contract-requires, passed)
 - `CONTRACT-602` (contract-requires, pending)
-- `TASK-616` (requires, pending)
+- `TASK-616` (requires, passed)
 - `TASK-611` (requires, passed)
 
 ## Required Context

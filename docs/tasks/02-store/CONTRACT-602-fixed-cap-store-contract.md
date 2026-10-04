@@ -37,7 +37,7 @@ Define the storage rules every new store follows: a cap table, insert-time evict
 
 ## Dependencies
 
-- `TASK-616` (requires, pending)
+- `TASK-616` (requires, passed)
 
 ## Required Context
 

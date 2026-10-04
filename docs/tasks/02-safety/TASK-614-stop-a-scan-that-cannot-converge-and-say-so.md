@@ -37,7 +37,7 @@ Abandon an active generation that cannot converge and report one explicit state 
 
 ## Dependencies
 
-- `TASK-616` (requires, pending)
+- `TASK-616` (requires, passed)
 
 ## Required Context
 

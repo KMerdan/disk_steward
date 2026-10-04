@@ -34,7 +34,7 @@ Exercise the packaged candidate against a captured copy of the stuck live store:
 ## Dependencies
 
 - `TASK-614` (validation-requires, pending)
-- `TASK-616` (validation-requires, pending)
+- `TASK-616` (validation-requires, passed)
 - `TASK-617` (validation-requires, pending)
 - `TASK-641` (validation-requires, pending)
 - `TASK-642` (validation-requires, pending)
@@ -71,18 +71,13 @@ Exercise the packaged candidate against a captured copy of the stuck live store:
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-IPC lacks a sufficient passing inspection
 - Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R3-616-CONTAINMENT is stale
-- Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
 - Required inspection INSPECT-R3-617-PRESENTATION is stale
 - Required inspection INSPECT-R4-TASK-614-1 is stale

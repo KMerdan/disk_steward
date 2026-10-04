@@ -40,7 +40,7 @@ Exercise the packaged candidate on the maintainer's real scopes and a synthetic 
 - `TASK-623` (validation-requires, pending)
 - `TASK-631` (validation-requires, pending)
 - `TASK-661` (validation-requires, pending)
-- `TASK-664` (validation-requires, pending)
+- `TASK-664` (validation-requires, passed)
 
 ## Required Context
 
@@ -74,20 +74,16 @@ Exercise the packaged candidate on the maintainer's real scopes and a synthetic 
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-BOOT lacks a sufficient passing inspection
 - Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
 - Impacted asset ASSET-IPC lacks a sufficient passing inspection
 - Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R3-616-CONTAINMENT is stale
-- Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
 - Required inspection INSPECT-R3-617-PRESENTATION is stale
 - Required inspection INSPECT-R3-623-INTEGRATION is stale

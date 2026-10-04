@@ -65,16 +65,11 @@ Independently exercise the integrated candidate: shared caches appear as objects
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R3-616-CONTAINMENT is stale
-- Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R4-CONTRACT-602-1 is stale
 - Required inspection INSPECT-R4-TASK-621-1 is stale
 - Required inspection INSPECT-R4-TASK-631-1 is stale

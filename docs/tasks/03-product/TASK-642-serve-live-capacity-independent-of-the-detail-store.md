@@ -37,7 +37,7 @@ Make capacity a separate read path: get_storage_summary, the helper self-check a
 
 ## Dependencies
 
-- `TASK-616` (requires, pending)
+- `TASK-616` (requires, passed)
 - `TASK-641` (requires, pending)
 
 ## Required Context

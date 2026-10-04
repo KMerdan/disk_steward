@@ -69,11 +69,7 @@ Exercise the packaged candidate through the real MCP helper: every tool at caps 
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
-- Required inspection INSPECT-R3-616-CONTAINMENT is stale
-- Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R4-CONTRACT-602-1 is stale
 - Required inspection INSPECT-R4-TASK-621-1 is stale
 - Required inspection INSPECT-R4-TASK-622-1 is stale
