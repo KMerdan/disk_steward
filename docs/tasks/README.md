@@ -5,7 +5,7 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `98`
+- Graph version: `99`
 - Plan revision: `4`
 - Lifecycle: `active`
 - Verified primary nodes: `13/29`

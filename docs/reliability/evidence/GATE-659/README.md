@@ -86,6 +86,7 @@ installed app shows the same gap mechanism with `journal-started`.
 | --- | --- | --- |
 | FIND-R4-PATH-REDACTION-FALSE-POSITIVE | low | Open. The path privacy filter redacts `sk-…` inside ordinary names (`.disk-steward-…`). This is pre-existing, and it hides rather than leaks. |
 | FIND-R4-JOURNAL-LIMIT | low | Open. `explain_growth`'s `changed_directories` ignores the request `limit`; it uses a fixed 200-item window, still bounded by the response ceiling. To fix in the rung-4 tool rework. |
+| FIND-R4-DOCS-STALE | low | Open. `docs/architecture/mcp.md` and `docs/operations/privacy-and-retention.md` still describe the retired tools and the old store's retention at `v1.4.0`. They were left unchanged to keep the verified input hash; update them with the rung-3/4 tool rework. |
 | FIND-R4-PAGE-SCHEMA-STALE | low | Open, for the rung-4 tool contract |
 | FIND-R4-SUPERVISOR-RACE | medium | Open. Runs are retried, never relabelled |
 | FIND-R4-XCODE-WORKER | medium | Open. Accepted pattern, with cleanup verified |
@@ -93,3 +94,22 @@ installed app shows the same gap mechanism with `journal-started`.
 | FIND-R4-LIFECYCLE-RESPONSE-SIZE | low | Open, for rung 4 |
 
 None of these affects a rung-2 claim.
+
+## Addendum: a schema-14 store (users arriving from 1.2.3)
+
+Most Homebrew users upgrade straight from 1.2.3, so their store is at
+schema 14. The same opt-in rehearsal was run on candidate input `f1dc99e2`
+against the maintainer's 1.2.3 backup
+(`evidence-1.2.3-schema14-2026-10-04.sqlite`, schema 14, 405 MB), placed only
+in the isolated snapshot ([`rehearsal-schema14-f1dc99e2/`](rehearsal-schema14-f1dc99e2/report.json)).
+It passes:
+
+- The move and the scripted rollback are byte-identical, for the main file and
+  the log.
+- The board export opens the clone, which migrates 14 → 15 on its own copy.
+  It writes the bundle in 8.8 s, and the legacy file stays unchanged.
+- MCP answers `legacy_export_too_large`.
+- After rollback, the store reopens with `integrity: ok`.
+- The rolled-back file is byte-identical to the schema-14 original. A user
+  returning to 1.2.3 itself can therefore open it, as long as no newer version
+  opens it first.
