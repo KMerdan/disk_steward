@@ -76,6 +76,11 @@ Make capacity a separate read path: get_storage_summary, the helper self-check a
 ### Assurance Blockers
 
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
+- Impacted asset ASSET-IPC lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
+- Required inspection INSPECT-R4-TASK-642-1 is stale
 - Required inspection INSPECT-R4-TASK-642-2 is stale
 
 

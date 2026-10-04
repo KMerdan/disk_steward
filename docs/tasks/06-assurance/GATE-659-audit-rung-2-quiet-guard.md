@@ -72,10 +72,14 @@ Exercise the packaged candidate: capacity history, reserve alert, changed-direct
 ### Assurance Blockers
 
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
 - Impacted asset ASSET-DISTRIBUTION lacks a sufficient passing inspection
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
+- Impacted asset ASSET-IPC lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
@@ -86,6 +90,7 @@ Exercise the packaged candidate: capacity history, reserve alert, changed-direct
 - Required inspection INSPECT-R4-CONTRACT-602-1 is stale
 - Required inspection INSPECT-R4-TASK-614-1 is stale
 - Required inspection INSPECT-R4-TASK-641-1 is stale
+- Required inspection INSPECT-R4-TASK-642-1 is stale
 - Required inspection INSPECT-R4-TASK-642-2 is stale
 - Required inspection INSPECT-R4-TASK-651-1 is stale
 - Required inspection INSPECT-R4-TASK-651-2 is stale

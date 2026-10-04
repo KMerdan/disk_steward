@@ -1,0 +1,8 @@
+{
+ "schema": "pyramid-amendment-v1",
+ "task": "TASK-623",
+ "reason": "The window's AC requires concrete counts while a review runs; the walker and the review service own the only place those counts exist, so a read-only progress callback must be added there.",
+ "boundary_review": "Adds a progress callback (entries, folders, objects, elapsed, current top-level folder) that the walker reports at most every 256 folders, and passes it through ReviewService. Walk behaviour, budgets, outputs and storage are unchanged; the TASK-621 suites and its mutation tests still cover them. Acceptance, non-goals (no delete action, no notch surface), dependencies and authority are unchanged.",
+ "add_write_paths": ["Sources/DiskStewardCore/Review/ReviewWalker.swift", "Sources/DiskStewardCore/Review/ReviewIndex.swift"],
+ "add_context_paths": []
+}
