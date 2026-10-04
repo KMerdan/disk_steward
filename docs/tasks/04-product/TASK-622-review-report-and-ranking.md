@@ -65,13 +65,16 @@ Produce the versioned ReviewReport shared by the window, MCP and export, ranking
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R4-TASK-622-STORE`, `IMPACT-R4-TASK-622-ASSURANCE`, `IMPACT-R4-TASK-622-SCANNER`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-622-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-R4-TASK-622-1 is stale
 
 

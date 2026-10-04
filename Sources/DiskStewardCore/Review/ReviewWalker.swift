@@ -47,6 +47,8 @@ public enum ReviewStatus: Sendable, Equatable {
 public enum RecreateClass: String, Sendable, Codable, Equatable {
     case rebuild
     case redownload = "re-download"
+    /// Slow or costly to get back: models, simulators, archives with dSYMs.
+    case expensive
     case liveState = "live-state"
 }
 
@@ -62,6 +64,10 @@ public struct ReviewObject: Sendable, Equatable {
     public let fileCount: Int
     /// Newest modification time inside it, seconds since 1970.
     public let lastActivity: TimeInterval
+    /// The owning tool's own cleanup command, as text; never executed.
+    public var cleanupCommand: String? = nil
+    /// Folders inside it that could not be read; its size covers the rest.
+    public var unreadableDirectories: Int = 0
 }
 
 public struct ReviewProject: Sendable, Equatable {
@@ -278,13 +284,38 @@ public struct ReviewWalker: Sendable {
         var lastMemoryCheck = 0
     }
 
+    /// One cache the catalog review measures.
+    public struct CatalogTarget: Sendable {
+        public let path: String
+        public let object: ClassifiedObject
+        public let recreateClass: RecreateClass
+        public let cleanupCommand: String
+
+        public init(path: String, object: ClassifiedObject, recreateClass: RecreateClass, cleanupCommand: String) {
+            self.path = path
+            self.object = object
+            self.recreateClass = recreateClass
+            self.cleanupCommand = cleanupCommand
+        }
+    }
+
     public func review(scope: String, excluded: [String] = [], startedAt: Date = Date()) -> ReviewReport {
+        review(scope: scope, excluded: excluded, startedAt: startedAt, catalog: nil)
+    }
+
+    /// Measures exactly the given caches, under the same budgets, as one review.
+    public func reviewCatalog(_ targets: [CatalogTarget], label: String = CacheCatalog.scope, startedAt: Date = Date()) -> ReviewReport {
+        review(scope: label, excluded: [], startedAt: startedAt, catalog: targets)
+    }
+
+    private func review(scope: String, excluded: [String], startedAt: Date, catalog: [CatalogTarget]?) -> ReviewReport {
         let start = clock()
         let baseline = footprint()
         let state = State()
         let excludedSet = Set(excluded)
         let root = scope
-        let rootIdentity = reader.identity(of: root)
+        // A catalog review has no root: caches may live on any volume.
+        let rootIdentity = catalog == nil ? reader.identity(of: root) : nil
         if let rootIdentity { state.visited.insert(rootIdentity) }
         var stack: [Frame] = [Frame(path: root, depth: 0, top: nil, repository: nil, project: nil)]
 
@@ -317,18 +348,27 @@ public struct ReviewWalker: Sendable {
 
         /// The size-only pass: sums allocated bytes inside an object, hard
         /// links once within it, and lists, classifies and stores nothing.
-        func measureObject(_ path: String, listing first: DirectoryListing?, classified: ClassifiedObject, project: String?, top: Int?) {
+        func measureObject(_ path: String, listing first: DirectoryListing?, classified: ClassifiedObject, project: String?, top: Int?,
+                           recreateClass: RecreateClass? = nil, cleanupCommand: String? = nil) {
             var bytes: Int64 = 0
             var files = 0
             var newest: TimeInterval = 0
             var links = Set<FileIdentity>()
             var pending: [(String, DirectoryListing?)] = [(path, first)]
             var complete = true
+            var unreadableInside = 0
             while let (directory, cached) = pending.popLast() {
                 guard checkBudget() else { complete = false; break }
                 let listing: DirectoryListing
                 if let cached { listing = cached } else {
-                    do { listing = try reader.list(directory) } catch { state.unreadableDirectories += 1; complete = false; continue }
+                    // An unreadable folder inside is counted and stated, like du;
+                    // only a budget stop makes the measurement incomplete.
+                    do { listing = try reader.list(directory) } catch {
+                        state.unreadableDirectories += 1
+                        unreadableInside += 1
+                        if directory == path { complete = false; break }
+                        continue
+                    }
                 }
                 state.directories += 1
                 state.entries += listing.entries.count
@@ -356,16 +396,33 @@ public struct ReviewWalker: Sendable {
                 if state.stop != nil { complete = false; break }
             }
             if complete {
-                let recreate: RecreateClass = classified.kind == .repository ? .liveState : (classified.kind == .cache ? .redownload : .rebuild)
+                let recreate: RecreateClass = recreateClass ?? (classified.kind == .repository ? .liveState : (classified.kind == .cache ? .redownload : .rebuild))
                 state.objects.append(ReviewObject(
                     path: path, kind: classified.kind, rule: classified.rule, reason: classified.reason,
                     projectPath: classified.owningProjectPath ?? project, recreateClass: recreate,
-                    allocatedBytes: bytes, fileCount: files, lastActivity: newest))
+                    allocatedBytes: bytes, fileCount: files, lastActivity: newest, cleanupCommand: cleanupCommand,
+                    unreadableDirectories: unreadableInside))
+                if unreadableInside > 0, let top { state.topIncomplete.insert(top) }
             } else if let top {
                 state.topIncomplete.insert(top)
             }
         }
 
+        // A catalog review: each opted-in cache is one object, sized by the
+        // same size-only pass and budgets; nothing else is walked.
+        if let catalog {
+            for (index, target) in catalog.enumerated() {
+                if state.stop != nil { break }
+                state.topNames.append(target.path)
+                state.topPending.append(0)
+                state.topStarted.insert(index)
+                guard let identity = reader.identity(of: target.path) else { state.unreadableDirectories += 1; state.topIncomplete.insert(index); continue }
+                guard enter(identity) else { state.topIncomplete.insert(index); continue }
+                measureObject(target.path, listing: nil, classified: target.object, project: nil, top: index,
+                              recreateClass: target.recreateClass, cleanupCommand: target.cleanupCommand)
+            }
+            stack.removeAll()
+        }
         while let frame = stack.popLast() {
             guard checkBudget() else { if let top = frame.top { state.topIncomplete.insert(top) }; break }
             let listing: DirectoryListing

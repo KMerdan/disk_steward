@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `at-risk`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-623` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -40,7 +40,7 @@ Show the review in a regular window: scope selector, start and stop, concrete pr
 - `CONTRACT-601` (contract-requires, passed)
 - `TASK-617` (requires, passed)
 - `TASK-622` (requires, passed)
-- `TASK-631` (requires, unverified)
+- `TASK-631` (requires, passed)
 
 ## Required Context
 

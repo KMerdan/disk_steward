@@ -48,6 +48,22 @@ final class ReviewBenchmarkTests: XCTestCase {
         XCTAssertLessThan(runs.compactMap { $0["seconds"] as? Double }.max() ?? 999, 60)
     }
 
+    /// TASK-631 AC-02, opt-in: the opted-in catalog on this Mac's real home.
+    func testOptedInCatalogOnThisMac() throws {
+        guard let home = marker("catalog-home") else { throw XCTSkip("No catalog home in this snapshot") }
+        let started = ProcessInfo.processInfo.systemUptime
+        let report = ReviewWalker().reviewCatalog(CacheCatalog.targets(optedIn: ["uv", "library-caches", "coresimulator", "ollama"], home: home))
+        let seconds = ProcessInfo.processInfo.systemUptime - started
+        let record: [String: Any] = ["seconds": seconds, "status": report.status.label, "entries": report.entriesVisited,
+                                     "unreadable_directories": report.unreadableDirectories,
+                                     "objects": report.objects.map { ["path": $0.path, "bytes": $0.allocatedBytes, "files": $0.fileCount] as [String: Any] }]
+        if let output = marker("output-dir") {
+            try JSONSerialization.data(withJSONObject: record, options: [.sortedKeys]).write(to: URL(fileURLWithPath: output + "/catalog.json"))
+        }
+        print("REVIEW-CATALOG", String(decoding: try JSONSerialization.data(withJSONObject: record, options: [.sortedKeys]), as: UTF8.self))
+        XCTAssertEqual(report.objects.count, 4)
+    }
+
     func testSyntheticMillionFileTree() throws {
         guard let tree = marker("synthetic-tree") else { throw XCTSkip("No synthetic tree in this snapshot") }
         var started = ProcessInfo.processInfo.systemUptime

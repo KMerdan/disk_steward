@@ -26,6 +26,9 @@ public enum ObjectDetectionRule: String, Equatable, Sendable, Codable {
     case repository
     /// A known output name with no project evidence: not classified.
     case unresolved
+    /// A tool-owned cache from the review catalog, measured once the user
+    /// opted it into review (TASK-631).
+    case catalog
 }
 
 public enum ObjectDetectionConfidence: String, Equatable, Sendable, Codable {

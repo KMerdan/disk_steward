@@ -8,10 +8,10 @@
 - Wave: `4`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
-- Health: `at-risk`
-- Availability: `ready`
+- Execution: `implemented`
+- Verification: `passed`
+- Health: `clear`
+- Availability: `verified`
 - Goal trace: `TASK-631` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -68,19 +68,13 @@ Measure tool-owned caches as objects once the user opts each into review, labell
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: `IMPACT-R4-TASK-631-SCANNER`, `IMPACT-R4-TASK-631-SETTINGS`, `IMPACT-R4-TASK-631-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`, `ASSET-SETTINGS`
+- Status: `covered`
+- Impact records: `IMPACT-R4-TASK-631-SCANNER`, `IMPACT-R4-TASK-631-SETTINGS`, `IMPACT-R4-TASK-631-ASSURANCE`, `IMPACT-R4-TASK-631-STORE`, `IMPACT-R4-TASK-631-UI`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-SCANNER`, `ASSET-SETTINGS`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R4-TASK-631-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-631-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-631-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-631-SETTINGS remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-631-1 is stale
+- None
 
 

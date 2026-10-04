@@ -32,6 +32,8 @@ public struct StoredReviewItem: Sendable, Equatable {
         public let command: String
         public let known: Bool
         public let reasons: [String]
+        /// The owning tool's cleanup command, as text; absent for project objects.
+        public var cleanup: String? = nil
     }
 
     public let rank: Int
@@ -93,7 +95,8 @@ public actor ReviewIndex {
 
         let storable = report.objects.filter { $0.path.utf8.count <= pathLimit }
         let kept = Array(storable.prefix(Self.maximumObjects))
-        if report.status != .completed, !kept.isEmpty {
+        // A measured object replaces any earlier row for the same path.
+        if !kept.isEmpty {
             try connection.withStatement("DELETE FROM object_index WHERE path_key = ?") { statement in
                 for object in kept {
                     sqlite3_reset(statement)
@@ -181,11 +184,12 @@ public actor ReviewIndex {
     static func itemDetail(_ item: RankedReviewItem, bytes: Int) -> String {
         var reasons = item.reasons
         while true {
-            let detail = StoredReviewItem.Detail(command: item.rebuildCommand, known: item.rebuildCommandKnown, reasons: reasons)
+            let detail = StoredReviewItem.Detail(command: item.rebuildCommand, known: item.rebuildCommandKnown, reasons: reasons, cleanup: item.cleanupCommand)
             let data = (try? JSONEncoder().encode(detail)) ?? Data()
             if data.count <= bytes || reasons.isEmpty {
                 if data.count <= bytes { return String(decoding: data, as: UTF8.self) }
-                let short = StoredReviewItem.Detail(command: String(item.rebuildCommand.prefix(600)), known: item.rebuildCommandKnown, reasons: [])
+                let short = StoredReviewItem.Detail(command: String(item.rebuildCommand.prefix(400)), known: item.rebuildCommandKnown, reasons: [],
+                                                    cleanup: item.cleanupCommand.map { String($0.prefix(300)) })
                 return String(decoding: (try? JSONEncoder().encode(short)) ?? Data(), as: UTF8.self)
             }
             reasons.removeLast()
@@ -311,13 +315,30 @@ public actor ReviewService {
 
     public func state(for scope: String) -> ReviewScopeState? { loadState()[scope] }
 
+    /// Measures the opted-in caches as one review under the same budgets and
+    /// cooldown; a cache that was not opted in is never read.
+    public func reviewCatalog(optedIn: Set<String>, home: String = NSHomeDirectory()) async throws -> ReviewReport {
+        try await run(scope: CacheCatalog.scope) { walker, started in
+            walker.reviewCatalog(CacheCatalog.targets(optedIn: optedIn, home: home), startedAt: started)
+        }
+    }
+
     public func review(scope requested: String, excluded: [String] = []) async throws -> ReviewReport {
-        guard !running else { throw ReviewError.busy }
         let scope = DirectoryChangeStream.canonicalPath(requested)
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: scope, isDirectory: &isDirectory), isDirectory.boolValue else {
             throw ReviewError.scopeUnavailable(requested)
         }
+        let excludedPaths = excluded.map(DirectoryChangeStream.canonicalPath)
+        return try await run(scope: scope) { walker, started in
+            walker.review(scope: scope, excluded: excludedPaths, startedAt: started)
+        }
+    }
+
+    /// One review at a time, on the review queue, with cooldown, storage and
+    /// the growth baseline handled the same way for every kind of review.
+    private func run(scope: String, _ body: @escaping @Sendable (ReviewWalker, Date) -> ReviewReport) async throws -> ReviewReport {
+        guard !running else { throw ReviewError.busy }
         var states = loadState()
         let started = now()
         if let until = states[scope]?.cooldownUntil, until > started { throw ReviewError.coolingDown(until: until) }
@@ -326,11 +347,10 @@ public actor ReviewService {
         let flag = cancel
         flag.reset()
         let walker = makeWalker(states[scope]?.lastCompleteEntries, { flag.value })
-        let excludedPaths = excluded.map(DirectoryChangeStream.canonicalPath)
         let queue = self.queue
         let report: ReviewReport = await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in
-                queue.async { continuation.resume(returning: walker.review(scope: scope, excluded: excludedPaths, startedAt: started)) }
+                queue.async { continuation.resume(returning: body(walker, started)) }
             }
         } onCancel: { flag.set() }
         try await index.record(report)

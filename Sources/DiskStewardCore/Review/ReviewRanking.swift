@@ -22,6 +22,8 @@ public struct RankedReviewItem: Sendable, Equatable {
     /// How to recreate it, or a sentence saying the command is unknown.
     public let rebuildCommand: String
     public let rebuildCommandKnown: Bool
+    /// The owning tool's own cleanup command, as text, when it has one.
+    public let cleanupCommand: String?
     public var state: State
     public var verifiedAt: Date
     public let reasons: [String]
@@ -50,6 +52,7 @@ public enum ReviewRanking {
         switch recreate {
         case .redownload: return 1.0
         case .rebuild: return 0.92
+        case .expensive: return 0.85
         case .liveState: return 0
         }
     }
@@ -57,8 +60,11 @@ public enum ReviewRanking {
     public static func rank(_ report: ReviewReport, now: Date) -> [RankedReviewItem] {
         let projects = Dictionary(uniqueKeysWithValues: report.projects.map { ($0.path, $0) })
         let scored = report.objects.filter { $0.kind != .repository }.map { object -> (ReviewObject, ReviewProject?, Double?, Double) in
-            let project = owningProject(of: object, in: projects)
-            let idle = project.map { max(0, now.timeIntervalSince1970 - $0.lastSourceActivity) / 86_400 }
+            let project = object.rule == .catalog ? nil : owningProject(of: object, in: projects)
+            // A tool cache has no project: its own newest use is what idleness means.
+            let idle = object.rule == .catalog
+                ? max(0, now.timeIntervalSince1970 - object.lastActivity) / 86_400
+                : project.map { max(0, now.timeIntervalSince1970 - $0.lastSourceActivity) / 86_400 }
             let score = Double(object.allocatedBytes) * idleFactor(days: idle) * recreateFactor(object.recreateClass)
             return (object, project, idle, score)
         }.sorted { lhs, rhs in
@@ -71,15 +77,21 @@ public enum ReviewRanking {
             let tools = toolHints(for: project, in: projects)
             let command = rebuildCommand(for: object, tools: tools)
             var reasons = [String(object.reason.prefix(1)).uppercased() + String(object.reason.dropFirst()) + "."]
-            if let project, let idle {
+            if object.rule == .catalog, let idle {
+                reasons.append("It was last used \(Self.days(idle)) ago.")
+            } else if let project, let idle {
                 reasons.append("Its project (\(URL(fileURLWithPath: project.path).lastPathComponent)) last changed \(Self.days(idle)) ago.")
             } else {
                 reasons.append("No owning project was found, so it is ranked as if just used.")
             }
             reasons.append(recreateSentence(object.recreateClass))
+            if object.unreadableDirectories > 0 {
+                reasons.append("\(object.unreadableDirectories) folders inside could not be read; the size covers the rest.")
+            }
             return RankedReviewItem(rank: index + 1, object: object, projectPath: project?.path ?? object.projectPath, projectIdleDays: idle,
                                     score: score, reclaimableBytes: object.allocatedBytes, rebuildCommand: command.text,
-                                    rebuildCommandKnown: command.known, state: .reviewRequired, verifiedAt: report.completedAt, reasons: reasons)
+                                    rebuildCommandKnown: command.known, cleanupCommand: object.cleanupCommand,
+                                    state: .reviewRequired, verifiedAt: report.completedAt, reasons: reasons)
         }
     }
 
@@ -135,6 +147,11 @@ public enum ReviewRanking {
             default: return (tools.contains("npm") ? "npm ci" : "npm install", true)
             }
         }
+        if object.rule == .catalog {
+            return object.recreateClass == .expensive
+                ? ("Expensive to recreate: it must be downloaded or set up again.", true)
+                : ("Recreated by the tool that owns it the next time it needs the cache.", true)
+        }
         if object.kind == .cache { return ("Recreated by the tool that owns it the next time it needs the cache.", true) }
         switch name {
         case "node_modules": return node(nil)
@@ -173,6 +190,7 @@ public enum ReviewRanking {
         switch recreate {
         case .rebuild: return "It can be rebuilt from source."
         case .redownload: return "It can be downloaded again."
+        case .expensive: return "It is expensive to recreate."
         case .liveState: return "It is live state and is never a candidate."
         }
     }

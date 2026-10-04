@@ -91,7 +91,10 @@ Repair the observed dashboard update path with one observation-bound presentatio
 ### Assurance Blockers
 
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
+- Required inspection INSPECT-R3-617-PRESENTATION is stale
 
 

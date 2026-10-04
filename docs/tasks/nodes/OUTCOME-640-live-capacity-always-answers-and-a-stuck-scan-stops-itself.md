@@ -68,9 +68,12 @@ The board, the helper self-check and every MCP summary tool answer with live cap
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
+- Required inspection INSPECT-R3-617-PRESENTATION is stale
+- Required inspection INSPECT-R4-GATE-649-DISPLAY is stale
 - Required inspection INSPECT-R4-GATE-649-SAFETY is stale
 - Required inspection INSPECT-R4-TASK-614-1 is stale
 - Required inspection INSPECT-R4-TASK-641-1 is stale

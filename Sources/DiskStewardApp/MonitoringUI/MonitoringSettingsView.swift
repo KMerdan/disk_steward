@@ -57,6 +57,26 @@ struct MonitoringSettingsView: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
 
+            Section("Cache review") {
+                ForEach(CacheCatalog.entries) { entry in
+                    let path = entry.resolvedPath(home: NSHomeDirectory())
+                    Toggle(isOn: Binding(
+                        get: { settingsStore.settings.optedInCaches.contains(entry.id) },
+                        set: { optedIn in settingsStore.update { $0.setCache(entry.id, optedIn: optedIn) } }
+                    )) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(entry.name)
+                            Text(path.map { ($0 as NSString).abbreviatingWithTildeInPath } ?? "Not found on this Mac")
+                                .font(.caption2).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                        }
+                    }
+                    .disabled(path == nil)
+                    .accessibilityHint("Includes \(entry.name) in reviews you start. Its cleanup command is shown, never run.")
+                }
+                Text("A cache is measured only in reviews you start, and only when turned on here. Disk Steward shows each tool's own cleanup command; it never runs one.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+
             Section("Privacy exclusions") {
                 pathList(settingsStore.settings.excludedRoots, remove: settingsStore.removeExcludedRoot)
                 Button("Add Excluded Folder…") { folderSelection = .excluded }

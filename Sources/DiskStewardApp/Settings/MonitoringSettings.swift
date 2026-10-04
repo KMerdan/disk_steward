@@ -19,6 +19,17 @@ struct MonitoringSettings: Codable, Equatable, Sendable {
     var monitoringPaused: Bool
     var investigationRoot: String?
     var investigationExpiresAt: Date?
+    /// Catalog caches the user opted into review (TASK-631); none by default.
+    /// Optional, so settings written before it existed still decode.
+    var reviewCatalogOptIns: [String]? = nil
+
+    var optedInCaches: Set<String> { Set(reviewCatalogOptIns ?? []) }
+
+    mutating func setCache(_ id: String, optedIn: Bool) {
+        var ids = optedInCaches
+        if optedIn { ids.insert(id) } else { ids.remove(id) }
+        reviewCatalogOptIns = ids.isEmpty ? nil : ids.sorted()
+    }
 
     static var defaults: MonitoringSettings {
         let home = FileManager.default.homeDirectoryForCurrentUser
