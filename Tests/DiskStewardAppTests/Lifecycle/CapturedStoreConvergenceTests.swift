@@ -62,6 +62,25 @@ final class CapturedStoreConvergenceTests: XCTestCase {
         XCTAssertEqual(commits.count, 0, "no slice was attempted")
         XCTAssertFalse(observation.needsScanContinuation)
 
+        // Cost of later stopped samples on the real store: they must not recount
+        // the evidence store each time (the 1.3.0 (9) install averaged 11.4%).
+        func processCPUSeconds() -> Double {
+            var usage = rusage()
+            getrusage(RUSAGE_SELF, &usage)
+            return Double(usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) + Double(usage.ru_utime.tv_usec + usage.ru_stime.tv_usec) / 1_000_000
+        }
+        var costs: [Double] = []
+        for _ in 0..<20 {
+            let before = processCPUSeconds()
+            let stopped = try await probe.sample(settings: settings)
+            costs.append(processCPUSeconds() - before)
+            XCTAssertEqual(stopped.scanStop, stop)
+        }
+        let cachedMean = costs.reduce(0, +) / Double(costs.count)
+        print("STOPPED-SAMPLE-CPU first-observation-after-stop", String(format: "%.3f", costs[0]), "mean", String(format: "%.4f", cachedMean),
+              "max", String(format: "%.4f", costs.max() ?? 0))
+        XCTAssertLessThan(cachedMean, 0.25, "a stopped sample must be cheap")
+
         let reader = try EvidenceStore(url: database, availableCapacitySource: { _ in Int64.max })
         let after = try await reader.activeScanGenerationSummary()
         XCTAssertNil(after, "the stuck generation is abandoned")

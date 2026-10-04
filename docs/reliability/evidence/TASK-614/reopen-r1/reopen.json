@@ -1,0 +1,17 @@
+{
+ "schema": "disk-steward-reopen-evidence-v1",
+ "task": "TASK-614",
+ "date": "2026-10-04",
+ "finding": "After installing 1.3.0 (9) the stop fired on the live store, but the app still averaged 11.4% of one core over 15 minutes (103 CPU-s / 900 s) and 13.8% over a quiet 3-minute window with no activity from the operator; GATE-649 requires below 2%.",
+ "cause": "Every file change in a busy watched folder scheduled a sample 0.5 s later. In the stopped state each sample still recomputed the full lifecycle status (storage accounting, full-table counts) and enumerated mounted volumes. A 60 s profile of the installed app attributes ~9.4 of 60 s to sampling: lifecycleStatus 7.1 s (storageAccounting 6.0 s), VolumeSnapshotService.capture 2.3 s.",
+ "fix": "Stopped samples reuse the lifecycle status for up to 30 minutes; the controller schedules no event-triggered sample while detail is stopped or unavailable (checked when scheduling and when the debounced sample fires); capacity stays on the regular interval.",
+ "evidence": [
+  "installed-1.3.0-9-cpu-15min.json",
+  "installed-1.3.0-9-profile-60s-frames.txt",
+  "mut-no-stopped-cache.json"
+ ],
+ "captured_store_cost": {
+  "cached_stopped_sample_cpu_seconds_mean": 0.0004,
+  "uncached_stopped_sample_cpu_seconds_mean": 0.0651
+ }
+}

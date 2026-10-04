@@ -98,6 +98,15 @@ final class ScanConvergenceStopTests: XCTestCase {
         XCTAssertTrue(runs.isEmpty, "No retention ran on the stopped sample")
         await reader.close()
 
+        // While stopped, event-driven samples reuse the lifecycle status
+        // instead of recounting the store each time.
+        let stoppedProbe = try fixture.probe(commits: commits)
+        let firstStopped = try await stoppedProbe.sample(settings: fixture.settings)
+        let secondStopped = try await stoppedProbe.sample(settings: fixture.settings)
+        XCTAssertNotNil(firstStopped.evidenceLifecycle)
+        XCTAssertEqual(secondStopped.evidenceLifecycle?.observedAt, firstStopped.evidenceLifecycle?.observedAt)
+        XCTAssertNotEqual(secondStopped.observedAt, firstStopped.observedAt, "capacity is still sampled each time")
+
         // Relaunch: a new probe honours the persisted stop and scans nothing.
         let relaunched = try await fixture.probe(commits: commits).sample(settings: fixture.settings)
         XCTAssertEqual(relaunched.scanStop, stop)

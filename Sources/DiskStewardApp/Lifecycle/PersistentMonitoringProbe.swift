@@ -349,6 +349,11 @@ actor PersistentMonitoringProbe: MonitoringProbing {
     /// reset by progress or a changed limit, since raising it is the remedy.
     private var consecutiveRefusedSamples = 0
     private var refusalCapBytes: Int64?
+    /// While scanning is stopped nothing writes detail, so the lifecycle
+    /// status is reused instead of recounting the store on every event-driven
+    /// sample; it is refreshed at most this often.
+    static let stoppedLifecycleRefresh: TimeInterval = 30 * 60
+    private var stoppedLifecycle: (stop: ScanConvergenceStop, readAt: Date, status: EvidenceLifecycleStatus)?
 
     init(
         databaseURL: URL,
@@ -831,7 +836,14 @@ actor PersistentMonitoringProbe: MonitoringProbing {
             volumeUsedDelta: volumeDelta, detailedEvents: [], eventGap: eventGap,
             scopeLimitations: volumeGrowth.limitations + policy.scopeLimitations(at: now) + [stop.message]
         )
-        let evidenceLifecycle = try await store.lifecycleStatus(retentionPolicy, at: now)
+        let evidenceLifecycle: EvidenceLifecycleStatus
+        if let cached = stoppedLifecycle, cached.stop == stop,
+           now.timeIntervalSince(cached.readAt) < Self.stoppedLifecycleRefresh {
+            evidenceLifecycle = cached.status
+        } else {
+            evidenceLifecycle = try await store.lifecycleStatus(retentionPolicy, at: now)
+            stoppedLifecycle = (stop, now, evidenceLifecycle)
+        }
         try Task.checkCancellation()
         return MonitoringObservation(
             observedAt: now,

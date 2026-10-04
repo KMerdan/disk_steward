@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "graph_version": 59,
+  "graph_version": 64,
   "created_at": "2026-09-20T03:04:14.155702Z",
-  "updated_at": "2026-10-04T06:55:37.524148Z",
+  "updated_at": "2026-10-04T09:34:35.178623Z",
   "lifecycle": {
     "status": "active",
     "completed_at": null,
@@ -803,12 +803,12 @@
       "last_reopen": null
     },
     "TASK-614": {
-      "execution": "implemented",
-      "verification": "passed",
+      "execution": "working",
+      "verification": "failed",
       "health": "clear",
-      "owner": null,
-      "lease_expires_at": null,
-      "work_origin": null,
+      "owner": "claude",
+      "lease_expires_at": "2026-10-04T11:34:35.178567Z",
+      "work_origin": "needs-rework",
       "active_handoff_id": null,
       "paused_at": null,
       "paused_by": null,
@@ -816,7 +816,7 @@
       "resume_deadline": null,
       "last_handoff": null,
       "blocker": null,
-      "updated_at": "2026-10-04T06:40:38.415773Z",
+      "updated_at": "2026-10-04T09:34:35.178576Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-614",
@@ -1052,7 +1052,12 @@
           ]
         }
       },
-      "last_reopen": null
+      "last_reopen": {
+        "at": "2026-10-04T09:34:22.827510Z",
+        "actor": "claude",
+        "reason": "GATE-649 on the installed 1.3.0 (9): stop fired but the app averaged 11.4% of a core (gate requires <2%); stopped samples recomputed lifecycle status on every file-change event",
+        "evidence": "/Users/merdankiji/localGit/disk_steward/docs/reliability/evidence/TASK-614/reopen-r1/reopen.json"
+      }
     },
     "TASK-621": {
       "execution": "planned",
@@ -1447,8 +1452,8 @@
     },
     "TASK-617": {
       "execution": "implemented",
-      "verification": "pending",
-      "health": "at-risk",
+      "verification": "passed",
+      "health": "clear",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -1458,8 +1463,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": null,
+      "updated_at": "2026-10-04T08:59:52.127898Z",
       "last_result": {
         "schema": "agent-result-v1",
         "task": "TASK-617",
@@ -1652,7 +1657,10 @@
               "docs/reliability/evidence/TASK-617/before.log",
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
-              "docs/reliability/evidence/TASK-617/review.json"
+              "docs/reliability/evidence/TASK-617/review.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+              "docs/reliability/planning/replan-006-r4-review.json"
             ]
           },
           {
@@ -1664,7 +1672,10 @@
               "docs/reliability/evidence/TASK-617/before.log",
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
-              "docs/reliability/evidence/TASK-617/review.json"
+              "docs/reliability/evidence/TASK-617/review.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+              "docs/reliability/planning/replan-006-r4-review.json"
             ]
           },
           {
@@ -1676,7 +1687,10 @@
               "docs/reliability/evidence/TASK-617/before.log",
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
-              "docs/reliability/evidence/TASK-617/review.json"
+              "docs/reliability/evidence/TASK-617/review.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+              "docs/reliability/planning/replan-006-r4-review.json"
             ]
           },
           {
@@ -1688,7 +1702,10 @@
               "docs/reliability/evidence/TASK-617/before.log",
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
-              "docs/reliability/evidence/TASK-617/review.json"
+              "docs/reliability/evidence/TASK-617/review.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+              "docs/reliability/planning/replan-006-r4-review.json"
             ]
           },
           {
@@ -1700,7 +1717,10 @@
               "docs/reliability/evidence/TASK-617/before.log",
               "docs/reliability/evidence/TASK-617/after.json",
               "docs/reliability/evidence/TASK-617/after.log",
-              "docs/reliability/evidence/TASK-617/review.json"
+              "docs/reliability/evidence/TASK-617/review.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/candidate.json",
+              "docs/reliability/evidence/GATE-649/candidate-ce013640/tests.log",
+              "docs/reliability/planning/replan-006-r4-review.json"
             ]
           }
         ],
@@ -1726,7 +1746,8 @@
           "limitations": [
             "Source/isolated functional assurance only; installed application, live store, OS notification display and release not assessed.",
             "604-case ordinary suite has six intentional opt-in skips; large-scope/overnight/native-client/rollback gates remain separate.",
-            "Current object-model/schema changes from other tasks remain unreleased; this audit does not authorize live migration."
+            "Current object-model/schema changes from other tasks remain unreleased; this audit does not authorize live migration.",
+            "R4 re-audit: TASK-617 was re-attached to OUTCOME-640 without contract change. Since its audited candidate, its files changed only by the rung-1 additions (convergence stop and capacity-only fallback in the probe, two status lines in the controller) and the earlier older-SDK notification fix. LiveStatusBoardTests, NotificationDeliveryTests, ThresholdNotificationPolicyTests, StatusBoardPresentationTests, VolumePresentationTests and MonitoringProbeCancellationTests pass in the full 617-test run on committed input ce013640."
           ]
         }
       },
@@ -2202,20 +2223,20 @@
       "last_reopen": null
     },
     "GATE-649": {
-      "execution": "planned",
+      "execution": "working",
       "verification": "unverified",
-      "health": "clear",
-      "owner": null,
-      "lease_expires_at": null,
-      "work_origin": null,
+      "health": "at-risk",
+      "owner": "claude",
+      "lease_expires_at": "2026-10-04T17:00:17.392703Z",
+      "work_origin": "planned",
       "active_handoff_id": null,
       "paused_at": null,
       "paused_by": null,
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+      "updated_at": "2026-10-04T09:34:22.827519Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -2734,7 +2755,7 @@
     "GATE-619": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2744,8 +2765,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+      "updated_at": "2026-10-04T09:34:22.827519Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -2753,7 +2774,7 @@
     "OUTCOME-610": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2763,8 +2784,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+      "updated_at": "2026-10-04T09:34:22.827519Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -2772,7 +2793,7 @@
     "GATE-629": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2782,8 +2803,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+      "updated_at": "2026-10-04T09:34:22.827519Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -2791,7 +2812,7 @@
     "OUTCOME-620": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2801,8 +2822,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+      "updated_at": "2026-10-04T09:34:22.827519Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -2810,7 +2831,7 @@
     "GATE-639": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2820,8 +2841,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": "Replan changed this node's contract or graph relations; re-audit required.",
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+      "updated_at": "2026-10-04T09:34:22.827519Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -2829,7 +2850,7 @@
     "OUTCOME-630": {
       "execution": "superseded",
       "verification": "unverified",
-      "health": "clear",
+      "health": "at-risk",
       "owner": null,
       "lease_expires_at": null,
       "work_origin": null,
@@ -2839,8 +2860,8 @@
       "pause_mode": null,
       "resume_deadline": null,
       "last_handoff": null,
-      "blocker": null,
-      "updated_at": "2026-10-04T06:03:49.946445Z",
+      "blocker": "TASK-614 was reopened; dependent verification must be repeated.",
+      "updated_at": "2026-10-04T09:34:22.827519Z",
       "last_result": null,
       "last_audit": null,
       "last_reopen": null
@@ -3111,5 +3132,5 @@
       "last_reopen": null
     }
   },
-  "context_id": "CTX-15CEB4B97D08B6632625CD5092DCF484"
+  "context_id": "CTX-B1B21286626519B1816A5484C41BEE87"
 }

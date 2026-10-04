@@ -5,7 +5,7 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 ## Current State
 
-- Graph version: `59`
+- Graph version: `64`
 - Plan revision: `4`
 - Lifecycle: `active`
 - Verified primary nodes: `4/29`
@@ -19,7 +19,7 @@ Disk Steward treats build output, shared developer caches and repositories as si
 
 - Status: `blocked`
 - Baseline: `current` revision `4`
-- Impacted assets inspected sufficiently: `7/16`
+- Impacted assets inspected sufficiently: `2/16`
 - Open scope drift: `0`
 - Open material findings: `0`
 

@@ -428,13 +428,21 @@ final class MonitoringLifecycleController: ObservableObject {
         }
     }
 
+    private var detailIsStopped: Bool {
+        latestObservation?.scanStop != nil || latestObservation?.detailUnavailableReason != nil
+    }
+
     private func scheduleEventSample() {
         guard canSample else { return }
+        // With file detail stopped or unavailable, a file change cannot add
+        // detail; capacity stays on the regular interval instead of being
+        // re-measured after every change in a busy watched folder.
+        guard !detailIsStopped else { return }
         eventSampleTask?.cancel()
         eventSampleTask = Task { [weak self] in
             guard let self else { return }
             do { try await self.clock.sleep(0.5) } catch { return }
-            guard !Task.isCancelled, self.canSample else { return }
+            guard !Task.isCancelled, self.canSample, !self.detailIsStopped else { return }
             await self.sampleNow()
         }
     }

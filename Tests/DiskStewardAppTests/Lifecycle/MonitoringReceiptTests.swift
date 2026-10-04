@@ -383,6 +383,66 @@ final class MonitoringReceiptTests: XCTestCase {
 
 private let receiptDate = Date(timeIntervalSince1970: 2_100_100_000)
 
+@MainActor
+final class StoppedScanEventSampleTests: XCTestCase {
+    private final class Counter: @unchecked Sendable {
+        private let lock = NSLock()
+        private var value = 0
+        func increment() { lock.withLock { value += 1 } }
+        var count: Int { lock.withLock { value } }
+    }
+
+    /// TASK-614 reopen: the 1.3.0 (9) install averaged 11.4% of a core because
+    /// every file change in a busy watched folder triggered a full sample
+    /// although detail scanning was stopped.
+    func testStoppedScanSamplesCapacityOnTheIntervalNotOnEveryFileChange() async throws {
+        let fixture = try ReceiptFixture()
+        let settings = fixture.settingsStore()
+        let now = Date()
+        let seeding = try EvidenceStore(url: fixture.database)
+        let scope = settings.settings.monitoringPolicy(at: now).scopeVersion(at: now)
+        let initial = try await seeding.beginOrResumeScanGeneration(scope: scope, at: now)
+        let stuck = MetadataScanGeneration(generationID: initial.generationID, scopeVersionID: initial.scopeVersionID,
+            rootPaths: initial.rootPaths, excludedPaths: initial.excludedPaths, status: .active, roots: initial.roots,
+            processedEntryCount: 488_301_862, stagedFileCount: 0, startedAt: now, updatedAt: now,
+            reconciliationToken: initial.reconciliationToken)
+        _ = try await seeding.recordScanSlice(snapshot: .init(snapshotID: "stuck", observedAt: EvidenceTimestamp.format(now), volumes: []),
+            slice: .init(generation: stuck, entries: []), scope: scope, trigger: .scheduled)
+        await seeding.close()
+
+        let store = try EvidenceStore(url: fixture.database)
+        let samples = Counter()
+        let probe = try fixture.probe(store: store, beforeVolumeSample: { samples.increment() })
+        let collector = ReceiptCollector()
+        let clock = ManualLifecycleClock()
+        let safety = MonitoringSafetyStateStore(persistence: settings.persistence)
+        let controller = MonitoringLifecycleController(settingsStore: settings, probe: probe, notificationDelivery: DisabledNotificationDelivery(), changeCollector: collector, safetyState: safety, clock: clock.clock)
+        addTeardownBlock {
+            _ = await controller.shutdownAndDrain(timeout: 0)
+            await store.close()
+            fixture.remove()
+        }
+        controller.start()
+        try await receiptEventually { controller.latestObservation?.scanStop != nil && !safety.hasInterruptedSample }
+        let afterStop = samples.count
+
+        for name in ["A", "B", "C"] { collector.emit(hint(fixture.root.appending(path: name).path)) }
+        try await receiptEventually { !probe.changeInbox!.hasPendingChanges }
+        // Step the manual clock past any 0.5 s debounce, however late it was
+        // scheduled, and give a wrongly scheduled sample real time to reach the
+        // volume sampler. 20 steps of 0.6 s stay far below the 5-minute interval.
+        for _ in 0..<20 where samples.count == afterStop {
+            clock.advance(by: 0.6)
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        XCTAssertEqual(samples.count, afterStop, "file changes do not trigger samples while detail is stopped")
+
+        clock.advance(by: Double(settings.settings.sampleIntervalMinutes) * 60)
+        try await receiptEventually { samples.count > afterStop }
+        XCTAssertNotNil(controller.latestObservation?.scanStop, "the regular interval still measures capacity")
+    }
+}
+
 private func hint(_ path: String) -> TargetedChangeBatch {
     .init(hints: [.init(path: path, eventID: 7, observedAt: receiptDate, kind: .modified, requiresRescan: true)], eventGap: false, limitations: [])
 }

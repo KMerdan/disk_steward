@@ -83,3 +83,34 @@ its own legacy-seed step. It fails the same way on unmodified main 345c072
   relief until then.
 
 Process note: the implementation and evidence above were produced before TASK-614 was formally claimed (claim recorded afterwards on 2026-10-04); no other actor held the task.
+
+## Reopen R1 (2026-10-04): the stopped state was not idle
+
+GATE-649 measured the installed 1.3.0 (9) on the live store. The stop fired
+on first launch, but the app still averaged **11.4% of a core** over 15
+minutes. In a quiet 3-minute window, with no activity from the operator, it
+used 13.8%. The gate requires less than 2%.
+
+A 60-second profile (`reopen-r1/installed-1.3.0-9-profile-60s-frames.txt`)
+put about 9.4 s of every 60 s into sampling: 7.1 s recomputing lifecycle
+status, mostly storage accounting, and 2.3 s enumerating volumes. Samples
+were frequent because each file change in a busy watched folder scheduled a
+sample half a second later.
+
+Fix:
+
+- Stopped samples reuse the lifecycle status for up to 30 minutes.
+- The controller schedules no event-triggered sample while detail is stopped
+  or unavailable. The check runs both when the sample is scheduled and when
+  the debounced sample fires.
+- Capacity stays on the regular interval.
+
+| Run (input `887d62f1…`) | Result |
+| --- | --- |
+| `reopen-r1/focused-green/` | 52 tests, 0 failures. On the captured live-store copy, a stopped sample costs 0.4 ms of CPU (worst 0.7 ms) |
+| `reopen-r1/no-cache-red/` | Cache removed: 65 ms per stopped sample; the reuse assertion fails |
+| `reopen-r1/no-event-guard-red/` | Guard removed: a file change triggers a sample while stopped |
+
+The event-sample test first passed under its mutation, because a fixed
+manual-clock step could run before the debounced sleeper registered. It now
+steps the clock in 0.6 s increments while waiting.
