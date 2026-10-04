@@ -112,7 +112,7 @@ final class AgentQueryableEvidenceIncrementTests: XCTestCase {
         XCTAssertNotNil(model.exportCurrentSnapshot())
         XCTAssertEqual(StatusItemSurface.route(for: .leftMouseUp), .statusBoard)
         XCTAssertEqual(StatusItemSurface.route(for: .rightMouseUp), .utilityMenu)
-        XCTAssertEqual([AppMenuLabels.generalExport, AppMenuLabels.settings, AppMenuLabels.about, AppMenuLabels.quit], ["Export Legacy Evidence", "Settings…", "About Disk Steward", "Quit Disk Steward"])
+        XCTAssertEqual([AppMenuLabels.review, AppMenuLabels.generalExport, AppMenuLabels.settings, AppMenuLabels.about, AppMenuLabels.quit], ["Review Storage…", "Export Legacy Evidence", "Settings…", "About Disk Steward", "Quit Disk Steward"])
 
         service.stop()
         let unavailableTranscript = """

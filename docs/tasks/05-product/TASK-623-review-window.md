@@ -8,10 +8,10 @@
 - Wave: `5`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `working`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `working`
+- Availability: `verified`
 - Goal trace: `TASK-623` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -69,23 +69,13 @@ Show the review in a regular window: scope selector, start and stop, concrete pr
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R3-TASK-623-UI`, `IMPACT-R3-TASK-623-ASSURANCE`, `IMPACT-R4-TASK-623-SCANNER`, `IMPACT-R4-TASK-623-STORE`, `IMPACT-R4-TASK-623-BOOT`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-SCANNER`, `ASSET-STORE`, `ASSET-UI`
 - Inspections: `INSPECT-R3-623-INTEGRATION`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
-- Impact IMPACT-R3-TASK-623-UI remains hypothesis
-- Impact IMPACT-R4-TASK-623-BOOT remains hypothesis
-- Impact IMPACT-R4-TASK-623-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-623-STORE remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
-- Required inspection INSPECT-R3-623-INTEGRATION is stale
+- None
 
 

@@ -19,6 +19,24 @@ public struct ReviewBudget: Sendable, Equatable {
     public static let `default` = ReviewBudget()
 }
 
+/// What a running review has done so far: concrete counts, never a percentage.
+public struct ReviewProgress: Sendable, Equatable {
+    public let entries: Int
+    public let directories: Int
+    public let objects: Int
+    public let elapsedSeconds: TimeInterval
+    /// The top-level folder the walk is in, when known.
+    public let currentTopLevel: String?
+
+    public init(entries: Int, directories: Int, objects: Int, elapsedSeconds: TimeInterval, currentTopLevel: String?) {
+        self.entries = entries
+        self.directories = directories
+        self.objects = objects
+        self.elapsedSeconds = elapsedSeconds
+        self.currentTopLevel = currentTopLevel
+    }
+}
+
 public enum ReviewStopReason: String, Sendable, Codable, Equatable {
     case wallTime = "wall-time"
     case entries
@@ -225,6 +243,7 @@ public struct ReviewWalker: Sendable {
     private let clock: Clock
     private let footprint: Footprint
     private let isCancelled: @Sendable () -> Bool
+    private var progress: (@Sendable (ReviewProgress) -> Void)?
 
     public init(reader: any DirectoryReader = BulkDirectoryReader(), decider: any ReviewObjectDeciding = ClassifierObjectDecider(),
                 budget: ReviewBudget = .default, previousCompleteEntries: Int? = nil,
@@ -238,6 +257,13 @@ public struct ReviewWalker: Sendable {
         self.clock = clock
         self.footprint = footprint
         self.isCancelled = isCancelled
+    }
+
+    /// The same walker, reporting progress at most every 256 folders or quarter second.
+    public func withProgress(_ handler: (@Sendable (ReviewProgress) -> Void)?) -> ReviewWalker {
+        var copy = self
+        copy.progress = handler
+        return copy
     }
 
     /// The process's physical footprint (what Activity Monitor shows as memory).
@@ -319,6 +345,16 @@ public struct ReviewWalker: Sendable {
         if let rootIdentity { state.visited.insert(rootIdentity) }
         var stack: [Frame] = [Frame(path: root, depth: 0, top: nil, repository: nil, project: nil)]
 
+        var lastReport = (directories: 0, at: start)
+        func report(_ top: Int?) {
+            guard let progress else { return }
+            let now = clock()
+            guard state.directories - lastReport.directories >= 256 || now - lastReport.at >= 0.25 else { return }
+            lastReport = (state.directories, now)
+            progress(ReviewProgress(entries: state.entries, directories: state.directories, objects: state.objects.count,
+                                    elapsedSeconds: now - start, currentTopLevel: top.flatMap { $0 < state.topNames.count ? state.topNames[$0] : nil }))
+        }
+
         func checkBudget() -> Bool {
             if state.stop != nil { return false }
             if isCancelled() { state.stop = .cancelled }
@@ -359,6 +395,7 @@ public struct ReviewWalker: Sendable {
             var unreadableInside = 0
             while let (directory, cached) = pending.popLast() {
                 guard checkBudget() else { complete = false; break }
+                report(top)
                 let listing: DirectoryListing
                 if let cached { listing = cached } else {
                     // An unreadable folder inside is counted and stated, like du;
@@ -425,6 +462,7 @@ public struct ReviewWalker: Sendable {
         }
         while let frame = stack.popLast() {
             guard checkBudget() else { if let top = frame.top { state.topIncomplete.insert(top) }; break }
+            report(frame.top)
             let listing: DirectoryListing
             do { listing = try reader.list(frame.path) } catch {
                 state.unreadableDirectories += 1

@@ -39,6 +39,11 @@ public struct RankedReviewItem: Sendable, Equatable {
 /// but never ranked.
 public enum ReviewRanking {
     public static let maximumItems = 2_000
+    /// The reason that marks an item's size as a lower bound; stored with
+    /// the item, so a reopened review can still tell.
+    public static let unreadableInside = "folders inside could not be read; the size covers the rest."
+
+    public static func sizeIsLowerBound(reasons: [String]) -> Bool { reasons.contains { $0.hasSuffix(unreadableInside) } }
     /// Idle time beyond which more idleness no longer raises the score.
     public static let idleSaturationDays = 180.0
 
@@ -86,7 +91,7 @@ public enum ReviewRanking {
             }
             reasons.append(recreateSentence(object.recreateClass))
             if object.unreadableDirectories > 0 {
-                reasons.append("\(object.unreadableDirectories) folders inside could not be read; the size covers the rest.")
+                reasons.append("\(object.unreadableDirectories) \(Self.unreadableInside)")
             }
             return RankedReviewItem(rank: index + 1, object: object, projectPath: project?.path ?? object.projectPath, projectIdleDays: idle,
                                     score: score, reclaimableBytes: object.allocatedBytes, rebuildCommand: command.text,

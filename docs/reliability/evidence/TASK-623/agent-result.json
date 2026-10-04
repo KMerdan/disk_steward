@@ -1,0 +1,420 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-623",
+ "outcome": "implemented",
+ "changed_files": [
+  "Sources/DiskStewardApp/AppConfiguration.swift",
+  "Sources/DiskStewardApp/StatusBoardView.swift",
+  "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+  "Sources/DiskStewardApp/StatusItemController.swift",
+  "Sources/DiskStewardApp/Review/ReviewWindowModel.swift",
+  "Sources/DiskStewardApp/Review/ReviewWindowView.swift",
+  "Sources/DiskStewardCore/Review/ReviewIndex.swift",
+  "Sources/DiskStewardCore/Review/ReviewRanking.swift",
+  "Sources/DiskStewardCore/Review/ReviewWalker.swift",
+  "Tests/DiskStewardAppTests/DiskStewardAppTests.swift",
+  "Tests/DiskStewardAppTests/Review/ReviewWindowTests.swift",
+  "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+  "docs/reliability/evidence/TASK-623/README.md",
+  "docs/reliability/evidence/TASK-623/brief-says-safe-red/result.json",
+  "docs/reliability/evidence/TASK-623/brief-says-safe-red/tests.log",
+  "docs/reliability/evidence/TASK-623/finished-says-stopped-red/result.json",
+  "docs/reliability/evidence/TASK-623/finished-says-stopped-red/tests.log",
+  "docs/reliability/evidence/TASK-623/focused-green/result.json",
+  "docs/reliability/evidence/TASK-623/focused-green/tests.log",
+  "docs/reliability/evidence/TASK-623/free-space-merged-red/result.json",
+  "docs/reliability/evidence/TASK-623/free-space-merged-red/tests.log",
+  "docs/reliability/evidence/TASK-623/full-suite/candidate.json",
+  "docs/reliability/evidence/TASK-623/full-suite/tests.log",
+  "docs/reliability/evidence/TASK-623/interrupted-shows-zero-red/result.json",
+  "docs/reliability/evidence/TASK-623/interrupted-shows-zero-red/tests.log",
+  "docs/reliability/evidence/TASK-623/invented-percentage-red/result.json",
+  "docs/reliability/evidence/TASK-623/invented-percentage-red/tests.log",
+  "docs/reliability/evidence/TASK-623/lower-bound-not-partial-red/result.json",
+  "docs/reliability/evidence/TASK-623/lower-bound-not-partial-red/tests.log",
+  "docs/reliability/evidence/TASK-623/mut-brief-says-safe.json",
+  "docs/reliability/evidence/TASK-623/mut-finished-says-stopped.json",
+  "docs/reliability/evidence/TASK-623/mut-free-space-merged.json",
+  "docs/reliability/evidence/TASK-623/mut-interrupted-shows-zero.json",
+  "docs/reliability/evidence/TASK-623/mut-invented-percentage.json",
+  "docs/reliability/evidence/TASK-623/mut-lower-bound-not-partial.json",
+  "docs/reliability/evidence/TASK-623/mut-no-menu-entry.json",
+  "docs/reliability/evidence/TASK-623/mut-no-stop.json",
+  "docs/reliability/evidence/TASK-623/mut-row-label-no-freshness.json",
+  "docs/reliability/evidence/TASK-623/mut-stale-capacity.json",
+  "docs/reliability/evidence/TASK-623/mut-summary-unlabelled.json",
+  "docs/reliability/evidence/TASK-623/no-menu-entry-red/result.json",
+  "docs/reliability/evidence/TASK-623/no-menu-entry-red/tests.log",
+  "docs/reliability/evidence/TASK-623/no-stop-red/result.json",
+  "docs/reliability/evidence/TASK-623/no-stop-red/tests.log",
+  "docs/reliability/evidence/TASK-623/row-label-no-freshness-red/result.json",
+  "docs/reliability/evidence/TASK-623/row-label-no-freshness-red/tests.log",
+  "docs/reliability/evidence/TASK-623/screenshots/review-accessibility-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-accessibility-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-below-reserve-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-below-reserve-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-capacity-unavailable-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-capacity-unavailable-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-comfortable-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-comfortable-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-complete-with-items-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-complete-with-items-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-complete-zero-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-complete-zero-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-detail-unavailable-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-detail-unavailable-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-finished-unreadable-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-finished-unreadable-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-partial-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-partial-empty-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-partial-empty-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-partial-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-reopened-partial-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-reopened-partial-light.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-reviewing-dark.png",
+  "docs/reliability/evidence/TASK-623/screenshots/review-reviewing-light.png",
+  "docs/reliability/evidence/TASK-623/stale-capacity-red/result.json",
+  "docs/reliability/evidence/TASK-623/stale-capacity-red/tests.log",
+  "docs/reliability/evidence/TASK-623/summary-unlabelled-red/result.json",
+  "docs/reliability/evidence/TASK-623/summary-unlabelled-red/tests.log",
+  "docs/reliability/evidence/TASK-623/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-UI",
+  "ASSET-ASSURANCE",
+  "ASSET-SCANNER",
+  "ASSET-STORE",
+  "ASSET-BOOT"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Sources/DiskStewardApp/AppConfiguration.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/StatusBoardView.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/StatusItemController.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/Review/ReviewWindowModel.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/Review/ReviewWindowView.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Review/ReviewIndex.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Review/ReviewRanking.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Review/ReviewWalker.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/DiskStewardAppTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/Review/ReviewWindowTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/brief-says-safe-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/brief-says-safe-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/finished-says-stopped-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/finished-says-stopped-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/focused-green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/focused-green/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/free-space-merged-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/free-space-merged-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/full-suite/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/full-suite/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/interrupted-shows-zero-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/interrupted-shows-zero-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/invented-percentage-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/invented-percentage-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/lower-bound-not-partial-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/lower-bound-not-partial-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-brief-says-safe.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-finished-says-stopped.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-free-space-merged.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-interrupted-shows-zero.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-invented-percentage.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-lower-bound-not-partial.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-no-menu-entry.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-no-stop.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-row-label-no-freshness.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-stale-capacity.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/mut-summary-unlabelled.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/no-menu-entry-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/no-menu-entry-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/no-stop-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/no-stop-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/row-label-no-freshness-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/row-label-no-freshness-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-accessibility-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-accessibility-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-below-reserve-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-below-reserve-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-capacity-unavailable-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-capacity-unavailable-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-comfortable-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-comfortable-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-complete-with-items-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-complete-with-items-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-complete-zero-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-complete-zero-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-detail-unavailable-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-detail-unavailable-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-finished-unreadable-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-finished-unreadable-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-partial-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-partial-empty-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-partial-empty-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-partial-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-reopened-partial-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-reopened-partial-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-reviewing-dark.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/screenshots/review-reviewing-light.png",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/stale-capacity-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/stale-capacity-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/summary-unlabelled-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/summary-unlabelled-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-623/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "run-focused.py (46 tests)",
+   "result": "passed"
+  },
+  {
+   "command": "11 mutation reds",
+   "result": "each red as intended"
+  },
+  {
+   "command": "verify_candidate.py (full suite)",
+   "result": "696 tests, 0 failures, 11 skipped; candidate passed"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-623-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-623/README.md"
+  },
+  {
+   "criterion": "AC-TASK-623-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-623/README.md"
+  }
+ ],
+ "discovered_risks": [],
+ "suggested_graph_changes": []
+}

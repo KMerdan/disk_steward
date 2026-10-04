@@ -10,7 +10,7 @@
 - Selection: `superseded`
 - Execution: `superseded`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `not-executable`
 - Goal trace: `OUTCOME-630` → `INTENT-006`
 
@@ -63,26 +63,15 @@ After opting in, a user sees the tool-owned caches outside their projects ranked
 
 ### Assurance Blockers
 
-- Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
-- Impact IMPACT-R3-TASK-623-UI remains hypothesis
-- Impact IMPACT-R4-TASK-623-BOOT remains hypothesis
-- Impact IMPACT-R4-TASK-623-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-623-STORE remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
 - Required inspection INSPECT-R3-617-PRESENTATION is stale
-- Required inspection INSPECT-R3-623-INTEGRATION is stale
 - Required inspection INSPECT-R4-TASK-614-1 is stale
 - Required inspection INSPECT-R4-TASK-621-1 is stale
 - Required inspection INSPECT-R4-TASK-622-1 is stale

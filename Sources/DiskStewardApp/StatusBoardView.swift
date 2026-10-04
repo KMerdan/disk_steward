@@ -76,6 +76,17 @@ struct StatusBoardView: View {
                 AgentAccessRow(controller: agentAccess)
             }
 
+            if let openReview = viewModel.openReview {
+                Button {
+                    openReview()
+                } label: {
+                    Label("Review Storage…", systemImage: "list.bullet.rectangle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .accessibilityHint("Opens a review of build output, environments and caches. Nothing is deleted.")
+            }
+
             Button {
                 Task { _ = await viewModel.exportCurrentEvidence() }
             } label: {

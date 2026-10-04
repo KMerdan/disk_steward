@@ -24,6 +24,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     private let agentAccess: MCPAccessController
     private let agentIntegrations: AgentIntegrationManager
     private var settingsWindow: NSWindow?
+    private var reviewWindow: NSWindow?
+    private lazy var reviewModel: ReviewWindowModel = makeReviewModel()
     private var changeJournalService: ChangeJournalService?
     private var journalCheckpoint: AnyCancellable?
     private let changeJournalURL: URL?
@@ -128,6 +130,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             agentIntegrations = AgentIntegrationManager.live(helperURL: helperURL, supportDirectory: integrationSupport)
         }
         super.init()
+        viewModel.openReview = { [weak self] in self?.showReview() }
         configureStatusItem()
         configurePopover()
         configureMenu()
@@ -220,13 +223,29 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         )
     }
 
+    struct MenuEntry {
+        let title: String
+        let action: Selector
+        let key: String
+    }
+
+    /// The utility menu in order; nil is a separator. The menu is built from
+    /// this table, so a test sees every entry and the action it sends.
+    static let menuEntries: [MenuEntry?] = [
+        MenuEntry(title: AppMenuLabels.review, action: #selector(showReview), key: "r"),
+        MenuEntry(title: AppMenuLabels.generalExport, action: #selector(exportEvidence), key: "e"),
+        nil,
+        MenuEntry(title: AppMenuLabels.settings, action: #selector(showSettings), key: ","),
+        MenuEntry(title: AppMenuLabels.about, action: #selector(showAbout), key: ""),
+        nil,
+        MenuEntry(title: AppMenuLabels.quit, action: #selector(quit), key: "q"),
+    ]
+
     private func configureMenu() {
-        addMenuItem(AppMenuLabels.generalExport, action: #selector(exportEvidence), key: "e")
-        utilityMenu.addItem(.separator())
-        addMenuItem(AppMenuLabels.settings, action: #selector(showSettings), key: ",")
-        addMenuItem(AppMenuLabels.about, action: #selector(showAbout))
-        utilityMenu.addItem(.separator())
-        addMenuItem(AppMenuLabels.quit, action: #selector(quit), key: "q")
+        for entry in Self.menuEntries {
+            guard let entry else { utilityMenu.addItem(.separator()); continue }
+            addMenuItem(entry.title, action: entry.action, key: entry.key)
+        }
     }
 
     private func addMenuItem(_ title: String, action: Selector, key: String = "") {
@@ -256,6 +275,43 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         Task { @MainActor in
             _ = await viewModel.exportCurrentEvidence()
         }
+    }
+
+    /// TASK-623: the review window over the steward file next to the journal.
+    /// The isolated smoke run gets a window that cannot start a review.
+    private func makeReviewModel() -> ReviewWindowModel {
+        let settingsStore = self.settingsStore
+        var service: ReviewService?
+        var index: ReviewIndex?
+        if !AppConfiguration.isSmoke, let stewardURL = changeJournalURL, let opened = try? ReviewIndex(url: stewardURL) {
+            index = opened
+            service = ReviewService(index: opened, stateURL: ReviewService.defaultStateURL(beside: stewardURL))
+        }
+        return ReviewWindowModel(
+            service: service, index: index, scopes: reviewScopes(),
+            capacity: { [weak viewModel] in
+                guard let viewModel, let volume = viewModel.primaryVolume, !viewModel.capacityUnavailable else { return .unavailable }
+                return .init(availableBytes: volume.availableBytes, reserveBytes: settingsStore.settings.reserveBytes(totalBytes: volume.totalBytes))
+            },
+            excluded: { settingsStore.settings.excludedRoots },
+            optedInCaches: { settingsStore.settings.optedInCaches })
+    }
+
+    private func reviewScopes() -> [ReviewWindowModel.Scope] {
+        settingsStore.settings.watchedRoots.map { .folder($0) } + (settingsStore.settings.optedInCaches.isEmpty ? [] : [.caches])
+    }
+
+    @objc private func showReview() {
+        let model = reviewModel
+        if !model.isReviewing {
+            let scopes = reviewScopes()
+            if !scopes.isEmpty, scopes != model.scopes {
+                model.scopes = scopes
+                if !scopes.contains(model.selectedScope) { model.selectedScope = scopes[0] }
+            }
+        }
+        model.refreshCapacity()
+        reviewWindow = present(rootView: ReviewWindowView(model: model), title: "Review Storage", existing: reviewWindow)
     }
 
     @objc private func showSettings() {

@@ -104,6 +104,8 @@ final class StatusBoardViewModel: ObservableObject {
     @Published private var standaloneError: String?
     @Published private(set) var exportMessage: String?
     @Published private(set) var isExporting = false
+    /// Opens the review window (TASK-623); nil where no review is possible.
+    var openReview: (() -> Void)?
 
     private let snapshotLoader: SnapshotLoader
     private let exporter: Exporter

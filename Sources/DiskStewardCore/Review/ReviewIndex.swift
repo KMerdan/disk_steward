@@ -315,29 +315,37 @@ public actor ReviewService {
 
     public func state(for scope: String) -> ReviewScopeState? { loadState()[scope] }
 
+    /// Asks a running review to stop; it ends with a partial, cancelled report.
+    public nonisolated func stop() { cancel.set() }
+
+    public var isRunning: Bool { running }
+
     /// Measures the opted-in caches as one review under the same budgets and
     /// cooldown; a cache that was not opted in is never read.
-    public func reviewCatalog(optedIn: Set<String>, home: String = NSHomeDirectory()) async throws -> ReviewReport {
-        try await run(scope: CacheCatalog.scope) { walker, started in
+    public func reviewCatalog(optedIn: Set<String>, home: String = NSHomeDirectory(),
+                              progress: (@Sendable (ReviewProgress) -> Void)? = nil) async throws -> ReviewReport {
+        try await run(scope: CacheCatalog.scope, progress: progress) { walker, started in
             walker.reviewCatalog(CacheCatalog.targets(optedIn: optedIn, home: home), startedAt: started)
         }
     }
 
-    public func review(scope requested: String, excluded: [String] = []) async throws -> ReviewReport {
+    public func review(scope requested: String, excluded: [String] = [],
+                       progress: (@Sendable (ReviewProgress) -> Void)? = nil) async throws -> ReviewReport {
         let scope = DirectoryChangeStream.canonicalPath(requested)
         var isDirectory: ObjCBool = false
         guard FileManager.default.fileExists(atPath: scope, isDirectory: &isDirectory), isDirectory.boolValue else {
             throw ReviewError.scopeUnavailable(requested)
         }
         let excludedPaths = excluded.map(DirectoryChangeStream.canonicalPath)
-        return try await run(scope: scope) { walker, started in
+        return try await run(scope: scope, progress: progress) { walker, started in
             walker.review(scope: scope, excluded: excludedPaths, startedAt: started)
         }
     }
 
     /// One review at a time, on the review queue, with cooldown, storage and
     /// the growth baseline handled the same way for every kind of review.
-    private func run(scope: String, _ body: @escaping @Sendable (ReviewWalker, Date) -> ReviewReport) async throws -> ReviewReport {
+    private func run(scope: String, progress: (@Sendable (ReviewProgress) -> Void)?,
+                     _ body: @escaping @Sendable (ReviewWalker, Date) -> ReviewReport) async throws -> ReviewReport {
         guard !running else { throw ReviewError.busy }
         var states = loadState()
         let started = now()
@@ -346,7 +354,7 @@ public actor ReviewService {
         defer { running = false }
         let flag = cancel
         flag.reset()
-        let walker = makeWalker(states[scope]?.lastCompleteEntries, { flag.value })
+        let walker = makeWalker(states[scope]?.lastCompleteEntries, { flag.value }).withProgress(progress)
         let queue = self.queue
         let report: ReviewReport = await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in

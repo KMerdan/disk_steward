@@ -10,7 +10,7 @@
 - Selection: `superseded`
 - Execution: `superseded`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `not-selected`
 - Goal trace: `GATE-639` → `OUTCOME-630` → `INTENT-006`
 

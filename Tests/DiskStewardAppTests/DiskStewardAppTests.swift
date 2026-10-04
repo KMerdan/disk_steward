@@ -39,10 +39,22 @@ final class DiskStewardAppTests: XCTestCase {
         XCTAssertTrue(model.exportMessage?.contains(exported.path) == true)
     }
 
+    /// The menu as built, not just its labels: Review Storage… comes first,
+    /// on ⌘R, and opens the review window.
+    @MainActor
+    func testTheUtilityMenuOpensTheReviewWindowFirst() {
+        let entries = StatusItemController.menuEntries.compactMap { $0 }
+        XCTAssertEqual(entries.map(\.title), ["Review Storage…", "Export Legacy Evidence", "Settings…", "About Disk Steward", "Quit Disk Steward"])
+        XCTAssertEqual(entries.first.map { NSStringFromSelector($0.action) }, "showReview")
+        XCTAssertEqual(entries.first?.key, "r")
+        for entry in entries { XCTAssertTrue(StatusItemController.instancesRespond(to: entry.action), entry.title) }
+        XCTAssertEqual(StatusItemController.menuEntries.map { $0 == nil }, [false, false, true, false, false, true, false], "separators stay in place")
+    }
+
     func testRequiredUtilityMenuLabelsRemainStable() {
         XCTAssertEqual(
-            [AppMenuLabels.generalExport, AppMenuLabels.settings, AppMenuLabels.about, AppMenuLabels.quit],
-            ["Export Legacy Evidence", "Settings…", "About Disk Steward", "Quit Disk Steward"]
+            [AppMenuLabels.review, AppMenuLabels.generalExport, AppMenuLabels.settings, AppMenuLabels.about, AppMenuLabels.quit],
+            ["Review Storage…", "Export Legacy Evidence", "Settings…", "About Disk Steward", "Quit Disk Steward"]
         )
     }
 }
