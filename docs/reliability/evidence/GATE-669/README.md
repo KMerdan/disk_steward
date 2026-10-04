@@ -83,6 +83,10 @@ from 1.4.0.
 - **Not notarized.** The user chose not to upload the candidate, so
   Gatekeeper acceptance of 1.5.0 is not shown. The signature and the
   universal build are.
+  - *Addendum 2026-10-05:* at publication, the same archive was notarized.
+    The ZIP-unpacked app is accepted as `Notarized Developer ID`. With
+    signatures removed, its binaries are byte-identical to this gated
+    build ([`publication-1.5.0-12.json`](publication-1.5.0-12.json)).
 - **The cold run followed a short Codex review.** After the purge, the
   window first reviewed `~/Documents/Codex` (4.2 s) and then localGit,
   23 s later. That is a different tree, so the localGit timing is still
