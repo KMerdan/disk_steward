@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `at-risk`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-631` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -39,7 +39,7 @@ Measure tool-owned caches as objects once the user opts each into review, labell
 ## Dependencies
 
 - `CONTRACT-601` (contract-requires, passed)
-- `TASK-621` (requires, unverified)
+- `TASK-621` (requires, passed)
 
 ## Required Context
 
@@ -81,6 +81,6 @@ Measure tool-owned caches as objects once the user opts each into review, labell
 - Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-631-1 is planned
+- Required inspection INSPECT-R4-TASK-631-1 is stale
 
 

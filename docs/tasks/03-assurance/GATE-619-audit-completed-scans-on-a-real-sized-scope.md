@@ -83,7 +83,7 @@ Independently exercise the integrated candidate: a scope of the shape that stall
 - Required inspection INSPECT-R4-TASK-614-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
-- Required inspection INSPECT-TASK-612-1 is skipped
+- Required inspection INSPECT-TASK-612-1 is stale
 - Required inspection INSPECT-TASK-613-1 is stale
 - Required inspection INSPECT-TASK-615-1 is stale
 

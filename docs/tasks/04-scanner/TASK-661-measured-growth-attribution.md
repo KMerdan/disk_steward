@@ -11,7 +11,7 @@
 - Execution: `planned`
 - Verification: `unverified`
 - Health: `at-risk`
-- Availability: `locked`
+- Availability: `ready`
 - Goal trace: `TASK-661` → `OUTCOME-660` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -35,7 +35,7 @@ When free space drops past a threshold or on request, re-measure the dirty objec
 
 ## Dependencies
 
-- `TASK-621` (requires, unverified)
+- `TASK-621` (requires, passed)
 - `TASK-652` (requires, passed)
 
 ## Required Context

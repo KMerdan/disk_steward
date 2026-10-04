@@ -10,7 +10,7 @@
 - Selection: `superseded`
 - Execution: `superseded`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `not-selected`
 - Goal trace: `GATE-639` → `OUTCOME-630` → `INTENT-006`
 
@@ -65,25 +65,16 @@ Independently exercise the integrated candidate: shared caches appear as objects
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-621-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-RESOURCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-621-STORE remains hypothesis
 - Impact IMPACT-R4-TASK-631-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-631-SCANNER remains hypothesis
 - Impact IMPACT-R4-TASK-631-SETTINGS remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R4-CONTRACT-602-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is planned
-- Required inspection INSPECT-R4-TASK-631-1 is planned
+- Required inspection INSPECT-R4-TASK-631-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 

@@ -1,0 +1,14 @@
+{
+ "name": "hard links inside an object are counted per link",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Review/ReviewWalker.swift",
+   "replacements": [
+    [
+     "                            if links.insert(identity).inserted { bytes += entry.allocatedBytes }",
+     "                            bytes += entry.allocatedBytes; _ = links.insert(identity)"
+    ]
+   ]
+  }
+ ]
+}

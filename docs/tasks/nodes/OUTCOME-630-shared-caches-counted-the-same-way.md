@@ -10,7 +10,7 @@
 - Selection: `superseded`
 - Execution: `superseded`
 - Verification: `unverified`
-- Health: `clear`
+- Health: `at-risk`
 - Availability: `not-executable`
 - Goal trace: `OUTCOME-630` → `INTENT-006`
 
@@ -65,35 +65,26 @@ After opting in, a user sees the tool-owned caches outside their projects ranked
 
 - Impact IMPACT-R3-TASK-623-ASSURANCE remains hypothesis
 - Impact IMPACT-R3-TASK-623-UI remains hypothesis
-- Impact IMPACT-R4-TASK-621-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-RESOURCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-621-STORE remains hypothesis
 - Impact IMPACT-R4-TASK-622-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-622-PRIVACY remains hypothesis
 - Impact IMPACT-R4-TASK-622-STORE remains hypothesis
 - Impact IMPACT-R4-TASK-631-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-631-SCANNER remains hypothesis
 - Impact IMPACT-R4-TASK-631-SETTINGS remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R3-617-MEASUREMENT is stale
 - Required inspection INSPECT-R3-623-INTEGRATION is stale
 - Required inspection INSPECT-R4-TASK-614-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is planned
-- Required inspection INSPECT-R4-TASK-622-1 is planned
-- Required inspection INSPECT-R4-TASK-631-1 is planned
+- Required inspection INSPECT-R4-TASK-622-1 is stale
+- Required inspection INSPECT-R4-TASK-631-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
-- Required inspection INSPECT-TASK-612-1 is skipped
+- Required inspection INSPECT-TASK-612-1 is stale
 - Required inspection INSPECT-TASK-613-1 is stale
 - Required inspection INSPECT-TASK-615-1 is stale
 

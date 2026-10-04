@@ -1,0 +1,61 @@
+{
+ "schema": "audit-result-v1",
+ "target": "TASK-621",
+ "result": "pass",
+ "checks": [
+  {
+   "id": "AC-TASK-621-01",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-621/README.md",
+    "docs/reliability/evidence/TASK-621/agent-result.json",
+    "docs/reliability/evidence/TASK-621/focused-green/result.json",
+    "docs/reliability/evidence/TASK-621/focused-green/tests.log",
+    "docs/reliability/evidence/TASK-621/full-suite/candidate.json",
+    "docs/reliability/evidence/TASK-621/cooldown-not-persisted-red/result.json",
+    "docs/reliability/evidence/TASK-621/entries-budget-ignored-red/result.json",
+    "docs/reliability/evidence/TASK-621/no-prune-red/result.json",
+    "docs/reliability/evidence/TASK-621/object-links-double-counted-red/result.json",
+    "docs/reliability/evidence/TASK-621/revisit-ignored-red/result.json",
+    "docs/reliability/evidence/TASK-621/stop-sets-baseline-red/result.json"
+   ]
+  },
+  {
+   "id": "AC-TASK-621-02",
+   "result": "passed",
+   "evidence": [
+    "docs/reliability/evidence/TASK-621/README.md",
+    "docs/reliability/evidence/TASK-621/benchmark/result.json",
+    "docs/reliability/evidence/TASK-621/benchmark/localgit.json",
+    "docs/reliability/evidence/TASK-621/benchmark/du-parity.json",
+    "docs/reliability/evidence/TASK-621/benchmark/synthetic.json",
+    "docs/reliability/evidence/TASK-621/benchmark/tests.log"
+   ]
+  }
+ ],
+ "affected_claims": [
+  "TASK-621"
+ ],
+ "recommended_action": "advance",
+ "assurance": {
+  "impact_ids": [
+   "IMPACT-R4-TASK-621-ASSURANCE",
+   "IMPACT-R4-TASK-621-RESOURCE",
+   "IMPACT-R4-TASK-621-SCANNER",
+   "IMPACT-R4-TASK-621-STORE"
+  ],
+  "inspection_ids": [
+   "INSPECT-R4-TASK-621-1"
+  ],
+  "finding_ids": [
+   "FIND-R3-DASHBOARD",
+   "FIND-R3-ORPHANED-TEST",
+   "FIND-R4-IDLE-CPU"
+  ],
+  "scope_review": "complete",
+  "limitations": [
+   "AC-02's cold-cache timing is not recorded: both localGit runs are warm, and a cold run needs sudo purge, which the maintainer can run before a re-measure.",
+   "The million-file stop uses an injected budget; the default budget completes that tree in 6.5 s."
+  ]
+ }
+}

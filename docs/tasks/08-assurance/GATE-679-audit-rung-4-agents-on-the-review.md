@@ -69,10 +69,6 @@ Exercise the packaged candidate through the real MCP helper: every tool at caps 
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-621-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-RESOURCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-621-STORE remains hypothesis
 - Impact IMPACT-R4-TASK-622-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-622-PRIVACY remains hypothesis
 - Impact IMPACT-R4-TASK-622-STORE remains hypothesis
@@ -90,7 +86,6 @@ Exercise the packaged candidate through the real MCP helper: every tool at caps 
 - Impact IMPACT-R4-TASK-672-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-672-ATTRIBUTION remains hypothesis
 - Impact IMPACT-R4-TASK-672-QUERY remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-ATTRIBUTION lacks a sufficient passing inspection
 - Impacted asset ASSET-BOOT lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
@@ -101,15 +96,11 @@ Exercise the packaged candidate through the real MCP helper: every tool at caps 
 - Impacted asset ASSET-MCP lacks a sufficient passing inspection
 - Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
 - Required inspection INSPECT-R4-CONTRACT-602-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is planned
-- Required inspection INSPECT-R4-TASK-622-1 is planned
+- Required inspection INSPECT-R4-TASK-622-1 is stale
 - Required inspection INSPECT-R4-TASK-652-1 is stale
 - Required inspection INSPECT-R4-TASK-652-2 is stale
 - Required inspection INSPECT-R4-TASK-661-1 is stale

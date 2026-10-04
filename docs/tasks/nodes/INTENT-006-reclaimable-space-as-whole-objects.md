@@ -74,10 +74,6 @@ Disk Steward reports build output, shared developer caches and repositories as s
 - Impact IMPACT-R4-GATE-679-BUILD remains hypothesis
 - Impact IMPACT-R4-GATE-679-MCP remains hypothesis
 - Impact IMPACT-R4-GATE-679-QUERY remains hypothesis
-- Impact IMPACT-R4-TASK-621-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-RESOURCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-621-STORE remains hypothesis
 - Impact IMPACT-R4-TASK-622-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-622-PRIVACY remains hypothesis
 - Impact IMPACT-R4-TASK-622-STORE remains hypothesis
@@ -98,7 +94,6 @@ Disk Steward reports build output, shared developer caches and repositories as s
 - Impact IMPACT-R4-TASK-672-ASSURANCE remains hypothesis
 - Impact IMPACT-R4-TASK-672-ATTRIBUTION remains hypothesis
 - Impact IMPACT-R4-TASK-672-QUERY remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
 - Impacted asset ASSET-ATTRIBUTION lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
@@ -106,10 +101,7 @@ Disk Steward reports build output, shared developer caches and repositories as s
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-MCP lacks a sufficient passing inspection
 - Impacted asset ASSET-PRIVACY lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
 - Required inspection INSPECT-R3-616-EVIDENCE is stale
@@ -119,13 +111,12 @@ Disk Steward reports build output, shared developer caches and repositories as s
 - Required inspection INSPECT-R4-GATE-649-SAFETY is stale
 - Required inspection INSPECT-R4-GATE-659-SAFETY is stale
 - Required inspection INSPECT-R4-GATE-669-DISPLAY is stale
-- Required inspection INSPECT-R4-GATE-669-SAFETY is planned
+- Required inspection INSPECT-R4-GATE-669-SAFETY is stale
 - Required inspection INSPECT-R4-GATE-679-DISPLAY is stale
-- Required inspection INSPECT-R4-GATE-679-SAFETY is planned
+- Required inspection INSPECT-R4-GATE-679-SAFETY is stale
 - Required inspection INSPECT-R4-TASK-614-1 is stale
-- Required inspection INSPECT-R4-TASK-621-1 is planned
-- Required inspection INSPECT-R4-TASK-622-1 is planned
-- Required inspection INSPECT-R4-TASK-631-1 is planned
+- Required inspection INSPECT-R4-TASK-622-1 is stale
+- Required inspection INSPECT-R4-TASK-631-1 is stale
 - Required inspection INSPECT-R4-TASK-641-1 is stale
 - Required inspection INSPECT-R4-TASK-642-2 is stale
 - Required inspection INSPECT-R4-TASK-651-1 is stale

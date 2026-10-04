@@ -1,0 +1,14 @@
+{
+ "name": "a stopped review overwrites the growth baseline",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Review/ReviewIndex.swift",
+   "replacements": [
+    [
+     "            entry.cooldownUntil = report.completedAt.addingTimeInterval(Self.cooldown)",
+     "            entry.cooldownUntil = report.completedAt.addingTimeInterval(Self.cooldown); entry.lastCompleteEntries = report.entriesVisited"
+    ]
+   ]
+  }
+ ]
+}

@@ -8,10 +8,10 @@
 - Wave: `3`
 - Workstream: `scanner`
 - Selection: `primary`
-- Execution: `working`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `working`
+- Availability: `verified`
 - Goal trace: `TASK-621` → `OUTCOME-620` → `OUTCOME-630` → `INTENT-006`
 
 ## Goal
@@ -69,21 +69,13 @@ Walk a review scope with getattrlistbulk, prune at classified objects, sum alloc
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-R4-TASK-621-SCANNER`, `IMPACT-R4-TASK-621-STORE`, `IMPACT-R4-TASK-621-RESOURCE`, `IMPACT-R4-TASK-621-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-RESOURCE`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-621-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-621-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-RESOURCE remains hypothesis
-- Impact IMPACT-R4-TASK-621-SCANNER remains hypothesis
-- Impact IMPACT-R4-TASK-621-STORE remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
-- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-621-1 is planned
+- None
 
 
