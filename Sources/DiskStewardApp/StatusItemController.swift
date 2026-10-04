@@ -86,6 +86,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         }
         self.reviewIndex = reviewIndex
         self.reviewService = reviewService
+        let agentReviewService = reviewService
         self.growthAttribution = growthAttribution
         // TASK-672: agent sessions outlive a relaunch in the steward file.
         let sessionStore = stewardURL.flatMap { try? SessionStore(url: $0) }
@@ -141,11 +142,22 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                     await MainActor.run {
                         settingsStore.settings.monitoringPolicy(at: Date()).activeRoots(at: Date()).map { DirectoryChangeStream.canonicalPath($0.path) }
                     }
+                },
+                reviewService: agentReviewService,
+                reviewRoots: {
+                    // TASK-671: measure_path may enter the watched folders and the opted-in caches.
+                    await MainActor.run {
+                        settingsStore.settings.watchedRoots.map(DirectoryChangeStream.canonicalPath)
+                            + CacheCatalog.targets(optedIn: settingsStore.settings.optedInCaches).map(\.path)
+                    }
                 }
             )
+            // measure_path may take its whole 15 s budget; every other answer
+            // is bounded by its own, shorter budget.
             return UnixSocketEvidenceServer(
                 socketPath: supportDirectory.appending(path: "disk-steward.sock").path,
-                handler: backend
+                handler: backend,
+                timeoutSeconds: AppEvidenceQueryBackend.socketTimeoutSeconds
             )
         }
         let integrationSupport = supportDirectory

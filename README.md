@@ -70,18 +70,18 @@ The app owns its small history and journal files. The MCP helper communicates wi
 
 When Agent Access is enabled, the bundled `disk-witness-mcp` helper exposes bounded read-only tools:
 
-| Question | Tool | In 1.4.0 |
-| --- | --- | --- |
-| How full is the disk, how far from the reserve, and what is its history? | `get_storage_summary` | Answers |
-| How did capacity change, and which folders changed, over an interval? | `explain_growth` | Answers (folders are not measured) |
-| Can I get a portable evidence package? | `export_evidence` | Exports the legacy evidence |
-| What exact detail and time ranges are still retained? | `get_evidence_lifecycle` | Retired until the folder review |
-| What is consuming space inside covered roots now? | `list_current_consumers` | Retired until the folder review |
-| What process or agent may have created a change? | `get_provenance` | Retired until the folder review |
-| What did an agent session affect? | `get_task_impact` | Retired until the folder review |
-| What present objects deserve human cleanup review? | `find_cleanup_candidates` | Retired until the folder review |
+| Question | Tool |
+| --- | --- |
+| How full is the disk, how far from the reserve, and what is its history? | `get_storage_summary` |
+| What can be cleaned up for review in a folder or the opted-in caches? | `list_review_items`, then `get_review_item_evidence` |
+| What are the largest build outputs, environments and caches? | `list_largest_objects` |
+| Where did space go over an interval? | `explain_growth` (measured object deltas and the unexplained remainder) |
+| How big is this one folder right now? | `measure_path` (15 s and 500,000 entries at most) |
+| What did an agent session change? | `get_task_impact`, `list_active_agent_sessions` |
+| Are the stores, journal and reviews healthy? | `get_health` |
+| Can I get a portable evidence package? | `export_evidence` |
 
-Retired tools answer `detail_unavailable` with the reason, so an agent never mistakes missing detail for an empty result.
+Review items are evidence for a person to review, with the same sizes and states as the review window; nothing is declared safe to delete.
 
 See [agent integration setup](docs/integrations/README.md) and the [MCP trust contract](docs/architecture/mcp.md) for Codex and Claude Code installation, session registration, limits, and failure behavior.
 

@@ -1,0 +1,14 @@
+{
+ "name": "list_review_items ignores the response budget",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "replacements": [
+    [
+     "        let budget = rowBudget(arguments, defaultLimit: 50, worstCaseItemBytes: 3_072)",
+     "        let budget = RowBudget(requested: 1, applied: 2_000)"
+    ]
+   ]
+  }
+ ]
+}

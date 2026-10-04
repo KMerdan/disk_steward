@@ -1,12 +1,12 @@
 # Local Agent and MCP Contract
 
-Status: version 1 contract for local Codex and Claude integration.
+Status: version 1 contract for local Codex and Claude integration, with the tool catalogue rebuilt on the review report (TASK-671, rung 4).
 
 ## Boundary
 
-`disk-witness-mcp` is a bundled local stdio server. It never listens on TCP or HTTP, opens the evidence database, records file contents, captures environment variables, or accepts credentials. It talks to the running Disk Steward app over an authenticated Unix-domain socket owned by the current user and mode `0600`. The app remains the sole owner of SQLite access, retention, policy, sanitization, and export consistency.
+`disk-witness-mcp` is a bundled local stdio server. It never listens on TCP or HTTP, opens a database, records file contents, captures environment variables, or accepts credentials. It talks to the running Disk Steward app over an authenticated Unix-domain socket owned by the current user and mode `0600`. The app remains the sole owner of the capacity ring, the steward store (change journal, object index, reviews, sessions), sanitization and export consistency.
 
-The connector exposes only queries. It cannot delete, move, or modify files; stop processes; pause monitoring; change settings; install components; or alter evidence. `find_cleanup_candidates` returns review candidates and never declares a path safe to delete. `export_evidence` returns an inline, bounded representation equivalent to app-generated evidence and accepts no filesystem destination.
+The connector exposes only queries. It cannot delete, move, or modify files; stop processes; pause monitoring; change settings; install components; or alter evidence. Review items are evidence for a person to review and never declare a path safe to delete. `measure_path` is the only tool that reads the file system, and only within its budget. `export_evidence` returns an inline, bounded representation and accepts no filesystem destination.
 
 ## MCP compatibility
 
@@ -16,30 +16,50 @@ MCP lifecycle order is `initialize`, server response, `notifications/initialized
 
 ## Authoritative read-only inventory
 
-- `get_storage_summary` distinguishes live whole-volume capacity time from the
-  latest persisted observation and reports monitored, current, unexplained,
-  coverage, and lifecycle summaries.
-- `get_evidence_lifecycle` returns policy, actual retained intervals and
-  precision, row/byte counts, database pressure, retention runs, gaps, and manual
-  export inventory.
-- `list_current_consumers` returns revalidated present objects only, with root,
-  category and minimum-byte filters, a stable cursor, and `state_as_of`.
-- `explain_growth` returns net growth, shrinkage, churn, surviving current bytes,
-  source coverage, confidence, and rollup precision.
-- `get_provenance` returns current object/path state plus its ordered lifecycle,
-  persisted provenance claims, session context, occurrence intervals, and gaps.
-- `list_active_agent_sessions` returns active authenticated contexts and never
-  calls them writers without direct writer evidence. `list_active_writers` may
-  remain only as a deprecated compatibility alias.
-- `get_task_impact` supports active and retained ended sessions and separates
-  historical churn/net delta from currently surviving objects and bytes.
-- `find_cleanup_candidates` starts from present current state, revalidates
-  metadata, and excludes deleted, unknown, stale, inaccessible, out-of-scope,
-  and path-reused objects.
-- `export_evidence` returns a transactionally consistent current-state snapshot,
-  event chain, provenance, sessions, rollups, policy, gaps, and manifest.
+Every answer comes from the capacity ring, the change journal and the steward
+store's review report and object index, all with hard caps (CONTRACT-602). No
+tool reads the retired per-file store.
 
-Static resources expose service status and the evidence interpretation guide. There are no mutation tools.
+- `get_storage_summary` reports live whole-volume capacity, the comfort reserve
+  and the capacity history; it never depends on file detail.
+- `get_health` reports the stores' sizes against their caps, each table's rows
+  and caps, the latest review of each scope, a running review, the change
+  journal's coverage and gaps, growth attribution, kept sessions and any legacy
+  evidence.
+- `explain_growth` returns the capacity change for a window, the volume delta
+  attributed to re-measured objects with the unexplained remainder (System
+  Data, purgeable space, snapshots, out of scope; never a cause), changed
+  folders and journal gaps.
+- `list_review_items` returns the latest review's ranked items for a scope
+  (a configured folder, or `caches`) with the same sizes, evidence states
+  (Verified now, Stale, Partial, Unknown), totals and report state as the
+  review window. `get_review_item_evidence` adds one item's reasons to keep it,
+  why it may be disposable, its recreate and cleanup commands (text, never
+  run) and a live check.
+- `list_largest_objects` returns the object index largest first, optionally
+  under one scope, with each object's last measurement.
+- `measure_path` measures one folder inside the configured scopes or opted-in
+  caches within 15 s and 500,000 entries. It is the one walk in flight: a
+  running review is joined (waited for within the budget), never run beside.
+  It stores nothing and writes no cooldown; a stopped measurement is a lower
+  bound.
+- `list_active_agent_sessions` returns active authenticated contexts with the
+  folders their workspaces saw change, and never calls them writers.
+- `get_task_impact` returns the folders that changed at, inside or above a
+  registered session's workspace during its window, with the objects there,
+  rows collapsed to a watched root reported apart, and gaps. Sessions are kept
+  in the steward store and survive a relaunch.
+- `export_evidence` returns the steward evidence for a window (capacity,
+  changed folders, reviews, growth attributions, sessions) and the legacy
+  evidence read-only from a clone when it fits; otherwise it says how to
+  export the legacy evidence to a file.
+
+`get_provenance` is listed only while an Endpoint Security bridge is active;
+the app runs none today, so it is not listed. `find_cleanup_candidates`,
+`list_current_consumers` and `get_evidence_lifecycle` were replaced by the
+review tools and `get_health`; the `list_active_writers` alias was dropped.
+
+Static resources expose the health answer and the evidence interpretation guide. There are no mutation tools.
 
 ## Session registration and process correlation
 
@@ -53,9 +73,9 @@ Registration can establish at most `tool-linked` confidence. It does not prove t
 
 All responses flow through the same privacy policy as file export: metadata only, no file contents, no environment capture, token-like arguments redacted, configured exclusions enforced, and path detail set to full, basename, or hash. Results include a schema discriminator, observation time or range, freshness, truncation, limitations, and confidence where attribution is present. Structured output is also serialized into a text content block for client compatibility.
 
-Default connector ceilings are 10,000 items and 4 MiB per response; individual tools have stricter input limits. A client must narrow its query after `response_too_large`. Cancellation stops query work but does not mutate the evidence store.
+Every answer is at most 1 MiB, with every table at its cap; the connector's transport ceiling is 4 MiB. Requests time out after 10 s, except `measure_path`, whose 15 s budget runs under a 25 s deadline. A client must narrow its query after `response_too_large`. Cancellation stops query work, including a measurement, and mutates nothing.
 
-Every query filters and orders in SQLite before limiting or paginating. Canonical
+Every query filters and orders in SQLite, within each table's cap, before limiting or paginating. Canonical
 path/object matching occurs before privacy shaping. Bounded responses report
 `matched_count`, `returned_count`, `truncated`, and `next_cursor`; interval
 responses report requested versus actually retained time and coverage gaps.

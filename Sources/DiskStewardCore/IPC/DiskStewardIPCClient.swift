@@ -40,6 +40,8 @@ public struct UnixSocketDiskStewardIPCClient: DiskStewardIPCClient, Sendable {
     public let maximumResponseBytes: Int
     public let accessStateURL: URL?
     public let timeoutSeconds: TimeInterval
+    /// TASK-671: the deadline for a measurement (a 15 s budget plus room to answer).
+    public static let measurementTimeoutSeconds: TimeInterval = 25
 
     public init(
         socketPath: String,

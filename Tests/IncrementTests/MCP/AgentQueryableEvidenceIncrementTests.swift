@@ -95,8 +95,9 @@ final class AgentQueryableEvidenceIncrementTests: XCTestCase {
         XCTAssertEqual(exported["summary"] as? NSDictionary, jsonObject(direct)?["summary"] as? NSDictionary)
         XCTAssertEqual(exported["events"] as? NSArray, jsonObject(direct)?["events"] as? NSArray)
 
-        let candidates = try structured(responses, id: 6)
-        XCTAssertEqual(candidates["safety"] as? String, "review-required-never-safe-to-delete-claim")
+        // TASK-671: a tool dropped from the catalogue is not callable through the helper.
+        XCTAssertEqual((responses[6]?["error"] as? [String: Any])?["code"] as? Int, -32_602)
+        XCTAssertFalse(inventory.contains { ["find_cleanup_candidates", "list_current_consumers", "get_evidence_lifecycle", "list_active_writers", "get_provenance"].contains($0["name"] as? String ?? "") })
         XCTAssertNotNil(responses[7]?["error"])
 
         let fixtureSnapshot = StorageSnapshot(

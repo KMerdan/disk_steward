@@ -28,6 +28,55 @@ final class DiskStewardMCPTests: XCTestCase {
         }
     }
 
+    /// TASK-671: measure_path may take its whole 15 s budget, so it alone
+    /// goes through the client with the measurement deadline; the dropped
+    /// tools are refused before any call.
+    func testMeasurePathUsesTheMeasurementClientAndDroppedToolsAreRefused() throws {
+        let fast = FakeIPCClient(result: .object(["schema": .string("fast")]))
+        let slow = FakeIPCClient(result: .object(["schema": .string("measure-path-v1")]))
+        let server = MCPServer(client: fast, slowClient: slow)
+        _ = try response(server, request(id: 1, method: "initialize", params: [
+            "protocolVersion": .string("2025-06-18"), "capabilities": .object([:]),
+            "clientInfo": .object(["name": .string("test"), "version": .string("1")]),
+        ]))
+        XCTAssertNil(server.handle(line: notification(method: "notifications/initialized", params: [:])))
+        _ = try response(server, request(id: 2, method: "tools/call", params: ["name": .string("measure_path"), "arguments": .object(["path": .string("/w/code")])]))
+        _ = try response(server, request(id: 3, method: "tools/call", params: ["name": .string("get_health"), "arguments": .object([:])]))
+        XCTAssertEqual(slow.calledTools, ["measure_path"])
+        XCTAssertEqual(fast.calledTools, ["get_health"])
+        XCTAssertEqual(MCPToolCatalog.slowTools, ["measure_path"])
+        XCTAssertLessThan(15, UnixSocketDiskStewardIPCClient.measurementTimeoutSeconds, "the deadline covers the 15 s budget")
+        for (offset, dropped) in ["find_cleanup_candidates", "list_current_consumers", "get_evidence_lifecycle", "list_active_writers", "get_provenance"].enumerated() {
+            let refused = try response(server, request(id: Int64(10 + offset), method: "tools/call", params: ["name": .string(dropped), "arguments": .object([:])]))
+            XCTAssertEqual(refused.objectValue?["error"]?.objectValue?["code"], .integer(-32_602), dropped)
+        }
+        XCTAssertEqual(fast.calledTools + slow.calledTools, ["get_health", "measure_path"], "no dropped tool reached the app")
+        XCTAssertEqual(MCPToolCatalog.validationError(tool: "measure_path", arguments: [:]), "Missing required argument: path")
+        XCTAssertNotNil(MCPToolCatalog.validationError(tool: "list_review_items", arguments: ["root_path": .string("/x")]), "old arguments are refused")
+    }
+
+    /// Every published copy of the tool list is the catalogue: the inventory
+    /// fixture, the contract schema, the Codex fragment and fixture, and the
+    /// installer's own enabled_tools line.
+    func testEveryPublishedToolListIsTheCatalogue() throws {
+        let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        func text(_ path: String) throws -> String { try String(contentsOf: repository.appending(path: path), encoding: .utf8) }
+        func enabled(_ path: String) throws -> [String] {
+            let line = try XCTUnwrap(try text(path).split(separator: "\n").first { $0.contains("enabled_tools = [") }, path)
+            let list = line[line.range(of: "[")!.upperBound..<line.range(of: "]")!.lowerBound]
+            return list.split(separator: ",").map { $0.trimmingCharacters(in: CharacterSet(charactersIn: " \"")) }
+        }
+        for path in ["Integrations/Codex/config.toml.fragment", "Fixtures/MCP/codex-stdio.toml.txt", "Scripts/Integration/install"] {
+            XCTAssertEqual(try enabled(path), MCPToolCatalog.names, path)
+        }
+        let inventory = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(text("Fixtures/MCP/readonly-inventory.json").utf8)) as? [String: Any])
+        XCTAssertEqual((inventory["tools"] as? [[String: Any]])?.compactMap { $0["name"] as? String }, MCPToolCatalog.names)
+        let schema = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(text("Schemas/MCP/mcp-readonly-contract-v1.schema.json").utf8)) as? [String: Any])
+        let tools = ((schema["properties"] as? [String: Any])?["tools"] as? [String: Any])
+        let names = (((tools?["items"] as? [String: Any])?["properties"] as? [String: Any])?["name"] as? [String: Any])?["enum"] as? [String]
+        XCTAssertEqual(names, MCPToolCatalog.names)
+    }
+
     func testToolCallReturnsStructuredAndTextContentWithSanitization() throws {
         let unsafe: JSONValue = .object([
             "schema": .string("storage-summary-v1"),

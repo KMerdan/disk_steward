@@ -1,0 +1,14 @@
+{
+ "name": "get_health opens the retired per-file store",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "replacements": [
+    [
+     "    private func health() async throws -> JSONValue {\n        let now = Date()\n",
+     "    private func health() async throws -> JSONValue {\n        let now = Date()\n        _ = try? EvidenceStore(url: databaseURL)\n"
+    ]
+   ]
+  }
+ ]
+}

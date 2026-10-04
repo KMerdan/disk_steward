@@ -20,7 +20,7 @@ final class MCPTransportLifecycleTests: XCTestCase {
     func testBlockedStdoutStillProcessesCancellationAndExitsWithoutMoreInput() async throws {
         let fixture = try TransportFixture(drainOutput: false)
         defer { fixture.close() }
-        try fixture.send(initialize + call(2, "get_storage_summary") + call(3, "get_evidence_lifecycle"))
+        try fixture.send(initialize + call(2, "get_storage_summary") + call(3, "get_health"))
         let fullPipe = await eventually { fixture.bufferedOutputBytes > 32_000 && fixture.handler.started == 1 }
         XCTAssertTrue(fullPipe, "The real child output pipe must be full before cancellation")
         try fixture.send(#"{"jsonrpc":"2.0","id":4,"method":"ping"}"# + "\n"
@@ -35,7 +35,7 @@ final class MCPTransportLifecycleTests: XCTestCase {
     func testEOFHasFiniteGraceAndCancelsBackendWork() async throws {
         let fixture = try TransportFixture(drainOutput: true)
         defer { fixture.close() }
-        try fixture.send(initialize + call(2, "get_evidence_lifecycle"))
+        try fixture.send(initialize + call(2, "get_health"))
         let started = await eventually { fixture.handler.started == 1 }
         XCTAssertTrue(started)
         try fixture.input.fileHandleForWriting.close()
@@ -74,11 +74,11 @@ final class MCPTransportLifecycleTests: XCTestCase {
         defer { fixture.close() }
         var transcript = initialize
         for id in 100..<228 { transcript += #"{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":\#(id)}}"# + "\n" }
-        for id in 2..<6 { transcript += call(id, "get_evidence_lifecycle") }
+        for id in 2..<6 { transcript += call(id, "get_health") }
         try fixture.send(transcript)
         let started = await eventually { fixture.handler.started == 4 }
         XCTAssertTrue(started)
-        try fixture.send(call(6, "get_evidence_lifecycle") + #"{"jsonrpc":"2.0","id":7,"method":"ping"}"# + "\n")
+        try fixture.send(call(6, "get_health") + #"{"jsonrpc":"2.0","id":7,"method":"ping"}"# + "\n")
         let overloaded = await eventually { fixture.stdout.contains("-32000") && fixture.stdout.contains(#""id":7"#) }
         XCTAssertTrue(overloaded, fixture.stdout)
         XCTAssertEqual(fixture.handler.started, 4)
@@ -213,7 +213,7 @@ private final class TransportHandler: DiskStewardIPCRequestHandling, @unchecked 
     func handleIPC(method: String, payload: JSONValue, peer: IPCPeerIdentity) async throws -> JSONValue {
         switch payload.objectValue?["name"]?.stringValue {
         case "get_storage_summary": return .object(["schema": .string("fixture-big"), "blob": .string(String(repeating: "x", count: 500_000))])
-        case "get_evidence_lifecycle":
+        case "get_health":
             lock.withLock { starts += 1 }
             do { try await Task.sleep(for: .seconds(8)) }
             catch { lock.withLock { cancellations += 1 }; throw error }

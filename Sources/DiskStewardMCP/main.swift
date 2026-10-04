@@ -7,7 +7,9 @@ let overriddenSocketPath = environment["DISK_STEWARD_SOCKET_PATH"]
 let socketPath = overriddenSocketPath ?? UnixSocketDiskStewardIPCClient.defaultSocketPath()
 let stateURL = environment["DISK_STEWARD_AGENT_ACCESS_STATE_PATH"].map(URL.init(fileURLWithPath:))
     ?? (overriddenSocketPath == nil ? AgentAccessStateFile.defaultURL() : nil)
-let server = MCPServer(client: UnixSocketDiskStewardIPCClient(socketPath: socketPath, accessStateURL: stateURL))
+let server = MCPServer(client: UnixSocketDiskStewardIPCClient(socketPath: socketPath, accessStateURL: stateURL),
+                       slowClient: UnixSocketDiskStewardIPCClient(socketPath: socketPath, accessStateURL: stateURL,
+                                                                  timeoutSeconds: UnixSocketDiskStewardIPCClient.measurementTimeoutSeconds))
 signal(SIGPIPE, SIG_IGN)
 
 if CommandLine.arguments.contains("--self-check") {

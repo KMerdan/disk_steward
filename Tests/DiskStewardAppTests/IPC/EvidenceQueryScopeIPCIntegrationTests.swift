@@ -228,7 +228,7 @@ final class EvidenceQueryScopeIPCIntegrationTests: XCTestCase {
         XCTAssertEqual(status.objectValue?["schema"], .string("service-status-v1"))
         XCTAssertTrue(status.objectValue?["detail"]?.stringValue?.contains("0 retained raw events") == true)
         let guide = try fixture.client.readResource(uri: "disk-steward://evidence-guide", isCancelled: { false })
-        XCTAssertEqual(guide.objectValue?["schema"], .string("evidence-guide-v1"))
+        XCTAssertEqual(guide.objectValue?["schema"], .string("evidence-guide-v2"))
         await fixture.store.close()
     }
 

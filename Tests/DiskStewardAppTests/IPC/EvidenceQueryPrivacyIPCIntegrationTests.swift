@@ -229,7 +229,7 @@ final class EvidenceQueryPrivacyIPCIntegrationTests: XCTestCase {
                 }
             }
         }
-        for (uri, schema) in [("disk-steward://status", "service-status-v1"), ("disk-steward://evidence-guide", "evidence-guide-v1")] {
+        for (uri, schema) in [("disk-steward://status", "service-status-v1"), ("disk-steward://evidence-guide", "evidence-guide-v2")] {
             let response = try client.readResource(uri: uri, isCancelled: { false })
             XCTAssertEqual(response.objectValue?["schema"], .string(schema))
             try assertPrivate(response, hidden: [root.path, "/Users/private-owner/another-project"], label: uri)

@@ -247,7 +247,8 @@ final class FinalProductIncrementTests: XCTestCase {
         {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"gate-490","version":"1"}}}
         {"jsonrpc":"2.0","method":"notifications/initialized","params":{}}
         {"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
-        {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_provenance","arguments":{"path_query":"agent-artifact","limit":10}}}
+        {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_storage_summary","arguments":{}}}
+        {"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"get_provenance","arguments":{"path_query":"agent-artifact","limit":10}}}
 
         """
         let mcp = try runProduct(executable: "disk-witness-mcp", input: transcript, environment: ["DISK_STEWARD_SOCKET_PATH": fixture.socket.path])
@@ -256,10 +257,13 @@ final class FinalProductIncrementTests: XCTestCase {
         let tools = try XCTUnwrap((responses[2]?["result"] as? [String: Any])?["tools"] as? [[String: Any]])
         XCTAssertEqual(tools.count, 10)
         XCTAssertFalse(tools.contains { ($0["name"] as? String)?.contains("delete") == true })
-        let provenance = try structured(responses, id: 3)
-        XCTAssertEqual(provenance["schema"] as? String, "evidence-query-page-v1")
-        XCTAssertEqual((provenance["items"] as? [[String: Any]])?.count, 1)
-        XCTAssertFalse(containsForbiddenKey(provenance, names: ["file_contents", "environment", "token", "secret", "password"]))
+        let summary = try structured(responses, id: 3)
+        XCTAssertEqual(summary["schema"] as? String, "storage-summary-v1")
+        XCTAssertFalse(containsForbiddenKey(summary, names: ["file_contents", "environment", "token", "secret", "password"]))
+        // TASK-671: get_provenance is listed only while an Endpoint Security
+        // bridge is active; the app runs none, so the helper refuses it.
+        XCTAssertFalse(tools.contains { $0["name"] as? String == "get_provenance" })
+        XCTAssertEqual((responses[4]?["error"] as? [String: Any])?["code"] as? Int, -32_602)
 
         let budget = ResourceBudget(maximumPendingEvents: 4_096, maximumLossRatio: 0.01)
         let healthy = ResourceBudgetEvaluator().assess(

@@ -2,31 +2,41 @@
 
 Disk Steward observes metadata, never file contents or environment variables. Users can exclude subtrees and choose full, basename-only, or one-way hashed paths. Configured sensitive values are replaced in paths, commands, and executable locations before persistence or presentation.
 
-Raw event, state, and provenance detail is retained for 7 days by default.
-Anomaly detail has a 30-day maximum, hourly summaries extend through day 30,
-and daily summaries through day 365. Repeated capacity snapshots are
-downsampled deterministically. The evidence database has a 512 MiB default hard
-ceiling.
+## What is kept (since 1.4)
 
-Current in-scope state is stored separately from chronological history and
-remains while an object is present. Deleted and out-of-scope tombstones expire
-with history; expiry cannot add an object back to current state. Retention runs
-at startup, at least every six hours while active, and promptly near the byte
-ceiling. It first rolls up eligible detail, then expires globally oldest
-history. Forced loss creates a durable coverage gap before removal.
+Disk Steward no longer scans files while idle and keeps no row per file. It
+keeps two small files under the 32 MiB ceiling of CONTRACT-602, each table with
+a hard row and byte cap that evicts its oldest rows in the inserting
+transaction, so there is no storage pressure and no pressure retention:
 
-Manual exports are user-owned and never automatically deleted. Disk Steward
-records their bounded app-folder inventory and observes when the user moves or
-deletes one. MCP temporary exports are destroyed immediately after serving.
-Export history is capped at 512 records. When a new export begins, the oldest
-completed record is retired first; an in-progress record is never pruned, and a
-new request is rejected if 512 exports are simultaneously in progress. A
-creating or served export left unfinished for more than six hours is recovered
-as failed at the next store open. Retention-run history is capped at 1,500
-records (roughly one year at the six-hour schedule). Open coverage gaps remain
-until their affected loss is quantified; completed gap records expire with the
-daily-history horizon.
+- **`capacity.sqlite`**: volume capacity samples, every few minutes for about a
+  week and hourly for about a year.
+- **`steward.sqlite`**: the directory-level change journal (7 days of changed
+  folders, never files), the object index (the 20,000 largest measured build
+  outputs, environments and caches, with no files inside them), review reports
+  (20) and their ranked items, agent sessions (500) and their kept directory
+  impact. The write-ahead log is limited to 4 MiB.
+
+Beside them, `review-state.json` holds each review scope's cooldown and
+`growth-attributions.json` the last 8 growth attributions (at most 512 KiB).
+
+## Legacy evidence
+
+The per-file evidence store of earlier versions is renamed unchanged into
+`legacy/` on first launch of 1.4 and never written again. It can be exported to
+a file from Settings and, when it fits, inline through `export_evidence`; both
+read a clone. It is deleted only after the user confirms.
+
+## Exports
+
+Manual exports are user-owned and never automatically deleted. MCP temporary
+exports are destroyed immediately after serving.
+
+## Operating budgets
+
+Idle cost is event-driven only: the declared budget is under 0.5% of one core
+on average over an hour. A review is limited to 120 s, 5 million entries and
+256 MiB of memory; `measure_path` to 15 s and 500,000 entries. A stopped review
+or measurement produces a partial report that states its covered scope.
 Endpoint event queues are bounded by count and estimated bytes; overflow is
-recorded as evidence loss and disables exact attribution across the gap.
-
-The declared default operating budgets are: under 1% idle CPU, under 15% CPU while processing load, under 150 MiB resident memory, no more than 4,096 pending privileged events, no more than 1% event loss under declared load, and no more than 512 MiB for the evidence database. Measurements above a limit are visible and require backpressure or degraded operation.
+recorded as evidence loss.

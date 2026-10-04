@@ -326,12 +326,42 @@ public actor ReviewIndex {
             """) { statement in
             try connection.bind(scope, at: 1, in: statement)
             guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
-            func text(_ column: Int32) -> String { sqlite3_column_text(statement, column).map { String(cString: $0) } ?? "" }
-            let limitations = (try? JSONDecoder().decode([String].self, from: Data(text(8).utf8))) ?? []
-            return StoredReviewReport(reportID: text(0), scope: text(1), startedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 2)),
-                                      completedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 3)), coverage: text(4), status: text(5),
-                                      totalItems: sqlite3_column_int64(statement, 6), truncated: sqlite3_column_int64(statement, 7) != 0, limitations: limitations)
+            return Self.report(statement)
         }
+    }
+
+    /// TASK-671: the newest report of each scope, newest first (the table holds at most 20).
+    public func latestReports() throws -> [StoredReviewReport] {
+        let all = try connection.withStatement("""
+            SELECT report_id, scope, started_at, completed_at, coverage, status, total_items, truncated, limitations
+            FROM review_reports ORDER BY started_at DESC
+            """) { statement -> [StoredReviewReport] in
+            var values: [StoredReviewReport] = []
+            while sqlite3_step(statement) == SQLITE_ROW { values.append(Self.report(statement)) }
+            return values
+        }
+        var seen = Set<String>()
+        return all.filter { seen.insert($0.scope).inserted }
+    }
+
+    /// A report by its ID, if the table still holds it.
+    public func report(id: String) throws -> StoredReviewReport? {
+        try connection.withStatement("""
+            SELECT report_id, scope, started_at, completed_at, coverage, status, total_items, truncated, limitations
+            FROM review_reports WHERE report_id = ? LIMIT 1
+            """) { statement in
+            try connection.bind(id, at: 1, in: statement)
+            guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
+            return Self.report(statement)
+        }
+    }
+
+    private static func report(_ statement: OpaquePointer) -> StoredReviewReport {
+        func text(_ column: Int32) -> String { sqlite3_column_text(statement, column).map { String(cString: $0) } ?? "" }
+        let limitations = (try? JSONDecoder().decode([String].self, from: Data(text(8).utf8))) ?? []
+        return StoredReviewReport(reportID: text(0), scope: text(1), startedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 2)),
+                                  completedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 3)), coverage: text(4), status: text(5),
+                                  totalItems: sqlite3_column_int64(statement, 6), truncated: sqlite3_column_int64(statement, 7) != 0, limitations: limitations)
     }
 
     /// Row counts, for tests and diagnostics.
@@ -390,15 +420,60 @@ public actor ReviewService {
     private let now: @Sendable () -> Date
     private var running = false
     private let queue = DispatchQueue(label: "dev.disksteward.review", qos: .utility)
+    private let makeMeasureWalker: @Sendable (ReviewBudget, _ isCancelled: @escaping @Sendable () -> Bool) -> ReviewWalker
+    /// The walk in flight, for a measurement that joins it.
+    private var job: (scope: String, kind: String, startedAt: Date)?
+    private let latestProgress = ProgressBox()
 
     public init(index: ReviewIndex, stateURL: URL, now: @escaping @Sendable () -> Date = Date.init,
                 makeWalker: @escaping @Sendable (_ previousCompleteEntries: Int?, _ isCancelled: @escaping @Sendable () -> Bool) -> ReviewWalker = { previous, cancelled in
                     ReviewWalker(previousCompleteEntries: previous, isCancelled: cancelled)
+                },
+                makeMeasureWalker: @escaping @Sendable (ReviewBudget, _ isCancelled: @escaping @Sendable () -> Bool) -> ReviewWalker = { budget, cancelled in
+                    ReviewWalker(budget: budget, isCancelled: cancelled)
                 }) {
         self.index = index
         self.stateURL = stateURL
         self.now = now
         self.makeWalker = makeWalker
+        self.makeMeasureWalker = makeMeasureWalker
+    }
+
+    /// The walk in flight: its scope, whether it is a review or a measurement,
+    /// when it started and its latest progress.
+    public var currentJob: (scope: String, kind: String, startedAt: Date, progress: ReviewProgress?)? {
+        job.map { ($0.scope, $0.kind, $0.startedAt, latestProgress.value) }
+    }
+
+    /// TASK-671: measures one path for an agent under `budget`, as the one
+    /// walk in flight (it never runs beside a review), on the review queue.
+    /// Nothing is stored and no cooldown is written: it is a reading, not a review.
+    public func measure(path: String, budget: ReviewBudget) async throws -> ReviewReport {
+        guard !running else { throw ReviewError.busy }
+        running = true
+        let started = now()
+        job = (path, "measurement", started)
+        latestProgress.value = nil
+        defer { running = false; job = nil }
+        let flag = cancel
+        flag.reset()
+        let box = latestProgress
+        let walker = makeMeasureWalker(budget, { flag.value }).withProgress { box.value = $0 }
+        let queue = self.queue
+        return await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                queue.async { continuation.resume(returning: walker.review(scope: path, startedAt: started)) }
+            }
+        } onCancel: { flag.set() }
+    }
+
+    final class ProgressBox: @unchecked Sendable {
+        private let lock = NSLock()
+        private var stored: ReviewProgress?
+        var value: ReviewProgress? {
+            get { lock.withLock { stored } }
+            set { lock.withLock { stored = newValue } }
+        }
     }
 
     public static func defaultStateURL(beside stewardURL: URL) -> URL {
@@ -443,10 +518,16 @@ public actor ReviewService {
         let started = now()
         if let until = states[scope]?.cooldownUntil, until > started { throw ReviewError.coolingDown(until: until) }
         running = true
-        defer { running = false }
+        job = (scope, "review", started)
+        latestProgress.value = nil
+        defer { running = false; job = nil }
         let flag = cancel
         flag.reset()
-        let walker = makeWalker(states[scope]?.lastCompleteEntries, { flag.value }).withProgress(progress)
+        let box = latestProgress
+        let walker = makeWalker(states[scope]?.lastCompleteEntries, { flag.value }).withProgress { value in
+            box.value = value
+            progress?(value)
+        }
         let queue = self.queue
         let report: ReviewReport = await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in

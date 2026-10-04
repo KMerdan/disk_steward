@@ -276,11 +276,11 @@ final class ReviewWindowModel: ObservableObject {
     func show(_ value: Display) {
         display = value
         selectedItemID = value.items.first?.id
-        if value.stopped || !value.isComplete {
-            // An interrupted review is never shown as "nothing found".
-            reviewState = .partial
-        } else {
-            reviewState = value.items.isEmpty ? .completeWithZeroItems : .completeWithItems
+        // An interrupted review is never shown as "nothing found".
+        switch ReviewReportState.of(stopped: value.stopped, complete: value.isComplete, itemCount: value.items.count) {
+        case .partial, .finishedWithUnreadable: reviewState = .partial
+        case .completeWithZeroItems: reviewState = .completeWithZeroItems
+        case .completeWithItems: reviewState = .completeWithItems
         }
     }
 
@@ -351,22 +351,16 @@ final class ReviewWindowModel: ObservableObject {
                     cleanupCommand: ranked.cleanupCommand, verifiedAt: ranked.verifiedAt, evidence: evidence)
     }
 
+    /// TASK-671: a stored item is presented by the same Core code the MCP
+    /// tools use, so an agent reads the window's states and reasons.
     static func item(from stored: StoredReviewItem, now: Date) -> Item {
-        var status = stat()
-        let present = lstat(stored.path, &status) == 0
-        let lowerBound = ReviewRanking.sizeIsLowerBound(reasons: stored.detail.reasons)
-        let evidence: Evidence = !present ? .unknown : lowerBound ? .partial : (now.timeIntervalSince(stored.verifiedAt) < 300 ? .verifiedNow : .stale)
-        var keep = stored.recreateClass == RecreateClass.expensive.rawValue ? ["It is expensive to recreate."] : []
-        if !stored.detail.known { keep.append("No rebuild command is known for it.") }
-        if !present { keep.append("It was not found at the last check.") }
-        if lowerBound { keep.append("Part of it could not be read, so its size is a lower bound.") }
-        keep.append("Review before removing anything; Disk Steward never deletes.")
+        let shown = ReviewItemPresentation(stored, now: now)
         return Item(rank: stored.rank, name: URL(fileURLWithPath: stored.path).lastPathComponent, path: stored.path,
                     group: groupName(path: stored.path, project: nil, catalog: stored.detail.cleanup != nil),
                     allocatedBytes: stored.allocatedBytes, recreateClass: stored.recreateClass,
-                    origin: stored.detail.reasons.first ?? "", whyDisposable: Array(stored.detail.reasons.dropFirst()), reasonsToKeep: keep,
+                    origin: shown.origin, whyDisposable: shown.whyDisposable, reasonsToKeep: shown.reasonsToKeep,
                     rebuildCommand: stored.detail.command, rebuildCommandKnown: stored.detail.known, cleanupCommand: stored.detail.cleanup,
-                    verifiedAt: stored.verifiedAt, evidence: evidence)
+                    verifiedAt: stored.verifiedAt, evidence: Evidence(rawValue: shown.evidence.rawValue) ?? .unknown)
     }
 
     static func groupName(path: String, project: String?, catalog: Bool) -> String {

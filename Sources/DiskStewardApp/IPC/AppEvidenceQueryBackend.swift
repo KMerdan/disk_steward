@@ -13,7 +13,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         case retired(supportDirectory: URL)
     }
 
-    static let retiredDetailMessage = "File-level scanning is retired: Disk Steward no longer scans files while idle. get_storage_summary answers capacity and its history, explain_growth answers the capacity change and changed folders, and export_evidence exports the legacy evidence."
+    static let retiredDetailMessage = "File-level scanning is retired: Disk Steward no longer scans files while idle. get_storage_summary answers capacity, get_health the stores and journal, explain_growth the capacity change and measured growth, list_review_items and list_largest_objects the latest review, measure_path one folder within a budget, and export_evidence exports the steward store with the legacy evidence."
     private static var retiredDetailError: DiskStewardIPCError {
         .remote(code: "detail_unavailable", message: retiredDetailMessage, retryable: false)
     }
@@ -37,6 +37,10 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private let sessionStore: SessionStore?
     private let reviewIndex: ReviewIndex?
     private let watchedRoots: @Sendable () async -> [String]
+    /// TASK-671: the review service measure_path joins, and the configured
+    /// folders and opted-in caches a measurement may enter.
+    private let reviewService: ReviewService?
+    private let reviewRoots: @Sendable () async -> [String]
     private let reserveProvider: @Sendable (Int64) async -> Int64?
     private var openedRing: CapacityRing?
     private var openedStore: EvidenceStore?
@@ -100,8 +104,12 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         growthAttribution: GrowthAttributionService? = nil,
         sessionStore: SessionStore? = nil,
         reviewIndex: ReviewIndex? = nil,
-        watchedRoots: @escaping @Sendable () async -> [String] = { [] }
+        watchedRoots: @escaping @Sendable () async -> [String] = { [] },
+        reviewService: ReviewService? = nil,
+        reviewRoots: @escaping @Sendable () async -> [String] = { [] }
     ) throws {
+        self.reviewService = reviewService
+        self.reviewRoots = reviewRoots
         self.fileDetail = fileDetail
         self.growthAttribution = growthAttribution
         self.sessionStore = sessionStore
@@ -289,6 +297,18 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             return try await evidenceLifecycle()
         case "list_current_consumers":
             return try await currentConsumers(arguments: arguments)
+        case "get_health":
+            return try await health()
+        case "list_review_items":
+            return try await reviewItems(arguments: arguments)
+        case "list_largest_objects":
+            return try await largestObjects(arguments: arguments)
+        case "get_review_item_evidence":
+            return try await reviewItemEvidence(arguments: arguments)
+        case "measure_path":
+            return try await measurePath(arguments: arguments)
+        case "export_evidence" where isRetired:
+            return try await stewardExport(arguments: arguments)
         case "export_evidence":
             do { return try await inlineBundle(arguments: arguments) }
             catch DiskStewardIPCError.responseTooLarge where isRetired {
@@ -1018,6 +1038,8 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
 
     private func resource(uri: String) async throws -> JSONValue {
         switch uri {
+        case "disk-steward://status" where isRetired:
+            return try await health()
         case "disk-steward://status":
             let diagnostics = try await store.diagnostics()
             return .object([
@@ -1029,8 +1051,8 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             ])
         case "disk-steward://evidence-guide":
             return .object([
-                "schema": .string("evidence-guide-v1"),
-                "text": .string("Exact means a direct observer linked an operation to a process. Tool-linked means authenticated process ancestry linked a local task. Inferred is a supported hypothesis. Unknown means no actor claim is justified. Cleanup candidates always require human review."),
+                "schema": .string("evidence-guide-v2"),
+                "text": .string("Review items are evidence for a person to review, never instructions to delete: each states its size, recreate class, the reasons it may be disposable and the reasons to keep it, and the owning tool's own cleanup command as text. Evidence states: Verified now (checked within five minutes), Stale (older), Partial (its size is a lower bound because folders inside could not be read), Unknown (no longer found). A partial review stopped before covering everything; what it did not cover is unknown, not empty. Growth attribution names measured objects and states the unexplained remainder without claiming a cause. Task impact correlates directories with a session's workspace and window; it never claims which process wrote."),
             ])
         default:
             throw DiskStewardIPCError.remote(code: "unknown_resource", message: "Unknown evidence resource.", retryable: false)
@@ -1111,6 +1133,404 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             "registration_id": .string(ended.registrationID.uuidString.lowercased()),
             "lifecycle": .string(ended.lifecycle.rawValue),
         ])
+    }
+
+    // MARK: Review tools (TASK-671)
+
+    /// Each argument names a configured folder or `caches`; nil is the newest review.
+    private func reviewScope(_ argument: String?) -> String? {
+        guard let argument else { return nil }
+        return argument == "caches" ? CacheCatalog.scope : DirectoryChangeStream.canonicalPath(argument)
+    }
+
+    private func shapeScope(_ scope: String, detail: EvidencePathDetail) -> String {
+        scope == CacheCatalog.scope ? "caches" : shape(path: scope, detail: detail)
+    }
+
+    private func requireReviewIndex() throws -> ReviewIndex {
+        guard let reviewIndex else {
+            throw DiskStewardIPCError.remote(code: "review_unavailable", message: "The review index is not available in this process.", retryable: false)
+        }
+        return reviewIndex
+    }
+
+    private func reportValue(_ report: StoredReviewReport, items: [StoredReviewItem], detail: EvidencePathDetail) -> JSONValue {
+        .object([
+            "report_id": .string(report.reportID),
+            "scope": .string(shapeScope(report.scope, detail: detail)),
+            "started_at": .string(timestamp(report.startedAt)),
+            "completed_at": .string(timestamp(report.completedAt)),
+            "state": .string(ReviewReportState.of(report, itemCount: items.count).rawValue),
+            "coverage": .string(report.coverage),
+            "status": .string(report.status),
+            "item_count": .integer(Int64(items.count)),
+            "worth_reviewing_bytes": .integer(ReviewSummary.worthReviewingBytes(items)),
+            "limitations": .array(report.limitations.map(JSONValue.string)),
+        ])
+    }
+
+    private func reviewItemValue(_ item: StoredReviewItem, report: StoredReviewReport, now: Date, detail: EvidencePathDetail, full: Bool) -> JSONValue {
+        let shown = ReviewItemPresentation(item, now: now)
+        var fields: [String: JSONValue] = [
+            "item_id": .string("\(report.reportID):\(item.rank)"),
+            "rank": .integer(Int64(item.rank)),
+            "name": .string(shape(path: item.path, detail: .basename)),
+            "path": .string(shape(path: item.path, detail: detail)),
+            "kind": .string(item.kind),
+            "recreate_class": .string(item.recreateClass),
+            "allocated_bytes": .integer(item.allocatedBytes),
+            "evidence": .string(shown.evidence.rawValue),
+            "verified_at": .string(timestamp(item.verifiedAt)),
+            "origin": .string(shown.origin),
+            "rebuild_command": .string(item.detail.command),
+            "cleanup_command": item.detail.cleanup.map(JSONValue.string) ?? .null,
+        ]
+        if full {
+            fields["why_it_may_be_disposable"] = .array(shown.whyDisposable.map(JSONValue.string))
+            fields["reasons_to_keep"] = .array(shown.reasonsToKeep.map(JSONValue.string))
+            fields["rebuild_command_known"] = .bool(item.detail.known)
+            fields["present"] = .bool(shown.present)
+            fields["size_is_lower_bound"] = .bool(shown.lowerBound)
+            fields["reclaimable_bytes"] = .integer(item.reclaimableBytes)
+            fields["state"] = .string(item.state)
+        }
+        return .object(fields)
+    }
+
+    /// The latest review's items, ranked, with the window's states and totals.
+    private func reviewItems(arguments: [String: JSONValue]) async throws -> JSONValue {
+        let index = try requireReviewIndex()
+        let now = Date()
+        let detail = pathDetail(arguments)
+        let requested = reviewScope(arguments["scope"]?.stringValue)
+        let report: StoredReviewReport?
+        if let requested { report = try await index.latestReport(scope: requested) } else { report = try await index.latestReports().first }
+        let budget = rowBudget(arguments, defaultLimit: 50, worstCaseItemBytes: 3_072)
+        guard let report else {
+            return .object([
+                "schema": .string("review-items-v1"), "observed_at": .string(timestamp(now)), "report": .null,
+                "items": .array([]), "matched_count": .integer(0), "returned_count": .integer(0), "truncated": .bool(false), "next_cursor": .null,
+                "budget": budgetObject(budget), "safety": .string("review-required-never-safe-to-delete-claim"),
+                "limitations": .array([.string(requested == nil ? "No review has been stored yet; run one in Disk Steward (Review Storage…)." : "No review of that scope is stored.")]),
+            ])
+        }
+        let items = try await index.items(reportID: report.reportID, limit: ReviewRanking.maximumItems)
+        let offset = try decodeOffsetCursor(arguments["cursor"]?.stringValue, revision: report.reportID)
+        let page = Array(items.dropFirst(offset).prefix(budget.applied))
+        let next = offset + page.count < items.count ? encodeOffsetCursor(offset + page.count, revision: report.reportID) : nil
+        return .object([
+            "schema": .string("review-items-v1"),
+            "observed_at": .string(timestamp(now)),
+            "report": reportValue(report, items: items, detail: detail),
+            "items": .array(page.map { reviewItemValue($0, report: report, now: now, detail: detail, full: false) }),
+            "matched_count": .integer(Int64(items.count)),
+            "returned_count": .integer(Int64(page.count)),
+            "truncated": .bool(next != nil),
+            "next_cursor": next.map(JSONValue.string) ?? .null,
+            "budget": budgetObject(budget),
+            "safety": .string("review-required-never-safe-to-delete-claim"),
+            "limitations": .array(([
+                "Items are for a person to review; none is declared safe to delete, and Disk Steward never deletes.",
+                "Evidence states come from a live check of each path now; sizes are from the review at completed_at.",
+            ] + (report.coverage == "complete" ? [] : ["The review is partial: what it did not cover is unknown, not empty."])).map(JSONValue.string)),
+        ])
+    }
+
+    /// One item's full evidence: reasons both ways, commands and a live check.
+    private func reviewItemEvidence(arguments: [String: JSONValue]) async throws -> JSONValue {
+        let index = try requireReviewIndex()
+        guard let id = arguments["item_id"]?.stringValue, let colon = id.lastIndex(of: ":"), let rank = Int(id[id.index(after: colon)...]) else {
+            throw DiskStewardIPCError.remote(code: "invalid_request", message: "item_id must be an item_id from list_review_items.", retryable: false)
+        }
+        let reportID = String(id[..<colon])
+        guard let report = try await index.report(id: reportID),
+              let item = try await index.items(reportID: reportID, limit: ReviewRanking.maximumItems).first(where: { $0.rank == rank })
+        else {
+            throw DiskStewardIPCError.remote(code: "item_unavailable", message: "That review item is no longer stored; list the latest review again.", retryable: false)
+        }
+        let items = try await index.items(reportID: reportID, limit: ReviewRanking.maximumItems)
+        return .object([
+            "schema": .string("review-item-evidence-v1"),
+            "observed_at": .string(timestamp(Date())),
+            "report": reportValue(report, items: items, detail: pathDetail(arguments)),
+            "item": reviewItemValue(item, report: report, now: Date(), detail: pathDetail(arguments), full: true),
+            "safety": .string("review-required-never-safe-to-delete-claim"),
+            "limitations": .array([.string("The cleanup command belongs to the owning tool and is shown as text; Disk Steward never runs it.")]),
+        ])
+    }
+
+    /// The object index, largest first, optionally under one review scope.
+    private func largestObjects(arguments: [String: JSONValue]) async throws -> JSONValue {
+        let index = try requireReviewIndex()
+        let detail = pathDetail(arguments)
+        let budget = rowBudget(arguments, defaultLimit: 50, worstCaseItemBytes: 2_560)
+        let scope = reviewScope(arguments["scope"]?.stringValue)
+        let under = scope == CacheCatalog.scope ? "/" : (scope ?? "/")
+        let total = try await index.objects(under: under, limit: 1).total
+        let revision = "\(under)|\(total)"
+        let offset = try decodeOffsetCursor(arguments["cursor"]?.stringValue, revision: revision)
+        let window = try await index.objects(under: under, limit: min(offset + budget.applied, ReviewIndex.maximumObjects))
+        let page = Array(window.items.dropFirst(offset).prefix(budget.applied))
+        let next = offset + page.count < window.total ? encodeOffsetCursor(offset + page.count, revision: revision) : nil
+        return .object([
+            "schema": .string("largest-objects-v1"),
+            "observed_at": .string(timestamp(Date())),
+            "scope": .string(scope.map { shapeScope($0, detail: detail) } ?? "all"),
+            "items": .array(page.map { object in .object([
+                "name": .string(shape(path: object.path, detail: .basename)),
+                "path": .string(shape(path: object.path, detail: detail)),
+                "kind": .string(object.kind),
+                "recreate_class": .string(object.recreateClass),
+                "allocated_bytes": .integer(object.allocatedBytes),
+                "file_count": .integer(object.fileCount),
+                "measured_at": .string(timestamp(object.measuredAt)),
+                "last_activity": .string(timestamp(object.lastActivity)),
+            ]) }),
+            "matched_count": .integer(Int64(window.total)),
+            "returned_count": .integer(Int64(page.count)),
+            "truncated": .bool(next != nil),
+            "next_cursor": next.map(JSONValue.string) ?? .null,
+            "budget": budgetObject(budget),
+            "limitations": .array([
+                .string("Sizes are each object's last measurement (measured_at), by a review or a growth attribution; nothing inside an object is listed or stored."),
+                .string("The index keeps the 20,000 largest objects; smaller ones may be missing."),
+            ]),
+        ])
+    }
+
+    /// Invariant 7: one folder inside the configured scopes, at most 15 s and
+    /// 500,000 entries, as the one walk in flight. A running review is joined
+    /// (waited for within the budget), never run beside.
+    /// The app's socket deadline: the measurement budget plus room to answer.
+    static let socketTimeoutSeconds = UnixSocketDiskStewardIPCClient.measurementTimeoutSeconds
+
+    static let measureBudget = ReviewBudget(wallSeconds: 15, maximumEntries: 500_000, maximumMemoryBytes: 256 * 1_024 * 1_024)
+
+    private func measurePath(arguments: [String: JSONValue]) async throws -> JSONValue {
+        guard let requested = arguments["path"]?.stringValue else {
+            throw DiskStewardIPCError.remote(code: "invalid_request", message: "path is required.", retryable: false)
+        }
+        guard let reviewService else {
+            throw DiskStewardIPCError.remote(code: "review_unavailable", message: "Measurement is not available in this process.", retryable: false)
+        }
+        let detail = pathDetail(arguments)
+        let path = DirectoryChangeStream.canonicalPath(requested)
+        let scopes = await reviewRoots()
+        guard scopes.contains(where: { path == $0 || path.hasPrefix($0 == "/" ? "/" : $0 + "/") }) else {
+            throw DiskStewardIPCError.remote(code: "outside_scope", message: "measure_path only measures folders inside the configured scopes or opted-in caches.", retryable: false)
+        }
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory), isDirectory.boolValue else {
+            throw DiskStewardIPCError.remote(code: "path_unavailable", message: "That folder does not exist or is not a folder.", retryable: false)
+        }
+        let started = Date()
+        let deadline = started.addingTimeInterval(Self.measureBudget.wallSeconds)
+        var joined: JSONValue = .null
+        if let job = await reviewService.currentJob {
+            // Join the walk in flight: wait for it within this budget.
+            while await reviewService.isRunning, Date() < deadline.addingTimeInterval(-1) {
+                try await Task.sleep(nanoseconds: 100_000_000)
+            }
+            let finished = !(await reviewService.isRunning)
+            joined = .object([
+                "kind": .string(job.kind),
+                "scope": .string(shapeScope(job.scope, detail: detail)),
+                "started_at": .string(timestamp(job.startedAt)),
+                "entries_visited": job.progress.map { .integer(Int64($0.entries)) } ?? .null,
+                "finished": .bool(finished),
+            ])
+            if !finished {
+                let progress = await reviewService.currentJob?.progress
+                return .object([
+                    "schema": .string("measure-path-v1"),
+                    "observed_at": .string(timestamp(Date())),
+                    "path": .string(shape(path: path, detail: detail)),
+                    "status": .string("joined-review-running"),
+                    "joined_review": joined,
+                    "review_entries_visited": progress.map { .integer(Int64($0.entries)) } ?? .null,
+                    "allocated_bytes": .null,
+                    "limitations": .array([.string("A review was measuring for the whole budget; this folder was not measured. Ask again when it ends, or read its report with list_review_items.")]),
+                ])
+            }
+        }
+        let remaining = max(1, deadline.timeIntervalSinceNow)
+        let budget = ReviewBudget(wallSeconds: min(Self.measureBudget.wallSeconds, remaining), maximumEntries: Self.measureBudget.maximumEntries,
+                                  maximumMemoryBytes: Self.measureBudget.maximumMemoryBytes)
+        let report: ReviewReport
+        do { report = try await reviewService.measure(path: path, budget: budget) } catch ReviewError.busy {
+            throw DiskStewardIPCError.remote(code: "review_busy", message: "A review started while this measurement waited; ask again when it ends.", retryable: true)
+        }
+        let objects = report.objects.sorted { ($0.allocatedBytes, $1.path) > ($1.allocatedBytes, $0.path) }
+        var limitations = ["Nothing is stored: this is a reading, not a review, and it writes no cooldown.", "Objects are listed for review only; none is declared safe to delete."]
+        if case let .stopped(reason) = report.status {
+            limitations.append("The measurement stopped (\(reason.rawValue)) within its budget; allocated_bytes is a lower bound and folders not reached are unknown, not empty.")
+        }
+        if report.unreadableDirectories > 0 { limitations.append("\(report.unreadableDirectories) folders could not be read; their contents are unknown, not absent.") }
+        var stopReason: JSONValue = .null
+        if case let .stopped(reason) = report.status { stopReason = .string(reason.rawValue) }
+        let objectValues: [JSONValue] = objects.prefix(50).map { object in
+            var fields: [String: JSONValue] = [:]
+            fields["name"] = .string(shape(path: object.path, detail: .basename))
+            fields["path"] = .string(shape(path: object.path, detail: detail))
+            fields["kind"] = .string(object.kind.rawValue)
+            fields["recreate_class"] = .string(object.recreateClass.rawValue)
+            fields["allocated_bytes"] = .integer(object.allocatedBytes)
+            fields["file_count"] = .integer(Int64(object.fileCount))
+            return .object(fields)
+        }
+        var answer: [String: JSONValue] = [:]
+        answer["schema"] = .string("measure-path-v1")
+        answer["observed_at"] = .string(timestamp(Date()))
+        answer["path"] = .string(shape(path: path, detail: detail))
+        answer["status"] = .string(report.isComplete ? "complete" : "partial")
+        answer["stop_reason"] = stopReason
+        answer["allocated_bytes"] = .integer(report.scopeAllocatedBytes)
+        answer["entries_visited"] = .integer(Int64(report.entriesVisited))
+        answer["directories_visited"] = .integer(Int64(report.directoriesVisited))
+        answer["elapsed_seconds"] = .number(report.completedAt.timeIntervalSince(report.startedAt))
+        answer["budget"] = .object(["wall_seconds": .number(Self.measureBudget.wallSeconds), "maximum_entries": .integer(Int64(Self.measureBudget.maximumEntries))])
+        answer["joined_review"] = joined
+        answer["objects"] = .array(objectValues)
+        answer["objects_total"] = .integer(Int64(objects.count))
+        answer["unreadable_directories"] = .integer(Int64(report.unreadableDirectories))
+        answer["limitations"] = .array(limitations.map(JSONValue.string))
+        return .object(answer)
+    }
+
+    /// Stores, caps, last reviews and journal state; it never opens the
+    /// retired detail store.
+    private func health() async throws -> JSONValue {
+        let now = Date()
+        func bytes(_ url: URL) -> JSONValue {
+            guard let size = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.size] as? NSNumber else { return .null }
+            return .integer(size.int64Value)
+        }
+        var tables: [JSONValue] = []
+        if let reviewIndex {
+            for table in BoundedStoreContract.tables[.steward] ?? [] {
+                tables.append(.object([
+                    "name": .string(table.name),
+                    "rows": ((try? await reviewIndex.count(table.name)).map { .integer(Int64($0)) }) ?? .null,
+                    "row_cap": .integer(Int64(table.rowCap)),
+                    "byte_cap": .integer(table.byteCap),
+                ]))
+            }
+        }
+        var reviews: [JSONValue] = []
+        if let reviewIndex, let reports = try? await reviewIndex.latestReports() {
+            for report in reports {
+                let items = (try? await reviewIndex.items(reportID: report.reportID, limit: ReviewRanking.maximumItems)) ?? []
+                reviews.append(reportValue(report, items: items, detail: .basename))
+            }
+        }
+        var journal: [String: JSONValue] = ["status": .string("not-started")]
+        if let changeJournal = try? existingJournal() {
+            let lastDay = try? await changeJournal.changes(from: now.addingTimeInterval(-86_400), through: now, limit: 1)
+            let lastHour = try? await changeJournal.changes(from: now.addingTimeInterval(-3_600), through: now, limit: 1)
+            journal = [
+                "status": .string("recording"),
+                "coverage_start": ((try? await changeJournal.coverageStart()) ?? nil).map { .string(timestamp($0)) } ?? .null,
+                "changed_directories_last_hour": lastHour.map { .integer(Int64($0.changes.total)) } ?? .null,
+                "gaps_last_day": lastDay.map { .integer(Int64($0.gaps.count)) } ?? .null,
+            ]
+        }
+        var running: JSONValue = .null
+        if let job = await reviewService?.currentJob {
+            running = .object(["kind": .string(job.kind), "scope": .string(shapeScope(job.scope, detail: .basename)),
+                               "started_at": .string(timestamp(job.startedAt)), "entries_visited": job.progress.map { .integer(Int64($0.entries)) } ?? .null])
+        }
+        var attribution: JSONValue = .null
+        if let growthAttribution {
+            let stored = await growthAttribution.attributions
+            attribution = .object(["stored": .integer(Int64(stored.count)),
+                                   "latest_through": stored.first.map { .string(timestamp($0.through)) } ?? .null,
+                                   "latest_trigger": stored.first.map { .string($0.trigger.rawValue) } ?? .null])
+        }
+        var legacy: [JSONValue] = []
+        if case let .retired(supportDirectory) = fileDetail {
+            for set in (try? LegacyEvidence.sets(in: supportDirectory)) ?? [] {
+                legacy.append(.object(["name": .string(set.name), "migrated_at": .string(timestamp(set.migratedAt)), "bytes": .integer(set.databaseBytes)]))
+            }
+        }
+        let wal = URL(fileURLWithPath: changeJournalURL.path + "-wal")
+        return .object([
+            "schema": .string("health-v1"),
+            "observed_at": .string(timestamp(now)),
+            "detail_store": .string(isRetired ? "retired" : "live"),
+            "stores": .object([
+                "ceiling_bytes": .integer(BoundedStoreContract.ceilingBytes),
+                "wal_limit_bytes": .integer(BoundedStoreContract.walLimitBytes),
+                "steward_bytes": bytes(changeJournalURL),
+                "steward_wal_bytes": bytes(wal),
+                "capacity_bytes": bytes(capacityRingURL),
+                "tables": .array(tables),
+            ]),
+            "reviews": .array(reviews),
+            "running": running,
+            "journal": .object(journal),
+            "growth_attribution": attribution,
+            "sessions_kept": ((try? await sessionStore?.count()) ?? nil).map { .integer(Int64($0)) } ?? .null,
+            "legacy_evidence": .array(legacy),
+            "limitations": .array([.string("Every table has a hard row and byte cap; the files never exceed the ceiling plus the write-ahead log limit.")]),
+        ])
+    }
+
+    /// TASK-671: on the retired build, export_evidence returns the steward
+    /// store's evidence for the window, plus the legacy evidence when it fits;
+    /// the legacy store is read from a clone and never changed.
+    private func stewardExport(arguments: [String: JSONValue]) async throws -> JSONValue {
+        let (from, through) = try requestedRange(arguments)
+        let detail = pathDetail(arguments)
+        var steward: [String: JSONValue] = ["capacity_change": await capacityChange(from: from, through: through)]
+        for (key, value) in await journalAnswer(from: from, through: through, detail: detail) { steward[key] = value }
+        if let reviewIndex, let reports = try? await reviewIndex.latestReports() {
+            var values: [JSONValue] = []
+            for report in reports.prefix(5) {
+                let items = (try? await reviewIndex.items(reportID: report.reportID, limit: ReviewRanking.maximumItems)) ?? []
+                guard case var .object(fields) = reportValue(report, items: items, detail: detail) else { continue }
+                fields["top_items"] = .array(items.prefix(25).map { reviewItemValue($0, report: report, now: Date(), detail: detail, full: false) })
+                values.append(.object(fields))
+            }
+            steward["reviews"] = .array(values)
+        }
+        if let growthAttribution {
+            let overlapping = await growthAttribution.attributions(overlapping: from, through: through)
+            steward["growth_attributions"] = .array(overlapping.prefix(2).map { attributionValue($0, detail: detail) })
+        }
+        if let sessionStore {
+            let sessions = (try? await sessionStore.sessions(overlapping: from, through: through)) ?? []
+            steward["sessions"] = .array(sessions.prefix(50).map { session in .object([
+                "client": .string(session.client),
+                "workspace_roots": .array(session.roots.map { .string(shape(path: $0, detail: detail)) }),
+                "started_at": .string(timestamp(session.startedAt)),
+                "ends_at": .string(timestamp(session.endsAt)),
+            ]) })
+        }
+        var answer: [String: JSONValue] = [
+            "schema": .string("evidence-export-v2"),
+            "observed_at": .string(timestamp(Date())),
+            "requested_interval": .object(["from": .string(timestamp(from)), "through": .string(timestamp(through))]),
+            "steward": .object(steward),
+        ]
+        let stewardBytes = (try? JSONEncoder.diskSteward.encode(JSONValue.object(answer)).count) ?? 0
+        do {
+            let bundle = try await inlineBundle(arguments: arguments)
+            let bundleBytes = (try? JSONEncoder.diskSteward.encode(bundle).count) ?? Int.max
+            if stewardBytes + bundleBytes + 4 * 1_024 <= responseByteCeiling {
+                answer["legacy"] = .object(["status": .string("included"), "bundle": bundle])
+            } else {
+                answer["legacy"] = .object(["status": .string("too_large"), "message": .string(Self.legacyExportTooLargeMessage)])
+            }
+        } catch DiskStewardIPCError.responseTooLarge {
+            answer["legacy"] = .object(["status": .string("too_large"), "message": .string(Self.legacyExportTooLargeMessage)])
+        } catch let DiskStewardIPCError.remote(code, message, _) where code == "no_legacy_evidence" {
+            answer["legacy"] = .object(["status": .string("none"), "message": .string(message)])
+        }
+        answer["limitations"] = .array([
+            .string("The steward part holds capacity, changed directories, reviews, growth attributions and sessions for the window; no file rows exist to export."),
+            .string("The legacy evidence is exported read-only from a clone, and only when it fits the inline answer; otherwise export it to a file from Disk Steward."),
+        ])
+        return .object(answer)
     }
 
     // MARK: Task impact from sessions and dirty sets (TASK-672)

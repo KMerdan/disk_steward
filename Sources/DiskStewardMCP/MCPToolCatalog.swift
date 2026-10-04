@@ -3,57 +3,61 @@ import Foundation
 
 enum MCPToolCatalog {
     static let supportedProtocolVersions = ["2025-06-18", "2025-03-26", "2024-11-05"]
+    /// TASK-671: the catalogue on the capacity ring, change journal and review
+    /// report. get_provenance would be listed only while an Endpoint Security
+    /// bridge is active; the app has none, so it is not listed (tools/list is
+    /// static, listChanged false).
     static let names = [
         "get_storage_summary",
-        "get_evidence_lifecycle",
-        "list_current_consumers",
+        "get_health",
         "explain_growth",
-        "get_provenance",
+        "list_review_items",
+        "list_largest_objects",
+        "get_review_item_evidence",
+        "measure_path",
         "list_active_agent_sessions",
-        "list_active_writers",
         "get_task_impact",
-        "find_cleanup_candidates",
         "export_evidence",
     ]
+
+    /// Tools whose answer may take the whole measurement budget.
+    static let slowTools: Set<String> = ["measure_path"]
 
     static let resourceURIs = ["disk-steward://status", "disk-steward://evidence-guide"]
 
     static var tools: [JSONValue] {
         [
             tool("get_storage_summary", "Return bounded current volume and monitored-scope totals with freshness and limitations.", properties: [:]),
-            tool("get_evidence_lifecycle", "Return retention policy, actual tier coverage, database pressure, gaps, and export inventory.", properties: [:]),
-            tool("list_current_consumers", "Return only authoritative present current-state consumers with stable cursor pagination.", properties: consumerProperties()),
-            tool("explain_growth", "Explain growth for a bounded time range without unsupported attribution.", required: ["from", "through"], properties: [
+            tool("get_health", "Return the stores' sizes and caps, the latest review of each scope, the change journal's state and any legacy evidence.", properties: [:]),
+            tool("explain_growth", "Explain growth for a bounded time range: the capacity change, measured object deltas, the unexplained remainder and changed folders.", required: ["from", "through"], properties: [
                 "from": .object(["type": .string("string")]),
                 "through": .object(["type": .string("string")]),
                 "limit": integer(minimum: 1, maximum: 500),
                 "cursor": string(maximum: 4_096),
                 "path_detail": pathDetail(),
             ]),
-            tool("get_provenance", "Return sanitized provenance observations for a bounded path query.", required: ["path_query"], properties: [
-                "path_query": .object(["type": .string("string"), "maxLength": .integer(4_096)]),
-                "limit": integer(minimum: 1, maximum: 500),
-                "cursor": string(maximum: 4_096),
+            tool("list_review_items", "List the latest review's ranked items with size, evidence state, recreate class and the owning tool's cleanup command; never a deletion instruction.", properties: reviewProperties()),
+            tool("list_largest_objects", "List the largest measured objects (build output, environments, caches), optionally within one review scope.", properties: reviewProperties()),
+            tool("get_review_item_evidence", "Return one review item's full evidence: why it may be disposable, reasons to keep it, its commands and a live check.", required: ["item_id"], properties: [
+                "item_id": string(maximum: 256),
                 "path_detail": pathDetail(),
             ]),
-            tool("list_active_agent_sessions", "Return active authenticated agent task contexts without claiming they are file writers.", properties: [
+            tool("measure_path", "Measure one folder inside the configured scopes within 15 s and 500,000 entries; joins a running review instead of starting a second walk, and stores nothing.", required: ["path"], properties: [
+                "path": string(maximum: 4_096),
+                "path_detail": pathDetail(),
+            ]),
+            tool("list_active_agent_sessions", "Return active authenticated agent task contexts and the folders their workspaces saw change, without claiming they are file writers.", properties: [
                 "minutes": integer(minimum: 1, maximum: 1_440),
                 "limit": integer(minimum: 1, maximum: 200),
                 "cursor": string(maximum: 4_096),
             ]),
-            tool("list_active_writers", "Deprecated compatibility alias for list_active_agent_sessions; it does not claim writer identity.", properties: [
-                "minutes": integer(minimum: 1, maximum: 1_440),
-                "limit": integer(minimum: 1, maximum: 200),
-                "cursor": string(maximum: 4_096),
-            ]),
-            tool("get_task_impact", "Summarize evidence correlated to one registered local agent session.", required: ["session_id"], properties: [
+            tool("get_task_impact", "Summarize the folders that changed in a registered session's workspace during its window, with the objects there; a correlation, never a claim about which process wrote.", required: ["session_id"], properties: [
                 "session_id": .object(["type": .string("string"), "maxLength": .integer(256)]),
                 "limit": integer(minimum: 1, maximum: 500),
                 "from": .object(["type": .string("string")]),
                 "through": .object(["type": .string("string")]),
             ]),
-            tool("find_cleanup_candidates", "List revalidated present-state review candidates without declaring any path safe to delete.", properties: cleanupProperties()),
-            tool("export_evidence", "Return a bounded inline evidence bundle equivalent to app export without modifying evidence.", required: ["from", "through"], properties: [
+            tool("export_evidence", "Return a bounded inline export of the steward evidence for a window, plus the legacy evidence read-only when it fits.", required: ["from", "through"], properties: [
                 "from": .object(["type": .string("string")]),
                 "through": .object(["type": .string("string")]),
                 "path_detail": .object(["type": .string("string"), "enum": .array([.string("full"), .string("basename"), .string("hashed")])]),
@@ -68,13 +72,13 @@ enum MCPToolCatalog {
                 "uri": .string("disk-steward://status"),
                 "name": .string("Disk Steward service status"),
                 "mimeType": .string("application/json"),
-                "description": .string("Current local evidence-service health, freshness, and limitations."),
+                "description": .string("Stores, caps, latest reviews and change-journal state."),
             ]),
             .object([
                 "uri": .string("disk-steward://evidence-guide"),
                 "name": .string("Disk Steward evidence interpretation guide"),
                 "mimeType": .string("text/markdown"),
-                "description": .string("Meaning of confidence, methods, unknown deltas, and cleanup candidates."),
+                "description": .string("Meaning of evidence states, review items, partial reviews and unexplained growth."),
             ]),
         ]
     }
@@ -83,22 +87,20 @@ enum MCPToolCatalog {
         let allowed: Set<String>
         let required: Set<String>
         switch tool {
-        case "get_storage_summary":
+        case "get_storage_summary", "get_health":
             allowed = []; required = []
-        case "get_evidence_lifecycle":
-            allowed = []; required = []
-        case "list_current_consumers":
-            allowed = ["root_path", "category", "minimum_bytes", "cursor", "limit", "path_detail"]; required = []
         case "explain_growth":
             allowed = ["from", "through", "limit", "cursor", "path_detail"]; required = ["from", "through"]
-        case "get_provenance":
-            allowed = ["path_query", "limit", "cursor", "path_detail"]; required = ["path_query"]
-        case "list_active_agent_sessions", "list_active_writers":
+        case "list_review_items", "list_largest_objects":
+            allowed = ["scope", "limit", "cursor", "path_detail"]; required = []
+        case "get_review_item_evidence":
+            allowed = ["item_id", "path_detail"]; required = ["item_id"]
+        case "measure_path":
+            allowed = ["path", "path_detail"]; required = ["path"]
+        case "list_active_agent_sessions":
             allowed = ["minutes", "limit", "cursor"]; required = []
         case "get_task_impact":
             allowed = ["session_id", "limit", "from", "through"]; required = ["session_id"]
-        case "find_cleanup_candidates":
-            allowed = ["root_path", "category", "minimum_bytes", "older_than_days", "cursor", "limit", "path_detail"]; required = []
         case "export_evidence":
             allowed = ["from", "through", "path_detail", "max_events"]; required = ["from", "through"]
         default:
@@ -111,7 +113,7 @@ enum MCPToolCatalog {
             return "Missing required argument: \(missing)"
         }
         if let limit = arguments["limit"]?.integerValue {
-            let maximum: Int64 = ["list_active_writers", "list_active_agent_sessions"].contains(tool) ? 200 : 500
+            let maximum: Int64 = tool == "list_active_agent_sessions" ? 200 : 500
             if !(1 ... maximum).contains(limit) { return "limit must be between 1 and \(maximum)" }
         } else if arguments["limit"] != nil {
             return "limit must be an integer"
@@ -126,29 +128,19 @@ enum MCPToolCatalog {
         } else if arguments["minutes"] != nil, arguments["minutes"]?.integerValue == nil {
             return "minutes must be an integer"
         }
-        if let value = arguments["older_than_days"]?.integerValue, !(0 ... 3_650).contains(value) {
-            return "older_than_days must be between 0 and 3650"
-        } else if arguments["older_than_days"] != nil, arguments["older_than_days"]?.integerValue == nil {
-            return "older_than_days must be an integer"
-        }
-        if let value = arguments["minimum_bytes"]?.integerValue, value < 0 {
-            return "minimum_bytes must be nonnegative"
-        } else if arguments["minimum_bytes"] != nil, arguments["minimum_bytes"]?.integerValue == nil {
-            return "minimum_bytes must be an integer"
-        }
-        if let value = arguments["path_query"]?.stringValue, value.isEmpty || value.utf8.count > 4_096 {
-            return "path_query must contain 1...4096 UTF-8 bytes"
-        } else if arguments["path_query"] != nil, arguments["path_query"]?.stringValue == nil {
-            return "path_query must be a string"
-        }
         if let value = arguments["session_id"]?.stringValue, value.isEmpty || value.utf8.count > 256 {
             return "session_id must contain 1...256 UTF-8 bytes"
         } else if arguments["session_id"] != nil, arguments["session_id"]?.stringValue == nil {
             return "session_id must be a string"
         }
-        for name in ["cursor", "root_path", "category"] where arguments[name] != nil {
+        for name in ["cursor", "scope", "path"] where arguments[name] != nil {
             guard let value = arguments[name]?.stringValue, !value.isEmpty, value.utf8.count <= 4_096 else {
                 return "\(name) must contain 1...4096 UTF-8 bytes"
+            }
+        }
+        if arguments["item_id"] != nil {
+            guard let value = arguments["item_id"]?.stringValue, !value.isEmpty, value.utf8.count <= 256 else {
+                return "item_id must contain 1...256 UTF-8 bytes"
             }
         }
         if let detail = arguments["path_detail"]?.stringValue,
@@ -206,21 +198,13 @@ enum MCPToolCatalog {
         .object(["type": .string("string"), "enum": .array([.string("full"), .string("basename"), .string("hashed")])])
     }
 
-    private static func consumerProperties() -> [String: JSONValue] {
+    private static func reviewProperties() -> [String: JSONValue] {
         [
-            "root_path": string(maximum: 4_096),
-            "category": string(maximum: 256),
-            "minimum_bytes": integer(minimum: 0, maximum: Int64.max),
-            "cursor": string(maximum: 4_096),
+            "scope": string(maximum: 4_096),
             "limit": integer(minimum: 1, maximum: 500),
+            "cursor": string(maximum: 4_096),
             "path_detail": pathDetail(),
         ]
-    }
-
-    private static func cleanupProperties() -> [String: JSONValue] {
-        var values = consumerProperties()
-        values["older_than_days"] = integer(minimum: 0, maximum: 3_650)
-        return values
     }
 
     private static func parseTimestamp(_ value: String) -> Date? {

@@ -1,0 +1,411 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-671",
+ "outcome": "implemented",
+ "changed_files": [
+  "Fixtures/MCP/codex-stdio.toml.txt",
+  "Fixtures/MCP/readonly-inventory.json",
+  "Integrations/Codex/config.toml.fragment",
+  "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md",
+  "README.md",
+  "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+  "Scripts/Integration/install",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+  "Sources/DiskStewardApp/Review/ReviewWindowModel.swift",
+  "Sources/DiskStewardApp/StatusItemController.swift",
+  "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+  "Sources/DiskStewardCore/Review/ReviewIndex.swift",
+  "Sources/DiskStewardMCP/MCPServer.swift",
+  "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+  "Sources/DiskStewardMCP/main.swift",
+  "Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift",
+  "Tests/DiskStewardAppTests/IPC/EvidenceQueryScopeIPCIntegrationTests.swift",
+  "Tests/DiskStewardAppTests/Lifecycle/LegacyRehearsalTests.swift",
+  "Tests/DiskStewardAppTests/MCP/RetiredDetailBackendTests.swift",
+  "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+  "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+  "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+  "Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift",
+  "docs/architecture/mcp.md",
+  "docs/operations/privacy-and-retention.md",
+  "Sources/DiskStewardCore/Review/ReviewPresentation.swift",
+  "Tests/DiskStewardAppTests/MCP/ReviewToolsTests.swift",
+  "Tests/IncrementTests/MCP/ReviewCatalogIncrementTests.swift",
+  "docs/reliability/evidence/TASK-671/README.md",
+  "docs/reliability/evidence/TASK-671/agent-vs-window.json",
+  "docs/reliability/evidence/TASK-671/catalog-caps-sizes.json",
+  "docs/reliability/evidence/TASK-671/codex-list-drifts-red/result.json",
+  "docs/reliability/evidence/TASK-671/codex-list-drifts-red/tests.log",
+  "docs/reliability/evidence/TASK-671/dropped-tool-listed-red/result.json",
+  "docs/reliability/evidence/TASK-671/dropped-tool-listed-red/tests.log",
+  "docs/reliability/evidence/TASK-671/evidence-state-fixed-red/result.json",
+  "docs/reliability/evidence/TASK-671/evidence-state-fixed-red/tests.log",
+  "docs/reliability/evidence/TASK-671/export-old-shape-red/result.json",
+  "docs/reliability/evidence/TASK-671/export-old-shape-red/tests.log",
+  "docs/reliability/evidence/TASK-671/focused-green/result.json",
+  "docs/reliability/evidence/TASK-671/focused-green/tests.log",
+  "docs/reliability/evidence/TASK-671/full-suite/candidate.json",
+  "docs/reliability/evidence/TASK-671/full-suite/tests.log",
+  "docs/reliability/evidence/TASK-671/health-opens-retired-store-red/result.json",
+  "docs/reliability/evidence/TASK-671/health-opens-retired-store-red/tests.log",
+  "docs/reliability/evidence/TASK-671/measure-beside-review-red/result.json",
+  "docs/reliability/evidence/TASK-671/measure-beside-review-red/tests.log",
+  "docs/reliability/evidence/TASK-671/measure-budget-red/result.json",
+  "docs/reliability/evidence/TASK-671/measure-budget-red/tests.log",
+  "docs/reliability/evidence/TASK-671/measure-outside-scope-red/result.json",
+  "docs/reliability/evidence/TASK-671/measure-outside-scope-red/tests.log",
+  "docs/reliability/evidence/TASK-671/measure-short-deadline-red/result.json",
+  "docs/reliability/evidence/TASK-671/measure-short-deadline-red/tests.log",
+  "docs/reliability/evidence/TASK-671/measure-stores-red/result.json",
+  "docs/reliability/evidence/TASK-671/measure-stores-red/tests.log",
+  "docs/reliability/evidence/TASK-671/mut-codex-list-drifts.json",
+  "docs/reliability/evidence/TASK-671/mut-dropped-tool-listed.json",
+  "docs/reliability/evidence/TASK-671/mut-evidence-state-fixed.json",
+  "docs/reliability/evidence/TASK-671/mut-export-old-shape.json",
+  "docs/reliability/evidence/TASK-671/mut-health-opens-retired-store.json",
+  "docs/reliability/evidence/TASK-671/mut-measure-beside-review.json",
+  "docs/reliability/evidence/TASK-671/mut-measure-budget.json",
+  "docs/reliability/evidence/TASK-671/mut-measure-outside-scope.json",
+  "docs/reliability/evidence/TASK-671/mut-measure-short-deadline.json",
+  "docs/reliability/evidence/TASK-671/mut-measure-stores.json",
+  "docs/reliability/evidence/TASK-671/mut-over-ceiling.json",
+  "docs/reliability/evidence/TASK-671/mut-total-differs-from-window.json",
+  "docs/reliability/evidence/TASK-671/over-ceiling-red/result.json",
+  "docs/reliability/evidence/TASK-671/over-ceiling-red/tests.log",
+  "docs/reliability/evidence/TASK-671/total-differs-from-window-red/result.json",
+  "docs/reliability/evidence/TASK-671/total-differs-from-window-red/tests.log",
+  "docs/reliability/evidence/TASK-671/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-MCP",
+  "ASSET-QUERY",
+  "ASSET-IPC",
+  "ASSET-EXPORT",
+  "ASSET-CONTRACTS",
+  "ASSET-ATTRIBUTION",
+  "ASSET-ASSURANCE",
+  "ASSET-CLIENTS",
+  "ASSET-UI",
+  "ASSET-SCANNER",
+  "ASSET-BOOT"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Fixtures/MCP/codex-stdio.toml.txt",
+   "class": "source"
+  },
+  {
+   "path": "Fixtures/MCP/readonly-inventory.json",
+   "class": "source"
+  },
+  {
+   "path": "Integrations/Codex/config.toml.fragment",
+   "class": "source"
+  },
+  {
+   "path": "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md",
+   "class": "source"
+  },
+  {
+   "path": "README.md",
+   "class": "source"
+  },
+  {
+   "path": "Schemas/MCP/mcp-readonly-contract-v1.schema.json",
+   "class": "source"
+  },
+  {
+   "path": "Scripts/Integration/install",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/Review/ReviewWindowModel.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/StatusItemController.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/IPC/DiskStewardIPCClient.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Review/ReviewIndex.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardMCP/MCPServer.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardMCP/main.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/IPC/EvidenceQueryPrivacyIPCIntegrationTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/IPC/EvidenceQueryScopeIPCIntegrationTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/Lifecycle/LegacyRehearsalTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/MCP/RetiredDetailBackendTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardMCPTests/DiskStewardMCPTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/IncrementTests/Final/FinalProductIncrementTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/IncrementTests/MCP/AgentQueryableEvidenceIncrementTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/IntegrationInstallTests/MCPTransportLifecycleTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/architecture/mcp.md",
+   "class": "source"
+  },
+  {
+   "path": "docs/operations/privacy-and-retention.md",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Review/ReviewPresentation.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/MCP/ReviewToolsTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/IncrementTests/MCP/ReviewCatalogIncrementTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/agent-vs-window.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/catalog-caps-sizes.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/codex-list-drifts-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/codex-list-drifts-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/dropped-tool-listed-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/dropped-tool-listed-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/evidence-state-fixed-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/evidence-state-fixed-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/export-old-shape-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/export-old-shape-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/focused-green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/focused-green/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/full-suite/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/full-suite/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/health-opens-retired-store-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/health-opens-retired-store-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-beside-review-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-beside-review-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-budget-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-budget-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-outside-scope-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-outside-scope-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-short-deadline-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-short-deadline-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-stores-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/measure-stores-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-codex-list-drifts.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-dropped-tool-listed.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-evidence-state-fixed.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-export-old-shape.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-health-opens-retired-store.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-measure-beside-review.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-measure-budget.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-measure-outside-scope.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-measure-short-deadline.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-measure-stores.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-over-ceiling.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/mut-total-differs-from-window.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/over-ceiling-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/over-ceiling-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/total-differs-from-window-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/total-differs-from-window-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-671/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "run-focused.py (100 tests)",
+   "result": "passed"
+  },
+  {
+   "command": "12 mutation reds",
+   "result": "each red as intended"
+  },
+  {
+   "command": "verify_candidate.py (full suite)",
+   "result": "727 tests, 0 failures, 11 skipped; candidate passed"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-671-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-671/README.md"
+  },
+  {
+   "criterion": "AC-TASK-671-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-671/README.md"
+  }
+ ],
+ "discovered_risks": [],
+ "suggested_graph_changes": []
+}

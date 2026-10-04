@@ -1,0 +1,14 @@
+{
+ "name": "measure_path stores a report and a cooldown like a review",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "replacements": [
+    [
+     "        do { report = try await reviewService.measure(path: path, budget: budget) } catch ReviewError.busy {",
+     "        do { report = try await reviewService.review(scope: path) } catch ReviewError.busy {"
+    ]
+   ]
+  }
+ ]
+}

@@ -3,9 +3,13 @@
   "server": {
     "name": "disk-witness-mcp",
     "version": "1.0.0",
-    "instructions": "Read local Disk Steward evidence only. Treat confidence and limitations as authoritative. Never imply that candidates are safe to delete."
+    "instructions": "Read local Disk Steward evidence only. Treat evidence states, confidence and limitations as authoritative. Review items are for a person to review; never imply anything is safe to delete."
   },
-  "protocol_versions": ["2025-06-18", "2025-03-26", "2024-11-05"],
+  "protocol_versions": [
+    "2025-06-18",
+    "2025-03-26",
+    "2024-11-05"
+  ],
   "transport": "stdio",
   "capabilities": {
     "tools": true,
@@ -18,67 +22,335 @@
     {
       "name": "get_storage_summary",
       "description": "Return bounded current volume and monitored-scope totals with freshness and limitations.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "properties": {} },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     },
     {
-      "name": "get_evidence_lifecycle",
-      "description": "Return retention policy, actual tier coverage, database pressure, gaps, and export inventory.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "properties": {} },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
-    },
-    {
-      "name": "list_current_consumers",
-      "description": "Return only authoritative present current-state consumers with stable cursor pagination.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minimum_bytes": { "type": "integer", "minimum": 0 }, "cursor": { "type": "string" }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 }, "path_detail": { "type": "string", "enum": ["full", "basename", "hashed"] } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "name": "get_health",
+      "description": "Return the stores' sizes and caps, the latest review of each scope, the change journal's state and any legacy evidence.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     },
     {
       "name": "explain_growth",
-      "description": "Explain growth for a bounded time range without claiming unsupported attribution.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["from", "through"], "properties": { "from": { "type": "string" }, "through": { "type": "string" }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "description": "Explain growth for a bounded time range: the capacity change, measured object deltas, the unexplained remainder and changed folders.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "through": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "path_detail": {
+            "type": "string",
+            "enum": [
+              "full",
+              "basename",
+              "hashed"
+            ]
+          }
+        },
+        "required": [
+          "from",
+          "through"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     },
     {
-      "name": "get_provenance",
-      "description": "Return sanitized provenance observations for a bounded path hash or basename query.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["path_query"], "properties": { "path_query": { "type": "string", "maxLength": 4096 }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "name": "list_review_items",
+      "description": "List the latest review's ranked items with size, evidence state, recreate class and the owning tool's cleanup command; never a deletion instruction.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "path_detail": {
+            "type": "string",
+            "enum": [
+              "full",
+              "basename",
+              "hashed"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     },
     {
-      "name": "list_active_writers",
-      "description": "Return recently observed writer identities and confidence within a bounded window.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minutes": { "type": "integer", "minimum": 1, "maximum": 1440 }, "limit": { "type": "integer", "minimum": 1, "maximum": 200 } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "name": "list_largest_objects",
+      "description": "List the largest measured objects (build output, environments, caches), optionally within one review scope.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "path_detail": {
+            "type": "string",
+            "enum": [
+              "full",
+              "basename",
+              "hashed"
+            ]
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_review_item_evidence",
+      "description": "Return one review item's full evidence: why it may be disposable, reasons to keep it, its commands and a live check.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "path_detail": {
+            "type": "string",
+            "enum": [
+              "full",
+              "basename",
+              "hashed"
+            ]
+          }
+        },
+        "required": [
+          "item_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "measure_path",
+      "description": "Measure one folder inside the configured scopes within 15 s and 500,000 entries; joins a running review instead of starting a second walk, and stores nothing.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "path_detail": {
+            "type": "string",
+            "enum": [
+              "full",
+              "basename",
+              "hashed"
+            ]
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     },
     {
       "name": "list_active_agent_sessions",
-      "description": "Return active authenticated task contexts without claiming observed writer identity.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minutes": { "type": "integer", "minimum": 1, "maximum": 1440 }, "limit": { "type": "integer", "minimum": 1, "maximum": 200 }, "cursor": { "type": "string" } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "description": "Return active authenticated agent task contexts and the folders their workspaces saw change, without claiming they are file writers.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1440
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "cursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     },
     {
       "name": "get_task_impact",
-      "description": "Summarize evidence correlated to one registered local agent session.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["session_id"], "properties": { "session_id": { "type": "string", "maxLength": 256 }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
-    },
-    {
-      "name": "find_cleanup_candidates",
-      "description": "List evidence-based review candidates; this never classifies a path as safe to delete.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "properties": { "minimum_bytes": { "type": "integer", "minimum": 0 }, "older_than_days": { "type": "integer", "minimum": 0, "maximum": 3650 }, "limit": { "type": "integer", "minimum": 1, "maximum": 500 } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "description": "Summarize the folders that changed in a registered session's workspace during its window, with the objects there; a correlation, never a claim about which process wrote.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500
+          },
+          "from": {
+            "type": "string"
+          },
+          "through": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     },
     {
       "name": "export_evidence",
-      "description": "Return a bounded inline evidence bundle equivalent to the app export, without accepting a destination or modifying evidence.",
-      "inputSchema": { "type": "object", "additionalProperties": false, "required": ["from", "through"], "properties": { "from": { "type": "string" }, "through": { "type": "string" }, "path_detail": { "type": "string", "enum": ["full", "basename", "hashed"] }, "max_events": { "type": "integer", "minimum": 1, "maximum": 10000 } } },
-      "annotations": { "readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false }
+      "description": "Return a bounded inline export of the steward evidence for a window, plus the legacy evidence read-only when it fits.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "through": {
+            "type": "string"
+          },
+          "path_detail": {
+            "type": "string",
+            "enum": [
+              "full",
+              "basename",
+              "hashed"
+            ]
+          },
+          "max_events": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        },
+        "required": [
+          "from",
+          "through"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     }
   ],
   "resources": [
-    { "uri": "disk-steward://status", "name": "Disk Steward service status", "mimeType": "application/json" },
-    { "uri": "disk-steward://evidence-guide", "name": "Disk Steward evidence interpretation guide", "mimeType": "text/markdown" }
+    {
+      "uri": "disk-steward://status",
+      "name": "Disk Steward service status",
+      "mimeType": "application/json"
+    },
+    {
+      "uri": "disk-steward://evidence-guide",
+      "name": "Disk Steward evidence interpretation guide",
+      "mimeType": "text/markdown"
+    }
   ],
   "response_policy": {
     "max_items": 10000,

@@ -89,10 +89,16 @@ final class RetiredDetailBackendTests: XCTestCase {
         let (server, client) = try client(backend)
         defer { server.stop() }
         let formatter = ISO8601DateFormatter()
-        let bundle = try XCTUnwrap(try client.call(tool: "export_evidence", arguments: [
+        // TASK-671: the steward evidence, plus the legacy evidence read-only when it fits.
+        let export = try XCTUnwrap(try client.call(tool: "export_evidence", arguments: [
             "from": .string(formatter.string(from: now.addingTimeInterval(-86_400))), "through": .string(formatter.string(from: now)),
             "path_detail": .string("basename"),
         ], isCancelled: { false }).objectValue)
+        XCTAssertEqual(export["schema"], .string("evidence-export-v2"))
+        XCTAssertNotNil(export["steward"]?.objectValue, "the steward part is always present")
+        let legacyPart = try XCTUnwrap(export["legacy"]?.objectValue)
+        XCTAssertEqual(legacyPart["status"], .string("included"))
+        let bundle = try XCTUnwrap(legacyPart["bundle"]?.objectValue)
         XCTAssertEqual(bundle["schema"], .string("inline-evidence-bundle-v1"))
         guard case let .array(events)? = bundle["events"] else { return XCTFail("no events") }
         XCTAssertEqual(events.first?.objectValue?["path"], .string("legacy-artifact.bin"), "the export carries the legacy evidence")
@@ -108,12 +114,10 @@ final class RetiredDetailBackendTests: XCTestCase {
                                                   fileDetail: .retired(supportDirectory: support))
         let (server, client) = try client(backend)
         defer { server.stop() }
-        do {
-            _ = try client.call(tool: "export_evidence", arguments: ["from": .string("2026-01-01T00:00:00Z"), "through": .string("2026-01-02T00:00:00Z")], isCancelled: { false })
-            XCTFail("an export with nothing to export")
-        } catch DiskStewardIPCError.remote(let code, _, _) {
-            XCTAssertEqual(code, "no_legacy_evidence")
-        }
+        // TASK-671: the steward part answers; the legacy part says there is none.
+        let export = try XCTUnwrap(try client.call(tool: "export_evidence", arguments: ["from": .string("2026-01-01T00:00:00Z"), "through": .string("2026-01-02T00:00:00Z")], isCancelled: { false }).objectValue)
+        XCTAssertEqual(export["schema"], .string("evidence-export-v2"))
+        XCTAssertEqual(export["legacy"]?.objectValue?["status"], .string("none"))
         XCTAssertFalse(FileManager.default.fileExists(atPath: support.path + "/evidence.sqlite"))
         XCTAssertFalse(FileManager.default.fileExists(atPath: LegacyEvidence.directory(in: support).path))
     }

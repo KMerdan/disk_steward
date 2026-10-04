@@ -87,18 +87,20 @@ final class LegacyRehearsalTests: XCTestCase {
         // The real store's current state (about 100,000 files) is far above
         // the 2 MiB inline budget: the answer says so and points to the file
         // export, instead of a retryable size error.
-        var mcpExport = "inline-bundle"
-        do {
-            let inline = try UnixSocketDiskStewardIPCClient(socketPath: socket).call(tool: "export_evidence", arguments: [
-                "from": .string(formatter.string(from: manifest.migratedAt.addingTimeInterval(-60 * 86_400))),
-                "through": .string(formatter.string(from: manifest.migratedAt)), "max_events": .integer(50),
-            ], isCancelled: { false })
-            XCTAssertEqual(inline.objectValue?["schema"], .string("inline-evidence-bundle-v1"))
-        } catch DiskStewardIPCError.remote(let code, let message, let retryable) {
-            XCTAssertEqual(code, "legacy_export_too_large")
-            XCTAssertEqual(message, AppEvidenceQueryBackend.legacyExportTooLargeMessage)
-            XCTAssertFalse(retryable)
-            mcpExport = code
+        // TASK-671: export_evidence answers with the steward evidence and
+        // says whether the legacy evidence fit; when it does not, it points
+        // to the file export instead of failing.
+        let inline = try UnixSocketDiskStewardIPCClient(socketPath: socket).call(tool: "export_evidence", arguments: [
+            "from": .string(formatter.string(from: manifest.migratedAt.addingTimeInterval(-60 * 86_400))),
+            "through": .string(formatter.string(from: manifest.migratedAt)), "max_events": .integer(50),
+        ], isCancelled: { false })
+        XCTAssertEqual(inline.objectValue?["schema"], .string("evidence-export-v2"))
+        let legacyPart = try XCTUnwrap(inline.objectValue?["legacy"]?.objectValue)
+        let mcpExport = legacyPart["status"]?.stringValue ?? "missing"
+        if mcpExport == "too_large" {
+            XCTAssertEqual(legacyPart["message"], .string(AppEvidenceQueryBackend.legacyExportTooLargeMessage))
+        } else {
+            XCTAssertEqual(mcpExport, "included")
         }
         let mcpExportSeconds = Date().timeIntervalSince(started)
         server.stop()

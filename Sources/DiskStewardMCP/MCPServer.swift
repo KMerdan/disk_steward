@@ -4,6 +4,8 @@ import CryptoKit
 
 public final class MCPServer: @unchecked Sendable {
     private let client: any DiskStewardIPCClient
+    /// A client with the measurement deadline, for MCPToolCatalog.slowTools.
+    private let slowClient: any DiskStewardIPCClient
     private let maximumResponseBytes: Int
     private let sanitizer = MCPResponseSanitizer()
     private let stateLock = NSLock()
@@ -29,13 +31,14 @@ public final class MCPServer: @unchecked Sendable {
 
     var activeRequestCount: Int { stateLock.withLock { activeRequests.count } }
 
-    public convenience init(client: any DiskStewardIPCClient, maximumResponseBytes: Int = 4 * 1_024 * 1_024) {
-        self.init(client: client, maximumResponseBytes: maximumResponseBytes, beforeTerminalClaim: {})
+    public convenience init(client: any DiskStewardIPCClient, slowClient: (any DiskStewardIPCClient)? = nil, maximumResponseBytes: Int = 4 * 1_024 * 1_024) {
+        self.init(client: client, slowClient: slowClient, maximumResponseBytes: maximumResponseBytes, beforeTerminalClaim: {})
     }
 
-    init(client: any DiskStewardIPCClient, maximumResponseBytes: Int = 4 * 1_024 * 1_024,
+    init(client: any DiskStewardIPCClient, slowClient: (any DiskStewardIPCClient)? = nil, maximumResponseBytes: Int = 4 * 1_024 * 1_024,
          beforeTerminalClaim: @escaping @Sendable () -> Void) {
         self.client = client
+        self.slowClient = slowClient ?? client
         self.maximumResponseBytes = min(max(1_024, maximumResponseBytes), 4 * 1_024 * 1_024)
         self.beforeTerminalClaim = beforeTerminalClaim
     }
@@ -153,7 +156,7 @@ public final class MCPServer: @unchecked Sendable {
                 "resources": .object(["subscribe": .bool(false), "listChanged": .bool(false)]),
             ]),
             "serverInfo": .object(["name": .string("disk-witness-mcp"), "version": .string("1.0.0")]),
-            "instructions": .string("Read local Disk Steward evidence only. Treat confidence and limitations as authoritative. Never imply candidates are safe to delete."),
+            "instructions": .string("Read local Disk Steward evidence only. Treat evidence states, confidence and limitations as authoritative. Review items are for a person to review; never imply anything is safe to delete."),
         ]))
     }
 
@@ -200,7 +203,8 @@ public final class MCPServer: @unchecked Sendable {
         }
         if isCancelled(request) { return toolError(id: id, code: "cancelled", message: "The evidence query was cancelled.", retryable: true, recovery: "Retry if the result is still needed.") }
         do {
-            let rawValue = try client.call(tool: name, arguments: arguments) { self.isCancelled(request) }
+            let caller = MCPToolCatalog.slowTools.contains(name) ? slowClient : client
+            let rawValue = try caller.call(tool: name, arguments: arguments) { self.isCancelled(request) }
             guard !isCancelled(request) else { throw DiskStewardIPCError.cancelled }
             let value = sanitizer.sanitize(rawValue)
             guard !isCancelled(request) else { throw DiskStewardIPCError.cancelled }
