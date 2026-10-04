@@ -8,10 +8,10 @@
 - Wave: `4`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `verified`
 - Goal trace: `TASK-672` → `OUTCOME-670` → `INTENT-006`
 
 ## Goal
@@ -64,19 +64,13 @@ Compute agent-session impact by intersecting each registered session's working d
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: `IMPACT-R4-TASK-672-ATTRIBUTION`, `IMPACT-R4-TASK-672-QUERY`, `IMPACT-R4-TASK-672-ASSURANCE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-ATTRIBUTION`, `ASSET-QUERY`
+- Status: `covered`
+- Impact records: `IMPACT-R4-TASK-672-ATTRIBUTION`, `IMPACT-R4-TASK-672-QUERY`, `IMPACT-R4-TASK-672-ASSURANCE`, `IMPACT-R4-TASK-672-SCANNER`, `IMPACT-R4-TASK-672-STORE`, `IMPACT-R4-TASK-672-BOOT`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-ATTRIBUTION`, `ASSET-BOOT`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-672-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-R4-TASK-672-ASSURANCE remains hypothesis
-- Impact IMPACT-R4-TASK-672-ATTRIBUTION remains hypothesis
-- Impact IMPACT-R4-TASK-672-QUERY remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-ATTRIBUTION lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Required inspection INSPECT-R4-TASK-672-1 is stale
+- None
 
 

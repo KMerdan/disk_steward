@@ -87,6 +87,8 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         self.reviewIndex = reviewIndex
         self.reviewService = reviewService
         self.growthAttribution = growthAttribution
+        // TASK-672: agent sessions outlive a relaunch in the steward file.
+        let sessionStore = stewardURL.flatMap { try? SessionStore(url: $0) }
         lifecycle = MonitoringLifecycleController(
             settingsStore: settingsStore, probe: composition.probe,
             notificationDelivery: smoke ? DisabledNotificationDelivery() : UserNotificationDelivery(),
@@ -132,7 +134,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
                 reserveProvider: { total in await MainActor.run { settingsStore.settings.reserveBytes(totalBytes: total) } },
                 changeJournalURL: changeJournalURL,
                 fileDetail: .retired(supportDirectory: supportDirectory),
-                growthAttribution: growthAttribution
+                growthAttribution: growthAttribution,
+                sessionStore: sessionStore,
+                reviewIndex: reviewIndex,
+                watchedRoots: {
+                    await MainActor.run {
+                        settingsStore.settings.monitoringPolicy(at: Date()).activeRoots(at: Date()).map { DirectoryChangeStream.canonicalPath($0.path) }
+                    }
+                }
             )
             return UnixSocketEvidenceServer(
                 socketPath: supportDirectory.appending(path: "disk-steward.sock").path,

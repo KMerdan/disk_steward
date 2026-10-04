@@ -58,7 +58,20 @@ public actor AgentSessionRegistry {
         )
         try await persist(registration)
         registrations[registration.registrationID] = registration
+        trimToCapacity()
         return registration
+    }
+
+    /// TASK-672: the steward file keeps 500 sessions, and so does memory:
+    /// the oldest ended or expired registrations go first; active ones stay.
+    public static let maximumRegistrations = 500
+
+    private func trimToCapacity() {
+        let excess = registrations.count - Self.maximumRegistrations
+        guard excess > 0 else { return }
+        for registration in registrations.values.filter({ $0.lifecycle != .active }).sorted(by: { $0.registeredAt < $1.registeredAt }).prefix(excess) {
+            registrations[registration.registrationID] = nil
+        }
     }
 
     @discardableResult

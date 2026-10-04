@@ -65,13 +65,19 @@ When free space drops past a threshold or on request, re-measure the dirty objec
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-R4-TASK-661-SCANNER`, `IMPACT-R4-TASK-661-STORE`, `IMPACT-R4-TASK-661-QUERY`, `IMPACT-R4-TASK-661-ASSURANCE`, `IMPACT-R4-TASK-661-BOOT`, `IMPACT-R4-TASK-661-LIFECYCLE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BOOT`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-SCANNER`, `ASSET-STORE`
 - Inspections: `INSPECT-R4-TASK-661-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-R4-TASK-661-1 is stale
 
 

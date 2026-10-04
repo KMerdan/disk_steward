@@ -1,0 +1,14 @@
+{
+ "name": "a session kept in the steward file is not read after a relaunch",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "replacements": [
+    [
+     "            for stored in (try? await sessionStore.sessions(sessionID: sessionID)) ?? []",
+     "            for stored in [PersistedSession]()"
+    ]
+   ]
+  }
+ ]
+}

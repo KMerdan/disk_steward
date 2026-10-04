@@ -73,11 +73,17 @@ Exercise the packaged candidate on the maintainer's real scopes and a synthetic 
 
 ### Assurance Blockers
 
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
 - Impacted asset ASSET-IPC lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
@@ -91,6 +97,7 @@ Exercise the packaged candidate on the maintainer's real scopes and a synthetic 
 - Required inspection INSPECT-R4-TASK-631-1 is stale
 - Required inspection INSPECT-R4-TASK-652-1 is stale
 - Required inspection INSPECT-R4-TASK-652-2 is stale
+- Required inspection INSPECT-R4-TASK-661-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 

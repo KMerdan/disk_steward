@@ -32,6 +32,11 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
     private var openedJournal: ChangeJournal?
     /// TASK-661: measured attribution; nil where the app does not run it.
     private let growthAttribution: GrowthAttributionService?
+    /// TASK-672: sessions kept in the steward file, the object index, and the
+    /// watched roots whose own rows are the journal's overflow collapse.
+    private let sessionStore: SessionStore?
+    private let reviewIndex: ReviewIndex?
+    private let watchedRoots: @Sendable () async -> [String]
     private let reserveProvider: @Sendable (Int64) async -> Int64?
     private var openedRing: CapacityRing?
     private var openedStore: EvidenceStore?
@@ -92,10 +97,16 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         reserveProvider: @escaping @Sendable (Int64) async -> Int64? = { _ in nil },
         changeJournalURL: URL? = nil,
         fileDetail: FileDetailSource = .live,
-        growthAttribution: GrowthAttributionService? = nil
+        growthAttribution: GrowthAttributionService? = nil,
+        sessionStore: SessionStore? = nil,
+        reviewIndex: ReviewIndex? = nil,
+        watchedRoots: @escaping @Sendable () async -> [String] = { [] }
     ) throws {
         self.fileDetail = fileDetail
         self.growthAttribution = growthAttribution
+        self.sessionStore = sessionStore
+        self.reviewIndex = reviewIndex
+        self.watchedRoots = watchedRoots
         self.capacityRingURL = capacityRingURL ?? CapacityRing.defaultURL(beside: databaseURL)
         self.changeJournalURL = changeJournalURL ?? ChangeJournal.defaultURL(beside: databaseURL)
         self.reserveProvider = reserveProvider
@@ -757,19 +768,20 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         }
     }
 
+    /// The change journal if the app has created it; a read never creates it.
+    private func existingJournal() throws -> ChangeJournal? {
+        if let openedJournal { return openedJournal }
+        guard FileManager.default.fileExists(atPath: changeJournalURL.path) else { return nil }
+        let journal = try ChangeJournal(url: changeJournalURL)
+        openedJournal = journal
+        return journal
+    }
+
     private func journalAnswer(from: Date, through: Date, detail: EvidencePathDetail) async -> [String: JSONValue] {
         do {
-            let journal: ChangeJournal
-            if let openedJournal {
-                journal = openedJournal
-            } else {
-                // A read never creates the journal; the app's service does.
-                guard FileManager.default.fileExists(atPath: changeJournalURL.path) else {
-                    return ["changed_directories": .null, "journal_gaps": .array([]), "journal_coverage_start": .null,
-                            "journal_limitations": .array([.string("The change journal has not started; which directories changed is unknown.")])]
-                }
-                journal = try ChangeJournal(url: changeJournalURL)
-                openedJournal = journal
+            guard let journal = try existingJournal() else {
+                return ["changed_directories": .null, "journal_gaps": .array([]), "journal_coverage_start": .null,
+                        "journal_limitations": .array([.string("The change journal has not started; which directories changed is unknown.")])]
             }
             let window = try await journal.changes(from: from, through: through, limit: 200)
             let start = try await journal.coverageStart()
@@ -926,7 +938,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let all = try await registry.activeRegistrations(proof: proof(), now: now)
             .filter { $0.lastHeartbeatAt >= cutoff }
             .sorted { ($0.lastHeartbeatAt, $0.registrationID.uuidString) > ($1.lastHeartbeatAt, $1.registrationID.uuidString) }
-        let budget = rowBudget(arguments, worstCaseItemBytes: 1_024)
+        let budget = rowBudget(arguments, worstCaseItemBytes: isRetired ? 2_048 : 1_024)
         // Bind the offset cursor to the ordered membership so a session that
         // registers, ends, or reorders between pages expires the page instead
         // of silently duplicating or skipping entries.
@@ -935,7 +947,16 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let offset = try decodeOffsetCursor(arguments["cursor"]?.stringValue, revision: revision)
         let page = Array(all.dropFirst(offset).prefix(budget.applied))
         let next = offset + page.count < all.count ? encodeOffsetCursor(offset + page.count, revision: revision) : nil
-        let sessionValues = page.map { sessionItem($0) }
+        var sessionValues = page.map { sessionItem($0) }
+        if isRetired {
+            // TASK-672: which directories each session's workspace saw change.
+            let watched = Set(await watchedRoots())
+            for (index, registration) in page.enumerated() {
+                guard case var .object(fields) = sessionValues[index] else { continue }
+                fields["changed_directories"] = await directorySummary(registration, now: now, watched: watched)
+                sessionValues[index] = .object(fields)
+            }
+        }
         return .object([
             "schema": .string(compatibilityAlias ? "active-writers-v1" : "active-agent-sessions-v1"),
             "observed_at": .string(timestamp(now)),
@@ -1047,6 +1068,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             proof: proof(uid: peer.uid),
             now: now
         )
+        await persistSession(registration)
         return .object([
             "schema": .string("session-registration-result-v1"),
             "registration_id": .string(registration.registrationID.uuidString.lowercased()),
@@ -1068,6 +1090,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             proof: proof(uid: peer.uid),
             now: Date()
         )
+        await persistSession(registration)
         return .object([
             "schema": .string("session-heartbeat-result-v1"),
             "registration_id": .string(registration.registrationID.uuidString.lowercased()),
@@ -1081,6 +1104,8 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
               let id = UUID(uuidString: value)
         else { throw DiskStewardIPCError.remote(code: "invalid_registration", message: "registration_id is invalid.", retryable: false) }
         let ended = try await registry.end(registrationID: id, proof: proof(uid: peer.uid), now: Date())
+        await persistSession(ended)
+        await freezeImpact(sessionID: ended.sessionID, startedAt: ended.registeredAt, roots: ended.workspaceRoots, through: ended.endedAt ?? Date())
         return .object([
             "schema": .string("session-end-result-v1"),
             "registration_id": .string(ended.registrationID.uuidString.lowercased()),
@@ -1088,10 +1113,258 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         ])
     }
 
+    // MARK: Task impact from sessions and dirty sets (TASK-672)
+
+    /// A session as the impact query sees it, from memory or the steward file.
+    private struct SessionWindow {
+        let key: String
+        let client: String
+        let roots: [String]
+        let rootsTruncated: Bool
+        let startedAt: Date
+        /// When it ended, or when its lease ends.
+        let endsAt: Date
+        let source: String
+    }
+
+    private func persistSession(_ registration: AgentSessionRegistration) async {
+        try? await sessionStore?.record(sessionID: registration.sessionID, client: registration.client.rawValue, roots: registration.workspaceRoots,
+                                        startedAt: registration.registeredAt, endsAt: registration.endedAt ?? registration.expiresAt)
+    }
+
+    private func sessionWindows(sessionID: String, now: Date) async throws -> [SessionWindow] {
+        let live = try await registry.historicalRegistrations(proof: proof(), now: now).filter { $0.sessionID == sessionID }
+        var windows = live.map {
+            SessionWindow(key: SessionStore.key($0.sessionID), client: $0.client.rawValue, roots: $0.workspaceRoots, rootsTruncated: false,
+                          startedAt: $0.registeredAt, endsAt: $0.endedAt ?? $0.expiresAt, source: "registered")
+        }
+        if let sessionStore {
+            for stored in (try? await sessionStore.sessions(sessionID: sessionID)) ?? []
+            where !windows.contains(where: { $0.startedAt.timeIntervalSince1970 == stored.startedAt.timeIntervalSince1970 }) {
+                windows.append(SessionWindow(key: stored.key, client: stored.client, roots: stored.roots, rootsTruncated: stored.rootsTruncated,
+                                             startedAt: stored.startedAt, endsAt: stored.endsAt, source: "kept"))
+            }
+        }
+        return windows.sorted { $0.startedAt < $1.startedAt }
+    }
+
+    /// The workspace roots of every other session overlapping the window.
+    private func otherSessionRoots(excluding key: String, from: Date, through: Date, now: Date) async -> [[String]] {
+        var seen = Set<String>()
+        var roots: [[String]] = []
+        for registration in (try? await registry.historicalRegistrations(proof: proof(), now: now)) ?? []
+        where SessionStore.key(registration.sessionID) != key && registration.registeredAt <= through && (registration.endedAt ?? registration.expiresAt) >= from {
+            if seen.insert("\(SessionStore.key(registration.sessionID))|\(registration.registeredAt.timeIntervalSince1970)").inserted { roots.append(registration.workspaceRoots) }
+        }
+        for stored in (try? await sessionStore?.sessions(overlapping: from, through: through)) ?? [] where stored.key != key {
+            if seen.insert("\(stored.key)|\(stored.startedAt.timeIntervalSince1970)").inserted { roots.append(stored.roots) }
+        }
+        return roots
+    }
+
+    /// Keeps an ended session's directories so its impact outlives the
+    /// journal's seven days. Only a window the journal fully covers is kept.
+    private func freezeImpact(sessionID: String, startedAt: Date, roots: [String], through: Date) async {
+        guard let sessionStore, let journal = try? existingJournal(),
+              let start = try? await journal.coverageStart(), start <= startedAt,
+              let window = try? await journal.changes(from: startedAt, through: through, relatedTo: roots, limit: SessionImpact.maximumDirectories + 64)
+        else { return }
+        let directories = SessionImpact.directories(changes: window.changes.items, roots: roots, watchedRoots: Set(await watchedRoots()), others: [])
+        try? await sessionStore.freeze(sessionID: sessionID, startedAt: startedAt, directories: directories.items)
+    }
+
+    private static func relativePath(_ path: String, root: String, relation: SessionRelation) -> String {
+        switch relation {
+        case .at: return "."
+        case .inside: return String(path.dropFirst(root == "/" ? 1 : root.count + 1))
+        case .containsWorkspace:
+            let levels = root.split(separator: "/").count - path.split(separator: "/").count
+            return Array(repeating: "..", count: max(1, levels)).joined(separator: "/")
+        }
+    }
+
+    private func objectValue(_ object: IndexedObject, root: String?) -> JSONValue {
+        var fields: [String: JSONValue] = [
+            "name": .string(shape(path: object.path, detail: .basename)),
+            "kind": .string(object.kind),
+            "recreate_class": .string(object.recreateClass),
+            "allocated_bytes": .integer(object.allocatedBytes),
+            "measured_at": .string(timestamp(object.measuredAt)),
+        ]
+        if let root, let relation = SessionRelation.of(object.path, roots: [root])?.relation, relation != .containsWorkspace {
+            fields["relative_path"] = .string(Self.relativePath(object.path, root: root, relation: relation))
+        }
+        return .object(fields)
+    }
+
+    /// TASK-672: a session's impact at directory and object granularity from
+    /// the change journal's dirty sets; no per-file rows exist to return.
+    private func sessionImpact(sessionID: String, arguments: [String: JSONValue]) async throws -> JSONValue {
+        let now = Date()
+        let windows = try await sessionWindows(sessionID: sessionID, now: now)
+        guard let first = windows.first else {
+            throw DiskStewardIPCError.remote(code: "session_unavailable", message: "No registered or kept session matches that session ID.", retryable: false)
+        }
+        let from = arguments["from"]?.stringValue.flatMap(parseTimestamp) ?? first.startedAt
+        let through = arguments["through"]?.stringValue.flatMap(parseTimestamp) ?? min(now, windows.map(\.endsAt).max() ?? now)
+        guard from < through else {
+            throw DiskStewardIPCError.remote(code: "invalid_range", message: "A valid from/through range is required.", retryable: false)
+        }
+        let roots = Array(Set(windows.flatMap(\.roots))).sorted()
+        // Each directory row costs at most about 3 KiB with basename objects;
+        // 96 KiB is kept for sessions, gaps and workspace objects.
+        let affordable = max(1, (responseByteCeiling - 96 * 1_024) / (3 * 1_024))
+        let limit = min(Int(arguments["limit"]?.integerValue ?? Int64(SessionImpact.maximumDirectories)), SessionImpact.maximumDirectories, affordable)
+        let watched = Set(await watchedRoots())
+        let others = await otherSessionRoots(excluding: first.key, from: from, through: through, now: now)
+        var limitations = [
+            "The change journal records that a directory changed during the session's window, not which process changed it; the user or other tools may have changed it too.",
+            "Directories only: no file rows are kept or returned.",
+        ]
+        var directories = SessionImpact.Directories(items: [], total: 0, overflow: [])
+        var gaps: [JournalGap] = []
+        var coverageStart: Date?
+        var coverage = "unknown"
+        var source = "journal"
+        var journalTotal = 0
+        if let journal = try existingJournal() {
+            let window = try await journal.changes(from: from, through: through, relatedTo: roots, limit: limit + 64)
+            coverageStart = try await journal.coverageStart()
+            gaps = window.gaps
+            directories = SessionImpact.directories(changes: window.changes.items, roots: roots, watchedRoots: watched, others: others, limit: limit)
+            journalTotal = max(directories.total, window.changes.total - directories.overflow.count)
+            if let coverageStart, coverageStart <= from { coverage = gaps.isEmpty ? "complete" : "partial" } else if coverageStart != nil { coverage = "partial" }
+            // Ended sessions the journal fully covers are kept for later.
+            for window in windows where window.endsAt <= now {
+                guard let sessionStore, let coverageStart, coverageStart <= window.startedAt else { continue }
+                let kept = try? await sessionStore.frozen(sessionID: sessionID, startedAt: window.startedAt)
+                if kept == nil {
+                    await freezeImpact(sessionID: sessionID, startedAt: window.startedAt, roots: window.roots, through: window.endsAt)
+                }
+            }
+        } else {
+            limitations.append("The change journal has not started; which directories changed is unknown.")
+        }
+        // Where the journal no longer reaches back, a kept impact answers.
+        if coverage != "complete", let sessionStore {
+            var kept: [JournalChange] = []
+            for window in windows where coverageStart.map({ $0 > window.startedAt }) ?? true {
+                let rows = (try? await sessionStore.frozen(sessionID: sessionID, startedAt: window.startedAt)) ?? nil
+                for row in rows ?? [] {
+                    kept.append(JournalChange(path: row.path, changes: row.changes, firstInterval: window.startedAt, lastInterval: window.endsAt))
+                }
+            }
+            if !kept.isEmpty {
+                let frozen = SessionImpact.directories(changes: kept, roots: roots, watchedRoots: watched, others: others, limit: limit)
+                let present = Set(directories.items.map(\.path))
+                let merged = (directories.items + frozen.items.filter { !present.contains($0.path) }
+                    .map { SessionDirectory(path: $0.path, relation: $0.relation, root: $0.root, changes: $0.changes, firstInterval: nil, lastInterval: nil, alsoActiveSessions: $0.alsoActiveSessions) })
+                    .sorted { ($0.changes, $1.path) > ($1.changes, $0.path) }
+                directories = SessionImpact.Directories(items: Array(merged.prefix(limit)), total: max(merged.count, directories.total), overflow: directories.overflow)
+                journalTotal = max(journalTotal, merged.count)
+                source = directories.items.contains { $0.firstInterval != nil } ? "journal-and-kept" : "kept"
+                limitations.append("Part of this impact was kept when the session ended; kept directories have change counts but no intervals or gaps.")
+            }
+        }
+        if let coverageStart, coverageStart > from {
+            limitations.append("The change journal starts at \(timestamp(coverageStart)); earlier changes are unknown, not absent.")
+        }
+        if !directories.overflow.isEmpty {
+            limitations.append("\(directories.overflow.count) rows sit at a watched root itself: more directories changed in an interval than the journal keeps, so those changes are known only at the root and are not attributed to this session.")
+        }
+        if directories.items.contains(where: { $0.relation == .containsWorkspace }) {
+            limitations.append("A contains-workspace directory is coarser than the workspace: the journal collapsed a change two levels below its watched root, so it may lie outside this session's folders.")
+        }
+        if windows.contains(where: \.rootsTruncated) { limitations.append("Some workspace roots did not fit the kept session record and are not matched.") }
+
+        // Objects: what the review index holds at or under each directory.
+        var objects: [String: [IndexedObject]] = [:]
+        var workspaceObjects: [IndexedObject] = []
+        if let reviewIndex {
+            let precise = directories.items.filter { $0.relation != .containsWorkspace }.map(\.path)
+            let containing = (try? await reviewIndex.objectsContaining(precise)) ?? [:]
+            let under = (try? await reviewIndex.objectsUnder(precise, limit: 3)) ?? [:]
+            for path in precise { objects[path] = containing[path].map { [$0] } ?? Array((under[path] ?? []).prefix(3)) }
+            let rootObjects = (try? await reviewIndex.objectsUnder(roots, limit: 20)) ?? [:]
+            workspaceObjects = Array(roots.flatMap { rootObjects[$0] ?? [] }.sorted { $0.allocatedBytes > $1.allocatedBytes }.prefix(20))
+        } else {
+            limitations.append("The object index is not available here; objects are not listed.")
+        }
+        let items: [JSONValue] = directories.items.map { directory in
+            var fields: [String: JSONValue] = [
+                "path": .string(shape(path: directory.path, detail: .basename)),
+                "relative_path": .string(Self.relativePath(directory.path, root: directory.root, relation: directory.relation)),
+                "workspace_root": .string(shape(path: directory.root, detail: .basename)),
+                "relation": .string(directory.relation.rawValue),
+                "precision": .string(directory.relation == .containsWorkspace ? "coarser-than-workspace" : "workspace"),
+                "changes": .integer(directory.changes),
+                "first_interval": directory.firstInterval.map { .string(timestamp($0)) } ?? .null,
+                "last_interval": directory.lastInterval.map { .string(timestamp($0)) } ?? .null,
+                "also_active_sessions": .integer(Int64(directory.alsoActiveSessions)),
+                "shared": .bool(directory.alsoActiveSessions > 0),
+            ]
+            fields["objects"] = .array((objects[directory.path] ?? []).map { objectValue($0, root: nil) })
+            return .object(fields)
+        }
+        var answer: [String: JSONValue] = [
+            "schema": .string("task-impact-v2"),
+            "session_id": .string(sessionID),
+            "observed_at": .string(timestamp(now)),
+            "requested_interval": .object(["from": .string(timestamp(from)), "through": .string(timestamp(through))]),
+            "sessions": .array(windows.prefix(20).map { window in .object([
+                "client": .string(window.client),
+                "workspace_roots": .array(window.roots.map { .string(shape(path: $0, detail: .basename)) }),
+                "roots_truncated": .bool(window.rootsTruncated),
+                "started_at": .string(timestamp(window.startedAt)),
+                "ends_at": .string(timestamp(window.endsAt)),
+                "state": .string(window.endsAt > now ? "lease-open" : "closed"),
+                "source": .string(window.source),
+            ]) }),
+            "directories": .object([
+                "items": .array(items),
+                "total": .integer(Int64(journalTotal)),
+                "returned_count": .integer(Int64(items.count)),
+                "truncated": .bool(journalTotal > items.count),
+            ]),
+            "overflow": .array(directories.overflow.map { .object(["path": .string(shape(path: $0.path, detail: .basename)), "changes": .integer($0.changes)]) }),
+            "journal_gaps": .array(gaps.map { gap in .object([
+                "reason": .string(gap.reason), "path": .string(shape(path: gap.path, detail: .basename)), "at": .string(timestamp(gap.at)),
+            ]) }),
+            "journal_coverage_start": coverageStart.map { .string(timestamp($0)) } ?? .null,
+            "coverage": .string(coverage),
+            "source": .string(source),
+            "confidence": .string(directories.items.isEmpty ? "unknown" : "inferred"),
+            "method": .string("session-window-and-workspace-directory-correlation"),
+            "attribution_semantics": .string("Directories that changed inside, at or above the session's workspace during its window; a correlation, never a claim about which process wrote."),
+        ]
+        answer["workspace_objects"] = .array(workspaceObjects.map { object in objectValue(object, root: roots.first { object.path.hasPrefix($0 + "/") || object.path == $0 }) })
+        answer["limitations"] = .array(limitations.map(JSONValue.string))
+        return .object(answer)
+    }
+
+    /// A short per-session summary for list_active_agent_sessions.
+    private func directorySummary(_ registration: AgentSessionRegistration, now: Date, watched: Set<String>) async -> JSONValue {
+        guard let journal = try? existingJournal(),
+              let window = try? await journal.changes(from: registration.registeredAt, through: now, relatedTo: registration.workspaceRoots, limit: 64)
+        else { return .null }
+        let directories = SessionImpact.directories(changes: window.changes.items, roots: registration.workspaceRoots, watchedRoots: watched, others: [], limit: 3)
+        return .object([
+            "total": .integer(Int64(max(directories.total, window.changes.total - directories.overflow.count))),
+            "items": .array(directories.items.map { directory in .object([
+                "relative_path": .string(Self.relativePath(directory.path, root: directory.root, relation: directory.relation)),
+                "workspace_root": .string(shape(path: directory.root, detail: .basename)),
+                "relation": .string(directory.relation.rawValue),
+                "changes": .integer(directory.changes),
+            ]) }),
+            "journal_gaps": .integer(Int64(window.gaps.count)),
+        ])
+    }
+
     private func taskImpact(arguments: [String: JSONValue]) async throws -> JSONValue {
         guard let sessionID = arguments["session_id"]?.stringValue else {
             throw DiskStewardIPCError.remote(code: "invalid_request", message: "session_id is required.", retryable: false)
         }
+        if isRetired { return try await sessionImpact(sessionID: sessionID, arguments: arguments) }
         let allRegistrations = try await registry.historicalRegistrations(proof: proof(), now: Date())
         let registrations = allRegistrations.filter { $0.sessionID == sessionID }
         guard !registrations.isEmpty else {

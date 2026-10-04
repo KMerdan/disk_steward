@@ -67,13 +67,19 @@ The user starts a review of localGit or an opted-in cache and within a minute se
 - Impact IMPACT-R4-GATE-669-BUILD remains hypothesis
 - Impact IMPACT-R4-GATE-669-SCANNER remains hypothesis
 - Impact IMPACT-R4-GATE-669-UI remains hypothesis
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BOOT lacks a sufficient passing inspection
 - Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
 - Impacted asset ASSET-DISTRIBUTION lacks a sufficient passing inspection
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-IPC lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
 - Impacted asset ASSET-RESOURCE lacks a sufficient passing inspection
+- Impacted asset ASSET-SCANNER lacks a sufficient passing inspection
 - Impacted asset ASSET-SETTINGS lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
 - Impacted asset ASSET-UI lacks a sufficient passing inspection
 - Required inspection INSPECT-CONTRACT-601-1 is stale
 - Required inspection INSPECT-R3-616-CONTAINMENT is stale
@@ -101,6 +107,7 @@ The user starts a review of localGit or an opted-in cache and within a minute se
 - Required inspection INSPECT-R4-TASK-652-2 is stale
 - Required inspection INSPECT-R4-TASK-653-1 is stale
 - Required inspection INSPECT-R4-TASK-653-2 is stale
+- Required inspection INSPECT-R4-TASK-661-1 is stale
 - Required inspection INSPECT-RESEARCH-601-1 is stale
 - Required inspection INSPECT-TASK-611-1 is stale
 

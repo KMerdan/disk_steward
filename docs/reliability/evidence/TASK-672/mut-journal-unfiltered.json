@@ -1,0 +1,14 @@
+{
+ "name": "the journal returns rows unrelated to the session's roots",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Monitoring/ChangeJournal.swift",
+   "replacements": [
+    [
+     "        let filter = \"kind = 'changed' AND interval_start >= ? AND interval_start <= ? AND (\\(clause))\"",
+     "        let filter = \"kind = 'changed' AND interval_start >= ? AND interval_start <= ? AND (1 OR (\\(clause)))\""
+    ]
+   ]
+  }
+ ]
+}

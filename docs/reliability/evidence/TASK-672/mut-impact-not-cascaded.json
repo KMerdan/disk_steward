@@ -1,0 +1,14 @@
+{
+ "name": "an evicted session's kept impact stays behind",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Sessions/SessionImpact.swift",
+   "replacements": [
+    [
+     "        try connection.execute(\"\"\"\n            DELETE FROM session_impacts WHERE NOT EXISTS (",
+     "        try connection.execute(\"\"\"\n            SELECT 1 FROM session_impacts WHERE NOT EXISTS ("
+    ]
+   ]
+  }
+ ]
+}

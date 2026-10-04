@@ -1,0 +1,284 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-672",
+ "outcome": "implemented",
+ "changed_files": [
+  "Sources/DiskStewardCore/Sessions/SessionImpact.swift",
+  "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+  "Sources/DiskStewardCore/Monitoring/ChangeJournal.swift",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+  "Sources/DiskStewardApp/StatusItemController.swift",
+  "Tests/DiskStewardCoreTests/Sessions/SessionImpactTests.swift",
+  "Tests/DiskStewardAppTests/MCP/TaskImpactJournalTests.swift",
+  "docs/reliability/evidence/TASK-672/README.md",
+  "docs/reliability/evidence/TASK-672/absolute-relative-path-red/result.json",
+  "docs/reliability/evidence/TASK-672/absolute-relative-path-red/tests.log",
+  "docs/reliability/evidence/TASK-672/cap-not-enforced-red/result.json",
+  "docs/reliability/evidence/TASK-672/cap-not-enforced-red/tests.log",
+  "docs/reliability/evidence/TASK-672/contains-labelled-inside-red/result.json",
+  "docs/reliability/evidence/TASK-672/contains-labelled-inside-red/tests.log",
+  "docs/reliability/evidence/TASK-672/focused-green/result.json",
+  "docs/reliability/evidence/TASK-672/focused-green/tests.log",
+  "docs/reliability/evidence/TASK-672/full-suite/candidate.json",
+  "docs/reliability/evidence/TASK-672/full-suite/tests.log",
+  "docs/reliability/evidence/TASK-672/gaps-dropped-red/result.json",
+  "docs/reliability/evidence/TASK-672/gaps-dropped-red/tests.log",
+  "docs/reliability/evidence/TASK-672/impact-not-cascaded-red/result.json",
+  "docs/reliability/evidence/TASK-672/impact-not-cascaded-red/tests.log",
+  "docs/reliability/evidence/TASK-672/journal-unfiltered-red/result.json",
+  "docs/reliability/evidence/TASK-672/journal-unfiltered-red/tests.log",
+  "docs/reliability/evidence/TASK-672/kept-impact-unused-red/result.json",
+  "docs/reliability/evidence/TASK-672/kept-impact-unused-red/tests.log",
+  "docs/reliability/evidence/TASK-672/kept-session-not-read-red/result.json",
+  "docs/reliability/evidence/TASK-672/kept-session-not-read-red/tests.log",
+  "docs/reliability/evidence/TASK-672/mut-absolute-relative-path.json",
+  "docs/reliability/evidence/TASK-672/mut-cap-not-enforced.json",
+  "docs/reliability/evidence/TASK-672/mut-contains-labelled-inside.json",
+  "docs/reliability/evidence/TASK-672/mut-gaps-dropped.json",
+  "docs/reliability/evidence/TASK-672/mut-impact-not-cascaded.json",
+  "docs/reliability/evidence/TASK-672/mut-journal-unfiltered.json",
+  "docs/reliability/evidence/TASK-672/mut-kept-impact-unused.json",
+  "docs/reliability/evidence/TASK-672/mut-kept-session-not-read.json",
+  "docs/reliability/evidence/TASK-672/mut-outside-root-attached.json",
+  "docs/reliability/evidence/TASK-672/mut-overflow-attached.json",
+  "docs/reliability/evidence/TASK-672/mut-registry-unbounded.json",
+  "docs/reliability/evidence/TASK-672/mut-shared-as-exclusive.json",
+  "docs/reliability/evidence/TASK-672/outside-root-attached-red/result.json",
+  "docs/reliability/evidence/TASK-672/outside-root-attached-red/tests.log",
+  "docs/reliability/evidence/TASK-672/overflow-attached-red/result.json",
+  "docs/reliability/evidence/TASK-672/overflow-attached-red/tests.log",
+  "docs/reliability/evidence/TASK-672/registry-unbounded-red/result.json",
+  "docs/reliability/evidence/TASK-672/registry-unbounded-red/tests.log",
+  "docs/reliability/evidence/TASK-672/shared-as-exclusive-red/result.json",
+  "docs/reliability/evidence/TASK-672/shared-as-exclusive-red/tests.log",
+  "docs/reliability/evidence/TASK-672/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-QUERY",
+  "ASSET-STORE",
+  "ASSET-SESSIONS",
+  "ASSET-BOOT"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Sources/DiskStewardCore/Sessions/SessionImpact.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Sessions/AgentSessionRegistry.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/Monitoring/ChangeJournal.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/StatusItemController.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardCoreTests/Sessions/SessionImpactTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/DiskStewardAppTests/MCP/TaskImpactJournalTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/absolute-relative-path-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/absolute-relative-path-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/cap-not-enforced-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/cap-not-enforced-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/contains-labelled-inside-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/contains-labelled-inside-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/focused-green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/focused-green/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/full-suite/candidate.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/full-suite/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/gaps-dropped-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/gaps-dropped-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/impact-not-cascaded-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/impact-not-cascaded-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/journal-unfiltered-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/journal-unfiltered-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/kept-impact-unused-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/kept-impact-unused-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/kept-session-not-read-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/kept-session-not-read-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-absolute-relative-path.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-cap-not-enforced.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-contains-labelled-inside.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-gaps-dropped.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-impact-not-cascaded.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-journal-unfiltered.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-kept-impact-unused.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-kept-session-not-read.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-outside-root-attached.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-overflow-attached.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-registry-unbounded.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/mut-shared-as-exclusive.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/outside-root-attached-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/outside-root-attached-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/overflow-attached-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/overflow-attached-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/registry-unbounded-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/registry-unbounded-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/shared-as-exclusive-red/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/shared-as-exclusive-red/tests.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-672/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "run-focused.py (53 tests)",
+   "result": "passed"
+  },
+  {
+   "command": "12 mutation reds",
+   "result": "each red as intended"
+  },
+  {
+   "command": "verify_candidate.py (full suite)",
+   "result": "719 tests, 0 failures, 11 skipped; candidate passed"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-672-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-672/README.md"
+  }
+ ],
+ "discovered_risks": [],
+ "suggested_graph_changes": []
+}

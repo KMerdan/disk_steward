@@ -8,6 +8,13 @@ public struct JournalChange: Equatable, Sendable {
     public let changes: Int64
     public let firstInterval: Date
     public let lastInterval: Date
+
+    public init(path: String, changes: Int64, firstInterval: Date, lastInterval: Date) {
+        self.path = path
+        self.changes = changes
+        self.firstInterval = firstInterval
+        self.lastInterval = lastInterval
+    }
 }
 
 /// A stretch the journal cannot vouch for: dropped or wrapped events, a
@@ -195,6 +202,54 @@ public actor ChangeJournal {
             return values
         }
         return JournalWindow(changes: BoundedWindow(items: items, total: total), gaps: gaps)
+    }
+
+    /// TASK-672: changed directories at, inside, or containing any of `roots`
+    /// (a containing row is a change collapsed above the root), most changes
+    /// first, with every gap in the window.
+    public func changes(from: Date, through: Date, relatedTo roots: [String], limit: Int) throws -> JournalWindow {
+        let roots = Array(Set(roots.map(Self.normalized))).sorted()
+        guard !roots.isEmpty else { return JournalWindow(changes: BoundedWindow(items: [], total: 0), gaps: try changes(from: from, through: through, limit: 1).gaps) }
+        let clause = Array(repeating: "(path = ? OR substr(path, 1, ?) = ? OR substr(?, 1, length(path) + 1) = path || '/')", count: roots.count)
+            .joined(separator: " OR ")
+        let lower = Self.intervalStart(from).timeIntervalSince1970
+        let upper = through.timeIntervalSince1970
+        func bindAll(_ statement: OpaquePointer) throws -> Int32 {
+            try connection.bind(lower, at: 1, in: statement)
+            try connection.bind(upper, at: 2, in: statement)
+            var index: Int32 = 3
+            for root in roots {
+                let prefix = root == "/" ? "/" : root + "/"
+                try connection.bind(root, at: index, in: statement)
+                try connection.bind(Int64(prefix.utf8.count), at: index + 1, in: statement)
+                try connection.bind(prefix, at: index + 2, in: statement)
+                try connection.bind(root, at: index + 3, in: statement)
+                index += 4
+            }
+            return index
+        }
+        let filter = "kind = 'changed' AND interval_start >= ? AND interval_start <= ? AND (\(clause))"
+        let total = Int(try connection.withStatement("SELECT COUNT(DISTINCT path_key) FROM journal_dirty WHERE \(filter)") { statement -> Int64 in
+            _ = try bindAll(statement)
+            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError() }
+            return sqlite3_column_int64(statement, 0)
+        })
+        let affordable = max(1, (BoundedStoreContract.responseCeilingBytes - 8 * 1_024) / (BoundedStoreContract.pathBytes + 64))
+        let items = try connection.withStatement("""
+            SELECT path, SUM(changes), MIN(interval_start), MAX(interval_start) FROM journal_dirty WHERE \(filter)
+            GROUP BY path_key ORDER BY SUM(changes) DESC, path ASC LIMIT ?
+            """) { statement -> [JournalChange] in
+            let next = try bindAll(statement)
+            try connection.bind(Int64(min(max(limit, 1), affordable)), at: next, in: statement)
+            var values: [JournalChange] = []
+            while sqlite3_step(statement) == SQLITE_ROW {
+                values.append(.init(path: String(cString: sqlite3_column_text(statement, 0)), changes: sqlite3_column_int64(statement, 1),
+                                    firstInterval: Date(timeIntervalSince1970: sqlite3_column_double(statement, 2)),
+                                    lastInterval: Date(timeIntervalSince1970: sqlite3_column_double(statement, 3))))
+            }
+            return values
+        }
+        return JournalWindow(changes: BoundedWindow(items: items, total: total), gaps: try changes(from: from, through: through, limit: 1).gaps)
     }
 
     /// The oldest interval still held; before it the journal knows nothing.
