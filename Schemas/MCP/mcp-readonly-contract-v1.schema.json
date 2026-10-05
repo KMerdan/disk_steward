@@ -10,9 +10,10 @@
     "server": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "version", "instructions"],
+      "required": ["name", "title", "version", "instructions"],
       "properties": {
         "name": { "const": "disk-witness-mcp" },
+        "title": { "const": "Disk Steward" },
         "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
         "instructions": { "type": "string", "minLength": 1, "maxLength": 512 }
       }
@@ -43,7 +44,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "description", "inputSchema", "annotations"],
+        "required": ["name", "title", "description", "inputSchema", "annotations"],
         "properties": {
           "name": {
             "type": "string",
@@ -60,6 +61,7 @@
               "export_evidence"
             ]
           },
+          "title": { "type": "string", "minLength": 1, "maxLength": 64 },
           "description": { "type": "string", "minLength": 1, "maxLength": 512 },
           "inputSchema": { "type": "object" },
           "annotations": {
@@ -67,6 +69,7 @@
             "additionalProperties": false,
             "required": ["readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"],
             "properties": {
+              "title": { "type": "string", "minLength": 1, "maxLength": 64 },
               "readOnlyHint": { "const": true },
               "destructiveHint": { "const": false },
               "idempotentHint": { "const": true },

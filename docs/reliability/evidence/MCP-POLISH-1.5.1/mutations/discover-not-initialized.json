@@ -1,0 +1,14 @@
+{
+ "name": "an unknown method before initialize answers -32002, as 1.5.0 did",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardMCP/MCPServer.swift",
+   "replacements": [
+    [
+     "        guard [\"tools/list\", \"resources/list\", \"resources/read\", \"tools/call\"].contains(method) else {",
+     "        guard [\"tools/list\", \"resources/list\", \"resources/read\", \"tools/call\"].contains(method) || !stateLock.withLock({ initialized }) else {"
+    ]
+   ]
+  }
+ ]
+}

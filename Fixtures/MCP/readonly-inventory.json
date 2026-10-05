@@ -2,8 +2,9 @@
   "schema": "mcp-readonly-contract-v1",
   "server": {
     "name": "disk-witness-mcp",
+    "title": "Disk Steward",
     "version": "1.0.0",
-    "instructions": "Read local Disk Steward evidence only. Treat evidence states, confidence and limitations as authoritative. Review items are for a person to review; never imply anything is safe to delete."
+    "instructions": "Read local Disk Steward evidence only. Treat evidence states, confidence and limitations as authoritative. Review items are for a person to review; never imply anything is safe to delete. For what can be cleaned, call list_review_items with the scope named as get_health shows it (or caches), then get_review_item_evidence for one item."
   },
   "protocol_versions": [
     "2025-06-18",
@@ -21,6 +22,7 @@
   "tools": [
     {
       "name": "get_storage_summary",
+      "title": "Storage summary",
       "description": "Return bounded current volume and monitored-scope totals with freshness and limitations.",
       "inputSchema": {
         "type": "object",
@@ -28,6 +30,7 @@
         "properties": {}
       },
       "annotations": {
+        "title": "Storage summary",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -36,6 +39,7 @@
     },
     {
       "name": "get_health",
+      "title": "Disk Steward health",
       "description": "Return the stores' sizes and caps, the latest review of each scope, the change journal's state and any legacy evidence.",
       "inputSchema": {
         "type": "object",
@@ -43,6 +47,7 @@
         "properties": {}
       },
       "annotations": {
+        "title": "Disk Steward health",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -51,6 +56,7 @@
     },
     {
       "name": "explain_growth",
+      "title": "Explain growth",
       "description": "Explain growth for a bounded time range: the capacity change, measured object deltas, the unexplained remainder and changed folders.",
       "inputSchema": {
         "type": "object",
@@ -87,6 +93,7 @@
         ]
       },
       "annotations": {
+        "title": "Explain growth",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -95,6 +102,7 @@
     },
     {
       "name": "list_review_items",
+      "title": "List review items",
       "description": "List the latest review's ranked items with size, evidence state, recreate class and the owning tool's cleanup command; never a deletion instruction. scope is caches, a folder's path, or the scope name get_health shows.",
       "inputSchema": {
         "type": "object",
@@ -126,6 +134,7 @@
         }
       },
       "annotations": {
+        "title": "List review items",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -134,6 +143,7 @@
     },
     {
       "name": "list_largest_objects",
+      "title": "List largest objects",
       "description": "List the largest measured objects (build output, environments, caches), optionally within one review scope, named as for list_review_items.",
       "inputSchema": {
         "type": "object",
@@ -165,6 +175,7 @@
         }
       },
       "annotations": {
+        "title": "List largest objects",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -173,6 +184,7 @@
     },
     {
       "name": "get_review_item_evidence",
+      "title": "Review item evidence",
       "description": "Return one review item's full evidence: why it may be disposable, reasons to keep it, its commands and a live check.",
       "inputSchema": {
         "type": "object",
@@ -197,6 +209,7 @@
         ]
       },
       "annotations": {
+        "title": "Review item evidence",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -205,6 +218,7 @@
     },
     {
       "name": "measure_path",
+      "title": "Measure a folder",
       "description": "Measure one folder inside the configured scopes within 15 s and 500,000 entries; joins a running review instead of starting a second walk, and stores nothing.",
       "inputSchema": {
         "type": "object",
@@ -229,6 +243,7 @@
         ]
       },
       "annotations": {
+        "title": "Measure a folder",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -237,6 +252,7 @@
     },
     {
       "name": "list_active_agent_sessions",
+      "title": "Active agent sessions",
       "description": "Return active authenticated agent task contexts and the folders their workspaces saw change, without claiming they are file writers.",
       "inputSchema": {
         "type": "object",
@@ -260,6 +276,7 @@
         }
       },
       "annotations": {
+        "title": "Active agent sessions",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -268,6 +285,7 @@
     },
     {
       "name": "get_task_impact",
+      "title": "Task impact",
       "description": "Summarize the folders that changed in a registered session's workspace during its window, with the objects there; a correlation, never a claim about which process wrote.",
       "inputSchema": {
         "type": "object",
@@ -294,6 +312,7 @@
         ]
       },
       "annotations": {
+        "title": "Task impact",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,
@@ -302,6 +321,7 @@
     },
     {
       "name": "export_evidence",
+      "title": "Export evidence",
       "description": "Return a bounded inline export of the steward evidence for a window, plus the legacy evidence read-only when it fits.",
       "inputSchema": {
         "type": "object",
@@ -333,6 +353,7 @@
         ]
       },
       "annotations": {
+        "title": "Export evidence",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,

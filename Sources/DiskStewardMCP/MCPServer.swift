@@ -7,6 +7,8 @@ public final class MCPServer: @unchecked Sendable {
     /// A client with the measurement deadline, for MCPToolCatalog.slowTools.
     private let slowClient: any DiskStewardIPCClient
     private let maximumResponseBytes: Int
+    /// The app's version when the helper runs inside Disk Steward.app.
+    private let serverVersion: String
     private let sanitizer = MCPResponseSanitizer()
     private let stateLock = NSLock()
     private var initialized = false
@@ -31,15 +33,17 @@ public final class MCPServer: @unchecked Sendable {
 
     var activeRequestCount: Int { stateLock.withLock { activeRequests.count } }
 
-    public convenience init(client: any DiskStewardIPCClient, slowClient: (any DiskStewardIPCClient)? = nil, maximumResponseBytes: Int = 4 * 1_024 * 1_024) {
-        self.init(client: client, slowClient: slowClient, maximumResponseBytes: maximumResponseBytes, beforeTerminalClaim: {})
+    public convenience init(client: any DiskStewardIPCClient, slowClient: (any DiskStewardIPCClient)? = nil, maximumResponseBytes: Int = 4 * 1_024 * 1_024,
+                            serverVersion: String = "1.0.0") {
+        self.init(client: client, slowClient: slowClient, maximumResponseBytes: maximumResponseBytes, serverVersion: serverVersion, beforeTerminalClaim: {})
     }
 
     init(client: any DiskStewardIPCClient, slowClient: (any DiskStewardIPCClient)? = nil, maximumResponseBytes: Int = 4 * 1_024 * 1_024,
-         beforeTerminalClaim: @escaping @Sendable () -> Void) {
+         serverVersion: String = "1.0.0", beforeTerminalClaim: @escaping @Sendable () -> Void) {
         self.client = client
         self.slowClient = slowClient ?? client
         self.maximumResponseBytes = min(max(1_024, maximumResponseBytes), 4 * 1_024 * 1_024)
+        self.serverVersion = serverVersion
         self.beforeTerminalClaim = beforeTerminalClaim
     }
 
@@ -86,6 +90,12 @@ public final class MCPServer: @unchecked Sendable {
         }
         if method == "initialize" { return .response(encode(handleInitialize(id: id, params: object["params"]))) }
         if method == "ping" { return .response(encode(success(id: id, result: .object([:])))) }
+        // An unknown method is not found whether or not the session is
+        // initialized: a client probing a newer protocol first (for example
+        // server/discover) reads -32601 as "speak 2025-06-18 instead".
+        guard ["tools/list", "resources/list", "resources/read", "tools/call"].contains(method) else {
+            return .response(encode(protocolError(id: id, code: -32_601, message: "Method not found: \(method)")))
+        }
         guard stateLock.withLock({ initialized }) else {
             return .response(encode(protocolError(id: id, code: -32_002, message: "Server is not initialized")))
         }
@@ -155,8 +165,8 @@ public final class MCPServer: @unchecked Sendable {
                 "tools": .object(["listChanged": .bool(false)]),
                 "resources": .object(["subscribe": .bool(false), "listChanged": .bool(false)]),
             ]),
-            "serverInfo": .object(["name": .string("disk-witness-mcp"), "version": .string("1.0.0")]),
-            "instructions": .string("Read local Disk Steward evidence only. Treat evidence states, confidence and limitations as authoritative. Review items are for a person to review; never imply anything is safe to delete."),
+            "serverInfo": .object(["name": .string("disk-witness-mcp"), "title": .string("Disk Steward"), "version": .string(serverVersion)]),
+            "instructions": .string(MCPToolCatalog.instructions),
         ]))
     }
 

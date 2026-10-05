@@ -20,6 +20,23 @@ enum MCPToolCatalog {
         "export_evidence",
     ]
 
+    /// The rule first: Codex keeps about the first 512 characters, Claude Code 2,048.
+    static let instructions = "Read local Disk Steward evidence only. Treat evidence states, confidence and limitations as authoritative. Review items are for a person to review; never imply anything is safe to delete. For what can be cleaned, call list_review_items with the scope named as get_health shows it (or caches), then get_review_item_evidence for one item."
+
+    /// Display names (MCP 2025-06-18 `title`); `name` stays the identifier.
+    static let titles: [String: String] = [
+        "get_storage_summary": "Storage summary",
+        "get_health": "Disk Steward health",
+        "explain_growth": "Explain growth",
+        "list_review_items": "List review items",
+        "list_largest_objects": "List largest objects",
+        "get_review_item_evidence": "Review item evidence",
+        "measure_path": "Measure a folder",
+        "list_active_agent_sessions": "Active agent sessions",
+        "get_task_impact": "Task impact",
+        "export_evidence": "Export evidence",
+    ]
+
     /// Tools whose answer may take the whole measurement budget.
     static let slowTools: Set<String> = ["measure_path"]
 
@@ -173,11 +190,15 @@ enum MCPToolCatalog {
             "properties": .object(properties),
         ]
         if !required.isEmpty { input["required"] = .array(required.map(JSONValue.string)) }
+        let title = titles[name] ?? name
         return .object([
             "name": .string(name),
+            "title": .string(title),
             "description": .string(description),
             "inputSchema": .object(input),
             "annotations": .object([
+                // 2025-03-26 clients read the display name here.
+                "title": .string(title),
                 "readOnlyHint": .bool(true),
                 "destructiveHint": .bool(false),
                 "idempotentHint": .bool(true),

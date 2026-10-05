@@ -7,9 +7,21 @@ let overriddenSocketPath = environment["DISK_STEWARD_SOCKET_PATH"]
 let socketPath = overriddenSocketPath ?? UnixSocketDiskStewardIPCClient.defaultSocketPath()
 let stateURL = environment["DISK_STEWARD_AGENT_ACCESS_STATE_PATH"].map(URL.init(fileURLWithPath:))
     ?? (overriddenSocketPath == nil ? AgentAccessStateFile.defaultURL() : nil)
+/// The app's version when the helper runs from Disk Steward.app/Contents/Helpers,
+/// so a client can tell which build it is talking to; "development" otherwise.
+let appVersion: String = {
+    guard let executable = Bundle.main.executableURL?.resolvingSymlinksInPath() else { return "development" }
+    let info = executable.deletingLastPathComponent().deletingLastPathComponent().appending(path: "Info.plist")
+    guard executable.deletingLastPathComponent().lastPathComponent == "Helpers",
+          let plist = NSDictionary(contentsOf: info),
+          let version = plist["CFBundleShortVersionString"] as? String, !version.isEmpty
+    else { return "development" }
+    return version
+}()
 let server = MCPServer(client: UnixSocketDiskStewardIPCClient(socketPath: socketPath, accessStateURL: stateURL),
                        slowClient: UnixSocketDiskStewardIPCClient(socketPath: socketPath, accessStateURL: stateURL,
-                                                                  timeoutSeconds: UnixSocketDiskStewardIPCClient.measurementTimeoutSeconds))
+                                                                  timeoutSeconds: UnixSocketDiskStewardIPCClient.measurementTimeoutSeconds),
+                       serverVersion: appVersion)
 signal(SIGPIPE, SIG_IGN)
 
 if CommandLine.arguments.contains("--self-check") {

@@ -28,6 +28,73 @@ final class DiskStewardMCPTests: XCTestCase {
         }
     }
 
+    /// A client that probes a newer protocol first (MCP 2026-07-28 sends
+    /// server/discover before anything else) gets -32601, the answer that
+    /// makes it fall back to initialize; a known method before initialization
+    /// still says the server is not initialized.
+    func testAnUnknownMethodIsNotFoundBeforeAndAfterInitialization() throws {
+        let server = MCPServer(client: FakeIPCClient(result: sampleSummary))
+        let probe = try response(server, request(id: 1, method: "server/discover", params: [:]))
+        XCTAssertEqual(probe.objectValue?["error"]?.objectValue?["code"], .integer(-32_601), "an unknown method before initialize")
+        let early = try response(server, request(id: 2, method: "tools/list", params: [:]))
+        XCTAssertEqual(early.objectValue?["error"]?.objectValue?["code"], .integer(-32_002), "a known method before initialize")
+        let initialize = try response(server, request(id: 3, method: "initialize", params: [
+            "protocolVersion": .string("2025-11-25"),
+            "capabilities": .object(["elicitation": .object(["form": .object([:]), "url": .object([:])])]),
+            "clientInfo": .object(["name": .string("probe"), "version": .string("1")]),
+        ]))
+        XCTAssertEqual(initialize.objectValue?["result"]?.objectValue?["protocolVersion"], .string("2025-06-18"), "the probe falls back cleanly")
+        XCTAssertNil(server.handle(line: notification(method: "notifications/initialized", params: [:])))
+        let later = try response(server, request(id: 4, method: "server/discover", params: [:]))
+        XCTAssertEqual(later.objectValue?["error"]?.objectValue?["code"], .integer(-32_601), "and after it")
+    }
+
+    /// Clients show `title`; the server says which app build it belongs to,
+    /// and its instructions name the review flow within Codex's 512 characters.
+    func testToolsCarryTitlesAndTheServerItsVersion() throws {
+        let server = MCPServer(client: FakeIPCClient(result: sampleSummary), serverVersion: "9.8.7")
+        let initialize = try response(server, request(id: 1, method: "initialize", params: ["protocolVersion": .string("2025-06-18")]))
+        let result = try XCTUnwrap(initialize.objectValue?["result"]?.objectValue)
+        XCTAssertEqual(result["serverInfo"]?.objectValue?["version"], .string("9.8.7"))
+        XCTAssertEqual(result["serverInfo"]?.objectValue?["title"], .string("Disk Steward"))
+        let instructions = try XCTUnwrap(result["instructions"]?.stringValue)
+        XCTAssertLessThanOrEqual(instructions.count, 512)
+        XCTAssertTrue(instructions.hasPrefix("Read local Disk Steward evidence only."), "the rule comes first")
+        XCTAssertTrue(instructions.contains("never imply anything is safe to delete"))
+        XCTAssertTrue(instructions.contains("list_review_items") && instructions.contains("get_health"))
+        XCTAssertNil(server.handle(line: notification(method: "notifications/initialized", params: [:])))
+        let listed = try response(server, request(id: 2, method: "tools/list", params: [:]))
+        guard case let .array(entries)? = listed.objectValue?["result"]?.objectValue?["tools"] else { return XCTFail("missing tools") }
+        for entry in entries {
+            let tool = try XCTUnwrap(entry.objectValue)
+            let title = try XCTUnwrap(tool["title"]?.stringValue, "\(tool["name"] ?? .null) has a title")
+            XCTAssertFalse(title.isEmpty)
+            XCTAssertNotEqual(tool["title"], tool["name"], "a display name, not the identifier")
+            XCTAssertEqual(tool["annotations"]?.objectValue?["title"], tool["title"], "older clients read it from the annotations")
+        }
+    }
+
+    /// Every copy-and-paste configuration names the helper where the app
+    /// bundle actually puts it, and the inventory carries the live titles
+    /// and instructions.
+    func testIntegrationTemplatesNameThePackagedHelper() throws {
+        let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        func text(_ path: String) throws -> String { try String(contentsOf: repository.appending(path: path), encoding: .utf8) }
+        XCTAssertTrue(try text("Config/Packaging/project.yml").contains("$(CONTENTS_FOLDER_PATH)/Helpers/disk-witness-mcp"), "the bundle layout")
+        for path in ["Integrations/Claude/mcp.template.json", "Integrations/Claude/README.md", "Integrations/Codex/config.toml.fragment",
+                     "Fixtures/MCP/claude-stdio.json", "Fixtures/MCP/codex-stdio.toml.txt"] {
+            let contents = try text(path)
+            XCTAssertTrue(contents.contains("/Applications/Disk Steward.app/Contents/Helpers/disk-witness-mcp"), path)
+            XCTAssertFalse(contents.contains("Contents/MacOS/disk-witness-mcp"), path)
+        }
+        let inventory = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(text("Fixtures/MCP/readonly-inventory.json").utf8)) as? [String: Any])
+        XCTAssertEqual((inventory["server"] as? [String: Any])?["instructions"] as? String, MCPToolCatalog.instructions)
+        for tool in try XCTUnwrap(inventory["tools"] as? [[String: Any]]) {
+            let name = try XCTUnwrap(tool["name"] as? String)
+            XCTAssertEqual(tool["title"] as? String, MCPToolCatalog.titles[name], name)
+        }
+    }
+
     /// TASK-671: measure_path may take its whole 15 s budget, so it alone
     /// goes through the client with the measurement deadline; the dropped
     /// tools are refused before any call.

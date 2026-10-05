@@ -6,7 +6,7 @@ Disk Steward exposes the same local, read-only stdio MCP connector to Claude Cod
 Scripts/Integration/install \
   --client claude \
   --config-root "$HOME/.claude" \
-  --connector "/Applications/Disk Steward.app/Contents/MacOS/disk-witness-mcp"
+  --connector "/Applications/Disk Steward.app/Contents/Helpers/disk-witness-mcp"
 ```
 
 For a repository-shared configuration, pass the repository directory as `--config-root`; the installer writes its `.mcp.json`. Review project-scoped MCP servers before approving them in Claude Code.
