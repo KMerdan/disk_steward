@@ -1,0 +1,92 @@
+{
+ "schema": "release-publication-v1",
+ "version": "1.5.1",
+ "build": "13",
+ "verifiedInputSHA256": "1df18a756dbcceb3c62426484c32ca425dfb3cafc6180c1e41d9f66fea8378d6",
+ "signedBuild": {
+  "status": "passed",
+  "sourceSHA256": "1df18a756dbcceb3c62426484c32ca425dfb3cafc6180c1e41d9f66fea8378d6",
+  "binarySHA256": "5cc8564138b249ae5054cefb40568d9c11d4ff24b7291b7e08f9bf2759c4fcc7",
+  "helperSHA256": "db2bd78031f8c1a8d26d22531dc3bbaa61af651dad96cc79bdc6d65f7fb3dd25",
+  "bundleSHA256": "bdf77a83a5396b9f9fe37aea47b387e817e54923bb76e89fdb51459c17213295",
+  "expectedDescendantStages": [
+   {
+    "stage": "archive",
+    "stopped": [
+     {
+      "pid": 87579,
+      "unique": 31738663,
+      "executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/ibtoold"
+     },
+     {
+      "pid": 87481,
+      "unique": 31738565,
+      "executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/ibtoold"
+     }
+    ]
+   }
+  ],
+  "helperProtocol": "passed",
+  "signedSmoke": true
+ },
+ "notarization": "uploaded once through the Xcode account route on 2026-10-05; -exportNotarizedApp succeeded on its first check",
+ "steps": {
+  "upload-13": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/xcodebuild -exportArchive -archivePath DiskSteward-1.5.1-13.xcarchive -exportOptionsPlist options.plist -exportPath export"
+  },
+  "export-notarized-13-1": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/xcodebuild -exportNotarizedApp -archivePath DiskSteward-1.5.1-13.xcarchive -exportPath notarized-13"
+  },
+  "verify-notarized-13": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/bin/zsh Scripts/Distribution/verify-release Disk Steward.app"
+  },
+  "package-13": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/ditto -c -k --keepParent --sequesterRsrc Disk Steward.app Disk-Steward-1.5.1.zip"
+  },
+  "unpack-13": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/ditto -x -k Disk-Steward-1.5.1.zip unpacked-13"
+  },
+  "verify-unpacked-13": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/bin/zsh Scripts/Distribution/verify-release Disk Steward.app"
+  }
+ },
+ "verifyUnpacked": "Release verification passed: universal architectures, Developer ID identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, notarization staple, Gatekeeper acceptance, and installed launch are valid.",
+ "sameCodeAsVerified": {
+  "unsignedAppSHA256": {
+   "archive": "615a0badd3bec31634fb50276933cb22893ba91c7664be53e2a7352c3514215f",
+   "notarized": "615a0badd3bec31634fb50276933cb22893ba91c7664be53e2a7352c3514215f"
+  },
+  "unsignedHelperSHA256": {
+   "archive": "0688e15f2af2afa7f7e1c244548d2a0600f65a0258b2925864496d4b44a114c0",
+   "notarized": "0688e15f2af2afa7f7e1c244548d2a0600f65a0258b2925864496d4b44a114c0"
+  }
+ },
+ "asset": {
+  "name": "Disk-Steward-1.5.1.zip",
+  "sha256": "8b0b931303e0bb778afe53ca2a27cbc9bd249d5690d55ef86e04d73ac16c419f"
+ }
+}

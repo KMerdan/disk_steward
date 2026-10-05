@@ -10,8 +10,8 @@
 - Selection: `primary`
 - Execution: `planned`
 - Verification: `unverified`
-- Health: `clear`
-- Availability: `locked`
+- Health: `at-risk`
+- Availability: `ready`
 - Goal trace: `GATE-719` → `OUTCOME-710` → `INTENT-007`
 
 ## Goal
@@ -33,10 +33,11 @@ Verify the final candidate in isolation and packaged, then install the notarized
 ## Dependencies
 
 - `TASK-711` (validation-requires, passed)
-- `TASK-712` (validation-requires, pending)
+- `TASK-712` (validation-requires, passed)
 - `TASK-713` (validation-requires, passed)
 - `TASK-714` (validation-requires, passed)
 - `TASK-715` (validation-requires, passed)
+- `TASK-716` (validation-requires, passed)
 
 ## Required Context
 
@@ -50,7 +51,7 @@ Verify the final candidate in isolation and packaged, then install the notarized
 ## Acceptance Criteria
 
 - `AC-GATE-719-01` — On the final candidate: the full isolated suite passes, every mutation red fails its target test, and the packaged helper answers server/discover, a 2026-07-28 tools/list and tools/call, and 2025-11-25 and 2025-06-18 sessions, with answers validating against the vendored upstream schemas and each tool's outputSchema.
-- `AC-GATE-719-02` — The notarized 1.5.1 is installed on the maintainer's Mac: list_review_items accepts get_health's scope name, a cargo target reads as build output after a review, and the Claude and Codex installers leave exactly one registration and the skill for each client. Open material findings prevent pass.
+- `AC-GATE-719-02` — The notarized 1.5.1 is installed on the maintainer's Mac: list_review_items accepts get_health's scope name, a cargo target reads as build output after a review, and the Claude and Codex installers leave exactly one registration and the skill for each client, and the app's Test Connection reports both verified with fresh evidence. Open material findings prevent pass.
 
 ## Required Evidence
 
@@ -63,23 +64,18 @@ Verify the final candidate in isolation and packaged, then install the notarized
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: `IMPACT-TASK-711-QUERY`, `IMPACT-TASK-711-EXPORT`, `IMPACT-TASK-711-LIFECYCLE`, `IMPACT-TASK-711-ASSURANCE`, `IMPACT-TASK-712-BUILD`, `IMPACT-TASK-712-ASSURANCE`, `IMPACT-TASK-713-MCP`, `IMPACT-TASK-713-CONTRACTS`, `IMPACT-TASK-713-QUERY`, `IMPACT-TASK-713-BUILD`, `IMPACT-TASK-713-ASSURANCE`, `IMPACT-TASK-714-MCP`, `IMPACT-TASK-714-CONTRACTS`, `IMPACT-TASK-714-BUILD`, `IMPACT-TASK-714-ASSURANCE`, `IMPACT-TASK-715-CLIENTS`, `IMPACT-TASK-715-CONTRACTS`, `IMPACT-TASK-715-MCP`, `IMPACT-TASK-715-ASSURANCE`, `IMPACT-TASK-711-STORE`
-- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-CLIENTS`, `ASSET-CONTRACTS`, `ASSET-EXPORT`, `ASSET-LIFECYCLE`, `ASSET-MCP`, `ASSET-QUERY`, `ASSET-STORE`
-- Inspections: `INSPECT-TASK-711-1`, `INSPECT-TASK-712-1`, `INSPECT-TASK-713-1`, `INSPECT-TASK-714-1`, `INSPECT-TASK-715-1`
+- Impact records: `IMPACT-TASK-711-QUERY`, `IMPACT-TASK-711-EXPORT`, `IMPACT-TASK-711-LIFECYCLE`, `IMPACT-TASK-711-ASSURANCE`, `IMPACT-TASK-712-BUILD`, `IMPACT-TASK-712-ASSURANCE`, `IMPACT-TASK-713-MCP`, `IMPACT-TASK-713-CONTRACTS`, `IMPACT-TASK-713-QUERY`, `IMPACT-TASK-713-BUILD`, `IMPACT-TASK-713-ASSURANCE`, `IMPACT-TASK-714-MCP`, `IMPACT-TASK-714-CONTRACTS`, `IMPACT-TASK-714-BUILD`, `IMPACT-TASK-714-ASSURANCE`, `IMPACT-TASK-715-CLIENTS`, `IMPACT-TASK-715-CONTRACTS`, `IMPACT-TASK-715-MCP`, `IMPACT-TASK-715-ASSURANCE`, `IMPACT-TASK-711-STORE`, `IMPACT-TASK-716-MCP`, `IMPACT-TASK-716-CLIENTS`, `IMPACT-TASK-716-CONTRACTS`, `IMPACT-TASK-716-QUERY`, `IMPACT-TASK-716-IPC`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-CLIENTS`, `ASSET-CONTRACTS`, `ASSET-EXPORT`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-MCP`, `ASSET-QUERY`, `ASSET-STORE`
+- Inspections: `INSPECT-TASK-711-1`, `INSPECT-TASK-712-1`, `INSPECT-TASK-713-1`, `INSPECT-TASK-714-1`, `INSPECT-TASK-715-1`, `INSPECT-TASK-716-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-TASK-712-ASSURANCE remains hypothesis
-- Impact IMPACT-TASK-712-BUILD remains hypothesis
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
 - Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712
 - Required inspection INSPECT-TASK-711-1 is stale
-- Required inspection INSPECT-TASK-712-1 is stale
 - Required inspection INSPECT-TASK-713-1 is stale
 - Required inspection INSPECT-TASK-714-1 is stale
+- Required inspection INSPECT-TASK-715-1 is stale
 
 

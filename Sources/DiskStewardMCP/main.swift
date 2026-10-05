@@ -80,19 +80,31 @@ struct SelfCheckReport: Encodable {
         return (path, "\(value.st_dev):\(value.st_ino):\(value.st_size):\(value.st_mtimespec.tv_sec):\(value.st_mtimespec.tv_nsec):\(value.st_ctimespec.tv_sec):\(value.st_ctimespec.tv_nsec)")
     }
 
-    /// Freshness is the newest persisted observation the app reports under
-    /// `StorageSummaryContract.persistedStateAsOf`, never the moment the live
-    /// volume figures were sampled. A null value means nothing has been
+    /// Freshness is the newest persisted observation the app reports: the
+    /// file-detail state under `StorageSummaryContract.persistedStateAsOf`
+    /// (null since file detail retired) or the newest capacity sample
+    /// Monitoring persisted, whichever is newer. It is never the moment the
+    /// live volume figures were sampled. With neither, nothing has been
     /// persisted yet, and the report says so instead of claiming freshness.
     static func evidence(from encoded: Data) -> Evidence? {
         guard let object = try? JSONSerialization.jsonObject(with: encoded) as? [String: Any] else { return nil }
-        guard let text = object[StorageSummaryContract.persistedStateAsOf] as? String else {
+        let history = object[StorageSummaryContract.capacityHistory] as? [String: Any]
+        let sample = history?[StorageSummaryContract.capacityHistoryStatus] as? String == StorageSummaryContract.capacityHistoryAvailable
+            ? history?[StorageSummaryContract.newestSampleAt] as? String : nil
+        let candidates: [(text: String, date: Date)] = [object[StorageSummaryContract.persistedStateAsOf] as? String, sample].compactMap { text in
+            guard let text, let date = parseTimestamp(text) else { return nil }
+            return (text, date)
+        }
+        guard let newest = candidates.max(by: { $0.date < $1.date }) else {
             return Evidence(observedAt: nil, ageSeconds: nil, persisted: false)
         }
+        return Evidence(observedAt: newest.text, ageSeconds: max(0, Date().timeIntervalSince(newest.date)), persisted: true)
+    }
+
+    private static func parseTimestamp(_ text: String) -> Date? {
         let parser = ISO8601DateFormatter()
         parser.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let date = parser.date(from: text) ?? ISO8601DateFormatter().date(from: text)
-        return Evidence(observedAt: text, ageSeconds: date.map { max(0, Date().timeIntervalSince($0)) }, persisted: true)
+        return parser.date(from: text) ?? ISO8601DateFormatter().date(from: text)
     }
 
     func encoded() -> String {

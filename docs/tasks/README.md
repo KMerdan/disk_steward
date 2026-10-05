@@ -5,21 +5,21 @@ Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 202
 
 ## Current State
 
-- Graph version: `22`
-- Plan revision: `3`
+- Graph version: `31`
+- Plan revision: `4`
 - Lifecycle: `active`
-- Verified primary nodes: `4/8`
-- Ready tasks: `0`
+- Verified primary nodes: `6/9`
+- Ready tasks: `1`
 
 ## Ready Frontier
 
-- None
+- `GATE-719` — Audit 1.5.1: current clients, fixes and release
 
 ## Brownfield Assurance
 
 - Status: `blocked`
 - Baseline: `current` revision `5`
-- Impacted assets inspected sufficiently: `4/9`
+- Impacted assets inspected sufficiently: `7/10`
 - Open scope drift: `0`
 - Open material findings: `0`
 

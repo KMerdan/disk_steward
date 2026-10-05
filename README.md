@@ -6,7 +6,7 @@
   <p>
     <img alt="macOS 13+" src="https://img.shields.io/badge/macOS-13%2B-111111?logo=apple&logoColor=white">
     <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white">
-    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.5.0"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.5.0-2563EB"></a>
+    <a href="https://github.com/KMerdan/disk_steward/releases/tag/v1.5.1"><img alt="Latest release" src="https://img.shields.io/badge/release-v1.5.1-2563EB"></a>
     <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-2563EB"></a>
   </p>
 </div>
@@ -85,6 +85,8 @@ When Agent Access is enabled, the bundled `disk-witness-mcp` helper exposes boun
 
 Review items are evidence for a person to review, with the same sizes and states as the review window; nothing is declared safe to delete.
 
+Every tool has a title and an `outputSchema`. The helper speaks MCP `2026-07-28` (stateless, `server/discover`) as well as `2025-11-25` and `2025-06-18`. Arguments a model got wrong come back as a tool error it can correct. **Settings › Agent Integrations** registers the `disk-steward` server for Codex and Claude Code and installs an evidence skill that tells the agent how to read the answers and clean up safely.
+
 See [agent integration setup](docs/integrations/README.md) and the [MCP trust contract](docs/architecture/mcp.md) for Codex and Claude Code installation, session registration, limits, and failure behavior.
 
 ## Privacy and safety
@@ -102,7 +104,7 @@ The complete model is documented in [privacy and retention](docs/operations/priv
 
 ## Install
 
-Disk Steward 1.5.0 is Developer ID signed, hardened, notarized, and distributed as a universal macOS app through the public Homebrew tap:
+Disk Steward 1.5.1 is Developer ID signed, hardened, notarized, and distributed as a universal macOS app through the public Homebrew tap:
 
 ```sh
 brew trust KMerdan/disk-steward
@@ -110,7 +112,7 @@ brew tap KMerdan/disk-steward
 brew install --cask disk-steward
 ```
 
-The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.5.0 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.5.0).
+The first command explicitly trusts this third-party tap for current and future casks. You can also download the notarized archive from the [v1.5.1 release](https://github.com/KMerdan/disk_steward/releases/tag/v1.5.1).
 
 ## Build and run
 
@@ -175,7 +177,7 @@ That distinction is what lets an agent choose the next investigation without tre
 
 ## Distribution status
 
-Disk Steward 1.5.0 is publicly available from the [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) and as a versioned GitHub release. The published archive has passed Developer ID identity, nested-helper signature, hardened runtime, secure timestamp, production entitlement, notarization staple, Gatekeeper, and archive round-trip checks.
+Disk Steward 1.5.1 is publicly available from the [`KMerdan/disk-steward` Homebrew tap](https://github.com/KMerdan/homebrew-disk-steward) and as a versioned GitHub release. The published archive has passed Developer ID identity, nested-helper signature, hardened runtime, secure timestamp, production entitlement, notarization staple, Gatekeeper, and archive round-trip checks.
 
 Release engineering is documented in [direct distribution](docs/operations/distribution.md), the [release handoff](docs/release/direct-distribution-handoff.md), and the [Homebrew activation checklist](Packaging/Homebrew/README.md).
 

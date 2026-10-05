@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "PLAN-DISK-STEWARD-007",
   "title": "Current MCP clients and the 1.5.1 fixes",
-  "revision": 3,
+  "revision": 4,
   "intent": {
     "id": "INTENT-007",
     "statement": "Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 2026-07-28) reach one correctly registered Disk Steward server with its evidence skill, get typed, correctable answers, and the defects found in the first real cleanup and the accepted rung-4 findings are fixed, released as 1.5.1.",
@@ -98,6 +98,17 @@
       "supports": [
         "TASK-715",
         "TASK-711"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-703-STALE-SELF-CHECK",
+      "claim": "On the installed 1.5.1 (13), Set up (Codex) and Repair (Claude Code) succeed, but Test Connection records verified-stale ('no evidence has been persisted yet'): the helper's --self-check takes freshness only from persisted_state_as_of, which the retired file scanner leaves null since 1.5.0, while the same answer carries capacity_history.newest_sample_at minutes old.",
+      "source": "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt",
+      "confidence": "high",
+      "freshness": "2026-10-05",
+      "supports": [
+        "TASK-716"
       ],
       "contradicts": []
     }
@@ -251,7 +262,7 @@
         },
         {
           "id": "AC-GATE-719-02",
-          "description": "The notarized 1.5.1 is installed on the maintainer's Mac: list_review_items accepts get_health's scope name, a cargo target reads as build output after a review, and the Claude and Codex installers leave exactly one registration and the skill for each client. Open material findings prevent pass."
+          "description": "The notarized 1.5.1 is installed on the maintainer's Mac: list_review_items accepts get_health's scope name, a cargo target reads as build output after a review, and the Claude and Codex installers leave exactly one registration and the skill for each client, and the app's Test Connection reports both verified with fresh evidence. Open material findings prevent pass."
         }
       ],
       "required_evidence": [
@@ -592,6 +603,66 @@
           "docs/reliability/evidence/**"
         ]
       }
+    },
+    {
+      "id": "TASK-716",
+      "kind": "implementation",
+      "title": "Connection test reads Monitoring's capacity samples",
+      "summary": "The helper's --self-check takes evidence freshness from the newest persisted observation that still exists after the scanner's retirement, Monitoring's capacity samples, so Test Connection verifies a healthy integration instead of reporting that nothing was persisted.",
+      "level": 3,
+      "wave": 1,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-703"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-716-01",
+          "description": "With file detail retired and a capacity sample a few minutes old, the real helper's --self-check reports that sample's age and the app's verification is verified; with no sample it is stale with nothing persisted; a sample older than an hour is stale."
+        },
+        {
+          "id": "AC-TASK-716-02",
+          "description": "The capacity-history wire names are shared constants in StorageSummaryContract used by the backend and the helper; the agent-facing persisted_state_as_of keeps its meaning."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-716-01",
+          "type": "regression-evidence",
+          "description": "An increment test through the real helper and the production backend configuration, with a mutation red that ignores the capacity sample."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardMCP/main.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+          "Sources/DiskStewardCore/Snapshot/CapacityRing.swift",
+          "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardMCP/main.swift",
+          "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+          "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "Tests/IncrementTests/MCP/**",
+          "docs/integrations/README.md",
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py <filter>"
+        ],
+        "deliverables": [
+          "Self-check freshness from capacity samples, with tests"
+        ],
+        "non_goals": [
+          "Changing the one-hour stale threshold",
+          "Changing what get_storage_summary tells agents"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ]
+      }
     }
   ],
   "edges": [
@@ -664,6 +735,16 @@
       "from": "OUTCOME-710",
       "to": "INTENT-007",
       "type": "contributes-to"
+    },
+    {
+      "from": "TASK-716",
+      "to": "OUTCOME-710",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-719",
+      "to": "TASK-716",
+      "type": "validation-requires"
     }
   ]
 }

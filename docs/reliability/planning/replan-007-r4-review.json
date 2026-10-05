@@ -1,0 +1,170 @@
+{
+ "schema": "pyramid-plan-review-v1",
+ "review_id": "REVIEW-007-R4",
+ "stage": "candidate",
+ "outcome": "revised",
+ "source_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-007",
+  "revision": 3,
+  "sha256": "1de6493d18f554de54b256366f320a367a82182f6e3dd28b88681a1d0d71a766"
+ },
+ "revised_plan": {
+  "plan_id": "PLAN-DISK-STEWARD-007",
+  "revision": 4,
+  "sha256": "0899b7a1afbee5cc728db25c0b108a9424c36cabea2bff9ff97588a50b3a2195"
+ },
+ "facts": [
+  {
+   "id": "FACT-R4-STALE-SELF-CHECK",
+   "claim": "On the installed 1.5.1 (13), Set up (Codex) and Repair (Claude Code) succeed, but Test Connection records verified-stale ('no evidence has been persisted yet'): the helper's --self-check takes freshness only from persisted_state_as_of, which the retired file scanner leaves null since 1.5.0, while the same answer carries capacity_history.newest_sample_at minutes old.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "GATE-719",
+    "TASK-716"
+   ],
+   "supports": [
+    "TASK-716"
+   ],
+   "freshness": "2026-10-05"
+  },
+  {
+   "id": "FACT-R4-RING-CADENCE",
+   "claim": "MonitoringLifecycleController records every sample into CapacityRing (a fine row at least every 4 of the default 5 minutes, one hourly row per clock hour), so the newest capacity sample stays well inside the one-hour stale threshold while Monitoring runs at default settings.",
+   "classification": "observed",
+   "verdict": "confirmed",
+   "confidence": "high",
+   "references": [
+    "TASK-716"
+   ],
+   "supports": [
+    "TASK-716"
+   ],
+   "freshness": "2026-10-05"
+  }
+ ],
+ "findings": [
+  {
+   "id": "FIND-R4-STALE-SELF-CHECK",
+   "class": "under-decomposition",
+   "affected_nodes": [
+    "TASK-716",
+    "GATE-719"
+   ],
+   "claim": "REQ-703's supported installer is the app, whose Test Connection never verifies since the scanner retired; no task owned the self-check.",
+   "evidence": [
+    "FACT-R4-STALE-SELF-CHECK",
+    "FACT-R4-RING-CADENCE"
+   ],
+   "counterevidence": [],
+   "disposition": "applied",
+   "change": "Add TASK-716 (helper self-check freshness from capacity samples) contributing to OUTCOME-710 and validated by GATE-719; GATE-719's AC-02 now also requires Test Connection to verify both clients.",
+   "rationale": "Found by GATE-719 on the installed candidate; the user asked for every bug fixed before 1.5.1 ships."
+  }
+ ],
+ "coverage": [
+  {
+   "requirement": "REQ-701",
+   "before_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-713",
+    "TASK-714"
+   ],
+   "after_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-713",
+    "TASK-714"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-702",
+   "before_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-713"
+   ],
+   "after_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-713"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-703",
+   "before_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-715"
+   ],
+   "after_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-715",
+    "TASK-716"
+   ],
+   "status": "strengthened"
+  },
+  {
+   "requirement": "REQ-704",
+   "before_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-711",
+    "TASK-712"
+   ],
+   "after_nodes": [
+    "GATE-719",
+    "OUTCOME-710",
+    "TASK-711",
+    "TASK-712"
+   ],
+   "status": "preserved"
+  },
+  {
+   "requirement": "REQ-705",
+   "before_nodes": [
+    "GATE-719",
+    "OUTCOME-710"
+   ],
+   "after_nodes": [
+    "GATE-719",
+    "OUTCOME-710"
+   ],
+   "status": "preserved"
+  }
+ ],
+ "invariants": {
+  "intent": "preserved",
+  "success_evidence": "preserved",
+  "constraints": "preserved",
+  "non_goals": "preserved",
+  "assurance": "strengthened",
+  "audit_closure": "strengthened",
+  "execution_safety": "preserved"
+ },
+ "metrics": {
+  "before": {
+   "nodes": 8,
+   "executable_nodes": 6,
+   "edges": 14,
+   "hard_dependencies": 1,
+   "audit_gates": 1
+  },
+  "after": {
+   "nodes": 9,
+   "executable_nodes": 7,
+   "edges": 16,
+   "hard_dependencies": 1,
+   "audit_gates": 1
+  }
+ },
+ "summary": "Adds TASK-716 so the app's connection test reads Monitoring's capacity samples; GATE-719 now also requires both clients to verify. The 1.5.1 build 13 candidate is superseded; GATE-719 re-runs on the new input.",
+ "limitations": [
+  "A user who sets the sample interval above an hour still sees stale between samples; the threshold is unchanged by design."
+ ]
+}

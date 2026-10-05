@@ -372,7 +372,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         } else {
             fields["free_above_reserve_bytes"] = .null
         }
-        fields["capacity_history"] = history
+        fields[StorageSummaryContract.capacityHistory] = history
         fields["detail_status"] = .string(reasons.isEmpty ? "available" : "unavailable")
         fields["detail_reasons"] = .array(reasons.map(JSONValue.string))
         fields["current_consumer_count"] = lifecycle.map { .integer(Int64($0.currentStateCount)) } ?? .null
@@ -465,10 +465,10 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
             }
             let summary = try await ring.summary(volumeUUID: uuid)
             return .object([
-                "status": .string("available"),
+                StorageSummaryContract.capacityHistoryStatus: .string(StorageSummaryContract.capacityHistoryAvailable),
                 "sample_count": .integer(Int64(summary.sampleCount)),
                 "oldest_sample_at": summary.oldest.map { .string(timestamp($0)) } ?? .null,
-                "newest_sample_at": summary.newest.map { .string(timestamp($0.observedAt)) } ?? .null,
+                StorageSummaryContract.newestSampleAt: summary.newest.map { .string(timestamp($0.observedAt)) } ?? .null,
                 "minimum_available_bytes_last_day": summary.minimumAvailableLastDay.map(JSONValue.integer) ?? .null,
             ])
         } catch {

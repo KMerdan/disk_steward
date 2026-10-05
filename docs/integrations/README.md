@@ -66,7 +66,7 @@ Rollback restores a backup only while the current files are still what that inst
 In the app, **Test Connection** runs the exact command the client's configuration names, with a clean environment, and trusts only the self-check report that command prints: the helper's own executable identity must match the entry Disk Steward installed. A different or moved helper cannot pass as verified. The result distinguishes:
 
 - **Verified**: the configured helper reached the app and evidence is fresh (age is shown).
-- **Stale evidence**: the helper connected, but the newest persisted observation is older than an hour, or nothing has been persisted yet; check that Monitoring is running.
+- **Stale evidence**: the helper connected, but the newest persisted observation (Monitoring's latest capacity sample, taken every 5 minutes by default) is older than an hour, or nothing has been persisted yet; check that Monitoring is running.
 - **Disk Steward is not running**: no socket at the app's path (open the app).
 - **Agent Access is off**: the socket path is absent and the access state says off (turn Agent Access on).
 

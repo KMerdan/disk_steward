@@ -74,13 +74,17 @@ The Claude installer installs the evidence skill from the single SKILL.md source
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-TASK-715-CLIENTS`, `IMPACT-TASK-715-CONTRACTS`, `IMPACT-TASK-715-MCP`, `IMPACT-TASK-715-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-CLIENTS`, `ASSET-CONTRACTS`, `ASSET-MCP`
 - Inspections: `INSPECT-TASK-715-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-CLIENTS lacks a sufficient passing inspection
+- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
+- Impacted asset ASSET-MCP lacks a sufficient passing inspection
+- Required inspection INSPECT-TASK-715-1 is stale
 
 

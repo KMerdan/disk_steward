@@ -1,16 +1,16 @@
 {
   "schema": "pyramid-graph-v1",
-  "generated_at": "2026-10-05T01:19:09.417158Z",
-  "graph_version": 22,
+  "generated_at": "2026-10-05T11:12:01.540577Z",
+  "graph_version": 31,
   "context": {
-    "id": "CTX-6588F7531C72BE2AB47BFC07D4F9F533",
+    "id": "CTX-43652A9A4205A07A570A7F096D8AC476",
     "plan_id": "PLAN-DISK-STEWARD-007",
-    "plan_revision": 3,
-    "graph_version": 22
+    "plan_revision": 4,
+    "graph_version": 31
   },
   "plan_id": "PLAN-DISK-STEWARD-007",
   "title": "Current MCP clients and the 1.5.1 fixes",
-  "revision": 3,
+  "revision": 4,
   "intent": {
     "id": "INTENT-007",
     "statement": "Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 2026-07-28) reach one correctly registered Disk Steward server with its evidence skill, get typed, correctable answers, and the defects found in the first real cleanup and the accepted rung-4 findings are fixed, released as 1.5.1.",
@@ -75,14 +75,13 @@
     "restored_from": null
   },
   "summary": {
-    "primary_nodes": 8,
-    "verified_primary_nodes": 4,
+    "primary_nodes": 9,
+    "verified_primary_nodes": 6,
     "closure_ready": false,
     "availability": {
-      "implemented": 1,
-      "locked": 1,
       "not-executable": 2,
-      "verified": 4
+      "ready": 1,
+      "verified": 6
     }
   },
   "nodes": [
@@ -137,7 +136,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -147,8 +146,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-10-05T00:29:06.581215Z",
+        "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -177,7 +176,8 @@
           "TASK-712",
           "TASK-713",
           "TASK-714",
-          "TASK-715"
+          "TASK-715",
+          "TASK-716"
         ],
         "impact_ids": [
           "IMPACT-TASK-711-QUERY",
@@ -199,7 +199,12 @@
           "IMPACT-TASK-715-CONTRACTS",
           "IMPACT-TASK-715-MCP",
           "IMPACT-TASK-715-ASSURANCE",
-          "IMPACT-TASK-711-STORE"
+          "IMPACT-TASK-711-STORE",
+          "IMPACT-TASK-716-MCP",
+          "IMPACT-TASK-716-CLIENTS",
+          "IMPACT-TASK-716-CONTRACTS",
+          "IMPACT-TASK-716-QUERY",
+          "IMPACT-TASK-716-IPC"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
@@ -207,6 +212,7 @@
           "ASSET-CLIENTS",
           "ASSET-CONTRACTS",
           "ASSET-EXPORT",
+          "ASSET-IPC",
           "ASSET-LIFECYCLE",
           "ASSET-MCP",
           "ASSET-QUERY",
@@ -217,9 +223,17 @@
           "INSPECT-TASK-712-1",
           "INSPECT-TASK-713-1",
           "INSPECT-TASK-714-1",
-          "INSPECT-TASK-715-1"
+          "INSPECT-TASK-715-1",
+          "INSPECT-TASK-716-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-XCODE-WORKER",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+          "FIND-R4-PAGE-SCHEMA-STALE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-G719-STALE-SELF-CHECK"
+        ],
         "scope_drift_ids": [
           "DRIFT-DEAB2E7B2FF7",
           "DRIFT-5FB2EEE9FA6C",
@@ -231,21 +245,18 @@
           "DRIFT-2F8FDE32C8E5",
           "DRIFT-A8C85D16CBD1",
           "DRIFT-388C00A7F4A5",
-          "DRIFT-C61B0FD12F4F"
+          "DRIFT-C61B0FD12F4F",
+          "DRIFT-C60A6DEB0E28",
+          "DRIFT-3DD06907F910"
         ],
         "blockers": [
-          "Impact IMPACT-TASK-712-ASSURANCE remains hypothesis",
-          "Impact IMPACT-TASK-712-BUILD remains hypothesis",
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
           "Impacted asset ASSET-EXPORT lacks a sufficient passing inspection",
           "Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
           "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
-          "Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712",
           "Required inspection INSPECT-TASK-711-1 is stale",
-          "Required inspection INSPECT-TASK-712-1 is stale",
           "Required inspection INSPECT-TASK-713-1 is stale",
-          "Required inspection INSPECT-TASK-714-1 is stale"
+          "Required inspection INSPECT-TASK-714-1 is stale",
+          "Required inspection INSPECT-TASK-715-1 is stale"
         ]
       },
       "source_path": "docs/tasks/nodes/INTENT-007-current-mcp-clients-and-the-1-5-1-fixes.md"
@@ -295,7 +306,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -305,8 +316,8 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-10-05T00:29:06.581215Z",
+        "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
@@ -326,7 +337,8 @@
         "TASK-713",
         "TASK-714",
         "TASK-715",
-        "GATE-719"
+        "GATE-719",
+        "TASK-716"
       ],
       "dependencies": [],
       "audit_gates": [
@@ -341,7 +353,8 @@
           "TASK-712",
           "TASK-713",
           "TASK-714",
-          "TASK-715"
+          "TASK-715",
+          "TASK-716"
         ],
         "impact_ids": [
           "IMPACT-TASK-711-QUERY",
@@ -363,7 +376,12 @@
           "IMPACT-TASK-715-CONTRACTS",
           "IMPACT-TASK-715-MCP",
           "IMPACT-TASK-715-ASSURANCE",
-          "IMPACT-TASK-711-STORE"
+          "IMPACT-TASK-711-STORE",
+          "IMPACT-TASK-716-MCP",
+          "IMPACT-TASK-716-CLIENTS",
+          "IMPACT-TASK-716-CONTRACTS",
+          "IMPACT-TASK-716-QUERY",
+          "IMPACT-TASK-716-IPC"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
@@ -371,6 +389,7 @@
           "ASSET-CLIENTS",
           "ASSET-CONTRACTS",
           "ASSET-EXPORT",
+          "ASSET-IPC",
           "ASSET-LIFECYCLE",
           "ASSET-MCP",
           "ASSET-QUERY",
@@ -381,9 +400,17 @@
           "INSPECT-TASK-712-1",
           "INSPECT-TASK-713-1",
           "INSPECT-TASK-714-1",
-          "INSPECT-TASK-715-1"
+          "INSPECT-TASK-715-1",
+          "INSPECT-TASK-716-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-XCODE-WORKER",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+          "FIND-R4-PAGE-SCHEMA-STALE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-G719-STALE-SELF-CHECK"
+        ],
         "scope_drift_ids": [
           "DRIFT-DEAB2E7B2FF7",
           "DRIFT-5FB2EEE9FA6C",
@@ -395,21 +422,18 @@
           "DRIFT-2F8FDE32C8E5",
           "DRIFT-A8C85D16CBD1",
           "DRIFT-388C00A7F4A5",
-          "DRIFT-C61B0FD12F4F"
+          "DRIFT-C61B0FD12F4F",
+          "DRIFT-C60A6DEB0E28",
+          "DRIFT-3DD06907F910"
         ],
         "blockers": [
-          "Impact IMPACT-TASK-712-ASSURANCE remains hypothesis",
-          "Impact IMPACT-TASK-712-BUILD remains hypothesis",
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
           "Impacted asset ASSET-EXPORT lacks a sufficient passing inspection",
           "Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
           "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
-          "Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712",
           "Required inspection INSPECT-TASK-711-1 is stale",
-          "Required inspection INSPECT-TASK-712-1 is stale",
           "Required inspection INSPECT-TASK-713-1 is stale",
-          "Required inspection INSPECT-TASK-714-1 is stale"
+          "Required inspection INSPECT-TASK-714-1 is stale",
+          "Required inspection INSPECT-TASK-715-1 is stale"
         ]
       },
       "source_path": "docs/tasks/nodes/OUTCOME-710-agents-on-current-mcp-clients-get-one-server-its-skill-and-corrected-answers.md"
@@ -437,7 +461,7 @@
         },
         {
           "id": "AC-GATE-719-02",
-          "description": "The notarized 1.5.1 is installed on the maintainer's Mac: list_review_items accepts get_health's scope name, a cargo target reads as build output after a review, and the Claude and Codex installers leave exactly one registration and the skill for each client. Open material findings prevent pass."
+          "description": "The notarized 1.5.1 is installed on the maintainer's Mac: list_review_items accepts get_health's scope name, a cargo target reads as build output after a review, and the Claude and Codex installers leave exactly one registration and the skill for each client, and the app's Test Connection reports both verified with fresh evidence. Open material findings prevent pass."
         }
       ],
       "required_evidence": [
@@ -472,7 +496,7 @@
       "state": {
         "execution": "planned",
         "verification": "unverified",
-        "health": "clear",
+        "health": "at-risk",
         "owner": null,
         "lease_expires_at": null,
         "work_origin": null,
@@ -482,16 +506,14 @@
         "pause_mode": null,
         "resume_deadline": null,
         "last_handoff": null,
-        "blocker": null,
-        "updated_at": "2026-10-05T00:29:06.581215Z",
+        "blocker": "Replan changed this claim, its proof contract, or a prerequisite; re-audit required.",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": null,
         "last_audit": null,
         "last_reopen": null
       },
-      "availability": "locked",
-      "blocked_by": [
-        "TASK-712"
-      ],
+      "availability": "ready",
+      "blocked_by": [],
       "goal_trace": [
         "GATE-719",
         "OUTCOME-710",
@@ -510,7 +532,7 @@
         {
           "id": "TASK-712",
           "type": "validation-requires",
-          "verification": "pending"
+          "verification": "passed"
         },
         {
           "id": "TASK-713",
@@ -526,6 +548,11 @@
           "id": "TASK-715",
           "type": "validation-requires",
           "verification": "passed"
+        },
+        {
+          "id": "TASK-716",
+          "type": "validation-requires",
+          "verification": "passed"
         }
       ],
       "audit_gates": [],
@@ -537,7 +564,8 @@
           "TASK-712",
           "TASK-713",
           "TASK-714",
-          "TASK-715"
+          "TASK-715",
+          "TASK-716"
         ],
         "impact_ids": [
           "IMPACT-TASK-711-QUERY",
@@ -559,7 +587,12 @@
           "IMPACT-TASK-715-CONTRACTS",
           "IMPACT-TASK-715-MCP",
           "IMPACT-TASK-715-ASSURANCE",
-          "IMPACT-TASK-711-STORE"
+          "IMPACT-TASK-711-STORE",
+          "IMPACT-TASK-716-MCP",
+          "IMPACT-TASK-716-CLIENTS",
+          "IMPACT-TASK-716-CONTRACTS",
+          "IMPACT-TASK-716-QUERY",
+          "IMPACT-TASK-716-IPC"
         ],
         "asset_ids": [
           "ASSET-ASSURANCE",
@@ -567,6 +600,7 @@
           "ASSET-CLIENTS",
           "ASSET-CONTRACTS",
           "ASSET-EXPORT",
+          "ASSET-IPC",
           "ASSET-LIFECYCLE",
           "ASSET-MCP",
           "ASSET-QUERY",
@@ -577,9 +611,17 @@
           "INSPECT-TASK-712-1",
           "INSPECT-TASK-713-1",
           "INSPECT-TASK-714-1",
-          "INSPECT-TASK-715-1"
+          "INSPECT-TASK-715-1",
+          "INSPECT-TASK-716-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-XCODE-WORKER",
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+          "FIND-R4-PAGE-SCHEMA-STALE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-G719-STALE-SELF-CHECK"
+        ],
         "scope_drift_ids": [
           "DRIFT-DEAB2E7B2FF7",
           "DRIFT-5FB2EEE9FA6C",
@@ -591,21 +633,18 @@
           "DRIFT-2F8FDE32C8E5",
           "DRIFT-A8C85D16CBD1",
           "DRIFT-388C00A7F4A5",
-          "DRIFT-C61B0FD12F4F"
+          "DRIFT-C61B0FD12F4F",
+          "DRIFT-C60A6DEB0E28",
+          "DRIFT-3DD06907F910"
         ],
         "blockers": [
-          "Impact IMPACT-TASK-712-ASSURANCE remains hypothesis",
-          "Impact IMPACT-TASK-712-BUILD remains hypothesis",
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
           "Impacted asset ASSET-EXPORT lacks a sufficient passing inspection",
           "Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
           "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
-          "Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712",
           "Required inspection INSPECT-TASK-711-1 is stale",
-          "Required inspection INSPECT-TASK-712-1 is stale",
           "Required inspection INSPECT-TASK-713-1 is stale",
-          "Required inspection INSPECT-TASK-714-1 is stale"
+          "Required inspection INSPECT-TASK-714-1 is stale",
+          "Required inspection INSPECT-TASK-715-1 is stale"
         ]
       },
       "source_path": "docs/tasks/03-assurance/GATE-719-audit-1-5-1-current-clients-fixes-and-release.md"
@@ -687,7 +726,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-10-05T01:07:05.595826Z",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-711",
@@ -1022,7 +1061,11 @@
         "inspection_ids": [
           "INSPECT-TASK-711-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+          "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+          "FIND-R4-JOURNAL-LIMIT"
+        ],
         "scope_drift_ids": [],
         "blockers": [
           "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
@@ -1087,7 +1130,7 @@
       },
       "state": {
         "execution": "implemented",
-        "verification": "pending",
+        "verification": "passed",
         "health": "clear",
         "owner": null,
         "lease_expires_at": null,
@@ -1099,7 +1142,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-10-05T00:59:25.253537Z",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-712",
@@ -1228,10 +1271,51 @@
           "discovered_risks": [],
           "suggested_graph_changes": []
         },
-        "last_audit": null,
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-712",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "AC-TASK-712-01",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-712/README.md",
+                "docs/reliability/evidence/TASK-712/agent-result.json",
+                "docs/reliability/evidence/GATE-719/candidate-1df18a75/candidate.json",
+                "docs/reliability/evidence/TASK-712/green/tests.log",
+                "docs/reliability/evidence/TASK-712/reds/allowance-ignored/result.json",
+                "docs/reliability/evidence/TASK-712/reds/any-survivor-allowed/result.json",
+                "docs/reliability/evidence/TASK-712/reds/failed-launcher-allowed/result.json",
+                "docs/reliability/evidence/TASK-712/reds/relative-path-allowed/result.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-712"
+          ],
+          "recommended_action": "advance",
+          "assurance": {
+            "impact_ids": [
+              "IMPACT-TASK-712-BUILD",
+              "IMPACT-TASK-712-ASSURANCE"
+            ],
+            "inspection_ids": [
+              "INSPECT-TASK-712-1"
+            ],
+            "finding_ids": [
+              "FIND-R4-XCODE-WORKER"
+            ],
+            "scope_review": "complete",
+            "limitations": [
+              "The release archive stage opts in from the out-of-tree release script",
+              " its record is the 1.5.1 release report."
+            ]
+          }
+        },
         "last_reopen": null
       },
-      "availability": "implemented",
+      "availability": "verified",
       "blocked_by": [],
       "goal_trace": [
         "TASK-712",
@@ -1248,7 +1332,7 @@
         "EV-703-IBTOOLD"
       ],
       "assurance": {
-        "status": "blocked",
+        "status": "covered",
         "task_ids": [
           "TASK-712"
         ],
@@ -1263,16 +1347,11 @@
         "inspection_ids": [
           "INSPECT-TASK-712-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-XCODE-WORKER"
+        ],
         "scope_drift_ids": [],
-        "blockers": [
-          "Impact IMPACT-TASK-712-ASSURANCE remains hypothesis",
-          "Impact IMPACT-TASK-712-BUILD remains hypothesis",
-          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
-          "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
-          "Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712",
-          "Required inspection INSPECT-TASK-712-1 is stale"
-        ]
+        "blockers": []
       },
       "source_path": "docs/tasks/01-safety/TASK-712-treat-xcode-s-ibtoold-daemon-as-expected-in-verification.md"
     },
@@ -1356,7 +1435,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-10-05T01:07:05.801582Z",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-713",
@@ -1689,7 +1768,12 @@
         "inspection_ids": [
           "INSPECT-TASK-713-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-XCODE-WORKER",
+          "FIND-R4-PAGE-SCHEMA-STALE",
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-G719-STALE-SELF-CHECK"
+        ],
         "scope_drift_ids": [
           "DRIFT-DEAB2E7B2FF7"
         ],
@@ -1785,7 +1869,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-10-05T01:19:09.380323Z",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-715",
@@ -2178,7 +2262,7 @@
         "EV-704-CLEANUP-USE"
       ],
       "assurance": {
-        "status": "covered",
+        "status": "blocked",
         "task_ids": [
           "TASK-715"
         ],
@@ -2197,7 +2281,10 @@
         "inspection_ids": [
           "INSPECT-TASK-715-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-PAGE-SCHEMA-STALE",
+          "FIND-G719-STALE-SELF-CHECK"
+        ],
         "scope_drift_ids": [
           "DRIFT-CF725A5C1D76",
           "DRIFT-207E92B43288",
@@ -2207,9 +2294,295 @@
           "DRIFT-388C00A7F4A5",
           "DRIFT-C61B0FD12F4F"
         ],
-        "blockers": []
+        "blockers": [
+          "Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection",
+          "Impacted asset ASSET-CLIENTS lacks a sufficient passing inspection",
+          "Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection",
+          "Impacted asset ASSET-MCP lacks a sufficient passing inspection",
+          "Required inspection INSPECT-TASK-715-1 is stale"
+        ]
       },
       "source_path": "docs/tasks/01-product/TASK-715-one-registration-and-the-skill-for-both-clients.md"
+    },
+    {
+      "id": "TASK-716",
+      "kind": "implementation",
+      "title": "Connection test reads Monitoring's capacity samples",
+      "summary": "The helper's --self-check takes evidence freshness from the newest persisted observation that still exists after the scanner's retirement, Monitoring's capacity samples, so Test Connection verifies a healthy integration instead of reporting that nothing was persisted.",
+      "level": 3,
+      "wave": 1,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-703"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-716-01",
+          "description": "With file detail retired and a capacity sample a few minutes old, the real helper's --self-check reports that sample's age and the app's verification is verified; with no sample it is stale with nothing persisted; a sample older than an hour is stale."
+        },
+        {
+          "id": "AC-TASK-716-02",
+          "description": "The capacity-history wire names are shared constants in StorageSummaryContract used by the backend and the helper; the agent-facing persisted_state_as_of keeps its meaning."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-716-01",
+          "type": "regression-evidence",
+          "description": "An increment test through the real helper and the production backend configuration, with a mutation red that ignores the capacity sample."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardMCP/main.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationInfrastructure.swift",
+          "Sources/DiskStewardCore/Snapshot/CapacityRing.swift",
+          "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardMCP/main.swift",
+          "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+          "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+          "Tests/IncrementTests/MCP/**",
+          "docs/integrations/README.md",
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py <filter>"
+        ],
+        "deliverables": [
+          "Self-check freshness from capacity samples, with tests"
+        ],
+        "non_goals": [
+          "Changing the one-hour stale threshold",
+          "Changing what get_storage_summary tells agents"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ]
+      },
+      "state": {
+        "execution": "implemented",
+        "verification": "passed",
+        "health": "clear",
+        "owner": null,
+        "lease_expires_at": null,
+        "work_origin": null,
+        "active_handoff_id": null,
+        "paused_at": null,
+        "paused_by": null,
+        "pause_mode": null,
+        "resume_deadline": null,
+        "last_handoff": null,
+        "blocker": null,
+        "updated_at": "2026-10-05T11:12:01.507413Z",
+        "last_result": {
+          "schema": "agent-result-v1",
+          "task": "TASK-716",
+          "outcome": "implemented",
+          "changed_files": [
+            "Sources/DiskStewardMCP/main.swift",
+            "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+            "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+            "Tests/IncrementTests/MCP/SelfCheckCapacityFreshnessIncrementTests.swift",
+            "docs/integrations/README.md",
+            "docs/reliability/evidence/TASK-716/README.md",
+            "docs/reliability/evidence/TASK-716/green/result.json",
+            "docs/reliability/evidence/TASK-716/green/tests-summary.log",
+            "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+            "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/failures.log",
+            "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json",
+            "docs/reliability/evidence/TASK-716/agent-result.json"
+          ],
+          "changed_assets": [
+            "ASSET-MCP",
+            "ASSET-CLIENTS",
+            "ASSET-CONTRACTS",
+            "ASSET-QUERY"
+          ],
+          "change_effect": "mixed",
+          "changes": [
+            {
+              "path": "Sources/DiskStewardMCP/main.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+              "class": "source"
+            },
+            {
+              "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+              "class": "source"
+            },
+            {
+              "path": "Tests/IncrementTests/MCP/SelfCheckCapacityFreshnessIncrementTests.swift",
+              "class": "source"
+            },
+            {
+              "path": "docs/integrations/README.md",
+              "class": "source"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-716/README.md",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-716/green/result.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-716/green/tests-summary.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/failures.log",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json",
+              "class": "evidence"
+            },
+            {
+              "path": "docs/reliability/evidence/TASK-716/agent-result.json",
+              "class": "evidence"
+            }
+          ],
+          "checks": [
+            {
+              "command": "docs/reliability/handoffs/harness/run-focused.py 'SelfCheck",
+              "result": "IntegrationInstallTests"
+            },
+            {
+              "command": "docs/reliability/handoffs/harness/run-mutation.py docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json SelfCheckCapacityFreshnessIncrementTests",
+              "result": "failed as intended: the fresh and 2-hour sample cases fail, the no-sample case passes"
+            }
+          ],
+          "acceptance_evidence": [
+            {
+              "criterion": "AC-TASK-716-01",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-716/README.md"
+            },
+            {
+              "criterion": "AC-TASK-716-02",
+              "result": "passed",
+              "reference": "docs/reliability/evidence/TASK-716/README.md"
+            }
+          ],
+          "discovered_risks": [],
+          "suggested_graph_changes": []
+        },
+        "last_audit": {
+          "schema": "audit-result-v1",
+          "target": "TASK-716",
+          "result": "pass",
+          "checks": [
+            {
+              "id": "AC-TASK-716-01",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-716/README.md",
+                "docs/reliability/evidence/TASK-716/agent-result.json",
+                "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+              ]
+            },
+            {
+              "id": "AC-TASK-716-02",
+              "result": "passed",
+              "evidence": [
+                "docs/reliability/evidence/TASK-716/README.md",
+                "docs/reliability/evidence/TASK-716/agent-result.json",
+                "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+              ]
+            }
+          ],
+          "affected_claims": [
+            "TASK-716"
+          ],
+          "recommended_action": "advance",
+          "assurance": {
+            "impact_ids": [
+              "IMPACT-TASK-716-MCP",
+              "IMPACT-TASK-716-CLIENTS",
+              "IMPACT-TASK-716-CONTRACTS",
+              "IMPACT-TASK-716-QUERY",
+              "IMPACT-TASK-716-IPC"
+            ],
+            "inspection_ids": [
+              "INSPECT-TASK-716-1"
+            ],
+            "finding_ids": [
+              "FIND-R4-PAGE-SCHEMA-STALE",
+              "FIND-R4-JOURNAL-LIMIT",
+              "FIND-G719-STALE-SELF-CHECK"
+            ],
+            "scope_review": "complete",
+            "limitations": [
+              "Focused and mutation runs on input 16c6ec71",
+              " the full candidate verification and Test Connection on the installed build run at GATE-719.",
+              "With a sample interval above an hour, Test Connection reports stale between samples",
+              " the one-hour threshold is unchanged by design."
+            ]
+          }
+        },
+        "last_reopen": null
+      },
+      "availability": "verified",
+      "blocked_by": [],
+      "goal_trace": [
+        "TASK-716",
+        "OUTCOME-710",
+        "INTENT-007"
+      ],
+      "parents": [
+        "OUTCOME-710"
+      ],
+      "children": [],
+      "dependencies": [],
+      "audit_gates": [],
+      "evidence": [
+        "EV-703-STALE-SELF-CHECK"
+      ],
+      "assurance": {
+        "status": "covered",
+        "task_ids": [
+          "TASK-716"
+        ],
+        "impact_ids": [
+          "IMPACT-TASK-716-MCP",
+          "IMPACT-TASK-716-CLIENTS",
+          "IMPACT-TASK-716-CONTRACTS",
+          "IMPACT-TASK-716-QUERY",
+          "IMPACT-TASK-716-IPC"
+        ],
+        "asset_ids": [
+          "ASSET-CLIENTS",
+          "ASSET-CONTRACTS",
+          "ASSET-IPC",
+          "ASSET-MCP",
+          "ASSET-QUERY"
+        ],
+        "inspection_ids": [
+          "INSPECT-TASK-716-1"
+        ],
+        "finding_ids": [
+          "FIND-R4-PAGE-SCHEMA-STALE",
+          "FIND-R4-JOURNAL-LIMIT",
+          "FIND-G719-STALE-SELF-CHECK"
+        ],
+        "scope_drift_ids": [
+          "DRIFT-C60A6DEB0E28",
+          "DRIFT-3DD06907F910"
+        ],
+        "blockers": []
+      },
+      "source_path": "docs/tasks/01-product/TASK-716-connection-test-reads-monitoring-s-capacity-samples.md"
     },
     {
       "id": "TASK-714",
@@ -2283,7 +2656,7 @@
         "resume_deadline": null,
         "last_handoff": null,
         "blocker": null,
-        "updated_at": "2026-10-05T01:07:31.557711Z",
+        "updated_at": "2026-10-05T11:05:57.080188Z",
         "last_result": {
           "schema": "agent-result-v1",
           "task": "TASK-714",
@@ -2567,7 +2940,11 @@
         "inspection_ids": [
           "INSPECT-TASK-714-1"
         ],
-        "finding_ids": [],
+        "finding_ids": [
+          "FIND-R4-XCODE-WORKER",
+          "FIND-R4-PAGE-SCHEMA-STALE",
+          "FIND-G719-STALE-SELF-CHECK"
+        ],
         "scope_drift_ids": [
           "DRIFT-5FB2EEE9FA6C",
           "DRIFT-1C9B4FEA0878",
@@ -2654,6 +3031,16 @@
       "from": "OUTCOME-710",
       "to": "INTENT-007",
       "type": "contributes-to"
+    },
+    {
+      "from": "TASK-716",
+      "to": "OUTCOME-710",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-719",
+      "to": "TASK-716",
+      "type": "validation-requires"
     }
   ],
   "evidence": [
@@ -2702,6 +3089,17 @@
       "supports": [
         "TASK-715",
         "TASK-711"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-703-STALE-SELF-CHECK",
+      "claim": "On the installed 1.5.1 (13), Set up (Codex) and Repair (Claude Code) succeed, but Test Connection records verified-stale ('no evidence has been persisted yet'): the helper's --self-check takes freshness only from persisted_state_as_of, which the retired file scanner leaves null since 1.5.0, while the same answer carries capacity_history.newest_sample_at minutes old.",
+      "source": "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt",
+      "confidence": "high",
+      "freshness": "2026-10-05",
+      "supports": [
+        "TASK-716"
       ],
       "contradicts": []
     }
@@ -2759,35 +3157,30 @@
       "baseline_status": "current",
       "baseline_revision": 5,
       "assets": 19,
-      "impacted_assets": 9,
-      "sufficiently_inspected_assets": 4,
+      "impacted_assets": 10,
+      "sufficiently_inspected_assets": 7,
       "open_scope_drift": 0,
       "open_material_findings": 0,
       "blockers": [
-        "Impact IMPACT-TASK-712-ASSURANCE remains hypothesis",
-        "Impact IMPACT-TASK-712-BUILD remains hypothesis",
-        "Impacted asset ASSET-BUILD lacks a sufficient passing inspection",
         "Impacted asset ASSET-EXPORT lacks a sufficient passing inspection",
         "Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection",
-        "Impacted asset ASSET-QUERY lacks a sufficient passing inspection",
         "Impacted asset ASSET-STORE lacks a sufficient passing inspection",
-        "Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712",
         "Monitoring control is missing",
         "Required inspection INSPECT-TASK-711-1 is stale",
-        "Required inspection INSPECT-TASK-712-1 is stale",
         "Required inspection INSPECT-TASK-713-1 is stale",
         "Required inspection INSPECT-TASK-714-1 is stale",
-        "Rollback control is missing"
+        "Required inspection INSPECT-TASK-715-1 is stale"
       ],
       "refresh_inspection_ids": [
         "INSPECT-TASK-711-1",
-        "INSPECT-TASK-712-1",
         "INSPECT-TASK-713-1",
-        "INSPECT-TASK-714-1"
+        "INSPECT-TASK-714-1",
+        "INSPECT-TASK-715-1"
       ],
       "warnings": [
         "Inspection INSPECT-TASK-711-1 covers 5 assets; review its invalidation blast radius",
-        "Inspection INSPECT-TASK-713-1 covers 5 assets; review its invalidation blast radius"
+        "Inspection INSPECT-TASK-713-1 covers 5 assets; review its invalidation blast radius",
+        "Inspection INSPECT-TASK-716-1 covers 5 assets; review its invalidation blast radius"
       ]
     },
     "baseline": {
@@ -3726,10 +4119,18 @@
           "TASK-712"
         ],
         "type": "direct",
-        "status": "hypothesis",
+        "status": "confirmed",
         "confidence": "high",
         "evidence": [
-          "docs/reliability/planning/plan-007-candidate.json::TASK-712"
+          "docs/reliability/planning/plan-007-candidate.json::TASK-712",
+          "docs/reliability/evidence/TASK-712/README.md",
+          "docs/reliability/evidence/TASK-712/agent-result.json",
+          "docs/reliability/evidence/TASK-712/green/tests.log",
+          "docs/reliability/evidence/GATE-719/candidate-1df18a75/candidate.json",
+          "docs/reliability/evidence/TASK-712/reds/allowance-ignored/result.json",
+          "docs/reliability/evidence/TASK-712/reds/any-survivor-allowed/result.json",
+          "docs/reliability/evidence/TASK-712/reds/failed-launcher-allowed/result.json",
+          "docs/reliability/evidence/TASK-712/reds/relative-path-allowed/result.json"
         ],
         "path": [
           "TASK-712",
@@ -3743,10 +4144,18 @@
           "TASK-712"
         ],
         "type": "direct",
-        "status": "hypothesis",
+        "status": "confirmed",
         "confidence": "high",
         "evidence": [
-          "docs/reliability/planning/plan-007-candidate.json::TASK-712"
+          "docs/reliability/planning/plan-007-candidate.json::TASK-712",
+          "docs/reliability/evidence/TASK-712/README.md",
+          "docs/reliability/evidence/TASK-712/agent-result.json",
+          "docs/reliability/evidence/TASK-712/green/tests.log",
+          "docs/reliability/evidence/GATE-719/candidate-1df18a75/candidate.json",
+          "docs/reliability/evidence/TASK-712/reds/allowance-ignored/result.json",
+          "docs/reliability/evidence/TASK-712/reds/any-survivor-allowed/result.json",
+          "docs/reliability/evidence/TASK-712/reds/failed-launcher-allowed/result.json",
+          "docs/reliability/evidence/TASK-712/reds/relative-path-allowed/result.json"
         ],
         "path": [
           "TASK-712",
@@ -4182,6 +4591,120 @@
           "TASK-711",
           "ASSET-STORE"
         ]
+      },
+      {
+        "id": "IMPACT-TASK-716-MCP",
+        "asset_id": "ASSET-MCP",
+        "task_ids": [
+          "TASK-716"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/planning/replan-007-r4-candidate.json::TASK-716",
+          "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt",
+          "docs/reliability/evidence/TASK-716/README.md",
+          "docs/reliability/evidence/TASK-716/agent-result.json",
+          "docs/reliability/evidence/TASK-716/green/result.json",
+          "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+          "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+        ],
+        "path": [
+          "TASK-716",
+          "ASSET-MCP"
+        ]
+      },
+      {
+        "id": "IMPACT-TASK-716-CLIENTS",
+        "asset_id": "ASSET-CLIENTS",
+        "task_ids": [
+          "TASK-716"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/planning/replan-007-r4-candidate.json::TASK-716",
+          "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt",
+          "docs/reliability/evidence/TASK-716/README.md",
+          "docs/reliability/evidence/TASK-716/agent-result.json",
+          "docs/reliability/evidence/TASK-716/green/result.json",
+          "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+          "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+        ],
+        "path": [
+          "TASK-716",
+          "ASSET-CLIENTS"
+        ]
+      },
+      {
+        "id": "IMPACT-TASK-716-CONTRACTS",
+        "asset_id": "ASSET-CONTRACTS",
+        "task_ids": [
+          "TASK-716"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/planning/replan-007-r4-candidate.json::TASK-716",
+          "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt",
+          "docs/reliability/evidence/TASK-716/README.md",
+          "docs/reliability/evidence/TASK-716/agent-result.json",
+          "docs/reliability/evidence/TASK-716/green/result.json",
+          "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+          "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+        ],
+        "path": [
+          "TASK-716",
+          "ASSET-CONTRACTS"
+        ]
+      },
+      {
+        "id": "IMPACT-TASK-716-QUERY",
+        "asset_id": "ASSET-QUERY",
+        "task_ids": [
+          "TASK-716"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "docs/reliability/planning/replan-007-r4-candidate.json::TASK-716",
+          "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt",
+          "docs/reliability/evidence/TASK-716/README.md",
+          "docs/reliability/evidence/TASK-716/agent-result.json",
+          "docs/reliability/evidence/TASK-716/green/result.json",
+          "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+          "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+        ],
+        "path": [
+          "TASK-716",
+          "ASSET-QUERY"
+        ]
+      },
+      {
+        "id": "IMPACT-TASK-716-IPC",
+        "asset_id": "ASSET-IPC",
+        "task_ids": [
+          "TASK-716"
+        ],
+        "type": "direct",
+        "status": "confirmed",
+        "confidence": "high",
+        "evidence": [
+          "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+          "docs/reliability/evidence/TASK-716/README.md",
+          "docs/reliability/evidence/TASK-716/agent-result.json",
+          "docs/reliability/evidence/TASK-716/green/result.json",
+          "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+          "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+        ],
+        "path": [
+          "TASK-716",
+          "ASSET-IPC"
+        ]
       }
     ],
     "inspections": [
@@ -4232,7 +4755,9 @@
           "Implementation result for TASK-714 changed covered assets after this inspection: ASSET-ASSURANCE.",
           "Task TASK-715 write scope amended; review affected evidence.",
           "Scope drift from TASK-715 invalidated this inspection.",
-          "Implementation result for TASK-715 changed covered assets after this inspection: ASSET-ASSURANCE."
+          "Implementation result for TASK-715 changed covered assets after this inspection: ASSET-ASSURANCE.",
+          "Scope drift from TASK-716 invalidated this inspection.",
+          "Implementation result for TASK-716 changed covered assets after this inspection: ASSET-QUERY."
         ],
         "performed_at": "2026-10-05T01:06:50.696Z",
         "performed_by": "claude",
@@ -4256,22 +4781,28 @@
           "source",
           "configuration"
         ],
-        "status": "stale",
-        "result": "not-run",
-        "sufficiency": "unknown",
-        "evidence": [],
+        "status": "performed",
+        "result": "pass",
+        "sufficiency": "sufficient",
+        "evidence": [
+          "docs/reliability/evidence/TASK-712/README.md",
+          "docs/reliability/evidence/TASK-712/agent-result.json",
+          "docs/reliability/evidence/TASK-712/green/tests.log",
+          "docs/reliability/evidence/GATE-719/candidate-1df18a75/candidate.json",
+          "docs/reliability/evidence/TASK-712/reds/allowance-ignored/result.json",
+          "docs/reliability/evidence/TASK-712/reds/any-survivor-allowed/result.json",
+          "docs/reliability/evidence/TASK-712/reds/failed-launcher-allowed/result.json",
+          "docs/reliability/evidence/TASK-712/reds/relative-path-allowed/result.json"
+        ],
         "limitations": [
-          "Task TASK-711 write scope amended; review affected evidence.",
-          "Implementation result for TASK-711 changed covered assets after this inspection: ASSET-ASSURANCE.",
-          "Implementation result for TASK-712 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD.",
-          "Scope drift from TASK-713 invalidated this inspection.",
-          "Implementation result for TASK-713 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-BUILD.",
-          "Scope drift from TASK-714 invalidated this inspection.",
-          "Implementation result for TASK-714 changed covered assets after this inspection: ASSET-ASSURANCE.",
-          "Task TASK-715 write scope amended; review affected evidence.",
-          "Scope drift from TASK-715 invalidated this inspection.",
-          "Implementation result for TASK-715 changed covered assets after this inspection: ASSET-ASSURANCE."
-        ]
+          "The release archive stage opts in from the out-of-tree release script; its record is the 1.5.1 release report.",
+          "A different daemon from a future Xcode fails the stage until it is identified."
+        ],
+        "performed_at": "2026-10-05T01:24:06.855Z",
+        "performed_by": "claude",
+        "validated_through": {
+          "TASK-712": "EVENT-20261005T005925253640Z-4F28D779"
+        }
       },
       {
         "id": "INSPECT-TASK-713-1",
@@ -4320,7 +4851,9 @@
           "Implementation result for TASK-714 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-CONTRACTS, ASSET-MCP.",
           "Task TASK-715 write scope amended; review affected evidence.",
           "Scope drift from TASK-715 invalidated this inspection.",
-          "Implementation result for TASK-715 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-CONTRACTS, ASSET-MCP."
+          "Implementation result for TASK-715 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-CONTRACTS, ASSET-MCP.",
+          "Scope drift from TASK-716 invalidated this inspection.",
+          "Implementation result for TASK-716 changed covered assets after this inspection: ASSET-CONTRACTS, ASSET-MCP, ASSET-QUERY."
         ],
         "performed_at": "2026-10-05T01:06:50.696Z",
         "performed_by": "claude",
@@ -4365,7 +4898,9 @@
           "Stateless only: no tasks, multi-round-trip requests or progress notifications.",
           "Task TASK-715 write scope amended; review affected evidence.",
           "Scope drift from TASK-715 invalidated this inspection.",
-          "Implementation result for TASK-715 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-CONTRACTS, ASSET-MCP."
+          "Implementation result for TASK-715 changed covered assets after this inspection: ASSET-ASSURANCE, ASSET-CONTRACTS, ASSET-MCP.",
+          "Scope drift from TASK-716 invalidated this inspection.",
+          "Implementation result for TASK-716 changed covered assets after this inspection: ASSET-CONTRACTS, ASSET-MCP."
         ],
         "performed_at": "2026-10-05T01:07:31.212Z",
         "performed_by": "claude",
@@ -4391,7 +4926,7 @@
           "source",
           "configuration"
         ],
-        "status": "performed",
+        "status": "stale",
         "result": "pass",
         "sufficiency": "sufficient",
         "evidence": [
@@ -4411,16 +4946,152 @@
         ],
         "limitations": [
           "Focused and mutation runs on input b11ba4ff; the full candidate verification and the installed-app checks on the maintainer's Mac run at GATE-719.",
-          "The app adopts only entries its receipts record; a script-written entry shows as external in the app."
+          "The app adopts only entries its receipts record; a script-written entry shows as external in the app.",
+          "Scope drift from TASK-716 invalidated this inspection.",
+          "Implementation result for TASK-716 changed covered assets after this inspection: ASSET-CLIENTS, ASSET-CONTRACTS, ASSET-MCP."
         ],
         "performed_at": "2026-10-05T01:19:09.024Z",
         "performed_by": "claude",
         "validated_through": {
           "TASK-715": "EVENT-20261005T011851399737Z-5071F50E"
         }
+      },
+      {
+        "id": "INSPECT-TASK-716-1",
+        "task_ids": [
+          "TASK-716"
+        ],
+        "asset_ids": [
+          "ASSET-MCP",
+          "ASSET-CLIENTS",
+          "ASSET-CONTRACTS",
+          "ASSET-QUERY",
+          "ASSET-IPC"
+        ],
+        "method": "Run the built helper's --self-check against the production backend configuration (file detail retired) with a fresh, an old and no capacity sample, and judge each with the app's HelperSelfCheck.evaluate; mutation red restoring the 1.5.1 (13) freshness rule; then Test Connection on the reinstalled build at GATE-719.",
+        "required": true,
+        "refresh": "pre-audit",
+        "invalidating_changes": [
+          "source",
+          "configuration"
+        ],
+        "status": "performed",
+        "result": "pass",
+        "sufficiency": "sufficient",
+        "evidence": [
+          "docs/reliability/evidence/TASK-716/README.md",
+          "docs/reliability/evidence/TASK-716/agent-result.json",
+          "docs/reliability/evidence/TASK-716/green/result.json",
+          "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+          "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json"
+        ],
+        "limitations": [
+          "Focused and mutation runs on input 16c6ec71; the full candidate verification and Test Connection on the installed build run at GATE-719.",
+          "With a sample interval above an hour, Test Connection reports stale between samples; the threshold is unchanged by design."
+        ],
+        "performed_at": "2026-10-05T11:11:45.656Z",
+        "performed_by": "claude",
+        "validated_through": {
+          "TASK-716": "EVENT-20261005T111127778515Z-66A87EA5"
+        }
       }
     ],
-    "findings": [],
+    "findings": [
+      {
+        "id": "FIND-R4-XCODE-WORKER",
+        "asset_ids": [
+          "ASSET-BUILD"
+        ],
+        "inspection_id": null,
+        "title": "xcodebuild leaves Xcode's ibtoold daemon after a successful packaged or archive build; stages recorded launcher-exited-with-descendants",
+        "severity": "medium",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/TASK-712/README.md"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": null
+      },
+      {
+        "id": "FIND-R4-OBJECT-CONVERGENCE-FLAKE",
+        "asset_ids": [
+          "ASSET-STORE"
+        ],
+        "inspection_id": null,
+        "title": "ObjectConvergenceTests seed step intermittently threw 'change evidence is later than observation publication': a replacement time read from SQLite's REAL column did not round-trip a Date",
+        "severity": "low",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/TASK-711/README.md",
+          "docs/reliability/evidence/TASK-711/flake/repro-result.json"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": null
+      },
+      {
+        "id": "FIND-R4-PAGE-SCHEMA-STALE",
+        "asset_ids": [
+          "ASSET-CONTRACTS"
+        ],
+        "inspection_id": null,
+        "title": "Schemas/MCP/evidence-query-page-v1.schema.json was unenforced and stale; replaced by per-tool outputSchemas checked against every answer",
+        "severity": "low",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/TASK-713/README.md",
+          "Schemas/MCP/tool-output-schemas-v1.json"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": null
+      },
+      {
+        "id": "FIND-R4-PATH-REDACTION-FALSE-POSITIVE",
+        "asset_ids": [
+          "ASSET-EXPORT"
+        ],
+        "inspection_id": null,
+        "title": "The path privacy filter redacted 'sk-' inside ordinary names; one filter with a name boundary now serves the MCP answers and the bundle",
+        "severity": "low",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/TASK-711/README.md"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": null
+      },
+      {
+        "id": "FIND-R4-JOURNAL-LIMIT",
+        "asset_ids": [
+          "ASSET-QUERY"
+        ],
+        "inspection_id": null,
+        "title": "explain_growth's changed_directories ignored the request limit",
+        "severity": "low",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/TASK-711/README.md"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": null
+      },
+      {
+        "id": "FIND-G719-STALE-SELF-CHECK",
+        "asset_ids": [
+          "ASSET-MCP",
+          "ASSET-CLIENTS"
+        ],
+        "inspection_id": "INSPECT-TASK-716-1",
+        "title": "Test Connection reported 'no evidence has been persisted yet' on every current install: the self-check read only the retired scanner's persisted_state_as_of",
+        "severity": "medium",
+        "status": "resolved",
+        "evidence": [
+          "docs/reliability/evidence/GATE-719/installed-1.5.1/self-check-13.txt",
+          "docs/reliability/evidence/TASK-716/README.md"
+        ],
+        "accepted_by": null,
+        "acceptance_reason": null
+      }
+    ],
     "scope_drift": [
       {
         "id": "DRIFT-DEAB2E7B2FF7",
@@ -4520,13 +5191,37 @@
         "status": "resolved",
         "detected_at": "2026-10-05T01:18:51.395807Z",
         "resolved_impact_id": "IMPACT-TASK-715-CLIENTS"
+      },
+      {
+        "id": "DRIFT-C60A6DEB0E28",
+        "task": "TASK-716",
+        "changed_file": "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+        "matched_asset_ids": [
+          "ASSET-IPC"
+        ],
+        "status": "resolved",
+        "detected_at": "2026-10-05T11:11:27.775730Z",
+        "resolved_impact_id": "IMPACT-TASK-716-IPC"
+      },
+      {
+        "id": "DRIFT-3DD06907F910",
+        "task": "TASK-716",
+        "changed_file": "docs/integrations/README.md",
+        "matched_asset_ids": [],
+        "status": "resolved",
+        "detected_at": "2026-10-05T11:11:27.775745Z",
+        "resolved_impact_id": "IMPACT-TASK-716-CLIENTS"
       }
     ],
     "controls": {
       "rollback": {
-        "status": "missing",
-        "evidence": [],
-        "rationale": ""
+        "status": "ready",
+        "evidence": [
+          "docs/reliability/evidence/GATE-669/README.md",
+          "docs/reliability/evidence/GATE-669/installed-1.5.0/pre-install-hashes.txt",
+          "docs/reliability/releases/1.5.1.md"
+        ],
+        "rationale": "1.5.1 changes no store format (BoundedStore and SQLite schema unchanged since 1.4.0), so rolling back is quitting 1.5.1 and reinstalling 1.5.0 from its release; the steward files are hashed and cloned before the 1.5.1 install at GATE-719. Agent configuration: the app's receipts and the script's backups (with rollback) restore client entries; a skill is removed only while unchanged."
       },
       "monitoring": {
         "status": "missing",

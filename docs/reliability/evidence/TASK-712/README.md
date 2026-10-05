@@ -43,7 +43,7 @@ It is a deliberate Xcode daemon, not a leak in the build.
 | --- | --- |
 | [`green/tests.log`](green/tests.log) | `test_process_supervisor`: 18 tests pass, including four new real-process tests. In those, a launcher leaves a detached `/bin/sleep`. It passes with `/bin/sleep` allowed, and fails without the allowance, with another executable allowed, with a failed launcher, or with an unreadable or relative path |
 | [`reds/`](reds/), specs in [`mutations/`](mutations/) | `allowance-ignored` fails `test_an_allowed_daemon_is_stopped_and_the_stage_passes`. `any-survivor-allowed` fails the other-executable and unreadable-path tests. `failed-launcher-allowed` fails the failed-launcher test. `relative-path-allowed` fails the relative-path test |
-| GATE-719 full verification | The packaged build stage passes with `ibtoold` in `expectedDescendants`, recorded at the gate |
+| [`../GATE-719/candidate-1df18a75/candidate.json`](../GATE-719/candidate-1df18a75/candidate.json) | Full `verify_candidate.py --xcodegen` on the final 1.5.1 input `1df18a75`: every stage passed. `package-build` passed with `/Applications/Xcode.app/Contents/Developer/usr/bin/ibtoold` stopped, cleanup verified, and listed in `expectedDescendants`. This is the first fully green verification since FIND-R4-XCODE-WORKER was recorded |
 
 The reds run the unit tests on a mutated copy of `Scripts/Testing` in
 `/private/tmp`; the repository is never modified.

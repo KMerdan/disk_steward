@@ -9,9 +9,9 @@
 - Workstream: `safety`
 - Selection: `primary`
 - Execution: `implemented`
-- Verification: `pending`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `implemented`
+- Availability: `verified`
 - Goal trace: `TASK-712` → `OUTCOME-710` → `INTENT-007`
 
 ## Goal
@@ -60,18 +60,13 @@ After a build or archive launcher exits 0, stop surviving descendants whose exec
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-TASK-712-BUILD`, `IMPACT-TASK-712-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`
 - Inspections: `INSPECT-TASK-712-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-TASK-712-ASSURANCE remains hypothesis
-- Impact IMPACT-TASK-712-BUILD remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712
-- Required inspection INSPECT-TASK-712-1 is stale
+- None
 
 

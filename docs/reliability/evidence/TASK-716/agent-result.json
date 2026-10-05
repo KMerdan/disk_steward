@@ -1,0 +1,100 @@
+{
+ "schema": "agent-result-v1",
+ "task": "TASK-716",
+ "outcome": "implemented",
+ "changed_files": [
+  "Sources/DiskStewardMCP/main.swift",
+  "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+  "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+  "Tests/IncrementTests/MCP/SelfCheckCapacityFreshnessIncrementTests.swift",
+  "docs/integrations/README.md",
+  "docs/reliability/evidence/TASK-716/README.md",
+  "docs/reliability/evidence/TASK-716/green/result.json",
+  "docs/reliability/evidence/TASK-716/green/tests-summary.log",
+  "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+  "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/failures.log",
+  "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json",
+  "docs/reliability/evidence/TASK-716/agent-result.json"
+ ],
+ "changed_assets": [
+  "ASSET-MCP",
+  "ASSET-CLIENTS",
+  "ASSET-CONTRACTS",
+  "ASSET-QUERY"
+ ],
+ "change_effect": "mixed",
+ "changes": [
+  {
+   "path": "Sources/DiskStewardMCP/main.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardCore/IPC/StorageSummaryContract.swift",
+   "class": "source"
+  },
+  {
+   "path": "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+   "class": "source"
+  },
+  {
+   "path": "Tests/IncrementTests/MCP/SelfCheckCapacityFreshnessIncrementTests.swift",
+   "class": "source"
+  },
+  {
+   "path": "docs/integrations/README.md",
+   "class": "source"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-716/README.md",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-716/green/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-716/green/tests-summary.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/failures.log",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-716/reds/capacity-sample-ignored/result.json",
+   "class": "evidence"
+  },
+  {
+   "path": "docs/reliability/evidence/TASK-716/agent-result.json",
+   "class": "evidence"
+  }
+ ],
+ "checks": [
+  {
+   "command": "docs/reliability/handoffs/harness/run-focused.py 'SelfCheck",
+   "result": "IntegrationInstallTests"
+  },
+  {
+   "command": "docs/reliability/handoffs/harness/run-mutation.py docs/reliability/evidence/TASK-716/mutations/capacity-sample-ignored.json SelfCheckCapacityFreshnessIncrementTests",
+   "result": "failed as intended: the fresh and 2-hour sample cases fail, the no-sample case passes"
+  }
+ ],
+ "acceptance_evidence": [
+  {
+   "criterion": "AC-TASK-716-01",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-716/README.md"
+  },
+  {
+   "criterion": "AC-TASK-716-02",
+   "result": "passed",
+   "reference": "docs/reliability/evidence/TASK-716/README.md"
+  }
+ ],
+ "discovered_risks": [],
+ "suggested_graph_changes": []
+}
