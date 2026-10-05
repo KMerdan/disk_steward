@@ -38,7 +38,10 @@ public struct ReviewItemPresentation: Sendable, Equatable {
         keep.append("Review before removing anything; Disk Steward never deletes.")
         reasonsToKeep = keep
         origin = stored.detail.reasons.first ?? ""
-        whyDisposable = Array(stored.detail.reasons.dropFirst())
+        // Reviews stored before 1.5.1 also say it can be rebuilt when no
+        // rebuild command is known; that claim is dropped when shown.
+        let rebuilt = ReviewRanking.recreateSentence(.rebuild)
+        whyDisposable = stored.detail.reasons.dropFirst().filter { stored.detail.known || $0 != rebuilt }
     }
 }
 

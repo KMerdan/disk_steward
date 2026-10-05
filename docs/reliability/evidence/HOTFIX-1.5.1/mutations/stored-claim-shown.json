@@ -1,0 +1,14 @@
+{
+ "name": "a stored review's rebuild claim is shown with no known command",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/Review/ReviewPresentation.swift",
+   "replacements": [
+    [
+     "        whyDisposable = stored.detail.reasons.dropFirst().filter { stored.detail.known || $0 != rebuilt }",
+     "        whyDisposable = stored.detail.reasons.dropFirst().filter { _ in rebuilt == rebuilt }"
+    ]
+   ]
+  }
+ ]
+}

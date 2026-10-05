@@ -99,6 +99,36 @@ final class ObjectClassificationTests: XCTestCase {
         XCTAssertEqual(byManifest.owningProjectMarker, "Cargo.toml")
     }
 
+    /// Cargo tags its target/ as a cache (CACHEDIR.TAG), but beside Cargo.toml
+    /// it is that project's build output: rebuilt, not downloaded again.
+    /// Other tagged folders stay caches, and so does a tagged target with no
+    /// manifest beside it.
+    func testACargoTargetTaggedAsACacheIsItsProjectsBuildOutput() throws {
+        let tag = "Signature: 8a477f597d28d172789f06886806bc55\n"
+        let target = try makeDirectory("crate/target")
+        try write("crate/Cargo.toml", "[package]\n")
+        try write("crate/target/CACHEDIR.TAG", tag)
+        let pytest = try makeDirectory("py/.pytest_cache")
+        try write("py/pyproject.toml", "[project]\n")
+        try write("py/.pytest_cache/CACHEDIR.TAG", tag)
+        let stray = try makeDirectory("stray/target")
+        try write("stray/target/CACHEDIR.TAG", tag)
+        let classifier = ObjectClassifier()
+
+        let output = try XCTUnwrap(classifier.classify(directoryPath: target.path).object)
+        XCTAssertEqual(output.kind, .artifact)
+        XCTAssertEqual(output.rule, .manifest)
+        XCTAssertEqual(output.confidence, .high, "the manifest and the tag agree")
+        XCTAssertEqual(output.owningProjectPath, root.appendingPathComponent("crate").path)
+        XCTAssertEqual(output.owningProjectMarker, "Cargo.toml")
+        XCTAssertTrue(output.reason.contains("Cargo.toml") && output.reason.contains("CACHEDIR.TAG"), output.reason)
+
+        XCTAssertEqual(try XCTUnwrap(classifier.classify(directoryPath: pytest.path).object).kind, .cache, "a tagged pytest cache stays a cache")
+        let tagged = try XCTUnwrap(classifier.classify(directoryPath: stray.path).object)
+        XCTAssertEqual(tagged.kind, .cache)
+        XCTAssertEqual(tagged.rule, .selfMarker, "without Cargo.toml beside it, the tag decides")
+    }
+
     func testAKnownNameWithoutEvidenceIsNeverGuessedAt() throws {
         let directory = try makeDirectory("orphan/build")
         try write("orphan/build/output.o", "0")

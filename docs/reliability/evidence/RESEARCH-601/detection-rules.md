@@ -16,6 +16,13 @@ Actor: `claude`, 2026-09-20. Read-only measurement: nothing in the corpus was wr
 
 Only the outermost candidate becomes an object; nothing inside one is examined again.
 
+**Amended by HOTFIX-1.5.1 (2026-10-05).** The corpus recorded cargo `target`
+folders as caches through their `CACHEDIR.TAG` (corpus-2 `candidates.jsonl`
+lines 139, 172 and 174). In use, that offered them as "downloaded again" with
+no rebuild command. A tagged `target` with `Cargo.toml` beside it is now
+build output (rule `manifest`, high confidence). Every other tagged folder
+still decides by the tag.
+
 ## Result on the corpus
 
 Roots: `~/Documents/Codex`, `~/Downloads`, `~/localGit`. 47,536 directories walked.

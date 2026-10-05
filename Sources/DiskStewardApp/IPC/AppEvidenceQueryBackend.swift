@@ -1137,10 +1137,62 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
 
     // MARK: Review tools (TASK-671)
 
-    /// Each argument names a configured folder or `caches`; nil is the newest review.
-    private func reviewScope(_ argument: String?) -> String? {
-        guard let argument else { return nil }
-        return argument == "caches" ? CacheCatalog.scope : DirectoryChangeStream.canonicalPath(argument)
+    /// How a `scope` argument resolved. An agent names a scope as `caches`,
+    /// as an absolute or `~` path, or as the name the review tools show it by
+    /// (its basename, or its `sha256:` form).
+    private enum ScopeArgument {
+        /// No scope was named: the newest review.
+        case newest
+        case scope(String)
+        /// A name that matches no known review scope.
+        case unmatched
+        /// A name shared by several scopes; never picked silently.
+        case ambiguous
+    }
+
+    /// A bare name is matched against the stored reviews' scopes and the
+    /// watched folders, never resolved against the app's working directory.
+    private func reviewScope(_ argument: String?) async -> ScopeArgument {
+        guard let argument else { return .newest }
+        if argument == "caches" { return .scope(CacheCatalog.scope) }
+        if argument.hasPrefix("/") { return .scope(DirectoryChangeStream.canonicalPath(argument)) }
+        if argument == "~" || argument.hasPrefix("~/") {
+            return .scope(DirectoryChangeStream.canonicalPath(NSString(string: argument).expandingTildeInPath))
+        }
+        let matches = await knownReviewScopes().filter {
+            shape(path: $0, detail: .basename) == argument || shape(path: $0, detail: .hashed) == argument
+        }
+        switch matches.count {
+        case 1: return .scope(matches[0])
+        case 0: return .unmatched
+        default: return .ambiguous
+        }
+    }
+
+    /// Folder scopes an agent may name: those with a stored review, and the
+    /// watched folders. The opted-in caches are named `caches`.
+    private func knownReviewScopes() async -> [String] {
+        var scopes = Set(await watchedRoots())
+        if let reviewIndex, let reports = try? await reviewIndex.latestReports() {
+            scopes.formUnion(reports.map(\.scope).filter { $0 != CacheCatalog.scope })
+        }
+        return scopes.sorted()
+    }
+
+    /// The answer's fields when a named scope did not resolve: why, and the
+    /// names that would.
+    private func unresolvedScope(_ resolution: ScopeArgument, detail: EvidencePathDetail) async -> (limitation: String, available: JSONValue) {
+        // Names two scopes share are listed in their sha256 form, which tells them apart.
+        var shown = detail
+        if case .ambiguous = resolution, detail == .basename { shown = .hashed }
+        var names = await knownReviewScopes().map { shape(path: $0, detail: shown) }
+        if let reports = try? await reviewIndex?.latestReports(), reports.contains(where: { $0.scope == CacheCatalog.scope }) { names.append("caches") }
+        let limitation: String
+        switch resolution {
+        case .ambiguous: limitation = "That name matches more than one review scope; pass its full path, or its sha256 form (path_detail hashed)."
+        default: limitation = "No review of that scope is stored. available_scopes lists the names this tool accepts."
+        }
+        return (limitation, .array(names.map(JSONValue.string)))
     }
 
     private func shapeScope(_ scope: String, detail: EvidencePathDetail) -> String {
@@ -1202,17 +1254,28 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let index = try requireReviewIndex()
         let now = Date()
         let detail = pathDetail(arguments)
-        let requested = reviewScope(arguments["scope"]?.stringValue)
+        let requested = await reviewScope(arguments["scope"]?.stringValue)
         let report: StoredReviewReport?
-        if let requested { report = try await index.latestReport(scope: requested) } else { report = try await index.latestReports().first }
+        switch requested {
+        case .newest: report = try await index.latestReports().first
+        case let .scope(scope): report = try await index.latestReport(scope: scope)
+        case .unmatched, .ambiguous: report = nil
+        }
         let budget = rowBudget(arguments, defaultLimit: 50, worstCaseItemBytes: 3_072)
         guard let report else {
-            return .object([
+            var answer: [String: JSONValue] = [
                 "schema": .string("review-items-v1"), "observed_at": .string(timestamp(now)), "report": .null,
                 "items": .array([]), "matched_count": .integer(0), "returned_count": .integer(0), "truncated": .bool(false), "next_cursor": .null,
                 "budget": budgetObject(budget), "safety": .string("review-required-never-safe-to-delete-claim"),
-                "limitations": .array([.string(requested == nil ? "No review has been stored yet; run one in Disk Steward (Review Storage…)." : "No review of that scope is stored.")]),
-            ])
+            ]
+            if case .newest = requested {
+                answer["limitations"] = .array([.string("No review has been stored yet; run one in Disk Steward (Review Storage…).")])
+            } else {
+                let unresolved = await unresolvedScope(requested, detail: detail)
+                answer["limitations"] = .array([.string(unresolved.limitation)])
+                answer["available_scopes"] = unresolved.available
+            }
+            return .object(answer)
         }
         let items = try await index.items(reportID: report.reportID, limit: ReviewRanking.maximumItems)
         let offset = try decodeOffsetCursor(arguments["cursor"]?.stringValue, revision: report.reportID)
@@ -1264,7 +1327,21 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         let index = try requireReviewIndex()
         let detail = pathDetail(arguments)
         let budget = rowBudget(arguments, defaultLimit: 50, worstCaseItemBytes: 2_560)
-        let scope = reviewScope(arguments["scope"]?.stringValue)
+        let requested = await reviewScope(arguments["scope"]?.stringValue)
+        let scope: String?
+        switch requested {
+        case .newest: scope = nil
+        case let .scope(resolved): scope = resolved
+        case .unmatched, .ambiguous:
+            // A name that resolves to no folder lists nothing rather than everything.
+            let unresolved = await unresolvedScope(requested, detail: detail)
+            return .object([
+                "schema": .string("largest-objects-v1"), "observed_at": .string(timestamp(Date())), "scope": .null,
+                "items": .array([]), "matched_count": .integer(0), "returned_count": .integer(0), "truncated": .bool(false), "next_cursor": .null,
+                "budget": budgetObject(budget), "available_scopes": unresolved.available,
+                "limitations": .array([.string(unresolved.limitation)]),
+            ])
+        }
         let under = scope == CacheCatalog.scope ? "/" : (scope ?? "/")
         let total = try await index.objects(under: under, limit: 1).total
         let revision = "\(under)|\(total)"
@@ -1313,8 +1390,12 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         guard let reviewService else {
             throw DiskStewardIPCError.remote(code: "review_unavailable", message: "Measurement is not available in this process.", retryable: false)
         }
+        // A relative path would resolve against the app's working directory.
+        guard requested.hasPrefix("/") || requested == "~" || requested.hasPrefix("~/") else {
+            throw DiskStewardIPCError.remote(code: "invalid_request", message: "path must be an absolute path or start with ~/.", retryable: false)
+        }
         let detail = pathDetail(arguments)
-        let path = DirectoryChangeStream.canonicalPath(requested)
+        let path = DirectoryChangeStream.canonicalPath(NSString(string: requested).expandingTildeInPath)
         let scopes = await reviewRoots()
         guard scopes.contains(where: { path == $0 || path.hasPrefix($0 == "/" ? "/" : $0 + "/") }) else {
             throw DiskStewardIPCError.remote(code: "outside_scope", message: "measure_path only measures folders inside the configured scopes or opted-in caches.", retryable: false)

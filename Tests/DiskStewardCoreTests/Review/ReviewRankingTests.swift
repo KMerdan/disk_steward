@@ -118,6 +118,32 @@ final class ReviewRankingTests: XCTestCase {
         }
     }
 
+    /// An item with no known rebuild command never also says it can be
+    /// rebuilt: not in a new ranking, and not when a review stored before
+    /// 1.5.1 is shown.
+    func testAnUnknownRebuildIsNeverCalledRebuildable() {
+        let rebuildable = "It can be rebuilt from source."
+        let ranked = ReviewRanking.rank(report([
+            object("/s/misc/build", gib, project: "/s/misc"),
+            object("/s/rust/target", gib, project: "/s/rust"),
+        ], projects: [
+            ReviewProject(path: "/s/misc", marker: ".git", lastSourceActivity: days(10)),
+            ReviewProject(path: "/s/rust", marker: "Cargo.toml", lastSourceActivity: days(10), tools: ["cargo"]),
+        ]), now: now)
+        let items = Dictionary(uniqueKeysWithValues: ranked.map { ($0.object.path, $0) })
+        XCTAssertEqual(items["/s/misc/build"]?.rebuildCommandKnown, false)
+        XCTAssertEqual(items["/s/misc/build"]?.reasons.contains(rebuildable), false, "\(items["/s/misc/build"]?.reasons ?? [])")
+        XCTAssertEqual(items["/s/rust/target"]?.reasons.contains(rebuildable), true, "a known command keeps the sentence")
+
+        let stored = StoredReviewItem(rank: 1, path: root.path, kind: "artifact", recreateClass: "rebuild", allocatedBytes: gib, reclaimableBytes: gib,
+                                      state: "review-required", verifiedAt: now,
+                                      detail: .init(command: "Unknown: no rebuild command is known for build here.", known: false,
+                                                    reasons: ["The owning repository ignores it.", "Its project (misc) last changed 10 days ago.", rebuildable]))
+        let shown = ReviewItemPresentation(stored, now: now)
+        XCTAssertEqual(shown.whyDisposable, ["Its project (misc) last changed 10 days ago."], "a stored review's contradiction is dropped when shown")
+        XCTAssertTrue(shown.reasonsToKeep.contains("No rebuild command is known for it."))
+    }
+
     func testAMonorepoLockfileAboveThePackageNamesTheManager() {
         let ranked = ReviewRanking.rank(report([object("/s/repo/packages/web/node_modules", gib, project: "/s/repo/packages/web", recreate: .redownload)], projects: [
             ReviewProject(path: "/s/repo", marker: ".git", lastSourceActivity: days(5), tools: ["pnpm"]),
@@ -155,6 +181,8 @@ final class ReviewRankingTests: XCTestCase {
         try write("web/node_modules/a/index.js", bytes: 90_000)
         try write("rust/Cargo.toml", bytes: 100)
         try write("rust/target/debug/app", bytes: 400_000)
+        // Cargo tags its target/ as a cache; it is still the project's build output.
+        try write("rust/target/CACHEDIR.TAG", bytes: 100)
         let index = try ReviewIndex(url: root.appending(path: "steward.sqlite"))
         let service = ReviewService(index: index, stateURL: root.appending(path: "review-state.json"), makeWalker: { previous, cancelled in
             ReviewWalker(decider: ClassifierObjectDecider(oracle: SilentRepositoryOracle()), previousCompleteEntries: previous, isCancelled: cancelled)
@@ -165,6 +193,8 @@ final class ReviewRankingTests: XCTestCase {
         XCTAssertEqual(items.map { URL(fileURLWithPath: $0.path).lastPathComponent }, ["target", "node_modules"])
         XCTAssertEqual(items.map(\.rank), [1, 2])
         XCTAssertEqual(items.first?.detail.command, "cargo build")
+        XCTAssertEqual(items.first?.kind, "artifact")
+        XCTAssertEqual(items.first?.recreateClass, "rebuild")
         XCTAssertEqual(items.last?.detail.command, "pnpm install")
         XCTAssertTrue(items.allSatisfy { $0.state == "review-required" })
         XCTAssertFalse(items.first?.detail.reasons.isEmpty ?? true)

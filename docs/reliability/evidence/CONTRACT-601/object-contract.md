@@ -50,6 +50,12 @@ The rules and their order are fixed by `RESEARCH-601`
 
 1. `tracked` — the owning repository tracks files inside it. **Never an object.**
 2. `self-marker` — a marker inside it identifies it (`pyvenv.cfg`, `CACHEDIR.TAG`).
+   *Exception (HOTFIX-1.5.1):* cargo writes `CACHEDIR.TAG` into `target/`. A
+   `target` holding the tag with `Cargo.toml` beside it is that project's
+   build output (`artifact`, rule `manifest`, high confidence: the manifest
+   and the tag agree), rebuilt rather than downloaded again. Any other
+   tagged folder, and a tagged `target` with no `Cargo.toml` beside it,
+   stays a `cache`.
 3. `content` — its contents identify it (only compiled bytecode; installed
    packages carrying their own manifests).
 4. `ignored` — the owning repository ignores it.

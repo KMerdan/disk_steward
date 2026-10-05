@@ -31,15 +31,19 @@ tool reads the retired per-file store.
   Data, purgeable space, snapshots, out of scope; never a cause), changed
   folders and journal gaps.
 - `list_review_items` returns the latest review's ranked items for a scope
-  (a configured folder, or `caches`) with the same sizes, evidence states
+  (`caches`, a configured folder's absolute or `~` path, or the scope name
+  `get_health` shows: its basename or `sha256:` form). A bare name is matched
+  against the stored and watched scopes, never against the app's working
+  folder; a name that matches none, or more than one, returns no report and
+  `available_scopes`. It answers with the same sizes, evidence states
   (Verified now, Stale, Partial, Unknown), totals and report state as the
   review window. `get_review_item_evidence` adds one item's reasons to keep it,
   why it may be disposable, its recreate and cleanup commands (text, never
   run) and a live check.
 - `list_largest_objects` returns the object index largest first, optionally
   under one scope, with each object's last measurement.
-- `measure_path` measures one folder inside the configured scopes or opted-in
-  caches within 15 s and 500,000 entries. It is the one walk in flight: a
+- `measure_path` measures one folder, given as an absolute or `~` path, inside
+  the configured scopes or opted-in caches within 15 s and 500,000 entries. It is the one walk in flight: a
   running review is joined (waited for within the budget), never run beside.
   It stores nothing and writes no cooldown; a stopped measurement is a lower
   bound.

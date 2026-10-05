@@ -36,8 +36,8 @@ enum MCPToolCatalog {
                 "cursor": string(maximum: 4_096),
                 "path_detail": pathDetail(),
             ]),
-            tool("list_review_items", "List the latest review's ranked items with size, evidence state, recreate class and the owning tool's cleanup command; never a deletion instruction.", properties: reviewProperties()),
-            tool("list_largest_objects", "List the largest measured objects (build output, environments, caches), optionally within one review scope.", properties: reviewProperties()),
+            tool("list_review_items", "List the latest review's ranked items with size, evidence state, recreate class and the owning tool's cleanup command; never a deletion instruction. scope is caches, a folder's path, or the scope name get_health shows.", properties: reviewProperties()),
+            tool("list_largest_objects", "List the largest measured objects (build output, environments, caches), optionally within one review scope, named as for list_review_items.", properties: reviewProperties()),
             tool("get_review_item_evidence", "Return one review item's full evidence: why it may be disposable, reasons to keep it, its commands and a live check.", required: ["item_id"], properties: [
                 "item_id": string(maximum: 256),
                 "path_detail": pathDetail(),

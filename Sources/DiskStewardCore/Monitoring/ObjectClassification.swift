@@ -113,6 +113,10 @@ public struct ObjectDetectionRules: Sendable {
     /// Marker file inside a directory -> the kind and the sentence it earns.
     public let selfMarkers: [String: (kind: ClassifiedObjectKind, reason: String)]
     public let repositoryMarker: String
+    /// Build output that its own tool also tags as a cache, name -> the
+    /// manifest beside it that makes it that project's output. Cargo writes
+    /// CACHEDIR.TAG into `target/`, which `cargo build` recreates.
+    public let cacheTaggedOutputs: [String: String]
 
     public static let `default` = ObjectDetectionRules(
         outputNames: [
@@ -141,15 +145,18 @@ public struct ObjectDetectionRules: Sendable {
             "pyvenv.cfg": (.artifact, "it contains pyvenv.cfg, so it is a Python virtual environment"),
             "CACHEDIR.TAG": (.cache, "it is tagged as a cache directory (CACHEDIR.TAG)"),
         ],
-        repositoryMarker: ".git"
+        repositoryMarker: ".git",
+        cacheTaggedOutputs: ["target": "Cargo.toml"]
     )
 
     public init(outputNames: [String: [String]],
                 selfMarkers: [String: (kind: ClassifiedObjectKind, reason: String)],
-                repositoryMarker: String) {
+                repositoryMarker: String,
+                cacheTaggedOutputs: [String: String] = [:]) {
         self.outputNames = outputNames
         self.selfMarkers = selfMarkers
         self.repositoryMarker = repositoryMarker
+        self.cacheTaggedOutputs = cacheTaggedOutputs
     }
 
     public func isCandidateName(_ name: String) -> Bool {
@@ -197,8 +204,18 @@ public struct ObjectClassifier: Sendable {
                            reason: "the owning repository tracks files inside it, so it is source, not output")
         }
 
-        // 2. A marker inside it identifies it whatever it is named.
+        // 2. A marker inside it identifies it whatever it is named, except
+        //    build output its tool also tags as a cache: with its manifest
+        //    beside it, it is that project's output, rebuilt, not re-downloaded.
         if let marker = selfMarker(in: directoryPath) {
+            let parent = url.deletingLastPathComponent()
+            if marker.kind == .cache, let manifest = rules.cacheTaggedOutputs[name],
+               fileManager.fileExists(atPath: parent.appendingPathComponent(manifest).path) {
+                return .object(ClassifiedObject(
+                    path: directoryPath, kind: .artifact, rule: .manifest, confidence: .high,
+                    reason: "\(manifest) beside it expects this output location, and its tool tags it as a cache (CACHEDIR.TAG)",
+                    owningProjectPath: parent.path, owningProjectMarker: manifest))
+            }
             return .object(ClassifiedObject(
                 path: directoryPath, kind: marker.kind, rule: .selfMarker, confidence: .high,
                 reason: marker.reason,

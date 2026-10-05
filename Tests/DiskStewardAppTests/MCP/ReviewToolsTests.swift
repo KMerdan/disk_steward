@@ -125,6 +125,59 @@ final class ReviewToolsTests: XCTestCase {
         XCTAssertEqual(answer?["status"], .string("complete"), "then it measured")
     }
 
+    /// The scope name get_health shows (a basename by default) is accepted
+    /// back, as is its sha256 form. A name two scopes share is never picked,
+    /// an unknown name lists the names that work, and a relative path is
+    /// never resolved against the app's own folder.
+    func testAScopeNameFromHealthIsAcceptedBack() async throws {
+        let index = try ReviewIndex(url: steward)
+        let service = service(index: index)
+        _ = try await service.review(scope: scope)
+        let (server, client) = try serve(index: index, service: service)
+        defer { server.stop() }
+        func call(_ tool: String, _ arguments: [String: JSONValue]) throws -> [String: JSONValue] {
+            try XCTUnwrap(try client.call(tool: tool, arguments: arguments, isCancelled: { false }).objectValue)
+        }
+        guard case let .array(reviews)? = try call("get_health", [:])["reviews"] else { return XCTFail("no reviews") }
+        let name = try XCTUnwrap(reviews.first?.objectValue?["scope"]?.stringValue)
+        XCTAssertEqual(name, "code", "get_health shows the basename by default")
+
+        let byName = try call("list_review_items", ["scope": .string(name)])
+        XCTAssertNotEqual(byName["report"], .null, "the name get_health shows is accepted back")
+        XCTAssertEqual(byName["matched_count"], .integer(2))
+        guard case let .array(largest)? = try call("list_largest_objects", ["scope": .string(name)])["items"] else { return XCTFail("no objects") }
+        XCTAssertEqual(largest.compactMap { $0.objectValue?["name"]?.stringValue }, ["target", "node_modules"], "list_largest_objects accepts it too")
+        let hashed = try XCTUnwrap(try call("list_review_items", ["scope": .string(name), "path_detail": .string("hashed")])["report"]?.objectValue?["scope"]?.stringValue)
+        XCTAssertTrue(hashed.hasPrefix("sha256:"))
+        XCTAssertEqual(try call("list_review_items", ["scope": .string(hashed)])["matched_count"], .integer(2), "and so is its sha256 form")
+
+        let unknown = try call("list_review_items", ["scope": .string("nowhere")])
+        XCTAssertEqual(unknown["report"], .null)
+        XCTAssertEqual(unknown["available_scopes"], .array([.string("code")]), "an unknown name lists the names that work")
+        XCTAssertEqual(try call("list_largest_objects", ["scope": .string("nowhere")])["matched_count"], .integer(0), "and never lists everything instead")
+
+        // A second scope with the same basename makes the name ambiguous.
+        let twin = DirectoryChangeStream.canonicalPath(root.path) + "/outside/code"
+        try FileManager.default.createDirectory(atPath: twin + "/app/node_modules/.bin", withIntermediateDirectories: true)
+        try Data("{}".utf8).write(to: URL(fileURLWithPath: twin + "/app/package.json"))
+        _ = try await service.review(scope: twin)
+        let ambiguous = try call("list_review_items", ["scope": .string("code")])
+        XCTAssertEqual(ambiguous["report"], .null, "a shared name is never resolved to either scope")
+        guard case let .array(choices)? = ambiguous["available_scopes"] else { return XCTFail("no choices") }
+        let names = choices.compactMap(\.stringValue)
+        XCTAssertEqual(Set(names).count, 2, "the choices are told apart: \(names)")
+        for choice in names {
+            XCTAssertNotEqual(try call("list_review_items", ["scope": .string(choice)])["report"], .null, "each listed choice is accepted: \(choice)")
+        }
+
+        do {
+            _ = try client.call(tool: "measure_path", arguments: ["path": .string("code/web")], isCancelled: { false })
+            XCTFail("a relative path was measured")
+        } catch DiskStewardIPCError.remote(let code, _, _) {
+            XCTAssertEqual(code, "invalid_request")
+        }
+    }
+
     func testHealthAndTheReviewToolsNeverOpenTheRetiredStore() async throws {
         let index = try ReviewIndex(url: steward)
         let service = service(index: index)

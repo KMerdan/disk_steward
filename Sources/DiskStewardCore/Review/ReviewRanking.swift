@@ -89,7 +89,9 @@ public enum ReviewRanking {
             } else {
                 reasons.append("No owning project was found, so it is ranked as if just used.")
             }
-            reasons.append(recreateSentence(object.recreateClass))
+            // With no known rebuild command, saying it can be rebuilt would
+            // contradict the reason to keep it.
+            if command.known || object.recreateClass != .rebuild { reasons.append(recreateSentence(object.recreateClass)) }
             if object.unreadableDirectories > 0 {
                 reasons.append("\(object.unreadableDirectories) \(Self.unreadableInside)")
             }
@@ -191,7 +193,7 @@ public enum ReviewRanking {
         ("Unknown: no rebuild command is known for \(name) here; check the project's own instructions before removing it.", false)
     }
 
-    private static func recreateSentence(_ recreate: RecreateClass) -> String {
+    static func recreateSentence(_ recreate: RecreateClass) -> String {
         switch recreate {
         case .rebuild: return "It can be rebuilt from source."
         case .redownload: return "It can be downloaded again."
