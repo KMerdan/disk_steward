@@ -1,0 +1,15 @@
+{
+ "name": "list and read results carry no ttlMs or cacheScope",
+ "filter": "DiskStewardMCPTests",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardMCP/MCPServer.swift",
+   "replacements": [
+    [
+     "        if let cache {\n            result[\"ttlMs\"] = .integer(cache.milliseconds)\n            result[\"cacheScope\"] = .string(cache.scope)\n        }",
+     "        _ = cache"
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "name": "a replacement's time is read from the REAL column again",
+ "filter": "ObjectConvergenceTests",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift",
+   "replacements": [
+    [
+     "return time.observedAt ?? columnDate(statement, column: 1)",
+     "return time.observedAt == nil ? columnDate(statement, column: 1) : columnDate(statement, column: 1)"
+    ]
+   ]
+  }
+ ]
+}

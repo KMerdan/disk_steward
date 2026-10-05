@@ -34,18 +34,20 @@ final class ExplainGrowthJournalTests: XCTestCase {
         return (ringURL, journalURL)
     }
 
-    private func growth(_ backend: AppEvidenceQueryBackend, now: Date) throws -> [String: JSONValue] {
+    private func growth(_ backend: AppEvidenceQueryBackend, now: Date, limit: Int64? = nil) throws -> [String: JSONValue] {
         let socket = directory.appending(path: "ipc/s.sock")
         try FileManager.default.createDirectory(at: socket.deletingLastPathComponent(), withIntermediateDirectories: true)
         let server = UnixSocketEvidenceServer(socketPath: socket.path, handler: backend)
         try server.start()
         defer { server.stop() }
         let formatter = ISO8601DateFormatter()
-        let value = try UnixSocketDiskStewardIPCClient(socketPath: socket.path).call(tool: "explain_growth", arguments: [
+        var arguments: [String: JSONValue] = [
             "from": .string(formatter.string(from: now.addingTimeInterval(-7_200))),
             "through": .string(formatter.string(from: now)),
             "path_detail": .string("full"),
-        ], isCancelled: { false })
+        ]
+        if let limit { arguments["limit"] = .integer(limit) }
+        let value = try UnixSocketDiskStewardIPCClient(socketPath: socket.path).call(tool: "explain_growth", arguments: arguments, isCancelled: { false })
         return try XCTUnwrap(value.objectValue)
     }
 
@@ -82,6 +84,22 @@ final class ExplainGrowthJournalTests: XCTestCase {
         XCTAssertEqual(gaps.map { $0["reason"] }, [.string("journal-started")])
         let limitations = array(object["journal_limitations"]).compactMap(\.stringValue)
         XCTAssertTrue(limitations.contains { $0.contains("earlier changes are unknown, not absent") }, "\(limitations)")
+    }
+
+    /// FIND-R4-JOURNAL-LIMIT: the request's limit bounds changed_directories,
+    /// and the answer says what it left out.
+    func testTheRequestLimitBoundsChangedDirectories() async throws {
+        let now = Date()
+        let (ring, journal) = try await seed(now: now)
+        let database = directory.appending(path: "evidence.sqlite")
+        try Data(repeating: 0x5A, count: 8_192).write(to: database)
+        let backend = try AppEvidenceQueryBackend(databaseURL: database, capacityRingURL: ring, changeJournalURL: journal)
+        let limited = try XCTUnwrap(try growth(backend, now: now, limit: 1)["changed_directories"]?.objectValue)
+        XCTAssertEqual(array(limited["items"]).compactMap { $0.objectValue?["path"] }, [.string("/r/proj/web")], "most changes first, then the limit")
+        XCTAssertEqual(limited["total"], .integer(2))
+        XCTAssertEqual(limited["truncated"], .bool(true))
+        let unlimited = try XCTUnwrap(try growth(backend, now: now)["changed_directories"]?.objectValue)
+        XCTAssertEqual(array(unlimited["items"]).count, 2, "without a limit the default window holds both")
     }
 
     func testReadsCreateNeitherTheJournalNorTheRing() async throws {

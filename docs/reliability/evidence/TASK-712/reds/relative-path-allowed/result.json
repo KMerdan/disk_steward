@@ -1,0 +1,22 @@
+{
+ "mutation": {
+  "name": "a relative allowance matches by name",
+  "mutations": [
+   {
+    "file": "Scripts/Testing/process_supervisor.py",
+    "replacements": [
+     [
+      "    allowed = {os.path.realpath(path) for path in expected_descendants if os.path.isabs(path)}",
+      "    allowed = {os.path.realpath(path) for path in expected_descendants} | {os.path.realpath('/bin/' + path) for path in expected_descendants if not os.path.isabs(path)}"
+     ]
+    ]
+   }
+  ]
+ },
+ "exitCode": 1,
+ "passed": false,
+ "baseSupervisorSHA256": "6ed1cd952a8f34c5eedb8ab438f7dc47bf98b405684b51df957cb2e3f7828e7f",
+ "failing": [
+  "test_an_unreadable_or_relative_path_is_never_allowed"
+ ]
+}

@@ -5,24 +5,21 @@ Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 202
 
 ## Current State
 
-- Graph version: `1`
-- Plan revision: `1`
+- Graph version: `18`
+- Plan revision: `2`
 - Lifecycle: `active`
-- Verified primary nodes: `0/8`
-- Ready tasks: `4`
+- Verified primary nodes: `3/8`
+- Ready tasks: `0`
 
 ## Ready Frontier
 
-- `TASK-711` — Fix the defects found in use
-- `TASK-712` — Treat Xcode's ibtoold daemon as expected in verification
-- `TASK-713` — Typed and correctable tool answers (MCP 2025-11-25)
-- `TASK-715` — One registration and the skill for both clients
+- None
 
 ## Brownfield Assurance
 
 - Status: `blocked`
 - Baseline: `current` revision `5`
-- Impacted assets inspected sufficiently: `0/0`
+- Impacted assets inspected sufficiently: `4/9`
 - Open scope drift: `0`
 - Open material findings: `0`
 

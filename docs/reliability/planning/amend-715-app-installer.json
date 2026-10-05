@@ -1,0 +1,17 @@
+{
+ "schema": "pyramid-amendment-v1",
+ "task": "TASK-715",
+ "reason": "The app's Agent Integrations settings are the installer Homebrew users actually have; they register the server as disk-steward through each client's CLI. The script registers disk_steward and copies the Codex plugin where Codex never loads it. One registration and the skill for both clients therefore have to come from the app's adapters, with the script made to agree.",
+ "boundary_review": "The Codex and Claude Code adapters also install the evidence skill (embedded in AgentIntegrationModels.swift; a test pins it byte-identical to the single SKILL.md source) into the client's user skills folder, record it in the receipt and remove it only while unchanged. The script registers through the same client CLIs under the same name, installs the same skill, and migrates its legacy disk_steward block and inert plugin copy. Acceptance, non-goals and dependencies are unchanged.",
+ "add_write_paths": [
+  "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+  "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift"
+ ],
+ "add_context_paths": [
+  "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+  "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift"
+ ]
+}

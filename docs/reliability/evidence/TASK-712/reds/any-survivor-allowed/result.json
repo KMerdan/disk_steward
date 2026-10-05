@@ -1,0 +1,23 @@
+{
+ "mutation": {
+  "name": "a survivor is allowed whatever its executable",
+  "mutations": [
+   {
+    "file": "Scripts/Testing/process_supervisor.py",
+    "replacements": [
+     [
+      "        if path is None or os.path.realpath(path) not in allowed:\n            return None",
+      "        if False:\n            return None"
+     ]
+    ]
+   }
+  ]
+ },
+ "exitCode": 1,
+ "passed": false,
+ "baseSupervisorSHA256": "6ed1cd952a8f34c5eedb8ab438f7dc47bf98b405684b51df957cb2e3f7828e7f",
+ "failing": [
+  "test_an_unreadable_or_relative_path_is_never_allowed",
+  "test_another_executable_or_a_failed_launcher_still_fails"
+ ]
+}

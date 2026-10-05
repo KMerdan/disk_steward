@@ -1,0 +1,15 @@
+{
+ "name": "schema-invalid arguments are a -32602 protocol error again",
+ "filter": "DiskStewardMCPTests",
+ "mutations": [
+  {
+   "file": "Sources/DiskStewardMCP/MCPServer.swift",
+   "replacements": [
+    [
+     "            return toolError(id: id, code: \"invalid_arguments\", message: \"Invalid arguments: \\(error).\", retryable: false,",
+     "            return Optional(protocolError(id: id, code: -32_602, message: \"Invalid params: \\(error)\")) ?? toolError(id: id, code: \"invalid_arguments\", message: \"Invalid arguments: \\(error).\", retryable: false,"
+    ]
+   ]
+  }
+ ]
+}

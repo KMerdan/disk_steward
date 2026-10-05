@@ -2,7 +2,9 @@ import DiskStewardCore
 import Foundation
 
 enum MCPToolCatalog {
-    static let supportedProtocolVersions = ["2025-06-18", "2025-03-26", "2024-11-05"]
+    /// Versions negotiated through `initialize`, newest first: a supported
+    /// request is echoed, anything else gets the first (MCP 2025-11-25).
+    static let supportedProtocolVersions = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]
     /// TASK-671: the catalogue on the capacity ring, change journal and review
     /// report. get_provenance would be listed only while an Endpoint Security
     /// bridge is active; the app has none, so it is not listed (tools/list is
@@ -196,6 +198,7 @@ enum MCPToolCatalog {
             "title": .string(title),
             "description": .string(description),
             "inputSchema": .object(input),
+            "outputSchema": MCPOutputSchemas.schema(for: name),
             "annotations": .object([
                 // 2025-03-26 clients read the display name here.
                 "title": .string(title),

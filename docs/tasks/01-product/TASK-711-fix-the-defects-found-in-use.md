@@ -8,10 +8,10 @@
 - Wave: `1`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `verified`
 - Goal trace: `TASK-711` → `OUTCOME-710` → `INTENT-007`
 
 ## Goal
@@ -31,6 +31,7 @@ Stop the path filter redacting ordinary names, honour explain_growth's limit for
 - Tests/**
 - Fixtures/**
 - docs/reliability/evidence/**
+- Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift
 
 ## Non-Goals
 
@@ -67,12 +68,17 @@ Stop the path filter redacting ordinary names, honour explain_growth's limit for
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Impact records: `IMPACT-TASK-711-QUERY`, `IMPACT-TASK-711-EXPORT`, `IMPACT-TASK-711-LIFECYCLE`, `IMPACT-TASK-711-ASSURANCE`, `IMPACT-TASK-711-STORE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-EXPORT`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-STORE`
+- Inspections: `INSPECT-TASK-711-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Required inspection INSPECT-TASK-711-1 is stale
 
 

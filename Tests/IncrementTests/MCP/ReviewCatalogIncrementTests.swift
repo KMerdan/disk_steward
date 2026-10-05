@@ -181,6 +181,11 @@ final class ReviewCatalogIncrementTests: XCTestCase {
         helper.send(#"{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}"#)
         let listed = try XCTUnwrap((try helper.request(#"{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}"#, id: 2)["result"] as? [String: Any])?["tools"] as? [[String: Any]])
         XCTAssertEqual(listed.compactMap { $0["name"] as? String }, Self.tools)
+        // TASK-713: every answer conforms to the outputSchema its tool lists.
+        let outputSchemas = Dictionary(uniqueKeysWithValues: try listed.map { tool in
+            (try XCTUnwrap(tool["name"] as? String), try XCTUnwrap(tool["outputSchema"] as? [String: Any], "\(tool["name"] ?? "?") lists an outputSchema"))
+        })
+        let validator = OutputSchemaValidator()
 
         let formatter = ISO8601DateFormatter()
         // A window that ends before the present: answered from what is stored, nothing measured.
@@ -199,6 +204,7 @@ final class ReviewCatalogIncrementTests: XCTestCase {
         var sizes: [String: Int] = [:]
         for (offset, (tool, arguments)) in calls.enumerated() {
             let answer = try call(helper, id: 20 + offset, tool, arguments)
+            XCTAssertEqual(validator.validate(instance: answer, schema: try XCTUnwrap(outputSchemas[tool])), [], "\(tool) conforms to its outputSchema")
             let bytes = try JSONSerialization.data(withJSONObject: answer).count
             sizes[tool] = max(sizes[tool] ?? 0, bytes)
             XCTAssertLessThan(bytes, 1_024 * 1_024, "\(tool) answers under the backend's 1 MiB ceiling at caps")

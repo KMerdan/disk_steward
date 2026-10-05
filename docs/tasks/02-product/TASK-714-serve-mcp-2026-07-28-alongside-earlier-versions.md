@@ -8,10 +8,10 @@
 - Wave: `2`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `planned`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `locked`
+- Availability: `verified`
 - Goal trace: `TASK-714` → `OUTCOME-710` → `INTENT-007`
 
 ## Goal
@@ -39,7 +39,7 @@ Answer server/discover and stateless 2026-07-28 requests (per-request _meta vers
 
 ## Dependencies
 
-- `TASK-713` (requires, unverified)
+- `TASK-713` (requires, passed)
 
 ## Required Context
 
@@ -65,13 +65,13 @@ Answer server/discover and stateless 2026-07-28 requests (per-request _meta vers
 
 ## Brownfield Assurance
 
-- Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Status: `covered`
+- Impact records: `IMPACT-TASK-714-MCP`, `IMPACT-TASK-714-CONTRACTS`, `IMPACT-TASK-714-BUILD`, `IMPACT-TASK-714-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-CONTRACTS`, `ASSET-MCP`
+- Inspections: `INSPECT-TASK-714-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- None
 
 

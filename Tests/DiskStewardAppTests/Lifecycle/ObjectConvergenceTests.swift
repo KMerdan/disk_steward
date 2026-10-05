@@ -103,6 +103,56 @@ final class ObjectConvergenceTests: XCTestCase {
                       "and the previous behaviour of scanning everything is unchanged")
     }
 
+    /// The flake in the test above, pinned. The legacy row at src/main.swift is
+    /// replaced by the scanned file at the same path, and publication stamps
+    /// that replacement with the staged sample time. Read back from SQLite's
+    /// seconds-since-1970 REAL column, a Date does not round-trip exactly: about
+    /// one instant in four comes back one ulp later, after the publication
+    /// instant it was sampled at, and the store refused the whole slice. The
+    /// probe takes `Date()` itself, so this drives the same store calls at an
+    /// instant chosen to round up.
+    func testAReplacedLegacyRowPublishesWhenItsSampleInstantRoundsUp() async throws {
+        let watched = try makeTree()
+        var settings = MonitoringSettings.defaults
+        settings.watchedRoots = [watched.path]
+        settings.excludedRoots = []
+        let databaseURL = directory.appendingPathComponent("store/evidence.sqlite")
+        try FileManager.default.createDirectory(at: databaseURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let store = try EvidenceStore(url: databaseURL)
+        try await seedLegacyRows(store, watched: watched)
+
+        var sampledAt = Date()
+        while Date(timeIntervalSince1970: sampledAt.timeIntervalSince1970) <= sampledAt {
+            sampledAt = Date(timeIntervalSinceReferenceDate: sampledAt.timeIntervalSinceReferenceDate.nextUp)
+        }
+        XCTAssertGreaterThan(Date(timeIntervalSince1970: sampledAt.timeIntervalSince1970), sampledAt,
+                             "armed: this instant reads back from seconds-since-1970 later than it was taken")
+
+        let policy = settings.monitoringPolicy(at: sampledAt)
+        let scope = policy.scopeVersion(at: sampledAt)
+        let scanner = DirectoryMetadataScanner(classifier: ObjectClassifier(oracle: GitRepositoryOracle()))
+        let snapshot = StorageSnapshot(snapshotID: "rounding-snapshot",
+                                       observedAt: ISO8601DateFormatter().string(from: sampledAt),
+                                       volumes: [.init(mountPath: "/", totalBytes: 1_000, availableBytes: 500,
+                                                       isInternal: true, isReadOnly: false)])
+        var generation = try await store.beginOrResumeScanGeneration(scope: scope, at: sampledAt)
+        var observation: ObservationCommitResult?
+        for _ in 0 ..< 16 where observation == nil && generation.status == .active {
+            let slice = scanner.scanSlice(policy: policy, generation: generation, at: sampledAt)
+            let commit = try await store.recordScanSlice(snapshot: snapshot, slice: slice, scope: scope, trigger: .startup)
+            generation = commit.generation
+            observation = commit.observation
+        }
+        await store.close()
+
+        let published = try XCTUnwrap(observation, "the generation completes and publishes")
+        let mainPath = watched.appendingPathComponent("app/src/main.swift").standardizedFileURL.path
+        let replacements = published.events.filter { $0.path == mainPath && $0.operation == .replace }
+        XCTAssertEqual(replacements.count, 2, "the legacy object leaves and the scanned one arrives: \(published.events)")
+        XCTAssertTrue(replacements.allSatisfy { $0.observedAt <= sampledAt },
+                      "no change evidence is later than its publication: \(replacements.map(\.observedAt))")
+    }
+
     // MARK: - helpers
 
     /// A project with ordinary files and a node_modules that classifies by its

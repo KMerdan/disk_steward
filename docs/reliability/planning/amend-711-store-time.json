@@ -1,0 +1,8 @@
+{
+ "schema": "pyramid-amendment-v1",
+ "task": "TASK-711",
+ "reason": "The convergence flake's root cause is in the evidence store: stagedReplacementDate reads a replacement's time from SQLite's seconds-since-1970 REAL column, which does not round-trip a Date and lands one ulp after its publication instant about one time in four. The fix reads the exact time from the staged payload, as decodeStagedFile already does.",
+ "boundary_review": "Only stagedReplacementDate changes; the publication-time invariant at EvidenceStore.swift:3266 is untouched. A deterministic test in ObjectConvergenceTests pins it. Acceptance, non-goals and dependencies are unchanged.",
+ "add_write_paths": ["Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"],
+ "add_context_paths": []
+}

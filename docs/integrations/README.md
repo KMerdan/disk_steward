@@ -2,19 +2,54 @@
 
 Disk Steward ships one local read-only MCP connector for Codex and Claude Code. The connector uses stdio on the agent side and a private current-user Unix socket on the app side. It never opens the evidence database and exposes no cleanup or filesystem mutation tool.
 
-## Install into an explicit configuration root
+## Install
 
-Build the connector, then opt in one client at a time:
+**Disk Steward app (recommended).** Open **Settings › Agent Integrations**
+and set up Codex or Claude Code. The app:
+- registers the `disk-steward` server through the client's own CLI
+  (`codex mcp add`, `claude mcp add --scope user`);
+- installs the evidence skill into the client's user skills folder
+  (`~/.codex/skills/disk-steward-evidence`, `~/.claude/skills/disk-steward-evidence`);
+- records both in its receipts;
+- on removal, removes the skill only while it is unchanged.
+
+**From a source checkout.** Build the connector, then opt in one client at
+a time:
 
 ```sh
 swift build --product disk-witness-mcp
 Scripts/Integration/install --client codex --config-root "$HOME/.codex" --connector "$PWD/.build/debug/disk-witness-mcp"
-Scripts/Integration/install --client claude --config-root "$HOME/.claude" --connector "$PWD/.build/debug/disk-witness-mcp"
+Scripts/Integration/install --client claude --config-root "$PWD" --connector "$PWD/.build/debug/disk-witness-mcp"
 ```
 
-The Codex installation adds a delimited block to `config.toml` and installs the `disk-steward` plugin package. Claude installation merges only `mcpServers.disk_steward` into `.mcp.json`; settings you added to that entry (`env`, `cwd`, unknown keys, your own `args`) are kept on upgrade and are never deleted by uninstall. Every install and uninstall first writes a backup directory with a manifest under `<config-root>/.disk-steward-backups/`; a failure part-way restores exactly what that attempt changed and says so; only the newest ten backups are kept.
+**What each mode writes:**
+- **Codex** gets a delimited `[mcp_servers.disk-steward]` block in
+  `config.toml` and the evidence skill in `<config-root>/skills`.
+  - The script refuses to add a second `disk-steward` server when the app
+    already registered one.
+  - It migrates a `disk_steward` block written by 1.5.0 or earlier, and moves
+    that release's unused `plugins/disk-steward` copy into the backup.
+- **Claude Code** is configured for a project: `--config-root` is the
+  project directory, which gets `mcpServers.disk-steward` in its `.mcp.json`
+  and the skill in `.claude/skills`.
+  - Settings you added to that entry (`env`, `cwd`, unknown keys, your own
+    `args`) are kept on upgrade and are never deleted by uninstall. A legacy
+    `disk_steward` entry moves to the new name with its settings.
+  - For every project at once, use the app, or
+    `claude mcp add --scope user disk-steward -- <helper>`. The script refuses
+    `~/.claude`, because Claude Code does not read `~/.claude/.mcp.json`.
+- **No tool list is pinned.** All ten read-only tools are offered, and a
+  new release cannot leave a stale `enabled_tools` behind.
 
-Codex desktop, the Codex CLI, and the IDE extension use the same host configuration. Start a new Codex task after installing or upgrading so the plugin and MCP server are discovered. Claude Code project-scoped servers may require approval before first use.
+**Backups.** Every install and uninstall first writes a backup directory
+with a manifest under `<config-root>/.disk-steward-backups/`. A failure
+part-way restores exactly what that attempt changed, and says so. Only the
+newest ten backups are kept.
+
+Codex desktop, the Codex CLI and the IDE extension share one host
+configuration. Start a new Codex task after installing or upgrading, so the
+server and the skill are discovered. Claude Code may ask you to approve
+project-scoped servers before first use.
 
 ## Roll back a configuration change
 

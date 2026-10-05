@@ -675,8 +675,7 @@ public struct EvidenceBundleExporter: Sendable {
         case .basename: shaped = URL(fileURLWithPath: path).lastPathComponent
         case .hashed: return "sha256:" + SHA256Digest.hex(for: Data(path.utf8))
         }
-        let pattern = #"(?i)(sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9]{8,}|AKIA[A-Z0-9]{16}|(?:token|password|secret|api[_-]?key)=[^/\\s]+)"#
-        return shaped.replacingOccurrences(of: pattern, with: "[REDACTED]", options: .regularExpression)
+        return EvidencePathRedaction.redact(shaped)
     }
 
     private func brief(summary: EvidenceBundleSummary, events: [ExportedEvidenceEvent], generatedAt: Date) -> String {

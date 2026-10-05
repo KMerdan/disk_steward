@@ -1,0 +1,62 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261005T005019678955Z-74BD3BD4",
+  "at": "2026-10-05T00:50:19.678897Z",
+  "graph_version": 8,
+  "actor": "claude",
+  "type": "task.amended",
+  "node": "TASK-711",
+  "before": {
+    "allowed_write_scope": [
+      "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "Sources/DiskStewardApp/Lifecycle/**",
+      "Sources/DiskStewardCore/Export/**",
+      "Sources/DiskStewardCore/Monitoring/**",
+      "Tests/**",
+      "Fixtures/**",
+      "docs/reliability/evidence/**"
+    ],
+    "required_context": [
+      "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+      "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift"
+    ]
+  },
+  "after": {
+    "allowed_write_scope": [
+      "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "Sources/DiskStewardApp/Lifecycle/**",
+      "Sources/DiskStewardCore/Export/**",
+      "Sources/DiskStewardCore/Monitoring/**",
+      "Tests/**",
+      "Fixtures/**",
+      "docs/reliability/evidence/**",
+      "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
+    ],
+    "required_context": [
+      "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+      "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+      "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift"
+    ]
+  },
+  "payload": {
+    "reason": "The convergence flake's root cause is in the evidence store: stagedReplacementDate reads a replacement's time from SQLite's seconds-since-1970 REAL column, which does not round-trip a Date and lands one ulp after its publication instant about one time in four. The fix reads the exact time from the staged payload, as decodeStagedFile already does.",
+    "amendment": {
+      "schema": "pyramid-amendment-v1",
+      "task": "TASK-711",
+      "reason": "The convergence flake's root cause is in the evidence store: stagedReplacementDate reads a replacement's time from SQLite's seconds-since-1970 REAL column, which does not round-trip a Date and lands one ulp after its publication instant about one time in four. The fix reads the exact time from the staged payload, as decodeStagedFile already does.",
+      "boundary_review": "Only stagedReplacementDate changes; the publication-time invariant at EvidenceStore.swift:3266 is untouched. A deterministic test in ObjectConvergenceTests pins it. Acceptance, non-goals and dependencies are unchanged.",
+      "add_write_paths": [
+        "Sources/DiskStewardCore/EvidenceStore/EvidenceStore.swift"
+      ],
+      "add_context_paths": []
+    },
+    "amendment_id": "AMEND-7d32594b02b0f8f560572185fdfe6388bdff79de2ec2070124b245f28b1c0e05",
+    "stale_inspections": []
+  },
+  "plan_id": "PLAN-DISK-STEWARD-007",
+  "plan_revision": 2,
+  "context_id": "CTX-74A8385CB0FC6E1F5D7CAE1C1C08722B",
+  "previous_event_id": "EVENT-20261005T005013326776Z-ED6E42D1",
+  "previous_event_sha256": "e2c91e0725cb911fb7608d3c9c70e7115802277c84784c1d079eadcfd02df6f0"
+}

@@ -57,12 +57,27 @@ A Codex or Claude Code user installs Disk Steward 1.5.1 and their agent gets one
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Impact records: `IMPACT-TASK-711-QUERY`, `IMPACT-TASK-711-EXPORT`, `IMPACT-TASK-711-LIFECYCLE`, `IMPACT-TASK-711-ASSURANCE`, `IMPACT-TASK-712-BUILD`, `IMPACT-TASK-712-ASSURANCE`, `IMPACT-TASK-713-MCP`, `IMPACT-TASK-713-CONTRACTS`, `IMPACT-TASK-713-QUERY`, `IMPACT-TASK-713-BUILD`, `IMPACT-TASK-713-ASSURANCE`, `IMPACT-TASK-714-MCP`, `IMPACT-TASK-714-CONTRACTS`, `IMPACT-TASK-714-BUILD`, `IMPACT-TASK-714-ASSURANCE`, `IMPACT-TASK-715-CLIENTS`, `IMPACT-TASK-715-CONTRACTS`, `IMPACT-TASK-715-MCP`, `IMPACT-TASK-715-ASSURANCE`, `IMPACT-TASK-711-STORE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-CLIENTS`, `ASSET-CONTRACTS`, `ASSET-EXPORT`, `ASSET-LIFECYCLE`, `ASSET-MCP`, `ASSET-QUERY`, `ASSET-STORE`
+- Inspections: `INSPECT-TASK-711-1`, `INSPECT-TASK-712-1`, `INSPECT-TASK-713-1`, `INSPECT-TASK-714-1`, `INSPECT-TASK-715-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- Impact IMPACT-TASK-712-ASSURANCE remains hypothesis
+- Impact IMPACT-TASK-712-BUILD remains hypothesis
+- Impact IMPACT-TASK-715-ASSURANCE remains hypothesis
+- Impact IMPACT-TASK-715-CLIENTS remains hypothesis
+- Impact IMPACT-TASK-715-CONTRACTS remains hypothesis
+- Impact IMPACT-TASK-715-MCP remains hypothesis
+- Impacted asset ASSET-CLIENTS lacks a sufficient passing inspection
+- Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
+- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
+- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
+- Impacted asset ASSET-STORE lacks a sufficient passing inspection
+- Inspection INSPECT-TASK-712-1 predates implementation for: TASK-712
+- Required inspection INSPECT-TASK-711-1 is stale
+- Required inspection INSPECT-TASK-712-1 is stale
+- Required inspection INSPECT-TASK-713-1 is stale
+- Required inspection INSPECT-TASK-715-1 is stale
 
 

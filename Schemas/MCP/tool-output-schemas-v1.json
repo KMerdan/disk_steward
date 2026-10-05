@@ -1,0 +1,861 @@
+{
+  "schema": "mcp-tool-output-schemas-v1",
+  "tools": {
+    "explain_growth": {
+      "properties": {
+        "budget": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "capacity_change": {
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "used_delta_bytes": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "type": "object"
+        },
+        "changed_directories": {
+          "properties": {
+            "items": {
+              "items": {
+                "properties": {
+                  "changes": {
+                    "type": "integer"
+                  },
+                  "measured": {
+                    "type": "boolean"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          },
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "detail_status": {
+          "type": "string"
+        },
+        "journal_coverage_start": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "journal_gaps": {
+          "type": "array"
+        },
+        "journal_limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "matched_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "measured_growth": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "returned_count": {
+          "type": "integer"
+        },
+        "schema": {
+          "enum": [
+            "evidence-query-page-v1"
+          ],
+          "type": "string"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations",
+        "capacity_change",
+        "returned_count",
+        "truncated",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "export_evidence": {
+      "properties": {
+        "legacy": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "observed_at": {
+          "type": "string"
+        },
+        "requested_interval": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "schema": {
+          "enum": [
+            "evidence-export-v2",
+            "inline-evidence-bundle-v1"
+          ],
+          "type": "string"
+        },
+        "steward": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "limitations"
+      ],
+      "type": "object"
+    },
+    "get_health": {
+      "properties": {
+        "detail_store": {
+          "type": "string"
+        },
+        "growth_attribution": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "journal": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "legacy_evidence": {
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "observed_at": {
+          "type": "string"
+        },
+        "reviews": {
+          "items": {
+            "properties": {
+              "completed_at": {
+                "type": "string"
+              },
+              "coverage": {
+                "type": "string"
+              },
+              "item_count": {
+                "type": "integer"
+              },
+              "limitations": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "scope": {
+                "type": "string"
+              },
+              "started_at": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "worth_reviewing_bytes": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "running": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "schema": {
+          "enum": [
+            "health-v1"
+          ],
+          "type": "string"
+        },
+        "stores": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations",
+        "stores",
+        "reviews"
+      ],
+      "type": "object"
+    },
+    "get_review_item_evidence": {
+      "properties": {
+        "item": {
+          "properties": {
+            "allocated_bytes": {
+              "type": "integer"
+            },
+            "cleanup_command": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "evidence": {
+              "enum": [
+                "Verified now",
+                "Stale",
+                "Partial",
+                "Unknown"
+              ],
+              "type": "string"
+            },
+            "item_id": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "origin": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "present": {
+              "type": "boolean"
+            },
+            "rank": {
+              "type": "integer"
+            },
+            "reasons_to_keep": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "rebuild_command": {
+              "type": "string"
+            },
+            "rebuild_command_known": {
+              "type": "boolean"
+            },
+            "reclaimable_bytes": {
+              "type": "integer"
+            },
+            "recreate_class": {
+              "type": "string"
+            },
+            "size_is_lower_bound": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string"
+            },
+            "verified_at": {
+              "type": "string"
+            },
+            "why_it_may_be_disposable": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "item_id",
+            "path",
+            "allocated_bytes",
+            "evidence"
+          ],
+          "type": "object"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "observed_at": {
+          "type": "string"
+        },
+        "report": {
+          "type": "object"
+        },
+        "safety": {
+          "type": "string"
+        },
+        "schema": {
+          "enum": [
+            "review-item-evidence-v1"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations",
+        "item",
+        "report",
+        "safety"
+      ],
+      "type": "object"
+    },
+    "get_storage_summary": {
+      "properties": {
+        "capacity_history": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "detail_status": {
+          "type": "string"
+        },
+        "free_above_reserve_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "freshness": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "reserve_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "schema": {
+          "enum": [
+            "storage-summary-v1"
+          ],
+          "type": "string"
+        },
+        "volumes": {
+          "items": {
+            "properties": {
+              "available_bytes": {
+                "type": "integer"
+              },
+              "mount_path": {
+                "type": "string"
+              },
+              "total_bytes": {
+                "type": "integer"
+              },
+              "used_bytes": {
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations",
+        "volumes"
+      ],
+      "type": "object"
+    },
+    "get_task_impact": {
+      "properties": {
+        "confidence": {
+          "type": "string"
+        },
+        "coverage": {
+          "type": "string"
+        },
+        "directories": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "observed_at": {
+          "type": "string"
+        },
+        "schema": {
+          "enum": [
+            "task-impact-v2",
+            "task-impact-v1"
+          ],
+          "type": "string"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "sessions": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations"
+      ],
+      "type": "object"
+    },
+    "list_active_agent_sessions": {
+      "properties": {
+        "budget": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "matched_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "returned_count": {
+          "type": "integer"
+        },
+        "schema": {
+          "enum": [
+            "active-agent-sessions-v1"
+          ],
+          "type": "string"
+        },
+        "sessions": {
+          "type": "array"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations",
+        "sessions",
+        "returned_count",
+        "truncated",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "list_largest_objects": {
+      "properties": {
+        "available_scopes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "budget": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "items": {
+          "items": {
+            "properties": {
+              "allocated_bytes": {
+                "type": "integer"
+              },
+              "file_count": {
+                "type": "integer"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "last_activity": {
+                "type": "string"
+              },
+              "measured_at": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "recreate_class": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "matched_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "returned_count": {
+          "type": "integer"
+        },
+        "schema": {
+          "enum": [
+            "largest-objects-v1"
+          ],
+          "type": "string"
+        },
+        "scope": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations",
+        "items",
+        "returned_count",
+        "truncated",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "list_review_items": {
+      "properties": {
+        "available_scopes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "budget": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "items": {
+          "items": {
+            "properties": {
+              "allocated_bytes": {
+                "type": "integer"
+              },
+              "cleanup_command": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evidence": {
+                "enum": [
+                  "Verified now",
+                  "Stale",
+                  "Partial",
+                  "Unknown"
+                ],
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "rank": {
+                "type": "integer"
+              },
+              "rebuild_command": {
+                "type": "string"
+              },
+              "recreate_class": {
+                "type": "string"
+              },
+              "verified_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "item_id",
+              "path",
+              "allocated_bytes",
+              "evidence"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "matched_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "report": {
+          "properties": {
+            "completed_at": {
+              "type": "string"
+            },
+            "coverage": {
+              "type": "string"
+            },
+            "item_count": {
+              "type": "integer"
+            },
+            "limitations": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "report_id": {
+              "type": "string"
+            },
+            "scope": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "worth_reviewing_bytes": {
+              "type": "integer"
+            }
+          },
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "returned_count": {
+          "type": "integer"
+        },
+        "safety": {
+          "type": "string"
+        },
+        "schema": {
+          "enum": [
+            "review-items-v1"
+          ],
+          "type": "string"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema",
+        "limitations",
+        "report",
+        "items",
+        "safety",
+        "returned_count",
+        "truncated",
+        "next_cursor"
+      ],
+      "type": "object"
+    },
+    "measure_path": {
+      "properties": {
+        "allocated_bytes": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "entries_visited": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "joined_review": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "objects": {
+          "items": {
+            "properties": {
+              "allocated_bytes": {
+                "type": "integer"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "observed_at": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "schema": {
+          "enum": [
+            "measure-path-v1"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "stop_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "limitations"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -43,7 +43,7 @@ final class DiskStewardMCPTests: XCTestCase {
             "capabilities": .object(["elicitation": .object(["form": .object([:]), "url": .object([:])])]),
             "clientInfo": .object(["name": .string("probe"), "version": .string("1")]),
         ]))
-        XCTAssertEqual(initialize.objectValue?["result"]?.objectValue?["protocolVersion"], .string("2025-06-18"), "the probe falls back cleanly")
+        XCTAssertEqual(initialize.objectValue?["result"]?.objectValue?["protocolVersion"], .string("2025-11-25"), "the probe falls back cleanly")
         XCTAssertNil(server.handle(line: notification(method: "notifications/initialized", params: [:])))
         let later = try response(server, request(id: 4, method: "server/discover", params: [:]))
         XCTAssertEqual(later.objectValue?["error"]?.objectValue?["code"], .integer(-32_601), "and after it")
@@ -93,6 +93,139 @@ final class DiskStewardMCPTests: XCTestCase {
             let name = try XCTUnwrap(tool["name"] as? String)
             XCTAssertEqual(tool["title"] as? String, MCPToolCatalog.titles[name], name)
         }
+    }
+
+    /// TASK-713: every tool declares an outputSchema that requires its schema
+    /// name and limitations, names no $schema (clients reject draft-07), and is
+    /// published as Schemas/MCP/tool-output-schemas-v1.json.
+    func testEveryToolDeclaresAnOutputSchemaAndThePublishedCopyMatches() throws {
+        var published: [String: JSONValue] = [:]
+        for entry in MCPToolCatalog.tools {
+            let tool = try XCTUnwrap(entry.objectValue)
+            let name = try XCTUnwrap(tool["name"]?.stringValue)
+            let output = try XCTUnwrap(tool["outputSchema"]?.objectValue, name)
+            XCTAssertEqual(output["type"], .string("object"), name)
+            XCTAssertNil(output["$schema"], name)
+            guard case let .array(required)? = output["required"] else { return XCTFail("\(name) requires nothing") }
+            XCTAssertTrue(required.contains(.string("schema")) && required.contains(.string("limitations")), name)
+            published[name] = .object(output)
+        }
+        let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let file = try JSONDecoder().decode(JSONValue.self, from: Data(contentsOf: repository.appending(path: "Schemas/MCP/tool-output-schemas-v1.json")))
+        let expected = JSONValue.object(["schema": .string("mcp-tool-output-schemas-v1"), "tools": .object(published)])
+        if file != expected {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.sortedKeys, .prettyPrinted, .withoutEscapingSlashes]
+            // Regenerate the published copy from here when the catalogue changes.
+            if let temporary = ProcessInfo.processInfo.environment["TMPDIR"] {
+                try encoder.encode(expected).write(to: URL(fileURLWithPath: temporary).appending(path: "tool-output-schemas-v1.json"))
+            }
+        }
+        XCTAssertEqual(file, expected, "Schemas/MCP/tool-output-schemas-v1.json is the catalogue's outputSchema set")
+    }
+
+    /// A supported version is echoed; anything newer is answered with the
+    /// newest initialize-era version, MCP 2025-11-25.
+    func testInitializeEchoesASupportedVersionAndOtherwiseOffers20251125() throws {
+        for (requested, expected) in [("2025-06-18", "2025-06-18"), ("2025-11-25", "2025-11-25"), ("2024-11-05", "2024-11-05"), ("2099-01-01", "2025-11-25")] {
+            let server = MCPServer(client: FakeIPCClient(result: sampleSummary))
+            let answer = try response(server, request(id: 1, method: "initialize", params: ["protocolVersion": .string(requested)]))
+            XCTAssertEqual(answer.objectValue?["result"]?.objectValue?["protocolVersion"], .string(expected), requested)
+        }
+    }
+
+    // MARK: TASK-714: MCP 2026-07-28 beside the initialize era
+
+    private func modern(_ id: Int, _ method: String, _ params: [String: Any] = [:], version: String = "2026-07-28", capabilities: Bool = true) -> String {
+        var meta: [String: Any] = ["io.modelcontextprotocol/protocolVersion": version,
+                                   "io.modelcontextprotocol/clientInfo": ["name": "era-test", "version": "1"]]
+        if capabilities { meta["io.modelcontextprotocol/clientCapabilities"] = [String: Any]() }
+        var body = params
+        body["_meta"] = meta
+        let request: [String: Any] = ["jsonrpc": "2.0", "id": id, "method": method, "params": body]
+        return String(decoding: try! JSONSerialization.data(withJSONObject: request), as: UTF8.self)
+    }
+
+    /// A 2026-07-28 client discovers, lists, calls and reads without
+    /// initialize, and every response validates against the upstream schema.
+    func testA20260728ClientIsServedStatelesslyAndMatchesTheUpstreamSchema() throws {
+        let upstream = try UpstreamSchemaValidator(version: "2026-07-28")
+        let status: JSONValue = .object(["schema": .string("health-v1"), "limitations": .array([])])
+        let server = MCPServer(client: FakeIPCClient(result: sampleSummary, resource: status), serverVersion: "1.5.1")
+        func answer(_ line: String, _ definition: String, file: StaticString = #filePath, line number: UInt = #line) throws -> [String: Any] {
+            let text = try XCTUnwrap(server.handle(line: line), file: file, line: number)
+            XCTAssertEqual(upstream.validate(json: text, definition: definition), [], "\(definition): \(text.prefix(400))", file: file, line: number)
+            return try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any], file: file, line: number)
+        }
+        let discover = try XCTUnwrap(try answer(modern(1, "server/discover"), "DiscoverResultResponse")["result"] as? [String: Any])
+        XCTAssertEqual(discover["supportedVersions"] as? [String], ["2026-07-28"])
+        XCTAssertEqual(discover["resultType"] as? String, "complete")
+        XCTAssertEqual(((discover["_meta"] as? [String: Any])?["io.modelcontextprotocol/serverInfo"] as? [String: Any])?["version"] as? String, "1.5.1")
+        let tools = try XCTUnwrap(try answer(modern(2, "tools/list"), "ListToolsResultResponse")["result"] as? [String: Any])
+        XCTAssertEqual((tools["tools"] as? [[String: Any]])?.count, MCPToolCatalog.names.count)
+        XCTAssertEqual(tools["cacheScope"] as? String, "public")
+        _ = try answer(modern(3, "resources/list"), "ListResourcesResultResponse")
+        let read = try XCTUnwrap(try answer(modern(4, "resources/read", ["uri": "disk-steward://status"]), "ReadResourceResultResponse")["result"] as? [String: Any])
+        XCTAssertEqual(read["ttlMs"] as? Int, 0, "the live status is not cached")
+        XCTAssertEqual(read["cacheScope"] as? String, "private")
+        let call = try XCTUnwrap(try answer(modern(5, "tools/call", ["name": "get_storage_summary", "arguments": [String: Any]()]), "CallToolResultResponse")["result"] as? [String: Any])
+        XCTAssertEqual(call["resultType"] as? String, "complete")
+        XCTAssertEqual(call["isError"] as? Bool, false)
+        XCTAssertNotNil(call["structuredContent"])
+        let invalid = try XCTUnwrap(try answer(modern(6, "tools/call", ["name": "explain_growth", "arguments": ["from": "x", "through": "y"]]), "CallToolResultResponse")["result"] as? [String: Any])
+        XCTAssertEqual(invalid["isError"] as? Bool, true)
+        XCTAssertNil(invalid["structuredContent"])
+    }
+
+    /// Version and envelope errors in the stateless era, and the methods it
+    /// removed; the initialize session keeps working beside it.
+    func testThe20260728EnvelopeIsCheckedAndRemovedMethodsAreNotFound() throws {
+        let upstream = try UpstreamSchemaValidator(version: "2026-07-28")
+        let server = MCPServer(client: FakeIPCClient(result: sampleSummary))
+        let unsupported = try XCTUnwrap(server.handle(line: modern(1, "tools/list", version: "2099-01-01")))
+        XCTAssertEqual(upstream.validate(json: unsupported, definition: "UnsupportedProtocolVersionError"), [], unsupported)
+        let error = try XCTUnwrap((try JSONSerialization.jsonObject(with: Data(unsupported.utf8)) as? [String: Any])?["error"] as? [String: Any])
+        XCTAssertEqual(error["code"] as? Int, -32_022)
+        XCTAssertEqual((error["data"] as? [String: Any])?["supported"] as? [String], ["2026-07-28"])
+        XCTAssertEqual((error["data"] as? [String: Any])?["requested"] as? String, "2099-01-01")
+        for (id, line, code) in [(2, modern(2, "tools/list", capabilities: false), -32_602),
+                                 (3, modern(3, "ping"), -32_601), (4, modern(4, "initialize"), -32_601),
+                                 (5, modern(5, "logging/setLevel", ["level": "info"]), -32_601)] {
+            let text = try XCTUnwrap(server.handle(line: line))
+            XCTAssertEqual(upstream.validate(json: text, definition: "JSONRPCErrorResponse"), [], text)
+            XCTAssertEqual(((try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any])?["error"] as? [String: Any])?["code"] as? Int, code, "request \(id)")
+        }
+        // The initialize-era session is unaffected.
+        let initialized = try response(server, request(id: 10, method: "initialize", params: ["protocolVersion": .string("2025-06-18")]))
+        XCTAssertEqual(initialized.objectValue?["result"]?.objectValue?["protocolVersion"], .string("2025-06-18"))
+        XCTAssertNil(server.handle(line: notification(method: "notifications/initialized", params: [:])))
+        let legacy = try response(server, request(id: 11, method: "tools/call", params: ["name": .string("get_storage_summary"), "arguments": .object([:])]))
+        XCTAssertNil(legacy.objectValue?["result"]?.objectValue?["resultType"], "an initialize-era result keeps its own shape")
+    }
+
+    /// A 2025-11-25 session's results validate against that version's schema.
+    func testA20251125SessionMatchesTheUpstreamSchema() throws {
+        let upstream = try UpstreamSchemaValidator(version: "2025-11-25")
+        let status: JSONValue = .object(["schema": .string("health-v1"), "limitations": .array([])])
+        let server = MCPServer(client: FakeIPCClient(result: sampleSummary, resource: status), serverVersion: "1.5.1")
+        func result(_ line: String, _ definition: String) throws -> [String: JSONValue] {
+            let text = try XCTUnwrap(server.handle(line: line))
+            let object = try XCTUnwrap(try JSONDecoder().decode(JSONValue.self, from: Data(text.utf8)).objectValue?["result"]?.objectValue, text)
+            let encoded = String(decoding: try JSONEncoder.diskSteward.encode(JSONValue.object(object)), as: UTF8.self)
+            XCTAssertEqual(upstream.validate(json: encoded, definition: definition), [], "\(definition): \(encoded.prefix(400))")
+            return object
+        }
+        let initialize = try result(request(id: 1, method: "initialize", params: [
+            "protocolVersion": .string("2025-11-25"), "capabilities": .object([:]),
+            "clientInfo": .object(["name": .string("era-test"), "version": .string("1")]),
+        ]), "InitializeResult")
+        XCTAssertEqual(initialize["protocolVersion"], .string("2025-11-25"))
+        XCTAssertNil(server.handle(line: notification(method: "notifications/initialized", params: [:])))
+        _ = try result(request(id: 2, method: "tools/list", params: [:]), "ListToolsResult")
+        _ = try result(request(id: 3, method: "resources/list", params: [:]), "ListResourcesResult")
+        _ = try result(request(id: 4, method: "resources/read", params: ["uri": .string("disk-steward://status")]), "ReadResourceResult")
+        _ = try result(request(id: 5, method: "tools/call", params: ["name": .string("get_storage_summary"), "arguments": .object([:])]), "CallToolResult")
+        _ = try result(request(id: 6, method: "tools/call", params: ["name": .string("list_review_items"), "arguments": .object(["limit": .integer(0)])]), "CallToolResult")
     }
 
     /// TASK-671: measure_path may take its whole 15 s budget, so it alone
@@ -172,8 +305,11 @@ final class DiskStewardMCPTests: XCTestCase {
         XCTAssertEqual(client.calledTools, ["get_storage_summary"])
     }
 
-    func testMalformedInputAndUnknownToolsAreProtocolErrors() throws {
-        let server = initializedServer(client: FakeIPCClient(result: sampleSummary))
+    /// MCP 2025-11-25 (SEP-1303): arguments a model can correct are a tool
+    /// error it reads; an unknown tool or non-object arguments stay -32602.
+    func testInvalidArgumentsAreToolErrorsAndUnknownToolsProtocolErrors() throws {
+        let client = FakeIPCClient(result: sampleSummary)
+        let server = initializedServer(client: client)
         let malformed = try response(server, request(id: 4, method: "tools/call", params: [
             "name": .string("explain_growth"),
             "arguments": .object([
@@ -181,7 +317,16 @@ final class DiskStewardMCPTests: XCTestCase {
                 "through": .string("2026-09-12T12:00:00Z"),
             ]),
         ]))
-        XCTAssertEqual(malformed.objectValue?["error"]?.objectValue?["code"], .integer(-32_602))
+        XCTAssertNil(malformed.objectValue?["error"], "not a protocol error")
+        let error = try errorDetails(malformed)
+        XCTAssertEqual(error["code"], .string("invalid_arguments"))
+        XCTAssertEqual(error["retryable"], .bool(false))
+        XCTAssertTrue(error["message"]?.stringValue?.contains("through must be later than from") == true)
+        XCTAssertTrue(client.calledTools.isEmpty, "the app is never asked")
+        let notObject = try response(server, request(id: 11, method: "tools/call", params: [
+            "name": .string("get_health"), "arguments": .string("x"),
+        ]))
+        XCTAssertEqual(notObject.objectValue?["error"]?.objectValue?["code"], .integer(-32_602))
 
         let unknown = try response(server, request(id: 5, method: "tools/call", params: [
             "name": .string("delete_file"),
@@ -197,9 +342,12 @@ final class DiskStewardMCPTests: XCTestCase {
         ]))
         let disabledResult = try XCTUnwrap(disabledOutput.objectValue?["result"]?.objectValue)
         XCTAssertEqual(disabledResult["isError"], .bool(true))
-        XCTAssertEqual(disabledResult["structuredContent"]?.objectValue?["code"], .string("agent_access_disabled"))
-        XCTAssertEqual(disabledResult["structuredContent"]?.objectValue?["retryable"], .bool(false))
-        XCTAssertTrue(disabledResult["structuredContent"]?.objectValue?["recovery"]?.stringValue?.contains("turn on Agent Access") == true)
+        XCTAssertNil(disabledResult["structuredContent"], "an error carries its details as text, never as structured content")
+        let disabledError = try errorDetails(disabledOutput)
+        XCTAssertEqual(disabledError["code"], .string("agent_access_disabled"))
+        XCTAssertEqual(disabledError["retryable"], .bool(false))
+        XCTAssertTrue(disabledError["recovery"]?.stringValue?.contains("turn on Agent Access") == true)
+        XCTAssertTrue(disabledError["message"]?.stringValue?.contains("Agent Access is off") == true)
 
         let unavailable = initializedServer(client: FakeIPCClient(error: DiskStewardIPCError.appUnavailable))
         let output = try response(unavailable, request(id: 6, method: "tools/call", params: [
@@ -207,8 +355,8 @@ final class DiskStewardMCPTests: XCTestCase {
         ]))
         let result = try XCTUnwrap(output.objectValue?["result"]?.objectValue)
         XCTAssertEqual(result["isError"], .bool(true))
-        XCTAssertEqual(result["structuredContent"]?.objectValue?["code"], .string("app_unavailable"))
-        XCTAssertNotNil(result["structuredContent"]?.objectValue?["recovery"])
+        XCTAssertEqual(try errorDetails(output)["code"], .string("app_unavailable"))
+        XCTAssertNotNil(try errorDetails(output)["recovery"])
 
         let temporary = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         try Data().write(to: temporary)
@@ -241,7 +389,7 @@ final class DiskStewardMCPTests: XCTestCase {
         let boundedOutput = try response(bounded, request(id: 8, method: "tools/call", params: [
             "name": .string("get_storage_summary"), "arguments": .object([:]),
         ]))
-        XCTAssertEqual(boundedOutput.objectValue?["result"]?.objectValue?["structuredContent"]?.objectValue?["code"], .string("response_too_large"))
+        XCTAssertEqual(try errorDetails(boundedOutput)["code"], .string("response_too_large"))
 
         let bundle: JSONValue = .object([
             "schema": .string("inline-evidence-bundle-v1"),
@@ -288,6 +436,17 @@ final class DiskStewardMCPTests: XCTestCase {
             "used_bytes": .integer(100),
             "limitations": .array([.string("File detail is limited to monitored roots.")]),
         ])
+    }
+
+    /// An error result's mcp-error-v1 details, read from its text.
+    private func errorDetails(_ output: JSONValue) throws -> [String: JSONValue] {
+        let result = try XCTUnwrap(output.objectValue?["result"]?.objectValue)
+        XCTAssertEqual(result["isError"], .bool(true))
+        guard case let .array(content)? = result["content"] else { return [:] }
+        let text = try XCTUnwrap(content.first?.objectValue?["text"]?.stringValue, "an error result carries its details as text")
+        let details = try XCTUnwrap(try JSONDecoder().decode(JSONValue.self, from: Data(text.utf8)).objectValue)
+        XCTAssertEqual(details["schema"], .string("mcp-error-v1"))
+        return details
     }
 
     private func initializedServer(client: FakeIPCClient, maximumResponseBytes: Int = 4 * 1_024 * 1_024) -> MCPServer {

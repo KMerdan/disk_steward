@@ -7,7 +7,9 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from process_supervisor import BirthInfo, Family, MARKER, ProcessTable, run_command
+import sys
+
+from process_supervisor import BirthInfo, Family, MARKER, ProcessTable, expected_survivors, run_command
 
 
 class SupervisorContractTests(unittest.TestCase):
@@ -166,6 +168,54 @@ class SupervisorContractTests(unittest.TestCase):
         table.identity = identity
         self.assertEqual(list(table.snapshot()), [1_100])
         self.assertEqual(table.unreadable, {200})
+
+
+class ExpectedDescendantTests(unittest.TestCase):
+    """FIND-R4-XCODE-WORKER: a launcher that exits 0 may leave an allowed tool
+    daemon (Xcode's ibtoold); it is stopped with cleanup verified and the stage
+    passes. Any other survivor, or a failed launcher, still fails the stage."""
+
+    LEAVES_SLEEP = ("import subprocess, sys\n"
+                    "subprocess.Popen(['/bin/sleep', '30'], start_new_session=True,"
+                    " stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n"
+                    "sys.exit(int(sys.argv[1]))")
+
+    def run_fixture(self, exit_code, expected):
+        with tempfile.TemporaryDirectory(dir="/private/tmp") as directory:
+            return run_command([sys.executable, "-c", self.LEAVES_SLEEP, str(exit_code)], Path(directory),
+                               {"PATH": "/usr/bin:/bin"}, Path(directory) / "run.log", 20,
+                               expected_descendants=expected)
+
+    def test_an_allowed_daemon_is_stopped_and_the_stage_passes(self):
+        result = self.run_fixture(0, ["/bin/sleep"])
+        self.assertTrue(result["passed"], result["stopReason"])
+        self.assertIsNone(result["stopReason"])
+        self.assertTrue(result["supervision"]["cleanupVerified"])
+        self.assertEqual([item["executable"] for item in result["supervision"]["expectedDescendants"]], ["/bin/sleep"])
+        self.assertEqual(result["supervision"]["remaining"], [])
+
+    def test_without_an_allowance_the_survivor_still_fails_the_stage(self):
+        result = self.run_fixture(0, [])
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["stopReason"], "launcher-exited-with-descendants")
+        self.assertTrue(result["supervision"]["cleanupVerified"])
+
+    def test_another_executable_or_a_failed_launcher_still_fails(self):
+        other = self.run_fixture(0, ["/bin/cat"])
+        self.assertEqual(other["stopReason"], "launcher-exited-with-descendants")
+        self.assertFalse(other["passed"])
+        failed = self.run_fixture(3, ["/bin/sleep"])
+        self.assertEqual(failed["stopReason"], "launcher-exited-with-descendants")
+        self.assertFalse(failed["passed"])
+
+    def test_an_unreadable_or_relative_path_is_never_allowed(self):
+        class Table:
+            def executable(self, item): return None if item["pid"] == 2 else "/bin/sleep"
+        alive = [{"pid": 1, "unique": 11}, {"pid": 2, "unique": 12}]
+        self.assertIsNone(expected_survivors(Table(), alive, ["/bin/sleep"]), "one survivor's path cannot be read")
+        self.assertIsNone(expected_survivors(Table(), alive[:1], ["sleep"]), "only absolute paths are allowed")
+        self.assertEqual(expected_survivors(Table(), alive[:1], ["/bin/sleep"]),
+                         [{"pid": 1, "unique": 11, "executable": "/bin/sleep"}])
 
 
 if __name__ == "__main__":

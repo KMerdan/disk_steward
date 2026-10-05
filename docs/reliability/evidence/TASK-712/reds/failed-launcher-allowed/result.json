@@ -1,0 +1,22 @@
+{
+ "mutation": {
+  "name": "an allowed daemon passes even after a failed launcher",
+  "mutations": [
+   {
+    "file": "Scripts/Testing/process_supervisor.py",
+    "replacements": [
+     [
+      "expected_survivors(table, alive, expected_descendants) if child.returncode == 0 else None",
+      "expected_survivors(table, alive, expected_descendants) if True else None"
+     ]
+    ]
+   }
+  ]
+ },
+ "exitCode": 1,
+ "passed": false,
+ "baseSupervisorSHA256": "6ed1cd952a8f34c5eedb8ab438f7dc47bf98b405684b51df957cb2e3f7828e7f",
+ "failing": [
+  "test_another_executable_or_a_failed_launcher_still_fails"
+ ]
+}

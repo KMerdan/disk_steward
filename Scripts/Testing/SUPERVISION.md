@@ -27,6 +27,13 @@ fallback.
   early launcher exit with live descendants fail the run and enter cleanup.
   A zero launcher exit or EOF is not cleanup proof. Reports include identities,
   signals, budgets, peak, errors, remaining processes and `cleanupVerified`.
+- One exception, opted into per call: `expected_descendants` names absolute
+  executables that may outlive a launcher that exited 0 by design. The packaged
+  build passes the selected Xcode's `usr/bin/ibtoold`, which asset-catalog
+  compilation leaves running (FIND-R4-XCODE-WORKER). The survivors are matched by
+  `proc_pidpath` with an identity recheck. They are stopped and verified like any
+  owned process, and the report lists them in `expectedDescendants`. Any other
+  survivor, an unreadable path or a failed launcher still fails the stage.
 
 This is containment for reviewed, cooperative direct process trees, **not a
 security boundary for hostile source**. Do not run a program that delegates to

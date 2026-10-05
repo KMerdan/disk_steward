@@ -8,10 +8,10 @@
 - Wave: `1`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `planned`
+- Execution: `working`
 - Verification: `unverified`
 - Health: `clear`
-- Availability: `ready`
+- Availability: `working`
 - Goal trace: `TASK-715` → `OUTCOME-710` → `INTENT-007`
 
 ## Goal
@@ -67,12 +67,20 @@ The Claude installer installs the evidence skill from the single SKILL.md source
 ## Brownfield Assurance
 
 - Status: `blocked`
-- Impact records: None
-- Affected assets: None
-- Inspections: None
+- Impact records: `IMPACT-TASK-715-CLIENTS`, `IMPACT-TASK-715-CONTRACTS`, `IMPACT-TASK-715-MCP`, `IMPACT-TASK-715-ASSURANCE`
+- Affected assets: `ASSET-ASSURANCE`, `ASSET-CLIENTS`, `ASSET-CONTRACTS`, `ASSET-MCP`
+- Inspections: `INSPECT-TASK-715-1`
 
 ### Assurance Blockers
 
-- No impact records cover the audited change scope
+- Impact IMPACT-TASK-715-ASSURANCE remains hypothesis
+- Impact IMPACT-TASK-715-CLIENTS remains hypothesis
+- Impact IMPACT-TASK-715-CONTRACTS remains hypothesis
+- Impact IMPACT-TASK-715-MCP remains hypothesis
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-CLIENTS lacks a sufficient passing inspection
+- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
+- Impacted asset ASSET-MCP lacks a sufficient passing inspection
+- Required inspection INSPECT-TASK-715-1 is stale
 
 

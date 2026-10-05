@@ -609,13 +609,21 @@ public actor EvidenceStore {
         return observedAt
     }
 
+    /// The REAL column only orders rows (one per path once staging is
+    /// collapsed). The time comes from the payload, as for every other staged
+    /// sample: seconds since 1970 do not round-trip a Date, and a replacement
+    /// time read from the column can land one ulp after the publication
+    /// instant it was sampled at.
     private static func stagedReplacementDate(input: ReconciliationInput, generationID: String, path: String, objectID: String, connection: SQLiteConnection) throws -> Date? {
-        try connection.withStatement("SELECT MAX(observed_at) FROM \(input.table) WHERE generation_id = ? AND path = ? AND object_id != ?") { statement in
+        struct ObservationTime: Decodable { let observedAt: Date? }
+        return try connection.withStatement("SELECT payload, observed_at FROM \(input.table) WHERE generation_id = ? AND path = ? AND object_id != ? ORDER BY observed_at DESC LIMIT 1") { statement -> Date? in
             try connection.bind(generationID, at: 1, in: statement)
             try connection.bind(path, at: 2, in: statement)
             try connection.bind(objectID, at: 3, in: statement)
-            guard sqlite3_step(statement) == SQLITE_ROW else { throw connection.lastError(SQLITE_CORRUPT) }
-            return columnDate(statement, column: 0)
+            guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
+            guard let payload = sqlite3_column_blob(statement, 0) else { throw connection.lastError(SQLITE_CORRUPT) }
+            let time = try JSONDecoder().decode(ObservationTime.self, from: Data(bytes: payload, count: Int(sqlite3_column_bytes(statement, 0))))
+            return time.observedAt ?? columnDate(statement, column: 1)
         }
     }
 

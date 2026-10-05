@@ -60,17 +60,27 @@ final class MCPContractTests: XCTestCase {
         XCTAssertEqual((request["params"] as? [String: Any])?["protocolVersion"] as? String, "2025-06-18")
         XCTAssertEqual((response["result"] as? [String: Any])?["protocolVersion"] as? String, "2025-06-18")
 
-        let unavailable = try object(at: "Fixtures/MCP/tool-call-app-unavailable.json")
-        let unavailableResult = try XCTUnwrap(unavailable["result"] as? [String: Any])
-        XCTAssertEqual(unavailableResult["isError"] as? Bool, true)
-        XCTAssertNil(unavailable["error"])
-        let structured = try XCTUnwrap(unavailableResult["structuredContent"] as? [String: Any])
-        XCTAssertEqual(structured["code"] as? String, "app_unavailable")
-        XCTAssertNotNil(structured["recovery"])
+        // Execution errors are tool results whose mcp-error-v1 details are the
+        // text; they carry no structuredContent (TASK-713).
+        for (path, code) in [("Fixtures/MCP/tool-call-app-unavailable.json", "app_unavailable"),
+                             ("Fixtures/MCP/tool-call-invalid-arguments.json", "invalid_arguments")] {
+            let fixture = try object(at: path)
+            XCTAssertNil(fixture["error"], path)
+            let result = try XCTUnwrap(fixture["result"] as? [String: Any], path)
+            XCTAssertEqual(result["isError"] as? Bool, true, path)
+            XCTAssertNil(result["structuredContent"], path)
+            let text = try XCTUnwrap(((result["content"] as? [[String: Any]])?.first)?["text"] as? String, path)
+            let details = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [String: Any], path)
+            XCTAssertEqual(details["schema"] as? String, "mcp-error-v1", path)
+            XCTAssertEqual(details["code"] as? String, code, path)
+            XCTAssertNotNil(details["message"], path)
+            XCTAssertNotNil(details["recovery"], path)
+        }
 
-        let malformed = try object(at: "Fixtures/MCP/protocol-error-malformed-input.json")
-        XCTAssertNil(malformed["result"])
-        XCTAssertEqual((malformed["error"] as? [String: Any])?["code"] as? Int, -32602)
+        // An unknown tool is still a protocol error.
+        let unknown = try object(at: "Fixtures/MCP/protocol-error-unknown-tool.json")
+        XCTAssertNil(unknown["result"])
+        XCTAssertEqual((unknown["error"] as? [String: Any])?["code"] as? Int, -32602)
     }
 
     func testSanitizedResponseCarriesConfidenceLimitationsAndNoSecrets() throws {

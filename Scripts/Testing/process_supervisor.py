@@ -117,6 +117,17 @@ class ProcessTable:
             return False
         return matches
 
+    def executable(self, item):
+        """The process's executable path, or None when it has exited or its
+        PID now names another birth. Used only to recognise expected daemons."""
+        buffer = C.create_string_buffer(4096)
+        if self.lib.proc_pidpath(item["pid"], buffer, C.c_uint32(4096)) <= 0:
+            return None
+        now = self.identity(item["pid"])
+        if now is None or now["unique"] != item["unique"]:
+            return None
+        return os.fsdecode(buffer.value)
+
     def memory(self, item):
         usage = Usage()
         if self.lib.proc_pid_rusage(item["pid"], 0, C.byref(usage)) != 0:
@@ -209,10 +220,33 @@ class Family:
             self.owned.update(additions)
 
 
+def expected_survivors(table, alive, expected_descendants):
+    """The survivors as records when every one is an allowed daemon, else None.
+
+    A launcher that exits 0 may leave a tool daemon behind by design (Xcode's
+    ibtoold). Only absolute executable paths the caller names are allowed; any
+    other survivor, or one whose path cannot be read, keeps the stage failed."""
+    allowed = {os.path.realpath(path) for path in expected_descendants if os.path.isabs(path)}
+    if not allowed:
+        return None
+    records = []
+    for item in alive:
+        path = table.executable(item)
+        if path is None or os.path.realpath(path) not in allowed:
+            return None
+        records.append({"pid": item["pid"], "unique": item["unique"], "executable": path})
+    return records
+
+
 def run_command(command, cwd, environment, log, seconds, maximum_log_bytes=8 * MIB,
                 stdin_path=None, maximum_memory_bytes=2 * 1024 * MIB,
-                termination_grace=1.0, maximum_processes=64, table_factory=ProcessTable):
-    """Return a failed report unless both command and identity-bound cleanup pass."""
+                termination_grace=1.0, maximum_processes=64, table_factory=ProcessTable,
+                expected_descendants=()):
+    """Return a failed report unless both command and identity-bound cleanup pass.
+
+    `expected_descendants` names absolute executables (an Xcode tool daemon)
+    that may outlive a launcher which exited 0; they are stopped and their
+    cleanup verified like any other owned process, and the stage passes."""
     if (not math.isfinite(seconds) or not 0 < seconds <= 3600 or
             not 0 < maximum_log_bytes <= 64 * MIB or
             not 0 < maximum_memory_bytes <= 8 * 1024 * MIB or
@@ -222,6 +256,7 @@ def run_command(command, cwd, environment, log, seconds, maximum_log_bytes=8 * M
     started, wall_start = time.monotonic(), time.time()
     reason, error, child, family = None, None, None, None
     peak, retained, signals, remaining, cleanup_errors = 0, 0, [], [], []
+    stopped_expected = []
     marker = str(uuid.uuid4())
     table = table_factory()  # Fail BEFORE launch when inspection is unavailable.
     baseline = table.snapshot()
@@ -308,7 +343,11 @@ def run_command(command, cwd, environment, log, seconds, maximum_log_bytes=8 * M
                 if child.poll() is not None:
                     alive = family.discover()
                     if alive:
-                        reason = "launcher-exited-with-descendants"
+                        expected = expected_survivors(table, alive, expected_descendants) if child.returncode == 0 else None
+                        if expected is None:
+                            reason = "launcher-exited-with-descendants"
+                        else:
+                            stopped_expected = expected
                         break
                     if not selector.get_map():
                         break
@@ -376,6 +415,7 @@ def run_command(command, cwd, environment, log, seconds, maximum_log_bytes=8 * M
                 "processLimit": maximum_processes, "terminationGraceSeconds": termination_grace,
                 "pollSeconds": 0.025, "cleanupVerified": clean, "remaining": remaining,
                 "cleanupErrors": sorted(set(cleanup_errors)), "signals": signals,
+                "expectedDescendants": stopped_expected,
                 "identities": list(family.owned.values()) if family else [],
                 "limitations": ["Trusted direct process trees only; no launchd/XPC delegation or deliberate lineage hiding.",
                     "Sampled footprint can overshoot between polls; it is not a kernel hard quota.",

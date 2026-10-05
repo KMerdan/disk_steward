@@ -125,7 +125,10 @@ final class AgentQueryableEvidenceIncrementTests: XCTestCase {
         let unavailable = try runConnector(input: unavailableTranscript, socket: socket.path)
         XCTAssertEqual(unavailable.status, 0)
         let unavailableResponses = try responseMap(unavailable.stdout)
-        let degraded = try structured(unavailableResponses, id: 9)
+        let degradedResult = try XCTUnwrap(unavailableResponses[9]?["result"] as? [String: Any])
+        XCTAssertEqual(degradedResult["isError"] as? Bool, true)
+        let degradedText = try XCTUnwrap(((degradedResult["content"] as? [[String: Any]])?.first)?["text"] as? String)
+        let degraded = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(degradedText.utf8)) as? [String: Any])
         XCTAssertEqual(degraded["code"] as? String, "app_unavailable")
         XCTAssertTrue((degraded["recovery"] as? String)?.contains("Open Disk Steward") == true)
     }

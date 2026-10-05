@@ -648,7 +648,8 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         }
         let detail = pathDetail(arguments)
         result["capacity_change"] = await capacityChange(from: from, through: through)
-        var journal = await journalAnswer(from: from, through: through, detail: detail)
+        let journalLimit = arguments["limit"]?.integerValue.map { Int($0) } ?? 200
+        var journal = await journalAnswer(from: from, through: through, detail: detail, limit: journalLimit)
         let (measured, attributions) = await measuredGrowth(from: from, through: through, detail: detail)
         result["measured_growth"] = measured
         if let attribution = attributions.first { journal["changed_directories"] = markMeasured(journal["changed_directories"], by: attribution, detail: detail) }
@@ -797,13 +798,14 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         return journal
     }
 
-    private func journalAnswer(from: Date, through: Date, detail: EvidencePathDetail) async -> [String: JSONValue] {
+    /// `limit` bounds changed_directories; explain_growth passes its request's limit.
+    private func journalAnswer(from: Date, through: Date, detail: EvidencePathDetail, limit: Int = 200) async -> [String: JSONValue] {
         do {
             guard let journal = try existingJournal() else {
                 return ["changed_directories": .null, "journal_gaps": .array([]), "journal_coverage_start": .null,
                         "journal_limitations": .array([.string("The change journal has not started; which directories changed is unknown.")])]
             }
-            let window = try await journal.changes(from: from, through: through, limit: 200)
+            let window = try await journal.changes(from: from, through: through, limit: min(max(limit, 1), 500))
             let start = try await journal.coverageStart()
             var limitations = ["Changed directories come from the file-system change journal. One is marked measured when an attribution measured objects at, inside or under it; measured_growth has the deltas."]
             if window.changes.truncated { limitations.append("changed_directories lists \(window.changes.items.count) of \(window.changes.total) directories, most changes first.") }
@@ -2324,8 +2326,7 @@ actor AppEvidenceQueryBackend: DiskStewardIPCRequestHandling {
         case .basename: shaped = URL(fileURLWithPath: path).lastPathComponent
         case .hashed: return "sha256:" + SHA256.hash(data: Data(path.utf8)).map { String(format: "%02x", $0) }.joined()
         }
-        let pattern = #"(?i)(sk-[A-Za-z0-9_-]{8,}|gh[pousr]_[A-Za-z0-9]{8,}|AKIA[A-Z0-9]{16}|(?:token|password|secret|api[_-]?key)=[^/\s]+)"#
-        return shaped.replacingOccurrences(of: pattern, with: "[REDACTED]", options: .regularExpression)
+        return EvidencePathRedaction.redact(shaped)
     }
 
     private func coverage(observationGaps: [EvidenceCoverageGap], from: Date? = nil, through: Date? = nil) -> String {

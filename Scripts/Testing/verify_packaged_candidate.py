@@ -11,9 +11,23 @@ import platform
 import plistlib
 import socket
 import stat
+import subprocess
 import uuid
 
 from verify_candidate import copy_inputs, input_manifest, manifest_digest, run_command, sha256
+
+
+def xcode_daemons():
+    """Tool daemons the selected Xcode leaves running after a successful build
+    by design (ibtoold, from asset catalog compilation). The supervisor stops
+    them with cleanup verified instead of failing the stage (FIND-R4-XCODE-WORKER)."""
+    try:
+        developer = subprocess.run(["/usr/bin/xcode-select", "-p"], capture_output=True, text=True,
+                                   timeout=10, check=True).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return []
+    daemon = Path(developer) / "usr/bin/ibtoold"
+    return [str(daemon)] if developer.startswith("/") and daemon.is_file() else []
 
 
 SMOKE_FIELDS = {
@@ -155,10 +169,10 @@ def verify_package(snapshot, scratch, output, environment, manifest, xcodegen, r
                    "generator": {"path": str(generator), "sha256": sha256(generator)},
                    "signing": "disabled", "notarization": "not-tested"})
 
-    def stage(label, command, seconds=60, stdin_path=None, env=None):
+    def stage(label, command, seconds=60, stdin_path=None, env=None, expected_descendants=()):
         print("Verifying " + label, flush=True)
         check = run_command(command, package_source, env or environment, output / (label + ".log"),
-                            seconds, stdin_path=stdin_path)
+                            seconds, stdin_path=stdin_path, expected_descendants=expected_descendants)
         check["stage"] = label
         checks.append(check)
         if not check["passed"]:
@@ -187,7 +201,7 @@ def verify_package(snapshot, scratch, output, environment, manifest, xcodegen, r
                            "-derivedDataPath", str(derived), "-clonedSourcePackagesDirPath", str(scratch / "xcode-packages"),
                            "-disableAutomaticPackageResolution", "-jobs", "2", "CODE_SIGNING_ALLOWED=NO",
                            "CODE_SIGNING_REQUIRED=NO", "CODE_SIGN_IDENTITY=", "DEVELOPMENT_TEAM=",
-                           "COMPILER_INDEX_STORE_ENABLE=NO", "build"], 600)
+                           "COMPILER_INDEX_STORE_ENABLE=NO", "build"], 600, expected_descendants=xcode_daemons())
     bundle = derived / "Build/Products/CI/Disk Steward.app"
     identity = bundle_manifest(bundle)
     report.update({"path": str(bundle), "bundleManifest": identity, "bundleSHA256": manifest_digest(identity)})

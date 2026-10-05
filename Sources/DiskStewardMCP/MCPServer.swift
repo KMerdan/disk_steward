@@ -17,10 +17,13 @@ public final class MCPServer: @unchecked Sendable {
         let key: String
         let method: String
         let params: JSONValue?
+        /// An MCP 2026-07-28 (stateless) request: its result carries the
+        /// modern envelope.
+        let modern: Bool
         fileprivate var cancelled = false
         fileprivate var terminal = false
-        fileprivate init(id: JSONValue, key: String, method: String, params: JSONValue?) {
-            self.id = id; self.key = key; self.method = method; self.params = params
+        fileprivate init(id: JSONValue, key: String, method: String, params: JSONValue?, modern: Bool = false) {
+            self.id = id; self.key = key; self.method = method; self.params = params; self.modern = modern
         }
     }
     enum Admission {
@@ -88,6 +91,12 @@ public final class MCPServer: @unchecked Sendable {
         if stateLock.withLock({ activeRequests[idKey(id)] != nil }) {
             return .response(encode(protocolError(id: id, code: -32_600, message: "Duplicate active request ID")))
         }
+        // A request carrying the per-request protocol version is MCP
+        // 2026-07-28 and is served statelessly; one without it belongs to the
+        // initialize-based session (2025-11-25 and earlier).
+        if let meta = object["params"]?.objectValue?["_meta"]?.objectValue, let version = meta[Self.versionKey] {
+            return prepareModern(id: id, method: method, params: object["params"], meta: meta, version: version)
+        }
         if method == "initialize" { return .response(encode(handleInitialize(id: id, params: object["params"]))) }
         if method == "ping" { return .response(encode(success(id: id, result: .object([:])))) }
         // An unknown method is not found whether or not the session is
@@ -106,21 +115,107 @@ public final class MCPServer: @unchecked Sendable {
         case "resources/list":
             return .response(encode(success(id: id, result: .object(["resources": .array(MCPToolCatalog.resources)]))))
         case "resources/read", "tools/call":
-            return stateLock.withLock {
-                let key = idKey(id)
-                guard activeRequests[key] == nil else {
-                    return .response(encode(protocolError(id: id, code: -32_600, message: "Duplicate active request ID")))
-                }
-                guard accepting, activeRequests.count < 4 else {
-                    return .response(encode(protocolError(id: id, code: -32_000, message: "Too many evidence requests in flight; retry after a response.")))
-                }
-                let request = Request(id: id, key: key, method: method, params: object["params"])
-                activeRequests[key] = request
-                return .request(request)
-            }
+            return admit(id: id, method: method, params: object["params"], modern: false)
         default:
             return .response(encode(protocolError(id: id, code: -32_601, message: "Method not found: \(method)")))
         }
+    }
+
+    private func admit(id: JSONValue, method: String, params: JSONValue?, modern: Bool) -> Admission {
+        stateLock.withLock {
+            let key = idKey(id)
+            guard activeRequests[key] == nil else {
+                return .response(encode(protocolError(id: id, code: -32_600, message: "Duplicate active request ID")))
+            }
+            guard accepting, activeRequests.count < 4 else {
+                return .response(encode(protocolError(id: id, code: -32_000, message: "Too many evidence requests in flight; retry after a response.")))
+            }
+            let request = Request(id: id, key: key, method: method, params: params, modern: modern)
+            activeRequests[key] = request
+            return .request(request)
+        }
+    }
+
+    // MARK: MCP 2026-07-28 (stateless)
+
+    static let modernProtocolVersions = ["2026-07-28"]
+    private static let versionKey = "io.modelcontextprotocol/protocolVersion"
+    private static let capabilitiesKey = "io.modelcontextprotocol/clientCapabilities"
+    private static let serverInfoKey = "io.modelcontextprotocol/serverInfo"
+    /// The catalogue is fixed for a helper binary; the status resource is live.
+    private static let staticTTLMilliseconds: Int64 = 3_600_000
+
+    private var serverInfo: JSONValue {
+        .object(["name": .string("disk-witness-mcp"), "title": .string("Disk Steward"), "version": .string(serverVersion)])
+    }
+
+    private func prepareModern(id: JSONValue, method: String, params: JSONValue?, meta: [String: JSONValue], version: JSONValue) -> Admission {
+        guard let version = version.stringValue else {
+            return .response(encode(protocolError(id: id, code: -32_602, message: "\(Self.versionKey) must be a string")))
+        }
+        guard meta[Self.capabilitiesKey]?.objectValue != nil else {
+            return .response(encode(protocolError(id: id, code: -32_602, message: "Missing \(Self.capabilitiesKey)")))
+        }
+        guard Self.modernProtocolVersions.contains(version) else {
+            return .response(encode(.object([
+                "jsonrpc": .string("2.0"), "id": id,
+                "error": .object([
+                    "code": .integer(-32_022),
+                    "message": .string("Unsupported protocol version"),
+                    "data": .object(["supported": .array(Self.modernProtocolVersions.map(JSONValue.string)), "requested": .string(version)]),
+                ]),
+            ])))
+        }
+        switch method {
+        case "server/discover":
+            return .response(encode(success(id: id, result: modernResult([
+                "supportedVersions": .array(Self.modernProtocolVersions.map(JSONValue.string)),
+                "capabilities": .object(["tools": .object(["listChanged": .bool(false)]),
+                                         "resources": .object(["subscribe": .bool(false), "listChanged": .bool(false)])]),
+                "instructions": .string(MCPToolCatalog.instructions),
+            ], cache: (Self.staticTTLMilliseconds, "public")))))
+        case "tools/list":
+            return .response(encode(success(id: id, result: modernResult(["tools": .array(MCPToolCatalog.tools)],
+                                                                          cache: (Self.staticTTLMilliseconds, "public")))))
+        case "resources/list":
+            return .response(encode(success(id: id, result: modernResult(["resources": .array(MCPToolCatalog.resources)],
+                                                                          cache: (Self.staticTTLMilliseconds, "public")))))
+        case "resources/read", "tools/call":
+            return admit(id: id, method: method, params: params, modern: true)
+        default:
+            // initialize, ping and logging/setLevel do not exist in this era.
+            return .response(encode(protocolError(id: id, code: -32_601, message: "Method not found: \(method)")))
+        }
+    }
+
+    /// Every 2026-07-28 result is complete (this server asks nothing back),
+    /// names the server, and list or read results say how long to cache them.
+    private func modernResult(_ fields: [String: JSONValue], cache: (milliseconds: Int64, scope: String)?) -> JSONValue {
+        var result = fields
+        result["resultType"] = .string("complete")
+        if let cache {
+            result["ttlMs"] = .integer(cache.milliseconds)
+            result["cacheScope"] = .string(cache.scope)
+        }
+        var meta = fields["_meta"]?.objectValue ?? [:]
+        meta[Self.serverInfoKey] = serverInfo
+        result["_meta"] = .object(meta)
+        return .object(result)
+    }
+
+    /// Wraps a performed request's result in the modern envelope; protocol
+    /// errors pass through unchanged.
+    private func modernEnvelope(_ response: JSONValue, request: Request) -> JSONValue {
+        guard request.modern, var object = response.objectValue, let result = object["result"]?.objectValue else { return response }
+        var cache: (Int64, String)?
+        if request.method == "resources/read" {
+            // The live status changes from moment to moment and is the user's;
+            // the interpretation guide is fixed for this helper.
+            let uri = request.params?.objectValue?["uri"]?.stringValue
+            cache = uri == "disk-steward://evidence-guide" ? (Self.staticTTLMilliseconds, "public") : (0, "private")
+        }
+        object["result"] = modernResult(result, cache: cache)
+        return .object(object)
     }
 
     func perform(_ request: Request) -> String? {
@@ -130,9 +225,9 @@ public final class MCPServer: @unchecked Sendable {
             }
         }
         guard !isCancelled(request) else { return nil }
-        let value = request.method == "tools/call"
+        let value = modernEnvelope(request.method == "tools/call"
             ? handleToolCall(request: request)
-            : handleResourceRead(request: request)
+            : handleResourceRead(request: request), request: request)
         guard !isCancelled(request) else { return nil }
         let response = encode(value)
         beforeTerminalClaim()
@@ -208,8 +303,11 @@ public final class MCPServer: @unchecked Sendable {
         } else {
             arguments = [:]
         }
+        // An argument the model can correct is a tool error it reads (MCP
+        // 2025-11-25, SEP-1303); an unknown tool or a non-object stays -32602.
         if let error = MCPToolCatalog.validationError(tool: name, arguments: arguments) {
-            return protocolError(id: id, code: -32_602, message: "Invalid params: \(error)")
+            return toolError(id: id, code: "invalid_arguments", message: "Invalid arguments: \(error).", retryable: false,
+                             recovery: "Correct the arguments to match the tool's inputSchema and call it again.")
         }
         if isCancelled(request) { return toolError(id: id, code: "cancelled", message: "The evidence query was cancelled.", retryable: true, recovery: "Retry if the result is still needed.") }
         do {
@@ -260,18 +358,24 @@ public final class MCPServer: @unchecked Sendable {
         }
     }
 
+    /// An error result's details travel as JSON text, with no
+    /// `structuredContent`: Codex shows the model only structured content when
+    /// present, Claude Code only the text on errors, and some clients check any
+    /// structured content against the tool's outputSchema, errors included.
     private func toolError(id: JSONValue, code: String, message: String, retryable: Bool, recovery: String) -> JSONValue {
-        success(id: id, result: .object([
-            "content": .array([.object(["type": .string("text"), "text": .string("\(message) \(recovery)")])]),
+        let error: JSONValue = .object([
+            "schema": .string("mcp-error-v1"),
+            "code": .string(code),
+            "message": .string(message),
+            "component": .string("local-ipc"),
+            "retryable": .bool(retryable),
+            "limitations": .array([.string("No query result is available for this request.")]),
+            "recovery": .string(recovery),
+        ])
+        let text = (try? serialized(error)) ?? "\(message) \(recovery)"
+        return success(id: id, result: .object([
+            "content": .array([.object(["type": .string("text"), "text": .string(text)])]),
             "isError": .bool(true),
-            "structuredContent": .object([
-                "schema": .string("mcp-error-v1"),
-                "code": .string(code),
-                "component": .string("local-ipc"),
-                "retryable": .bool(retryable),
-                "limitations": .array([.string("No query result is available for this request.")]),
-                "recovery": .string(recovery),
-            ]),
         ]))
     }
 

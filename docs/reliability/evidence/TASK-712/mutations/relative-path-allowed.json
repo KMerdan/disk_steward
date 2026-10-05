@@ -1,0 +1,14 @@
+{
+ "name": "a relative allowance matches by name",
+ "mutations": [
+  {
+   "file": "Scripts/Testing/process_supervisor.py",
+   "replacements": [
+    [
+     "    allowed = {os.path.realpath(path) for path in expected_descendants if os.path.isabs(path)}",
+     "    allowed = {os.path.realpath(path) for path in expected_descendants} | {os.path.realpath('/bin/' + path) for path in expected_descendants if not os.path.isabs(path)}"
+    ]
+   ]
+  }
+ ]
+}
