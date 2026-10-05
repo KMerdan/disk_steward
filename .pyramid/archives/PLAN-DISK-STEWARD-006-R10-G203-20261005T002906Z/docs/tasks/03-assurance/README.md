@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`GATE-719`](GATE-719-audit-1-5-1-current-clients-fixes-and-release.md) — Audit 1.5.1: current clients, fixes and release
+- [`GATE-619`](GATE-619-audit-completed-scans-on-a-real-sized-scope.md) — Audit completed scans on a real-sized scope
 
 ## Parallelism
 

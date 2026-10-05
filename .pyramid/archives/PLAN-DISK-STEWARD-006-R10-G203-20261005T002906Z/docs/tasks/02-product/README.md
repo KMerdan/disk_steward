@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`TASK-714`](TASK-714-serve-mcp-2026-07-28-alongside-earlier-versions.md) — Serve MCP 2026-07-28 alongside earlier versions
+- [`TASK-617`](TASK-617-keep-dashboard-measurements-and-growth-alerts-consistent.md) — Keep dashboard measurements and growth alerts consistent
 
 ## Parallelism
 

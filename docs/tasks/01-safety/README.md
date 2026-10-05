@@ -2,7 +2,7 @@
 
 ## Tasks
 
-- [`TASK-616`](TASK-616-contain-verification-descendants-and-enforce-resource-budgets.md) — Contain verification descendants and enforce resource budgets
+- [`TASK-712`](TASK-712-treat-xcode-s-ibtoold-daemon-as-expected-in-verification.md) — Treat Xcode's ibtoold daemon as expected in verification
 
 ## Parallelism
 

@@ -1,0 +1,3317 @@
+{
+  "schema_version": 1,
+  "plan_id": "PLAN-DISK-STEWARD-006",
+  "title": "Reclaimable Space As Whole Objects",
+  "revision": 10,
+  "intent": {
+    "id": "INTENT-006",
+    "statement": "Disk Steward treats build output, shared developer caches and repositories as single evidence objects rather than per-file rows, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and an explicit review step before anything is removed.",
+    "success_evidence": [
+      {
+        "id": "REQ-601",
+        "description": "A review of a real-sized scope (the maintainer's localGit, about 2 M entries) completes in under 60 s and persists no per-file rows; a larger scope, including a synthetic million-file tree, stops inside its time, entry and storage budgets with a partial report that states its coverage."
+      },
+      {
+        "id": "REQ-602",
+        "description": "A directory is classified as build output only on project evidence; a directory tracked by its repository is never classified as an artifact."
+      },
+      {
+        "id": "REQ-603",
+        "description": "Each object reports size, file count, owning project, detection confidence, measurement freshness and rebuild command, and stores no per-file rows inside itself."
+      },
+      {
+        "id": "REQ-604",
+        "description": "Shared tool-owned caches outside watched roots are discoverable as objects under the same contract, only after explicit opt-in."
+      },
+      {
+        "id": "REQ-605",
+        "description": "A repository is measured as one object and is never offered as a cleanup candidate."
+      },
+      {
+        "id": "REQ-606",
+        "description": "An existing installation migrates without losing evidence: the legacy per-file store is kept unmodified, read-only and exportable, is removed only after explicit user confirmation, and rollback to the previous version is rehearsed."
+      },
+      {
+        "id": "REQ-607",
+        "description": "Objects are ranked by reclaim value from recorded inputs, and cleanup candidates always require human review."
+      },
+      {
+        "id": "REQ-608",
+        "description": "Live free space and the distance to the user's reserve are always answered by the board, the helper self-check and MCP, independent of the detail store's state."
+      },
+      {
+        "id": "REQ-609",
+        "description": "Growth since a chosen time is attributed to changed directories and measured objects from the file-system change journal without walking the disk, with the unexplained remainder and journal gaps stated."
+      },
+      {
+        "id": "REQ-610",
+        "description": "An agent reads the same review, growth and impact answers through bounded read-only MCP tools; no tool starts unbounded work."
+      },
+      {
+        "id": "REQ-611",
+        "description": "Every persisted table has a fixed row cap enforced at write and every reader a bounded window, so app storage stays under 32 MiB and idle CPU stays below 0.5% of one core."
+      }
+    ],
+    "constraints": [
+      "Never delete, move or modify any user file; cleanup remains a reviewed, user-initiated action outside this intent.",
+      "Never open the user's live evidence database from tests or measurements; use captured copies in isolated snapshots.",
+      "Classification must not execute project tooling or build commands.",
+      "Preserve the closed reliability plan's bounded-resource, isolation and recovery guarantees.",
+      "No signing, notarization, installation or Homebrew publication inside this intent."
+    ],
+    "non_goals": [
+      "Automatic or unattended deletion of any object.",
+      "Per-file provenance inside a classified object.",
+      "Rebuilding or restoring artifacts on the user's behalf.",
+      "Monitoring repository internals."
+    ],
+    "assumptions": [
+      {
+        "id": "ASM-601",
+        "statement": "Project markers plus git ignore and tracking classify enough of a real corpus to be useful, with a manifest-anchored fallback where no repository exists.",
+        "confidence": "high",
+        "validation_node": "RESEARCH-601"
+      },
+      {
+        "id": "ASM-602",
+        "statement": "A metadata-only walk that prunes at classified objects and sums allocated sizes in memory reviews the maintainer's localGit plus the cache catalog in under 60 s, cold or warm cache.",
+        "confidence": "medium",
+        "validation_node": "TASK-621"
+      },
+      {
+        "id": "ASM-603",
+        "statement": "Renaming the legacy store and opening it read-only preserves export, and renaming it back restores the previous version without evidence loss.",
+        "confidence": "high",
+        "validation_node": "TASK-653"
+      },
+      {
+        "id": "ASM-604",
+        "statement": "A directory-level FSEvents stream replayed from a persisted event ID covers sleep and relaunch intervals for the configured scopes, and reports drops as flags rather than silence; behaviour inside TCC-protected folders without Full Disk Access is unknown.",
+        "confidence": "medium",
+        "validation_node": "TASK-652"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "id": "EV-601-CORPUS",
+      "claim": "The maintainer's three watched roots hold 1,214,531 files: 888,469 inside 2,618 build-output directories totalling 65.2 GB, 37,006 inside 338 repositories totalling 4.2 GB, and 289,056 elsewhere. Treating output directories and repositories as one object each reduces the store from about 1,214,531 rows to 292,012.",
+      "source": "Measurement on 2026-09-20 over ~/Documents/Codex, ~/Downloads and ~/localGit",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "INTENT-006",
+        "TASK-612",
+        "TASK-613"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-602-GIT-ORACLE",
+      "claim": "Of 2,615 candidate directories, git reported 1,098 ignored and 30 tracked as source, including ~/localGit/echo/scripts/build and ~/localGit/disk_steward/.swiftpm, while 1,468 sit outside any repository. Name matching alone would have offered the 30 tracked directories for deletion.",
+      "source": "git check-ignore and git ls-files over the same corpus on 2026-09-20",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "RESEARCH-601",
+        "TASK-611"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-603-SHARED-CACHES",
+      "claim": "Shared tool-owned caches outside the watched roots hold about 90 GB: ~/.cache 52 GB, ~/Library/Caches 14 GB, CoreSimulator 9.2 GB, ~/.npm 5.5 GB, pnpm 4.5 GB, DerivedData 1.9 GB and about 3.2 GB across cargo, go and gradle. None is visible to the app today.",
+      "source": "du measurement on 2026-09-20",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-631",
+        "OUTCOME-630"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-604-STUCK-SCAN",
+      "claim": "On the installed 1.2.1 app the scan generation started 2026-09-18T11:01Z was still active on 2026-09-20T02:31Z having processed 17,365,812 entries, about fourteen times the scope, while published rows stayed at 99,977 and staged files fell from 115,309 to 22,428 between two readings. The store records 90 observation gaps and repeated retention gaps with reason database-cap-forced-eviction.",
+      "source": "Read-only agent API queries against the running app on 2026-09-20",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-614"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-605-ROW-COST",
+      "claim": "The live store averages about 2,040 bytes per published row, so the 512 MiB default limit holds roughly 263,000 rows while the object model needs about 292,012 for this corpus.",
+      "source": "Live store figures: 203,931,648 live bytes across 99,977 rows, 2026-09-20",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-614"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R1-UNWIRED-PROBE",
+      "claim": "After TASK-612 and TASK-613 were verified, PersistentMonitoringProbe.swift:195 still constructed DirectoryMetadataScanner() with no classifier, and no app path called collapsePerFileRows, so an installed app kept scanning exactly as before and an existing store kept its per-file rows inside objects.",
+      "source": "Repository inspection on 2026-09-20 after the TASK-612 audit",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-615",
+        "OUTCOME-610"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R3-ORPHANED-XCTEST",
+      "claim": "The isolated verifier recorded a 300-second timeout, but its XCTest child survived with parent launchd for over 51 minutes. A live sample reported 86.9G physical footprint and an ancestor-walk hot stack. The exact PID was terminated with user approval. Current source already bounds that walk; supervisor containment remains unproven.",
+      "source": "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#test-runner-incident",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-616",
+        "GATE-619"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R3-DASHBOARD-REFRESH",
+      "claim": "User reported a +5.6 GB alert with a dashboard stuck at +2.1 MB. Source inspection found non-observing growth/capacity subviews, a separately cached snapshot, refresh copying rather than requesting a sample, and positive-only delta aggregation. Different notification and latest-sample intervals may legitimately differ; exact frozen-view reproduction remains required.",
+      "source": "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md#dashboard-evidence",
+      "confidence": "high",
+      "freshness": "2026-09-20",
+      "supports": [
+        "TASK-617",
+        "GATE-619",
+        "TASK-623"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R4-ROW-COST",
+      "claim": "The live store spends about 1.6 KB per file on current-state rows and indexes (152 MiB for about 100k files) and about 1.7 KB per file on scan staging (206 MiB for 123,280 files). The three watched roots hold 2.15 M entries (localGit 1.98 M, Documents/Codex 173k), about 7 GB at 3.3 KB per file against a 512 MiB cap; even after collapsing recognized objects, 1.09 M entries remain outside them in localGit alone.",
+      "source": "Read-only dbstat over the live evidence.sqlite and bounded find counts over the watched roots, 2026-10-04 (docs/product/redesign-bounded-review.md)",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "INTENT-006",
+        "TASK-621"
+      ],
+      "contradicts": [
+        "TASK-613",
+        "TASK-615"
+      ]
+    },
+    {
+      "id": "EV-R4-NONCONVERGENCE",
+      "claim": "The active scan generation started 2026-09-18 has processed 488,301,862 entries while staging 123,280 files, with 1 of 3 roots complete; the app process was sampled at 47% of a core on 2026-09-23 and 67% on 2026-10-04 across a 10-day uptime. Persisted file state is dated 2026-09-13.",
+      "source": "scan_generations and scan_generation_summaries rows plus ps on 2026-10-04; docs/product/quiet-storage-guard-design.md for the 09-23 sample",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "TASK-614",
+        "OUTCOME-640"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R4-LOCKOUT",
+      "claim": "1,493 pressure retention runs since 2026-09-21 each recorded a forced-eviction gap; at 1,477 gaps (about 595 KB) the lifecycle summary's 512-row budget refused get_storage_summary, get_evidence_lifecycle and explain_growth, so the helper self-check failed. A windowed reader fixes it: 71 focused tests green, mutation red reproduces the exact refusal.",
+      "source": "Live read-only queries and MCP calls 2026-10-04; hotfix worktree evidence docs/reliability/evidence/HOTFIX-1.2.4/ on branch hotfix/lifecycle-gaps-1.2.4 (input 19a921db)",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "TASK-641",
+        "TASK-642",
+        "OUTCOME-640"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R4-HISTORY-EVICTED",
+      "claim": "Pressure eviction removed the app's own capacity history: the oldest of 259 retained volume snapshots was 05:30 UTC on 2026-10-04, five minutes before the query.",
+      "source": "Read-only snapshots table query, 2026-10-04",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "TASK-651",
+        "OUTCOME-650"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R4-BENCHMARK",
+      "claim": "With a warm cache, find with pruning walked localGit in 17 s and du sized its 3,700 objects in 13 s: .next 16.1 GiB, target 14.4, .build 9.9, node_modules 9.1, others 3.6, .git 6.9 (context only). Tool caches: ~/.cache/uv 56.0 GiB, ~/Library/Caches 11.6, CoreSimulator 9.2, ~/.ollama 7.5, actcache+pnpm+codex-runtimes 12.3.",
+      "source": "find/du on the maintainer's Mac, 2026-10-04 (docs/product/redesign-bounded-review.md)",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "TASK-621",
+        "TASK-631",
+        "GATE-669"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R4-FSEVENTS-COLLECTOR",
+      "claim": "TargetedFSEventsCollector already interprets MustScanSubDirs, EventIdsWrapped and related gap flags, but starts from kFSEventStreamEventIdSinceNow with kFSEventStreamCreateFlagFileEvents, so it cannot replay sleep or relaunch intervals and emits per-file events.",
+      "source": "Sources/DiskStewardCore/Monitoring/TargetedFSEventsCollector.swift (main 345c072)",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "TASK-652"
+      ],
+      "contradicts": []
+    },
+    {
+      "id": "EV-R5-SCANNER-RETIRED",
+      "claim": "TASK-653 composes the quiet guard: no app source constructs DirectoryMetadataScanner, PersistentMonitoringProbe, TargetedFSEventsCollector or RetentionSchedule, enforced by a source-scan test; GATE-659 passed on the installed 1.4.0 (11). The metadata scanner whose object pruning TASK-612 certifies is therefore unreachable from the app.",
+      "source": "Tests/DiskStewardAppTests/Lifecycle/QuietGuardTests.swift (testNoAppSourceConstructsTheScannerOrThePerFileCollector); docs/reliability/evidence/TASK-653/README.md; docs/reliability/evidence/GATE-659/README.md (main f1c0fbc)",
+      "confidence": "high",
+      "freshness": "2026-10-04",
+      "supports": [
+        "TASK-621"
+      ],
+      "contradicts": [
+        "TASK-612"
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DECISION-601-OBJECTS",
+      "question": "How should build output be represented when it dominates the file count but is reproducible?",
+      "choice": "Represent a build-output directory, a shared cache and a repository as one evidence object with aggregate size and no per-file rows inside it.",
+      "alternatives": [
+        "Keep per-file rows and raise the storage limit to multiple gigabytes; rejected because it makes the monitor itself a large consumer and still scales with the artifact count.",
+        "Exclude build output from monitoring; rejected because it hides the largest reclaimable space, which is the product's purpose.",
+        "Sample a subset of files inside each artifact; rejected because a partial file list is neither useful for cleanup nor honest as evidence."
+      ],
+      "rationale": "Artifacts are reproducible and are cleaned as a unit, so per-file provenance inside them has no user value while costing three quarters of the rows. See EV-601-CORPUS.",
+      "evidence": [
+        "EV-601-CORPUS",
+        "EV-605-ROW-COST"
+      ]
+    },
+    {
+      "id": "DECISION-602-DETECTION",
+      "question": "What decides that a directory is build output?",
+      "choice": "Project evidence: repository ignore and tracking rules where a repository exists, manifest-anchored output locations where it does not, outermost match only, and never a tracked directory.",
+      "alternatives": [
+        "Match well-known directory names; rejected because it would have offered 30 tracked source directories for deletion.",
+        "Ask the user to mark each directory; rejected as unusable at this scale, though an override remains available."
+      ],
+      "rationale": "Git is decisive where present and caught real false positives; 56 percent of candidates have no repository, so a manifest fallback is required. See EV-602-GIT-ORACLE.",
+      "evidence": [
+        "EV-602-GIT-ORACLE"
+      ]
+    },
+    {
+      "id": "DECISION-603-CACHES-LAST",
+      "question": "Should shared caches outside watched roots be part of the first rung?",
+      "choice": "No. They form the final rung, after objects are trustworthy and visible, and they stay opt-in.",
+      "alternatives": [
+        "Include them immediately; rejected because widening scope before classification is trustworthy risks presenting unreviewed deletion targets.",
+        "Leave them out entirely; rejected because they hold about 90 GB, more than the projects themselves."
+      ],
+      "rationale": "Ordering keeps each rung demonstrable and keeps scope widening an explicit user choice. See EV-603-SHARED-CACHES.",
+      "evidence": [
+        "EV-603-SHARED-CACHES"
+      ]
+    },
+    {
+      "id": "DECISION-604-CAPACITY-HONESTY",
+      "question": "What should happen when the configured scope cannot fit the configured limit?",
+      "choice": "Refuse explicitly with the shortfall and the available remedies, and review the default limit against the object model's measured cost.",
+      "alternatives": [
+        "Raise the limit silently; rejected because the user owns that trade-off.",
+        "Keep the current behaviour; rejected because it loops indefinitely while reporting healthy."
+      ],
+      "rationale": "The installed app demonstrates the failure: fourteen times the scope processed with no publication and repeated forced eviction. See EV-604-STUCK-SCAN.",
+      "evidence": [
+        "EV-604-STUCK-SCAN",
+        "EV-605-ROW-COST"
+      ]
+    },
+    {
+      "id": "DECISION-R1-WIRING-IS-ITS-OWN-TASK",
+      "question": "Which task makes the object model take effect in the running app?",
+      "choice": "A new rung-1 task, TASK-615, owns wiring the probe and converging an installed store. It is validation-required by GATE-619, so rung 1 cannot pass without it.",
+      "alternatives": [
+        "Fold the wiring into TASK-621 or TASK-623; rejected because neither criterion asks for it and the work would be proven by a gate that never named it.",
+        "Leave the wiring to a later rung; rejected because OUTCOME-610 claims scans finish on a real-sized scope, which stays false on an installed machine until the probe uses the classifier."
+      ],
+      "rationale": "See EV-R1-UNWIRED-PROBE: the capability exists in the core but nothing in the product calls it.",
+      "evidence": [
+        "EV-R1-UNWIRED-PROBE"
+      ]
+    },
+    {
+      "id": "DECISION-R3-REPAIR-BEFORE-ACCEPTANCE",
+      "question": "How do the orphaned verification process and stale dashboard change the delivery path?",
+      "choice": "Keep the three cumulative increments and all six verified task contracts. TASK-616 establishes safe descendant supervision before any further candidate execution. TASK-617 repairs live dashboard/alert consistency in the first increment. GATE-619 accepts neither increment-1 safety nor its visible behavior until both repairs pass; later gates inherit both scenarios.",
+      "alternatives": [
+        "Assume killpg proves cleanup; rejected because the observed XCTest child survived its recorded timeout.",
+        "Fold the dashboard defect silently into TASK-623; rejected because object presentation has no live-update, refresh, signed-change or alert-interval contract and comes too late.",
+        "Reopen all six verified tasks; rejected because their specific functional proofs are not contradicted by this old-snapshot orphan, but historical suite passes are not new containment evidence.",
+        "Add a separate demonstration rung for tooling alone; rejected because supervision is a safety prerequisite of the existing runnable increments, not independent product value."
+      ],
+      "rationale": "User approved the two-task repair replan. The final object-model intent, success evidence and non-goals remain unchanged; no signing, installation or release is authorized.",
+      "evidence": [
+        "EV-R3-ORPHANED-XCTEST",
+        "EV-R3-DASHBOARD-REFRESH"
+      ]
+    },
+    {
+      "id": "DECISION-R3-INCREMENT-LADDER",
+      "question": "What is the current demonstrable baseline and the ordered, cumulative delivery ladder?",
+      "choice": "Baseline: installed 1.2.1 still samples capacity but has an incomplete detail scan and a reported frozen dashboard. Source at b7e3675 has six verified object-model tasks; no increment gate has passed. Rung 1: a safely supervised runnable candidate completes a representative scan or honestly refuses an over-budget scope, and its capacity/growth/last-alert display updates coherently. Rung 2: add measured, fresh and explained reclaimable objects in app/MCP. Rung 3: add shared caches only after opt-in. Each rung retains its own existing gate and repeats earlier proofs on the same candidate.",
+      "alternatives": [
+        "Treat completed core tasks or the earlier 587-test report as a released increment; rejected because GATE-619 and the captured-store scenario are still pending.",
+        "Use the live installed store for acceptance; rejected by the existing isolation constraint."
+      ],
+      "rationale": "OUTCOME-610 -> OUTCOME-620 -> OUTCOME-630 -> INTENT-006 remains the cumulative hierarchy. Dependencies order acceptance; independently scoped object sizing can proceed after supervision is verified, without claiming rung 1 has passed.",
+      "evidence": [
+        "EV-604-STUCK-SCAN",
+        "EV-R3-ORPHANED-XCTEST",
+        "EV-R3-DASHBOARD-REFRESH"
+      ]
+    },
+    {
+      "id": "DECISION-R4-BOUNDED-REVIEW",
+      "question": "How does Disk Steward stay useful on a developer's real home directory?",
+      "choice": "Replace the always-on per-file scanner with three independent engines: a capacity ring that never touches the detail store; a directory-level FSEvents change journal with persisted sinceWhen that yields capped dirty sets; and an on-demand bounded review that prunes at classified objects and persists objects and reports, never files. Every table has a write-time cap and every reader a window, bounding the store at 32 MiB.",
+      "alternatives": [
+        "Raise the 512 MiB cap; rejected: the measured requirement is about 7 GB and grows with the corpus.",
+        "Keep the scanner and collapse objects (TASK-613/615 path); rejected: 1.09 M entries remain outside objects in localGit, about 1.7 GB of current-state rows.",
+        "Patch only the summary budget; rejected: the scan still cannot converge and eviction still erases history."
+      ],
+      "rationale": "Measured unit cost times corpus size exceeds any reasonable cap, while a metadata walk with object pruning answers the user's question in about 30 s without persisting files.",
+      "evidence": [
+        "EV-R4-ROW-COST",
+        "EV-R4-NONCONVERGENCE",
+        "EV-R4-LOCKOUT",
+        "EV-R4-BENCHMARK"
+      ]
+    },
+    {
+      "id": "DECISION-R4-INCREMENT-LADDER",
+      "question": "What is the current demonstrable baseline and the ordered, cumulative delivery ladder after the redesign?",
+      "choice": "Baseline: installed 1.2.3 (8) from the hotfix branch samples capacity, but its scan cannot converge, MCP summary tools are refused and capacity history is evicted; main at 345c072 adds verified object classification and pruning (TASK-611/612) and verification containment and dashboard consistency (TASK-616/617), with no rung passed. Rung 1 (OUTCOME-640): live capacity always answers and a non-converging scan stops itself. Rung 2 (OUTCOME-650): quiet guard with capacity ring, reserve alert and change journal; the scanner is retired and the legacy store preserved. Rung 3 (OUTCOME-660): a bounded review of localGit and opted-in caches in under a minute, with measured growth attribution. Rung 4 (OUTCOME-670): agents read the same report, growth and impact through bounded MCP tools. Each rung has its own gate, repeats earlier proofs on the same candidate, and is installable on its own with separate authorization.",
+      "alternatives": [
+        "Keep OUTCOME-610/620/630; rejected because their always-on scanning assumption is invalidated by EV-R4-ROW-COST.",
+        "Ship the review before the quiet guard; rejected because the running scanner keeps burning CPU and evicting history until rung 2 retires it.",
+        "One big-bang rewrite gate; rejected because rung 1 relieves the user's current lockout within days."
+      ],
+      "rationale": "Each rung has distinct actor-visible value and its own recovery boundary; earlier rungs remove active harm before new capability is added.",
+      "evidence": [
+        "EV-R4-NONCONVERGENCE",
+        "EV-R4-LOCKOUT",
+        "EV-R4-HISTORY-EVICTED",
+        "EV-R4-BENCHMARK"
+      ]
+    },
+    {
+      "id": "DECISION-R4-BOUNDED-MCP-MEASURE",
+      "question": "May an agent start measurement work through MCP?",
+      "choice": "Yes, only through measure_path: one path inside configured scopes, 15 s and 500k entries, joining a running review instead of starting a second one. All other tools are read-only over stored reports.",
+      "alternatives": [
+        "Keep the 09-23 rule that MCP never scans; rejected because an agent then cannot refresh a stale object it is asked about."
+      ],
+      "rationale": "The budget, not the absence of work, is what keeps an agent from causing an unbounded scan.",
+      "evidence": [
+        "EV-R4-BENCHMARK"
+      ]
+    },
+    {
+      "id": "DECISION-R5-PRUNING-IN-THE-WALKER",
+      "question": "Where does the guarantee that a classified object is never enumerated live once the always-on scanner is retired?",
+      "choice": "In the bounded review walker: TASK-621 requires TASK-611 directly and its acceptance states the leaf guarantee. TASK-612, which certifies the retired metadata scanner, is superseded with its history and evidence kept.",
+      "alternatives": [
+        "Re-audit TASK-612 as it stands; rejected because it would certify behaviour of code that TASK-653 made unreachable and present it as rung-3 evidence.",
+        "Retarget TASK-612 to the walker; rejected because it would restate TASK-621's own walker contract (over-decomposition)."
+      ],
+      "rationale": "The pruning rule still matters, but only where a walk happens; after rung 2 that is the review walker alone.",
+      "evidence": [
+        "EV-R5-SCANNER-RETIRED"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "INTENT-006",
+      "kind": "intent",
+      "title": "Reclaimable space as whole objects",
+      "summary": "Disk Steward reports build output, shared developer caches and repositories as single evidence objects, so a real-sized scope finishes scanning inside the configured limit and the user sees where reclaimable space actually is, with a stated rebuild path and no per-file rows inside those objects.",
+      "level": 0,
+      "wave": 8,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-602",
+        "REQ-603",
+        "REQ-604",
+        "REQ-605",
+        "REQ-606",
+        "REQ-607",
+        "REQ-608",
+        "REQ-609",
+        "REQ-610",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-INTENT-006-01",
+          "description": "Every cumulative outcome passes against the exact candidate, the configured scope completes a scan under the configured limit, no classified object stores per-file rows, and no open material finding remains."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-INTENT-006-01",
+          "type": "regression-evidence",
+          "description": "Isolated verifier run on the final candidate plus each rung's gate evidence."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "CONTEXT.md",
+          "docs/reliability/handoffs/HANDOFF-DISK-STEWARD-20260920.md"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Verified intent with a complete chronicle"
+        ],
+        "non_goals": [
+          "Signing, notarization or Homebrew publication"
+        ]
+      }
+    },
+    {
+      "id": "RESEARCH-601",
+      "kind": "research",
+      "title": "Validate object detection rules on a real corpus",
+      "summary": "Measure how project markers, git ignore and git tracking classify candidate object directories on the maintainer corpus and on fixtures, and record where each rule is decisive, where it is unavailable, and what it would misclassify.",
+      "level": 5,
+      "wave": 0,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-602"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-RESEARCH-601-01",
+          "description": "Classification of every candidate directory in the corpus is reported with its deciding rule; directories tracked by git are never classified as artifacts; the share of candidates outside any repository is measured and the fallback rule for them is chosen from that evidence."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-RESEARCH-601-01",
+          "type": "measurement",
+          "description": "Counts per deciding rule, false-positive examples, and the fixture set that reproduces them."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/RESEARCH-601/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**",
+          "Scripts/Testing/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "python3 Scripts/Testing/<measurement script> (read-only over a corpus copy)"
+        ],
+        "deliverables": [
+          "Detection-rule measurement note with per-rule counts and misclassification examples"
+        ],
+        "non_goals": [
+          "Changing product behaviour",
+          "Deleting or modifying any measured file"
+        ]
+      }
+    },
+    {
+      "id": "CONTRACT-601",
+      "kind": "contract",
+      "title": "Object evidence and safety contract",
+      "summary": "Define what a classified object is: its row shape, detection confidence vocabulary, sizing and freshness semantics, the rules that forbid classifying tracked source or offering a repository for deletion, and the migration and rollback requirements for collapsing existing per-file rows.",
+      "level": 5,
+      "wave": 0,
+      "workstream": "foundation",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-602",
+        "REQ-603",
+        "REQ-605",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-CONTRACT-601-01",
+          "description": "The contract states the object row shape, the confidence vocabulary, the never-classify and never-offer rules, sizing and staleness semantics, and the reversible migration requirement, each traceable to a test or an inspection."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-CONTRACT-601-01",
+          "type": "contract-document",
+          "description": "Contract note referenced by every rung's acceptance criteria."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/CONTRACT-510/safety-contract.md"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Object evidence and safety contract note"
+        ],
+        "non_goals": [
+          "Implementation"
+        ]
+      }
+    },
+    {
+      "id": "TASK-611",
+      "kind": "implementation",
+      "title": "Classify projects and their output directories",
+      "summary": "Detect project roots from repository and manifest markers, then classify their known output directories as objects using git ignore and git tracking where a repository exists and manifest-anchored rules where it does not. Only the outermost match becomes an object; a tracked directory is never one.",
+      "level": 5,
+      "wave": 1,
+      "workstream": "classification",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-602",
+        "REQ-603"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-611-01",
+          "description": "For fixtures covering repositories, manifest-only projects, nested output directories, tracked lookalikes and unreadable paths, each directory is classified with its deciding rule and confidence; tracked directories and repositories are refused as artifacts; classification never executes project tooling."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-611-01",
+          "type": "regression-evidence",
+          "description": "Isolated suite plus a mutation run showing the tracked-source refusal is load-bearing."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardCore/**",
+          "docs/reliability/evidence/RESEARCH-601/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Classification engine with stated confidence and reasons",
+          "Regression suite and mutation evidence"
+        ],
+        "non_goals": [
+          "Changing the scanner",
+          "Deleting anything"
+        ]
+      }
+    },
+    {
+      "id": "TASK-612",
+      "kind": "implementation",
+      "title": "Stop descending into classified objects",
+      "summary": "The metadata scanner treats a classified object as a leaf: it records one object entry, never enumerates inside it, and its frontier, pass provenance and restart semantics stay correct across interruption and scope change.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "scanner",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-603"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-612-01",
+          "description": "On a fixture with more than a million entries behind objects, one generation completes, the object rows are published, no per-file row exists inside an object, and interruption or scope change leaves resumable state as the existing contract requires."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-612-01",
+          "type": "regression-evidence",
+          "description": "Isolated scale fixture run with recorded entry counts, time and store growth."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardCore/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Scanner leaf semantics for objects",
+          "Scale fixture evidence"
+        ],
+        "non_goals": [
+          "Aggregate sizing",
+          "User-facing presentation"
+        ]
+      }
+    },
+    {
+      "id": "TASK-614",
+      "kind": "implementation",
+      "title": "Stop a scan that cannot converge and say so",
+      "summary": "Abandon an active generation that cannot converge and report one explicit state with the reason and remedies, instead of re-staging and force-evicting forever; never restart the same scope automatically.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "safety",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-614-01",
+          "description": "An active generation whose processed entries exceed 20 times its staged files, whose publication is refused on consecutive slices, or whose active work exceeds 6 hours is abandoned with one explicit state naming the reason (scope too large for the store limit) and the remedies; the same scope is not restarted for 24 hours or until the scope or limit changes; the probe returns to idle."
+        },
+        {
+          "id": "AC-TASK-614-02",
+          "description": "A captured copy of the stuck live store (488 M processed, 123,280 staged) is stopped on first open, and the stop leaves retained evidence readable."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-614-01",
+          "type": "regression-evidence",
+          "description": "Fixture reproducing the refused-publication loop before the change and the explicit stop after it, with a mutation red."
+        },
+        {
+          "id": "EVREQ-TASK-614-02",
+          "type": "regression-evidence",
+          "description": "Captured-store run showing the stop state and idle probe."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**",
+          "docs/reliability/handoffs/HANDOFF-DISK-STEWARD-20260920.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Convergence stop with an explicit user-visible reason",
+          "Captured-store evidence"
+        ],
+        "non_goals": [
+          "Silently raising the limit for the user",
+          "Building the bounded review (TASK-621)"
+        ]
+      }
+    },
+    {
+      "id": "TASK-621",
+      "kind": "implementation",
+      "title": "Bounded review walker and object index",
+      "summary": "Walk a review scope with getattrlistbulk, prune at classified objects, sum allocated sizes in memory and persist only objects in a capped index; stop on budget or non-convergence with a partial report.",
+      "level": 5,
+      "wave": 3,
+      "workstream": "scanner",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-603",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-621-01",
+          "description": "A review prunes at objects classified by the TASK-611 rules: a classified object is one entry; inside it nothing is classified, listed or persisted, and its allocated size is summed in memory by a size-only pass (hard links counted once). The review persists no per-file rows; the object index holds at most 20,000 rows; budgets of 120 s wall, 5 M entries and 256 MiB at utility QoS are enforced in the worker; visiting more than twice the previous review's entries or revisiting a directory stops the review; a stopped review yields a partial report naming covered scope; the scope then cools down for 24 hours and nothing resumes after relaunch."
+        },
+        {
+          "id": "AC-TASK-621-02",
+          "description": "On the maintainer's Mac a localGit review completes in under 60 s with cold and warm cache recorded, object totals within 5% of du; a synthetic million-file tree stops within budget with a partial report. This validates ASM-602."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-621-01",
+          "type": "regression-evidence",
+          "description": "Budget, convergence-stop and no-per-file-row tests with a mutation red."
+        },
+        {
+          "id": "EVREQ-TASK-621-02",
+          "type": "benchmark",
+          "description": "localGit cold and warm timings with du comparison, and the synthetic tree run."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Review walker with budgets and partial reports",
+          "Capped object index",
+          "Benchmark evidence"
+        ],
+        "non_goals": [
+          "Per-file persistence",
+          "Executing project tooling"
+        ]
+      }
+    },
+    {
+      "id": "TASK-622",
+      "kind": "implementation",
+      "title": "Review report and ranking",
+      "summary": "Produce the versioned ReviewReport shared by the window, MCP and export, ranking objects by size weighted by their project's last source activity and revalidating each item before it is shown as present.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-603",
+        "REQ-605",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-622-01",
+          "description": "ReviewReport carries scope, start and completion times, coverage, status and limitations, and per item a privacy-shaped path, kind, project, allocated bytes, reclaimable estimate or unknown, last source activity, verification time, recreate class, reasons to review and reasons to keep; item states are present-verified, stale, partial or unknown; there is no safe-to-delete field; repositories appear only as live-state context, never as candidates."
+        },
+        {
+          "id": "AC-TASK-622-02",
+          "description": "Ranking uses only recorded inputs (size and last source activity); every item is revalidated against its live path and identity before being shown present; a report holds at most 2,000 items and at most 20 reports are retained."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-622-01",
+          "type": "regression-evidence",
+          "description": "Report model, ranking, revalidation, repository exclusion and cap tests."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "ReviewReport model and store",
+          "Ranking and revalidation"
+        ],
+        "non_goals": [
+          "A safe-to-delete verdict"
+        ]
+      }
+    },
+    {
+      "id": "TASK-623",
+      "kind": "implementation",
+      "title": "Review window",
+      "summary": "Show the review in a regular window: scope selector, start and stop, concrete progress, items grouped by project, a detail pane with reasons and the cleanup command, and honest partial and zero-result states.",
+      "level": 5,
+      "wave": 5,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-603",
+        "REQ-605",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-623-01",
+          "description": "The window offers scope selection, Start or Refresh and Stop, elapsed time with concrete counts and no invented percentage, a summary of worth-reviewing bytes shown separately from free space, items grouped by project, and a detail pane with origin, reasons to review and keep, recreate class, cleanup command, last verification, Reveal in Finder and Copy review brief."
+        },
+        {
+          "id": "AC-TASK-623-02",
+          "description": "Every state in the 09-23 design table (comfortable, below reserve, reviewing, complete with items, complete with zero items, partial or budget-stopped, detail unavailable, capacity unavailable) renders correctly in hosted tests, with keyboard access and VoiceOver labels; an interrupted review never shows No candidates."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-623-01",
+          "type": "ui-evidence",
+          "description": "Hosted UI tests for each state with screenshots in light and dark appearance."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardMCP/**",
+          "Tests/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardCore/Review/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Review window",
+          "Hosted state tests"
+        ],
+        "non_goals": [
+          "Notch island surface",
+          "Any delete action"
+        ]
+      }
+    },
+    {
+      "id": "TASK-631",
+      "kind": "implementation",
+      "title": "Cache catalog with recreate classes",
+      "summary": "Measure tool-owned caches as objects once the user opts each into review, labelled with how they are recreated and the owning tool's own cleanup command.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-604",
+        "REQ-603",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-631-01",
+          "description": "A catalog covers uv, npm, pnpm, ~/Library/Caches, CoreSimulator, Xcode DerivedData and Archives, ollama, Docker and actcache; an entry is measured only after the user opts it into review; each carries a recreate class (rebuild from source, re-download, expensive to recreate, live state) and the owning tool's cleanup command as text, never executed."
+        },
+        {
+          "id": "AC-TASK-631-02",
+          "description": "On the maintainer's Mac the opted-in catalog reports ~/.cache/uv, ~/Library/Caches, CoreSimulator and ~/.ollama within 5% of du."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-631-01",
+          "type": "regression-evidence",
+          "description": "Catalog fixtures for opt-in, recreate classes and command text."
+        },
+        {
+          "id": "EVREQ-TASK-631-02",
+          "type": "benchmark",
+          "description": "Real-Mac catalog comparison against du."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Cache catalog",
+          "Opt-in settings",
+          "Benchmark evidence"
+        ],
+        "non_goals": [
+          "Running any cleanup command",
+          "Scanning a cache that was not opted in"
+        ]
+      }
+    },
+    {
+      "id": "TASK-616",
+      "kind": "risk-control",
+      "title": "Contain verification descendants and enforce resource budgets",
+      "summary": "Repair the verification boundary exposed by a timed-out Swift test leaving an orphaned XCTest using 86.9G footprint. Account for owned descendants even after group/session changes or early parent exit, enforce finite budgets, and prove cleanup before candidate, mutation or scale execution resumes.",
+      "level": 5,
+      "wave": 1,
+      "workstream": "safety",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-616-01",
+          "description": "Establish evidence-backed ownership of every launched test descendant before relying on termination: cover Swift-to-XCTest launch behavior, parent exit, group/session escape, identity/PID reuse and unrelated-process sentinels. Stop admission and report failure when ownership or measurement cannot be established. Never use broad name/path pkill or signal unrelated apps/tests."
+        },
+        {
+          "id": "AC-TASK-616-02",
+          "description": "Enforce explicit finite per-stage wall time, aggregate owned-process memory, output and termination-grace limits. Memory accounting must not silently equate RSS with total macOS physical footprint or omit escaped children. Record the measured metric, limitations, thresholds, peak, stop reason and cleanup result; retain the existing bounded log and credential-free environment."
+        },
+        {
+          "id": "AC-TASK-616-03",
+          "description": "On timeout, memory/output breach, cancellation, supervisor-handled error or early launcher exit, stop owned descendants, escalate within the bounded grace period as needed, and independently verify their exit. A report cannot claim success or completed cleanup while any owned process remains; include remaining identities if cleanup fails."
+        },
+        {
+          "id": "AC-TASK-616-04",
+          "description": "First exercise supervisor logic with small synthetic fixtures and an independent safety watchdog: each pathological fixture has a <=30-second outer deadline, <=256 MiB allocation ceiling, finite process count and its own terminal deadline. Cover a detached child, retained stdout, TERM refusal, measurement failure, PID-identity mismatch and an unrelated-process sentinel. Do not recreate multi-GB pressure or the old unbounded Swift hang."
+        },
+        {
+          "id": "AC-TASK-616-05",
+          "description": "Route focused, mutation, full-candidate, packaged-candidate, rollback and soak/scale test entry points through the proven supervision contract or fail closed before launching an unsupported path. Inventory bypasses, choose and justify finite build/test defaults, then run a bounded real Swift/XCTest smoke case and verify no descendant remains. Refresh safety documentation; no product changes or live-store access."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-616-01",
+          "type": "regression-evidence",
+          "description": "Identity-bound process lifecycle reports for every synthetic failure case and the bounded real Swift/XCTest smoke, including thresholds, exact commands, exit verification and untouched sentinels."
+        },
+        {
+          "id": "EVREQ-TASK-616-02",
+          "type": "regression-evidence",
+          "description": "Before/after regression evidence demonstrating the original cleanup gap without unbounded memory or hangs; snapshot hashes and an inventory of all covered entry points. Historical green suites are not containment proof."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "Scripts/Testing/verify_candidate.py",
+          "Scripts/Testing/verify_packaged_candidate.py",
+          "Scripts/Testing/supervise_soak.py",
+          "Scripts/Testing/rehearse_migration_rollback.py",
+          "docs/reliability/handoffs/harness/**",
+          "Tests/PerformanceTests/**"
+        ],
+        "allowed_write_scope": [
+          "Scripts/Testing/**",
+          "docs/reliability/handoffs/harness/**",
+          "Tests/PerformanceTests/**",
+          "docs/reliability/evidence/TASK-616/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/TASK-616/**"
+        ],
+        "commands": [
+          "Bootstrap only bounded synthetic supervision fixtures under an independent watchdog; do not start existing Swift/mutation/scale runners before containment is proven.",
+          "After synthetic acceptance, execute a snapshot-isolated bounded Swift/XCTest smoke through the repaired supervisor, then the focused supervisor regression suite."
+        ],
+        "deliverables": [
+          "One enforced supervision contract across test entry points",
+          "Machine-readable cleanup/resource evidence and regression fixtures",
+          "A documented safe bootstrap and rerun procedure"
+        ],
+        "non_goals": [
+          "No broad process termination, production app restart, user-file cleanup, installation or release.",
+          "No rerun of an unbounded memory/hang mutation to prove the guard works."
+        ]
+      }
+    },
+    {
+      "id": "TASK-617",
+      "kind": "implementation",
+      "title": "Keep dashboard measurements and growth alerts consistent",
+      "summary": "Repair the observed dashboard update path with one observation-bound presentation: live capacity, signed selected-volume change, explicit baseline and sample interval, real refresh, separate evidence freshness and a bounded latest-alert record. Prove rendering across sequential samples rather than a single static fixture.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-603",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-617-01",
+          "description": "First reproduce and qualify the reported freeze with a snapshot-isolated hosted SwiftUI view driven by successive synthetic observations. The visible capacity, change, time and status must update without reopening the popover or clicking refresh; test both an open board and reopening. A changing model getter or one static screenshot is not sufficient evidence."
+        },
+        {
+          "id": "AC-TASK-617-02",
+          "description": "Capacity, health and signed delta derive from the same identified volume and observation. Preserve decreases instead of positive-only aggregation; show no baseline/unknown until two comparable observations exist. Volume changes, restart, pause/resume and stale/failed samples have explicit baseline and freshness behavior; do not invent zero change or use a fresh volume timestamp as detailed-file freshness."
+        },
+        {
+          "id": "AC-TASK-617-03",
+          "description": "The refresh action requests actual new bounded sampling through the existing lifecycle single-flight/cancellation boundary, exposes pending/failure/stale state, and publishes the resulting presentation coherently. Repeated refresh cannot overlap scans, bypass pause/sleep/shutdown controls or turn a cached read into a claimed fresh sample."
+        },
+        {
+          "id": "AC-TASK-617-04",
+          "description": "Display the comparison interval and sample time. Retain at most one latest growth-alert record per app session with its triggering observation/volume, signed amount and interval; subsequent small or negative samples update Recent change without rewriting that alert. Alert retention/restart behavior is explicit. Notifications and dashboard use the same amount/units for the same observation, but different sample intervals are not forced to match. Do not add unbounded alert history or a database migration."
+        },
+        {
+          "id": "AC-TASK-617-05",
+          "description": "Regression coverage includes no baseline, +5.6 GB alert followed by +2.1 MB and a decrease, zero change, delayed/incomplete detail, failure/recovery, pause/resume, single-flight refresh, reopen, volume identity and clean shutdown. Test notification delivery with a fake sink and render the UI in an isolated snapshot under TASK-616 budgets; never send real notifications, open the live database or install a candidate."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-617-01",
+          "type": "regression-evidence",
+          "description": "A reproducible before/after hosted-view regression that checks visible updates across multiple observations and a fake-notification trace bound to matching observation/interval IDs."
+        },
+        {
+          "id": "EVREQ-TASK-617-02",
+          "type": "regression-evidence",
+          "description": "Bounded lifecycle, signed-volume-delta and presentation test reports covering the acceptance matrix, with candidate hashes, cleanup verification and separate capacity/detail freshness assertions."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/REPLAN-006-R3/incident-and-dashboard.md",
+          "Sources/DiskStewardApp/StatusBoardView.swift",
+          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "Sources/DiskStewardApp/Lifecycle/MonitoringLifecycleController.swift",
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "Sources/DiskStewardApp/Notifications/**",
+          "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "Tests/DiskStewardAppTests/StatusBoard/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/StatusBoardView.swift",
+          "Sources/DiskStewardApp/StatusBoardViewModel.swift",
+          "Sources/DiskStewardApp/Lifecycle/**",
+          "Sources/DiskStewardApp/Notifications/**",
+          "Sources/DiskStewardCore/Monitoring/WholeVolumeSampler.swift",
+          "Sources/DiskStewardCore/Explanation/**",
+          "Tests/DiskStewardAppTests/StatusBoard/**",
+          "Tests/DiskStewardAppTests/Monitoring/**",
+          "Tests/DiskStewardAppTests/Lifecycle/**",
+          "Tests/DiskStewardCoreTests/Monitoring/**",
+          "Tests/DiskStewardCoreTests/Explanation/**",
+          "docs/reliability/evidence/TASK-617/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/TASK-617/**"
+        ],
+        "commands": [
+          "After TASK-616 passes, run snapshot-isolated focused lifecycle/notification/hosted-view tests through the hardened supervisor with finite resource limits.",
+          "Record sequential rendered assertions and observation-bound notification evidence; no live app or notification-center mutation."
+        ],
+        "deliverables": [
+          "Observation-bound live dashboard and real refresh",
+          "Signed interval change and bounded latest-alert presentation",
+          "Rendered-update and lifecycle regression evidence"
+        ],
+        "non_goals": [
+          "No object-ranking implementation (TASK-622) or replacement of TASK-623 object presentation.",
+          "No automatic cleanup, new MCP tools, alert-history database, installation, signing or release."
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-640",
+      "kind": "outcome",
+      "title": "Live capacity always answers and a stuck scan stops itself",
+      "summary": "The board, the helper self-check and every MCP summary tool answer with live capacity and an explicit detail status whatever state the detail store is in, and a scan that cannot converge stops with a stated reason instead of looping.",
+      "level": 4,
+      "wave": 4,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-608",
+        "REQ-611",
+        "REQ-601"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-640-01",
+          "description": "GATE-649 passed on the exact candidate, demonstrating capacity independence, windowed lifecycle readers and the convergence stop against a captured copy of the stuck live store."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-640-01",
+          "type": "composition-audit",
+          "description": "Rung 1 scenario note and gate result bound to the candidate input hash."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md"
+        ],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [
+          "Live capacity always answers and a stuck scan stops itself"
+        ],
+        "non_goals": [
+          "Executing work directly"
+        ]
+      }
+    },
+    {
+      "id": "TASK-641",
+      "kind": "implementation",
+      "title": "Window every lifecycle-summary reader",
+      "summary": "Port the hotfix: list the newest retention gaps inside a fixed window with a total and a truncation limitation, and apply the same window to open coverage gaps, so no lifecycle table can lock out a summary by row count.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "store",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-608",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-641-01",
+          "description": "With 1,500 forced-eviction gaps and 600 open coverage gaps, get_storage_summary, get_evidence_lifecycle and explain_growth answer; each gap list is newest-first inside a fixed window, carries its total, and adds a limitation when truncated; a single oversized listed row still refuses before decode."
+        },
+        {
+          "id": "AC-TASK-641-02",
+          "description": "The rows are not deleted; retention-gap rows stay bounded by the existing 1,500-run cap through ON DELETE CASCADE."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-641-01",
+          "type": "regression-evidence",
+          "description": "Store and IPC regressions at the live shape, green on the candidate and red with the whole-table budget restored in a snapshot."
+        },
+        {
+          "id": "EVREQ-TASK-641-02",
+          "type": "source-delta",
+          "description": "Port note against hotfix/lifecycle-gaps-1.2.4 and its evidence (HOTFIX-1.2.4)."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Windowed retention and coverage gap readers with totals",
+          "Regression and mutation evidence"
+        ],
+        "non_goals": [
+          "Deleting evidence rows",
+          "Changing the schema"
+        ]
+      }
+    },
+    {
+      "id": "TASK-642",
+      "kind": "implementation",
+      "title": "Serve live capacity independent of the detail store",
+      "summary": "Make capacity a separate read path: get_storage_summary, the helper self-check and the board return the live volume sample with a detail status even when the detail store is missing, locked, corrupt, over budget or its summary refuses.",
+      "level": 5,
+      "wave": 3,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-608"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-642-01",
+          "description": "For each detail fault (missing, locked, corrupt, summary refused, over cap) get_storage_summary returns live capacity with detail status unavailable and a reason, and never presents a capacity value older than its sample."
+        },
+        {
+          "id": "AC-TASK-642-02",
+          "description": "The helper self-check proves connectivity from the capacity read and reports detail freshness separately, so the integration verifies while detail evidence is unavailable; the board keeps live capacity in the same faults."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-642-01",
+          "type": "regression-evidence",
+          "description": "Fault-injection fixtures over the real socket for each fault, plus the self-check against a refused summary."
+        },
+        {
+          "id": "EVREQ-TASK-642-02",
+          "type": "regression-evidence",
+          "description": "Mutation red showing the coupled path fails the fixture."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardMCP/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Independent capacity read path in IPC, helper and board",
+          "Fault-injection evidence"
+        ],
+        "non_goals": [
+          "Changing what detail evidence contains"
+        ]
+      }
+    },
+    {
+      "id": "GATE-649",
+      "kind": "audit",
+      "title": "Audit rung 1: live capacity and a self-stopping scan",
+      "summary": "Exercise the packaged candidate against a captured copy of the stuck live store: capacity and MCP summaries answer, the helper self-check verifies, the stuck generation stops and the app goes idle.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-608",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-649-01",
+          "description": "Build the packaged candidate; against a captured copy of the live store the helper self-check verifies, get_storage_summary, get_evidence_lifecycle and explain_growth answer, each detail fault still yields live capacity, and the stuck generation stops with its stated reason. A 15-minute sample of the isolated app after the stop averages below 2% of one core. Candidate verification runs in isolated snapshots and a user-equivalent packaged app; it does not prove the user's installed app changed, which needs separate authorization. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-649-02",
+          "description": "Re-establish TASK-616 containment and TASK-617 sequential dashboard proofs on this candidate."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-649-01",
+          "type": "composition-audit",
+          "description": "Rung 1 scenario note bound to the exact candidate hash, with commands, captured-store identity and results."
+        },
+        {
+          "id": "EVREQ-GATE-649-02",
+          "type": "composition-audit",
+          "description": "Supervision cleanup report and hosted sequential-dashboard trace on the same candidate."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --xcodegen /opt/homebrew/bin/xcodegen --output <new dir>"
+        ],
+        "deliverables": [
+          "Rung 1 scenario evidence and audit result"
+        ],
+        "non_goals": [
+          "Implementing repairs",
+          "Installing on the user's Mac without separate authorization"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-650",
+      "kind": "outcome",
+      "title": "Quiet guard: capacity history, reserve alert and changed directories at near-zero idle cost",
+      "summary": "The always-on scanner is gone; the app keeps a durable capacity history, alerts once when free space crosses below the user's reserve, and lists which directories changed in any window, while idle CPU stays below 0.5% of a core. The legacy store is preserved read-only.",
+      "level": 3,
+      "wave": 6,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-606",
+        "REQ-608",
+        "REQ-609",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-650-01",
+          "description": "GATE-659 passed on the exact candidate and OUTCOME-640's proofs re-established on it."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-650-01",
+          "type": "composition-audit",
+          "description": "Rung 2 scenario note and gate result bound to the candidate input hash."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md"
+        ],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [
+          "Quiet guard: capacity history, reserve alert and changed directories at near-zero idle cost"
+        ],
+        "non_goals": [
+          "Executing work directly"
+        ]
+      }
+    },
+    {
+      "id": "CONTRACT-602",
+      "kind": "contract",
+      "title": "Fixed-cap store contract",
+      "summary": "Define the storage rules every new store follows: a cap table, insert-time eviction, windowed readers returning items, total and truncated, single-oversized-row refusal, and a static budget proof under 32 MiB.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "store",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-CONTRACT-602-01",
+          "description": "A contract document and Swift API cover the capacity ring, change journal, object index, review reports and sessions with their caps from the design; the static check proves sum(cap x maximum row bytes) is at most 32 MiB."
+        },
+        {
+          "id": "AC-CONTRACT-602-02",
+          "description": "Contract tests: inserting cap + 1 rows keeps the count at cap; every reader at cap answers under the 1 MiB response ceiling; a reader never refuses a whole result for row count."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-CONTRACT-602-01",
+          "type": "contract-test",
+          "description": "Contract tests and the static budget check, with a mutation red that removes write-time eviction."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**",
+          "docs/architecture/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Store contract document and API",
+          "Contract tests"
+        ],
+        "non_goals": [
+          "Migrating existing tables"
+        ]
+      }
+    },
+    {
+      "id": "TASK-651",
+      "kind": "implementation",
+      "title": "Capacity ring and reserve guard",
+      "summary": "Keep capacity samples in their own capped ring file and alert against a user-chosen comfort reserve with hysteresis; the board and get_storage_summary read the ring.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-608",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-651-01",
+          "description": "Samples every 5 minutes, on wake and on demand are written to a ring file separate from the detail store (2,016 fine plus 8,760 hourly per volume, at most 4 volumes, under 1 MiB) and survive relaunch; Capacity unavailable replaces any stale value."
+        },
+        {
+          "id": "AC-TASK-651-02",
+          "description": "The user sets a comfort reserve in GiB, suggested from disk size and migrated from the old percentage threshold; one notification fires when free space crosses below it on two comparable samples, repeats are suppressed until free space recovers above reserve plus hysteresis, and the board shows distance to the reserve."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-651-01",
+          "type": "regression-evidence",
+          "description": "Ring cap, relaunch and fault tests; fake-notification crossing and hysteresis sequence; hosted sequential board observation."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Capacity ring store",
+          "Reserve setting, alert and board wiring"
+        ],
+        "non_goals": [
+          "Notch island surface",
+          "Growth attribution"
+        ]
+      }
+    },
+    {
+      "id": "TASK-652",
+      "kind": "implementation",
+      "title": "Directory change journal with replay",
+      "summary": "Replace the per-file targeted stream with one directory-level FSEvents stream whose event ID is persisted, so sleep and relaunch replay; collapse changes into capped dirty sets per capacity interval and expose changed directories through explain_growth.",
+      "level": 5,
+      "wave": 3,
+      "workstream": "scanner",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-609",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-652-01",
+          "description": "One directory-level stream (no kFSEventStreamCreateFlagFileEvents) covers the configured scopes; lastEventId and the volume's FSEvents UUID are persisted at each capacity sample; relaunch replays from the stored ID until HistoryDone; a UUID change, MustScanSubDirs, EventIdsWrapped or dropped events are reported as journal gaps, never as no change."
+        },
+        {
+          "id": "AC-TASK-652-02",
+          "description": "Changed directories collapse to the nearest object or project root in a per-interval dirty set capped at 2,000 entries (overflow collapses to the parent) and retained for 7 days; explain_growth returns the capacity delta for the requested window, the changed directories (unmeasured) and any gaps."
+        },
+        {
+          "id": "AC-TASK-652-03",
+          "description": "Record whether changes inside Documents, Desktop and Downloads are delivered without Full Disk Access, validating ASM-604."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-652-01",
+          "type": "regression-evidence",
+          "description": "Real FSEvents fixtures on a temporary directory: replay across a restart, gap flags, cap overflow."
+        },
+        {
+          "id": "EVREQ-TASK-652-02",
+          "type": "research-note",
+          "description": "TCC delivery observation with the exact macOS version."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Change journal with persisted replay",
+          "explain_growth changed-directory answer",
+          "TCC observation note"
+        ],
+        "non_goals": [
+          "Measuring object deltas (TASK-661)",
+          "Per-file events"
+        ]
+      }
+    },
+    {
+      "id": "TASK-653",
+      "kind": "implementation",
+      "title": "Retire the always-on scanner and preserve the legacy store",
+      "summary": "Stop continuous scanning, staging, publication and pressure retention; rename the legacy store unmodified, open it read-only for export, migrate settings, and offer a confirmed delete.",
+      "level": 5,
+      "wave": 5,
+      "workstream": "scanner",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-606",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-653-01",
+          "description": "After upgrade the app performs no traversal at idle: only capacity sampling and the change journal run; scan staging, publication and pressure retention code paths are removed or unreachable."
+        },
+        {
+          "id": "AC-TASK-653-02",
+          "description": "First launch renames evidence.sqlite to legacy/evidence-<date>.sqlite byte-for-byte, opens it read-only and only for export; watched roots become review scopes and the percentage threshold becomes a reserve suggestion; Delete legacy evidence requires confirmation; a rehearsed rollback restores the previous version by renaming back with evidence intact."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-653-01",
+          "type": "migration-evidence",
+          "description": "Migration of a captured real-store copy with byte-identity check, export from the legacy store, and rollback rehearsal."
+        },
+        {
+          "id": "EVREQ-TASK-653-02",
+          "type": "regression-evidence",
+          "description": "Lifecycle tests proving no traversal or retention runs at idle."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**",
+          "Scripts/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Scanner retirement",
+          "Legacy store migration, export and confirmed delete",
+          "Rollback rehearsal"
+        ],
+        "non_goals": [
+          "Deleting legacy evidence without confirmation"
+        ]
+      }
+    },
+    {
+      "id": "GATE-659",
+      "kind": "audit",
+      "title": "Audit rung 2: quiet guard",
+      "summary": "Exercise the packaged candidate: capacity history, reserve alert, changed-directory growth answer, journal replay, legacy migration and a one-hour idle sample; repeat rung 1 proofs.",
+      "level": 4,
+      "wave": 6,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-606",
+        "REQ-608",
+        "REQ-609",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-659-01",
+          "description": "On the packaged candidate: the reserve crossing alerts once with fake notifications, explain_growth lists a fixture's changed directories across a relaunch, a journal reset is reported as a gap, and a captured-store copy migrates byte-identically with export and rollback rehearsed. A one-hour idle sample averages below 0.5% of one core. Candidate verification runs in isolated snapshots and a user-equivalent packaged app; it does not prove the user's installed app changed, which needs separate authorization. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-659-02",
+          "description": "Re-establish OUTCOME-640's proofs on this candidate: capacity independence under each detail fault, the helper self-check and windowed readers."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-659-01",
+          "type": "composition-audit",
+          "description": "Rung 2 scenario note bound to the exact candidate hash."
+        },
+        {
+          "id": "EVREQ-GATE-659-02",
+          "type": "composition-audit",
+          "description": "One-hour idle CPU trace and inherited rung 1 results."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --xcodegen /opt/homebrew/bin/xcodegen --output <new dir>"
+        ],
+        "deliverables": [
+          "Rung 2 scenario evidence and audit result"
+        ],
+        "non_goals": [
+          "Implementing repairs",
+          "Installing on the user's Mac without separate authorization"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-660",
+      "kind": "outcome",
+      "title": "A bounded review of a real-sized scope finishes in a minute and explains every object",
+      "summary": "The user starts a review of localGit or an opted-in cache and within a minute sees build output, environments and caches with size, project, last activity, recreate class, reasons to keep and the owning tool's cleanup command; growth since a time is attributed to measured objects.",
+      "level": 2,
+      "wave": 7,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-602",
+        "REQ-603",
+        "REQ-604",
+        "REQ-605",
+        "REQ-607",
+        "REQ-609"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-660-01",
+          "description": "GATE-669 passed on the exact candidate and OUTCOME-650's proofs re-established on it."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-660-01",
+          "type": "composition-audit",
+          "description": "Rung 3 scenario note and gate result bound to the candidate input hash."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md"
+        ],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [
+          "A bounded review of a real-sized scope finishes in a minute and explains every object"
+        ],
+        "non_goals": [
+          "Executing work directly"
+        ]
+      }
+    },
+    {
+      "id": "TASK-661",
+      "kind": "implementation",
+      "title": "Measured growth attribution",
+      "summary": "When free space drops past a threshold or on request, re-measure the dirty objects within budget and attribute the volume delta to measured objects, with the unexplained remainder stated.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "scanner",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-609"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-661-01",
+          "description": "Dirty objects from the change journal are re-measured within the review budgets; explain_growth reports per-object deltas from the last measured size, the attributed total, the unexplained remainder (System Data, purgeable space, snapshots, out of scope) and journal gaps."
+        },
+        {
+          "id": "AC-TASK-661-02",
+          "description": "A fixture with growth in two objects and outside the scope attributes the in-scope delta within 5% and reports the rest as unexplained."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-661-01",
+          "type": "regression-evidence",
+          "description": "Attribution fixture and threshold trigger tests."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Measured attribution in explain_growth"
+        ],
+        "non_goals": [
+          "Claiming causes for System Data"
+        ]
+      }
+    },
+    {
+      "id": "GATE-669",
+      "kind": "audit",
+      "title": "Audit rung 3: bounded review",
+      "summary": "Exercise the packaged candidate on the maintainer's real scopes and a synthetic million-file tree; repeat rung 1 and 2 proofs.",
+      "level": 3,
+      "wave": 7,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-602",
+        "REQ-603",
+        "REQ-604",
+        "REQ-605",
+        "REQ-607",
+        "REQ-609"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-669-01",
+          "description": "On the packaged candidate a localGit review completes in under 60 s cold and warm with object totals within 5% of du and at most 2,000 report items, opted-in caches match du within 5%, a synthetic million-file tree stops within budget with a partial report, tracked source and repositories are never candidates, every window state renders, and the attribution fixture passes. Candidate verification runs in isolated snapshots and a user-equivalent packaged app; it does not prove the user's installed app changed, which needs separate authorization. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-669-02",
+          "description": "Re-establish OUTCOME-650's proofs on this candidate, including the one-hour idle sample and legacy migration."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-669-01",
+          "type": "composition-audit",
+          "description": "Rung 3 scenario note bound to the exact candidate hash, with benchmark timings and du comparison."
+        },
+        {
+          "id": "EVREQ-GATE-669-02",
+          "type": "composition-audit",
+          "description": "Inherited rung 1 and 2 results on the same candidate."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --xcodegen /opt/homebrew/bin/xcodegen --output <new dir>"
+        ],
+        "deliverables": [
+          "Rung 3 scenario evidence and audit result"
+        ],
+        "non_goals": [
+          "Implementing repairs",
+          "Installing on the user's Mac without separate authorization"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-670",
+      "kind": "outcome",
+      "title": "Agents read the same review, growth and impact through bounded tools",
+      "summary": "An agent connected over MCP answers what can be cleaned, where space went and what a session changed with the same numbers and uncertainty labels as the app, through bounded read-only tools plus a budgeted measure_path.",
+      "level": 1,
+      "wave": 8,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-607",
+        "REQ-610",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-670-01",
+          "description": "GATE-679 passed on the exact candidate and OUTCOME-660's proofs re-established on it."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-670-01",
+          "type": "composition-audit",
+          "description": "Rung 4 scenario note and gate result bound to the candidate input hash."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md"
+        ],
+        "allowed_write_scope": [],
+        "commands": [],
+        "deliverables": [
+          "Agents read the same review, growth and impact through bounded tools"
+        ],
+        "non_goals": [
+          "Executing work directly"
+        ]
+      }
+    },
+    {
+      "id": "TASK-671",
+      "kind": "implementation",
+      "title": "Agent tools on the review report",
+      "summary": "Rebuild the MCP catalogue on the capacity ring, change journal and ReviewReport, add bounded measure_path, retire the per-file tools and re-point export.",
+      "level": 5,
+      "wave": 5,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-610",
+        "REQ-611",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-671-01",
+          "description": "The tools match the design: get_storage_summary on the ring, explain_growth, get_health, list_review_items, list_largest_objects, get_review_item_evidence, and measure_path (one path inside configured scopes, 15 s and 500k entries, joining a running review); find_cleanup_candidates, list_current_consumers and get_evidence_lifecycle are replaced, the list_active_writers alias is dropped, get_provenance is listed only while the Endpoint Security bridge is active, and export_evidence exports the new store plus the legacy store read-only."
+        },
+        {
+          "id": "AC-TASK-671-02",
+          "description": "Every tool answers under the 1 MiB ceiling with every table at its cap and with the detail store unavailable; asked what can be cleaned in localGit, an agent quotes the same numbers and states as the review window."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-671-01",
+          "type": "regression-evidence",
+          "description": "Tool contract tests at caps and under detail faults through the real helper transport."
+        },
+        {
+          "id": "EVREQ-TASK-671-02",
+          "type": "integration-evidence",
+          "description": "Agent scenario transcript compared with the window's report."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardMCP/**",
+          "Integrations/**",
+          "Schemas/**",
+          "Fixtures/MCP/**",
+          "Scripts/Integration/install",
+          "README.md",
+          "docs/architecture/mcp.md",
+          "docs/operations/privacy-and-retention.md"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "MCP catalogue on the review model",
+          "Bounded measure_path",
+          "Export re-pointed"
+        ],
+        "non_goals": [
+          "Write or delete tools"
+        ]
+      }
+    },
+    {
+      "id": "TASK-672",
+      "kind": "implementation",
+      "title": "Task impact from sessions and dirty sets",
+      "summary": "Compute agent-session impact by intersecting each registered session's working directory and time window with the change journal's dirty sets.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "product",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-610",
+        "REQ-609"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-672-01",
+          "description": "get_task_impact and list_active_agent_sessions answer at directory and object granularity from sessions and dirty sets, capped at 500 sessions with 200 directories each, with journal gaps stated and no per-file rows."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-672-01",
+          "type": "regression-evidence",
+          "description": "Session fixtures with overlapping and disjoint dirty sets, and cap tests."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/product/quiet-storage-guard-design.md",
+          "Sources/DiskStewardCore/**",
+          "Sources/DiskStewardApp/**"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardMCP/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "docs/reliability/handoffs/harness/run-focused.py '<filter>'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Session impact on dirty sets"
+        ],
+        "non_goals": [
+          "Per-file provenance"
+        ]
+      }
+    },
+    {
+      "id": "GATE-679",
+      "kind": "audit",
+      "title": "Audit rung 4: agents on the review",
+      "summary": "Exercise the packaged candidate through the real MCP helper: every tool at caps and under detail faults, an agent scenario matching the window, export and task impact; repeat earlier proofs.",
+      "level": 2,
+      "wave": 8,
+      "workstream": "assurance",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-607",
+        "REQ-610",
+        "REQ-611"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-679-01",
+          "description": "Through the packaged helper every tool answers with every table at its cap and with the detail store unavailable, measure_path stays inside its budget on localGit, the agent scenario matches the window's numbers, export round-trips, and task impact reflects a fixture session. Candidate verification runs in isolated snapshots and a user-equivalent packaged app; it does not prove the user's installed app changed, which needs separate authorization. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-679-02",
+          "description": "Re-establish OUTCOME-660's proofs on this candidate."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-679-01",
+          "type": "composition-audit",
+          "description": "Rung 4 scenario note bound to the exact candidate hash."
+        },
+        {
+          "id": "EVREQ-GATE-679-02",
+          "type": "composition-audit",
+          "description": "Inherited rung 1 to 3 results on the same candidate."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/product/redesign-bounded-review.md",
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --xcodegen /opt/homebrew/bin/xcodegen --output <new dir>"
+        ],
+        "deliverables": [
+          "Rung 4 scenario evidence and audit result"
+        ],
+        "non_goals": [
+          "Implementing repairs",
+          "Installing on the user's Mac without separate authorization"
+        ]
+      }
+    },
+    {
+      "id": "TASK-613",
+      "kind": "implementation",
+      "title": "Store object rows and collapse existing per-file rows",
+      "summary": "Add the durable object row from the contract and migrate an existing store by collapsing per-file rows inside classified objects into their object, preserving unrelated evidence, history and exports, with a rehearsed rollback to the previous schema.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "store",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-603",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-613-01",
+          "description": "Migration of a store captured from a real installation collapses per-file rows into objects, leaves unrelated evidence and exports byte-identical, is interruptible at every checkpoint, and the rehearsed rollback restores the previous schema with the compatible binary."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-613-01",
+          "type": "migration-evidence",
+          "description": "Migration and rollback rehearsal on a captured store copy, never the live database."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardCore/**",
+          "docs/reliability/evidence/TASK-572/rollback-rehearsal.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/rehearse_migration_rollback.py"
+        ],
+        "deliverables": [
+          "Object row schema and migration",
+          "Rollback rehearsal evidence"
+        ],
+        "non_goals": [
+          "Opening the user's live evidence database"
+        ]
+      }
+    },
+    {
+      "id": "GATE-619",
+      "kind": "audit",
+      "title": "Audit completed scans on a real-sized scope",
+      "summary": "Independently exercise the integrated candidate: a scope of the shape that stalls today completes a scan under the configured limit, objects hold no per-file rows, tracked source is never classified, and an over-large scope refuses explicitly. Re-establish test-process containment and observe the dashboard across successive samples, not just a static render.",
+      "level": 4,
+      "wave": 3,
+      "workstream": "assurance",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-602",
+        "REQ-603",
+        "REQ-606",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-619-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung; record the exact candidate, commands, fixture identity, budgets and actual results. A migration from a captured real store is included. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-619-02",
+          "description": "Require passing TASK-616 and TASK-617 evidence on the integrated candidate: finite-resource verification leaves no owned descendants; rendered capacity, signed change, freshness and last alert remain coherent across the full sequential-observation matrix. Resolve FIND-R3-ORPHANED-TEST and FIND-R3-DASHBOARD with current evidence before pass."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-619-01",
+          "type": "composition-audit",
+          "description": "Rung scenario note bound to the exact candidate hash."
+        },
+        {
+          "id": "EVREQ-GATE-619-02",
+          "type": "composition-audit",
+          "description": "Integrated supervision-cleanup report and hosted sequential-dashboard/fake-notification trace; refresh stale inspections and cover build/resource/UI/lifecycle impact."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Rung 1 scenario evidence and audit result"
+        ],
+        "non_goals": [
+          "Implementing repairs"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-610",
+      "kind": "outcome",
+      "title": "Scans finish on a real-sized scope",
+      "summary": "A user whose projects contain a million files behind build output gets a completed scan and published current state inside the configured limit, instead of a generation that never finishes. The same safely supervised candidate presents live, signed, interval-labelled capacity changes and a distinguishable latest alert instead of stale dashboard values.",
+      "level": 3,
+      "wave": 3,
+      "workstream": "product",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-602",
+        "REQ-603",
+        "REQ-606",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-610-01",
+          "description": "Construct a runnable candidate and pass GATE-619, including the inherited safety and recovery limits of the closed reliability plan."
+        },
+        {
+          "id": "AC-OUTCOME-610-02",
+          "description": "The first runnable increment includes TASK-616 containment and TASK-617 sequential dashboard/alert behavior; no live user database or installed-app replacement is used for acceptance."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-610-01",
+          "type": "regression-evidence",
+          "description": "Gate evidence plus the isolated verifier run on the same candidate."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Verified rung 1"
+        ],
+        "non_goals": [
+          "Presentation work"
+        ]
+      }
+    },
+    {
+      "id": "GATE-629",
+      "kind": "audit",
+      "title": "Audit visible reclaimable space",
+      "summary": "Independently exercise the integrated candidate: objects carry size, freshness, confidence and rebuild path; ranking is reproducible; repositories are measured and never offered; and rung 1's scenarios still pass on the same candidate.",
+      "level": 3,
+      "wave": 6,
+      "workstream": "assurance",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-603",
+        "REQ-605",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-629-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and rung 1; record the exact candidate, commands, fixture identity, budgets and actual results. Open material findings affecting this rung prevent pass."
+        },
+        {
+          "id": "AC-GATE-629-02",
+          "description": "Re-run inherited TASK-616 descendant-containment and TASK-617 sequential dashboard/alert/freshness scenarios against this gate's exact integrated candidate. Earlier task passes alone do not establish current safety or rendered-update behavior."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-629-01",
+          "type": "composition-audit",
+          "description": "Rung scenario note bound to the exact candidate hash."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Rung 2 scenario evidence and audit result"
+        ],
+        "non_goals": [
+          "Implementing repairs"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-620",
+      "kind": "outcome",
+      "title": "Reclaimable space is visible and explained",
+      "summary": "A user opens the app and sees which objects hold the reclaimable space, how stale each one is, what rebuilding it would cost, and that review is required before anything is removed.",
+      "level": 2,
+      "wave": 6,
+      "workstream": "product",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-603",
+        "REQ-605",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-620-01",
+          "description": "Construct a runnable candidate and pass GATE-629 including rung 1's inherited scenarios."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-620-01",
+          "type": "regression-evidence",
+          "description": "Gate evidence plus the isolated verifier run on the same candidate."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Verified rung 2"
+        ],
+        "non_goals": [
+          "Shared caches"
+        ]
+      }
+    },
+    {
+      "id": "GATE-639",
+      "kind": "audit",
+      "title": "Audit shared caches in scope",
+      "summary": "Independently exercise the integrated candidate: shared caches appear as objects under the same contract only after opt-in, earlier rungs still pass, and the candidate meets the inherited safety, recovery and resource limits.",
+      "level": 2,
+      "wave": 8,
+      "workstream": "assurance",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-604",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-GATE-639-01",
+          "description": "Build and run isolated end-to-end scenarios for this rung and all earlier rungs; record the exact candidate, commands, fixture identity, budgets and actual results. Final acceptance additionally requires the migration and rollback rehearsal and bounded real-time evidence on the final candidate. Open material findings prevent pass."
+        },
+        {
+          "id": "AC-GATE-639-02",
+          "description": "Re-run inherited TASK-616 descendant-containment and TASK-617 sequential dashboard/alert/freshness scenarios against this gate's exact integrated candidate. Earlier task passes alone do not establish current safety or rendered-update behavior."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-GATE-639-01",
+          "type": "composition-audit",
+          "description": "Final rung scenario note bound to the exact candidate hash."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Rung 3 scenario evidence and audit result"
+        ],
+        "non_goals": [
+          "Implementing repairs"
+        ]
+      }
+    },
+    {
+      "id": "OUTCOME-630",
+      "kind": "outcome",
+      "title": "Shared caches counted the same way",
+      "summary": "After opting in, a user sees the tool-owned caches outside their projects ranked beside project output, so the largest reclaimable space on the machine is visible in one place.",
+      "level": 1,
+      "wave": 8,
+      "workstream": "product",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-604",
+        "REQ-607"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-OUTCOME-630-01",
+          "description": "Construct a runnable candidate and pass GATE-639 including every earlier rung's inherited scenarios."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-OUTCOME-630-01",
+          "type": "regression-evidence",
+          "description": "Gate evidence plus the isolated verifier run on the final candidate."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "docs/reliability/evidence/**"
+        ],
+        "allowed_write_scope": [
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "evidence-only",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [],
+        "deliverables": [
+          "Verified rung 3"
+        ],
+        "non_goals": [
+          "Release publication"
+        ]
+      }
+    },
+    {
+      "id": "TASK-615",
+      "kind": "implementation",
+      "title": "Run objects in the app: wire the probe and converge an installed store",
+      "summary": "The monitoring probe builds its scanner with the object classifier and runs the collapse once against the installed store, so an existing installation stops staging per-file rows inside objects and starts finishing its scans.",
+      "level": 5,
+      "wave": 2,
+      "workstream": "scanner",
+      "selection": "superseded",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-603",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-615-01",
+          "description": "With the probe wired, a scope whose files sit behind objects completes a generation and publishes, and no per-file row inside an object survives. A store captured from an installed app converges: the collapse runs once, is resumable if interrupted, reports what it changed, and leaves unrelated evidence untouched. The classifier is constructed with the repository oracle, and a machine without git still scans."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-615-01",
+          "type": "regression-evidence",
+          "description": "Isolated app-level run over a fixture tree plus a convergence run against a captured store copy, with before and after row counts."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+          "docs/reliability/evidence/TASK-612/object-leaf-scan.md",
+          "docs/reliability/evidence/TASK-613/object-rows.md"
+        ],
+        "allowed_write_scope": [
+          "Sources/DiskStewardApp/**",
+          "Sources/DiskStewardCore/**",
+          "Tests/**",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "Probe wired to the classifier",
+          "One-time collapse against an installed store",
+          "Convergence evidence with before and after counts"
+        ],
+        "non_goals": [
+          "Aggregate sizing",
+          "Ranking or presentation",
+          "Opening the user's live evidence database"
+        ]
+      }
+    },
+    {
+      "id": "TASK-664",
+      "kind": "risk-control",
+      "title": "Tolerate transient process inspection in the supervisor",
+      "summary": "The verification supervisor fails a run whenever any new same-user process on the Mac cannot be inspected at that instant (mid-launch, or briefly unreadable). Retry such inspections within a short bounded grace and keep failing closed when one persists, so candidate verification is not stopped by unrelated activity.",
+      "level": 5,
+      "wave": 4,
+      "workstream": "safety",
+      "selection": "primary",
+      "source_requirements": [
+        "REQ-601",
+        "REQ-606"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "AC-TASK-664-01",
+          "description": "A same-user process whose environment or identity cannot be read at one poll is retried on later polls for at most a bounded grace (2 s); the run fails with the existing error only when the failure persists while the process lives. Ownership by recorded parent lineage, the marker check, PID-identity rechecks and cleanup verification are unchanged."
+        },
+        {
+          "id": "AC-TASK-664-02",
+          "description": "Synthetic supervisor tests cover a transient classification failure, a transient unreadable identity, and a persistent failure that still fails closed; full candidate verification then completes on a Mac with ordinary background activity, recorded on the exact candidate input."
+        }
+      ],
+      "required_evidence": [
+        {
+          "id": "EVREQ-TASK-664-01",
+          "type": "regression-evidence",
+          "description": "Supervisor unit tests for transient and persistent inspection failures, mutation reds, and consecutive full candidate verifications without a supervision race."
+        }
+      ],
+      "agent": {
+        "required_context": [
+          "Scripts/Testing/process_supervisor.py",
+          "Scripts/Testing/SUPERVISION.md",
+          "Scripts/Testing/test_process_supervisor.py"
+        ],
+        "allowed_write_scope": [
+          "Scripts/Testing/process_supervisor.py",
+          "Scripts/Testing/test_process_supervisor.py",
+          "Scripts/Testing/SUPERVISION.md",
+          "docs/reliability/evidence/**"
+        ],
+        "effect": "mixed",
+        "evidence_outputs": [
+          "docs/reliability/evidence/**"
+        ],
+        "commands": [
+          "python3 -m unittest discover -s Scripts/Testing -p 'test_*.py'",
+          "Scripts/Testing/verify_candidate.py --output <new dir>"
+        ],
+        "deliverables": [
+          "A supervisor that retries transient inspection failures and still fails closed on persistent ones"
+        ],
+        "non_goals": [
+          "Weakening ownership, lineage or cleanup verification",
+          "Signalling processes not owned by the run"
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "CONTRACT-601",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "CONTRACT-602",
+      "to": "OUTCOME-650",
+      "type": "contributes-to"
+    },
+    {
+      "from": "CONTRACT-602",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "GATE-649",
+      "to": "OUTCOME-640",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-649",
+      "to": "TASK-614",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-649",
+      "to": "TASK-616",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-649",
+      "to": "TASK-617",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-649",
+      "to": "TASK-641",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-649",
+      "to": "TASK-642",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-659",
+      "to": "OUTCOME-650",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-659",
+      "to": "CONTRACT-602",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-659",
+      "to": "OUTCOME-640",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-659",
+      "to": "TASK-651",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-659",
+      "to": "TASK-652",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-659",
+      "to": "TASK-653",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-669",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-669",
+      "to": "OUTCOME-650",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-611",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-621",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-622",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-623",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-631",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-661",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-679",
+      "to": "OUTCOME-670",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-679",
+      "to": "OUTCOME-660",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-679",
+      "to": "TASK-671",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-679",
+      "to": "TASK-672",
+      "type": "validation-requires"
+    },
+    {
+      "from": "OUTCOME-640",
+      "to": "OUTCOME-650",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-640",
+      "to": "GATE-649",
+      "type": "validated-by"
+    },
+    {
+      "from": "OUTCOME-650",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-650",
+      "to": "GATE-659",
+      "type": "validated-by"
+    },
+    {
+      "from": "OUTCOME-660",
+      "to": "OUTCOME-670",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-660",
+      "to": "GATE-669",
+      "type": "validated-by"
+    },
+    {
+      "from": "OUTCOME-670",
+      "to": "INTENT-006",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-670",
+      "to": "GATE-679",
+      "type": "validated-by"
+    },
+    {
+      "from": "RESEARCH-601",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-611",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-611",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-611",
+      "to": "RESEARCH-601",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-612",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-612",
+      "to": "TASK-611",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-614",
+      "to": "OUTCOME-640",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-614",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-616",
+      "to": "OUTCOME-640",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-617",
+      "to": "OUTCOME-640",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-617",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-621",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-621",
+      "to": "CONTRACT-602",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-621",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-621",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-622",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-622",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-622",
+      "to": "TASK-621",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-623",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-623",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-623",
+      "to": "TASK-617",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-623",
+      "to": "TASK-622",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-623",
+      "to": "TASK-631",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-631",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-631",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-631",
+      "to": "TASK-621",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-641",
+      "to": "OUTCOME-640",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-641",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-642",
+      "to": "OUTCOME-640",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-642",
+      "to": "TASK-616",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-642",
+      "to": "TASK-641",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-651",
+      "to": "CONTRACT-602",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-651",
+      "to": "OUTCOME-650",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-651",
+      "to": "TASK-642",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-652",
+      "to": "CONTRACT-602",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-652",
+      "to": "OUTCOME-650",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-653",
+      "to": "OUTCOME-650",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-653",
+      "to": "TASK-614",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-653",
+      "to": "TASK-651",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-653",
+      "to": "TASK-652",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-661",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-661",
+      "to": "TASK-621",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-661",
+      "to": "TASK-652",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-671",
+      "to": "CONTRACT-602",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-671",
+      "to": "OUTCOME-670",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-671",
+      "to": "TASK-622",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-671",
+      "to": "TASK-661",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-672",
+      "to": "OUTCOME-670",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-672",
+      "to": "TASK-652",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-611",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-612",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-613",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-614",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "RESEARCH-601",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "CONTRACT-601",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-621",
+      "to": "OUTCOME-620",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-622",
+      "to": "OUTCOME-620",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-623",
+      "to": "OUTCOME-620",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-629",
+      "to": "OUTCOME-620",
+      "type": "contributes-to"
+    },
+    {
+      "from": "TASK-631",
+      "to": "OUTCOME-630",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-639",
+      "to": "OUTCOME-630",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-610",
+      "to": "OUTCOME-620",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-620",
+      "to": "OUTCOME-630",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-630",
+      "to": "INTENT-006",
+      "type": "contributes-to"
+    },
+    {
+      "from": "OUTCOME-610",
+      "to": "GATE-619",
+      "type": "validated-by"
+    },
+    {
+      "from": "OUTCOME-620",
+      "to": "GATE-629",
+      "type": "validated-by"
+    },
+    {
+      "from": "OUTCOME-630",
+      "to": "GATE-639",
+      "type": "validated-by"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-611",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-612",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-613",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-614",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-629",
+      "to": "TASK-621",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-629",
+      "to": "TASK-622",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-629",
+      "to": "TASK-623",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-629",
+      "to": "OUTCOME-610",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-639",
+      "to": "TASK-631",
+      "type": "validation-requires"
+    },
+    {
+      "from": "GATE-639",
+      "to": "OUTCOME-620",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-613",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-613",
+      "to": "TASK-611",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-615",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "CONTRACT-601",
+      "type": "contract-requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "TASK-612",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-615",
+      "to": "TASK-613",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-616",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-616",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-617",
+      "to": "OUTCOME-610",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-619",
+      "to": "TASK-617",
+      "type": "validation-requires"
+    },
+    {
+      "from": "TASK-621",
+      "to": "TASK-611",
+      "type": "requires"
+    },
+    {
+      "from": "TASK-653",
+      "to": "TASK-612",
+      "type": "invalidates"
+    },
+    {
+      "from": "TASK-664",
+      "to": "TASK-616",
+      "type": "integration-requires"
+    },
+    {
+      "from": "TASK-664",
+      "to": "OUTCOME-660",
+      "type": "contributes-to"
+    },
+    {
+      "from": "GATE-669",
+      "to": "TASK-664",
+      "type": "validation-requires"
+    }
+  ]
+}

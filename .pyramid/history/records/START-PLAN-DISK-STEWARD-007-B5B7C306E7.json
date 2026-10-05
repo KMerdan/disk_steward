@@ -1,0 +1,902 @@
+{
+  "schema": "pyramid-intent-start-v1",
+  "record_id": "START-PLAN-DISK-STEWARD-007-B5B7C306E7",
+  "record_type": "intent-start",
+  "plan_id": "PLAN-DISK-STEWARD-007",
+  "plan_revision": 1,
+  "title": "Current MCP clients and the 1.5.1 fixes",
+  "recorded_at": "2026-10-05T00:29:06.703001Z",
+  "recorded_by": "claude",
+  "capture_quality": "at-intent-start",
+  "parents": [
+    {
+      "chronicle_id": "CHRONICLE-PLAN-DISK-STEWARD-006-A513D16891-C1",
+      "relationship": "extends"
+    }
+  ],
+  "transition": {
+    "reset_from_archive": "PLAN-DISK-STEWARD-006-R10-G203-20261005T002906Z",
+    "reason": "User asked for full MCP support, all bug fixes and a 1.5.1 release (2026-10-05)",
+    "transition_approval": {
+      "approved_by": "Dr. Kiji (maintainer)",
+      "reference": "chat 2026-10-05: 'i want to adopt full support, and fix all bugs, then release 1.5.1'",
+      "new_intent_sha256": "e3729f30a416098230ae3dea16404e8988000836803bb3085fecb9213562f9c8"
+    }
+  },
+  "intent": {
+    "id": "INTENT-007",
+    "statement": "Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 2026-07-28) reach one correctly registered Disk Steward server with its evidence skill, get typed, correctable answers, and the defects found in the first real cleanup and the accepted rung-4 findings are fixed, released as 1.5.1.",
+    "success_evidence": [
+      {
+        "id": "REQ-701",
+        "description": "The bundled MCP helper serves clients of MCP 2026-07-28 (stateless, server/discover), 2025-11-25 and 2025-06-18 over stdio, and its answers validate against the upstream schemas for the version each request uses."
+      },
+      {
+        "id": "REQ-702",
+        "description": "Every tool declares an outputSchema that each of its answers conforms to, and invalid arguments come back as tool errors a model can correct."
+      },
+      {
+        "id": "REQ-703",
+        "description": "Codex and Claude Code each get the Disk Steward evidence skill and exactly one server registration from the supported installer, with backup and rollback."
+      },
+      {
+        "id": "REQ-704",
+        "description": "The defects found in use are fixed: the path filter no longer redacts ordinary names, explain_growth honours its limit, the retired scanner's convergence test is deterministic, and verification no longer reports Xcode's ibtoold daemon as a failure."
+      },
+      {
+        "id": "REQ-705",
+        "description": "Disk Steward 1.5.1 is built from the verified input, notarized, installed and published with gate evidence."
+      }
+    ],
+    "constraints": [
+      "Never delete, move or modify any user file; the helper stays read-only.",
+      "Never open the user's live stores from tests; verification runs in isolated snapshots.",
+      "Keep every existing tool name and the 2025-06-18 handshake working."
+    ],
+    "non_goals": [
+      "MCP tasks, sampling, elicitation, roots or subscriptions.",
+      "A remote (HTTP) MCP server or a public plugin directory listing."
+    ],
+    "assumptions": [
+      {
+        "id": "ASM-701",
+        "statement": "The 2026-07-28 wire format and the upstream schemas published for it are stable enough to implement and validate against.",
+        "confidence": "medium",
+        "validation_node": "TASK-714"
+      },
+      {
+        "id": "ASM-702",
+        "statement": "The convergence flake is the probe folding a change receipt stamped after the sample's start into that sample.",
+        "confidence": "medium",
+        "validation_node": "TASK-711"
+      }
+    ]
+  },
+  "starting_plan": {
+    "schema_version": 1,
+    "plan_id": "PLAN-DISK-STEWARD-007",
+    "title": "Current MCP clients and the 1.5.1 fixes",
+    "revision": 1,
+    "intent": {
+      "id": "INTENT-007",
+      "statement": "Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 2026-07-28) reach one correctly registered Disk Steward server with its evidence skill, get typed, correctable answers, and the defects found in the first real cleanup and the accepted rung-4 findings are fixed, released as 1.5.1.",
+      "success_evidence": [
+        {
+          "id": "REQ-701",
+          "description": "The bundled MCP helper serves clients of MCP 2026-07-28 (stateless, server/discover), 2025-11-25 and 2025-06-18 over stdio, and its answers validate against the upstream schemas for the version each request uses."
+        },
+        {
+          "id": "REQ-702",
+          "description": "Every tool declares an outputSchema that each of its answers conforms to, and invalid arguments come back as tool errors a model can correct."
+        },
+        {
+          "id": "REQ-703",
+          "description": "Codex and Claude Code each get the Disk Steward evidence skill and exactly one server registration from the supported installer, with backup and rollback."
+        },
+        {
+          "id": "REQ-704",
+          "description": "The defects found in use are fixed: the path filter no longer redacts ordinary names, explain_growth honours its limit, the retired scanner's convergence test is deterministic, and verification no longer reports Xcode's ibtoold daemon as a failure."
+        },
+        {
+          "id": "REQ-705",
+          "description": "Disk Steward 1.5.1 is built from the verified input, notarized, installed and published with gate evidence."
+        }
+      ],
+      "constraints": [
+        "Never delete, move or modify any user file; the helper stays read-only.",
+        "Never open the user's live stores from tests; verification runs in isolated snapshots.",
+        "Keep every existing tool name and the 2025-06-18 handshake working."
+      ],
+      "non_goals": [
+        "MCP tasks, sampling, elicitation, roots or subscriptions.",
+        "A remote (HTTP) MCP server or a public plugin directory listing."
+      ],
+      "assumptions": [
+        {
+          "id": "ASM-701",
+          "statement": "The 2026-07-28 wire format and the upstream schemas published for it are stable enough to implement and validate against.",
+          "confidence": "medium",
+          "validation_node": "TASK-714"
+        },
+        {
+          "id": "ASM-702",
+          "statement": "The convergence flake is the probe folding a change receipt stamped after the sample's start into that sample.",
+          "confidence": "medium",
+          "validation_node": "TASK-711"
+        }
+      ]
+    },
+    "evidence": [
+      {
+        "id": "EV-701-MCP-RESEARCH",
+        "claim": "MCP 2025-11-25 recommends input-validation failures as isError results; MCP 2026-07-28 is stateless (server/discover, per-request _meta version, resultType, ttlMs/cacheScope); Claude Code probes stdio servers with server/discover and Codex shows the model only structuredContent.",
+        "source": "docs/research/mcp-and-skills-2026-10.md",
+        "confidence": "high",
+        "freshness": "2026-10-05",
+        "supports": [
+          "INTENT-007",
+          "TASK-713",
+          "TASK-714"
+        ],
+        "contradicts": []
+      },
+      {
+        "id": "EV-702-HELPER-PROBE",
+        "claim": "The installed 1.5.0 helper answered server/discover with -32002, invalid arguments with -32602, listed no tool titles and reported a fixed version; MCP polish f670058 fixed the first, third and fourth.",
+        "source": "docs/reliability/evidence/MCP-POLISH-1.5.1/README.md",
+        "confidence": "high",
+        "freshness": "2026-10-05",
+        "supports": [
+          "TASK-713",
+          "TASK-714"
+        ],
+        "contradicts": []
+      },
+      {
+        "id": "EV-703-IBTOOLD",
+        "claim": "The descendant xcodebuild leaves after a successful CI build is /Applications/Xcode.app/Contents/Developer/usr/bin/ibtoold --sending-client-environment, reparented to launchd; the supervisor stops it with cleanup verified and records launcher-exited-with-descendants.",
+        "source": "Process diff around a CI xcodebuild on 2026-10-05 (scratchpad xcode-leftover.py); docs/reliability/evidence/MCP-POLISH-1.5.1/full/candidate.json",
+        "confidence": "high",
+        "freshness": "2026-10-05",
+        "supports": [
+          "TASK-712"
+        ],
+        "contradicts": []
+      },
+      {
+        "id": "EV-704-CLEANUP-USE",
+        "claim": "The first real cleanup found three review-tool defects, fixed by HOTFIX-1.5.1 (c22f173), and the Codex installer writes both a config.toml block and a plugin that declares the same server.",
+        "source": "docs/reliability/evidence/HOTFIX-1.5.1/README.md; Scripts/Integration/install",
+        "confidence": "high",
+        "freshness": "2026-10-05",
+        "supports": [
+          "TASK-715",
+          "TASK-711"
+        ],
+        "contradicts": []
+      }
+    ],
+    "decisions": [
+      {
+        "id": "DECISION-701-DUAL-ERA",
+        "question": "Support MCP 2026-07-28 only, or alongside earlier versions?",
+        "choice": "Serve both eras on one stdio helper: 2026-07-28 requests are recognised by the per-request protocol version in _meta; initialize-based sessions keep 2025-11-25, 2025-06-18 and older.",
+        "alternatives": [
+          "2026-07-28 only; rejected because Codex still initializes with 2025-06-18 by default.",
+          "Stay on 2025-06-18; rejected because the user asked for full support and Claude Code is rolling out server/discover probes."
+        ],
+        "rationale": "Both target clients keep working whatever they negotiate.",
+        "affected_nodes": [
+          "TASK-714"
+        ],
+        "evidence": [
+          "EV-701-MCP-RESEARCH"
+        ]
+      },
+      {
+        "id": "DECISION-702-ONE-SKILL",
+        "question": "How do both clients get the evidence skill?",
+        "choice": "One SKILL.md source in Integrations; the Codex plugin bundles it and the Claude installer copies it into <config-root>/skills with the same backup manifest.",
+        "alternatives": [
+          "Separate skills per client; rejected because they would drift."
+        ],
+        "rationale": "One source of truth for agent guidance.",
+        "affected_nodes": [
+          "TASK-715"
+        ],
+        "evidence": [
+          "EV-704-CLEANUP-USE"
+        ]
+      }
+    ],
+    "nodes": [
+      {
+        "id": "INTENT-007",
+        "kind": "intent",
+        "title": "Current MCP clients and the 1.5.1 fixes",
+        "summary": "Agents on current Codex and Claude Code reach one correctly registered Disk Steward server with its skill, get typed and correctable answers over MCP 2025-06-18 to 2026-07-28, and the known defects are fixed, released as 1.5.1.",
+        "level": 0,
+        "wave": 3,
+        "workstream": "product",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-701",
+          "REQ-702",
+          "REQ-703",
+          "REQ-704",
+          "REQ-705"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-INTENT-007-01",
+            "description": "OUTCOME-710 passes against the exact released candidate and no open material finding remains."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-INTENT-007-01",
+            "type": "regression-evidence",
+            "description": "Gate evidence on the final candidate and the published release record."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "docs/research/mcp-and-skills-2026-10.md"
+          ],
+          "allowed_write_scope": [
+            "docs/reliability/evidence/**"
+          ],
+          "commands": [],
+          "deliverables": [
+            "Verified intent with a complete chronicle"
+          ],
+          "non_goals": [
+            "Executing work directly"
+          ],
+          "effect": "evidence-only",
+          "evidence_outputs": [
+            "docs/reliability/evidence/**"
+          ]
+        }
+      },
+      {
+        "id": "OUTCOME-710",
+        "kind": "outcome",
+        "title": "Agents on current MCP clients get one server, its skill and corrected answers",
+        "summary": "A Codex or Claude Code user installs Disk Steward 1.5.1 and their agent gets one Disk Steward server, the evidence skill and typed answers, whichever MCP version the client speaks, with the known defects gone.",
+        "level": 1,
+        "wave": 3,
+        "workstream": "product",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-701",
+          "REQ-702",
+          "REQ-703",
+          "REQ-704",
+          "REQ-705"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-OUTCOME-710-01",
+            "description": "GATE-719 passed on the exact candidate."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-OUTCOME-710-01",
+            "type": "composition-audit",
+            "description": "Gate result bound to the candidate input hash."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "docs/research/mcp-and-skills-2026-10.md"
+          ],
+          "allowed_write_scope": [],
+          "commands": [],
+          "deliverables": [
+            "Agents on current MCP clients get one server, its skill and corrected answers"
+          ],
+          "non_goals": [
+            "Executing work directly"
+          ]
+        }
+      },
+      {
+        "id": "GATE-719",
+        "kind": "audit",
+        "title": "Audit 1.5.1: current clients, fixes and release",
+        "summary": "Verify the final candidate in isolation and packaged, then install the notarized 1.5.1 and exercise it through both eras and both installers before publishing.",
+        "level": 2,
+        "wave": 3,
+        "workstream": "assurance",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-701",
+          "REQ-702",
+          "REQ-703",
+          "REQ-704",
+          "REQ-705"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-GATE-719-01",
+            "description": "On the final candidate: the full isolated suite passes, every mutation red fails its target test, and the packaged helper answers server/discover, a 2026-07-28 tools/list and tools/call, and 2025-11-25 and 2025-06-18 sessions, with answers validating against the vendored upstream schemas and each tool's outputSchema."
+          },
+          {
+            "id": "AC-GATE-719-02",
+            "description": "The notarized 1.5.1 is installed on the maintainer's Mac: list_review_items accepts get_health's scope name, a cargo target reads as build output after a review, and the Claude and Codex installers leave exactly one registration and the skill for each client. Open material findings prevent pass."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-GATE-719-01",
+            "type": "composition-audit",
+            "description": "Gate note bound to the candidate input hash, with the installed-app transcript."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "docs/research/mcp-and-skills-2026-10.md",
+            "docs/reliability/evidence/**"
+          ],
+          "allowed_write_scope": [
+            "docs/reliability/evidence/**"
+          ],
+          "commands": [
+            "Scripts/Testing/verify_candidate.py --xcodegen /opt/homebrew/bin/xcodegen --output <new dir>"
+          ],
+          "deliverables": [
+            "Gate evidence and audit result"
+          ],
+          "non_goals": [
+            "Implementing repairs"
+          ],
+          "effect": "evidence-only",
+          "evidence_outputs": [
+            "docs/reliability/evidence/**"
+          ]
+        }
+      },
+      {
+        "id": "TASK-711",
+        "kind": "implementation",
+        "title": "Fix the defects found in use",
+        "summary": "Stop the path filter redacting ordinary names, honour explain_growth's limit for changed directories, and make the retired scanner's convergence deterministic by ordering the sample's clock after its inbox drain.",
+        "level": 3,
+        "wave": 1,
+        "workstream": "product",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-704"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-TASK-711-01",
+            "description": "'.disk-steward-gate-659' survives the path filter in the MCP backend and the bundle exporter, while sk-/gh*_/AKIA tokens at a name boundary or after '=' are still redacted."
+          },
+          {
+            "id": "AC-TASK-711-02",
+            "description": "explain_growth returns at most its requested limit of changed directories (200 when absent) and says when it truncated."
+          },
+          {
+            "id": "AC-TASK-711-03",
+            "description": "A deterministic test reproduces the convergence race (a change receipt stamped after the sample's start) and passes after the fix; the store's publication-time invariant is unchanged."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-TASK-711-01",
+            "type": "regression-evidence",
+            "description": "Focused tests and mutation reds for each fix."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+            "Sources/DiskStewardApp/Lifecycle/PersistentMonitoringProbe.swift",
+            "Sources/DiskStewardCore/Export/EvidenceBundle/EvidenceBundleExporter.swift"
+          ],
+          "allowed_write_scope": [
+            "Sources/DiskStewardApp/IPC/AppEvidenceQueryBackend.swift",
+            "Sources/DiskStewardApp/Lifecycle/**",
+            "Sources/DiskStewardCore/Export/**",
+            "Sources/DiskStewardCore/Monitoring/**",
+            "Tests/**",
+            "Fixtures/**",
+            "docs/reliability/evidence/**"
+          ],
+          "commands": [
+            "docs/reliability/handoffs/harness/run-focused.py <filter>"
+          ],
+          "deliverables": [
+            "The three fixes with tests"
+          ],
+          "non_goals": [
+            "Loosening the store's observation-time invariant"
+          ],
+          "effect": "mixed",
+          "evidence_outputs": [
+            "docs/reliability/evidence/**"
+          ]
+        }
+      },
+      {
+        "id": "TASK-712",
+        "kind": "risk-control",
+        "title": "Treat Xcode's ibtoold daemon as expected in verification",
+        "summary": "After a build or archive launcher exits 0, stop surviving descendants whose executable is Xcode's own ibtoold under the selected developer directory, verify cleanup, and pass the stage with a note; any other survivor still fails it.",
+        "level": 3,
+        "wave": 1,
+        "workstream": "safety",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-704"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-TASK-712-01",
+            "description": "A stage whose only survivors are the selected Xcode's ibtoold passes with the stopped daemon named; an unknown survivor, a failed launcher or unverified cleanup still fails. Lineage, identity rechecks and cleanup verification are unchanged."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-TASK-712-01",
+            "type": "regression-evidence",
+            "description": "Supervisor unit tests for both branches, reds, and a full candidate verification whose package stage passes."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "Scripts/Testing/process_supervisor.py",
+            "Scripts/Testing/verify_candidate.py",
+            "Scripts/Testing/SUPERVISION.md"
+          ],
+          "allowed_write_scope": [
+            "Scripts/Testing/**",
+            "docs/reliability/evidence/**"
+          ],
+          "commands": [
+            "python3 -m unittest discover -s Scripts/Testing -p 'test_*.py'"
+          ],
+          "deliverables": [
+            "Expected-daemon handling in the supervisor"
+          ],
+          "non_goals": [
+            "Ignoring unknown descendants",
+            "Signalling processes the run does not own"
+          ],
+          "effect": "mixed",
+          "evidence_outputs": [
+            "docs/reliability/evidence/**"
+          ]
+        }
+      },
+      {
+        "id": "TASK-713",
+        "kind": "implementation",
+        "title": "Typed and correctable tool answers (MCP 2025-11-25)",
+        "summary": "Declare an outputSchema for every tool, check every answer against it, return invalid arguments as isError tool results, advertise 2025-11-25, and retire the stale page schema.",
+        "level": 3,
+        "wave": 1,
+        "workstream": "product",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-702",
+          "REQ-701"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-TASK-713-01",
+            "description": "Every tool lists an outputSchema; in the caps test every success and error answer of every tool validates against its schema."
+          },
+          {
+            "id": "AC-TASK-713-02",
+            "description": "Schema-invalid arguments return isError results with code invalid_arguments; unknown tools and non-object arguments stay -32602 protocol errors; initialize negotiates 2025-11-25 first."
+          },
+          {
+            "id": "AC-TASK-713-03",
+            "description": "The stale evidence-query page schema is replaced by the per-tool output schemas (FIND-R4-PAGE-SCHEMA-STALE)."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-TASK-713-01",
+            "type": "regression-evidence",
+            "description": "Contract tests, caps validation and mutation reds."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "Sources/DiskStewardMCP/MCPToolCatalog.swift",
+            "Sources/DiskStewardMCP/MCPServer.swift",
+            "Schemas/MCP/**",
+            "Fixtures/MCP/**"
+          ],
+          "allowed_write_scope": [
+            "Sources/DiskStewardMCP/**",
+            "Sources/DiskStewardApp/IPC/**",
+            "Schemas/**",
+            "Fixtures/**",
+            "Tests/**",
+            "docs/architecture/mcp.md",
+            "Scripts/Testing/verify_packaged_candidate.py",
+            "Scripts/Testing/test_verify_packaged_candidate.py",
+            "docs/reliability/evidence/**"
+          ],
+          "commands": [
+            "docs/reliability/handoffs/harness/run-focused.py <filter>"
+          ],
+          "deliverables": [
+            "Typed tools and tool-level argument errors"
+          ],
+          "non_goals": [
+            "Renaming tools"
+          ],
+          "effect": "mixed",
+          "evidence_outputs": [
+            "docs/reliability/evidence/**"
+          ]
+        }
+      },
+      {
+        "id": "TASK-714",
+        "kind": "implementation",
+        "title": "Serve MCP 2026-07-28 alongside earlier versions",
+        "summary": "Answer server/discover and stateless 2026-07-28 requests (per-request _meta version, resultType, ttlMs and cacheScope, -32022 for unsupported versions) while initialize-based sessions keep working, validated against vendored upstream schemas.",
+        "level": 4,
+        "wave": 2,
+        "workstream": "product",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-701"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-TASK-714-01",
+            "description": "A 2026-07-28 client discovers the server and lists and calls tools and reads resources without initialize; every response validates against the vendored upstream 2026-07-28 schema."
+          },
+          {
+            "id": "AC-TASK-714-02",
+            "description": "A 2025-11-25 or 2025-06-18 client negotiates through initialize as before, and its responses validate against the matching upstream schema; an unsupported 2026 version gets -32022 with the supported list."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-TASK-714-01",
+            "type": "regression-evidence",
+            "description": "Protocol tests per era against vendored upstream schemas, and reds."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "Sources/DiskStewardMCP/MCPServer.swift",
+            "Fixtures/MCP/**"
+          ],
+          "allowed_write_scope": [
+            "Sources/DiskStewardMCP/**",
+            "Fixtures/**",
+            "Schemas/**",
+            "Tests/**",
+            "docs/architecture/mcp.md",
+            "Scripts/Testing/verify_packaged_candidate.py",
+            "Scripts/Testing/test_verify_packaged_candidate.py",
+            "docs/reliability/evidence/**"
+          ],
+          "commands": [
+            "docs/reliability/handoffs/harness/run-focused.py <filter>"
+          ],
+          "deliverables": [
+            "A dual-era stdio helper"
+          ],
+          "non_goals": [
+            "Tasks, sampling, elicitation or subscriptions"
+          ],
+          "effect": "mixed",
+          "evidence_outputs": [
+            "docs/reliability/evidence/**"
+          ]
+        }
+      },
+      {
+        "id": "TASK-715",
+        "kind": "implementation",
+        "title": "One registration and the skill for both clients",
+        "summary": "The Claude installer installs the evidence skill from the single SKILL.md source; the Codex install leaves exactly one disk_steward registration; the Codex plugin also ships the portable Agent Plugins layout.",
+        "level": 3,
+        "wave": 1,
+        "workstream": "product",
+        "selection": "primary",
+        "source_requirements": [
+          "REQ-703"
+        ],
+        "acceptance_criteria": [
+          {
+            "id": "AC-TASK-715-01",
+            "description": "After install, Claude Code has the skill under <config-root>/skills/disk-steward-evidence and one disk_steward server; Codex has one disk_steward server and the skill; both are backed up and roll back exactly."
+          },
+          {
+            "id": "AC-TASK-715-02",
+            "description": "The Codex plugin carries a root plugin.json and mcp.json (type stdio) beside .codex-plugin, and the skill follows the Agent Skills specification."
+          }
+        ],
+        "required_evidence": [
+          {
+            "id": "EVREQ-TASK-715-01",
+            "type": "regression-evidence",
+            "description": "IntegrationInstallTests for both clients, reds, and the installers run on the maintainer's Mac at the gate."
+          }
+        ],
+        "agent": {
+          "required_context": [
+            "Scripts/Integration/install",
+            "Integrations/**",
+            "docs/integrations/README.md"
+          ],
+          "allowed_write_scope": [
+            "Scripts/Integration/**",
+            "Integrations/**",
+            "Tests/IntegrationInstallTests/**",
+            "Tests/DiskStewardMCPTests/**",
+            "Fixtures/**",
+            "docs/integrations/**",
+            "README.md",
+            "docs/reliability/evidence/**"
+          ],
+          "commands": [
+            "docs/reliability/handoffs/harness/run-focused.py <filter>"
+          ],
+          "deliverables": [
+            "Skill and single registration for both clients"
+          ],
+          "non_goals": [
+            "Editing user configuration outside an explicit install"
+          ],
+          "effect": "mixed",
+          "evidence_outputs": [
+            "docs/reliability/evidence/**"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "TASK-711",
+        "to": "OUTCOME-710",
+        "type": "contributes-to"
+      },
+      {
+        "from": "GATE-719",
+        "to": "TASK-711",
+        "type": "validation-requires"
+      },
+      {
+        "from": "TASK-712",
+        "to": "OUTCOME-710",
+        "type": "contributes-to"
+      },
+      {
+        "from": "GATE-719",
+        "to": "TASK-712",
+        "type": "validation-requires"
+      },
+      {
+        "from": "TASK-713",
+        "to": "OUTCOME-710",
+        "type": "contributes-to"
+      },
+      {
+        "from": "GATE-719",
+        "to": "TASK-713",
+        "type": "validation-requires"
+      },
+      {
+        "from": "TASK-714",
+        "to": "OUTCOME-710",
+        "type": "contributes-to"
+      },
+      {
+        "from": "GATE-719",
+        "to": "TASK-714",
+        "type": "validation-requires"
+      },
+      {
+        "from": "TASK-715",
+        "to": "OUTCOME-710",
+        "type": "contributes-to"
+      },
+      {
+        "from": "GATE-719",
+        "to": "TASK-715",
+        "type": "validation-requires"
+      },
+      {
+        "from": "TASK-714",
+        "to": "TASK-713",
+        "type": "requires"
+      },
+      {
+        "from": "GATE-719",
+        "to": "OUTCOME-710",
+        "type": "contributes-to"
+      },
+      {
+        "from": "OUTCOME-710",
+        "to": "GATE-719",
+        "type": "validated-by"
+      },
+      {
+        "from": "OUTCOME-710",
+        "to": "INTENT-007",
+        "type": "contributes-to"
+      }
+    ]
+  },
+  "starting_state": {
+    "graph_version": 1,
+    "created_at": "2026-10-05T00:29:06.581215Z",
+    "lifecycle": {
+      "status": "active",
+      "completed_at": null,
+      "completed_by": null,
+      "completion_report": null,
+      "change_dossier": null,
+      "archived_at": null,
+      "archived_by": null,
+      "archived_from_status": null,
+      "archive_id": null,
+      "archive_path": null,
+      "restored_from": null
+    }
+  },
+  "source_snapshot": {
+    "captured_at": "2026-10-05T00:29:06.692032Z",
+    "git": {
+      "available": true,
+      "repository_root": "/Users/merdankiji/localGit/disk_steward",
+      "commit": "3bfcc679aa08f7c116fc67db6b32d1af1cae4571",
+      "tree": "b05a1db235b8c9679a2d425f3fa14ca995326f38",
+      "clean": false,
+      "changed_files": [
+        "docs/tasks/00-foundation/CONTRACT-601-object-evidence-and-safety-contract.md",
+        "docs/tasks/00-foundation/README.md",
+        "docs/tasks/00-foundation/RESEARCH-601-validate-object-detection-rules-on-a-real-corpus.md",
+        "docs/tasks/01-classification/README.md",
+        "docs/tasks/01-classification/TASK-611-classify-projects-and-their-output-directories.md",
+        "docs/tasks/01-safety/README.md",
+        "docs/tasks/01-safety/TASK-616-contain-verification-descendants-and-enforce-resource-budgets.md",
+        "docs/tasks/02-product/README.md",
+        "docs/tasks/02-product/TASK-617-keep-dashboard-measurements-and-growth-alerts-consistent.md",
+        "docs/tasks/02-safety/README.md",
+        "docs/tasks/02-safety/TASK-614-refuse-a-scope-that-cannot-fit-and-say-so.md",
+        "docs/tasks/02-safety/TASK-614-stop-a-scan-that-cannot-converge-and-say-so.md",
+        "docs/tasks/02-scanner/README.md",
+        "docs/tasks/02-scanner/TASK-612-stop-descending-into-classified-objects.md",
+        "docs/tasks/02-scanner/TASK-615-run-objects-in-the-app-wire-the-probe-and-converge-an-installed-store.md",
+        "docs/tasks/02-store/CONTRACT-602-fixed-cap-store-contract.md",
+        "docs/tasks/02-store/README.md",
+        "docs/tasks/02-store/TASK-613-store-object-rows-and-collapse-existing-per-file-rows.md",
+        "docs/tasks/02-store/TASK-641-window-every-lifecycle-summary-reader.md",
+        "docs/tasks/03-assurance/GATE-619-audit-completed-scans-on-a-real-sized-scope.md",
+        "docs/tasks/03-assurance/README.md",
+        "docs/tasks/03-product/README.md",
+        "docs/tasks/03-product/TASK-642-serve-live-capacity-independent-of-the-detail-store.md",
+        "docs/tasks/03-scanner/README.md",
+        "docs/tasks/03-scanner/TASK-621-bounded-review-walker-and-object-index.md",
+        "docs/tasks/03-scanner/TASK-652-directory-change-journal-with-replay.md",
+        "docs/tasks/04-assurance/GATE-649-audit-rung-1-live-capacity-and-a-self-stopping-scan.md",
+        "docs/tasks/04-assurance/README.md",
+        "docs/tasks/04-product/README.md",
+        "docs/tasks/04-product/TASK-622-rank-objects-by-reclaim-value.md",
+        "docs/tasks/04-product/TASK-622-review-report-and-ranking.md",
+        "docs/tasks/04-product/TASK-631-cache-catalog-with-recreate-classes.md",
+        "docs/tasks/04-product/TASK-651-capacity-ring-and-reserve-guard.md",
+        "docs/tasks/04-product/TASK-672-task-impact-from-sessions-and-dirty-sets.md",
+        "docs/tasks/04-safety/README.md",
+        "docs/tasks/04-safety/TASK-664-tolerate-transient-process-inspection-in-the-supervisor.md",
+        "docs/tasks/04-scanner/README.md",
+        "docs/tasks/04-scanner/TASK-621-size-objects-and-keep-them-fresh.md",
+        "docs/tasks/04-scanner/TASK-661-measured-growth-attribution.md",
+        "docs/tasks/05-product/README.md",
+        "docs/tasks/05-product/TASK-623-review-window.md",
+        "docs/tasks/05-product/TASK-623-show-objects-in-the-app-and-to-agents.md",
+        "docs/tasks/05-product/TASK-671-agent-tools-on-the-review-report.md",
+        "docs/tasks/05-scanner/README.md",
+        "docs/tasks/05-scanner/TASK-653-retire-the-always-on-scanner-and-preserve-the-legacy-store.md",
+        "docs/tasks/06-assurance/GATE-629-audit-visible-reclaimable-space.md",
+        "docs/tasks/06-assurance/GATE-659-audit-rung-2-quiet-guard.md",
+        "docs/tasks/06-assurance/README.md",
+        "docs/tasks/07-assurance/GATE-669-audit-rung-3-bounded-review.md",
+        "docs/tasks/07-assurance/README.md",
+        "docs/tasks/07-product/README.md",
+        "docs/tasks/07-product/TASK-631-discover-shared-developer-caches.md",
+        "docs/tasks/08-assurance/GATE-639-audit-shared-caches-in-scope.md",
+        "docs/tasks/08-assurance/GATE-679-audit-rung-4-agents-on-the-review.md",
+        "docs/tasks/08-assurance/README.md",
+        "docs/tasks/INTENT.md",
+        "docs/tasks/README.md",
+        "docs/tasks/nodes/INTENT-006-reclaimable-space-as-whole-objects.md",
+        "docs/tasks/nodes/OUTCOME-610-scans-finish-on-a-real-sized-scope.md",
+        "docs/tasks/nodes/OUTCOME-620-reclaimable-space-is-visible-and-explained.md",
+        "docs/tasks/nodes/OUTCOME-630-shared-caches-counted-the-same-way.md",
+        "docs/tasks/nodes/OUTCOME-640-live-capacity-always-answers-and-a-stuck-scan-stops-itself.md",
+        "docs/tasks/nodes/OUTCOME-650-quiet-guard-capacity-history-reserve-alert-and-changed-directories-at-near-zero-idle-cost.md",
+        "docs/tasks/nodes/OUTCOME-660-a-bounded-review-of-a-real-sized-scope-finishes-in-a-minute-and-explains-every-object.md",
+        "docs/tasks/nodes/OUTCOME-670-agents-read-the-same-review-growth-and-impact-through-bounded-tools.md"
+      ],
+      "changed_file_sha256": {
+        "docs/tasks/00-foundation/CONTRACT-601-object-evidence-and-safety-contract.md": null,
+        "docs/tasks/00-foundation/README.md": null,
+        "docs/tasks/00-foundation/RESEARCH-601-validate-object-detection-rules-on-a-real-corpus.md": null,
+        "docs/tasks/01-classification/README.md": null,
+        "docs/tasks/01-classification/TASK-611-classify-projects-and-their-output-directories.md": null,
+        "docs/tasks/01-safety/README.md": null,
+        "docs/tasks/01-safety/TASK-616-contain-verification-descendants-and-enforce-resource-budgets.md": null,
+        "docs/tasks/02-product/README.md": null,
+        "docs/tasks/02-product/TASK-617-keep-dashboard-measurements-and-growth-alerts-consistent.md": null,
+        "docs/tasks/02-safety/README.md": null,
+        "docs/tasks/02-safety/TASK-614-refuse-a-scope-that-cannot-fit-and-say-so.md": null,
+        "docs/tasks/02-safety/TASK-614-stop-a-scan-that-cannot-converge-and-say-so.md": null,
+        "docs/tasks/02-scanner/README.md": null,
+        "docs/tasks/02-scanner/TASK-612-stop-descending-into-classified-objects.md": null,
+        "docs/tasks/02-scanner/TASK-615-run-objects-in-the-app-wire-the-probe-and-converge-an-installed-store.md": null,
+        "docs/tasks/02-store/CONTRACT-602-fixed-cap-store-contract.md": null,
+        "docs/tasks/02-store/README.md": null,
+        "docs/tasks/02-store/TASK-613-store-object-rows-and-collapse-existing-per-file-rows.md": null,
+        "docs/tasks/02-store/TASK-641-window-every-lifecycle-summary-reader.md": null,
+        "docs/tasks/03-assurance/GATE-619-audit-completed-scans-on-a-real-sized-scope.md": null,
+        "docs/tasks/03-assurance/README.md": null,
+        "docs/tasks/03-product/README.md": null,
+        "docs/tasks/03-product/TASK-642-serve-live-capacity-independent-of-the-detail-store.md": null,
+        "docs/tasks/03-scanner/README.md": null,
+        "docs/tasks/03-scanner/TASK-621-bounded-review-walker-and-object-index.md": null,
+        "docs/tasks/03-scanner/TASK-652-directory-change-journal-with-replay.md": null,
+        "docs/tasks/04-assurance/GATE-649-audit-rung-1-live-capacity-and-a-self-stopping-scan.md": null,
+        "docs/tasks/04-assurance/README.md": null,
+        "docs/tasks/04-product/README.md": null,
+        "docs/tasks/04-product/TASK-622-rank-objects-by-reclaim-value.md": null,
+        "docs/tasks/04-product/TASK-622-review-report-and-ranking.md": null,
+        "docs/tasks/04-product/TASK-631-cache-catalog-with-recreate-classes.md": null,
+        "docs/tasks/04-product/TASK-651-capacity-ring-and-reserve-guard.md": null,
+        "docs/tasks/04-product/TASK-672-task-impact-from-sessions-and-dirty-sets.md": null,
+        "docs/tasks/04-safety/README.md": null,
+        "docs/tasks/04-safety/TASK-664-tolerate-transient-process-inspection-in-the-supervisor.md": null,
+        "docs/tasks/04-scanner/README.md": null,
+        "docs/tasks/04-scanner/TASK-621-size-objects-and-keep-them-fresh.md": null,
+        "docs/tasks/04-scanner/TASK-661-measured-growth-attribution.md": null,
+        "docs/tasks/05-product/README.md": null,
+        "docs/tasks/05-product/TASK-623-review-window.md": null,
+        "docs/tasks/05-product/TASK-623-show-objects-in-the-app-and-to-agents.md": null,
+        "docs/tasks/05-product/TASK-671-agent-tools-on-the-review-report.md": null,
+        "docs/tasks/05-scanner/README.md": null,
+        "docs/tasks/05-scanner/TASK-653-retire-the-always-on-scanner-and-preserve-the-legacy-store.md": null,
+        "docs/tasks/06-assurance/GATE-629-audit-visible-reclaimable-space.md": null,
+        "docs/tasks/06-assurance/GATE-659-audit-rung-2-quiet-guard.md": null,
+        "docs/tasks/06-assurance/README.md": null,
+        "docs/tasks/07-assurance/GATE-669-audit-rung-3-bounded-review.md": null,
+        "docs/tasks/07-assurance/README.md": null,
+        "docs/tasks/07-product/README.md": null,
+        "docs/tasks/07-product/TASK-631-discover-shared-developer-caches.md": null,
+        "docs/tasks/08-assurance/GATE-639-audit-shared-caches-in-scope.md": null,
+        "docs/tasks/08-assurance/GATE-679-audit-rung-4-agents-on-the-review.md": null,
+        "docs/tasks/08-assurance/README.md": null,
+        "docs/tasks/INTENT.md": null,
+        "docs/tasks/README.md": null,
+        "docs/tasks/nodes/INTENT-006-reclaimable-space-as-whole-objects.md": null,
+        "docs/tasks/nodes/OUTCOME-610-scans-finish-on-a-real-sized-scope.md": null,
+        "docs/tasks/nodes/OUTCOME-620-reclaimable-space-is-visible-and-explained.md": null,
+        "docs/tasks/nodes/OUTCOME-630-shared-caches-counted-the-same-way.md": null,
+        "docs/tasks/nodes/OUTCOME-640-live-capacity-always-answers-and-a-stuck-scan-stops-itself.md": null,
+        "docs/tasks/nodes/OUTCOME-650-quiet-guard-capacity-history-reserve-alert-and-changed-directories-at-near-zero-idle-cost.md": null,
+        "docs/tasks/nodes/OUTCOME-660-a-bounded-review-of-a-real-sized-scope-finishes-in-a-minute-and-explains-every-object.md": null,
+        "docs/tasks/nodes/OUTCOME-670-agents-read-the-same-review-growth-and-impact-through-bounded-tools.md": null
+      }
+    },
+    "runtime": {
+      "platform": "macOS-15.6.1-arm64-arm-64bit",
+      "python": "3.12.13",
+      "machine": "arm64"
+    }
+  },
+  "limitations": []
+}
