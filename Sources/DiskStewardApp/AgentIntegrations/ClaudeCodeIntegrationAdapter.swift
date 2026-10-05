@@ -7,7 +7,8 @@ final class ClaudeCodeIntegrationAdapter: CodexCLIIntegrationAdapter {
         helperURL: URL,
         receiptStore: AgentIntegrationReceiptStore,
         runner: any AgentCommandRunning = FoundationAgentCommandRunner(),
-        fileManager: FileManager = .default
+        fileManager: FileManager = .default,
+        skillsDirectory: URL? = nil
     ) {
         super.init(
             descriptor: AgentClientDescriptor.supported.first { $0.id == .claudeCode }!,
@@ -16,7 +17,8 @@ final class ClaudeCodeIntegrationAdapter: CodexCLIIntegrationAdapter {
             receiptStore: receiptStore,
             runner: runner,
             fileManager: fileManager,
-            commands: .claudeCode
+            commands: .claudeCode,
+            skillsDirectory: skillsDirectory
         )
     }
 }

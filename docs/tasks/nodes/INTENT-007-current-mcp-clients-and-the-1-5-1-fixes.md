@@ -65,11 +65,7 @@ Agents on current Codex and Claude Code reach one correctly registered Disk Stew
 
 - Impact IMPACT-TASK-712-ASSURANCE remains hypothesis
 - Impact IMPACT-TASK-712-BUILD remains hypothesis
-- Impact IMPACT-TASK-715-ASSURANCE remains hypothesis
-- Impact IMPACT-TASK-715-CLIENTS remains hypothesis
-- Impact IMPACT-TASK-715-CONTRACTS remains hypothesis
-- Impact IMPACT-TASK-715-MCP remains hypothesis
-- Impacted asset ASSET-CLIENTS lacks a sufficient passing inspection
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
@@ -78,6 +74,6 @@ Agents on current Codex and Claude Code reach one correctly registered Disk Stew
 - Required inspection INSPECT-TASK-711-1 is stale
 - Required inspection INSPECT-TASK-712-1 is stale
 - Required inspection INSPECT-TASK-713-1 is stale
-- Required inspection INSPECT-TASK-715-1 is stale
+- Required inspection INSPECT-TASK-714-1 is stale
 
 

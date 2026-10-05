@@ -364,6 +364,8 @@ class CodexCLIIntegrationAdapter: AgentIntegrationAdapting {
     private let receiptStore: AgentIntegrationReceiptStore
     private let fileManager: FileManager
     private let serverName: String
+    /// The client's user skills folder; nil installs no skill.
+    private let skillsDirectory: URL?
 
     init(
         descriptor: AgentClientDescriptor = AgentClientDescriptor.supported.first { $0.id == .codex }!,
@@ -373,7 +375,8 @@ class CodexCLIIntegrationAdapter: AgentIntegrationAdapting {
         runner: any AgentCommandRunning = FoundationAgentCommandRunner(),
         fileManager: FileManager = .default,
         serverName: String = "disk-steward",
-        commands: ClientCommands = .codex
+        commands: ClientCommands = .codex,
+        skillsDirectory: URL? = nil
     ) {
         self.descriptor = descriptor
         self.executableURL = executableURL
@@ -383,6 +386,7 @@ class CodexCLIIntegrationAdapter: AgentIntegrationAdapting {
         self.fileManager = fileManager
         self.serverName = serverName
         self.commands = commands
+        self.skillsDirectory = skillsDirectory
     }
 
     func inspect() async -> AgentIntegrationSnapshot {
@@ -495,7 +499,8 @@ class CodexCLIIntegrationAdapter: AgentIntegrationAdapting {
         }
 
         let previous: AgentIntegrationDefinition?
-        if case let .owned(receipt) = before.inspection { previous = receipt.definition } else { previous = nil }
+        var previousSkillSHA256: String?
+        if case let .owned(receipt) = before.inspection { previous = receipt.definition; previousSkillSHA256 = receipt.skillSHA256 } else { previous = nil }
         let expected = AgentIntegrationDefinition(command: helperURL.path)
         var attemptedMutation = false
         do {
@@ -510,7 +515,7 @@ class CodexCLIIntegrationAdapter: AgentIntegrationAdapting {
             attemptedMutation = true
             _ = try (await runner.run(addCommand)).requireSuccess(command: addCommand)
             guard try await currentDefinition() == expected else { throw CocoaError(.fileWriteFileExists) }
-            let receipt = AgentIntegrationReceipt(
+            var receipt = AgentIntegrationReceipt(
                 clientID: descriptor.id,
                 serverName: serverName,
                 definition: .init(command: helperURL.path),
@@ -518,12 +523,27 @@ class CodexCLIIntegrationAdapter: AgentIntegrationAdapting {
                 lastResult: action == .repair ? "repaired" : "configured"
             )
             try receiptStore.upsert(receipt)
+            // The skill follows a recorded configuration; a failure here
+            // never undoes the server entry.
+            var skillNote = ""
+            if let skillsDirectory {
+                switch AgentEvidenceSkill.install(into: skillsDirectory, recordedSHA256: previousSkillSHA256, fileManager: fileManager) {
+                case let .installed(path, sha256):
+                    receipt.skillPath = path
+                    receipt.skillSHA256 = sha256
+                    if (try? receiptStore.upsert(receipt)) != nil { skillNote = " Installed the evidence skill." }
+                case let .keptUsersOwn(path):
+                    skillNote = " Kept the existing skill at \(path)."
+                case let .failed(reason):
+                    skillNote = " The evidence skill was not installed: \(reason)."
+                }
+            }
             let after = AgentIntegrationSnapshot.derive(
                 descriptor: descriptor,
                 presence: before.presence,
                 inspection: .owned(receipt: receipt)
             )
-            return result(action, .changed, "Configured \(descriptor.displayName).", after)
+            return result(action, .changed, "Configured \(descriptor.displayName).\(skillNote)", after)
         } catch {
             let failure = error.localizedDescription
             if attemptedMutation {
@@ -611,9 +631,12 @@ class CodexCLIIntegrationAdapter: AgentIntegrationAdapting {
             let command = AgentCommand(executableURL: executableURL, arguments: commands.remove(serverName))
             _ = try (await runner.run(command)).requireSuccess(command: command)
             guard try await currentDefinition() == nil else { throw CocoaError(.fileWriteFileExists) }
+            var recordedSkill: String?
+            if case let .owned(receipt) = before.inspection { recordedSkill = receipt.skillSHA256 }
             try receiptStore.remove(clientID: descriptor.id)
+            let skillNote = skillsDirectory.flatMap { AgentEvidenceSkill.remove(from: $0, recordedSHA256: recordedSkill, fileManager: fileManager) }.map { " " + $0 } ?? ""
             let after = AgentIntegrationSnapshot.derive(descriptor: descriptor, presence: before.presence, inspection: .missing)
-            return result(.remove, .changed, "Removed only Disk Steward's \(descriptor.displayName) entry.", after)
+            return result(.remove, .changed, "Removed only Disk Steward's \(descriptor.displayName) entry.\(skillNote)", after)
         } catch {
             let failure = error.localizedDescription
             if case let .owned(receipt) = before.inspection {

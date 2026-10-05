@@ -1,21 +1,45 @@
 ---
 name: disk-steward-evidence
-description: Query and interpret local Disk Steward evidence when a user asks what consumed disk space, what recently grew, what can be cleaned up for review, or which agent task may be related.
+description: Disk space, storage growth and cleanup review on this Mac. Query and interpret local Disk Steward evidence when a user asks what is using disk space, what grew recently, what can be cleaned up for review, how big a folder is, or which agent task may have changed which folders.
+license: MIT
+compatibility: Needs the Disk Steward app (macOS 13 or later) with Agent Access on, and its disk-steward MCP server.
 ---
 
 # Disk Steward Evidence
 
-Use the `disk_steward` MCP tools to replace broad filesystem digging with a bounded evidence query.
+Use the `disk-steward` MCP tools for bounded, read-only evidence instead of walking the disk yourself.
 
-Start with `get_storage_summary` for free space and the reserve. For "what can be cleaned", use `list_review_items` (the latest review, ranked, with the same sizes and evidence states as Disk Steward's review window; name its scope as `get_health` shows it, or by path) and `get_review_item_evidence` for one item's reasons to keep it and its recreate command. Use `list_largest_objects` for the largest measured build output, environments and caches. Use `explain_growth` for a stated time window: it attributes the volume delta to measured objects and states the unexplained remainder. Use `measure_path` only for one folder inside the configured scopes; it is limited to 15 seconds and 500,000 entries, may return a partial lower bound, and joins a running review instead of starting a second walk. Use `get_task_impact` for a registered agent session and `get_health` when an answer looks incomplete. Use `export_evidence` when the user wants a portable evidence package.
+## Which tool answers which question
 
-Treat evidence states, confidence and limitations as part of every result:
+- **How full is the disk, and how far from the reserve?** `get_storage_summary`.
+- **Are the stores, journal and reviews healthy, and which scopes have been reviewed?** `get_health`. It names each review's `scope` the way the other tools accept it.
+- **What can be cleaned up for review?** `list_review_items` with `scope` set to a name from `get_health` (for example `localGit`), a folder's absolute path, or `caches`. Then use `get_review_item_evidence` with an `item_id` for one item's reasons to keep it, its recreate command and a live check. If no review matches the name, the answer lists `available_scopes`.
+- **What are the largest build outputs, environments and caches?** `list_largest_objects`, optionally with the same `scope`.
+- **Where did space go over an interval?** `explain_growth` with `from` and `through`. It reports the capacity change, the measured object deltas, and the unexplained remainder.
+- **How big is one folder right now?** `measure_path` with an absolute path inside a reviewed scope. It is bounded to 15 seconds and 500,000 entries, may return a partial lower bound, and joins a running review instead of starting another walk.
+- **What did an agent session change?** `get_task_impact` for a registered session, or `list_active_agent_sessions`.
+- **Who needs a portable evidence package?** `export_evidence`.
 
-- `Verified now` was checked within five minutes; `Stale` is older; `Partial` means the size is a lower bound; `Unknown` means the path is no longer found.
-- A partial review stopped before covering everything: what it did not cover is unknown, not empty.
-- `inferred` is supported correlation, not certainty; task impact is a correlation with a session's workspace and window, never proof of which process wrote.
-- `unknown` means no claim is justified.
+## Reading the answers
 
-Never describe a review item as safe to delete. Present it as evidence for human review, with its size, evidence state, reasons to keep it and the owning tool's own cleanup command as text. Do not delete, move, or modify files unless the user separately authorizes that action after reviewing exact targets.
+- **Evidence states:**
+  - `Verified now` was checked within five minutes;
+  - `Stale` is older;
+  - `Partial` means the size is a lower bound;
+  - `Unknown` means the path was not found at the last check.
+- **A partial review** stopped before covering everything. What it did not cover is unknown, not empty.
+- **Confidence:** `inferred` is a supported correlation, not certainty. Task impact correlates a session's workspace and time window; it never proves which process wrote. `unknown` means no claim is justified.
+- **Errors:** an error result's text is a JSON object with `code`, `message`, `retryable` and `recovery`. Follow `recovery`. Correct `invalid_arguments` and call again. Never retry `agent_access_disabled` until the user turns Agent Access on.
 
-If the app or local socket is unavailable, report the connector's recovery guidance. Do not fabricate a disk explanation or silently fall back to an unbounded scan.
+## Cleaning up safely
+
+Never describe an item as safe to delete. For each item, present:
+- its size;
+- its evidence state;
+- its reasons to keep it;
+- its recreate command;
+- the owning tool's cleanup command, as text.
+
+Do not delete, move or modify files unless the user separately authorizes that action after reviewing the exact targets. Prefer reversible actions such as moving a folder to the Trash, and say how to undo them. After a cleanup, call `get_review_item_evidence` again: a removed item reads `Unknown` with `present: false`.
+
+If the app or its local socket is unavailable, report the recovery guidance. Do not fabricate a disk explanation, and do not fall back to an unbounded scan.

@@ -25,9 +25,11 @@ final class ConfigurationRollbackTests: XCTestCase {
 
         let installed = try run(install, ["--client", "claude", "--config-root", configRoot.path, "--connector", connector.path])
         XCTAssertEqual(installed.status, 0, installed.combined)
-        XCTAssertTrue(installed.stdout.contains("Preserved user settings on disk_steward: cwd, env"), installed.combined)
+        XCTAssertTrue(installed.stdout.contains("Preserved user settings on disk-steward: cwd, env"), installed.combined)
+        XCTAssertTrue(installed.stdout.contains("Moved the legacy disk_steward entry to disk-steward."), installed.combined)
         var configured = try servers(of: config)
-        let entry = try XCTUnwrap(configured["disk_steward"] as? [String: Any])
+        XCTAssertNil(configured["disk_steward"], "the legacy entry moved, with its settings")
+        let entry = try XCTUnwrap(configured["disk-steward"] as? [String: Any])
         XCTAssertEqual(entry["command"] as? String, connector.path)
         XCTAssertEqual(entry["args"] as? [String], ["--legacy"], "user args are kept")
         XCTAssertEqual(entry["env"] as? [String: String], ["TOKEN": "secret"])
@@ -38,7 +40,7 @@ final class ConfigurationRollbackTests: XCTestCase {
         XCTAssertEqual(removal.status, 65, removal.combined)
         XCTAssertTrue(removal.stderr.contains("settings Disk Steward does not own (cwd, env)"), removal.combined)
         configured = try servers(of: config)
-        XCTAssertNotNil(configured["disk_steward"], "the entry with user additions is never deleted")
+        XCTAssertNotNil(configured["disk-steward"], "the entry with user additions is never deleted")
         XCTAssertEqual((try jsonObject(config))["custom"] as? String, "preserve-me")
     }
 
@@ -100,9 +102,8 @@ final class ConfigurationRollbackTests: XCTestCase {
             let forced = try run(rollback, ["--client", client, "--config-root", configRoot.path, "--force"])
             XCTAssertEqual(forced.status, 0, forced.combined)
             XCTAssertEqual(try Data(contentsOf: config), original, "\(client): the pre-install bytes are back")
-            if client == "codex" {
-                XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward").path), "the plugin that did not exist before is gone")
-            }
+            let skill = configRoot.appendingPathComponent(client == "codex" ? "skills/disk-steward-evidence" : ".claude/skills/disk-steward-evidence")
+            XCTAssertFalse(FileManager.default.fileExists(atPath: skill.path), "\(client): the skill that did not exist before is gone")
             let after = try FileManager.default.contentsOfDirectory(at: backupsDir, includingPropertiesForKeys: nil).filter { $0.lastPathComponent.hasPrefix("rollback-") }
             XCTAssertEqual(after.count, 1, "a rollback saves the state it replaced")
             let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: try XCTUnwrap(after.first).appendingPathComponent("manifest.json"))) as? [String: Any])
@@ -122,7 +123,7 @@ final class ConfigurationRollbackTests: XCTestCase {
         let installedBytes = try Data(contentsOf: config)
         let removed = try run(uninstall, ["--client", "codex", "--config-root", configRoot.path])
         XCTAssertEqual(removed.status, 0, removed.combined)
-        XCTAssertFalse(try String(contentsOf: config, encoding: .utf8).contains("disk_steward"))
+        XCTAssertFalse(try String(contentsOf: config, encoding: .utf8).contains("disk-steward"))
         let uninstallBackup = try XCTUnwrap(removed.stdout.split(separator: "\n").first { $0.hasPrefix("Recoverable backup: ") }?.replacingOccurrences(of: "Recoverable backup: ", with: ""))
         let name = URL(fileURLWithPath: uninstallBackup).lastPathComponent
         let wrongClient = try run(rollback, ["--client", "claude", "--config-root", configRoot.path, "--backup", name])
@@ -131,7 +132,7 @@ final class ConfigurationRollbackTests: XCTestCase {
         let restored = try run(rollback, ["--client", "codex", "--config-root", configRoot.path, "--backup", name])
         XCTAssertEqual(restored.status, 0, restored.combined)
         XCTAssertEqual(try Data(contentsOf: config), installedBytes, "uninstall is undone exactly")
-        XCTAssertTrue(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward/.mcp.json").path), "the plugin directory comes back")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("skills/disk-steward-evidence/SKILL.md").path), "the skill comes back")
     }
 
     func testFailureBeforeAnyChangeIsReportedAsARefusalWithoutRestoring() throws {
@@ -143,9 +144,9 @@ final class ConfigurationRollbackTests: XCTestCase {
         let config = configRoot.appendingPathComponent("config.toml")
         let original = Data("[core]\nname = \"keep\"\n".utf8)
         try original.write(to: config)
-        // A regular file where the plugin directory must be created fails before
+        // A regular file where the skills directory must be created fails before
         // anything was written: the report says so, and nothing is "restored".
-        try Data("busy".utf8).write(to: configRoot.appendingPathComponent("plugins"))
+        try Data("busy".utf8).write(to: configRoot.appendingPathComponent("skills"))
         let result = try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path])
         XCTAssertNotEqual(result.status, 0)
         XCTAssertTrue(result.stderr.contains("nothing was changed"), result.combined)
@@ -161,7 +162,7 @@ final class ConfigurationRollbackTests: XCTestCase {
         let connector = try fakeConnector(in: root)
         let configRoot = root.appendingPathComponent("codex")
         try FileManager.default.createDirectory(at: configRoot, withIntermediateDirectories: true)
-        // The plugin step succeeds, then the configuration commit fails because a
+        // The skill step succeeds, then the configuration commit fails because a
         // directory sits where config.toml must be written.
         let config = configRoot.appendingPathComponent("config.toml")
         try FileManager.default.createDirectory(at: config, withIntermediateDirectories: true)
@@ -169,7 +170,7 @@ final class ConfigurationRollbackTests: XCTestCase {
         XCTAssertNotEqual(result.status, 0)
         XCTAssertTrue(result.stderr.contains("restored the codex configuration"), result.combined)
         XCTAssertTrue(result.stderr.contains("nothing from this attempt remains"), result.combined)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward").path), "the plugin written before the failure is removed again")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("skills/disk-steward-evidence").path), "the skill written before the failure is removed again")
         var isDirectory: ObjCBool = false
         XCTAssertTrue(FileManager.default.fileExists(atPath: config.path, isDirectory: &isDirectory) && isDirectory.boolValue, "the user's directory is untouched")
         let manifest = try singleManifest(under: configRoot)
@@ -240,8 +241,8 @@ final class ConfigurationRollbackTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let connector = try fakeConnector(in: root)
         let configRoot = root.appendingPathComponent("codex")
-        try FileManager.default.createDirectory(at: configRoot.appendingPathComponent("plugins/disk-steward"), withIntermediateDirectories: true)
-        try Data("mine".utf8).write(to: configRoot.appendingPathComponent("plugins/disk-steward/.mcp.json"))
+        try FileManager.default.createDirectory(at: configRoot.appendingPathComponent("skills/disk-steward-evidence"), withIntermediateDirectories: true)
+        try Data("mine".utf8).write(to: configRoot.appendingPathComponent("skills/disk-steward-evidence/SKILL.md"))
         try FileManager.default.createDirectory(at: configRoot.appendingPathComponent("config.toml"), withIntermediateDirectories: true)
         let result = try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path], environment: ["DISK_STEWARD_INTEGRATION_FAULT": "undo-plugin"])
         XCTAssertEqual(result.status, 70, result.combined)
@@ -250,7 +251,7 @@ final class ConfigurationRollbackTests: XCTestCase {
         let manifest = try singleManifest(under: configRoot)
         XCTAssertEqual(manifest["status"] as? String, "restore-failed")
         let backups = try FileManager.default.contentsOfDirectory(at: configRoot.appendingPathComponent(".disk-steward-backups"), includingPropertiesForKeys: nil)
-        XCTAssertEqual(try Data(contentsOf: try XCTUnwrap(backups.first).appendingPathComponent("disk-steward-plugin/.mcp.json")), Data("mine".utf8), "the previous plugin is still in the backup")
+        XCTAssertEqual(try Data(contentsOf: try XCTUnwrap(backups.first).appendingPathComponent("disk-steward-plugin/SKILL.md")), Data("mine".utf8), "the previous skill is still in the backup")
     }
 
     func testRollbackApplyFailurePutsThePreviousStateBack() throws {
@@ -263,14 +264,14 @@ final class ConfigurationRollbackTests: XCTestCase {
         try Data("[core]\nname = \"keep\"\n".utf8).write(to: config)
         XCTAssertEqual(try run(install, ["--client", "codex", "--config-root", configRoot.path, "--connector", connector.path]).status, 0)
         let installed = try Data(contentsOf: config)
-        let plugin = configRoot.appendingPathComponent("plugins/disk-steward/.mcp.json")
+        let plugin = configRoot.appendingPathComponent("skills/disk-steward-evidence/SKILL.md")
         XCTAssertTrue(FileManager.default.fileExists(atPath: plugin.path))
         let result = try run(rollback, ["--client", "codex", "--config-root", configRoot.path], environment: ["DISK_STEWARD_INTEGRATION_FAULT": "rollback-plugin"])
         XCTAssertNotEqual(result.status, 0)
         XCTAssertTrue(result.stderr.contains("putting the previous state back"), result.combined)
         XCTAssertTrue(result.stderr.contains("previous state is back"), result.combined)
         XCTAssertEqual(try Data(contentsOf: config), installed, "the installed configuration is back after the failed rollback")
-        XCTAssertTrue(FileManager.default.fileExists(atPath: plugin.path), "the plugin is back")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: plugin.path), "the skill is back")
         let saves = try FileManager.default.contentsOfDirectory(at: configRoot.appendingPathComponent(".disk-steward-backups"), includingPropertiesForKeys: nil).filter { $0.lastPathComponent.hasPrefix("rollback-") }
         XCTAssertEqual(saves.count, 1)
         let manifest = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: try XCTUnwrap(saves.first).appendingPathComponent("manifest.json"))) as? [String: Any])

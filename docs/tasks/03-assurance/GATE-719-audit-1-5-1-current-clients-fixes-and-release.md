@@ -36,7 +36,7 @@ Verify the final candidate in isolation and packaged, then install the notarized
 - `TASK-712` (validation-requires, pending)
 - `TASK-713` (validation-requires, passed)
 - `TASK-714` (validation-requires, passed)
-- `TASK-715` (validation-requires, unverified)
+- `TASK-715` (validation-requires, passed)
 
 ## Required Context
 
@@ -71,11 +71,7 @@ Verify the final candidate in isolation and packaged, then install the notarized
 
 - Impact IMPACT-TASK-712-ASSURANCE remains hypothesis
 - Impact IMPACT-TASK-712-BUILD remains hypothesis
-- Impact IMPACT-TASK-715-ASSURANCE remains hypothesis
-- Impact IMPACT-TASK-715-CLIENTS remains hypothesis
-- Impact IMPACT-TASK-715-CONTRACTS remains hypothesis
-- Impact IMPACT-TASK-715-MCP remains hypothesis
-- Impacted asset ASSET-CLIENTS lacks a sufficient passing inspection
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
 - Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
 - Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
 - Impacted asset ASSET-QUERY lacks a sufficient passing inspection
@@ -84,6 +80,6 @@ Verify the final candidate in isolation and packaged, then install the notarized
 - Required inspection INSPECT-TASK-711-1 is stale
 - Required inspection INSPECT-TASK-712-1 is stale
 - Required inspection INSPECT-TASK-713-1 is stale
-- Required inspection INSPECT-TASK-715-1 is stale
+- Required inspection INSPECT-TASK-714-1 is stale
 
 

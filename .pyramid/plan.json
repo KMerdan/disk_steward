@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "PLAN-DISK-STEWARD-007",
   "title": "Current MCP clients and the 1.5.1 fixes",
-  "revision": 2,
+  "revision": 3,
   "intent": {
     "id": "INTENT-007",
     "statement": "Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 2026-07-28) reach one correctly registered Disk Steward server with its evidence skill, get typed, correctable answers, and the defects found in the first real cleanup and the accepted rung-4 findings are fixed, released as 1.5.1.",
@@ -558,7 +558,9 @@
         "required_context": [
           "Scripts/Integration/install",
           "Integrations/**",
-          "docs/integrations/README.md"
+          "docs/integrations/README.md",
+          "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift"
         ],
         "allowed_write_scope": [
           "Scripts/Integration/**",
@@ -568,7 +570,13 @@
           "Fixtures/**",
           "docs/integrations/**",
           "README.md",
-          "docs/reliability/evidence/**"
+          "docs/reliability/evidence/**",
+          "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+          "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+          "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+          "Tests/ContractTests/MCP/MCPContractTests.swift"
         ],
         "commands": [
           "docs/reliability/handoffs/harness/run-focused.py <filter>"

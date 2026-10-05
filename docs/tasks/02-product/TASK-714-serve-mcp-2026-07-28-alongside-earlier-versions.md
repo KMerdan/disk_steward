@@ -65,13 +65,17 @@ Answer server/discover and stateless 2026-07-28 requests (per-request _meta vers
 
 ## Brownfield Assurance
 
-- Status: `covered`
+- Status: `blocked`
 - Impact records: `IMPACT-TASK-714-MCP`, `IMPACT-TASK-714-CONTRACTS`, `IMPACT-TASK-714-BUILD`, `IMPACT-TASK-714-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-CONTRACTS`, `ASSET-MCP`
 - Inspections: `INSPECT-TASK-714-1`
 
 ### Assurance Blockers
 
-- None
+- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
+- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
+- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
+- Impacted asset ASSET-MCP lacks a sufficient passing inspection
+- Required inspection INSPECT-TASK-714-1 is stale
 
 

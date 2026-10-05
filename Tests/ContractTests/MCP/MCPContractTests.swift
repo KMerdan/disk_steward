@@ -102,14 +102,14 @@ final class MCPContractTests: XCTestCase {
 
     func testClientCompatibilityFixturesUseLocalStdioWithoutCredentials() throws {
         let codex = try text(at: "Fixtures/MCP/codex-stdio.toml.txt")
-        XCTAssertTrue(codex.contains("[mcp_servers.disk_steward]"))
+        XCTAssertTrue(codex.contains("[mcp_servers.disk-steward]"))
         XCTAssertTrue(codex.contains("command ="))
-        XCTAssertTrue(codex.contains("enabled_tools ="))
+        XCTAssertFalse(codex.contains("enabled_tools"), "a pinned tool list goes stale")
         XCTAssertFalse(codex.contains("token"))
 
         let claude = try object(at: "Fixtures/MCP/claude-stdio.json")
         let servers = try XCTUnwrap(claude["mcpServers"] as? [String: Any])
-        let diskSteward = try XCTUnwrap(servers["disk_steward"] as? [String: Any])
+        let diskSteward = try XCTUnwrap(servers["disk-steward"] as? [String: Any])
         XCTAssertEqual(diskSteward["type"] as? String, "stdio")
         XCTAssertNotNil(diskSteward["command"])
         XCTAssertEqual((diskSteward["env"] as? [String: String])?.count, 0)

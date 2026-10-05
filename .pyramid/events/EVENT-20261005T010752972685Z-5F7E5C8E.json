@@ -1,0 +1,81 @@
+{
+  "schema": "pyramid-event-v1",
+  "id": "EVENT-20261005T010752972685Z-5F7E5C8E",
+  "at": "2026-10-05T01:07:52.972613Z",
+  "graph_version": 19,
+  "actor": "claude",
+  "type": "task.amended",
+  "node": "TASK-715",
+  "before": {
+    "allowed_write_scope": [
+      "Scripts/Integration/**",
+      "Integrations/**",
+      "Tests/IntegrationInstallTests/**",
+      "Tests/DiskStewardMCPTests/**",
+      "Fixtures/**",
+      "docs/integrations/**",
+      "README.md",
+      "docs/reliability/evidence/**"
+    ],
+    "required_context": [
+      "Scripts/Integration/install",
+      "Integrations/**",
+      "docs/integrations/README.md"
+    ]
+  },
+  "after": {
+    "allowed_write_scope": [
+      "Scripts/Integration/**",
+      "Integrations/**",
+      "Tests/IntegrationInstallTests/**",
+      "Tests/DiskStewardMCPTests/**",
+      "Fixtures/**",
+      "docs/integrations/**",
+      "README.md",
+      "docs/reliability/evidence/**",
+      "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+      "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+      "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+      "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+      "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+      "Tests/ContractTests/MCP/MCPContractTests.swift"
+    ],
+    "required_context": [
+      "Scripts/Integration/install",
+      "Integrations/**",
+      "docs/integrations/README.md",
+      "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+      "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift"
+    ]
+  },
+  "payload": {
+    "reason": "The app's Agent Integrations settings are the installer Homebrew users actually have; they register the server as disk-steward through each client's CLI. The script registers disk_steward and copies the Codex plugin where Codex never loads it. One registration and the skill for both clients therefore have to come from the app's adapters, with the script made to agree.",
+    "amendment": {
+      "schema": "pyramid-amendment-v1",
+      "task": "TASK-715",
+      "reason": "The app's Agent Integrations settings are the installer Homebrew users actually have; they register the server as disk-steward through each client's CLI. The script registers disk_steward and copies the Codex plugin where Codex never loads it. One registration and the skill for both clients therefore have to come from the app's adapters, with the script made to agree.",
+      "boundary_review": "The Codex and Claude Code adapters also install the evidence skill (embedded in AgentIntegrationModels.swift; a test pins it byte-identical to the single SKILL.md source) into the client's user skills folder, record it in the receipt and remove it only while unchanged. The script registers through the same client CLIs under the same name, installs the same skill, and migrates its legacy disk_steward block and inert plugin copy. Acceptance, non-goals and dependencies are unchanged.",
+      "add_write_paths": [
+        "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift",
+        "Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift",
+        "Tests/ContractTests/MCP/MCPContractTests.swift"
+      ],
+      "add_context_paths": [
+        "Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift",
+        "Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift"
+      ]
+    },
+    "amendment_id": "AMEND-1ff1708644e99bdf740fec5da868925a81f6380b5ea61206296847b7c6dafd3f",
+    "stale_inspections": [
+      "INSPECT-TASK-714-1"
+    ]
+  },
+  "plan_id": "PLAN-DISK-STEWARD-007",
+  "plan_revision": 3,
+  "context_id": "CTX-7272F4CB48A035A5C97A7FA8AE8BB6E7",
+  "previous_event_id": "EVENT-20261005T010731557833Z-F6575F98",
+  "previous_event_sha256": "fe35c849d3bd7304721b37dd4fcd6c0788ddad413ad5cde34f84d124cae71e1a"
+}

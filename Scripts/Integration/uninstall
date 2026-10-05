@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Removes only the disk_steward MCP entry (and the Disk Steward-owned Codex
+# Removes only the disk-steward MCP entry (and the Disk Steward-owned Codex
 # plugin) for one CLI client. Recoverable (TASK-561): the removed files go into a
 # timestamped backup directory with a manifest, a failure mid-way restores them,
 # an entry carrying user additions is refused rather than deleted, and
@@ -28,7 +28,7 @@ done
 [[ "$config_root" == /* && "$config_root" != *$'\n'* ]] || usage
 
 if (( dry_run )); then
-  print "Would remove only the disk_steward MCP entry for $client from $config_root."
+  print "Would remove only the disk-steward MCP entry and the evidence skill for $client from $config_root."
   print "Disk Steward evidence and unrelated client settings would remain untouched."
   print "A recoverable backup with a manifest would be written under $config_root/.disk-steward-backups/ first."
   exit 0
@@ -43,12 +43,15 @@ backup_root="$backups_dir/$timestamp"
 mkdir -p "$backup_root"
 chmod 700 "$backups_dir" "$backup_root"
 
+# The recoverable artifact beside the configuration is the evidence skill:
+# Codex reads user skills from <CODEX_HOME>/skills, Claude Code reads a
+# project's .claude/skills (TASK-715).
 if [[ "$client" == "codex" ]]; then
   config_file="$config_root/config.toml"
-  plugin_target="$config_root/plugins/disk-steward"
+  plugin_target="$config_root/skills/disk-steward-evidence"
 else
   config_file="$config_root/.mcp.json"
-  plugin_target=""
+  plugin_target="$config_root/.claude/skills/disk-steward-evidence"
 fi
 
 config_backed=0
@@ -119,17 +122,17 @@ if [[ "$client" == "codex" ]]; then
     verify_unchanged "$backup_root/${config_file:t}" "$config_file" || { rm -f "$temporary"; print -u2 "uninstall: $config_file changed while it was being edited; nothing was changed. Retry."; exit 75; }
     mv "$temporary" "$config_file"
   fi
-  if [[ -e "$plugin_target" ]]; then
-    manifest_plugin "$backup_root" existed
-    mv "$plugin_target" "$backup_root/disk-steward-plugin"
-    plugin_moved=1
-  else
-    manifest_plugin "$backup_root" absent
-  fi
 else
   if [[ -f "$config_file" ]]; then
     /usr/bin/swift "$script_dir/json-config.swift" remove "$config_file"
   fi
+fi
+if [[ -e "$plugin_target" ]]; then
+  manifest_plugin "$backup_root" existed
+  mv "$plugin_target" "$backup_root/disk-steward-plugin"
+  plugin_moved=1
+else
+  manifest_plugin "$backup_root" absent
 fi
 
 manifest_after "$backup_root" "${config_file:t}" "$config_file"

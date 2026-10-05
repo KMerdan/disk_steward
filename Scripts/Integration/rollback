@@ -71,12 +71,15 @@ else
 fi
 [[ -d "$backup_root" && -f "$backup_root/manifest.json" ]] || { print -u2 "Backup $backup_name has no manifest; restore it by hand from $backup_root"; exit 66; }
 
+# The recoverable artifact beside the configuration is the evidence skill:
+# Codex reads user skills from <CODEX_HOME>/skills, Claude Code reads a
+# project's .claude/skills (TASK-715).
 if [[ "$client" == "codex" ]]; then
   config_file="$config_root/config.toml"
-  plugin_target="$config_root/plugins/disk-steward"
+  plugin_target="$config_root/skills/disk-steward-evidence"
 else
   config_file="$config_root/.mcp.json"
-  plugin_target=""
+  plugin_target="$config_root/.claude/skills/disk-steward-evidence"
 fi
 
 # The manifest decides whether the current files are still the ones that

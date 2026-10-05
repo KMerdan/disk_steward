@@ -25,7 +25,7 @@ final class IntegrationInstallTests: XCTestCase {
             let configRoot = root.appendingPathComponent(client)
             let installPreview = try run("/bin/zsh", [install.path, "--client", client, "--config-root", configRoot.path, "--connector", connector.path, "--dry-run"])
             XCTAssertEqual(installPreview.status, 0, installPreview.combined)
-            XCTAssertTrue(installPreview.stdout.contains("Only the disk_steward MCP entry"))
+            XCTAssertTrue(installPreview.stdout.contains("Only the disk-steward MCP entry"))
             XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.path))
 
             let uninstallPreview = try run("/bin/zsh", [uninstall.path, "--client", client, "--config-root", configRoot.path, "--dry-run"])
@@ -61,8 +61,44 @@ final class IntegrationInstallTests: XCTestCase {
         let final = try String(contentsOf: config, encoding: .utf8)
         XCTAssertTrue(final.contains("mcp_servers.other"))
         XCTAssertFalse(final.contains("DISK STEWARD MANAGED"))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward").path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("skills/disk-steward-evidence").path))
         XCTAssertEqual(try Data(contentsOf: evidence), Data("do-not-delete".utf8))
+    }
+
+    /// TASK-715: one registration. An entry the app wrote with `codex mcp add`
+    /// is never duplicated; a legacy disk_steward block and the plugin copy
+    /// Codex never loaded are migrated; Claude user scope is the app's.
+    func testCodexInstallRefusesADuplicateAndMigratesTheLegacyInstall() throws {
+        let root = temporaryRoot("ds-one-registration")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let connector = try connectorURL()
+        let appManaged = root.appendingPathComponent("app-managed")
+        try FileManager.default.createDirectory(at: appManaged, withIntermediateDirectories: true)
+        let appConfig = "[mcp_servers.disk-steward]\ncommand = \"/Applications/Disk Steward.app/Contents/Helpers/disk-witness-mcp\"\n"
+        try appConfig.write(to: appManaged.appendingPathComponent("config.toml"), atomically: true, encoding: .utf8)
+        let refused = try run("/bin/zsh", [install.path, "--client", "codex", "--config-root", appManaged.path, "--connector", connector.path])
+        XCTAssertEqual(refused.status, 65, refused.combined)
+        XCTAssertTrue(refused.stderr.contains("Refusing to add a second disk-steward server"), refused.combined)
+        XCTAssertEqual(try String(contentsOf: appManaged.appendingPathComponent("config.toml"), encoding: .utf8), appConfig)
+
+        let legacy = root.appendingPathComponent("legacy")
+        try FileManager.default.createDirectory(at: legacy.appendingPathComponent("plugins/disk-steward/.codex-plugin"), withIntermediateDirectories: true)
+        try Data("{}".utf8).write(to: legacy.appendingPathComponent("plugins/disk-steward/.codex-plugin/plugin.json"))
+        let old = "[core]\nname = \"keep\"\n\n# BEGIN DISK STEWARD MANAGED v1\n[mcp_servers.disk_steward]\ncommand = \"/old\"\nenabled_tools = [\"get_provenance\"]\n# END DISK STEWARD MANAGED v1\n"
+        try old.write(to: legacy.appendingPathComponent("config.toml"), atomically: true, encoding: .utf8)
+        let migrated = try run("/bin/zsh", [install.path, "--client", "codex", "--config-root", legacy.path, "--connector", connector.path])
+        XCTAssertEqual(migrated.status, 0, migrated.combined)
+        let text = try String(contentsOf: legacy.appendingPathComponent("config.toml"), encoding: .utf8)
+        XCTAssertTrue(text.contains("[mcp_servers.disk-steward]") && !text.contains("disk_steward") && !text.contains("enabled_tools"), text)
+        XCTAssertTrue(text.contains("name = \"keep\""))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: legacy.appendingPathComponent("plugins/disk-steward").path), "the unused plugin copy is moved into the backup")
+        XCTAssertTrue(migrated.stdout.contains("Moved the unused plugin copy"), migrated.combined)
+
+        let userScope = root.appendingPathComponent(".claude")
+        let claude = try run("/bin/zsh", [install.path, "--client", "claude", "--config-root", userScope.path, "--connector", connector.path])
+        XCTAssertEqual(claude.status, 64, claude.combined)
+        XCTAssertTrue(claude.stderr.contains("claude mcp add --scope user disk-steward"), claude.combined)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: userScope.appendingPathComponent(".mcp.json").path), "Claude Code never reads ~/.claude/.mcp.json; nothing is written there")
     }
 
     func testCodexInstallerFailsClosedOnMalformedManagedMarkers() throws {
@@ -78,7 +114,7 @@ final class IntegrationInstallTests: XCTestCase {
         XCTAssertEqual(result.status, 65)
         XCTAssertTrue(result.combined.contains("managed markers are malformed"))
         XCTAssertEqual(try String(contentsOf: config, encoding: .utf8), malformed)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("plugins/disk-steward").path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent("skills/disk-steward-evidence").path))
     }
 
     func testClaudeInstallUpgradeAndUninstallMergeOnlyOwnedServer() throws {
@@ -102,15 +138,17 @@ final class IntegrationInstallTests: XCTestCase {
         }
         var object = try jsonObject(config)
         let servers = try XCTUnwrap(object["mcpServers"] as? [String: Any])
-        XCTAssertEqual((servers["disk_steward"] as? [String: Any])?["command"] as? String, connector.path)
+        XCTAssertEqual((servers["disk-steward"] as? [String: Any])?["command"] as? String, connector.path)
         XCTAssertNotNil(servers["other"])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent(".claude/skills/disk-steward-evidence/SKILL.md").path), "the project gets the evidence skill")
         XCTAssertEqual(object["custom"] as? String, "preserve-me")
 
         let removed = try run("/bin/zsh", [uninstall.path, "--client", "claude", "--config-root", configRoot.path])
         XCTAssertEqual(removed.status, 0, removed.combined)
         object = try jsonObject(config)
         let remaining = try XCTUnwrap(object["mcpServers"] as? [String: Any])
-        XCTAssertNil(remaining["disk_steward"])
+        XCTAssertNil(remaining["disk-steward"])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: configRoot.appendingPathComponent(".claude/skills/disk-steward-evidence").path))
         XCTAssertNotNil(remaining["other"])
         XCTAssertEqual(object["custom"] as? String, "preserve-me")
         XCTAssertEqual(try Data(contentsOf: evidence), Data("retained".utf8))
@@ -241,13 +279,12 @@ final class IntegrationInstallTests: XCTestCase {
     private func assertCodexDiscovery(configRoot: URL, connector: URL) throws {
         let text = try String(contentsOf: configRoot.appendingPathComponent("config.toml"), encoding: .utf8)
         XCTAssertTrue(text.contains("mcp_servers.other"))
-        XCTAssertTrue(text.contains("mcp_servers.disk_steward"))
+        XCTAssertTrue(text.contains("[mcp_servers.disk-steward]"))
+        XCTAssertFalse(text.contains("disk_steward"))
+        XCTAssertFalse(text.contains("enabled_tools"), "no pinned tool list can go stale")
         XCTAssertTrue(text.contains(connector.path))
-        let plugin = configRoot.appendingPathComponent("plugins/disk-steward")
-        XCTAssertTrue(FileManager.default.fileExists(atPath: plugin.appendingPathComponent(".codex-plugin/plugin.json").path))
-        let mcp = try jsonObject(plugin.appendingPathComponent(".mcp.json"))
-        let servers = try XCTUnwrap(mcp["mcpServers"] as? [String: Any])
-        XCTAssertEqual((servers["disk_steward"] as? [String: Any])?["command"] as? String, connector.path)
+        let skill = configRoot.appendingPathComponent("skills/disk-steward-evidence/SKILL.md")
+        XCTAssertEqual(try Data(contentsOf: skill), try Data(contentsOf: repositoryRoot.appendingPathComponent("Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md")))
     }
 
     private func jsonObject(_ url: URL) throws -> [String: Any] {

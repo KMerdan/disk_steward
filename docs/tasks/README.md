@@ -5,10 +5,10 @@ Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 202
 
 ## Current State
 
-- Graph version: `18`
-- Plan revision: `2`
+- Graph version: `22`
+- Plan revision: `3`
 - Lifecycle: `active`
-- Verified primary nodes: `3/8`
+- Verified primary nodes: `4/8`
 - Ready tasks: `0`
 
 ## Ready Frontier

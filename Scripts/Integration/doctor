@@ -25,7 +25,7 @@ done
 
 if (( dry_run )); then
   print "Disk Steward integration diagnostic plan"
-  print "1. Verify the selected client configuration contains one disk_steward MCP entry."
+  print "1. Verify the selected client configuration contains one disk-steward MCP entry."
   print "2. Run the connector's bounded --self-check."
   print "3. Verify the current-user Unix socket is a private 0600 socket."
   print "4. Query service status without scanning the disk or changing evidence."
@@ -38,10 +38,14 @@ failures=0
 config_file="$config_root/config.toml"
 [[ "$client" == "claude" ]] && config_file="$config_root/.mcp.json"
 
-if [[ -f "$config_file" ]] && grep -q 'disk_steward' "$config_file"; then
-  print "ok: $client configuration discovers disk_steward"
+if [[ -f "$config_file" ]] && grep -q 'disk-steward' "$config_file"; then
+  print "ok: $client configuration discovers disk-steward"
 else
-  print -u2 "missing: disk_steward is not configured in $config_file"
+  print -u2 "missing: disk-steward is not configured in $config_file"
+  (( failures += 1 ))
+fi
+if [[ -f "$config_file" ]] && grep -q 'disk_steward' "$config_file"; then
+  print -u2 "legacy: $config_file still names disk_steward; run Scripts/Integration/install again to migrate it"
   (( failures += 1 ))
 fi
 

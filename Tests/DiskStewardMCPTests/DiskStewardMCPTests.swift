@@ -261,13 +261,16 @@ final class DiskStewardMCPTests: XCTestCase {
     func testEveryPublishedToolListIsTheCatalogue() throws {
         let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         func text(_ path: String) throws -> String { try String(contentsOf: repository.appending(path: path), encoding: .utf8) }
-        func enabled(_ path: String) throws -> [String] {
-            let line = try XCTUnwrap(try text(path).split(separator: "\n").first { $0.contains("enabled_tools = [") }, path)
-            let list = line[line.range(of: "[")!.upperBound..<line.range(of: "]")!.lowerBound]
-            return list.split(separator: ",").map { $0.trimmingCharacters(in: CharacterSet(charactersIn: " \"")) }
-        }
+        // TASK-715: no published configuration pins a tool list (it went
+        // stale once), and every one names the server disk-steward.
         for path in ["Integrations/Codex/config.toml.fragment", "Fixtures/MCP/codex-stdio.toml.txt", "Scripts/Integration/install"] {
-            XCTAssertEqual(try enabled(path), MCPToolCatalog.names, path)
+            let contents = try text(path)
+            XCTAssertFalse(contents.contains("enabled_tools"), path)
+            XCTAssertTrue(contents.contains("[mcp_servers.disk-steward]"), path)
+        }
+        for path in ["Integrations/Claude/mcp.template.json", "Fixtures/MCP/claude-stdio.json", "Integrations/Codex/disk-steward/mcp.json"] {
+            let servers = try XCTUnwrap((try JSONSerialization.jsonObject(with: Data(text(path).utf8)) as? [String: Any])?["mcpServers"] as? [String: Any], path)
+            XCTAssertEqual(Array(servers.keys), ["disk-steward"], path)
         }
         let inventory = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(text("Fixtures/MCP/readonly-inventory.json").utf8)) as? [String: Any])
         XCTAssertEqual((inventory["tools"] as? [[String: Any]])?.compactMap { $0["name"] as? String }, MCPToolCatalog.names)

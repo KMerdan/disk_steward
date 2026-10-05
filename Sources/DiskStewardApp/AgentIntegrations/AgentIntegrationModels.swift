@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 enum AgentClientID: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -158,6 +159,10 @@ struct AgentIntegrationReceipt: Codable, Equatable, Sendable {
     let definition: AgentIntegrationDefinition
     let installedAt: Date
     let helperIdentity: String?
+    /// TASK-715: the evidence skill this integration installed, and the hash
+    /// of what it wrote; absent in receipts written before 1.5.1.
+    var skillPath: String?
+    var skillSHA256: String?
     // Client-owned install prompts can be cancelled. Retain the exact prior
     // entry until approval replaces it, so repair never forfeits ownership.
     let previousDefinition: AgentIntegrationDefinition?
@@ -358,3 +363,109 @@ enum AgentIntegrationOwnership: Equatable, Sendable {
 }
 import CryptoKit
 import DiskStewardCore
+
+
+/// TASK-715: the evidence skill the Codex and Claude Code integrations install
+/// beside the server, so an agent knows how to read the evidence. The text is
+/// Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md byte
+/// for byte; a test pins the copy.
+enum AgentEvidenceSkill {
+    static let directoryName = "disk-steward-evidence"
+    static let fileName = "SKILL.md"
+    static let text = #"""
+---
+name: disk-steward-evidence
+description: Disk space, storage growth and cleanup review on this Mac. Query and interpret local Disk Steward evidence when a user asks what is using disk space, what grew recently, what can be cleaned up for review, how big a folder is, or which agent task may have changed which folders.
+license: MIT
+compatibility: Needs the Disk Steward app (macOS 13 or later) with Agent Access on, and its disk-steward MCP server.
+---
+
+# Disk Steward Evidence
+
+Use the `disk-steward` MCP tools for bounded, read-only evidence instead of walking the disk yourself.
+
+## Which tool answers which question
+
+- **How full is the disk, and how far from the reserve?** `get_storage_summary`.
+- **Are the stores, journal and reviews healthy, and which scopes have been reviewed?** `get_health`. It names each review's `scope` the way the other tools accept it.
+- **What can be cleaned up for review?** `list_review_items` with `scope` set to a name from `get_health` (for example `localGit`), a folder's absolute path, or `caches`. Then use `get_review_item_evidence` with an `item_id` for one item's reasons to keep it, its recreate command and a live check. If no review matches the name, the answer lists `available_scopes`.
+- **What are the largest build outputs, environments and caches?** `list_largest_objects`, optionally with the same `scope`.
+- **Where did space go over an interval?** `explain_growth` with `from` and `through`. It reports the capacity change, the measured object deltas, and the unexplained remainder.
+- **How big is one folder right now?** `measure_path` with an absolute path inside a reviewed scope. It is bounded to 15 seconds and 500,000 entries, may return a partial lower bound, and joins a running review instead of starting another walk.
+- **What did an agent session change?** `get_task_impact` for a registered session, or `list_active_agent_sessions`.
+- **Who needs a portable evidence package?** `export_evidence`.
+
+## Reading the answers
+
+- **Evidence states:**
+  - `Verified now` was checked within five minutes;
+  - `Stale` is older;
+  - `Partial` means the size is a lower bound;
+  - `Unknown` means the path was not found at the last check.
+- **A partial review** stopped before covering everything. What it did not cover is unknown, not empty.
+- **Confidence:** `inferred` is a supported correlation, not certainty. Task impact correlates a session's workspace and time window; it never proves which process wrote. `unknown` means no claim is justified.
+- **Errors:** an error result's text is a JSON object with `code`, `message`, `retryable` and `recovery`. Follow `recovery`. Correct `invalid_arguments` and call again. Never retry `agent_access_disabled` until the user turns Agent Access on.
+
+## Cleaning up safely
+
+Never describe an item as safe to delete. For each item, present:
+- its size;
+- its evidence state;
+- its reasons to keep it;
+- its recreate command;
+- the owning tool's cleanup command, as text.
+
+Do not delete, move or modify files unless the user separately authorizes that action after reviewing the exact targets. Prefer reversible actions such as moving a folder to the Trash, and say how to undo them. After a cleanup, call `get_review_item_evidence` again: a removed item reads `Unknown` with `present: false`.
+
+If the app or its local socket is unavailable, report the recovery guidance. Do not fabricate a disk explanation, and do not fall back to an unbounded scan.
+
+"""#
+
+    enum Outcome: Equatable {
+        case installed(path: String, sha256: String)
+        case keptUsersOwn(path: String)
+        case failed(String)
+    }
+
+    static func sha256(_ data: Data) -> String { SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined() }
+    static var textSHA256: String { sha256(Data(text.utf8)) }
+
+    /// Writes `<skills>/disk-steward-evidence/SKILL.md`. An existing file is
+    /// replaced only when Disk Steward wrote it (the hash recorded at the last
+    /// install, or this exact text); a skill the user wrote or edited is kept.
+    static func install(into skills: URL, recordedSHA256: String?, fileManager: FileManager = .default) -> Outcome {
+        let directory = skills.appending(path: directoryName, directoryHint: .isDirectory)
+        let file = directory.appending(path: fileName)
+        if let existing = try? Data(contentsOf: file) {
+            let existingHash = sha256(existing)
+            guard existingHash == textSHA256 || existingHash == recordedSHA256 else { return .keptUsersOwn(path: file.path) }
+        }
+        do {
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            try Data(text.utf8).write(to: file, options: .atomic)
+            return .installed(path: file.path, sha256: textSHA256)
+        } catch {
+            return .failed(error.localizedDescription)
+        }
+    }
+
+    /// Removes the skill only while it is exactly what Disk Steward wrote, and
+    /// its folder only when nothing else is in it. Returns a sentence for the
+    /// result message, or nil when there was nothing of ours to remove.
+    static func remove(from skills: URL, recordedSHA256: String?, fileManager: FileManager = .default) -> String? {
+        guard let recordedSHA256 else { return nil }
+        let directory = skills.appending(path: directoryName, directoryHint: .isDirectory)
+        let file = directory.appending(path: fileName)
+        guard let existing = try? Data(contentsOf: file) else { return nil }
+        guard sha256(existing) == recordedSHA256 else { return "Kept the edited evidence skill at \(file.path)." }
+        do {
+            try fileManager.removeItem(at: file)
+            if (try? fileManager.contentsOfDirectory(atPath: directory.path))?.isEmpty == true {
+                try fileManager.removeItem(at: directory)
+            }
+            return "Removed the evidence skill."
+        } catch {
+            return "Could not remove the evidence skill at \(file.path): \(error.localizedDescription)."
+        }
+    }
+}

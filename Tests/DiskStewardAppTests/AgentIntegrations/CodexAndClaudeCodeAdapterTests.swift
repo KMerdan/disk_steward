@@ -13,6 +13,50 @@ final class CodexAndClaudeCodeAdapterTests: XCTestCase {
             XCTAssertNotEqual(ClaudeCodeIntegrationAdapter.parseClaudeDefinition(changed), expected)
         }
     }
+    /// TASK-715: setting up Codex or Claude Code also installs the evidence
+    /// skill and records it; removal takes it away only while it is
+    /// unchanged; a skill the user put there is never overwritten.
+    func testSetupInstallsTheEvidenceSkillAndRemovalTakesOnlyAnUnchangedOne() async throws {
+        for client in [AgentClientID.codex, .claudeCode] {
+            let fixture = try Fixture(client: client)
+            let skills = fixture.root.appending(path: "skills")
+            let adapter: CodexCLIIntegrationAdapter = client == .codex ? fixture.codexAdapter(skills: skills) : fixture.claudeAdapter(skills: skills)
+            let file = skills.appending(path: "disk-steward-evidence/SKILL.md")
+
+            let setup = await adapter.perform(.setup)
+            XCTAssertEqual(setup.outcome, .changed, "\(client)")
+            XCTAssertTrue(setup.message.contains("Installed the evidence skill."), setup.message)
+            XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), AgentEvidenceSkill.text)
+            XCTAssertEqual(try fixture.receipts.receipt(for: client)?.skillSHA256, AgentEvidenceSkill.textSHA256)
+            XCTAssertEqual(try fixture.receipts.receipt(for: client)?.skillPath, file.path)
+
+            let removed = await adapter.perform(.remove)
+            XCTAssertEqual(removed.outcome, .changed)
+            XCTAssertTrue(removed.message.contains("Removed the evidence skill."), removed.message)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: file.deletingLastPathComponent().path), "the folder goes with it")
+
+            _ = await adapter.perform(.setup)
+            try Data("my own notes".utf8).write(to: file)
+            let keptOnRemove = await adapter.perform(.remove)
+            XCTAssertTrue(keptOnRemove.message.contains("Kept the edited evidence skill"), keptOnRemove.message)
+            XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), "my own notes", "an edited skill survives removal")
+
+            let ownBeforeSetup = await adapter.perform(.setup)
+            XCTAssertTrue(ownBeforeSetup.message.contains("Kept the existing skill"), ownBeforeSetup.message)
+            XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), "my own notes", "a skill the user wrote is never overwritten")
+            XCTAssertNil(try fixture.receipts.receipt(for: client)?.skillSHA256)
+        }
+    }
+
+    /// One source: the app installs exactly the SKILL.md in Integrations.
+    func testTheEmbeddedSkillIsTheIntegrationsSkillByteForByte() throws {
+        let repository = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .deletingLastPathComponent().deletingLastPathComponent()
+        let source = try Data(contentsOf: repository.appending(path: "Integrations/Codex/disk-steward/skills/disk-steward-evidence/SKILL.md"))
+        XCTAssertEqual(Data(AgentEvidenceSkill.text.utf8), source)
+        XCTAssertTrue(AgentEvidenceSkill.text.hasPrefix("---\nname: disk-steward-evidence\n"), "the name matches its folder (Agent Skills specification)")
+    }
+
     func testReceiptFailureRollsBackSetupRepairAndRemoval() async throws {
         for client in [AgentClientID.codex, .claudeCode] {
             for action in [AgentIntegrationAction.setup, .repair, .remove] {
@@ -188,12 +232,12 @@ private final class Fixture {
 
     deinit { try? FileManager.default.removeItem(at: root) }
 
-    func codexAdapter() -> CodexCLIIntegrationAdapter {
-        CodexCLIIntegrationAdapter(executableURL: executable, helperURL: helper, receiptStore: receipts, runner: runner)
+    func codexAdapter(skills: URL? = nil) -> CodexCLIIntegrationAdapter {
+        CodexCLIIntegrationAdapter(executableURL: executable, helperURL: helper, receiptStore: receipts, runner: runner, skillsDirectory: skills)
     }
 
-    func claudeAdapter() -> ClaudeCodeIntegrationAdapter {
-        ClaudeCodeIntegrationAdapter(executableURL: executable, helperURL: helper, receiptStore: receipts, runner: runner)
+    func claudeAdapter(skills: URL? = nil) -> ClaudeCodeIntegrationAdapter {
+        ClaudeCodeIntegrationAdapter(executableURL: executable, helperURL: helper, receiptStore: receipts, runner: runner, skillsDirectory: skills)
     }
 }
 

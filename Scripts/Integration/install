@@ -36,12 +36,19 @@ if (( dry_run )); then
   print "Would install the read-only Disk Steward connector for $client."
   print "Configuration root: $config_root"
   print "Connector: $connector"
-  print "Only the disk_steward MCP entry and Disk Steward-owned plugin files would change."
+  print "Only the disk-steward MCP entry and the Disk Steward evidence skill would change."
   print "A recoverable backup with a manifest would be written under $config_root/.disk-steward-backups/ first."
   exit 0
 fi
 
 [[ -x "$connector" ]] || { print -u2 "Connector is not executable: $connector"; exit 66; }
+# Claude Code reads user-scope servers from ~/.claude.json, which this script
+# does not edit; --config-root is a project directory for Claude.
+if [[ "$client" == "claude" && "${config_root:t}" == ".claude" ]]; then
+  print -u2 "install: --config-root for Claude Code is a project directory (its .mcp.json and .claude/skills)."
+  print -u2 "install: for every project, use Disk Steward > Settings > Agent Integrations, or: claude mcp add --scope user disk-steward -- $connector"
+  exit 64
+fi
 
 script_dir=${0:A:h}
 repo_root=${script_dir:h:h}
@@ -53,12 +60,15 @@ backup_root="$backups_dir/$timestamp"
 mkdir -p "$config_root" "$backup_root"
 chmod 700 "$config_root" "$backups_dir" "$backup_root"
 
+# The recoverable artifact beside the configuration is the evidence skill:
+# Codex reads user skills from <CODEX_HOME>/skills, Claude Code reads a
+# project's .claude/skills (TASK-715).
 if [[ "$client" == "codex" ]]; then
   config_file="$config_root/config.toml"
-  plugin_target="$config_root/plugins/disk-steward"
+  plugin_target="$config_root/skills/disk-steward-evidence"
 else
   config_file="$config_root/.mcp.json"
-  plugin_target=""
+  plugin_target="$config_root/.claude/skills/disk-steward-evidence"
 fi
 
 # Everything below is undone on failure: the backup taken first is the source
@@ -135,19 +145,37 @@ if [[ "$client" == "codex" ]]; then
       exit 65
     fi
   fi
-  plugin_source="$repo_root/Integrations/Codex/disk-steward"
-  plugin_parent="$config_root/plugins"
-  mkdir -p "$plugin_parent"
-  if [[ -e "$plugin_target" ]]; then
-    mv "$plugin_target" "$backup_root/disk-steward-plugin"
-    manifest_plugin "$backup_root" existed
-    plugin_backed=1
-  else
-    manifest_plugin "$backup_root" absent
+  # One registration: the app's Agent Integrations writes the same
+  # [mcp_servers.disk-steward] table through `codex mcp add`.
+  if [[ -f "$config_file" ]] && awk '
+      $0 == "# BEGIN DISK STEWARD MANAGED v1" { managed=1; next }
+      $0 == "# END DISK STEWARD MANAGED v1" { managed=0; next }
+      !managed && $0 ~ /^[ \t]*\[mcp_servers\.("disk-steward"|disk-steward)\][ \t]*$/ { found=1 }
+      END { exit !found }
+    ' "$config_file"; then
+    print -u2 "Refusing to add a second disk-steward server: $config_file already has one, most likely from Disk Steward > Settings > Agent Integrations. Manage it there, or remove that entry first."
+    exit 65
   fi
-  cp -R "$plugin_source" "$plugin_target"
-  plugin_written=1
-  /usr/bin/swift "$script_dir/json-config.swift" set "$plugin_target/.mcp.json" "$connector"
+fi
+skill_source="$repo_root/Integrations/Codex/disk-steward/skills/disk-steward-evidence"
+mkdir -p "${plugin_target:h}"
+if [[ -e "$plugin_target" ]]; then
+  mv "$plugin_target" "$backup_root/disk-steward-plugin"
+  manifest_plugin "$backup_root" existed
+  plugin_backed=1
+else
+  manifest_plugin "$backup_root" absent
+fi
+cp -R "$skill_source" "$plugin_target"
+plugin_written=1
+if [[ "$client" == "codex" ]]; then
+  # Earlier installs copied a plugin to <config-root>/plugins/disk-steward,
+  # where Codex never loads plugins; it is moved into this backup.
+  legacy_plugin="$config_root/plugins/disk-steward"
+  if [[ -f "$legacy_plugin/.codex-plugin/plugin.json" ]]; then
+    mv "$legacy_plugin" "$backup_root/legacy-codex-plugin"
+    print "Moved the unused plugin copy from $legacy_plugin into $backup_root/legacy-codex-plugin."
+  fi
 
   temporary=$(mktemp "$config_root/.config.toml.disk-steward.XXXXXX")
   if [[ -f "$config_file" ]]; then
@@ -156,20 +184,16 @@ if [[ "$client" == "codex" ]]; then
       $0 == "# END DISK STEWARD MANAGED v1" { managed=0; next }
       !managed { print }
     ' "$config_file" > "$temporary"
+    kept=$(<"$temporary")
+    if [[ -n "$kept" ]]; then print -r -- "$kept" > "$temporary"; else : > "$temporary"; fi
   fi
   escaped=${connector//\\/\\\\}
   escaped=${escaped//\"/\\\"}
   {
     print ""
     print "# BEGIN DISK STEWARD MANAGED v1"
-    print "[mcp_servers.disk_steward]"
+    print "[mcp_servers.disk-steward]"
     print "command = \"$escaped\""
-    print "args = []"
-    print "enabled = true"
-    print "startup_timeout_sec = 10"
-    print "tool_timeout_sec = 60"
-    print 'enabled_tools = ["get_storage_summary", "get_health", "explain_growth", "list_review_items", "list_largest_objects", "get_review_item_evidence", "measure_path", "list_active_agent_sessions", "get_task_impact", "export_evidence"]'
-    print 'default_tools_approval_mode = "auto"'
     print "# END DISK STEWARD MANAGED v1"
   } >> "$temporary"
   chmod 600 "$temporary"

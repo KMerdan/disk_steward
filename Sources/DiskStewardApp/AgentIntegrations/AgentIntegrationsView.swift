@@ -69,17 +69,22 @@ final class AgentIntegrationManager: ObservableObject {
         let receipts = AgentIntegrationReceiptStore(url: supportDirectory.appending(path: "agent-integrations.json"))
         var adapters: [AgentClientID: any AgentIntegrationAdapting] = [:]
         if let executable = environment.executableURL(named: "codex") {
+            // Codex reads user skills from $CODEX_HOME/skills (~/.codex/skills).
+            let codexHome = ProcessInfo.processInfo.environment["CODEX_HOME"].flatMap { $0.hasPrefix("/") ? URL(fileURLWithPath: $0, isDirectory: true) : nil }
+                ?? homeDirectory.appending(path: ".codex", directoryHint: .isDirectory)
             adapters[.codex] = CodexCLIIntegrationAdapter(
                 executableURL: executable,
                 helperURL: helperURL,
-                receiptStore: receipts
+                receiptStore: receipts,
+                skillsDirectory: codexHome.appending(path: "skills", directoryHint: .isDirectory)
             )
         }
         if let executable = environment.executableURL(named: "claude") {
             adapters[.claudeCode] = ClaudeCodeIntegrationAdapter(
                 executableURL: executable,
                 helperURL: helperURL,
-                receiptStore: receipts
+                receiptStore: receipts,
+                skillsDirectory: homeDirectory.appending(path: ".claude/skills", directoryHint: .isDirectory)
             )
         }
         let applicationSupport = homeDirectory

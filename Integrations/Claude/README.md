@@ -1,6 +1,6 @@
 # Claude Code integration
 
-Disk Steward exposes the same local, read-only stdio MCP connector to Claude Code. The supported installer merges the `disk_steward` entry into an explicit configuration root and preserves other MCP servers:
+Disk Steward exposes the same local, read-only stdio MCP connector to Claude Code. The supported installer merges the `disk-steward` entry into an explicit configuration root and preserves other MCP servers:
 
 ```sh
 Scripts/Integration/install \

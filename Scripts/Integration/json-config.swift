@@ -1,11 +1,12 @@
 #!/usr/bin/env swift
 
-// Edits only the `disk_steward` entry of an MCP client's JSON configuration.
+// Edits only the `disk-steward` entry of an MCP client's JSON configuration;
+// a legacy `disk_steward` entry (1.5.0 and earlier) moves to it with its settings.
 //
 // Ownership rules (TASK-561):
 //   - The root and `mcpServers` must be objects; anything else is refused and
 //     the file is left untouched.
-//   - `set` keeps every key the user added to an existing `disk_steward` entry
+//   - `set` keeps every key the user added to an existing `disk-steward` entry
 //     (env, cwd, unknown keys) and only refreshes type/command/args. A
 //     malformed entry (non-string command, non-array args) is refused.
 //   - `remove` refuses an entry that carries user additions; remove it by hand.
@@ -31,8 +32,8 @@ enum ConfigurationError: Error, CustomStringConvertible {
         switch self {
         case let .usage(message): message
         case .invalidRoot: "The JSON configuration root and mcpServers must be objects; nothing was changed."
-        case let .malformedEntry(reason): "The existing disk_steward entry is malformed (\(reason)); nothing was changed. Fix or remove it by hand, then retry."
-        case let .userAdditions(keys): "The disk_steward entry carries settings Disk Steward does not own (\(keys.joined(separator: ", "))); nothing was changed. Remove the entry by hand if you want it gone."
+        case let .malformedEntry(reason): "The existing disk-steward entry is malformed (\(reason)); nothing was changed. Fix or remove it by hand, then retry."
+        case let .userAdditions(keys): "The disk-steward entry carries settings Disk Steward does not own (\(keys.joined(separator: ", "))); nothing was changed. Remove the entry by hand if you want it gone."
         case .concurrentEdit: "The file changed while it was being edited; nothing was changed. Retry."
         case let .concurrentEditUndoFailed(preserved, reason): "Another program changed the file while it was being edited and its version could not be put back (\(reason)). Disk Steward's version is in place; the other version is preserved at \(preserved). Merge them by hand."
         case let .io(reason): "Could not write the configuration (\(reason)); nothing was changed."
@@ -136,8 +137,12 @@ func run() throws {
     } else {
         servers = [:]
     }
+    let serverName = "disk-steward"
+    let legacyServerName = "disk_steward"
+    // The entry under the current name wins; otherwise the legacy one is read.
+    let existingKey = servers[serverName] != nil ? serverName : (servers[legacyServerName] != nil ? legacyServerName : nil)
     let existingEntry: [String: Any]?
-    if let raw = servers["disk_steward"] {
+    if let existingKey, let raw = servers[existingKey] {
         guard let entry = raw as? [String: Any] else { throw ConfigurationError.malformedEntry("entry is not an object") }
         try validate(entry)
         existingEntry = entry
@@ -158,14 +163,18 @@ func run() throws {
         entry["command"] = arguments[2]
         entry["args"] = existingEntry?["args"] as? [String] ?? []
         let preserved = existingEntry.map(userAdditions) ?? []
-        servers["disk_steward"] = entry
-        if !preserved.isEmpty { print("Preserved user settings on disk_steward: \(preserved.joined(separator: ", "))") }
+        servers[serverName] = entry
+        if existingKey == legacyServerName {
+            servers.removeValue(forKey: legacyServerName)
+            print("Moved the legacy disk_steward entry to disk-steward.")
+        }
+        if !preserved.isEmpty { print("Preserved user settings on disk-steward: \(preserved.joined(separator: ", "))") }
     case "remove":
         guard arguments.count == 2 else { throw ConfigurationError.usage("remove accepts only a file") }
         guard let existingEntry else { return }
         let additions = userAdditions(in: existingEntry)
         guard additions.isEmpty else { throw ConfigurationError.userAdditions(additions) }
-        servers.removeValue(forKey: "disk_steward")
+        servers.removeValue(forKey: existingKey ?? serverName)
     default:
         throw ConfigurationError.usage("unknown operation: \(operation)")
     }

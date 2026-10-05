@@ -8,10 +8,10 @@
 - Wave: `1`
 - Workstream: `product`
 - Selection: `primary`
-- Execution: `working`
-- Verification: `unverified`
+- Execution: `implemented`
+- Verification: `passed`
 - Health: `clear`
-- Availability: `working`
+- Availability: `verified`
 - Goal trace: `TASK-715` → `OUTCOME-710` → `INTENT-007`
 
 ## Goal
@@ -32,6 +32,12 @@ The Claude installer installs the evidence skill from the single SKILL.md source
 - docs/integrations/**
 - README.md
 - docs/reliability/evidence/**
+- Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift
+- Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift
+- Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationModels.swift
+- Sources/DiskStewardApp/AgentIntegrations/AgentIntegrationsView.swift
+- Tests/DiskStewardAppTests/AgentIntegrations/CodexAndClaudeCodeAdapterTests.swift
+- Tests/ContractTests/MCP/MCPContractTests.swift
 
 ## Non-Goals
 
@@ -46,6 +52,8 @@ The Claude installer installs the evidence skill from the single SKILL.md source
 - Scripts/Integration/install
 - Integrations/**
 - docs/integrations/README.md
+- Sources/DiskStewardApp/AgentIntegrations/CodexClientSupport.swift
+- Sources/DiskStewardApp/AgentIntegrations/ClaudeCodeIntegrationAdapter.swift
 
 ## Validation Commands
 
@@ -66,21 +74,13 @@ The Claude installer installs the evidence skill from the single SKILL.md source
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-TASK-715-CLIENTS`, `IMPACT-TASK-715-CONTRACTS`, `IMPACT-TASK-715-MCP`, `IMPACT-TASK-715-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-CLIENTS`, `ASSET-CONTRACTS`, `ASSET-MCP`
 - Inspections: `INSPECT-TASK-715-1`
 
 ### Assurance Blockers
 
-- Impact IMPACT-TASK-715-ASSURANCE remains hypothesis
-- Impact IMPACT-TASK-715-CLIENTS remains hypothesis
-- Impact IMPACT-TASK-715-CONTRACTS remains hypothesis
-- Impact IMPACT-TASK-715-MCP remains hypothesis
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-CLIENTS lacks a sufficient passing inspection
-- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
-- Impacted asset ASSET-MCP lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-715-1 is stale
+- None
 
 
