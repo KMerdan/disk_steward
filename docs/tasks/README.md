@@ -5,7 +5,7 @@ Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 202
 
 ## Current State
 
-- Graph version: `31`
+- Graph version: `32`
 - Plan revision: `4`
 - Lifecycle: `active`
 - Verified primary nodes: `6/9`
@@ -19,7 +19,7 @@ Agents on current MCP clients (Codex and Claude Code, MCP 2025-06-18 through 202
 
 - Status: `blocked`
 - Baseline: `current` revision `5`
-- Impacted assets inspected sufficiently: `7/10`
+- Impacted assets inspected sufficiently: `10/10`
 - Open scope drift: `0`
 - Open material findings: `0`
 

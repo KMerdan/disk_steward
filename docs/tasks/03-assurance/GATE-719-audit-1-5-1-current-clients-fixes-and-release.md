@@ -63,19 +63,13 @@ Verify the final candidate in isolation and packaged, then install the notarized
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-TASK-711-QUERY`, `IMPACT-TASK-711-EXPORT`, `IMPACT-TASK-711-LIFECYCLE`, `IMPACT-TASK-711-ASSURANCE`, `IMPACT-TASK-712-BUILD`, `IMPACT-TASK-712-ASSURANCE`, `IMPACT-TASK-713-MCP`, `IMPACT-TASK-713-CONTRACTS`, `IMPACT-TASK-713-QUERY`, `IMPACT-TASK-713-BUILD`, `IMPACT-TASK-713-ASSURANCE`, `IMPACT-TASK-714-MCP`, `IMPACT-TASK-714-CONTRACTS`, `IMPACT-TASK-714-BUILD`, `IMPACT-TASK-714-ASSURANCE`, `IMPACT-TASK-715-CLIENTS`, `IMPACT-TASK-715-CONTRACTS`, `IMPACT-TASK-715-MCP`, `IMPACT-TASK-715-ASSURANCE`, `IMPACT-TASK-711-STORE`, `IMPACT-TASK-716-MCP`, `IMPACT-TASK-716-CLIENTS`, `IMPACT-TASK-716-CONTRACTS`, `IMPACT-TASK-716-QUERY`, `IMPACT-TASK-716-IPC`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-CLIENTS`, `ASSET-CONTRACTS`, `ASSET-EXPORT`, `ASSET-IPC`, `ASSET-LIFECYCLE`, `ASSET-MCP`, `ASSET-QUERY`, `ASSET-STORE`
 - Inspections: `INSPECT-TASK-711-1`, `INSPECT-TASK-712-1`, `INSPECT-TASK-713-1`, `INSPECT-TASK-714-1`, `INSPECT-TASK-715-1`, `INSPECT-TASK-716-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-711-1 is stale
-- Required inspection INSPECT-TASK-713-1 is stale
-- Required inspection INSPECT-TASK-714-1 is stale
-- Required inspection INSPECT-TASK-715-1 is stale
+- None
 
 

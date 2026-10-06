@@ -1,0 +1,145 @@
+#!/bin/zsh
+# Pre-configures development AI tools (Claude Code, Codex, Cursor, VS Code, Claude Desktop)
+# to integrate with Disk Steward's read-only MCP server (disk-witness-mcp).
+set -euo pipefail
+
+dry_run=0
+target_helper=""
+
+usage() {
+  print -u2 "usage: setup-ai-presets [--helper /path/to/disk-witness-mcp] [--dry-run]"
+  exit 64
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --helper) (( $# >= 2 )) || usage; target_helper="$2"; shift 2 ;;
+    --dry-run) dry_run=1; shift ;;
+    *) usage ;;
+  esac
+done
+
+# Locate disk-witness-mcp
+if [[ -z "$target_helper" ]]; then
+  if [[ -x "/Applications/Disk Steward.app/Contents/Helpers/disk-witness-mcp" ]]; then
+    target_helper="/Applications/Disk Steward.app/Contents/Helpers/disk-witness-mcp"
+  elif command -v disk-witness-mcp >/dev/null 2>&1; then
+    target_helper="$(command -v disk-witness-mcp)"
+  elif [[ -x "/opt/homebrew/bin/disk-witness-mcp" ]]; then
+    target_helper="/opt/homebrew/bin/disk-witness-mcp"
+  elif [[ -x "/usr/local/bin/disk-witness-mcp" ]]; then
+    target_helper="/usr/local/bin/disk-witness-mcp"
+  else
+    print -u2 "Could not locate disk-witness-mcp. Install Disk Steward first or pass --helper <path>."
+    exit 66
+  fi
+fi
+
+print "Using MCP helper: $target_helper"
+
+# 1. Claude Code
+if command -v claude >/dev/null 2>&1; then
+  print "Configuring Claude Code..."
+  if (( dry_run )); then
+    print "  [Dry Run] Would execute: claude mcp add --scope user disk-steward -- $target_helper"
+  else
+    claude mcp add --scope user disk-steward -- "$target_helper" 2>/dev/null || true
+    print "  Claude Code preset configured."
+  fi
+else
+  print "Claude Code CLI ('claude') not found in PATH; skipping."
+fi
+
+# 2. Codex CLI
+if command -v codex >/dev/null 2>&1; then
+  print "Configuring Codex..."
+  if (( dry_run )); then
+    print "  [Dry Run] Would execute: codex mcp add disk-steward -- $target_helper"
+  else
+    codex mcp add disk-steward -- "$target_helper" 2>/dev/null || true
+    print "  Codex preset configured."
+  fi
+else
+  print "Codex CLI ('codex') not found in PATH; skipping."
+fi
+
+# 3. Cursor
+cursor_dir="$HOME/Library/Application Support/Cursor/User/globalStorage/cursor.mcp"
+cursor_cfg="$cursor_dir/config.json"
+if [[ -d "$HOME/Library/Application Support/Cursor" || -f "$cursor_cfg" ]]; then
+  print "Configuring Cursor..."
+  if (( dry_run )); then
+    print "  [Dry Run] Would add disk-steward entry to $cursor_cfg"
+  else
+    mkdir -p "$cursor_dir"
+    /usr/bin/python3 -c "
+import json, sys
+path = '$cursor_cfg'
+helper = '$target_helper'
+try:
+    with open(path, 'r') as f:
+        data = json.load(f)
+except Exception:
+    data = {}
+servers = data.setdefault('mcpServers', {})
+servers['disk-steward'] = {'command': helper, 'args': []}
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+"
+    print "  Cursor preset configured at $cursor_cfg"
+  fi
+fi
+
+# 4. Visual Studio Code (Cline / Continue / MCP)
+vscode_cline_dir="$HOME/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings"
+vscode_cline_cfg="$vscode_cline_dir/cline_mcp_settings.json"
+if [[ -d "$vscode_cline_dir" ]]; then
+  print "Configuring VS Code (Cline)..."
+  if (( dry_run )); then
+    print "  [Dry Run] Would add disk-steward entry to $vscode_cline_cfg"
+  else
+    /usr/bin/python3 -c "
+import json, sys
+path = '$vscode_cline_cfg'
+helper = '$target_helper'
+try:
+    with open(path, 'r') as f:
+        data = json.load(f)
+except Exception:
+    data = {}
+servers = data.setdefault('mcpServers', {})
+servers['disk-steward'] = {'command': helper, 'args': []}
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+"
+    print "  VS Code preset configured at $vscode_cline_cfg"
+  fi
+fi
+
+# 5. Claude Desktop
+claude_desktop_dir="$HOME/Library/Application Support/Claude"
+claude_desktop_cfg="$claude_desktop_dir/claude_desktop_config.json"
+if [[ -d "$claude_desktop_dir" ]]; then
+  print "Configuring Claude Desktop..."
+  if (( dry_run )); then
+    print "  [Dry Run] Would add disk-steward entry to $claude_desktop_cfg"
+  else
+    /usr/bin/python3 -c "
+import json, sys
+path = '$claude_desktop_cfg'
+helper = '$target_helper'
+try:
+    with open(path, 'r') as f:
+        data = json.load(f)
+except Exception:
+    data = {}
+servers = data.setdefault('mcpServers', {})
+servers['disk-steward'] = {'command': helper, 'args': []}
+with open(path, 'w') as f:
+    json.dump(data, f, indent=2)
+"
+    print "  Claude Desktop preset configured at $claude_desktop_cfg"
+  fi
+fi
+
+print "Development AI presets completed successfully."

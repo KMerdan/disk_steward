@@ -1,6 +1,25 @@
+import AppKit
 import DiskStewardCore
 import Foundation
 import SwiftUI
+
+enum SettingsTab: String, CaseIterable, Identifiable {
+    case general = "General"
+    case scopes = "Scopes & Caches"
+    case ai = "AI & Agents"
+    case storage = "Storage"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .general: return "gearshape"
+        case .scopes: return "folder.badge.gearshape"
+        case .ai: return "sparkles"
+        case .storage: return "externaldrive.badge.timemachine"
+        }
+    }
+}
 
 struct MonitoringSettingsView: View {
     @ObservedObject var settingsStore: MonitoringSettingsStore
@@ -10,108 +29,31 @@ struct MonitoringSettingsView: View {
     @ObservedObject var agentIntegrations: AgentIntegrationManager
     @ObservedObject var legacyEvidence: LegacyEvidenceController
     var onExportLegacy: () -> Void = {}
+    @State private var selectedTab: SettingsTab = .general
     @State private var pendingDeletion: LegacyEvidenceManifest?
     @State private var deletionError: String?
     @State private var folderSelection: FolderSelectionPurpose?
 
     var body: some View {
-        Form {
-            Section("Lifecycle") {
-                Toggle("Launch Disk Steward at login", isOn: Binding(
-                    get: { launchAtLogin.isEnabled },
-                    set: { enabled in
-                        launchAtLogin.setEnabled(enabled)
-                        settingsStore.update { $0.launchAtLogin = launchAtLogin.isEnabled }
-                    }
-                ))
-                if let error = launchAtLogin.errorMessage {
-                    Text(error).foregroundStyle(.red).accessibilityLabel("Launch at login error: \(error)")
-                }
-                Button(settingsStore.settings.monitoringPaused ? "Resume Monitoring" : "Pause Monitoring") {
-                    settingsStore.settings.monitoringPaused ? lifecycle.resume() : lifecycle.pause()
-                }
-            }
+        VStack(spacing: 0) {
+            tabBar
 
-            Section("AI access") {
-                Toggle("Agent Access (read only)", isOn: Binding(
-                    get: { agentAccess.isEnabled },
-                    set: { enabled in agentAccess.setEnabled(enabled) }
-                ))
-                Text(agentAccess.state.detail)
-                    .font(.caption)
-                    .foregroundStyle(agentAccess.state.kind == .degraded ? .orange : .secondary)
-                    .accessibilityLabel(agentAccess.state.accessibilitySummary)
-                Text("Client setup below and Agent Access are separate: installing a client entry never turns access on.")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
+            Divider()
 
-            Section {
-                AgentIntegrationsView(manager: agentIntegrations)
-            }
-
-            Section("Review scopes") {
-                pathList(settingsStore.settings.watchedRoots, remove: settingsStore.removeWatchedRoot)
-                Button("Add Review Scope…") { folderSelection = .watched }
-                Text("Folders changed inside these scopes are journaled without scanning files. Other disk growth remains visible as unexplained whole-volume change.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-
-            Section("Cache review") {
-                ForEach(CacheCatalog.entries) { entry in
-                    let path = entry.resolvedPath(home: NSHomeDirectory())
-                    Toggle(isOn: Binding(
-                        get: { settingsStore.settings.optedInCaches.contains(entry.id) },
-                        set: { optedIn in settingsStore.update { $0.setCache(entry.id, optedIn: optedIn) } }
-                    )) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(entry.name)
-                            Text(path.map { ($0 as NSString).abbreviatingWithTildeInPath } ?? "Not found on this Mac")
-                                .font(.caption2).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
-                        }
-                    }
-                    .disabled(path == nil)
-                    .accessibilityHint("Includes \(entry.name) in reviews you start. Its cleanup command is shown, never run.")
-                }
-                Text("A cache is measured only in reviews you start, and only when turned on here. Disk Steward shows each tool's own cleanup command; it never runs one.")
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-
-            Section("Privacy exclusions") {
-                pathList(settingsStore.settings.excludedRoots, remove: settingsStore.removeExcludedRoot)
-                Button("Add Excluded Folder…") { folderSelection = .excluded }
-            }
-
-            Section("Thresholds") {
-                Stepper(reserveLabel, value: reserveBinding, in: 1 ... 65_536, step: 5)
-                    .accessibilityHint("Notifies once when free space falls below this amount on two samples in a row.")
-                if settingsStore.settings.comfortReserveGiB != nil {
-                    Button("Use suggested reserve") { settingsStore.update { $0.comfortReserveGiB = nil } }
-                }
-                Stepper("Notify after \(settingsStore.settings.growthThresholdMiB) MiB growth", value: binding(\.growthThresholdMiB), in: 1 ... 1_048_576, step: 100)
-                Stepper("Sample every \(settingsStore.settings.sampleIntervalMinutes) minutes", value: binding(\.sampleIntervalMinutes), in: 1 ... 1_440)
-            }
-
-            Section("Legacy evidence") {
-                if let newest = legacyEvidence.newest {
-                    Text("File evidence from before \(newest.migratedAt.formatted(date: .abbreviated, time: .omitted)) (\(ByteCountFormatter.string(fromByteCount: newest.databaseBytes, countStyle: .file))) is kept unmodified for export or rollback. Nothing reads or adds to it.")
-                        .font(.caption).foregroundStyle(.secondary)
-                    Button("Export Legacy Evidence…") { onExportLegacy() }
-                    Button("Delete Legacy Evidence…", role: .destructive) { pendingDeletion = newest }
-                } else {
-                    Text("No legacy evidence is kept.").foregroundStyle(.secondary)
-                }
-                if let error = legacyEvidence.migrationError {
-                    Text("The old evidence store could not be moved to legacy/: \(error)").foregroundStyle(.red)
-                }
-                if let deletionError {
-                    Text(deletionError).foregroundStyle(.red)
+            Group {
+                switch selectedTab {
+                case .general:
+                    generalTab
+                case .scopes:
+                    scopesTab
+                case .ai:
+                    aiTab
+                case .storage:
+                    storageTab
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding()
-        .frame(width: 620, height: 760)
+        .frame(width: 600, height: 530)
         .accessibilityLabel("Disk Steward monitoring settings")
         .confirmationDialog(
             "Delete legacy evidence?",
@@ -145,6 +87,306 @@ struct MonitoringSettingsView: View {
         }
     }
 
+    private var tabBar: some View {
+        HStack(spacing: 8) {
+            ForEach(SettingsTab.allCases) { tab in
+                Button {
+                    selectedTab = tab
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 17, weight: .regular))
+                        Text(tab.rawValue)
+                            .font(.system(size: 11, weight: selectedTab == tab ? .semibold : .regular))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(selectedTab == tab ? Color.accentColor.opacity(0.12) : Color.clear)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(selectedTab == tab ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
+                    )
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(selectedTab == tab ? Color.accentColor : Color.secondary)
+                .accessibilityLabel("\(tab.rawValue) tab")
+                .accessibilityValue(selectedTab == tab ? "Selected" : "Not selected")
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 10)
+        .padding(.bottom, 6)
+        .background(Color(nsColor: .windowBackgroundColor))
+    }
+
+    private var generalTab: some View {
+        Form {
+            Section("System & Lifecycle") {
+                Toggle("Launch Disk Steward at login", isOn: Binding(
+                    get: { launchAtLogin.isEnabled },
+                    set: { enabled in
+                        launchAtLogin.setEnabled(enabled)
+                        settingsStore.update { $0.launchAtLogin = launchAtLogin.isEnabled }
+                    }
+                ))
+                .toggleStyle(.switch)
+                if let error = launchAtLogin.errorMessage {
+                    Text(error).foregroundStyle(.red).accessibilityLabel("Launch at login error: \(error)")
+                }
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Monitoring Status")
+                        Text(settingsStore.settings.monitoringPaused ? "Monitoring is currently paused" : "Background capacity monitoring is active")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button(settingsStore.settings.monitoringPaused ? "Resume Monitoring" : "Pause Monitoring") {
+                        settingsStore.settings.monitoringPaused ? lifecycle.resume() : lifecycle.pause()
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+
+            Section("Capacity Thresholds & Alerts") {
+                VStack(alignment: .leading, spacing: 4) {
+                    Stepper(reserveLabel, value: reserveBinding, in: 1 ... 65_536, step: 5)
+                        .accessibilityHint("Notifies once when free space falls below this amount on two samples in a row.")
+                    if settingsStore.settings.comfortReserveGiB != nil {
+                        Button("Use suggested reserve") {
+                            settingsStore.update { $0.comfortReserveGiB = nil }
+                        }
+                        .buttonStyle(.borderless)
+                        .font(.caption)
+                        .foregroundStyle(Color.accentColor)
+                    }
+                }
+
+                Stepper("Notify after \(settingsStore.settings.growthThresholdMiB) MiB growth", value: binding(\.growthThresholdMiB), in: 1 ... 1_048_576, step: 100)
+                Stepper("Sample every \(settingsStore.settings.sampleIntervalMinutes) minutes", value: binding(\.sampleIntervalMinutes), in: 1 ... 1_440)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private var scopesTab: some View {
+        Form {
+            Section {
+                pathList(settingsStore.settings.watchedRoots, remove: settingsStore.removeWatchedRoot)
+                HStack(spacing: 12) {
+                    Button {
+                        chooseFolder(for: .watched)
+                    } label: {
+                        Label("Add Review Scope…", systemImage: "plus.circle")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button("Browse by Path…") {
+                        folderSelection = .watched
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                .padding(.top, 2)
+            } header: {
+                Text("Review Scopes")
+            } footer: {
+                Text("Folders changed inside these scopes are journaled without scanning files. Other disk growth remains visible as unexplained whole-volume change.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                pathList(settingsStore.settings.excludedRoots, remove: settingsStore.removeExcludedRoot)
+                HStack(spacing: 12) {
+                    Button {
+                        chooseFolder(for: .excluded)
+                    } label: {
+                        Label("Add Excluded Folder…", systemImage: "plus.circle")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button("Browse by Path…") {
+                        folderSelection = .excluded
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                .padding(.top, 2)
+            } header: {
+                Text("Privacy Exclusions")
+            } footer: {
+                Text("Folders excluded from disk change monitoring and review suggestions.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                ForEach(CacheCatalog.entries) { entry in
+                    let path = entry.resolvedPath(home: NSHomeDirectory())
+                    Toggle(isOn: Binding(
+                        get: { settingsStore.settings.optedInCaches.contains(entry.id) },
+                        set: { optedIn in settingsStore.update { $0.setCache(entry.id, optedIn: optedIn) } }
+                    )) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(entry.name)
+                                .font(.body.weight(.medium))
+                            Text(path.map { ($0 as NSString).abbreviatingWithTildeInPath } ?? "Not found on this Mac")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                    }
+                    .toggleStyle(.switch)
+                    .disabled(path == nil)
+                    .accessibilityHint("Includes \(entry.name) in reviews you start. Its cleanup command is shown, never run.")
+                }
+            } header: {
+                Text("Cache Review")
+            } footer: {
+                Text("A cache is measured only in reviews you start, and only when turned on here. Disk Steward shows each tool's own cleanup command; it never runs one.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private var aiTab: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(alignment: .center) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("AI Access (read only)")
+                                .font(.headline)
+                            Text("Exposes a local read-only evidence socket for AI tools and coding assistants.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Toggle("Agent Access (read only)", isOn: Binding(
+                            get: { agentAccess.isEnabled },
+                            set: { enabled in agentAccess.setEnabled(enabled) }
+                        ))
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                    }
+
+                    HStack(spacing: 6) {
+                        Image(systemName: agentAccess.state.kind == .on ? "checkmark.circle.fill" : (agentAccess.state.kind == .degraded ? "exclamationmark.triangle.fill" : "circle.fill"))
+                            .font(.system(size: 10))
+                        Text(agentAccess.state.detail)
+                            .font(.caption)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        Capsule().fill((agentAccess.state.kind == .degraded ? Color.orange : (agentAccess.state.kind == .on ? Color.green : Color.secondary)).opacity(0.12))
+                    )
+                    .foregroundStyle(agentAccess.state.kind == .degraded ? Color.orange : (agentAccess.state.kind == .on ? Color.green : Color.secondary))
+                    .accessibilityLabel(agentAccess.state.accessibilitySummary)
+
+                    Text("Client setup below and Agent Access are separate: installing a client entry never turns access on.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(Color(nsColor: .controlBackgroundColor).opacity(0.55))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                )
+
+                AgentIntegrationsView(manager: agentIntegrations)
+            }
+            .padding(16)
+        }
+    }
+
+    private var storageTab: some View {
+        Form {
+            Section {
+                if let newest = legacyEvidence.newest {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.title2)
+                                .foregroundStyle(.secondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Legacy Evidence Store")
+                                    .font(.subheadline.weight(.semibold))
+                                Text("Migrated \(newest.migratedAt.formatted(date: .abbreviated, time: .omitted)) · \(ByteCountFormatter.string(fromByteCount: newest.databaseBytes, countStyle: .file))")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
+                        Text("File evidence from before \(newest.migratedAt.formatted(date: .abbreviated, time: .omitted)) (\(ByteCountFormatter.string(fromByteCount: newest.databaseBytes, countStyle: .file))) is kept unmodified for export or rollback. Nothing reads or adds to it.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        HStack(spacing: 12) {
+                            Button {
+                                onExportLegacy()
+                            } label: {
+                                Label("Export Legacy Evidence…", systemImage: "square.and.arrow.up")
+                            }
+                            .buttonStyle(.bordered)
+
+                            Button(role: .destructive) {
+                                pendingDeletion = newest
+                            } label: {
+                                Label("Delete Legacy Evidence…", systemImage: "trash")
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .padding(.top, 4)
+                    }
+                } else {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.seal")
+                            .foregroundStyle(.green)
+                        Text("No legacy evidence is kept.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                if let error = legacyEvidence.migrationError {
+                    Label("The old evidence store could not be moved to legacy/: \(error)", systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+
+                if let deletionError {
+                    Label(deletionError, systemImage: "exclamationmark.octagon.fill")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+            } header: {
+                Text("Legacy Evidence")
+            } footer: {
+                Text("Older evidence bundles are preserved in case you need to inspect or roll back previous scans.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
     private var startupDiskBytes: Int64 {
         (try? URL(fileURLWithPath: "/").resourceValues(forKeys: [.volumeTotalCapacityKey]).volumeTotalCapacity).map { Int64($0) } ?? 0
     }
@@ -172,11 +414,30 @@ struct MonitoringSettingsView: View {
 
     @ViewBuilder
     private func pathList(_ paths: [String], remove: @escaping (String) -> Void) -> some View {
-        ForEach(paths, id: \.self) { path in
-            HStack {
-                Text(path).lineLimit(1).truncationMode(.middle)
-                Spacer()
-                Button("Remove") { remove(path) }.buttonStyle(.borderless)
+        if paths.isEmpty {
+            Text("No folders configured.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        } else {
+            ForEach(paths, id: \.self) { path in
+                HStack(spacing: 8) {
+                    Image(systemName: "folder.fill")
+                        .foregroundStyle(.blue)
+                        .font(.system(size: 14))
+
+                    Text(path)
+                        .font(.system(.body, design: .monospaced))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+
+                    Spacer()
+
+                    Button("Remove") {
+                        remove(path)
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.red)
+                }
             }
         }
     }
@@ -191,6 +452,27 @@ struct MonitoringSettingsView: View {
         }
         return configuredPath.map { URL(fileURLWithPath: $0, isDirectory: true) }
             ?? FileManager.default.homeDirectoryForCurrentUser
+    }
+
+    @MainActor
+    private func chooseFolder(for purpose: FolderSelectionPurpose) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = false
+        panel.prompt = purpose.confirmationTitle
+        panel.message = purpose.title
+        panel.directoryURL = initialFolder(for: purpose)
+
+        if panel.runModal() == .OK, let url = panel.url {
+            switch purpose {
+            case .watched:
+                settingsStore.addWatchedRoot(url.standardizedFileURL)
+            case .excluded:
+                settingsStore.addExcludedRoot(url.standardizedFileURL)
+            }
+        }
     }
 }
 

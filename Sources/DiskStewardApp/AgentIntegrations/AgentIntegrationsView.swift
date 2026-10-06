@@ -216,13 +216,20 @@ struct AgentIntegrationsView: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Rescan") { Task { await manager.rescan() } }
-                    .accessibilityHint("Detects supported MCP clients again.")
+                Button {
+                    Task { await manager.rescan() }
+                } label: {
+                    Label("Rescan", systemImage: "arrow.clockwise")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .accessibilityHint("Detects supported MCP clients again.")
             }
 
-            ForEach(manager.orderedSnapshots) { snapshot in
-                integrationRow(snapshot)
-                if snapshot.id != manager.orderedSnapshots.last?.id { Divider() }
+            VStack(spacing: 6) {
+                ForEach(manager.orderedSnapshots) { snapshot in
+                    integrationRow(snapshot)
+                }
             }
 
             HStack {
@@ -248,7 +255,7 @@ struct AgentIntegrationsView: View {
             isSelected: manager.selectedClients.contains(snapshot.id),
             resultMessage: manager.results[snapshot.id]?.message
         )
-        HStack(alignment: .top, spacing: 10) {
+        HStack(alignment: .center, spacing: 10) {
             Toggle(isOn: Binding(
                 get: { manager.selectedClients.contains(snapshot.id) },
                 set: { manager.setSelected($0, clientID: snapshot.id) }
@@ -258,12 +265,33 @@ struct AgentIntegrationsView: View {
             .accessibilityLabel("Select \(presentation.title) for setup")
             .accessibilityValue(presentation.isSelected ? "Selected" : "Not selected")
 
-            Image(systemName: presentation.symbolName)
-                .foregroundStyle(statusColor(snapshot.state))
-                .frame(width: 18)
+            ZStack {
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(clientIconGradient(snapshot.id))
+                    .frame(width: 28, height: 28)
+                Image(systemName: clientIconName(snapshot.id))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(presentation.title).font(.body.weight(.medium))
+                HStack(spacing: 6) {
+                    Text(presentation.title).font(.body.weight(.medium))
+
+                    HStack(spacing: 3) {
+                        Image(systemName: presentation.symbolName)
+                            .font(.system(size: 9, weight: .semibold))
+                        Text(snapshot.state.rawValue.capitalized)
+                            .font(.system(size: 10, weight: .medium))
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        Capsule().fill(statusColor(snapshot.state).opacity(0.12))
+                    )
+                    .foregroundStyle(statusColor(snapshot.state))
+                }
+
                 Text(presentation.detail)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -275,12 +303,24 @@ struct AgentIntegrationsView: View {
             Spacer(minLength: 8)
             actions(for: snapshot)
         }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(presentation.isSelected ? Color.accentColor.opacity(0.08) : Color(nsColor: .controlBackgroundColor).opacity(0.5))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(presentation.isSelected ? Color.accentColor.opacity(0.3) : Color.primary.opacity(0.06), lineWidth: 1)
+        )
     }
 
     @ViewBuilder
     private func actions(for snapshot: AgentIntegrationSnapshot) -> some View {
         if snapshot.id == .manual {
             Button("Copy Config") { Task { await manager.perform(.setup, clientID: .manual) } }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
                 .accessibilityLabel("Copy manual MCP configuration")
         } else if manager.busyClients.contains(snapshot.id) {
             ProgressView().controlSize(.small).accessibilityLabel("Working on \(snapshot.descriptor.displayName)")
@@ -293,8 +333,36 @@ struct AgentIntegrationsView: View {
                     Task { await manager.perform(.remove, clientID: snapshot.id) }
                 }
             }
+            .menuStyle(.borderlessButton)
+            .controlSize(.small)
             .disabled(snapshot.state == .notDetected || snapshot.state == .unavailable)
             .accessibilityLabel("Actions for \(snapshot.descriptor.displayName)")
+        }
+    }
+
+    private func clientIconName(_ id: AgentClientID) -> String {
+        switch id {
+        case .codex: return "terminal"
+        case .claudeCode: return "sparkles"
+        case .cursor: return "chevron.right"
+        case .visualStudioCode: return "curlybraces"
+        case .claudeDesktop: return "macwindow"
+        case .manual: return "wrench.and.screwdriver"
+        }
+    }
+
+    private func clientIconGradient(_ id: AgentClientID) -> LinearGradient {
+        switch id {
+        case .codex:
+            return LinearGradient(colors: [Color.primary.opacity(0.8), Color.primary.opacity(0.5)], startPoint: .top, endPoint: .bottom)
+        case .claudeCode, .claudeDesktop:
+            return LinearGradient(colors: [Color.orange, Color.brown], startPoint: .top, endPoint: .bottom)
+        case .cursor:
+            return LinearGradient(colors: [Color.indigo, Color.purple], startPoint: .top, endPoint: .bottom)
+        case .visualStudioCode:
+            return LinearGradient(colors: [Color.blue, Color.cyan], startPoint: .top, endPoint: .bottom)
+        case .manual:
+            return LinearGradient(colors: [Color.gray, Color.secondary], startPoint: .top, endPoint: .bottom)
         }
     }
 

@@ -69,18 +69,13 @@ Declare an outputSchema for every tool, check every answer against it, return in
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-TASK-713-MCP`, `IMPACT-TASK-713-CONTRACTS`, `IMPACT-TASK-713-QUERY`, `IMPACT-TASK-713-BUILD`, `IMPACT-TASK-713-ASSURANCE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-BUILD`, `ASSET-CONTRACTS`, `ASSET-MCP`, `ASSET-QUERY`
 - Inspections: `INSPECT-TASK-713-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-BUILD lacks a sufficient passing inspection
-- Impacted asset ASSET-CONTRACTS lacks a sufficient passing inspection
-- Impacted asset ASSET-MCP lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-713-1 is stale
+- None
 
 

@@ -1,60 +1,148 @@
-# Homebrew publication
+# Homebrew Publication & Development AI Preset Guide
 
-The canonical cask is [`Casks/disk-steward.rb`](Casks/disk-steward.rb). It resolves the immutable, notarized Disk Steward 1.2.3 release archive and pins its SHA-256 digest.
+This document describes how to build, notarize, package, and publish **Disk Steward** via Homebrew, including how to configure its **Development AI** preset (Model Context Protocol / MCP server integration for Claude Code, Codex, Cursor, VS Code, and Claude Desktop).
 
-## Current behavior
+---
+
+## Architecture Overview
+
+Disk Steward packages two binaries:
+1. `Disk Steward.app` — The native macOS menu bar status board and storage review application.
+2. `disk-witness-mcp` — The bundled, read-only Model Context Protocol (MCP) server helper located at `Contents/Helpers/disk-witness-mcp`.
+
+When distributed via Homebrew Cask, the cask links `disk-witness-mcp` directly into Homebrew's binary directory (`/opt/homebrew/bin/disk-witness-mcp` or `/usr/local/bin/disk-witness-mcp`), making it immediately reachable in `$PATH` by coding assistants and terminal environments.
+
+---
+
+## 1. End-User Installation & AI Preset
+
+### Install via Homebrew Tap
 
 ```sh
+# 1. Trust and tap the repository
 brew trust KMerdan/disk-steward
 brew tap KMerdan/disk-steward
+
+# 2. Install the Cask
 brew install --cask disk-steward
 ```
 
-Current Homebrew releases require explicit trust before loading a third-party tap. Trust the KMerdan tap only if you intend to accept its current and future casks. The commands above install Disk Steward into `/Applications`.
+### Configure the Development AI Preset
 
-## Activate a release
+Once installed, the `disk-witness-mcp` tool is accessible in `$PATH`. You can configure all development AI assistants in either of two ways:
 
-For future releases, do not update the cask until the exact archive intended for Homebrew has passed the release gate.
+#### Option A: One-Click UI Preset (Recommended)
+1. Open **Disk Steward** from Applications.
+2. Open **Settings** (⌘,) → select the **AI & Agents** tab.
+3. Switch on **AI Access (read only)** to activate the local evidence socket.
+4. Under **Detected AI Clients**, select your assistants (Codex, Claude Code, Cursor, VS Code, Claude Desktop) and click **Set Up Selected**.
 
-1. Archive with the `DiskSteward-Release` scheme and export a Developer ID application.
-2. Verify every executable signature, hardened runtime, production entitlements, and secure timestamp with `Scripts/Distribution/verify`.
-3. Submit the exact distributable archive for Apple notarization, staple the accepted ticket, validate the staple, run Gatekeeper assessment, and launch-test the extracted app.
-4. Upload one immutable GitHub release asset, named `Disk-Steward-<version>.zip`.
-5. Calculate its SHA-256:
+#### Option B: Terminal CLI Automation
+Run the bundled preset configuration script:
+```sh
+# Automatically registers disk-steward MCP server with all detected AI environments
+./Scripts/Distribution/setup-ai-presets
 
+# Or dry-run to preview actions:
+./Scripts/Distribution/setup-ai-presets --dry-run
+```
+
+Or configure individual clients manually:
+* **Claude Code**:
+  ```sh
+  claude mcp add --scope user disk-steward -- $(brew --prefix)/bin/disk-witness-mcp
+  ```
+* **Codex CLI**:
+  ```sh
+  codex mcp add disk-steward -- $(brew --prefix)/bin/disk-witness-mcp
+  ```
+* **Cursor**: Add to `~/Library/Application Support/Cursor/User/globalStorage/cursor.mcp/config.json`:
+  ```json
+  {
+    "mcpServers": {
+      "disk-steward": {
+        "command": "/opt/homebrew/bin/disk-witness-mcp",
+        "args": []
+      }
+    }
+  }
+  ```
+* **VS Code (Cline / Continue / MCP)**: Add to `cline_mcp_settings.json`:
+  ```json
+  {
+    "mcpServers": {
+      "disk-steward": {
+        "command": "/opt/homebrew/bin/disk-witness-mcp",
+        "args": []
+      }
+    }
+  }
+  ```
+
+---
+
+## 2. Release & Publication Pipeline
+
+Follow these steps to produce an immutable, notarized release and publish it to the Homebrew tap:
+
+### Step 1: Create Release Archive
+```sh
+# Archive with Developer ID signing identity
+Scripts/Distribution/archive-release --release /tmp/DiskSteward-1.5.1.xcarchive
+```
+*(If building without Developer ID for local rehearsal testing, use `--unsigned-rehearsal`)*.
+
+### Step 2: Verify Signatures and Entitlements
+```sh
+Scripts/Distribution/verify-release /tmp/DiskSteward-1.5.1.xcarchive
+```
+
+### Step 3: Notarize with Apple
+Export the `.app` from the archive and zip it:
+```sh
+ditto -c -k --keepParent "/tmp/DiskSteward-1.5.1.xcarchive/Products/Applications/Disk Steward.app" "Disk-Steward-1.5.1.zip"
+
+# Submit for notarization via notarytool
+xcrun notarytool submit "Disk-Steward-1.5.1.zip" \
+  --keychain-profile "DeveloperID" \
+  --wait
+
+# Staple notarization ticket to the app bundle
+xcrun stapler staple "/tmp/DiskSteward-1.5.1.xcarchive/Products/Applications/Disk Steward.app"
+
+# Re-create final distributable zip with stapled ticket
+ditto -c -k --keepParent "/tmp/DiskSteward-1.5.1.xcarchive/Products/Applications/Disk Steward.app" "Disk-Steward-1.5.1.zip"
+```
+
+### Step 4: Calculate SHA-256 Checksum
+```sh
+shasum -a 256 "Disk-Steward-1.5.1.zip"
+```
+
+### Step 5: Upload GitHub Release Asset
+1. Tag and release on GitHub:
    ```sh
-   shasum -a 256 Disk-Steward-<version>.zip
+   git tag v1.5.1
+   git push origin v1.5.1
    ```
+2. Create a GitHub Release for `v1.5.1` at `https://github.com/KMerdan/disk_steward/releases`.
+3. Upload the notarized `Disk-Steward-1.5.1.zip` as a release binary asset.
 
-6. Replace the placeholder cask header with exact values:
-
+### Step 6: Update Homebrew Cask
+1. Update [`Packaging/Homebrew/Casks/disk-steward.rb`](Casks/disk-steward.rb) with the version and calculated SHA-256 checksum:
    ```ruby
-   version "<version>"
-   sha256 "<64-character SHA-256>"
-
-   url "https://github.com/KMerdan/disk_steward/releases/download/v#{version}/Disk-Steward-#{version}.zip"
+   version "1.5.1"
+   sha256 "<64-character-sha256-hash>"
    ```
-
-7. Remove `disable!`, copy the same reviewed cask to `KMerdan/homebrew-disk-steward`, and run:
-
+2. Copy `Casks/disk-steward.rb` into your tap repository (`KMerdan/homebrew-disk-steward`):
+   ```sh
+   cd ~/localGit/homebrew-disk-steward
+   cp /path/to/disk_steward/Packaging/Homebrew/Casks/disk-steward.rb Casks/disk-steward.rb
+   git commit -am "Update disk-steward to 1.5.1"
+   git push origin main
+   ```
+3. Validate Homebrew style and audit:
    ```sh
    brew style --cask Casks/disk-steward.rb
    brew audit --cask --strict disk-steward
-   brew install --cask disk-steward
-   brew uninstall --cask disk-steward
    ```
-
-8. Confirm a fresh tap/install resolves the immutable asset and that the installed app passes `spctl --assess --type execute --verbose=4`.
-
-An enabled cask must use an immutable release URL and the exact version and checksum above.
-
-## Why this is gated
-
-Apple's direct-distribution process expects Developer ID signing, hardened runtime, notarization, and testing of the file users actually receive. Homebrew casks identify that file by URL and checksum. The release gate joins those two trust chains rather than treating a successful build as a distributable release.
-
-- [Apple: Developer ID](https://developer.apple.com/developer-id/)
-- [Apple: Notarizing macOS software before distribution](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution)
-- [Apple: Packaging Mac software for distribution](https://developer.apple.com/documentation/xcode/packaging-mac-software-for-distribution)
-- [Homebrew: Cask Cookbook](https://docs.brew.sh/Cask-Cookbook)
-- [Homebrew: How to create and maintain a tap](https://docs.brew.sh/How-to-Create-and-Maintain-a-Tap)
-- [Homebrew: Tap trust](https://docs.brew.sh/Tap-Trust)

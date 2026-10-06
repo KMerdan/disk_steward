@@ -59,6 +59,16 @@ struct ReviewWindowView: View {
             }
             if let message = model.lastMessage { Text(message).font(.caption).foregroundStyle(.secondary) }
         }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.6))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(model.accessibilitySummary)
     }
@@ -119,21 +129,36 @@ private struct ItemDetail: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                Text(item.name).font(.title3.weight(.semibold))
-                Text(item.path).font(.caption.monospaced()).textSelection(.enabled).lineLimit(2).truncationMode(.middle)
-                Text("Reclaim estimate: \(ReviewWindowModel.bytes(item.allocatedBytes)) · \(item.evidence.rawValue), checked \(item.verifiedAt.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.callout)
+            VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.name).font(.title3.weight(.semibold))
+                    Text(item.path).font(.caption.monospaced()).textSelection(.enabled).lineLimit(2).truncationMode(.middle)
+                        .foregroundStyle(.secondary)
+                    Text("Reclaim estimate: \(ReviewWindowModel.bytes(item.allocatedBytes)) · \(item.evidence.rawValue), checked \(item.verifiedAt.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.callout)
+                        .padding(.top, 2)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color(nsColor: .controlBackgroundColor).opacity(0.5))
+                )
+
                 section("Origin", [item.origin])
                 section("Why it may be disposable", item.whyDisposable)
                 section("Reasons to keep it", item.reasonsToKeep)
                 section("Recreate", [item.rebuildCommand], monospaced: item.rebuildCommandKnown)
                 if let cleanup = item.cleanupCommand { section("The tool's own cleanup command (not run)", [cleanup], monospaced: true) }
-                HStack {
+
+                HStack(spacing: 8) {
                     Button("Reveal in Finder") { model.revealInFinder(item) }
+                        .buttonStyle(.bordered)
                     Button("Copy Review Brief") { model.copyReviewBrief(item) }
+                        .buttonStyle(.bordered)
                         .keyboardShortcut("c", modifiers: [.command, .shift])
                 }
+                .padding(.top, 4)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -143,7 +168,10 @@ private struct ItemDetail: View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
             ForEach(lines, id: \.self) { line in
-                Text(line).font(monospaced ? .callout.monospaced() : .callout).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+                Text(line)
+                    .font(monospaced ? .callout.monospaced() : .callout)
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

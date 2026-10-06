@@ -1,0 +1,119 @@
+{
+ "schema": "release-publication-v1",
+ "version": "1.5.1",
+ "build": "14",
+ "verifiedInputSHA256": "c4593708a2582a5baba907034664ca7e7a05b693ad52a7ff71be8d46aae0e925",
+ "supersedes": {
+  "build": "13",
+  "record": "release-1.5.1-13.json",
+  "reason": "GATE-719 found Test Connection reporting stale on every install (TASK-716); build 13 was never published."
+ },
+ "signedBuild": {
+  "status": "passed",
+  "sourceSHA256": "c4593708a2582a5baba907034664ca7e7a05b693ad52a7ff71be8d46aae0e925",
+  "binarySHA256": "28f3e1e1cf27aacdfed7f7f4f3257262ba48e41805d072515f2a39f6ca7980a7",
+  "helperSHA256": "ed5850098420ba6b581a01e56e41d2e5909b9485429dc7633aeeecb0b74e06e0",
+  "bundleSHA256": "21774548381c78bffbe8a0d91d3cfd16c58170bb8488e7aa661184a40acf663d",
+  "expectedDescendantStages": [
+   {
+    "stage": "archive",
+    "stopped": [
+     {
+      "pid": 86921,
+      "unique": 32133539,
+      "executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/ibtoold"
+     },
+     {
+      "pid": 86918,
+      "unique": 32133536,
+      "executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/ibtoold"
+     }
+    ]
+   }
+  ],
+  "signedSmoke": {
+   "activation_policy": "accessory",
+   "agent_access": "off",
+   "detail_sampling_paused": true,
+   "ipc_service": "off",
+   "isolated_smoke": true,
+   "left_click_surface": "status-board",
+   "menu_items": [
+    "Review Storage\u2026",
+    "Export Legacy Evidence",
+    "Settings\u2026",
+    "About Disk Steward",
+    "Quit Disk Steward"
+   ],
+   "notifications_enabled": false,
+   "right_click_surface": "utility-menu",
+   "settings_persistence": "ephemeral",
+   "snapshot_available": false,
+   "status": "launched",
+   "status_item_accessibility_label": "Disk Steward",
+   "support_directory": "/var/folders/n7/l0kdrhmn7lz3vt69sj82m8rm0000gn/T/ds-smoke-0F9D6CC0-B027-42D6-B027-F4E648E0807F",
+   "watched_root_count": 0
+  },
+  "helperProtocol": "passed"
+ },
+ "notarization": "uploaded once through the Xcode account route on 2026-10-05; -exportNotarizedApp reported 'processing' on attempts 1 and 2 and succeeded on attempt 3, about a minute after upload",
+ "steps": {
+  "upload-14": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/xcodebuild -exportArchive -archivePath DiskSteward-1.5.1-14.xcarchive -exportOptionsPlist options.plist -exportPath export"
+  },
+  "export-notarized-14-3": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/xcodebuild -exportNotarizedApp -archivePath DiskSteward-1.5.1-14.xcarchive -exportPath notarized-14"
+  },
+  "verify-notarized-14": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/bin/zsh Scripts/Distribution/verify-release Disk Steward.app"
+  },
+  "package-14": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/ditto -c -k --keepParent --sequesterRsrc Disk Steward.app Disk-Steward-1.5.1.zip"
+  },
+  "unpack-14": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/usr/bin/ditto -x -k Disk-Steward-1.5.1.zip unpacked-14"
+  },
+  "verify-unpacked-14": {
+   "passed": true,
+   "exitCode": 0,
+   "stopReason": null,
+   "cleanupVerified": true,
+   "command": "/bin/zsh Scripts/Distribution/verify-release Disk Steward.app"
+  }
+ },
+ "verifyUnpacked": "Release verification passed: universal architectures, Developer ID identity, Team ID, nested helper, hardened runtime, secure timestamps, production entitlements, notarization staple, Gatekeeper acceptance, and installed launch are valid.",
+ "sameCodeAsVerified": {
+  "unsignedAppSHA256": {
+   "archive": "e080461676f147e152cb7199e928133488adce28662a95f67dd8e79ef784a591",
+   "notarized": "e080461676f147e152cb7199e928133488adce28662a95f67dd8e79ef784a591"
+  },
+  "unsignedHelperSHA256": {
+   "archive": "ad869f0e60864a7995fd3127a9558f3f442e625e69f5b68caef8c8a98643f375",
+   "notarized": "ad869f0e60864a7995fd3127a9558f3f442e625e69f5b68caef8c8a98643f375"
+  }
+ },
+ "asset": {
+  "name": "Disk-Steward-1.5.1.zip",
+  "sha256": "db26f1fbdf4ce725eadbc25327a144b2e037eed6918d82015db68f79b7642935"
+ }
+}

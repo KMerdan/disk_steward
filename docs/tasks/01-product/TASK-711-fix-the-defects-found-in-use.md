@@ -67,18 +67,13 @@ Stop the path filter redacting ordinary names, honour explain_growth's limit for
 
 ## Brownfield Assurance
 
-- Status: `blocked`
+- Status: `covered`
 - Impact records: `IMPACT-TASK-711-QUERY`, `IMPACT-TASK-711-EXPORT`, `IMPACT-TASK-711-LIFECYCLE`, `IMPACT-TASK-711-ASSURANCE`, `IMPACT-TASK-711-STORE`
 - Affected assets: `ASSET-ASSURANCE`, `ASSET-EXPORT`, `ASSET-LIFECYCLE`, `ASSET-QUERY`, `ASSET-STORE`
 - Inspections: `INSPECT-TASK-711-1`
 
 ### Assurance Blockers
 
-- Impacted asset ASSET-ASSURANCE lacks a sufficient passing inspection
-- Impacted asset ASSET-EXPORT lacks a sufficient passing inspection
-- Impacted asset ASSET-LIFECYCLE lacks a sufficient passing inspection
-- Impacted asset ASSET-QUERY lacks a sufficient passing inspection
-- Impacted asset ASSET-STORE lacks a sufficient passing inspection
-- Required inspection INSPECT-TASK-711-1 is stale
+- None
 
 
