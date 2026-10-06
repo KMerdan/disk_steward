@@ -19,120 +19,138 @@ struct StatusBoardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Disk Steward", systemImage: "externaldrive.fill")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 8) {
+                // Header
+                HStack(alignment: .center) {
+                    Label("Disk Steward", systemImage: "externaldrive.fill")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
 
-                Spacer()
+                    Spacer()
 
-                Button {
-                    viewModel.refresh()
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 13, weight: .medium))
+                    Button {
+                        viewModel.refresh()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 12, weight: .medium))
+                    }
+                    .buttonStyle(.borderless)
+                    .disabled(!lifecycle.canRequestSample || lifecycle.isSampling)
+                    .accessibilityLabel("Refresh disk snapshot")
+                    .accessibilityHint("Reads current capacity without deleting or changing files.")
                 }
-                .buttonStyle(.borderless)
-                .disabled(!lifecycle.canRequestSample || lifecycle.isSampling)
-                .accessibilityLabel("Refresh disk snapshot")
-                .accessibilityHint("Reads current capacity without deleting or changing files.")
-            }
-            .padding(.horizontal, 2)
+                .padding(.horizontal, 2)
 
-            if viewModel.primaryVolume != nil {
-                CapacitySection(viewModel: viewModel)
-            } else if let error = viewModel.errorMessage {
-                UnavailableCapacitySection(message: error)
-            } else if lifecycle.isSampling {
-                StatusCard {
-                    HStack(spacing: 10) {
-                        ProgressView().controlSize(.small)
-                        Text("Reading volume capacity…")
+                // Capacity Section
+                if viewModel.primaryVolume != nil {
+                    CapacitySection(viewModel: viewModel)
+                } else if let error = viewModel.errorMessage {
+                    UnavailableCapacitySection(message: error)
+                } else if lifecycle.isSampling {
+                    StatusCard {
+                        HStack(spacing: 8) {
+                            ProgressView().controlSize(.small)
+                            Text("Reading volume capacity…")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 6)
+                    }
+                    .accessibilityLabel("Reading volume capacity")
+                } else {
+                    StatusCard {
+                        Text("No capacity sample yet")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 8)
                 }
-                .accessibilityLabel("Reading volume capacity")
-            } else {
-                StatusCard {
-                    Text("No capacity sample yet")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
 
-            GrowthSection(viewModel: viewModel)
+                // Growth Section
+                GrowthSection(viewModel: viewModel)
 
-            Text(viewModel.sampleStateSummary)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 2)
-
-            if let alert = lifecycle.latestGrowthAlert {
-                StatusCard {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Latest growth alert · this session")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text("\(alert.amountText) · \(ObservedVolume.name(for: alert.mountPath))")
-                            .font(.subheadline.weight(.semibold))
-                        Text(alert.intervalText)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .accessibilityElement(children: .combine)
-            }
-
-            MonitoringSection(
-                presentation: viewModel.presentation,
-                freshness: viewModel.evidenceFreshnessSummary,
-                storage: viewModel.evidenceStorageSummary,
-                action: performMonitoringAction
-            )
-
-            if let agentAccess {
-                AgentAccessRow(controller: agentAccess)
-            }
-
-            if let openReview = viewModel.openReview {
-                Button {
-                    openReview()
-                } label: {
-                    Label("Review Storage…", systemImage: "list.bullet.rectangle")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.regular)
-                .accessibilityHint("Opens a review of build output, environments and caches. Nothing is deleted.")
-            }
-
-            Button {
-                Task { _ = await viewModel.exportCurrentEvidence() }
-            } label: {
-                Label(viewModel.isExporting ? "Preparing Evidence…" : "Export Evidence…", systemImage: "square.and.arrow.up")
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
-            .disabled(viewModel.isExporting)
-            .accessibilityLabel("Export current disk evidence")
-            .accessibilityHint("Creates a metadata-only evidence bundle. It does not include file contents.")
-
-            if let message = viewModel.exportMessage {
-                Text(message)
+                // Sample state summary
+                Text(viewModel.sampleStateSummary)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
                     .padding(.horizontal, 2)
-                    .accessibilityLabel(message)
+
+                // Growth alert banner (if present)
+                if let alert = lifecycle.latestGrowthAlert {
+                    StatusCard {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.orange)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text("Latest growth alert · this session")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                Text("\(alert.amountText) · \(ObservedVolume.name(for: alert.mountPath))")
+                                    .font(.caption.weight(.semibold))
+                                Text(alert.intervalText)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+
+                // Monitoring Section
+                MonitoringSection(
+                    presentation: viewModel.presentation,
+                    freshness: viewModel.evidenceFreshnessSummary,
+                    storage: viewModel.evidenceStorageSummary,
+                    action: performMonitoringAction
+                )
+
+                // Agent Access Row
+                if let agentAccess {
+                    AgentAccessRow(controller: agentAccess)
+                }
+
+                // Actions: Review Storage & Export Evidence side by side
+                HStack(spacing: 8) {
+                    if let openReview = viewModel.openReview {
+                        Button {
+                            openReview()
+                        } label: {
+                            Label("Review Storage…", systemImage: "list.bullet.rectangle")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.regular)
+                        .accessibilityHint("Opens a review of build output, environments and caches. Nothing is deleted.")
+                    }
+
+                    Button {
+                        Task { _ = await viewModel.exportCurrentEvidence() }
+                    } label: {
+                        Label(viewModel.isExporting ? "Exporting…" : "Export Evidence…", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
+                    .disabled(viewModel.isExporting)
+                    .accessibilityLabel("Export current disk evidence")
+                    .accessibilityHint("Creates a metadata-only evidence bundle. It does not include file contents.")
+                }
+
+                if let message = viewModel.exportMessage {
+                    Text(message)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .padding(.horizontal, 2)
+                        .accessibilityLabel(message)
+                }
             }
+            .padding(12)
         }
-        .padding(14)
         .frame(width: 352)
+        .frame(maxHeight: 520)
         .background(.regularMaterial)
         .task { viewModel.prepareIfNeeded() }
     }
@@ -151,17 +169,18 @@ private struct StatusCard<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             content()
         }
-        .padding(10)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(Color(nsColor: .controlBackgroundColor).opacity(0.55))
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .stroke(Color.primary.opacity(0.06), lineWidth: 1)
         )
     }
@@ -172,16 +191,16 @@ private struct CapacitySection: View {
 
     var body: some View {
         StatusCard {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .center) {
                     Text(viewModel.volumeName)
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(.secondary)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
                     Spacer()
                     Text(viewModel.capacityHealth.rawValue)
                         .font(.system(size: 11, weight: .semibold))
                         .padding(.horizontal, 7)
-                        .padding(.vertical, 2.5)
+                        .padding(.vertical, 2)
                         .background(
                             Capsule().fill(healthColor.opacity(0.14))
                         )
@@ -189,30 +208,34 @@ private struct CapacitySection: View {
                         .accessibilityLabel("Capacity health: \(viewModel.capacityHealth.rawValue)")
                 }
 
-                Text(viewModel.availableSummary)
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                HStack(alignment: .firstTextBaseline) {
+                    Text(viewModel.availableSummary)
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Spacer()
+                    Text(viewModel.capacitySummary)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
 
                 ProgressView(value: viewModel.usedFraction)
                     .tint(healthColor)
                     .accessibilityLabel("Disk usage")
                     .accessibilityValue(viewModel.capacitySummary)
 
-                Text(viewModel.capacitySummary)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                if let reserve = viewModel.reserveSummary {
-                    Text(reserve)
-                        .font(.caption)
-                        .foregroundStyle(viewModel.belowReserve ? Color.orange : Color.secondary)
+                HStack {
+                    if let reserve = viewModel.reserveSummary {
+                        Text(reserve)
+                            .font(.caption2)
+                            .foregroundStyle(viewModel.belowReserve ? Color.orange : Color.secondary)
+                    }
+                    Spacer()
+                    Text(viewModel.capacityFreshnessSummary)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
-
-                Text(viewModel.capacityFreshnessSummary)
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
             }
         }
         .accessibilityElement(children: .contain)
@@ -255,22 +278,24 @@ private struct GrowthSection: View {
 
     var body: some View {
         StatusCard {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(growthColor.opacity(0.12))
-                        .frame(width: 28, height: 28)
+                        .frame(width: 24, height: 24)
                     Image(systemName: growthSymbol)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(growthColor)
                 }
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Recent change")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(viewModel.growthSummary)
-                        .font(.system(.body, design: .rounded, weight: .semibold))
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(spacing: 6) {
+                        Text("Recent change")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(viewModel.growthSummary)
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    }
                     Text(viewModel.growthDetail)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
@@ -303,30 +328,30 @@ private struct MonitoringSection: View {
 
     var body: some View {
         StatusCard {
-            HStack(alignment: .top, spacing: 10) {
+            HStack(alignment: .top, spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(statusColor.opacity(0.12))
-                        .frame(width: 28, height: 28)
+                        .frame(width: 24, height: 24)
                     Image(systemName: presentation.symbol)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(statusColor)
                 }
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(presentation.title)
                         .font(.subheadline.weight(.semibold))
                     Text(presentation.detail)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("\(freshness) · \(storage)")
+                    Text("\(storage) · \(freshness)")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
-                        .lineLimit(2)
+                        .lineLimit(1)
                 }
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 4)
 
                 Button(presentation.actionTitle) { action(presentation.action) }
                     .buttonStyle(.bordered)
@@ -362,25 +387,25 @@ private struct AgentAccessRow: View {
 
     var body: some View {
         StatusCard {
-            HStack(alignment: .center, spacing: 10) {
+            HStack(alignment: .center, spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.12))
-                        .frame(width: 28, height: 28)
+                        .frame(width: 24, height: 24)
                     Image(systemName: symbol)
-                        .font(.system(size: 13, weight: .semibold))
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(color)
                 }
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: 1) {
+                    HStack(spacing: 5) {
                         Text("Agent Access")
                             .font(.subheadline.weight(.semibold))
 
                         Text(controller.state.title)
                             .font(.system(size: 10, weight: .medium))
                             .padding(.horizontal, 5)
-                            .padding(.vertical, 1.5)
+                            .padding(.vertical, 1)
                             .background(
                                 Capsule().fill(color.opacity(0.12))
                             )
@@ -390,10 +415,10 @@ private struct AgentAccessRow: View {
                     Text(controller.state.detail)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(1)
                 }
 
-                Spacer(minLength: 8)
+                Spacer(minLength: 4)
 
                 Toggle("Agent Access", isOn: Binding(
                     get: { controller.isEnabled },
@@ -403,7 +428,7 @@ private struct AgentAccessRow: View {
                 ))
                 .labelsHidden()
                 .toggleStyle(.switch)
-                .controlSize(.small)
+                .controlSize(.mini)
                 .disabled(controller.state.kind == .starting)
                 .accessibilityLabel("Agent Access")
                 .accessibilityValue(controller.state.title)
